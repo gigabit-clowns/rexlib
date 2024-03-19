@@ -26,7 +26,7 @@ include(GNUInstallDirs)
 
 # Find requirements
 find_package(pybind11 REQUIRED)
-#find_package(xmipp4-core REQUIRED) # TODO
+find_package(xmipp4-core REQUIRED) # TODO
 
 # Register all source and header files
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
