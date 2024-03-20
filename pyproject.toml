@@ -60,6 +60,6 @@ Homepage = "https://github.com/gigabit-clowns/xmipp4-binding-python"
 [tool.scikit-build]
 cmake.version = ">=3.16"
 cmake.args = []
-cmake.define = {CMAKE_PREFIX_PATH="/home/oier/miniconda3/envs/xmipp4"} #TODO
+cmake.define = {}
 cmake.verbose = false
 cmake.build-type = "Release"
