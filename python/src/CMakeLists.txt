@@ -25,8 +25,13 @@ cmake_minimum_required(VERSION 3.16)
 include(GNUInstallDirs)
 
 # Find requirements
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
 find_package(pybind11 REQUIRED)
-find_package(xmipp4-core REQUIRED) # TODO
+
+# Find xmipp4-core
+if (NOT TARGET xmipp4-core)
+	find_package(xmipp4-core REQUIRED)
+endif()
 
 # Register all source and header files
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
@@ -39,25 +44,22 @@ set_target_properties(
 	${PROJECT_NAME} PROPERTIES 
 	SOVERSION ${PROJECT_VERSION}
 	CXX_STANDARD 20
-	DEFINE_SYMBOL "XMIPP4_BINDING_PYTHON_EXPORTING"
-)
-target_include_directories(
-	${PROJECT_NAME} 
-	PUBLIC 
-	${PROJECT_SOURCE_DIR}/include/
 )
 target_compile_definitions(
 	${PROJECT_NAME} 
 	PRIVATE
-	VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
-	VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
-	VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
+		VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
+		VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
+		VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
 )
 target_precompile_headers(
 	${PROJECT_NAME} 
-	PRIVATE
-	${HEADERS}
+	PRIVATE ${HEADERS}
 )
+#target_link_libraries(
+#	${PROJECT_NAME}
+#	PRIVATE xmipp4-core
+#)
 if(MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else()
@@ -68,9 +70,5 @@ endif()
 install(
 	TARGETS ${PROJECT_NAME} 
 	LIBRARY 
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
-install(
-	DIRECTORY ${PROJECT_SOURCE_DIR}/include/ 
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	DESTINATION ${Python_SITEARCH}
 )

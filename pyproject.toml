@@ -1,0 +1,65 @@
+#***************************************************************************
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307  USA
+#
+#  All comments concerning this program package may be sent to the
+#  e-mail address 'xmipp@cnb.csic.es'
+# ***************************************************************************
+
+[build-system]
+requires = ["scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "xmipp4-binding-python"
+version = "0.1.0"
+authors = [
+    { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
+]
+description = "Python binding for the xmipp4 framework"
+classifiers = [
+	"Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+	"Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Typing :: Typed",
+]
+
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+
+requires-python = ">=3.7"
+dependencies = [
+]
+
+[project.urls]
+Homepage = "https://github.com/gigabit-clowns/xmipp4-binding-python"
+
+[tool.scikit-build]
+cmake.version = ">=3.16"
+cmake.args = []
+cmake.define = {}
+cmake.verbose = false
+cmake.build-type = "Release"
