@@ -24,7 +24,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "xmipp4-binding-python"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
 ]
@@ -63,4 +63,3 @@ cmake.args = []
 cmake.define = {CMAKE_PREFIX_PATH="/home/oier/miniconda3/envs/xmipp4"} #TODO
 cmake.verbose = false
 cmake.build-type = "Release"
-logging.level = "DEBUG"
