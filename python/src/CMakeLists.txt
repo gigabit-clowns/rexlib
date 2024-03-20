@@ -56,10 +56,10 @@ target_precompile_headers(
 	${PROJECT_NAME} 
 	PRIVATE ${HEADERS}
 )
-#target_link_libraries(
-#	${PROJECT_NAME}
-#	PRIVATE xmipp4-core
-#)
+target_link_libraries(
+	${PROJECT_NAME}
+	PRIVATE xmipp4-core
+)
 if(MSVC)
 	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 else()
