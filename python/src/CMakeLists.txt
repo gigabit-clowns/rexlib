@@ -39,36 +39,37 @@ file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR
 file(GLOB_RECURSE INLINE_SOURCES ${PROJECT_SOURCE_DIR}/include/*.inl)
 
 # Create the shared library
-pybind11_add_module(${PROJECT_NAME} SHARED ${SOURCES})
+set(XMIPP4_PYTHON_MODULE_NAME xmipp4)
+pybind11_add_module(${XMIPP4_PYTHON_MODULE_NAME} SHARED ${SOURCES})
 set_target_properties(
-	${PROJECT_NAME} PROPERTIES 
+	${XMIPP4_PYTHON_MODULE_NAME} PROPERTIES 
 	SOVERSION ${PROJECT_VERSION}
 	CXX_STANDARD 20
 )
 target_compile_definitions(
-	${PROJECT_NAME} 
+	${XMIPP4_PYTHON_MODULE_NAME}
 	PRIVATE
 		VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
 		VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
 		VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
 )
 target_precompile_headers(
-	${PROJECT_NAME} 
+	${XMIPP4_PYTHON_MODULE_NAME}
 	PRIVATE ${HEADERS}
 )
 target_link_libraries(
-	${PROJECT_NAME}
+	${XMIPP4_PYTHON_MODULE_NAME}
 	PRIVATE xmipp4-core
 )
 if(MSVC)
-	target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+	target_compile_options(${XMIPP4_PYTHON_MODULE_NAME} PRIVATE /W4 /WX)
 else()
-	target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+	target_compile_options(${XMIPP4_PYTHON_MODULE_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 # Install library's binary files and headers
 install(
-	TARGETS ${PROJECT_NAME} 
+	TARGETS ${XMIPP4_PYTHON_MODULE_NAME}
 	LIBRARY 
 	DESTINATION ${Python_SITEARCH}
 )
