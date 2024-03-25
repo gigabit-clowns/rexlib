@@ -47,6 +47,9 @@ add_subdirectory(src)
 #endif()
 
 # Only build tests if it is the main project
-#if(BUILD_TESTING)
-#	add_subdirectory(tests)
-#endif()
+if(BUILD_TESTING)
+	find_package(Python COMPONENTS Interpreter REQUIRED)
+	add_test(NAME ${PROJECT_NAME}_tests
+			COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
+	)
+endif()
