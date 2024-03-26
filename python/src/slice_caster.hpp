@@ -33,33 +33,50 @@ template <typename Start, typename Stride, typename Stop>
 struct type_caster<xmipp4::slice<Start, Stride, Stop>>
 {
     using slice_type = xmipp4::slice<Start, Stride, Stop>;
-	PYBIND11_TYPE_CASTER(slice_type, const_name("slice"));
 
     bool load(handle src, bool) {
 		// Check for the correct type
-        if (!PySlice_Check(src.ptr())) {
+        if (!src)
+        {
+            return false;
+        }
+        if (!PySlice_Check(src.ptr())) 
+        {
             return false;
         }
 
         // Extract values
-        Py_ssize_t start, step, stop;
-        if (!PySlice_Unpack(src.ptr(), &start, &step, &stop))
+        Py_ssize_t start, stop, step;
+        if (PySlice_Unpack(src.ptr(), &start, &stop, &step))
         {
             return false;
         }
 
         // Write
-        value.set_start(start);
-        value.set_stride(step);
-        value.set_stop(stop);
+        value = xmipp4::make_slice(
+            start,
+            step,
+            stop
+        );
 
         return true;
     }
 
     template <typename T>
     static handle cast(T &&src, return_value_policy, handle) {
-		return slice(src.get_start(), src.get_stride(), src.get_stop());
+        const auto start_value = src.get_start();
+        const auto step_value = src.get_stride();
+        const auto stop_value = src.get_stop();
+        const auto is_stop_finite = 
+            src.get_stop() == static_cast<typename T::stop_type>(xmipp4::end);
+
+        PyObject* start = PyLong_FromLong(start_value);
+        PyObject* step = PyLong_FromLong(step_value);
+        PyObject* stop = is_stop_finite ? Py_None : PyLong_FromLong(stop_value);
+        return PySlice_New(start, stop, step);
     }
+
+	PYBIND11_TYPE_CASTER(slice_type, const_name("slice"));
 
 };
 
