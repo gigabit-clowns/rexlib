@@ -56,7 +56,7 @@ struct type_caster<xmipp4::slice<Start, Stride, Stop>>
         value = xmipp4::make_slice(
             start,
             step,
-            stop
+            stop // Python uses same convention for end signaling
         );
 
         return true;
@@ -67,12 +67,10 @@ struct type_caster<xmipp4::slice<Start, Stride, Stop>>
         const auto start_value = src.get_start();
         const auto step_value = src.get_stride();
         const auto stop_value = src.get_stop();
-        const auto is_stop_finite = 
-            src.get_stop() == static_cast<typename T::stop_type>(xmipp4::end);
 
         PyObject* start = PyLong_FromLong(start_value);
         PyObject* step = PyLong_FromLong(step_value);
-        PyObject* stop = is_stop_finite ? Py_None : PyLong_FromLong(stop_value);
+        PyObject* stop = stop_value==end() ? Py_None : PyLong_FromLong(stop_value);
         return PySlice_New(start, stop, step);
     }
 
