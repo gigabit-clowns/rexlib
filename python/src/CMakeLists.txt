@@ -45,36 +45,36 @@ file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR
 file(GLOB_RECURSE INLINE_SOURCES ${PROJECT_SOURCE_DIR}/include/*.inl)
 
 # Create the shared library
-pybind11_add_module(_iface SHARED ${SOURCES})
+pybind11_add_module(_core SHARED ${SOURCES})
 set_target_properties(
-	_iface PROPERTIES 
+	_core PROPERTIES 
 	SOVERSION ${PROJECT_VERSION}
 	CXX_STANDARD 20
 )
 target_compile_definitions(
-	_iface
+	_core
 	PRIVATE
 		VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
 		VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
 		VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
 )
 target_precompile_headers(
-	_iface
+	_core
 	PRIVATE ${HEADERS}
 )
 target_link_libraries(
-	_iface
+	_core
 	PRIVATE xmipp4-core
 )
 if(MSVC)
-	target_compile_options(_iface PRIVATE /W4 /WX)
+	target_compile_options(_core PRIVATE /W4 /WX)
 else()
-	target_compile_options(_iface PRIVATE -Wall -Wextra -Wpedantic)
+	target_compile_options(_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 # Install library's binary files and headers
 install(
-	TARGETS _iface
+	TARGETS _core
 	LIBRARY 
 	DESTINATION xmipp4
 )
