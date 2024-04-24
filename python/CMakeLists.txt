@@ -53,3 +53,9 @@ if(BUILD_TESTING)
 			COMMAND ${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
 	)
 endif()
+
+# Install python directory
+install(DIRECTORY
+	${CMAKE_CURRENT_SOURCE_DIR}/python/xmipp4/
+	DESTINATION xmipp4
+)

@@ -62,5 +62,3 @@ cmake.args = []
 cmake.define = {CMAKE_INSTALL_RPATH="$ORIGIN/../lib"}
 cmake.verbose = false
 cmake.build-type = "Release"
-
-wheel.packages = ["python/xmipp4"]
