@@ -22,11 +22,17 @@
 
 cmake_minimum_required(VERSION 3.16)
 
+include(FetchContent)
 include(GNUInstallDirs)
 
 # Find requirements
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
-find_package(pybind11 REQUIRED)
+FetchContent_Declare(
+	pybind11
+	GIT_REPOSITORY https://github.com/pybind/pybind11
+	GIT_TAG        v2.12.0
+)
+FetchContent_MakeAvailable(pybind11)
 
 # Find xmipp4-core
 if (NOT TARGET xmipp4-core)

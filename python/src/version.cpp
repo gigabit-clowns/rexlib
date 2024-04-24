@@ -20,7 +20,7 @@
 
 #include "version.hpp"
 
-#include <xmipp4/version.hpp>
+#include <xmipp4/core/version.hpp>
 
 #include <pybind11/operators.h>
 

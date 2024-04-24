@@ -24,7 +24,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "xmipp4-binding-python"
-version = "0.2.0"
+version = "0.1.0"
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
 ]
@@ -51,8 +51,7 @@ readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 
 requires-python = ">=3.7"
-dependencies = [
-]
+dependencies = ["xmipp4-core"]
 
 [project.urls]
 Homepage = "https://github.com/gigabit-clowns/xmipp4-binding-python"
@@ -63,3 +62,5 @@ cmake.args = []
 cmake.define = {}
 cmake.verbose = false
 cmake.build-type = "Release"
+
+wheel.packages = ["python/xmipp4"]

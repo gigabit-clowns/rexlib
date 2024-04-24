@@ -20,7 +20,7 @@
  *  e-mail address 'xmipp@cnb.csic.es'
  ***************************************************************************/
 
-#include <xmipp4/slice.hpp>
+#include <xmipp4/core/slice.hpp>
 
 #include <pybind11/pybind11.h>
 
