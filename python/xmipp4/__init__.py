@@ -17,3 +17,9 @@
 #  All comments concerning this program package may be sent to the
 #  e-mail address 'xmipp@cnb.csic.es'
 # ***************************************************************************
+
+from __future__ import annotations
+
+from ._iface import (__doc__, __version__, version)
+
+__all__ = ["__doc__", "__version__", "version"]
