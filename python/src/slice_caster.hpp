@@ -34,7 +34,8 @@ struct type_caster<xmipp4::slice<Start, Stride, Stop>>
 {
     using slice_type = xmipp4::slice<Start, Stride, Stop>;
 
-    bool load(handle src, bool) {
+    bool load(handle src, bool) 
+    {
 		// Check for the correct type
         if (!src)
         {
@@ -53,29 +54,58 @@ struct type_caster<xmipp4::slice<Start, Stride, Stop>>
         }
 
         // Write
-        value = xmipp4::make_slice(
-            start,
-            step,
-            stop // Python uses same convention for end signaling
-        );
+        if (step < 0)
+        {
+            throw std::runtime_error("Not implemented"); // FIXME
+        }
+        else
+        {
+            value = xmipp4::make_slice(
+                start,
+                stop, // Python uses same convention for end signaling
+                step
+            );
+        }
 
         return true;
     }
 
     template <typename T>
-    static handle cast(T &&src, return_value_policy, handle) {
+    static handle cast(T &&src, return_value_policy, handle) 
+    {
         const auto start_value = src.get_start();
-        const auto step_value = src.get_stride();
         const auto stop_value = src.get_stop();
+        const auto step_value = src.get_step();
 
-        PyObject* start = PyLong_FromLong(start_value);
-        PyObject* step = PyLong_FromLong(step_value);
-        PyObject* stop = stop_value==end() ? Py_None : PyLong_FromLong(stop_value);
+        PyObject* start;
+        PyObject* stop;
+        PyObject* step = select_default_or_value(step_value, xmipp4::adjacent());
+        if (step_value < 0)
+        {
+            throw std::runtime_error("Not implemented"); // FIXME
+        }
+        else
+        {
+            start = select_default_or_value(start_value, xmipp4::begin());
+            stop = select_default_or_value(stop_value, xmipp4::end());
+        }
+
         return PySlice_New(start, stop, step);
     }
 
 	PYBIND11_TYPE_CASTER(slice_type, const_name("slice"));
 
+private:
+    template <typename T, typename Q>
+    static PyObject* select_default_or_value(T value, Q default_value)
+    {
+        PyObject* result;
+        if(value == default_value)
+            result = Py_None;
+        else
+            result = PyLong_FromLong(value);
+        return result;
+    }
 };
 
 } // namespace detail
