@@ -3,7 +3,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include <xmipp4/core_version.hpp>
+#include <xmipp4/core/core_version.hpp>
 
 #include <sstream>
 

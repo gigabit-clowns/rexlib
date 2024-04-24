@@ -56,16 +56,15 @@ struct type_caster<xmipp4::slice<Start, Stride, Stop>>
         // Write
         if (step < 0)
         {
-            throw std::runtime_error("Not implemented"); // FIXME
+            start = reverse_index_from_python(start);
+            stop = reverse_index_from_python(stop);
         }
-        else
-        {
-            value = xmipp4::make_slice(
-                start,
-                stop, // Python uses same convention for end signaling
-                step
-            );
-        }
+
+        value = xmipp4::make_slice(
+            start,
+            stop, // Python uses same convention for end signaling
+            step
+        );
 
         return true;
     }
@@ -82,7 +81,8 @@ struct type_caster<xmipp4::slice<Start, Stride, Stop>>
         PyObject* step = select_default_or_value(step_value, xmipp4::adjacent());
         if (step_value < 0)
         {
-            throw std::runtime_error("Not implemented"); // FIXME
+            start = reverse_index_to_python(start_value, xmipp4::end());
+            stop = reverse_index_to_python(stop_value, xmipp4::begin());
         }
         else
         {
@@ -103,9 +103,35 @@ private:
         if(value == default_value)
             result = Py_None;
         else
-            result = PyLong_FromLong(value);
+            result = PyLong_FromLong(static_cast<Py_ssize_t>(value));
         return result;
     }
+
+    static Py_ssize_t reverse_index_from_python(Py_ssize_t value) noexcept
+    {
+        if (value == std::numeric_limits<Py_ssize_t>::max())
+            return value;
+
+        if (value == std::numeric_limits<Py_ssize_t>::min())
+            return 0;
+
+        if (value == -1)
+            return std::numeric_limits<Py_ssize_t>::max();
+
+        return value + 1;
+    }
+
+    template <typename T, typename Q>
+    static PyObject* reverse_index_to_python(T value, Q default_value)
+    {
+        PyObject* result;
+        if(value == default_value)
+            result = Py_None;
+        else
+            result = PyLong_FromLong(static_cast<Py_ssize_t>(value) - 1);
+        return result;
+    }
+    
 };
 
 } // namespace detail
