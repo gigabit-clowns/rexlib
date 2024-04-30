@@ -59,6 +59,6 @@ Homepage = "https://github.com/gigabit-clowns/xmipp4-binding-python"
 [tool.scikit-build]
 cmake.version = ">=3.16"
 cmake.args = []
-cmake.define = {CMAKE_INSTALL_RPATH="${ORIGIN}/../lib"}
+cmake.define = {}
 cmake.verbose = false
 cmake.build-type = "Release"
