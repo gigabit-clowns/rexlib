@@ -22,4 +22,7 @@ from __future__ import annotations
 
 from ._core import (__doc__, __version__, version)
 
+def get_binding_version() -> str:
+	return "0.1.0"
+
 __all__ = ["__doc__", "__version__", "version"]
