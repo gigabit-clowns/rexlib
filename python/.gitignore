@@ -33,3 +33,6 @@
 
 # Build artefacts
 build/*
+
+# Python Cache
+tests/__pycache__
