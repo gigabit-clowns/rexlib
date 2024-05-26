@@ -48,6 +48,7 @@ void register_version(pybind11::module_ &m)
 {
     py::class_<location>(m, "version")
         .def(py::init<py::str, py::int_>())
+        .def_property_readonly_static("NO_POSITION", [] (py::object /*self*/) { return location::no_position; })
         .def(py::self == py::self)
         .def(py::self != py::self)
         .def(py::self < py::self)
