@@ -48,7 +48,6 @@ file(GLOB_RECURSE INLINE_SOURCES ${PROJECT_SOURCE_DIR}/include/*.inl)
 pybind11_add_module(_core SHARED ${SOURCES})
 set_target_properties(
 	_core PROPERTIES 
-	SOVERSION ${PROJECT_VERSION}
 	CXX_STANDARD 20
 )
 target_compile_definitions(
@@ -71,6 +70,17 @@ if(MSVC)
 else()
 	target_compile_options(_core PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+
+# Combine with Python source
+set(PYTHON_SOURCE_DIR ${PROJECT_SOURCE_DIR}/python)
+add_custom_command(
+	TARGET _core POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PYTHON_SOURCE_DIR} ${PROJECT_BINARY_DIR}/python
+)
+add_custom_command(
+	TARGET _core POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_core> ${PROJECT_BINARY_DIR}/python/xmipp4
+)
 
 # Install library's binary files and headers
 install(
