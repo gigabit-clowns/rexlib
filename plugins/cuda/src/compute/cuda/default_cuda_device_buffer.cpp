@@ -113,5 +113,5 @@ const void* default_cuda_device_buffer::get_data() const noexcept
     return m_data;
 }
 
-} // namespace system
+} // namespace compute
 } // namespace xmipp4

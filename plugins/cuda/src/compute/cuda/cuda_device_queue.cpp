@@ -78,5 +78,5 @@ void cuda_device_queue::synchronize() const
     cudaStreamSynchronize(m_stream);
 }
 
-} // namespace system
+} // namespace compute
 } // namespace xmipp4
