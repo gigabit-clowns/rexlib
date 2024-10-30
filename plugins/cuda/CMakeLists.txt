@@ -42,7 +42,7 @@ if(NOT TARGET xmipp4-core)
 endif()
 
 # Find dependencies
-# TODO
+find_package(CUDAToolkit 10 REQUIRED)
 
 # Find all source and header files
 file(
@@ -72,6 +72,7 @@ target_link_libraries(
 	${PROJECT_NAME} 
 	PRIVATE
 		xmipp4-core
+		CUDA::cudart
 )
 
 # Set up clang-tidy
