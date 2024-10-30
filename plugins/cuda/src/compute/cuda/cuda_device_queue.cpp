@@ -38,7 +38,7 @@ namespace compute
 cuda_device_queue::cuda_device_queue(int device)
 {
     cudaSetDevice(device);
-    cudaStreamCreate(&m_stream);
+    cudaStreamCreate(&m_stream); // TODO check
 }
 
 cuda_device_queue::cuda_device_queue(cuda_device_queue &&other) noexcept
@@ -69,7 +69,7 @@ void cuda_device_queue::reset() noexcept
 {
     if (m_stream)
     {
-        cudaStreamDestroy(m_stream);
+        cudaStreamDestroy(m_stream);// TODO check
     }
 }
 

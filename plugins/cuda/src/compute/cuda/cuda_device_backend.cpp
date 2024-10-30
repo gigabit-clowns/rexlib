@@ -67,7 +67,7 @@ const std::string& cuda_device_backend::get_name() const noexcept
 version cuda_device_backend::get_version() const noexcept
 {
     int cuda_version;
-    cudaRuntimeGetVersion(&cuda_version);
+    cudaRuntimeGetVersion(&cuda_version); // TODO check
 
     const auto major_div = std::div(cuda_version, 1000);
     const auto minor_div = std::div(major_div.rem, 10);
@@ -107,7 +107,7 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
     if (result)
     {
         cudaDeviceProp prop;
-        cudaGetDeviceProperties(&prop, device);
+        cudaGetDeviceProperties(&prop, device); // TODO check
 
         // Convert
         const auto type = 
@@ -132,7 +132,7 @@ std::unique_ptr<device>
 cuda_device_backend::create_device(std::size_t id)
 {
     int count;
-    cudaGetDeviceCount(&count);
+    cudaGetDeviceCount(&count);// TODO check
     if (static_cast<int>(id) >= count)
     {
         throw std::invalid_argument("Invalid device id");
@@ -145,7 +145,7 @@ std::shared_ptr<device>
 cuda_device_backend::create_device_shared(std::size_t id)
 {
     int count;
-    cudaGetDeviceCount(&count);
+    cudaGetDeviceCount(&count); // TODO check
     if (static_cast<int>(id) >= count)
     {
         throw std::invalid_argument("Invalid device id");
@@ -159,5 +159,5 @@ bool cuda_device_backend::register_at(device_manager &manager)
     return manager.register_backend(std::make_unique<cuda_device_backend>());
 }
 
-} // namespace system
+} // namespace compute
 } // namespace xmipp4
