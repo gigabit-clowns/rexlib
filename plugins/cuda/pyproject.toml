@@ -1,0 +1,64 @@
+#***************************************************************************
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+# 02111-1307  USA
+#
+#  All comments concerning this program package may be sent to the
+#  e-mail address 'xmipp@cnb.csic.es'
+# ***************************************************************************
+
+[build-system]
+requires = ["scikit-build-core"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "xmipp4-compute-cuda"
+version = "0.1.0"
+authors = [
+    { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
+    { name = "Martín Salinas Antón", email = "ssalinasmartin@gmail.com" },
+    { name = "Mikel Iceta Tena", email = "m.icetatena@gmail.com" },
+]
+description = "CUDA compute backend for xmipp4"
+classifiers = [
+	"Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS",
+    "Operating System :: Windows",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: C++"
+]
+
+readme = {file = "README.md", content-type = "text/markdown"}
+license = {file = "LICENSE"}
+
+requires-python = ">=3.7"
+dependencies = [ 
+    "xmipp4-core==0.1"
+]
+
+[project.urls]
+Homepage = "https://github.com/gigabit-clowns/xmipp4-compute-cuda"
+
+[tool.scikit-build]
+experimental=true # For wheel.install-dir
+cmake.version = ">=3.16"
+cmake.args = []
+cmake.define = {}
+cmake.verbose = false
+cmake.build-type = "Release"
+
+wheel.install-dir="/data"
