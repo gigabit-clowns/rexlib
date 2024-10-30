@@ -107,6 +107,10 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
     {
         cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop, device);
+
+        // Convert
+        const auto type = 
+            prop.integrated ? device_type::integrated_gpu : device_type::gpu;
         auto location = pci_id_to_string(
             prop.pciBusID, 
             prop.pciDeviceID, 
@@ -116,7 +120,7 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
         // Write
         desc.set_name(std::string(prop.name));
         desc.set_physical_location(std::move(location));
-        desc.set_type(device_type::gpu); // Maybe not?
+        desc.set_type(type);
         desc.set_total_memory_bytes(prop.totalGlobalMem);
     }
 
