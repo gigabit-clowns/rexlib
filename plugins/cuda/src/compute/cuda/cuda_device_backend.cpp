@@ -28,8 +28,9 @@
 
 #include "cuda_device_backend.hpp"
 
+#include "cuda_device.hpp"
+
 #include <xmipp4/core/compute/device_manager.hpp>
-#include <xmipp4/core/compute/device.hpp> // TODO replace with cuda dev
 
 #include <numeric>
 #include <sstream>
@@ -130,13 +131,27 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
 std::unique_ptr<device> 
 cuda_device_backend::create_device(std::size_t id)
 {
-    return nullptr; // TODO
+    int count;
+    cudaGetDeviceCount(&count);
+    if (static_cast<int>(id) >= count)
+    {
+        throw std::invalid_argument("Invalid device id");
+    }
+
+    return std::make_unique<cuda_device>(id);
 }
 
 std::shared_ptr<device> 
 cuda_device_backend::create_device_shared(std::size_t id)
 {
-    return nullptr; // TODO
+    int count;
+    cudaGetDeviceCount(&count);
+    if (static_cast<int>(id) >= count)
+    {
+        throw std::invalid_argument("Invalid device id");
+    }
+
+    return std::make_shared<cuda_device>(id);
 }
 
 bool cuda_device_backend::register_at(device_manager &manager)
