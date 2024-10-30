@@ -58,8 +58,6 @@ public:
 private:
     static const std::string m_name;
 
-    int get_device_count();
-
 }; 
 
 } // namespace compute

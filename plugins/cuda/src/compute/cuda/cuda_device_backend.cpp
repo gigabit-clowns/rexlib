@@ -81,7 +81,9 @@ version cuda_device_backend::get_version() const noexcept
 
 bool cuda_device_backend::is_available() const noexcept
 {
-    return true;
+    int count = 0;
+    cudaGetDeviceCount(&count);
+    return count > 0;
 }
 
 void cuda_device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
