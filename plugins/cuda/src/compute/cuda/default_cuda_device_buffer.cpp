@@ -45,10 +45,13 @@ default_cuda_device_buffer::default_cuda_device_buffer() noexcept
 {
 }
 
-default_cuda_device_buffer::default_cuda_device_buffer(numerical_type type, std::size_t count)
+default_cuda_device_buffer::default_cuda_device_buffer(int device, 
+                                                       numerical_type type, 
+                                                       std::size_t count )
     : m_type(type)
     , m_count(count)
 {
+    cudaSetDevice(device);
     cudaMalloc(&m_data, count*get_size(type)); // TODO check
 }
 

@@ -40,7 +40,7 @@ class default_cuda_device_buffer
 {
 public:
     default_cuda_device_buffer() noexcept;
-    default_cuda_device_buffer(numerical_type type, std::size_t count);
+    default_cuda_device_buffer(int device, numerical_type type, std::size_t count);
     default_cuda_device_buffer(const default_cuda_device_buffer &other) = delete;
     default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept;
     virtual ~default_cuda_device_buffer();
