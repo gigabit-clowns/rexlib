@@ -32,6 +32,8 @@
 #include <xmipp4/core/compute/device.hpp> // TODO replace with cuda dev
 
 #include <numeric>
+#include <sstream>
+#include <iomanip>
 #include <cstdlib>
 
 #include <cuda_runtime.h>
@@ -42,6 +44,17 @@ namespace compute
 {
 
 const std::string cuda_device_backend::m_name = "cuda";
+
+static std::string pci_id_to_string(int bus_id, int device_id, int domain_id)
+{
+    std::ostringstream oss;
+
+    oss << std::setfill('0') << std::setw(2) << bus_id << ':';
+    oss << std::setfill('0') << std::setw(2) << device_id << '.';
+    oss << std::setw(1) << domain_id << '.';
+
+    return oss.str();
+}
 
 
 
@@ -94,10 +107,15 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
     {
         cudaDeviceProp prop;
         cudaGetDeviceProperties(&prop, device);
-        
+        auto location = pci_id_to_string(
+            prop.pciBusID, 
+            prop.pciDeviceID, 
+            prop.pciDomainID
+        );
+
         // Write
         desc.set_name(std::string(prop.name));
-        desc.set_physical_location("TODO");
+        desc.set_physical_location(std::move(location));
         desc.set_type(device_type::gpu); // Maybe not?
         desc.set_total_memory_bytes(prop.totalGlobalMem);
     }
