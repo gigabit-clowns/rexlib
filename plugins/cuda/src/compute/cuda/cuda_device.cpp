@@ -58,14 +58,14 @@ cuda_device::create_buffer(numerical_type type,
                            std::size_t count )
 {
     
-    return std::make_unique<default_cuda_device_buffer>(type, count);
+    return std::make_unique<default_cuda_device_buffer>(m_device, type, count);
 }
 
 std::shared_ptr<device_buffer> 
 cuda_device::create_buffer_shared(numerical_type type,
                                   std::size_t count) 
 {
-    return std::make_shared<default_cuda_device_buffer>(type, count);
+    return std::make_shared<default_cuda_device_buffer>(m_device, type, count);
 }
 
 } // namespace compute
