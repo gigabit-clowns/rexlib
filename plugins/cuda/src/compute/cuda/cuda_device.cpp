@@ -29,7 +29,7 @@
 #include "cuda_device.hpp"
 
 #include "cuda_device_queue.hpp"
-#include "default_cuda_device_buffer.hpp"
+#include "cuda_device_memory_pool.hpp"
 
 #include <memory>
 
@@ -53,19 +53,16 @@ std::shared_ptr<device_queue> cuda_device::create_queue_shared()
     return std::make_shared<cuda_device_queue>(m_device);
 }
 
-std::unique_ptr<device_buffer> 
-cuda_device::create_buffer(numerical_type type,
-                           std::size_t count )
+std::unique_ptr<device_memory_pool> 
+cuda_device::create_memory_pool() final
 {
-    
-    return std::make_unique<default_cuda_device_buffer>(m_device, type, count);
+    return std::make_unique<cuda_device_memory_pool>()
 }
 
-std::shared_ptr<device_buffer> 
-cuda_device::create_buffer_shared(numerical_type type,
-                                  std::size_t count) 
+std::shared_ptr<device_memory_pool> 
+cuda_device::create_memory_pool_shared() final
 {
-    return std::make_shared<default_cuda_device_buffer>(m_device, type, count);
+    return std::make_shared<cuda_device_memory_pool>()
 }
 
 } // namespace compute

@@ -52,10 +52,8 @@ public:
     std::unique_ptr<device_queue> create_queue() final;
     std::shared_ptr<device_queue> create_queue_shared() final;
 
-    std::unique_ptr<device_buffer> 
-    create_buffer(numerical_type type, std::size_t count) final;
-    std::shared_ptr<device_buffer> 
-    create_buffer_shared(numerical_type type, std::size_t count) final;
+    std::unique_ptr<device_memory_pool> create_memory_pool() final;
+    std::shared_ptr<device_memory_pool> create_memory_pool_shared() final;
 
 private:
     int m_device;
