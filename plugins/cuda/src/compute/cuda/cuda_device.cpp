@@ -54,15 +54,15 @@ std::shared_ptr<device_queue> cuda_device::create_queue_shared()
 }
 
 std::unique_ptr<device_memory_pool> 
-cuda_device::create_memory_pool() final
+cuda_device::create_memory_pool()
 {
-    return std::make_unique<cuda_device_memory_pool>()
+    return std::make_unique<cuda_device_memory_pool>();
 }
 
 std::shared_ptr<device_memory_pool> 
-cuda_device::create_memory_pool_shared() final
+cuda_device::create_memory_pool_shared()
 {
-    return std::make_shared<cuda_device_memory_pool>()
+    return std::make_shared<cuda_device_memory_pool>();
 }
 
 } // namespace compute
