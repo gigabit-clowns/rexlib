@@ -29,7 +29,8 @@
 #include "cuda_device.hpp"
 
 #include "cuda_device_queue.hpp"
-#include "cuda_device_memory_pool.hpp"
+#include "cuda_device_memory_allocator.hpp"
+#include "cuda_host_memory_allocator.hpp"
 
 #include <memory>
 
@@ -54,15 +55,27 @@ std::shared_ptr<device_queue> cuda_device::create_queue_shared()
 }
 
 std::unique_ptr<device_memory_pool> 
-cuda_device::create_memory_pool()
+cuda_device::create_device_memory_pool()
 {
     return std::make_unique<cuda_device_memory_pool>();
 }
 
 std::shared_ptr<device_memory_pool> 
-cuda_device::create_memory_pool_shared()
+cuda_device::create_device_memory_pool_shared()
 {
     return std::make_shared<cuda_device_memory_pool>();
+}
+
+std::unique_ptr<host_memory_pool> 
+cuda_device::create_host_memory_pool()
+{
+    return std::make_unique<cuda_host_memory_pool>();
+}
+
+std::shared_ptr<host_memory_pool> 
+cuda_device::create_host_memory_pool_shared()
+{
+    return std::make_shared<cuda_host_memory_pool>();
 }
 
 } // namespace compute

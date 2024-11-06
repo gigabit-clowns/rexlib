@@ -43,6 +43,8 @@ class cuda_device_queue final
     : public device_queue
 {
 public:
+    using handle = cudaStream_t;
+
     cuda_device_queue(int device);
     cuda_device_queue(const cuda_device_queue &other) = delete;
     cuda_device_queue(cuda_device_queue &&other) noexcept;
@@ -53,11 +55,12 @@ public:
 
     void swap(cuda_device_queue &other) noexcept;
     void reset() noexcept;
+    handle get_handle() noexcept;
 
     void synchronize() const final;
 
 private:
-    cudaStream_t m_stream;
+    handle m_stream;
 
 }; 
 

@@ -73,6 +73,12 @@ void cuda_device_queue::reset() noexcept
     }
 }
 
+
+cuda_device_queue::handle cuda_device_queue::get_handle() noexcept
+{
+    return m_stream;
+}
+
 void cuda_device_queue::synchronize() const
 {
     cudaStreamSynchronize(m_stream);

@@ -52,8 +52,15 @@ public:
     std::unique_ptr<device_queue> create_queue() final;
     std::shared_ptr<device_queue> create_queue_shared() final;
 
-    std::unique_ptr<device_memory_pool> create_memory_pool() final;
-    std::shared_ptr<device_memory_pool> create_memory_pool_shared() final;
+    std::unique_ptr<device_memory_allocator>
+    create_device_memory_allocator() final;
+    std::shared_ptr<device_memory_allocator>
+    create_device_memory_allocator_shared() final;
+
+    std::unique_ptr<host_memory_allocator>
+    create_host_memory_allocator() final;
+    std::shared_ptr<host_memory_allocator>
+    create_host_memory_allocator_shared() final;
 
 private:
     int m_device;
