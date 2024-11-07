@@ -59,19 +59,21 @@ void cuda_device_to_host_transfer::transfer(const device_buffer &src_buffer,
         throw std::invalid_argument("Both buffers must have the same element count");
     }
 
-    // TODO check return
+    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
     const auto element_size = get_size(src_buffer.get_type());
+
+    // TODO check return
     cudaMemcpyAsync(
         dst_buffer->get_data(),
         dynamic_cast<const cuda_device_buffer&>(src_buffer).get_data(),
         element_size*src_buffer.get_count(),
         cudaMemcpyDeviceToHost,
-        dynamic_cast<cuda_device_queue&>(queue).get_handle()
+        cuda_queue.get_handle()
     );
 
-    // TODO wait event
+    wait();
     m_current = dst_buffer;
-    // TODO record event
+    m_event.record(cuda_queue);
 }
 
 std::shared_ptr<host_buffer> 
@@ -114,7 +116,11 @@ cuda_device_to_host_transfer::transfer_nocopy(const std::shared_ptr<const device
 
 void cuda_device_to_host_transfer::wait()
 {
-    // TODO
+    if (m_current)
+    {
+        m_event.synchronize();
+        m_current = nullptr;
+    }
 }
 
 } // namespace compute

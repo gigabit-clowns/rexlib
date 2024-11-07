@@ -30,6 +30,8 @@
 
 #include <xmipp4/core/compute/device_to_host_transfer.hpp>
 
+#include "cuda_device_event.hpp"
+
 namespace xmipp4 
 {
 namespace compute
@@ -62,6 +64,7 @@ public:
     void wait() final;
 
 private:
+    cuda_device_event m_event;
     std::shared_ptr<const host_buffer> m_current;
 
 }; 
