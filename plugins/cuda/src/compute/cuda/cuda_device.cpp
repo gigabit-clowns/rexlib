@@ -31,6 +31,8 @@
 #include "cuda_device_queue.hpp"
 #include "cuda_device_memory_allocator.hpp"
 #include "cuda_host_memory_allocator.hpp"
+#include "cuda_device_to_host_transfer.hpp"
+#include "cuda_host_to_device_transfer.hpp"
 
 #include <memory>
 
@@ -54,28 +56,52 @@ std::shared_ptr<device_queue> cuda_device::create_queue_shared()
     return std::make_shared<cuda_device_queue>(m_device);
 }
 
-std::unique_ptr<device_memory_pool> 
-cuda_device::create_device_memory_pool()
+std::unique_ptr<device_memory_allocator> 
+cuda_device::create_device_memory_allocator()
 {
-    return std::make_unique<cuda_device_memory_pool>();
+    return std::make_unique<cuda_device_memory_allocator>();
 }
 
-std::shared_ptr<device_memory_pool> 
-cuda_device::create_device_memory_pool_shared()
+std::shared_ptr<device_memory_allocator> 
+cuda_device::create_device_memory_allocator_shared()
 {
-    return std::make_shared<cuda_device_memory_pool>();
+    return std::make_shared<cuda_device_memory_allocator>();
 }
 
-std::unique_ptr<host_memory_pool> 
-cuda_device::create_host_memory_pool()
+std::unique_ptr<host_memory_allocator> 
+cuda_device::create_host_memory_allocator()
 {
-    return std::make_unique<cuda_host_memory_pool>();
+    return std::make_unique<cuda_host_memory_allocator>();
 }
 
-std::shared_ptr<host_memory_pool> 
-cuda_device::create_host_memory_pool_shared()
+std::shared_ptr<host_memory_allocator> 
+cuda_device::create_host_memory_allocator_shared()
 {
-    return std::make_shared<cuda_host_memory_pool>();
+    return std::make_shared<cuda_host_memory_allocator>();
+}
+
+std::unique_ptr<host_to_device_transfer> 
+cuda_device::create_host_to_device_transfer()
+{
+    return std::make_unique<cuda_host_to_device_transfer>();
+}
+
+std::shared_ptr<host_to_device_transfer> 
+cuda_device::create_host_to_device_transfer_shared()
+{
+    return std::make_shared<cuda_host_to_device_transfer>();
+}
+
+std::unique_ptr<device_to_host_transfer> 
+cuda_device::create_device_to_host_transfer()
+{
+    return std::make_unique<cuda_device_to_host_transfer>();
+}
+
+std::shared_ptr<device_to_host_transfer> 
+cuda_device::create_device_to_host_transfer_shared()
+{
+    return std::make_shared<cuda_device_to_host_transfer>();
 }
 
 } // namespace compute
