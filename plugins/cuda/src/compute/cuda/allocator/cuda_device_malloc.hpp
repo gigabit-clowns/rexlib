@@ -37,6 +37,7 @@ namespace compute
  
 class cuda_device_malloc
 {
+public:
     explicit cuda_device_malloc(int device_id) noexcept;
     cuda_device_malloc(const cuda_device_malloc &other) = default;
     cuda_device_malloc(cuda_device_malloc &&other) = default;
@@ -45,8 +46,8 @@ class cuda_device_malloc
     cuda_device_malloc& operator=(const cuda_device_malloc &other) = default;
     cuda_device_malloc& operator=(cuda_device_malloc &&other) = default;
 
-    void* allocate(std::size_t size);
-    void deallocate(void* data, std::size_t size);
+    void* allocate(std::size_t size) const;
+    void deallocate(void* data, std::size_t size) const;
 
 private:
     int m_device_id;

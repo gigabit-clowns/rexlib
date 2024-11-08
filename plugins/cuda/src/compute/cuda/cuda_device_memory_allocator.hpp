@@ -28,6 +28,9 @@
  * 
  */
 
+#include "allocator/cuda_device_malloc.hpp"
+#include "allocator/cuda_memory_cache.hpp"
+
 #include <xmipp4/core/compute/device_memory_allocator.hpp>
 
 namespace xmipp4 
@@ -35,13 +38,15 @@ namespace xmipp4
 namespace compute
 {
 
-class cuda_device_buffer;
+class cuda_device_queue;
+
+
 
 class cuda_device_memory_allocator
     : public device_memory_allocator
 {
 public:
-    cuda_device_memory_allocator() = default;
+    explicit cuda_device_memory_allocator(int device_id);
     cuda_device_memory_allocator(const cuda_device_memory_allocator &other) = default;
     cuda_device_memory_allocator(cuda_device_memory_allocator &&other) = default;
     virtual ~cuda_device_memory_allocator() = default;
@@ -59,6 +64,15 @@ public:
     create_buffer_shared(numerical_type type, 
                          std::size_t count, 
                          device_queue &queue ) final;
+
+    const cuda_memory_block& allocate(numerical_type type, 
+                                      std::size_t count,
+                                      cuda_device_queue &queue );
+    void deallocate(const cuda_memory_block &block, cuda_device_queue &queue);
+
+private:
+    cuda_device_malloc m_allocator;
+    cuda_memory_cache m_cache; //TODO one per stream
 
 }; 
 

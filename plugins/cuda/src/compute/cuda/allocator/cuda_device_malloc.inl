@@ -42,7 +42,7 @@ cuda_device_malloc::cuda_device_malloc(int device_id) noexcept
 }
 
 inline
-void* cuda_device_malloc::allocate(std::size_t size)
+void* cuda_device_malloc::allocate(std::size_t size) const
 {
     void* result;
     cudaSetDevice(m_device_id); // TODO check
@@ -51,7 +51,7 @@ void* cuda_device_malloc::allocate(std::size_t size)
 }
 
 inline
-void cuda_device_malloc::deallocate(void* data, std::size_t)
+void cuda_device_malloc::deallocate(void* data, std::size_t) const
 {
     cudaFree(data); // TODO check
 }
