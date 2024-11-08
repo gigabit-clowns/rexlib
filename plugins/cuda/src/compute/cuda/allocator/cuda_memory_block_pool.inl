@@ -396,7 +396,7 @@ cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
 
         // Add block
         bool inserted;
-        std::tie(result, inserted) = m_blocks.emplace(
+        std::tie(result, inserted) = blocks.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(data, size),
             std::forward_as_tuple(null, null, true)
@@ -405,7 +405,7 @@ cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
     }
     else
     {
-        result = m_blocks.end();
+        result = blocks.end();
     }
 
     return result;
@@ -421,16 +421,16 @@ const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks,
 {
     const cuda_memory_block *result;
 
-    auto ite = find_suitable_block(m_blocks, size);
-    if (ite == m_blocks.end())
+    auto ite = find_suitable_block(blocks, size);
+    if (ite == blocks.end())
     {
         const auto create_size = memory::align_ceil(size, create_size_step);
-        ite = create_block(allocator, create_size);
+        ite = create_block(blocks, allocator, create_size);
     }
 
-    if (ite != m_blocks.cend())
+    if (ite != blocks.cend())
     {
-        ite = consider_partitioning_block(m_blocks, ite, size, partition_min_size);
+        ite = consider_partitioning_block(blocks, ite, size, partition_min_size);
         ite->second.set_free(false);
         result = &(ite->first);
     }
@@ -444,14 +444,9 @@ const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks,
 
 inline
 void deallocate_block(cuda_memory_block_pool &blocks, 
-                      const cuda_memory_block *block)
+                      const cuda_memory_block &block)
 {
-    if (!block)
-    {
-        throw std::invalid_argument("Block cannot be nullptr");
-    }
-
-    auto ite = blocks.find(*block);
+    auto ite = blocks.find(block);
     if (ite == blocks.end())
     {
         throw std::invalid_argument("Block does not belong to this pool");
@@ -470,7 +465,10 @@ void release_blocks(cuda_memory_block_pool &blocks, Allocator &allocator)
     {
         if(ite->second.is_free() && !is_partition(ite->second))
         {
-            allocator.deallocate(ite->first.get_data());
+            allocator.deallocate(
+                ite->first.get_data(),
+                ite->first.get_size()
+            );
             ite = blocks.erase(ite);
         }
         else

@@ -78,9 +78,9 @@ cuda_memory_cache::allocate(Allocator &allocator, std::size_t size)
 }
 
 inline
-void cuda_memory_cache::deallocate(const cuda_memory_block *block)
+void cuda_memory_cache::deallocate(const cuda_memory_block &block)
 {
-    if (block->get_size() < m_small_large_threshold)
+    if (block.get_size() < m_small_large_threshold)
     {
         deallocate_block(m_small_block_pool, block);
     }

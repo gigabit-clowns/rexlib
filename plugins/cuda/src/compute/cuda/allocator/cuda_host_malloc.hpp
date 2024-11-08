@@ -37,8 +37,8 @@ namespace compute
 
 struct cuda_host_malloc
 {
-    void* allocate(std::size_t size);
-    void deallocate(void* data, std::size_t size);
+    static void* allocate(std::size_t size);
+    static void deallocate(void* data, std::size_t size);
 };
 
 

@@ -128,7 +128,7 @@ const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks,
                                         std::size_t partition_min_size,
                                         std::size_t create_size_step );
 void deallocate_block(cuda_memory_block_pool &blocks, 
-                      const cuda_memory_block *block);
+                      const cuda_memory_block &block);
 
 
 template <typename Allocator>
