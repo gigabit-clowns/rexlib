@@ -48,8 +48,10 @@ public:
     cuda_memory_block_context(cuda_memory_block_context &&other) = default;
     ~cuda_memory_block_context() = default;
 
-    cuda_memory_block_context& operator=(const cuda_memory_block_context &other) = default;
-    cuda_memory_block_context& operator=(cuda_memory_block_context &&other) = default;
+    cuda_memory_block_context& 
+    operator=(const cuda_memory_block_context &other) = default;
+    cuda_memory_block_context& 
+    operator=(cuda_memory_block_context &&other) = default;
 
     void set_previous_block(iterator prev) noexcept;
     iterator get_previous_block() const noexcept;
