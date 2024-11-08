@@ -94,7 +94,7 @@ void cuda_device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
     ids.resize(count);
     std::iota(
         ids.begin(), ids.end(),
-        count
+        static_cast<std::size_t>(0)
     );
 }
 
