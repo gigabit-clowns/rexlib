@@ -60,6 +60,11 @@ private:
     std::size_t m_size_step;
     std::size_t m_request_size_step;
 
+    template <typename Allocator>
+    const cuda_memory_block* allocate_from_pool(cuda_memory_block &blocks, 
+                                                Allocator &allocator, 
+                                                std::size_t size,
+                                                std::size_t min_size );
 }; 
 
 } // namespace compute

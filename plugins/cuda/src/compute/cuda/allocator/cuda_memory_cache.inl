@@ -51,34 +51,17 @@ cuda_memory_cache::allocate(Allocator &allocator, std::size_t size)
     memory::align_ceil_inplace(size, m_size_step);
     if (size < m_small_large_threshold)
     {
-        result = allocate_block(
+        result = allocate_from_pool(
             m_small_block_pool, allocator, 
-            size, m_size_step, m_request_size_step
+            size, m_size_step
         );
-        if(!result)
-        {
-            release(allocator);
-            result = allocate_block(
-                m_small_block_pool, allocator, 
-                size, m_size_step, m_request_size_step
-            );
-        }
     }
     else
-    {
-
-        result = allocate_block(
+    {   
+        result = allocate_from_pool(
             m_large_block_pool, allocator, 
-            size, m_small_large_threshold, m_request_size_step
+            size, m_small_large_threshold
         );
-        if(!result)
-        {
-            release(allocator);
-            result = allocate_block(
-                m_large_block_pool, allocator, 
-                size, m_small_large_threshold, m_request_size_step
-            );
-        }
     }
 
     return result;
@@ -95,6 +78,35 @@ void cuda_memory_cache::deallocate(const cuda_memory_block *block)
     {
         deallocate_block(m_large_block_pool, block);
     }
+}
+
+
+
+template <typename Allocator>
+inline
+const cuda_memory_block* 
+cuda_memory_cache::allocate_from_pool(cuda_memory_block &blocks, 
+                                      Allocator &allocator, 
+                                      std::size_t size,
+                                      std::size_t min_size )
+{
+    const cuda_memory_block* result;
+
+    result = allocate_block(
+        blocks, allocator, 
+        size, min_size, m_request_size_step
+    );
+    if(!result)
+    {
+        // Retry after freeing space
+        release(allocator);
+        result = allocate_block(
+            m_small_block_pool, allocator, 
+            size, min_size, m_request_size_step
+        );
+    }
+
+    return result;
 }
 
 } // namespace compute
