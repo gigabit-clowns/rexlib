@@ -33,6 +33,16 @@ namespace xmipp4
 namespace compute
 {
 
+inline
+cuda_memory_cache::cuda_memory_cache(std::size_t small_large_threshold,
+                                     std::size_t size_step,
+                                     std::size_t request_step )
+    : m_small_large_threshold(small_large_threshold)
+    , m_size_step(size_step)
+    , m_request_size_step(request_step)
+{
+}
+
 template <typename Allocator>
 inline
 void cuda_memory_cache::release(Allocator &allocator)
@@ -85,7 +95,7 @@ void cuda_memory_cache::deallocate(const cuda_memory_block *block)
 template <typename Allocator>
 inline
 const cuda_memory_block* 
-cuda_memory_cache::allocate_from_pool(cuda_memory_block &blocks, 
+cuda_memory_cache::allocate_from_pool(cuda_memory_block_pool &blocks, 
                                       Allocator &allocator, 
                                       std::size_t size,
                                       std::size_t min_size )
@@ -96,6 +106,7 @@ cuda_memory_cache::allocate_from_pool(cuda_memory_block &blocks,
         blocks, allocator, 
         size, min_size, m_request_size_step
     );
+
     if(!result)
     {
         // Retry after freeing space
