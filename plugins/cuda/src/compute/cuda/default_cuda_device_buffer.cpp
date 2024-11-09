@@ -47,7 +47,6 @@ default_cuda_device_buffer::default_cuda_device_buffer() noexcept
     , m_count(0)
     , m_block(nullptr)
     , m_allocator(nullptr)
-    , m_queue(nullptr)
 {
 }
 
@@ -55,13 +54,11 @@ default_cuda_device_buffer
 ::default_cuda_device_buffer(numerical_type type,
                              std::size_t count,
                              const cuda_memory_block &block , 
-                             cuda_device_memory_allocator &allocator,
-                             cuda_device_queue &queue) noexcept
+                             cuda_device_memory_allocator &allocator ) noexcept
     : m_type(type)
     , m_count(count)
     , m_block(&block)
     , m_allocator(&allocator)
-    , m_queue(&queue)
 {
 }
 
@@ -71,14 +68,11 @@ default_cuda_device_buffer
     , m_count(other.m_count)
     , m_block(other.m_block)
     , m_allocator(other.m_allocator)
-    , m_queue(other.m_queue)
-    , m_events(std::move(other.m_events))
 {
     other.m_type = numerical_type::unknown;
     other.m_count = 0;
     other.m_block = nullptr;
     other.m_allocator = nullptr;
-    other.m_queue = nullptr;
 }
 
 default_cuda_device_buffer::~default_cuda_device_buffer()
@@ -100,9 +94,6 @@ void default_cuda_device_buffer::swap(default_cuda_device_buffer &other) noexcep
     std::swap(m_count, other.m_count);
     std::swap(m_block, other.m_block);
     std::swap(m_allocator, other.m_allocator);
-    std::swap(m_queue, other.m_queue);
-    std::swap(m_events, other.m_events);
-
 }
 
 void default_cuda_device_buffer::reset() noexcept
@@ -110,13 +101,12 @@ void default_cuda_device_buffer::reset() noexcept
     if (m_block)
     {
         XMIPP4_ASSERT(m_allocator);
-        m_allocator->deallocate(*m_block, *m_queue, std::move(m_events));
+        m_allocator->deallocate(*m_block); // TODO provide the queues
 
         m_type = numerical_type::unknown;
         m_count = 0UL;
         m_block = nullptr;
         m_allocator = nullptr;
-        m_queue = nullptr;
     }
 }
 
@@ -143,8 +133,7 @@ const void* default_cuda_device_buffer::get_data() const noexcept
 
 void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
 {
-    m_events.emplace_front();
-    m_events.front().record(queue);
+    // TODO
 }
 
 } // namespace compute

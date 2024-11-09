@@ -88,7 +88,8 @@ bool check_links(cuda_memory_block_pool::iterator ite) noexcept;
 
 cuda_memory_block_pool::iterator 
 find_suitable_block(cuda_memory_block_pool &blocks, 
-                    std::size_t size );
+                    std::size_t size,
+                    std::size_t queue_id );
 
 cuda_memory_block_pool::iterator 
 consider_partitioning_block(cuda_memory_block_pool &blocks,
@@ -119,12 +120,14 @@ merge_blocks(cuda_memory_block_pool &blocks,
 template <typename Allocator>
 cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
                                               Allocator& allocator,
-                                              std::size_t size );
+                                              std::size_t size,
+                                              std::size_t queue_id );
 
 template <typename Allocator>
 const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks, 
                                         const Allocator &allocator, 
                                         std::size_t size,
+                                        std::size_t queue_id,
                                         std::size_t partition_min_size,
                                         std::size_t create_size_step );
 void deallocate_block(cuda_memory_block_pool &blocks, 

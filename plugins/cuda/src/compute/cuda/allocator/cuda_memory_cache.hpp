@@ -52,7 +52,9 @@ public:
     template <typename Allocator>
     void release(Allocator &allocator);
     template <typename Allocator>
-    const cuda_memory_block* allocate(Allocator &allocator, std::size_t size);
+    const cuda_memory_block* allocate(Allocator &allocator, 
+                                      std::size_t size, 
+                                      std::size_t queue_id );
     void deallocate(const cuda_memory_block &block);
 
 private:
@@ -66,6 +68,7 @@ private:
     const cuda_memory_block* allocate_from_pool(cuda_memory_block_pool &blocks, 
                                                 Allocator &allocator, 
                                                 std::size_t size,
+                                                std::size_t queue_id,
                                                 std::size_t min_size );
 }; 
 

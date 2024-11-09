@@ -67,7 +67,7 @@ cuda_host_memory_allocator::allocate(numerical_type type, std::size_t count)
     std::lock_guard<std::mutex> lock(m_mutex);
 
     const auto size = count * get_size(type);
-    const auto *block = m_cache.allocate(m_allocator, size);
+    const auto *block = m_cache.allocate(m_allocator, size, 0);
 
     if(!block)
     {

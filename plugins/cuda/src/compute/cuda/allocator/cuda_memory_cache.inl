@@ -54,7 +54,9 @@ void cuda_memory_cache::release(Allocator &allocator)
 template <typename Allocator>
 inline
 const cuda_memory_block* 
-cuda_memory_cache::allocate(Allocator &allocator, std::size_t size)
+cuda_memory_cache::allocate(Allocator &allocator, 
+                            std::size_t size, 
+                            std::size_t queue_id ) 
 {
     const cuda_memory_block* result;
 
@@ -63,14 +65,14 @@ cuda_memory_cache::allocate(Allocator &allocator, std::size_t size)
     {
         result = allocate_from_pool(
             m_small_block_pool, allocator, 
-            size, m_size_step
+            size, queue_id, m_size_step
         );
     }
     else
     {   
         result = allocate_from_pool(
             m_large_block_pool, allocator, 
-            size, m_small_large_threshold
+            size, queue_id, m_small_large_threshold
         );
     }
 
@@ -98,13 +100,14 @@ const cuda_memory_block*
 cuda_memory_cache::allocate_from_pool(cuda_memory_block_pool &blocks, 
                                       Allocator &allocator, 
                                       std::size_t size,
+                                      std::size_t queue_id,
                                       std::size_t min_size )
 {
     const cuda_memory_block* result;
 
     result = allocate_block(
         blocks, allocator, 
-        size, min_size, m_request_size_step
+        size, queue_id, min_size, m_request_size_step
     );
 
     if(!result)
@@ -113,7 +116,7 @@ cuda_memory_cache::allocate_from_pool(cuda_memory_block_pool &blocks,
         release(allocator);
         result = allocate_block(
             m_small_block_pool, allocator, 
-            size, min_size, m_request_size_step
+            size, queue_id, min_size, m_request_size_step
         );
     }
 

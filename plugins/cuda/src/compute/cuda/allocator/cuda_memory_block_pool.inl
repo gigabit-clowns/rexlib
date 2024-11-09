@@ -203,22 +203,38 @@ bool check_links(cuda_memory_block_pool::iterator ite) noexcept
 inline
 cuda_memory_block_pool::iterator 
 find_suitable_block(cuda_memory_block_pool &blocks, 
-                    std::size_t size )
+                    std::size_t size,
+                    std::size_t queue_id )
 {
-    // Assuming that the blocks are ordered according to their sizes,
-    // find the first block that fits the requested size.
-    auto first = std::lower_bound(
+    // Assuming that the blocks are ordered according to their queue_id
+    // first and then their sizes, find a feasible range where all elements
+    // belong to a queue and have a size greater or equal to the requested
+    // size.
+    const auto first = std::lower_bound(
         blocks.begin(), blocks.end(),
-        size,
-        [] (const auto &item, std::size_t size) -> bool
+        std::make_tuple(queue_id, size),
+        [] (const auto &item, const auto &key2) -> bool
         {
-            return item.first.get_size() < size;
+            const auto &block = item.first;
+            const auto key1 = 
+                std::make_tuple(block.get_queue_id(), block.get_size());
+            return key1 < key2;
+        }
+    );
+
+    const auto last = std::upper_bound(
+        first, blocks.end(),
+        queue_id,
+        [] (std::size_t key1, const auto &item) -> bool
+        {
+            const auto key2 = item.first.get_queue_id();
+            return key1 < key2;
         }
     );
 
     // In the feasible range of blocks, find the smallest free block.
     auto ite = std::find_if(
-        first, blocks.end(),
+        first, last,
         [] (const auto &item) -> bool
         {
             return item.second.is_free();
@@ -251,6 +267,7 @@ partition_block(cuda_memory_block_pool &blocks,
                 std::size_t size,
                 std::size_t remaining )
 {
+    const auto queue_id = ite->first.get_queue_id();
     const auto prev = ite->second.get_previous_block();
     const auto next = ite->second.get_next_block();
     cuda_memory_block_pool::iterator first;
@@ -259,7 +276,11 @@ partition_block(cuda_memory_block_pool &blocks,
 
     std::tie(first, inserted) = blocks.emplace(
         std::piecewise_construct,
-        std::forward_as_tuple(ite->first.get_data(), size),
+        std::forward_as_tuple(
+            ite->first.get_data(), 
+            size, 
+            queue_id
+        ),
         std::forward_as_tuple(
             prev,
             cuda_memory_block_pool::iterator(), // To be set
@@ -269,7 +290,11 @@ partition_block(cuda_memory_block_pool &blocks,
     XMIPP4_ASSERT(inserted);
     std::tie(second, inserted) = blocks.emplace(
         std::piecewise_construct,
-        std::forward_as_tuple(offset(ite->first.get_data(), size), remaining),
+        std::forward_as_tuple(
+            offset(ite->first.get_data(), size), 
+            remaining, 
+            queue_id
+        ),
         std::forward_as_tuple(
             first,
             next,
@@ -326,6 +351,7 @@ merge_blocks(cuda_memory_block_pool &blocks,
     const auto data = first->first.get_data();
     const auto size = first->first.get_size() +
                       second->first.get_size() ;
+    const auto queue_id = first->first.get_queue_id();
     const auto prev = first->second.get_previous_block();
     const auto next = second->second.get_next_block();
 
@@ -333,7 +359,7 @@ merge_blocks(cuda_memory_block_pool &blocks,
     bool inserted;
     std::tie(ite, inserted) = blocks.emplace(
         std::piecewise_construct,
-        std::forward_as_tuple(data, size),
+        std::forward_as_tuple(data, size, queue_id),
         std::forward_as_tuple(prev, next, true)
     );
     XMIPP4_ASSERT(inserted);
@@ -358,6 +384,7 @@ merge_blocks(cuda_memory_block_pool &blocks,
     const auto size = first->first.get_size() +
                       second->first.get_size() +
                       third->first.get_size() ;
+    const auto queue_id = first->first.get_queue_id();
     const auto prev = first->second.get_previous_block();
     const auto next = third->second.get_next_block();
 
@@ -365,7 +392,7 @@ merge_blocks(cuda_memory_block_pool &blocks,
     bool inserted;
     std::tie(ite, inserted) = blocks.emplace(
         std::piecewise_construct,
-        std::forward_as_tuple(data, size),
+        std::forward_as_tuple(data, size, queue_id),
         std::forward_as_tuple(prev, next, true)
     );
     XMIPP4_ASSERT(inserted);
@@ -384,7 +411,8 @@ template <typename Allocator>
 inline
 cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
                                               Allocator& allocator,
-                                              std::size_t size )
+                                              std::size_t size,
+                                              std::size_t queue_id )
 {
     cuda_memory_block_pool::iterator result;
 
@@ -398,7 +426,7 @@ cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
         bool inserted;
         std::tie(result, inserted) = blocks.emplace(
             std::piecewise_construct,
-            std::forward_as_tuple(data, size),
+            std::forward_as_tuple(data, size, queue_id),
             std::forward_as_tuple(null, null, true)
         );
         XMIPP4_ASSERT(inserted);
@@ -416,16 +444,17 @@ inline
 const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks, 
                                         const Allocator &allocator, 
                                         std::size_t size,
+                                        std::size_t queue_id,
                                         std::size_t partition_min_size,
                                         std::size_t create_size_step )
 {
     const cuda_memory_block *result;
 
-    auto ite = find_suitable_block(blocks, size);
+    auto ite = find_suitable_block(blocks, size, queue_id);
     if (ite == blocks.end())
     {
         const auto create_size = memory::align_ceil(size, create_size_step);
-        ite = create_block(blocks, allocator, create_size);
+        ite = create_block(blocks, allocator, create_size, queue_id);
     }
 
     if (ite != blocks.cend())

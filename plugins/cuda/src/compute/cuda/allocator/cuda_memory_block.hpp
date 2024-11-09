@@ -38,7 +38,9 @@ namespace compute
 class cuda_memory_block
 {
 public:
-    cuda_memory_block(void *data, std::size_t size) noexcept;
+    cuda_memory_block(void *data, 
+                      std::size_t size, 
+                      std::size_t queue_id ) noexcept;
     cuda_memory_block(const cuda_memory_block &other) = default;
     cuda_memory_block(cuda_memory_block &&other) = default;
     ~cuda_memory_block() = default;
@@ -46,26 +48,21 @@ public:
     cuda_memory_block& operator=(const cuda_memory_block &other) = default;
     cuda_memory_block& operator=(cuda_memory_block &&other) = default;
 
-    void set_data(void *data) noexcept;
     void* get_data() const noexcept;
-
-    void set_size(std::size_t size) noexcept;
     std::size_t get_size() const noexcept;
+    std::size_t get_queue_id() const noexcept;
 
 private:
     void *m_data;
     std::size_t m_size;
-
+    std::size_t m_queue_id;
+        
 }; 
 
 struct cuda_memory_block_size_less
 {
     bool operator()(const cuda_memory_block &lhs, 
                     const cuda_memory_block &rhs ) const noexcept;
-    bool operator()(std::size_t lhs, 
-                    const cuda_memory_block &rhs ) const noexcept;
-    bool operator()(const cuda_memory_block &lhs, 
-                    std::size_t rhs ) const noexcept;
 };
 
 } // namespace compute

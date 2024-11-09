@@ -74,16 +74,19 @@ public:
     const cuda_memory_block& allocate(numerical_type type, 
                                       std::size_t count,
                                       cuda_device_queue &queue );
-    void deallocate(const cuda_memory_block &block, 
-                    cuda_device_queue &queue,
-                    event_list pending_free );
+    void deallocate(const cuda_memory_block &block);
 
 private:
     cuda_device_malloc m_allocator;
-    cuda_memory_cache m_cache; //TODO one per stream
+    cuda_memory_cache m_cache;
+    event_list m_event_pool;
     std::map<cuda_memory_block, event_list, cuda_memory_block_size_less> m_pending_free;
+    
 
     void process_pending_free();
+    void record_events(const cuda_memory_block &block,
+                       std::vector<std::reference_wrapper<cuda_device_queue>> queues);
+    void pop_completed_events(event_list &events);
 
 }; 
 

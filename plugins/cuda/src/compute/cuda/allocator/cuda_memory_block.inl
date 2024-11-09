@@ -34,28 +34,19 @@ namespace compute
 {
 
 inline
-cuda_memory_block::cuda_memory_block(void *data, std::size_t size) noexcept
+cuda_memory_block::cuda_memory_block(void *data, 
+                                     std::size_t size, 
+                                     std::size_t queue_id ) noexcept
     : m_data(data)
     , m_size(size)
+    , m_queue_id(queue_id)
 {
-}
-
-inline
-void cuda_memory_block::set_data(void *data) noexcept
-{
-    m_data = data;
 }
 
 inline
 void* cuda_memory_block::get_data() const noexcept
 {
     return m_data;
-}
-
-inline
-void cuda_memory_block::set_size(std::size_t size) noexcept
-{
-    m_size = size;
 }
 
 inline
@@ -72,34 +63,31 @@ bool cuda_memory_block_size_less::operator()(const cuda_memory_block &lhs,
 {
     bool result;
 
-    if (lhs.get_size() < rhs.get_size())
+    if (lhs.get_queue_id() < rhs.get_queue_id())
     {
         result = true;
     }
-    else if (lhs.get_size() == rhs.get_size())
+    else if (lhs.get_queue_id() == rhs.get_queue_id())
     {
-        result = lhs.get_data() < rhs.get_data();
+        if (lhs.get_size() < rhs.get_size())
+        {
+            result = true;
+        }
+        else if (lhs.get_size() == rhs.get_size())
+        {
+            result = lhs.get_data() < rhs.get_data();
+        }
+        else // lhs.get_size() > rhs.get_size()
+        {
+            result = false;
+        }
     }
-    else // lhs.get_size() > rhs.get_size()
+    else // lhs.get_queue_id() > rhs.get_queue_id()
     {
         result = false;
     }
 
     return result;
-}
-
-inline
-bool cuda_memory_block_size_less::operator()(std::size_t lhs, 
-                                             const cuda_memory_block &rhs ) const noexcept
-{
-    return lhs < rhs.get_size();
-}
-
-inline
-bool cuda_memory_block_size_less::operator()(const cuda_memory_block &lhs, 
-                                             std::size_t rhs ) const noexcept
-{
-    return lhs.get_size() < rhs;
 }
 
 } // namespace compute
