@@ -91,10 +91,9 @@ cuda_device_memory_allocator::allocate(numerical_type type,
     return *block;
 }
 
-void cuda_device_memory_allocator::deallocate(const cuda_memory_block &block)
+void cuda_device_memory_allocator::deallocate(const cuda_memory_block &block,
+                                              const queue_set &queues )
 {
-    std::vector<std::reference_wrapper<cuda_device_queue>> queues; // TODO
-
     if (queues.empty())
     {
         m_cache.deallocate(block);
@@ -130,25 +129,38 @@ void cuda_device_memory_allocator::process_pending_free()
 
 void cuda_device_memory_allocator
 ::record_events(const cuda_memory_block &block,
-                std::vector<std::reference_wrapper<cuda_device_queue>> queues)
+                const queue_set &queues)
 {
-    auto& events = m_pending_free[block]; // TODO optimize
-    for (cuda_device_queue &queue : queues)
-    {
-        // Add a new event to the front
-        if (m_event_pool.empty())
-        {
-            events.emplace_front();
-        }
-        else
-        {
-            events.splice_after(
-                events.cbefore_begin(),
-                m_event_pool, m_event_pool.cbefore_begin()
-            );
-        }
+    bool inserted;
+    decltype(m_pending_free)::iterator ite;
+    std::tie(ite, inserted) = m_pending_free.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(block),
+        std::forward_as_tuple()
+    );
+    XMIPP4_ASSERT(inserted);
 
-        events.front().record(queue);
+    auto& events = ite->second;
+    const std::hash<cudaStream_t> hasher;
+    for (cuda_device_queue *queue : queues)
+    {
+        if (queue && hasher(queue->get_handle()) != block.get_queue_id())
+        {
+            // Add a new event to the front
+            if (m_event_pool.empty())
+            {
+                events.emplace_front();
+            }
+            else
+            {
+                events.splice_after(
+                    events.cbefore_begin(),
+                    m_event_pool, m_event_pool.cbefore_begin()
+                );
+            }
+
+            events.front().record(*queue);
+        }
     }
 }
 
@@ -172,7 +184,6 @@ void cuda_device_memory_allocator::pop_completed_events(event_list &events)
         }
     }
 }
-
 
 } // namespace compute
 } // namespace xmipp4

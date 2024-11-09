@@ -55,6 +55,14 @@ std::size_t cuda_memory_block::get_size() const noexcept
     return m_size;
 }
 
+inline
+std::size_t cuda_memory_block::get_queue_id() const noexcept
+{
+    return m_queue_id;
+}
+
+
+
 
 
 inline

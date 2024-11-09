@@ -241,7 +241,7 @@ find_suitable_block(cuda_memory_block_pool &blocks,
         }
     );
 
-    return ite;
+    return ite != last ? ite : blocks.end();
 }
 
 inline

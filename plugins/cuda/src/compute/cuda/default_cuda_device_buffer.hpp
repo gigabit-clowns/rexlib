@@ -30,6 +30,8 @@
 
 #include "cuda_device_buffer.hpp"
 
+#include <set>
+
 namespace xmipp4 
 {
 namespace compute
@@ -73,7 +75,7 @@ private:
     std::size_t m_count;
     const cuda_memory_block *m_block;
     cuda_device_memory_allocator *m_allocator;
-    // TODO queue set
+    std::set<cuda_device_queue*> m_queues;
 
 }; 
 
