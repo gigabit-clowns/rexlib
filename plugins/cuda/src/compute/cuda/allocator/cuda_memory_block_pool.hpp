@@ -41,7 +41,7 @@ class cuda_memory_block_context;
 
 using cuda_memory_block_pool = std::map<cuda_memory_block, 
                                         cuda_memory_block_context, 
-                                        cuda_memory_block_size_less >;
+                                        cuda_memory_block_less >;
 
 class cuda_memory_block_context
 {

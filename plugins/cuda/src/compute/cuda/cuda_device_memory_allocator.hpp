@@ -84,7 +84,7 @@ private:
     cuda_device_malloc m_allocator;
     cuda_memory_cache m_cache;
     event_list m_event_pool;
-    std::map<cuda_memory_block, event_list, cuda_memory_block_size_less> m_pending_free;
+    std::map<cuda_memory_block, event_list, cuda_memory_block_less> m_pending_free;
     
 
     void process_pending_free();

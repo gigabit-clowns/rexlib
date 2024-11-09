@@ -39,9 +39,10 @@ namespace compute
 class cuda_memory_cache
 {
 public:
-    explicit cuda_memory_cache(std::size_t small_large_threshold = (1U << 20),
-                               std::size_t size_step = 512,
-                               std::size_t request_step = (2U << 20));
+    explicit 
+    cuda_memory_cache(std::size_t small_large_threshold = (1U << 20),
+                      std::size_t size_step = 512,
+                      std::size_t request_step = (2U << 20));
     cuda_memory_cache(const cuda_memory_cache &other) = default;
     cuda_memory_cache(cuda_memory_cache &&other) = default;
     ~cuda_memory_cache() = default;

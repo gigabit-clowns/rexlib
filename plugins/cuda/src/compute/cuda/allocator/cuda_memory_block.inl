@@ -66,8 +66,8 @@ std::size_t cuda_memory_block::get_queue_id() const noexcept
 
 
 inline
-bool cuda_memory_block_size_less::operator()(const cuda_memory_block &lhs, 
-                                             const cuda_memory_block &rhs ) const noexcept
+bool cuda_memory_block_less::operator()(const cuda_memory_block &lhs, 
+                                        const cuda_memory_block &rhs ) const noexcept
 {
     bool result;
 
