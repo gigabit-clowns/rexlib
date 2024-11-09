@@ -29,6 +29,7 @@
 #include "cuda_device_memory_allocator.hpp"
 
 #include "cuda_device_queue.hpp"
+#include "cuda_device_event.hpp"
 #include "default_cuda_device_buffer.hpp"
 
 #include <stdexcept>
@@ -76,6 +77,8 @@ cuda_device_memory_allocator::allocate(numerical_type type,
                                        std::size_t count,
                                        cuda_device_queue& )
 {
+    process_pending_free();
+
     const auto size = count * get_size(type);
     const auto *block = m_cache.allocate(m_allocator, size);
 
@@ -88,9 +91,44 @@ cuda_device_memory_allocator::allocate(numerical_type type,
 }
 
 void cuda_device_memory_allocator::deallocate(const cuda_memory_block &block,
-                                              cuda_device_queue& )
+                                              cuda_device_queue&,
+                                              event_list pending_free )
 {
-    m_cache.deallocate(block);
+    if(pending_free.empty())
+    {
+        m_cache.deallocate(block);
+    }
+    else
+    {
+        bool inserted;
+        std::tie(std::ignore, inserted) = m_pending_free.emplace(
+            block, std::move(pending_free)
+        );
+        XMIPP4_ASSERT(inserted);
+    }
+}
+
+
+void cuda_device_memory_allocator::process_pending_free()
+{
+    auto ite = m_pending_free.begin();
+    while (ite != m_pending_free.end())
+    {
+        // Remove all completed events
+        auto &events = ite->second;
+        events.remove_if(std::mem_fn(&cuda_device_event::query));
+
+        // Return block if completed
+        if(events.empty())
+        {
+            m_cache.deallocate(ite->first);
+            ite = m_pending_free.erase(ite);
+        }
+        else
+        {
+            ++ite;
+        }
+    }
 }
 
 } // namespace compute

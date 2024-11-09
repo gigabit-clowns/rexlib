@@ -30,6 +30,7 @@
 
 #include "allocator/cuda_memory_block.hpp"
 #include "cuda_device_memory_allocator.hpp"
+#include "cuda_device_event.hpp"
 
 #include <xmipp4/core/platform/assert.hpp>
 
@@ -71,6 +72,7 @@ default_cuda_device_buffer
     , m_block(other.m_block)
     , m_allocator(other.m_allocator)
     , m_queue(other.m_queue)
+    , m_events(std::move(other.m_events))
 {
     other.m_type = numerical_type::unknown;
     other.m_count = 0;
@@ -99,6 +101,7 @@ void default_cuda_device_buffer::swap(default_cuda_device_buffer &other) noexcep
     std::swap(m_block, other.m_block);
     std::swap(m_allocator, other.m_allocator);
     std::swap(m_queue, other.m_queue);
+    std::swap(m_events, other.m_events);
 
 }
 
@@ -107,7 +110,7 @@ void default_cuda_device_buffer::reset() noexcept
     if (m_block)
     {
         XMIPP4_ASSERT(m_allocator);
-        m_allocator->deallocate(*m_block, *m_queue);
+        m_allocator->deallocate(*m_block, *m_queue, std::move(m_events));
 
         m_type = numerical_type::unknown;
         m_count = 0UL;
@@ -135,6 +138,13 @@ void* default_cuda_device_buffer::get_data() noexcept
 const void* default_cuda_device_buffer::get_data() const noexcept
 {
     return m_block ? m_block->get_data() : nullptr;
+}
+
+
+void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
+{
+    m_events.emplace_front();
+    m_events.front().record(queue);
 }
 
 } // namespace compute

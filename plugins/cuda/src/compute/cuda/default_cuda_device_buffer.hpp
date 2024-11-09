@@ -30,6 +30,8 @@
 
 #include "cuda_device_buffer.hpp"
 
+#include <forward_list>
+
 namespace xmipp4 
 {
 namespace compute
@@ -38,6 +40,7 @@ namespace compute
 class cuda_memory_block;
 class cuda_device_memory_allocator;
 class cuda_device_queue;
+class cuda_device_event;
 
 class default_cuda_device_buffer final
     : public cuda_device_buffer
@@ -67,12 +70,15 @@ public:
     void* get_data() noexcept final;
     const void* get_data() const noexcept final;
 
+    void record_queue(cuda_device_queue &queue);
+
 private:
     numerical_type m_type;
     std::size_t m_count;
     const cuda_memory_block *m_block;
     cuda_device_memory_allocator *m_allocator;
     cuda_device_queue *m_queue;
+    std::forward_list<cuda_device_event> m_events;
 
 }; 
 
