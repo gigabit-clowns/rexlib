@@ -78,7 +78,7 @@ private:
 
 
 bool is_partition(const cuda_memory_block_context &block) noexcept;
-bool can_merge(cuda_memory_block_pool::iterator ite) noexcept;
+bool is_mergeable(cuda_memory_block_pool::iterator ite) noexcept;
 void update_forward_link(cuda_memory_block_pool::iterator ite) noexcept;
 void update_backward_link(cuda_memory_block_pool::iterator ite) noexcept;
 void update_links(cuda_memory_block_pool::iterator ite) noexcept;

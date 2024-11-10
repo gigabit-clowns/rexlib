@@ -111,7 +111,7 @@ bool is_partition(const cuda_memory_block_context &block) noexcept
 }
 
 inline
-bool can_merge(cuda_memory_block_pool::iterator ite) noexcept
+bool is_mergeable(cuda_memory_block_pool::iterator ite) noexcept
 {
     bool result;
 
@@ -322,9 +322,9 @@ consider_merging_block(cuda_memory_block_pool &blocks,
                        cuda_memory_block_pool::iterator ite)
 {
     const auto prev = ite->second.get_previous_block();
-    const auto merge_prev = can_merge(prev);
+    const auto merge_prev = is_mergeable(prev);
     const auto next = ite->second.get_next_block();
-    const auto merge_next = can_merge(next);
+    const auto merge_next = is_mergeable(next);
 
     if (merge_prev && merge_next)
     {
