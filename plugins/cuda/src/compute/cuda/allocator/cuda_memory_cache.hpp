@@ -36,9 +36,25 @@ namespace xmipp4
 namespace compute
 {
 
+/**
+ * @brief Cache and re-use memory allocations.
+ * 
+ * Based on:
+ * https://zdevito.github.io/2022/08/04/cuda-caching-allocator.html
+ * 
+ */
 class cuda_memory_cache
 {
 public:
+    /**
+     * @brief Construct a new cuda memory allocation cache.
+     * 
+     * @param small_large_threshold Threshold in bytes to consider a block as 
+     * big or small.
+     * @param size_step Quantization step for block sizes.
+     * @param request_step Quantization step for memory allocations.
+     * 
+     */
     explicit 
     cuda_memory_cache(std::size_t small_large_threshold = (1U << 20),
                       std::size_t size_step = 512,
@@ -50,12 +66,43 @@ public:
     cuda_memory_cache& operator=(const cuda_memory_cache &other) = default;
     cuda_memory_cache& operator=(cuda_memory_cache &&other) = default;
 
+    /**
+     * @brief Return free blocks to the allocator when possible.
+     * 
+     * @tparam Allocator Class that implements allocate() and deallocate()
+     * @param allocator Allocator used for deallocating free blocks.
+     * Must be compatible with the allocator used in allocate()
+     * 
+     */
     template <typename Allocator>
     void release(Allocator &allocator);
+
+    /**
+     * @brief Allocate a new block.
+     * 
+     * @tparam Allocator Class that implements allocate() and deallocate()
+     * @param allocator Allocator object. Used when there are no suitable blocks
+     * in cache.
+     * @param size Size of the requested block.
+     * @param queue_id Queue if for the requested block.
+     * @return const cuda_memory_block* Suitable block. nullptr if allocation
+     * fails.
+     * 
+     */
     template <typename Allocator>
     const cuda_memory_block* allocate(Allocator &allocator, 
                                       std::size_t size, 
                                       std::size_t queue_id );
+
+    /**
+     * @brief Deallocate a block.
+     * 
+     * @param block Block to be deallocated.
+     * 
+     * @note This operation does not return the block to the allocator.
+     * Instead, it caches it for potential re-use.
+     * 
+     */
     void deallocate(const cuda_memory_block &block);
 
 private:
