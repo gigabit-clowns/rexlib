@@ -75,8 +75,6 @@ private:
 
 };
 
-
-
 } // namespace compute
 } // namespace xmipp4
 

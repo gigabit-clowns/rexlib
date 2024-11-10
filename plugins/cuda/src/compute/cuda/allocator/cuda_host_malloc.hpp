@@ -63,9 +63,8 @@ struct cuda_host_malloc
      * 
      */
     static void deallocate(void* data, std::size_t size);
+
 };
-
-
 
 } // namespace compute
 } // namespace xmipp4
