@@ -30,7 +30,7 @@
 
 #include "cuda_device_buffer.hpp"
 
-#include <set>
+#include <vector>
 
 namespace xmipp4 
 {
@@ -40,6 +40,8 @@ namespace compute
 class cuda_memory_block;
 class cuda_device_memory_allocator;
 class cuda_device_queue;
+
+
 
 class default_cuda_device_buffer final
     : public cuda_device_buffer
@@ -75,7 +77,7 @@ private:
     std::size_t m_count;
     const cuda_memory_block *m_block;
     cuda_device_memory_allocator *m_allocator;
-    std::set<cuda_device_queue*> m_queues;
+    std::vector<cuda_device_queue*> m_queues;
 
 }; 
 

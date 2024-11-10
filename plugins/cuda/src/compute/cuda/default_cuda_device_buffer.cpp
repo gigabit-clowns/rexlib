@@ -33,6 +33,8 @@
 
 #include <xmipp4/core/platform/assert.hpp>
 
+#include <algorithm>
+
 #include <cuda_runtime.h>
 
 namespace xmipp4
@@ -101,7 +103,7 @@ void default_cuda_device_buffer::reset() noexcept
     if (m_block)
     {
         XMIPP4_ASSERT(m_allocator);
-        m_allocator->deallocate(*m_block, m_queues);
+        m_allocator->deallocate(*m_block, make_span(m_queues));
 
         m_type = numerical_type::unknown;
         m_count = 0UL;
@@ -134,7 +136,12 @@ const void* default_cuda_device_buffer::get_data() const noexcept
 
 void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
 {
-    m_queues.insert(&queue);
+    auto *ptr = &queue;
+    const auto pos = std::lower_bound(m_queues.cbegin(), m_queues.cend(), ptr);
+    if (pos == m_queues.cend() || *pos != ptr)
+    {
+        m_queues.insert(std::next(pos), ptr);
+    }
 }
 
 } // namespace compute

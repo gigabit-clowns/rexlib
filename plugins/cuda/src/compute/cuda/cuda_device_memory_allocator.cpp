@@ -92,7 +92,7 @@ cuda_device_memory_allocator::allocate(numerical_type type,
 }
 
 void cuda_device_memory_allocator::deallocate(const cuda_memory_block &block,
-                                              const queue_set &queues )
+                                              span<cuda_device_queue*> queues )
 {
     if (queues.empty())
     {
@@ -129,7 +129,7 @@ void cuda_device_memory_allocator::process_pending_free()
 
 void cuda_device_memory_allocator
 ::record_events(const cuda_memory_block &block,
-                const queue_set &queues)
+                span<cuda_device_queue*> queues)
 {
     bool inserted;
     decltype(m_pending_free)::iterator ite;

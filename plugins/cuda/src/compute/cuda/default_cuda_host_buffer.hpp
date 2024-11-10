@@ -38,6 +38,8 @@ namespace compute
 class cuda_memory_block;
 class cuda_host_memory_allocator;
 
+
+
 class default_cuda_host_buffer final
     : public host_buffer
 {

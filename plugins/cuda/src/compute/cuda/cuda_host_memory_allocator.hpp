@@ -71,8 +71,6 @@ private:
     cuda_memory_cache m_cache;
     std::mutex m_mutex;
 
-
-
 }; 
 
 } // namespace compute

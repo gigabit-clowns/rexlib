@@ -32,6 +32,7 @@
 #include "allocator/cuda_memory_cache.hpp"
 
 #include <xmipp4/core/compute/device_memory_allocator.hpp>
+#include <xmipp4/core/span.hpp>
 
 #include <map>
 #include <set>
@@ -51,8 +52,6 @@ class cuda_device_memory_allocator
     : public device_memory_allocator
 {
 public:
-    using queue_set = std::set<cuda_device_queue*>;
-
     explicit cuda_device_memory_allocator(int device_id);
     cuda_device_memory_allocator(const cuda_device_memory_allocator &other) = default;
     cuda_device_memory_allocator(cuda_device_memory_allocator &&other) = default;
@@ -76,7 +75,7 @@ public:
                                       std::size_t count,
                                       cuda_device_queue &queue );
     void deallocate(const cuda_memory_block &block,
-                    const queue_set &queues);
+                    span<cuda_device_queue*> queues);
 
 private:
     using event_list = std::forward_list<cuda_device_event>;
@@ -89,7 +88,7 @@ private:
 
     void process_pending_free();
     void record_events(const cuda_memory_block &block,
-                       const queue_set &queues);
+                       span<cuda_device_queue*> queues);
     void pop_completed_events(event_list &events);
 
 }; 
