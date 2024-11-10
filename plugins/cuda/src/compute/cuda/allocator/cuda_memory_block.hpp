@@ -97,8 +97,8 @@ private:
 /**
  * @brief Lexicographically compare two cuda_memory_block objects.
  * 
- * First, queue IDs are compared
- * If equal, sizes are compared.
+ * First, queue IDs are compared.
+ * If equal, then, sizes are compared.
  * If equal, data pointers are compared.
  * 
  */
