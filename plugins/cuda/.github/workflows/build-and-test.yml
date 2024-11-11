@@ -51,18 +51,18 @@ jobs:
         id: install-xmipp4-core
         uses: ./.github/composites/install-xmipp4-core
       
-      #- name: Configure and build with CMake
-      #  uses: threeal/cmake-action@main
-      #  with:
-      #    source-dir: ${{ github.workspace }}
-      #    build-dir: "${{ github.workspace }}/build"
-      #    c-compiler: ${{ matrix.compiler.cc }}
-      #    cxx-compiler: ${{ matrix.compiler.cxx }}
-      #    options: |
-      #      CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-      #      xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
-      #    run-build: true
-      #    build-args: --config ${{ env.BUILD_TYPE }}
+      - name: Configure and build with CMake
+        uses: threeal/cmake-action@main
+        with:
+          source-dir: ${{ github.workspace }}
+          build-dir: "${{ github.workspace }}/build"
+          c-compiler: ${{ matrix.compiler.cc }}
+          cxx-compiler: ${{ matrix.compiler.cxx }}
+          options: |
+            CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+            xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
+          run-build: true
+          build-args: --config ${{ env.BUILD_TYPE }}
 
       #- name: Run tests
       #  working-directory: "${{ github.workspace }}/build"
