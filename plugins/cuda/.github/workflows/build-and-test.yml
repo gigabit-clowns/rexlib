@@ -58,7 +58,7 @@ jobs:
       #    echo "CUDA_PATH=$CUDA_PATH_ESCAPED" >> $GITHUB_ENV
       
       - name: Configure and build with CMake
-        if: runner-os != 'Windows'
+        if: runner.os != 'Windows'
         uses: threeal/cmake-action@main
         with:
           source-dir: ${{ github.workspace }}
@@ -74,6 +74,6 @@ jobs:
           build-args: --config ${{ env.BUILD_TYPE }}
 
       - name: Run tests
-        if: runner-os != 'Windows'
+        if: runner.os != 'Windows'
         working-directory: "${{ github.workspace }}/build"
         run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
