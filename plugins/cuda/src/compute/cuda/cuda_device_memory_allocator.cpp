@@ -54,8 +54,7 @@ cuda_device_memory_allocator::create_buffer(numerical_type type,
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
     const auto &block = allocate(type, count, cuda_queue);
     return std::make_unique<default_cuda_device_buffer>(
-        type, count,
-        block, *this
+        type, count, block, *this
     );
 }
 
@@ -67,8 +66,7 @@ cuda_device_memory_allocator::create_buffer_shared(numerical_type type,
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
     const auto &block = allocate(type, count, cuda_queue);
     return std::make_shared<default_cuda_device_buffer>(
-        type, count,
-        block, *this
+       type, count, block, *this
     );
 }
 
@@ -80,7 +78,7 @@ cuda_device_memory_allocator::allocate(numerical_type type,
     process_pending_free();
 
     const auto size = count * get_size(type);
-    const auto queue_id = std::hash<cudaStream_t>()(queue.get_handle());
+    const auto queue_id = queue.get_id();
     const auto *block = m_cache.allocate(m_allocator, size, queue_id);
 
     if(!block)
@@ -92,15 +90,15 @@ cuda_device_memory_allocator::allocate(numerical_type type,
 }
 
 void cuda_device_memory_allocator::deallocate(const cuda_memory_block &block,
-                                              span<cuda_device_queue*> queues )
+                                              span<cuda_device_queue*> other_queues )
 {
-    if (queues.empty())
+    if (other_queues.empty())
     {
         m_cache.deallocate(block);
     }
     else
     {
-        record_events(block, queues);
+        record_events(block, other_queues);
     }
 }
 
@@ -144,23 +142,21 @@ void cuda_device_memory_allocator
     const std::hash<cudaStream_t> hasher;
     for (cuda_device_queue *queue : queues)
     {
-        if (queue && hasher(queue->get_handle()) != block.get_queue_id())
+        // Add a new event to the front
+        if (m_event_pool.empty())
         {
-            // Add a new event to the front
-            if (m_event_pool.empty())
-            {
-                events.emplace_front();
-            }
-            else
-            {
-                events.splice_after(
-                    events.cbefore_begin(),
-                    m_event_pool, m_event_pool.cbefore_begin()
-                );
-            }
-
-            events.front().record(*queue);
+            events.emplace_front();
         }
+        else
+        {
+            events.splice_after(
+                events.cbefore_begin(),
+                m_event_pool, 
+                m_event_pool.cbefore_begin()
+            );
+        }
+
+        events.front().record(*queue);
     }
 }
 
@@ -170,7 +166,7 @@ void cuda_device_memory_allocator::pop_completed_events(event_list &events)
     event_list::const_iterator ite;
     while ((ite = std::next(prev_it)) != events.cend())
     {
-        if(ite->query())
+        if(ite->is_signaled())
         {
             // Return the event to the pool
             m_event_pool.splice_after(

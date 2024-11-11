@@ -45,8 +45,7 @@ cuda_host_memory_allocator::create_buffer(numerical_type type,
 {
     const auto &block = allocate(type, count);
     return std::make_unique<default_cuda_host_buffer>(
-        type, count,
-        block, *this
+        type, count, block, *this
     );
 }
 
@@ -56,8 +55,7 @@ cuda_host_memory_allocator::create_buffer_shared(numerical_type type,
 {
     const auto &block = allocate(type, count);
     return std::make_shared<default_cuda_host_buffer>(
-        type, count,
-        block, *this
+        type, count, block, *this
     );
 }
 

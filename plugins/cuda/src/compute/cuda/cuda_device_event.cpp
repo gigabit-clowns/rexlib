@@ -106,7 +106,7 @@ void cuda_device_event::synchronize() const
     cudaEventSynchronize(m_event); // TODO check return
 }
 
-bool cuda_device_event::query() const
+bool cuda_device_event::is_signaled() const
 {
     return cudaEventQuery(m_event) == cudaSuccess; // TODO check errors
 }

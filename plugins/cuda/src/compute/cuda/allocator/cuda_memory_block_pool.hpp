@@ -262,6 +262,9 @@ find_suitable_block(cuda_memory_block_pool &blocks,
 /**
  * @brief Partition the requested block if necessary.
  * 
+ * The block is only partitioned if the remaining bytes exceed the 
+ * provided threshold.
+ * 
  * @param blocks Collection of blocks.
  * @param ite Iterator to the candidate block. Must be dereferenceable.
  * @param size Requested size.

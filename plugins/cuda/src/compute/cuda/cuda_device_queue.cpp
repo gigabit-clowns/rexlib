@@ -29,6 +29,7 @@
 #include "cuda_device_queue.hpp"
 
 #include <utility>
+#include <functional>
 
 namespace xmipp4
 {
@@ -82,6 +83,11 @@ cuda_device_queue::handle cuda_device_queue::get_handle() noexcept
 void cuda_device_queue::synchronize() const
 {
     cudaStreamSynchronize(m_stream);
+}
+
+std::size_t cuda_device_queue::get_id() const noexcept
+{
+    return std::hash<cudaStream_t>()(m_stream);
 }
 
 } // namespace compute

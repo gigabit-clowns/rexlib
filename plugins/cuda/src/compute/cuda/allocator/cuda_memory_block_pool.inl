@@ -106,8 +106,8 @@ inline
 bool is_partition(const cuda_memory_block_context &block) noexcept
 {
     const cuda_memory_block_pool::iterator null;
-    return block.get_previous_block() == null ||
-           block.get_next_block() == null ;
+    return block.get_previous_block() != null ||
+           block.get_next_block() != null ;
 }
 
 inline
@@ -195,10 +195,6 @@ bool check_links(cuda_memory_block_pool::iterator ite) noexcept
 {
     return check_backward_link(ite) && check_forward_link(ite);
 }
-
-
-
-
 
 inline
 cuda_memory_block_pool::iterator 
@@ -457,7 +453,7 @@ const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks,
         ite = create_block(blocks, allocator, create_size, queue_id);
     }
 
-    if (ite != blocks.cend())
+    if (ite != blocks.end())
     {
         ite = consider_partitioning_block(blocks, ite, size, partition_min_size);
         ite->second.set_free(false);

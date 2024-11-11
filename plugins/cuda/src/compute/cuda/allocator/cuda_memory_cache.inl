@@ -61,7 +61,7 @@ cuda_memory_cache::allocate(Allocator &allocator,
     const cuda_memory_block* result;
 
     memory::align_ceil_inplace(size, m_size_step);
-    if (size < m_small_large_threshold)
+    if (is_small(size))
     {
         result = allocate_from_pool(
             m_small_block_pool, allocator, 
@@ -82,7 +82,7 @@ cuda_memory_cache::allocate(Allocator &allocator,
 inline
 void cuda_memory_cache::deallocate(const cuda_memory_block &block)
 {
-    if (block.get_size() < m_small_large_threshold)
+    if (is_small(block.get_size()))
     {
         deallocate_block(m_small_block_pool, block);
     }
@@ -121,6 +121,12 @@ cuda_memory_cache::allocate_from_pool(cuda_memory_block_pool &blocks,
     }
 
     return result;
+}
+
+
+bool cuda_memory_cache::is_small(std::size_t size) const noexcept
+{
+    return size < m_small_large_threshold;
 }
 
 } // namespace compute
