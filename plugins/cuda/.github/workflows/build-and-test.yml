@@ -53,7 +53,7 @@ jobs:
       
       - name: Set CUDA path environment variable
         run: |
-          CUDA_PATH_ESCAPED=$(echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" | sed 's/ /\\ /g')
+          CUDA_PATH_ESCAPED=$(echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" | sed 's/ /^ /g')
           echo "CUDA PATH: $CUDA_PATH_ESCAPED"
           echo "CUDA_PATH=$CUDA_PATH_ESCAPED" >> $GITHUB_ENV
       
