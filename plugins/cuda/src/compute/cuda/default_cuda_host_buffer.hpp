@@ -51,7 +51,7 @@ public:
                              cuda_host_memory_allocator &allocator) noexcept;
     default_cuda_host_buffer(const default_cuda_host_buffer &other) = delete;
     default_cuda_host_buffer(default_cuda_host_buffer &&other) noexcept;
-    virtual ~default_cuda_host_buffer() final;
+    ~default_cuda_host_buffer() final;
 
     default_cuda_host_buffer& 
     operator=(const default_cuda_host_buffer &other) = delete;
