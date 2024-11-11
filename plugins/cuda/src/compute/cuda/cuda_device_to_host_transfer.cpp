@@ -134,7 +134,7 @@ cuda_device_to_host_transfer::transfer(const std::shared_ptr<device_buffer> &buf
 
     if (buffer)
     {
-        auto result = allocator.create_buffer_shared(
+        result = allocator.create_buffer_shared(
             buffer->get_type(), buffer->get_count()
         );
 
@@ -153,11 +153,12 @@ cuda_device_to_host_transfer::transfer(const std::shared_ptr<const device_buffer
 
     if (buffer)
     {
-        auto result = allocator.create_buffer_shared(
+        auto tmp = allocator.create_buffer_shared(
             buffer->get_type(), buffer->get_count()
         );
 
-        transfer_copy(*buffer, result, queue);
+        transfer_copy(*buffer, tmp, queue);
+        result = std::move(tmp);
     }
 
     return result;

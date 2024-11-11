@@ -118,6 +118,9 @@ private:
                                                 std::size_t size,
                                                 std::size_t queue_id,
                                                 std::size_t min_size );
+
+    bool is_small(std::size_t size) const noexcept;
+
 }; 
 
 } // namespace compute

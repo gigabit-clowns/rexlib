@@ -30,6 +30,7 @@
 
 #include "allocator/cuda_memory_block.hpp"
 #include "cuda_device_memory_allocator.hpp"
+#include "cuda_device_queue.hpp"
 
 #include <xmipp4/core/platform/assert.hpp>
 
@@ -136,11 +137,19 @@ const void* default_cuda_device_buffer::get_data() const noexcept
 
 void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
 {
-    auto *ptr = &queue;
-    const auto pos = std::lower_bound(m_queues.cbegin(), m_queues.cend(), ptr);
-    if (pos == m_queues.cend() || *pos != ptr)
+    if (queue.get_id() != m_block->get_queue_id())
     {
-        m_queues.insert(std::next(pos), ptr);
+        auto *queue_pointer = &queue;
+        const auto pos = std::lower_bound(
+            m_queues.cbegin(), 
+            m_queues.cend(),
+            queue_pointer
+        );
+
+        if (pos == m_queues.cend() || *pos != queue_pointer)
+        {
+            m_queues.insert(std::next(pos), queue_pointer);
+        }
     }
 }
 

@@ -88,7 +88,7 @@ private:
 
     void process_pending_free();
     void record_events(const cuda_memory_block &block,
-                       span<cuda_device_queue*> queues);
+                       span<cuda_device_queue*> other_queues );
     void pop_completed_events(event_list &events);
 
 }; 
