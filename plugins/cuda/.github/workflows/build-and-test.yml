@@ -51,6 +51,9 @@ jobs:
         id: install-xmipp4-core
         uses: ./.github/composites/install-xmipp4-core
       
+      - name: Test print path
+        run: echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}"
+      
       - name: Configure and build with CMake
         uses: threeal/cmake-action@main
         with:
