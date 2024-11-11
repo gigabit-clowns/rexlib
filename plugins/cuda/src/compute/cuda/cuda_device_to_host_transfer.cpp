@@ -32,6 +32,7 @@
 #include "cuda_device_buffer.hpp"
 #include "cuda_host_memory_allocator.hpp"
 
+#include <xmipp4/core/memory/align.hpp>
 #include <xmipp4/core/compute/host_buffer.hpp>
 
 
@@ -111,8 +112,8 @@ void cuda_device_to_host_transfer::transfer_copy(const device_buffer &src_buffer
         // TODO check return
         const auto region_bytes = as_bytes(region, element_size);
         cudaMemcpyAsync(
-            dst_data + region_bytes.get_destination_offset(),
-            src_data + region_bytes.get_source_offset(),
+            memory::offset_bytes(dst_data, region_bytes.get_destination_offset()),
+            memory::offset_bytes(src_data, region_bytes.get_source_offset()),
             region_bytes.get_count(),
             cudaMemcpyDeviceToHost,
             cuda_queue.get_handle()
