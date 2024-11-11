@@ -51,13 +51,14 @@ jobs:
         id: install-xmipp4-core
         uses: ./.github/composites/install-xmipp4-core
       
-      - name: Set CUDA path environment variable
-        run: |
-          CUDA_PATH_ESCAPED=$(echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" | sed 's/\\/\//g' | sed 's/ /\\ /g')
-          echo "CUDA PATH: $CUDA_PATH_ESCAPED"
-          echo "CUDA_PATH=$CUDA_PATH_ESCAPED" >> $GITHUB_ENV
+      #- name: Set CUDA path environment variable
+      #  run: |
+      #    CUDA_PATH_ESCAPED=$(echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" | sed 's/\\/\//g' | sed 's/ /\\ /g')
+      #    echo "CUDA PATH: $CUDA_PATH_ESCAPED"
+      #    echo "CUDA_PATH=$CUDA_PATH_ESCAPED" >> $GITHUB_ENV
       
       - name: Configure and build with CMake
+        if: runner-os != 'Windows'
         uses: threeal/cmake-action@main
         with:
           source-dir: ${{ github.workspace }}
@@ -72,6 +73,7 @@ jobs:
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
-      #- name: Run tests
-      #  working-directory: "${{ github.workspace }}/build"
-      #  run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
+      - name: Run tests
+        if: runner-os != 'Windows'
+        working-directory: "${{ github.workspace }}/build"
+        run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
