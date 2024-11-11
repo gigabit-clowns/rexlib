@@ -52,7 +52,7 @@ jobs:
         uses: ./.github/composites/install-xmipp4-core
       
       - name: Set CUDA path environment variable
-        run: echo "CUDA_PATH=${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" >> $GITHUB_ENV
+        run: echo "CUDA_PATH=\"${{ steps.cuda-toolkit.outputs.CUDA_PATH }}\"" >> $GITHUB_ENV
       
       - name: Configure and build with CMake
         uses: threeal/cmake-action@main
