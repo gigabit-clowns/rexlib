@@ -28,20 +28,31 @@
  * 
  */
 
+#include "allocator/cuda_device_malloc.hpp"
+#include "allocator/cuda_memory_cache.hpp"
+
 #include <xmipp4/core/compute/device_memory_allocator.hpp>
+#include <xmipp4/core/span.hpp>
+
+#include <map>
+#include <set>
+#include <forward_list>
 
 namespace xmipp4 
 {
 namespace compute
 {
 
-class cuda_device_buffer;
+class cuda_device_queue;
+class cuda_device_event;
+
+
 
 class cuda_device_memory_allocator
     : public device_memory_allocator
 {
 public:
-    cuda_device_memory_allocator() = default;
+    explicit cuda_device_memory_allocator(int device_id);
     cuda_device_memory_allocator(const cuda_device_memory_allocator &other) = default;
     cuda_device_memory_allocator(cuda_device_memory_allocator &&other) = default;
     virtual ~cuda_device_memory_allocator() = default;
@@ -59,6 +70,26 @@ public:
     create_buffer_shared(numerical_type type, 
                          std::size_t count, 
                          device_queue &queue ) final;
+
+    const cuda_memory_block& allocate(numerical_type type, 
+                                      std::size_t count,
+                                      cuda_device_queue &queue );
+    void deallocate(const cuda_memory_block &block,
+                    span<cuda_device_queue*> queues);
+
+private:
+    using event_list = std::forward_list<cuda_device_event>;
+
+    cuda_device_malloc m_allocator;
+    cuda_memory_cache m_cache;
+    event_list m_event_pool;
+    std::map<cuda_memory_block, event_list, cuda_memory_block_less> m_pending_free;
+    
+
+    void process_pending_free();
+    void record_events(const cuda_memory_block &block,
+                       span<cuda_device_queue*> other_queues );
+    void pop_completed_events(event_list &events);
 
 }; 
 

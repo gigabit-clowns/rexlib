@@ -40,9 +40,9 @@ namespace xmipp4
 namespace compute
 {
 
-void cuda_device_to_host_transfer::transfer(const device_buffer &src_buffer, 
-                                            const std::shared_ptr<host_buffer> &dst_buffer, 
-                                            device_queue &queue )
+void cuda_device_to_host_transfer::transfer_copy(const device_buffer &src_buffer, 
+                                                 const std::shared_ptr<host_buffer> &dst_buffer, 
+                                                 device_queue &queue )
 {
     if (!dst_buffer)
     {
@@ -77,38 +77,39 @@ void cuda_device_to_host_transfer::transfer(const device_buffer &src_buffer,
 }
 
 std::shared_ptr<host_buffer> 
-cuda_device_to_host_transfer::transfer_nocopy(const std::shared_ptr<device_buffer> &buffer, 
-                                              host_memory_allocator &allocator,
-                                              device_queue &queue )
+cuda_device_to_host_transfer::transfer(const std::shared_ptr<device_buffer> &buffer, 
+                                       host_memory_allocator &allocator,
+                                       device_queue &queue )
 {
     std::shared_ptr<host_buffer> result;
 
     if (buffer)
     {
-        auto result = allocator.create_buffer_shared(
+        result = allocator.create_buffer_shared(
             buffer->get_type(), buffer->get_count()
         );
 
-        transfer(*buffer, result, queue);
+        transfer_copy(*buffer, result, queue);
     }
 
     return result;
 }
 
 std::shared_ptr<const host_buffer> 
-cuda_device_to_host_transfer::transfer_nocopy(const std::shared_ptr<const device_buffer> &buffer, 
-                                              host_memory_allocator &allocator,
-                                              device_queue &queue )
+cuda_device_to_host_transfer::transfer(const std::shared_ptr<const device_buffer> &buffer, 
+                                       host_memory_allocator &allocator,
+                                       device_queue &queue )
 {
     std::shared_ptr<const host_buffer> result;
 
     if (buffer)
     {
-        auto result = allocator.create_buffer_shared(
+        auto tmp = allocator.create_buffer_shared(
             buffer->get_type(), buffer->get_count()
         );
 
-        transfer(*buffer, result, queue);
+        transfer_copy(*buffer, tmp, queue);
+        result = std::move(tmp);
     }
 
     return result;

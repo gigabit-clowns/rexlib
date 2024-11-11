@@ -59,13 +59,13 @@ std::shared_ptr<device_queue> cuda_device::create_queue_shared()
 std::unique_ptr<device_memory_allocator> 
 cuda_device::create_device_memory_allocator()
 {
-    return std::make_unique<cuda_device_memory_allocator>();
+    return std::make_unique<cuda_device_memory_allocator>(m_device);
 }
 
 std::shared_ptr<device_memory_allocator> 
 cuda_device::create_device_memory_allocator_shared()
 {
-    return std::make_shared<cuda_device_memory_allocator>();
+    return std::make_shared<cuda_device_memory_allocator>(m_device);
 }
 
 std::unique_ptr<host_memory_allocator> 

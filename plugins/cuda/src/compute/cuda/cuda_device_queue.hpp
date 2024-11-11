@@ -59,6 +59,8 @@ public:
 
     void synchronize() const final;
 
+    std::size_t get_id() const noexcept;
+
 private:
     handle m_stream;
 

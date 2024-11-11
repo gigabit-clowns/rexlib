@@ -28,8 +28,13 @@
 
 #include "default_cuda_device_buffer.hpp"
 
-#include <stdexcept>
-#include <cstdlib>
+#include "allocator/cuda_memory_block.hpp"
+#include "cuda_device_memory_allocator.hpp"
+#include "cuda_device_queue.hpp"
+
+#include <xmipp4/core/platform/assert.hpp>
+
+#include <algorithm>
 
 #include <cuda_runtime.h>
 
@@ -38,28 +43,39 @@ namespace xmipp4
 namespace compute
 {
 
+
 default_cuda_device_buffer::default_cuda_device_buffer() noexcept
     : m_type(numerical_type::unknown)
     , m_count(0)
-    , m_data(nullptr)
+    , m_block(nullptr)
+    , m_allocator(nullptr)
 {
 }
 
-default_cuda_device_buffer::default_cuda_device_buffer(int device, 
-                                                       numerical_type type, 
-                                                       std::size_t count )
+default_cuda_device_buffer
+::default_cuda_device_buffer(numerical_type type,
+                             std::size_t count,
+                             const cuda_memory_block &block , 
+                             cuda_device_memory_allocator &allocator ) noexcept
     : m_type(type)
     , m_count(count)
+    , m_block(&block)
+    , m_allocator(&allocator)
 {
-    cudaSetDevice(device);
-    cudaMalloc(&m_data, count*get_size(type)); // TODO check
 }
 
-default_cuda_device_buffer::default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept
+default_cuda_device_buffer
+::default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept
     : m_type(other.m_type)
     , m_count(other.m_count)
-    , m_data(nullptr)
+    , m_block(other.m_block)
+    , m_allocator(other.m_allocator)
+    , m_queues(std::move(other.m_queues))
 {
+    other.m_type = numerical_type::unknown;
+    other.m_count = 0;
+    other.m_block = nullptr;
+    other.m_allocator = nullptr;
 }
 
 default_cuda_device_buffer::~default_cuda_device_buffer()
@@ -79,17 +95,22 @@ void default_cuda_device_buffer::swap(default_cuda_device_buffer &other) noexcep
 {
     std::swap(m_type, other.m_type);
     std::swap(m_count, other.m_count);
-    std::swap(m_data, other.m_data);
+    std::swap(m_block, other.m_block);
+    std::swap(m_allocator, other.m_allocator);
 }
 
 void default_cuda_device_buffer::reset() noexcept
 {
-    if (m_data)
+    if (m_block)
     {
-        cudaFree(m_data); // TODO check
+        XMIPP4_ASSERT(m_allocator);
+        m_allocator->deallocate(*m_block, make_span(m_queues));
+
         m_type = numerical_type::unknown;
-        m_count = 0;
-        m_data = nullptr;
+        m_count = 0UL;
+        m_block = nullptr;
+        m_allocator = nullptr;
+        m_queues.clear();
     }
 }
 
@@ -105,12 +126,31 @@ std::size_t default_cuda_device_buffer::get_count() const noexcept
 
 void* default_cuda_device_buffer::get_data() noexcept
 {
-    return m_data;
+    return m_block ? m_block->get_data() : nullptr;
 }
 
 const void* default_cuda_device_buffer::get_data() const noexcept
 {
-    return m_data;
+    return m_block ? m_block->get_data() : nullptr;
+}
+
+
+void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
+{
+    if (queue.get_id() != m_block->get_queue_id())
+    {
+        auto *queue_pointer = &queue;
+        const auto pos = std::lower_bound(
+            m_queues.cbegin(), 
+            m_queues.cend(),
+            queue_pointer
+        );
+
+        if (pos == m_queues.cend() || *pos != queue_pointer)
+        {
+            m_queues.insert(std::next(pos), queue_pointer);
+        }
+    }
 }
 
 } // namespace compute

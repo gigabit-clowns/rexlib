@@ -30,23 +30,36 @@
 
 #include "cuda_device_buffer.hpp"
 
+#include <vector>
+
 namespace xmipp4 
 {
 namespace compute
 {
 
-class default_cuda_device_buffer
+class cuda_memory_block;
+class cuda_device_memory_allocator;
+class cuda_device_queue;
+
+
+
+class default_cuda_device_buffer final
     : public cuda_device_buffer
 {
 public:
     default_cuda_device_buffer() noexcept;
-    default_cuda_device_buffer(int device, numerical_type type, std::size_t count);
+    default_cuda_device_buffer(numerical_type type,
+                               std::size_t count,
+                               const cuda_memory_block &block , 
+                               cuda_device_memory_allocator &allocator ) noexcept;
     default_cuda_device_buffer(const default_cuda_device_buffer &other) = delete;
     default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept;
-    virtual ~default_cuda_device_buffer();
+    ~default_cuda_device_buffer() final;
 
-    default_cuda_device_buffer& operator=(const default_cuda_device_buffer &other) = delete;
-    default_cuda_device_buffer& operator=(default_cuda_device_buffer &&other) noexcept;
+    default_cuda_device_buffer& 
+    operator=(const default_cuda_device_buffer &other) = delete;
+    default_cuda_device_buffer& 
+    operator=(default_cuda_device_buffer &&other) noexcept;
 
     void swap(default_cuda_device_buffer &other) noexcept;
     void reset() noexcept;
@@ -57,10 +70,14 @@ public:
     void* get_data() noexcept final;
     const void* get_data() const noexcept final;
 
+    void record_queue(cuda_device_queue &queue);
+
 private:
     numerical_type m_type;
     std::size_t m_count;
-    void* m_data;
+    const cuda_memory_block *m_block;
+    cuda_device_memory_allocator *m_allocator;
+    std::vector<cuda_device_queue*> m_queues;
 
 }; 
 

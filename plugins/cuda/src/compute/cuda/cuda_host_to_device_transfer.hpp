@@ -46,19 +46,19 @@ class cuda_host_to_device_transfer final
     : public host_to_device_transfer
 {
 public:
-    void transfer(const std::shared_ptr<const host_buffer> &src_buffer, 
-                  device_buffer &dst_buffer, 
-                  device_queue &queue ) final;
+    void transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
+                       device_buffer &dst_buffer, 
+                       device_queue &queue ) final;
 
     std::shared_ptr<device_buffer> 
-    transfer_nocopy(const std::shared_ptr<host_buffer> &buffer, 
-                    device_memory_allocator &allocator,
-                    device_queue &queue ) final;
+    transfer(const std::shared_ptr<host_buffer> &buffer, 
+             device_memory_allocator &allocator,
+             device_queue &queue ) final;
 
     std::shared_ptr<const device_buffer> 
-    transfer_nocopy(const std::shared_ptr<const host_buffer> &buffer, 
-                    device_memory_allocator &allocator,
-                    device_queue &queue ) final;
+    transfer(const std::shared_ptr<const host_buffer> &buffer, 
+             device_memory_allocator &allocator,
+             device_queue &queue ) final;
 
 
     void wait() final;
