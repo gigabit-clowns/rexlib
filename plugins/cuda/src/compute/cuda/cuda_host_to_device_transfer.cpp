@@ -77,6 +77,53 @@ void cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buf
     m_event.record(cuda_queue);
 }
 
+void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
+                                                 device_buffer &dst_buffer, 
+                                                 span<const copy_region> regions,
+                                                 device_queue &queue )
+{
+    if (!src_buffer)
+    {
+        throw std::invalid_argument("src_buffer cannot be nullptr");
+    }
+
+    if (src_buffer->get_type() != dst_buffer.get_type())
+    {
+        throw std::invalid_argument("Both buffers must have the same numerical type");
+    }
+    
+    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
+    const auto* src_data = src_buffer->get_data();
+    auto* dst_data = dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data();
+    const auto element_size = get_size(dst_buffer.get_type());
+
+    for (const copy_region &region : regions)
+    {
+        if (region.get_source_offset()+region.get_count() > src_buffer->get_count())
+        {
+            throw std::invalid_argument("Source region is out of bounds");
+        }
+        if (region.get_destination_offset()+region.get_count() > dst_buffer.get_count())
+        {
+            throw std::invalid_argument("Destination region is out of bounds");
+        }
+
+        // TODO check return
+        const auto region_bytes = as_bytes(region, element_size);
+        cudaMemcpyAsync(
+            dst_data + region_bytes.get_destination_offset(),
+            src_data + region_bytes.get_source_offset(),
+            region_bytes.get_count(),
+            cudaMemcpyHostToDevice,
+            cuda_queue.get_handle()
+        );
+    }
+
+    wait();
+    m_current = src_buffer;
+    m_event.record(cuda_queue);
+}
+
 std::shared_ptr<device_buffer> 
 cuda_host_to_device_transfer::transfer_nocopy(const std::shared_ptr<host_buffer> &buffer, 
                                               device_memory_allocator &allocator,
