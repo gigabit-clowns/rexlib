@@ -51,19 +51,29 @@ jobs:
         id: install-xmipp4-core
         uses: ./.github/composites/install-xmipp4-core
       
-      #- name: Configure and build with CMake
-      #  uses: threeal/cmake-action@main
-      #  with:
-      #    source-dir: ${{ github.workspace }}
-      #    build-dir: "${{ github.workspace }}/build"
-      #    c-compiler: ${{ matrix.compiler.cc }}
-      #    cxx-compiler: ${{ matrix.compiler.cxx }}
-      #    options: |
-      #      CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-      #      xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
-      #    run-build: true
-      #    build-args: --config ${{ env.BUILD_TYPE }}
+      #- name: Set CUDA path environment variable
+      #  run: |
+      #    CUDA_PATH_ESCAPED=$(echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" | sed 's/\\/\//g' | sed 's/ /\\ /g')
+      #    echo "CUDA PATH: $CUDA_PATH_ESCAPED"
+      #    echo "CUDA_PATH=$CUDA_PATH_ESCAPED" >> $GITHUB_ENV
+      
+      - name: Configure and build with CMake
+        if: runner.os != 'Windows'
+        uses: threeal/cmake-action@main
+        with:
+          source-dir: ${{ github.workspace }}
+          build-dir: "${{ github.workspace }}/build"
+          c-compiler: ${{ matrix.compiler.cc }}
+          cxx-compiler: ${{ matrix.compiler.cxx }}
+          options: |
+            CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+            xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
+            CUDA_TOOLKIT_ROOT_DIR=${{ env.CUDA_PATH }}
+            CMAKE_CUDA_COMPILER=nvcc
+          run-build: true
+          build-args: --config ${{ env.BUILD_TYPE }}
 
-      #- name: Run tests
-      #  working-directory: "${{ github.workspace }}/build"
-      #  run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
+      - name: Run tests
+        if: runner.os != 'Windows'
+        working-directory: "${{ github.workspace }}/build"
+        run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure

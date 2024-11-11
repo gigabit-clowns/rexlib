@@ -64,6 +64,7 @@ public:
     void wait(device_queue &queue) const;
 
     void synchronize() const;
+    bool query() const;
 
 private:
     handle m_event;
