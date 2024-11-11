@@ -1,0 +1,51 @@
+name: "Install xmipp4-core"
+description: "Build and install xmipp4-core from source"
+
+inputs:
+  ref:
+    description: "Branch or tag in the xmipp4-core repo"
+    required: false
+  path:
+    description: "Path where xmipp4-core will be downloaded and built"
+    required: false
+    default: ${{ github.workspace }}/../xmipp4-core
+
+outputs:
+  xmipp4-core-root:
+    description: "Path where xmipp4-core is installed." 
+    value: ${{ steps.gen-output.outputs.xmipp4-core-root }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@main
+      with:
+        repository: gigabit-clowns/xmipp4-core
+        ref: ${{ inputs.ref }}
+        path: xmipp4-core
+    
+    - name: Move xmipp4-core outside current repository
+      shell: bash
+      run: mv xmipp4-core "${{ inputs.path }}"
+
+    - name: Configure and build with CMake
+      uses: threeal/cmake-action@main
+      with:
+        source-dir: "${{ inputs.path }}"
+        build-dir: "${{ inputs.path }}/build"
+        options: |
+          BUILD_TESTING=OFF
+          CMAKE_BUILD_TYPE=Release
+        run-build: true
+        build-args: --config ${{ env.BUILD_TYPE }}
+
+    - name: Install
+      shell: bash
+      working-directory: "${{ inputs.path }}"
+      run: cmake --install build --prefix dist
+
+    - name: Generate output
+      id: gen-output
+      shell: bash
+      run: echo "xmipp4-core-root=${{ inputs.path }}/dist" >> "$GITHUB_OUTPUT"
