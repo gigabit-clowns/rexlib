@@ -139,7 +139,6 @@ void cuda_device_memory_allocator
     XMIPP4_ASSERT(inserted);
 
     auto& events = ite->second;
-    const std::hash<cudaStream_t> hasher;
     for (cuda_device_queue *queue : queues)
     {
         // Add a new event to the front

@@ -123,7 +123,7 @@ cuda_memory_cache::allocate_from_pool(cuda_memory_block_pool &blocks,
     return result;
 }
 
-
+inline
 bool cuda_memory_cache::is_small(std::size_t size) const noexcept
 {
     return size < m_small_large_threshold;

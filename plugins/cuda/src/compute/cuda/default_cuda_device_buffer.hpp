@@ -54,7 +54,7 @@ public:
                                cuda_device_memory_allocator &allocator ) noexcept;
     default_cuda_device_buffer(const default_cuda_device_buffer &other) = delete;
     default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept;
-    virtual ~default_cuda_device_buffer();
+    virtual ~default_cuda_device_buffer() final;
 
     default_cuda_device_buffer& 
     operator=(const default_cuda_device_buffer &other) = delete;
