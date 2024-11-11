@@ -170,7 +170,8 @@ void cuda_device_memory_allocator::pop_completed_events(event_list &events)
             // Return the event to the pool
             m_event_pool.splice_after(
                 m_event_pool.cbefore_begin(),
-                events, prev_it
+                events,
+                prev_it
             );
         }
         else
