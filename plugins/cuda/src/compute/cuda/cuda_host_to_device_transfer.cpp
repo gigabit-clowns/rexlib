@@ -34,6 +34,7 @@
 
 #include <xmipp4/core/memory/align.hpp>
 #include <xmipp4/core/compute/host_buffer.hpp>
+#include <xmipp4/core/compute/checks.hpp>
 
 #include <cuda_runtime.h>
 
@@ -42,33 +43,36 @@ namespace xmipp4
 namespace compute
 {
 
+static void require_nonnull_src(const std::shared_ptr<const host_buffer> &buf)
+{
+    if (!buf)
+    {
+        throw std::invalid_argument("src_buffer cannot be nullptr");
+    }
+}
+
 void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
                                                  device_buffer &dst_buffer, 
                                                  device_queue &queue )
 {
-    if (!src_buffer)
-    {
-        throw std::invalid_argument("src_buffer cannot be nullptr");
-    }
+    require_nonnull_src(src_buffer);
 
-    if (src_buffer->get_type() != dst_buffer.get_type())
-    {
-        throw std::invalid_argument("Both buffers must have the same numerical type");
-    }
-    
-    if (src_buffer->get_count() != dst_buffer.get_count())
-    {
-        throw std::invalid_argument("Both buffers must have the same element count");
-    }
-
+    auto &cuda_dst_buffer = 
+        dynamic_cast<cuda_device_buffer&>(dst_buffer);    
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
-    const auto element_size = get_size(src_buffer->get_type());
+    const auto type = require_same_type(
+        src_buffer->get_type(), dst_buffer.get_type()
+    );
+    const auto count = require_same_count(
+        src_buffer->get_count(), dst_buffer.get_count()
+    );
+    const auto element_size = get_size(type);
 
     // TODO check return
     cudaMemcpyAsync(
-        dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data(),
+        cuda_dst_buffer.get_data(),
         src_buffer->get_data(),
-        element_size*src_buffer->get_count(),
+        element_size*count,
         cudaMemcpyHostToDevice,
         cuda_queue.get_handle()
     );
@@ -81,31 +85,22 @@ void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const hos
                                                  span<const copy_region> regions,
                                                  device_queue &queue )
 {
-    if (!src_buffer)
-    {
-        throw std::invalid_argument("src_buffer cannot be nullptr");
-    }
+    require_nonnull_src(src_buffer);
 
-    if (src_buffer->get_type() != dst_buffer.get_type())
-    {
-        throw std::invalid_argument("Both buffers must have the same numerical type");
-    }
-    
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
     const auto* src_data = src_buffer->get_data();
-    auto* dst_data = dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data();
-    const auto element_size = get_size(dst_buffer.get_type());
+    auto* dst_data = 
+        dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data();
+    const auto src_count = src_buffer->get_count();
+    const auto dst_count = dst_buffer.get_count();
+    const auto type = require_same_type(
+        src_buffer->get_type(), dst_buffer.get_type()
+    );
+    const auto element_size = get_size(type);
 
     for (const copy_region &region : regions)
     {
-        if (region.get_source_offset()+region.get_count() > src_buffer->get_count())
-        {
-            throw std::invalid_argument("Source region is out of bounds");
-        }
-        if (region.get_destination_offset()+region.get_count() > dst_buffer.get_count())
-        {
-            throw std::invalid_argument("Destination region is out of bounds");
-        }
+        require_valid_region(region, src_count, dst_count);
 
         // TODO check return
         const auto region_bytes = as_bytes(region, element_size);
