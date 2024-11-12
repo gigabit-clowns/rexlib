@@ -50,6 +50,11 @@ public:
                        device_buffer &dst_buffer, 
                        device_queue &queue ) final;
 
+    void transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
+                       device_buffer &dst_buffer, 
+                       span<const copy_region> regions,
+                       device_queue &queue ) final;
+
     std::shared_ptr<device_buffer> 
     transfer(const std::shared_ptr<host_buffer> &buffer, 
              device_memory_allocator &allocator,
@@ -67,6 +72,9 @@ public:
 private:
     cuda_device_event m_event;
     std::shared_ptr<const host_buffer> m_current;
+
+    void update_current(std::shared_ptr<const host_buffer> buffer, 
+                        cuda_device_queue &queue );
 
 }; 
 

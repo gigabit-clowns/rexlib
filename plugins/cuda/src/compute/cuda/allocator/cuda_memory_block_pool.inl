@@ -41,15 +41,6 @@ namespace xmipp4
 namespace compute
 {
 
-static void* offset(void *ptr, std::ptrdiff_t count)
-{
-    return static_cast<void*>(static_cast<char*>(ptr)+count);
-}
-
-
-
-
-
 inline
 cuda_memory_block_context::cuda_memory_block_context(iterator prev, 
                                                      iterator next, 
@@ -287,7 +278,7 @@ partition_block(cuda_memory_block_pool &blocks,
     std::tie(second, inserted) = blocks.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(
-            offset(ite->first.get_data(), size), 
+            memory::offset_bytes(ite->first.get_data(), size), 
             remaining, 
             queue_id
         ),

@@ -32,7 +32,9 @@
 #include "cuda_device_buffer.hpp"
 #include "cuda_host_memory_allocator.hpp"
 
+#include <xmipp4/core/memory/align.hpp>
 #include <xmipp4/core/compute/host_buffer.hpp>
+#include <xmipp4/core/compute/checks.hpp>
 
 
 namespace xmipp4
@@ -40,40 +42,77 @@ namespace xmipp4
 namespace compute
 {
 
+static void require_nonnull_dst(const std::shared_ptr<host_buffer> &buf)
+{
+    if (!buf)
+    {
+        throw std::invalid_argument("dst_buffer cannot be nullptr");
+    }
+}
+
 void cuda_device_to_host_transfer::transfer_copy(const device_buffer &src_buffer, 
                                                  const std::shared_ptr<host_buffer> &dst_buffer, 
                                                  device_queue &queue )
 {
-    if (!dst_buffer)
-    {
-        throw std::invalid_argument("dst_buffer cannot be nullptr");
-    }
+    require_nonnull_dst(dst_buffer);
 
-    if (src_buffer.get_type() != dst_buffer->get_type())
-    {
-        throw std::invalid_argument("Both buffers must have the same numerical type");
-    }
-    
-    if (src_buffer.get_count() != dst_buffer->get_count())
-    {
-        throw std::invalid_argument("Both buffers must have the same element count");
-    }
-
+    const auto &cuda_src_buffer = 
+        dynamic_cast<const cuda_device_buffer&>(src_buffer);    
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
-    const auto element_size = get_size(src_buffer.get_type());
+    const auto type = require_same_type(
+        src_buffer.get_type(), dst_buffer->get_type()
+    );
+    const auto count = require_same_count(
+        src_buffer.get_count(), dst_buffer->get_count()
+    );
+    const auto element_size = get_size(type);
 
     // TODO check return
     cudaMemcpyAsync(
         dst_buffer->get_data(),
-        dynamic_cast<const cuda_device_buffer&>(src_buffer).get_data(),
-        element_size*src_buffer.get_count(),
+        cuda_src_buffer.get_data(),
+        element_size*count,
         cudaMemcpyDeviceToHost,
         cuda_queue.get_handle()
     );
 
-    wait();
-    m_current = dst_buffer;
-    m_event.record(cuda_queue);
+    update_current(dst_buffer, cuda_queue);
+}
+
+void cuda_device_to_host_transfer::transfer_copy(const device_buffer &src_buffer,
+                                                 const std::shared_ptr<host_buffer> &dst_buffer,
+                                                 span<const copy_region> regions,
+                                                 device_queue &queue )
+{
+    require_nonnull_dst(dst_buffer);
+
+    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
+    const auto* src_data = 
+        dynamic_cast<const cuda_device_buffer&>(src_buffer).get_data();
+    auto* dst_data = dst_buffer->get_data();
+    const auto src_count = src_buffer.get_count();
+    const auto dst_count = dst_buffer->get_count();
+    const auto type = require_same_type(
+        src_buffer.get_type(), dst_buffer->get_type()
+    );
+    const auto element_size = get_size(type);
+
+    for (const copy_region &region : regions)
+    {
+        require_valid_region(region, src_count, dst_count);
+
+        // TODO check return
+        const auto region_bytes = as_bytes(region, element_size);
+        cudaMemcpyAsync(
+            memory::offset_bytes(dst_data, region_bytes.get_destination_offset()),
+            memory::offset_bytes(src_data, region_bytes.get_source_offset()),
+            region_bytes.get_count(),
+            cudaMemcpyDeviceToHost,
+            cuda_queue.get_handle()
+        );
+    }
+
+    update_current(dst_buffer, cuda_queue);
 }
 
 std::shared_ptr<host_buffer> 
@@ -122,6 +161,15 @@ void cuda_device_to_host_transfer::wait()
         m_event.synchronize();
         m_current = nullptr;
     }
+}
+
+void cuda_device_to_host_transfer::update_current(std::shared_ptr<const host_buffer> buffer, 
+                                                  cuda_device_queue &queue )
+{
+    wait(); // Wait the previous transfer to complete
+    m_current = std::move(buffer);
+    m_event.record(queue);
+
 }
 
 } // namespace compute
