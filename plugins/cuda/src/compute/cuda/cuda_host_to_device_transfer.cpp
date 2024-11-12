@@ -73,9 +73,7 @@ void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const hos
         cuda_queue.get_handle()
     );
 
-    wait();
-    m_current = src_buffer;
-    m_event.record(cuda_queue);
+    update_current(src_buffer, cuda_queue);
 }
 
 void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
@@ -120,9 +118,7 @@ void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const hos
         );
     }
 
-    wait();
-    m_current = src_buffer;
-    m_event.record(cuda_queue);
+    update_current(src_buffer, cuda_queue);
 }
 
 std::shared_ptr<device_buffer> 
@@ -179,6 +175,16 @@ void cuda_host_to_device_transfer::wait(device_queue &queue)
     {
         m_event.wait(queue);
     }   
+}
+
+
+void cuda_host_to_device_transfer::update_current(std::shared_ptr<const host_buffer> buffer, 
+                                                  cuda_device_queue &queue )
+{
+    wait(); // Wait the previous transfer to complete
+    m_current = std::move(buffer);
+    m_event.record(queue);
+
 }
 
 } // namespace compute

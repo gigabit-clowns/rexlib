@@ -73,6 +73,9 @@ private:
     cuda_device_event m_event;
     std::shared_ptr<const host_buffer> m_current;
 
+    void update_current(std::shared_ptr<const host_buffer> buffer, 
+                        cuda_device_queue &queue );
+
 }; 
 
 } // namespace compute

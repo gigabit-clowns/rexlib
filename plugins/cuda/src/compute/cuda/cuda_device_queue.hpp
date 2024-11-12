@@ -37,8 +37,6 @@ namespace xmipp4
 namespace compute
 {
 
-class cuda_device_queue_backend;
-
 class cuda_device_queue final
     : public device_queue
 {
