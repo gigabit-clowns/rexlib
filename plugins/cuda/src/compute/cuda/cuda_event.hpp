@@ -21,12 +21,16 @@
  ***************************************************************************/
 
 /**
- * @file cuda_device_event.hpp
+ * @file cuda_event.hpp
  * @author Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
- * @brief Defines cuda_device_event class.
+ * @brief Defines cuda_event class.
  * @date 2024-11-07
  * 
  */
+
+#include <xmipp4/core/compute/device_event.hpp>
+#include <xmipp4/core/compute/device_to_host_event.hpp>
+#include <xmipp4/core/compute/host_to_device_event.hpp>
 
 #include <cuda_runtime.h>
 
@@ -40,31 +44,36 @@ class cuda_device_queue;
 
 
 
-class cuda_device_event
+class cuda_event final
+    : public device_event
+    , public device_to_host_event
+    , public host_to_device_event
 {
 public:
     using handle = cudaEvent_t;
 
-    cuda_device_event();
-    cuda_device_event(const cuda_device_event &other) = delete;
-    cuda_device_event(cuda_device_event &&other) noexcept;
-    ~cuda_device_event();
+    cuda_event();
+    cuda_event(const cuda_event &other) = delete;
+    cuda_event(cuda_event &&other) noexcept;
+    ~cuda_event() override;
 
-    cuda_device_event& operator=(const cuda_device_event &other) = delete;
-    cuda_device_event& operator=(cuda_device_event &&other) noexcept;
+    cuda_event& operator=(const cuda_event &other) = delete;
+    cuda_event& operator=(cuda_event &&other) noexcept;
 
-    void swap(cuda_device_event &other) noexcept;
+    void swap(cuda_event &other) noexcept;
     void reset() noexcept;
     handle get_handle() noexcept;
 
+    void record() override;
+    void record(device_queue &queue) override;
     void record(cuda_device_queue &queue);
-    void record(device_queue &queue);
 
+    void wait() const override;
+    void wait(device_queue &queue) const override;
     void wait(cuda_device_queue &queue) const;
-    void wait(device_queue &queue) const;
 
-    void synchronize() const;
-    bool is_signaled() const;
+    bool is_signaled() const override;
+
 
 private:
     handle m_event;

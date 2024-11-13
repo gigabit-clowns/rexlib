@@ -159,7 +159,7 @@ void cuda_host_to_device_transfer::wait()
 {
     if (m_current)
     {
-        m_event.synchronize();
+        m_event.wait();
         m_current = nullptr;
     }
 }

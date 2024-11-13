@@ -29,7 +29,7 @@
 #include "cuda_device_memory_allocator.hpp"
 
 #include "cuda_device_queue.hpp"
-#include "cuda_device_event.hpp"
+#include "cuda_event.hpp"
 #include "default_cuda_device_buffer.hpp"
 
 #include <stdexcept>

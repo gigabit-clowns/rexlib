@@ -33,6 +33,7 @@
 #include "cuda_host_memory_allocator.hpp"
 #include "cuda_device_to_host_transfer.hpp"
 #include "cuda_host_to_device_transfer.hpp"
+#include "cuda_event.hpp"
 
 #include <memory>
 
@@ -102,6 +103,40 @@ std::shared_ptr<device_to_host_transfer>
 cuda_device::create_device_to_host_transfer_shared()
 {
     return std::make_shared<cuda_device_to_host_transfer>();
+}
+
+std::unique_ptr<device_event> cuda_device::create_device_event()
+{
+    return std::make_unique<cuda_event>();
+}
+
+std::shared_ptr<device_event> cuda_device::create_device_event_shared()
+{
+    return std::make_shared<cuda_event>();
+}
+
+std::unique_ptr<device_to_host_event> 
+cuda_device::create_device_to_host_event()
+{
+    return std::make_unique<cuda_event>();
+}
+
+std::shared_ptr<device_to_host_event> 
+cuda_device::create_device_to_host_event_shared()
+{
+    return std::make_shared<cuda_event>();
+}
+
+std::unique_ptr<host_to_device_event> 
+cuda_device::create_host_to_device_event()
+{
+    return std::make_unique<cuda_event>();
+}
+
+std::shared_ptr<host_to_device_event> 
+cuda_device::create_host_to_device_event_shared()
+{
+    return std::make_shared<cuda_event>();
 }
 
 } // namespace compute

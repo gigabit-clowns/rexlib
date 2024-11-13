@@ -19,14 +19,14 @@
  ***************************************************************************/
 
 /**
- * @file cuda_device_event.cpp
+ * @file cuda_event.cpp
  * @author Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
- * @brief Implementation of cuda_device_event.hpp
+ * @brief Implementation of cuda_event.hpp
  * @date 2024-11-07
  * 
  */
 
-#include "cuda_device_event.hpp"
+#include "cuda_event.hpp"
 
 #include "cuda_device_queue.hpp"
 
@@ -37,36 +37,36 @@ namespace xmipp4
 namespace compute
 {
 
-cuda_device_event::cuda_device_event()
+cuda_event::cuda_event()
 {
     cudaEventCreate(&m_event); // TODO check
 }
 
-cuda_device_event::cuda_device_event(cuda_device_event &&other) noexcept
+cuda_event::cuda_event(cuda_event &&other) noexcept
     : m_event(other.m_event)
 {
     other.m_event = nullptr;
 }
 
-cuda_device_event::~cuda_device_event()
+cuda_event::~cuda_event()
 {
     reset();
 }
 
-cuda_device_event& 
-cuda_device_event::operator=(cuda_device_event &&other) noexcept
+cuda_event& 
+cuda_event::operator=(cuda_event &&other) noexcept
 {
     swap(other);
     other.reset();
     return *this;
 }
 
-void cuda_device_event::swap(cuda_device_event &other) noexcept
+void cuda_event::swap(cuda_event &other) noexcept
 {
     std::swap(m_event, other.m_event);
 }
 
-void cuda_device_event::reset() noexcept
+void cuda_event::reset() noexcept
 {
     if (m_event)
     {
@@ -74,39 +74,44 @@ void cuda_device_event::reset() noexcept
     }
 }
 
-cuda_device_event::handle cuda_device_event::get_handle() noexcept
+cuda_event::handle cuda_event::get_handle() noexcept
 {
     return m_event;
 }
 
 
 
-void cuda_device_event::record(cuda_device_queue &queue)
+void cuda_event::record()
 {
-    cudaEventRecord(m_event, queue.get_handle()); // TODO check return
+    cudaEventRecord(m_event, 0); // TODO check return
 }
 
-void cuda_device_event::record(device_queue &queue)
+void cuda_event::record(device_queue &queue)
 {
     record(dynamic_cast<cuda_device_queue&>(queue));
 }
 
-void cuda_device_event::wait(cuda_device_queue &queue) const
+void cuda_event::record(cuda_device_queue &queue)
 {
-    cudaStreamWaitEvent(queue.get_handle(), m_event, cudaEventWaitDefault); // TODO check return
+    cudaEventRecord(m_event, queue.get_handle()); // TODO check return
 }
 
-void cuda_device_event::wait(device_queue &queue) const
-{
-    wait(dynamic_cast<cuda_device_queue&>(queue));
-}
-
-void cuda_device_event::synchronize() const
+void cuda_event::wait() const
 {
     cudaEventSynchronize(m_event); // TODO check return
 }
 
-bool cuda_device_event::is_signaled() const
+void cuda_event::wait(device_queue &queue) const
+{
+    wait(dynamic_cast<cuda_device_queue&>(queue));
+}
+
+void cuda_event::wait(cuda_device_queue &queue) const
+{
+    cudaStreamWaitEvent(queue.get_handle(), m_event, cudaEventWaitDefault); // TODO check return
+}
+
+bool cuda_event::is_signaled() const
 {
     return cudaEventQuery(m_event) == cudaSuccess; // TODO check errors
 }

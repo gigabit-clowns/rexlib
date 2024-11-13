@@ -44,7 +44,7 @@ namespace compute
 {
 
 class cuda_device_queue;
-class cuda_device_event;
+class cuda_event;
 
 
 
@@ -78,7 +78,7 @@ public:
                     span<cuda_device_queue*> queues);
 
 private:
-    using event_list = std::forward_list<cuda_device_event>;
+    using event_list = std::forward_list<cuda_event>;
 
     cuda_device_malloc m_allocator;
     cuda_memory_cache m_cache;
