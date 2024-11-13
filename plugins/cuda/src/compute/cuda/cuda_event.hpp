@@ -24,7 +24,7 @@
  * @file cuda_event.hpp
  * @author Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
  * @brief Defines cuda_event class.
- * @date 2024-11-07
+ * @date 2024-11-13
  * 
  */
 
@@ -73,7 +73,6 @@ public:
     void wait(cuda_device_queue &queue) const;
 
     bool is_signaled() const override;
-
 
 private:
     handle m_event;
