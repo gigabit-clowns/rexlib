@@ -48,7 +48,7 @@ public:
     cuda_host_memory_allocator() = default;
     cuda_host_memory_allocator(const cuda_host_memory_allocator &other) = delete;
     cuda_host_memory_allocator(cuda_host_memory_allocator &&other) = delete;
-    virtual ~cuda_host_memory_allocator() = default;
+    ~cuda_host_memory_allocator() override = default;
 
     cuda_host_memory_allocator&
     operator=(const cuda_host_memory_allocator &other) = delete;
@@ -57,11 +57,11 @@ public:
 
     std::unique_ptr<host_buffer> 
     create_buffer(numerical_type type, 
-                  std::size_t count ) final;
+                  std::size_t count ) override;
 
     std::shared_ptr<host_buffer> 
     create_buffer_shared(numerical_type type, 
-                         std::size_t count ) final;
+                         std::size_t count ) override;
     
     const cuda_memory_block& allocate(numerical_type type, std::size_t count);
     void deallocate(const cuda_memory_block &block);

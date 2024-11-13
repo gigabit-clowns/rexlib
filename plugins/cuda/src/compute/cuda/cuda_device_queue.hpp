@@ -46,7 +46,7 @@ public:
     cuda_device_queue(int device);
     cuda_device_queue(const cuda_device_queue &other) = delete;
     cuda_device_queue(cuda_device_queue &&other) noexcept;
-    virtual ~cuda_device_queue();
+    ~cuda_device_queue() override;
 
     cuda_device_queue& operator=(const cuda_device_queue &other) = delete;
     cuda_device_queue& operator=(cuda_device_queue &&other) noexcept;
@@ -55,7 +55,7 @@ public:
     void reset() noexcept;
     handle get_handle() noexcept;
 
-    void synchronize() const final;
+    void synchronize() const override;
 
     std::size_t get_id() const noexcept;
 

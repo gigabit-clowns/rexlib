@@ -43,15 +43,15 @@ class cuda_device_backend final
     : public device_backend
 {
 public:
-    const std::string& get_name() const noexcept final;
-    version get_version() const noexcept final;
-    bool is_available() const noexcept final;
+    const std::string& get_name() const noexcept override;
+    version get_version() const noexcept override;
+    bool is_available() const noexcept override;
 
-    void enumerate_devices(std::vector<std::size_t> &ids) const final;
-    bool get_device_properties(std::size_t id, device_properties &desc) const final;
+    void enumerate_devices(std::vector<std::size_t> &ids) const override;
+    bool get_device_properties(std::size_t id, device_properties &desc) const override;
 
-    std::unique_ptr<device> create_device(std::size_t id) final;
-    std::shared_ptr<device> create_device_shared(std::size_t id) final;
+    std::unique_ptr<device> create_device(std::size_t id) override;
+    std::shared_ptr<device> create_device_shared(std::size_t id) override;
 
     static bool register_at(device_manager &manager);
 

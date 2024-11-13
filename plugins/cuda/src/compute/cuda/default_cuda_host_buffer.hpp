@@ -51,7 +51,7 @@ public:
                              cuda_host_memory_allocator &allocator) noexcept;
     default_cuda_host_buffer(const default_cuda_host_buffer &other) = delete;
     default_cuda_host_buffer(default_cuda_host_buffer &&other) noexcept;
-    ~default_cuda_host_buffer() final;
+    ~default_cuda_host_buffer() override;
 
     default_cuda_host_buffer& 
     operator=(const default_cuda_host_buffer &other) = delete;
@@ -61,11 +61,11 @@ public:
     void swap(default_cuda_host_buffer &other) noexcept;
     void reset() noexcept;
 
-    numerical_type get_type() const noexcept final;
-    std::size_t get_count() const noexcept final;
+    numerical_type get_type() const noexcept override;
+    std::size_t get_count() const noexcept override;
 
-    void* get_data() noexcept final;
-    const void* get_data() const noexcept final;
+    void* get_data() noexcept override;
+    const void* get_data() const noexcept override;
 
 private:
     numerical_type m_type;

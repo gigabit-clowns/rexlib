@@ -41,7 +41,7 @@ public:
     cuda_plugin() = default;
     cuda_plugin(const cuda_plugin& other) = default;
     cuda_plugin(cuda_plugin&& other) = default;
-    virtual ~cuda_plugin() = default;
+    ~cuda_plugin() override = default;
 
     cuda_plugin& operator=(const cuda_plugin& other) = default;
     cuda_plugin& operator=(cuda_plugin&& other) = default;

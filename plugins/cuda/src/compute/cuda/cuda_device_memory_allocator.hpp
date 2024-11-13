@@ -55,7 +55,7 @@ public:
     explicit cuda_device_memory_allocator(int device_id);
     cuda_device_memory_allocator(const cuda_device_memory_allocator &other) = default;
     cuda_device_memory_allocator(cuda_device_memory_allocator &&other) = default;
-    virtual ~cuda_device_memory_allocator() = default;
+    ~cuda_device_memory_allocator() override = default;
 
     cuda_device_memory_allocator&
     operator=(const cuda_device_memory_allocator &other) = default;
@@ -64,12 +64,12 @@ public:
 
     std::unique_ptr<device_buffer> 
     create_buffer(numerical_type type, 
-                  std::size_t count, device_queue &queue ) final;
+                  std::size_t count, device_queue &queue ) override;
 
     std::shared_ptr<device_buffer> 
     create_buffer_shared(numerical_type type, 
                          std::size_t count, 
-                         device_queue &queue ) final;
+                         device_queue &queue ) override;
 
     const cuda_memory_block& allocate(numerical_type type, 
                                       std::size_t count,
