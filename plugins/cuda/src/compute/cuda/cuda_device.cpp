@@ -140,17 +140,5 @@ cuda_device::create_device_to_host_event_shared()
     return std::make_shared<cuda_event>();
 }
 
-std::unique_ptr<host_to_device_event> 
-cuda_device::create_host_to_device_event()
-{
-    return nullptr; // NOT IMPLEMENTED
-}
-
-std::shared_ptr<host_to_device_event> 
-cuda_device::create_host_to_device_event_shared()
-{
-    return nullptr; // NOT IMPLEMENTED
-}
-
 } // namespace compute
 } // namespace xmipp4

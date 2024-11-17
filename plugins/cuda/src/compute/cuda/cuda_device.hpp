@@ -85,11 +85,6 @@ public:
     std::shared_ptr<device_to_host_event> 
     create_device_to_host_event_shared() override;
 
-    std::unique_ptr<host_to_device_event> 
-    create_host_to_device_event() override;
-    std::shared_ptr<host_to_device_event> 
-    create_host_to_device_event_shared() override;
-
 private:
     int m_device;
 

@@ -30,7 +30,6 @@
 
 #include <xmipp4/core/compute/device_event.hpp>
 #include <xmipp4/core/compute/device_to_host_event.hpp>
-#include <xmipp4/core/compute/host_to_device_event.hpp>
 
 #include <cuda_runtime.h>
 
