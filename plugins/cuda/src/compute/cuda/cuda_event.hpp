@@ -47,7 +47,6 @@ class cuda_device_queue;
 class cuda_event final
     : public device_event
     , public device_to_host_event
-    , public host_to_device_event
 {
 public:
     using handle = cudaEvent_t;
@@ -64,7 +63,6 @@ public:
     void reset() noexcept;
     handle get_handle() noexcept;
 
-    void record() override;
     void record(device_queue &queue) override;
     void record(cuda_device_queue &queue);
 
