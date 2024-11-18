@@ -72,9 +72,9 @@ public:
     std::shared_ptr<device_to_host_transfer> 
     create_device_to_host_transfer_shared() override;
 
-    std::unique_ptr<device_buffer_copy> 
+    std::unique_ptr<device_copy> 
     create_device_buffer_copy() override;
-    std::shared_ptr<device_buffer_copy> 
+    std::shared_ptr<device_copy> 
     create_device_buffer_copy_shared() override;
 
     std::unique_ptr<device_event> create_device_event() override;

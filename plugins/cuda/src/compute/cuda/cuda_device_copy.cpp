@@ -19,14 +19,14 @@
  ***************************************************************************/
 
 /**
- * @file cuda_device_buffer_copy.cpp
+ * @file cuda_device_copy.cpp
  * @author Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
  * @brief Implementation of cuda_device_buffer_copy.hpp
  * @date 2024-11-06
  * 
  */
 
-#include "cuda_device_buffer_copy.hpp"
+#include "cuda_device_copy.hpp"
 
 #include "cuda_device_queue.hpp"
 #include "cuda_device_buffer.hpp"
@@ -40,9 +40,9 @@ namespace xmipp4
 namespace compute
 {
 
-void cuda_device_buffer_copy::copy(const device_buffer &src_buffer, 
-                                   device_buffer &dst_buffer, 
-                                   device_queue &queue )
+void cuda_device_copy::copy(const device_buffer &src_buffer, 
+                            device_buffer &dst_buffer, 
+                            device_queue &queue )
 {
     const auto &cuda_src_buffer = 
         dynamic_cast<const cuda_device_buffer&>(src_buffer);    
@@ -67,10 +67,10 @@ void cuda_device_buffer_copy::copy(const device_buffer &src_buffer,
     );
 }
 
-void cuda_device_buffer_copy::copy(const device_buffer &src_buffer,
-                                   device_buffer &dst_buffer,
-                                   span<const copy_region> regions,
-                                   device_queue &queue )
+void cuda_device_copy::copy(const device_buffer &src_buffer,
+                            device_buffer &dst_buffer,
+                            span<const copy_region> regions,
+                            device_queue &queue )
 {
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
     const auto *src_data = 

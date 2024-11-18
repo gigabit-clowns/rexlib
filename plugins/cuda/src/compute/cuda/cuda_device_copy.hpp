@@ -21,14 +21,14 @@
  ***************************************************************************/
 
 /**
- * @file cuda_device_buffer_copy.hpp
+ * @file cuda_device_copy.hpp
  * @author Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
- * @brief Defines the compute::cuda_device_buffer_copy class
+ * @brief Defines the compute::cuda_device_copy class
  * @date 2024-11-15
  * 
  */
 
-#include <xmipp4/core/compute/device_buffer_copy.hpp>
+#include <xmipp4/core/compute/device_copy.hpp>
 
 namespace xmipp4 
 {
@@ -39,8 +39,8 @@ namespace compute
  * @brief CUDA implementation of the buffer copy engine.
  * 
  */
-class cuda_device_buffer_copy final
-    : public device_buffer_copy
+class cuda_device_copy final
+    : public device_copy
 {
 public:
     void copy(const device_buffer &src_buffer,
