@@ -73,9 +73,9 @@ void cuda_device_buffer_copy::copy(const device_buffer &src_buffer,
                                    device_queue &queue )
 {
     auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
-    const auto* src_data = 
+    const auto *src_data = 
         dynamic_cast<const cuda_device_buffer&>(src_buffer).get_data();
-    auto* dst_data = 
+    auto *dst_data = 
         dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data();
     const auto src_count = src_buffer.get_count();
     const auto dst_count = dst_buffer.get_count();
