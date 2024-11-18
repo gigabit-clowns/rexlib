@@ -62,8 +62,8 @@ public:
     void reset() noexcept;
     handle get_handle() noexcept;
 
-    void record(device_queue &queue) override;
-    void record(cuda_device_queue &queue);
+    void signal(device_queue &queue) override;
+    void signal(cuda_device_queue &queue);
 
     void wait() const override;
     void wait(device_queue &queue) const override;

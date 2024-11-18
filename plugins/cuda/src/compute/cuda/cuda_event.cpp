@@ -81,12 +81,12 @@ cuda_event::handle cuda_event::get_handle() noexcept
 
 
 
-void cuda_event::record(device_queue &queue)
+void cuda_event::signal(device_queue &queue)
 {
-    record(dynamic_cast<cuda_device_queue&>(queue));
+    signal(dynamic_cast<cuda_device_queue&>(queue));
 }
 
-void cuda_event::record(cuda_device_queue &queue)
+void cuda_event::signal(cuda_device_queue &queue)
 {
     cudaEventRecord(m_event, queue.get_handle()); // TODO check return
 }

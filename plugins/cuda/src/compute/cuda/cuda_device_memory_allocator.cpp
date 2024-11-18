@@ -155,7 +155,7 @@ void cuda_device_memory_allocator
             );
         }
 
-        events.front().record(*queue);
+        events.front().signal(*queue);
     }
 }
 
