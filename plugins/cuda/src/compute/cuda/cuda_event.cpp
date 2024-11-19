@@ -28,6 +28,7 @@
 
 #include "cuda_event.hpp"
 
+#include "cuda_error.hpp"
 #include "cuda_device_queue.hpp"
 
 #include <utility>
@@ -39,7 +40,7 @@ namespace compute
 
 cuda_event::cuda_event()
 {
-    cudaEventCreate(&m_event); // TODO check
+    XMIPP4_CUDA_CHECK( cudaEventCreate(&m_event) );
 }
 
 cuda_event::cuda_event(cuda_event &&other) noexcept
@@ -70,7 +71,7 @@ void cuda_event::reset() noexcept
 {
     if (m_event)
     {
-        cudaEventDestroy(m_event); // TODO check
+        XMIPP4_CUDA_CHECK( cudaEventDestroy(m_event) );
     }
 }
 
@@ -88,12 +89,12 @@ void cuda_event::signal(device_queue &queue)
 
 void cuda_event::signal(cuda_device_queue &queue)
 {
-    cudaEventRecord(m_event, queue.get_handle()); // TODO check return
+    XMIPP4_CUDA_CHECK( cudaEventRecord(m_event, queue.get_handle()) );
 }
 
 void cuda_event::wait() const
 {
-    cudaEventSynchronize(m_event); // TODO check return
+    XMIPP4_CUDA_CHECK( cudaEventSynchronize(m_event) );
 }
 
 void cuda_event::wait(device_queue &queue) const
@@ -103,12 +104,31 @@ void cuda_event::wait(device_queue &queue) const
 
 void cuda_event::wait(cuda_device_queue &queue) const
 {
-    cudaStreamWaitEvent(queue.get_handle(), m_event, cudaEventWaitDefault); // TODO check return
+    XMIPP4_CUDA_CHECK(
+        cudaStreamWaitEvent(queue.get_handle(), m_event, cudaEventWaitDefault)
+    );
 }
 
 bool cuda_event::is_signaled() const
 {
-    return cudaEventQuery(m_event) == cudaSuccess; // TODO check errors
+    const auto code = cudaEventQuery(m_event);
+
+    bool result;
+    switch (code)
+    {
+    case cudaSuccess:
+        result = true;
+        break;
+
+    case cudaErrorNotReady:
+        result = false;
+        break;
+    
+    default:
+        XMIPP4_CUDA_CHECK(code);
+        break;
+    }
+    return result;
 }
 
 } // namespace compute

@@ -26,6 +26,7 @@
  * 
  */
 
+#include "../cuda_error.hpp"
 #include "cuda_device_malloc.hpp"
 
 #include <cuda_runtime.h>
@@ -45,15 +46,15 @@ inline
 void* cuda_device_malloc::allocate(std::size_t size) const
 {
     void* result;
-    cudaSetDevice(m_device_id); // TODO check
-    cudaMalloc(&result, size); // TODO check
+    XMIPP4_CUDA_CHECK( cudaSetDevice(m_device_id) );
+    XMIPP4_CUDA_CHECK( cudaMalloc(&result, size) );
     return result;
 }
 
 inline
 void cuda_device_malloc::deallocate(void* data, std::size_t) const
 {
-    cudaFree(data); // TODO check
+    XMIPP4_CUDA_CHECK( cudaFree(data) );
 }
 
 } // namespace compute

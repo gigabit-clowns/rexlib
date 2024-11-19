@@ -37,13 +37,17 @@ namespace xmipp4
 namespace compute
 {
 
+class cuda_device;
+
+
+
 class cuda_device_queue final
     : public device_queue
 {
 public:
     using handle = cudaStream_t;
 
-    cuda_device_queue(int device);
+    explicit cuda_device_queue(cuda_device &device);
     cuda_device_queue(const cuda_device_queue &other) = delete;
     cuda_device_queue(cuda_device_queue &&other) noexcept;
     ~cuda_device_queue() override;

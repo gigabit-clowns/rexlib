@@ -28,6 +28,7 @@
 
 #include "cuda_host_to_device_transfer.hpp"
 
+#include "cuda_error.hpp"
 #include "cuda_device_queue.hpp"
 #include "cuda_device_buffer.hpp"
 #include "cuda_device_memory_allocator.hpp"
@@ -68,13 +69,14 @@ void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const hos
     );
     const auto element_size = get_size(type);
 
-    // TODO check return
-    cudaMemcpyAsync(
-        cuda_dst_buffer.get_data(),
-        src_buffer->get_data(),
-        element_size*count,
-        cudaMemcpyHostToDevice,
-        cuda_queue.get_handle()
+    XMIPP4_CUDA_CHECK(
+        cudaMemcpyAsync(
+            cuda_dst_buffer.get_data(),
+            src_buffer->get_data(),
+            element_size*count,
+            cudaMemcpyHostToDevice,
+            cuda_queue.get_handle()
+        )
     );
 
     update_current(src_buffer, cuda_queue);
@@ -101,15 +103,16 @@ void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const hos
     for (const copy_region &region : regions)
     {
         require_valid_region(region, src_count, dst_count);
-
-        // TODO check return
         const auto region_bytes = as_bytes(region, element_size);
-        cudaMemcpyAsync(
-            memory::offset_bytes(dst_data, region_bytes.get_destination_offset()),
-            memory::offset_bytes(src_data, region_bytes.get_source_offset()),
-            region_bytes.get_count(),
-            cudaMemcpyHostToDevice,
-            cuda_queue.get_handle()
+
+        XMIPP4_CUDA_CHECK(
+            cudaMemcpyAsync(
+                memory::offset_bytes(dst_data, region_bytes.get_destination_offset()),
+                memory::offset_bytes(src_data, region_bytes.get_source_offset()),
+                region_bytes.get_count(),
+                cudaMemcpyHostToDevice,
+                cuda_queue.get_handle()
+            )
         );
     }
 

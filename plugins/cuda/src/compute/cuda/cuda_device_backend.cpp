@@ -28,6 +28,7 @@
 
 #include "cuda_device_backend.hpp"
 
+#include "cuda_error.hpp"
 #include "cuda_device.hpp"
 
 #include <xmipp4/core/compute/device_manager.hpp>
@@ -67,7 +68,7 @@ const std::string& cuda_device_backend::get_name() const noexcept
 version cuda_device_backend::get_version() const noexcept
 {
     int cuda_version;
-    cudaRuntimeGetVersion(&cuda_version); // TODO check
+    XMIPP4_CUDA_CHECK( cudaRuntimeGetVersion(&cuda_version) );
 
     const auto major_div = std::div(cuda_version, 1000);
     const auto minor_div = std::div(major_div.rem, 10);
@@ -109,7 +110,7 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
     if (result)
     {
         cudaDeviceProp prop;
-        cudaGetDeviceProperties(&prop, device); // TODO check
+        XMIPP4_CUDA_CHECK( cudaGetDeviceProperties(&prop, device) );
 
         // Convert
         const auto type = 
@@ -134,7 +135,7 @@ std::unique_ptr<device>
 cuda_device_backend::create_device(std::size_t id)
 {
     int count;
-    cudaGetDeviceCount(&count);// TODO check
+    XMIPP4_CUDA_CHECK( cudaGetDeviceCount(&count) );
     if (static_cast<int>(id) >= count)
     {
         throw std::invalid_argument("Invalid device id");
@@ -147,7 +148,7 @@ std::shared_ptr<device>
 cuda_device_backend::create_device_shared(std::size_t id)
 {
     int count;
-    cudaGetDeviceCount(&count); // TODO check
+    XMIPP4_CUDA_CHECK( cudaGetDeviceCount(&count) );
     if (static_cast<int>(id) >= count)
     {
         throw std::invalid_argument("Invalid device id");

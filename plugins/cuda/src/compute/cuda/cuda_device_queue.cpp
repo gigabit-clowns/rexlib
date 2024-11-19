@@ -28,6 +28,9 @@
 
 #include "cuda_device_queue.hpp"
 
+#include "cuda_error.hpp"
+#include "cuda_device.hpp"
+
 #include <utility>
 #include <functional>
 
@@ -36,10 +39,10 @@ namespace xmipp4
 namespace compute
 {
 
-cuda_device_queue::cuda_device_queue(int device)
+cuda_device_queue::cuda_device_queue(cuda_device &device)
 {
-    cudaSetDevice(device);
-    cudaStreamCreate(&m_stream); // TODO check
+    XMIPP4_CUDA_CHECK( cudaSetDevice(device.get_index()) );
+    XMIPP4_CUDA_CHECK( cudaStreamCreate(&m_stream) );
 }
 
 cuda_device_queue::cuda_device_queue(cuda_device_queue &&other) noexcept
@@ -70,7 +73,7 @@ void cuda_device_queue::reset() noexcept
 {
     if (m_stream)
     {
-        cudaStreamDestroy(m_stream);// TODO check
+        XMIPP4_CUDA_CHECK( cudaStreamDestroy(m_stream) );
     }
 }
 
@@ -82,7 +85,7 @@ cuda_device_queue::handle cuda_device_queue::get_handle() noexcept
 
 void cuda_device_queue::synchronize() const
 {
-    cudaStreamSynchronize(m_stream);
+    XMIPP4_CUDA_CHECK( cudaStreamSynchronize(m_stream) );
 }
 
 std::size_t cuda_device_queue::get_id() const noexcept
