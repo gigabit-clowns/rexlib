@@ -44,4 +44,3 @@ TEST_CASE( "construct cuda_memory_block", "[cuda_memory_block]" )
     REQUIRE( block.get_size() == 0xC0FFE );
     REQUIRE( block.get_queue_id() == 1357 );
 }
-
