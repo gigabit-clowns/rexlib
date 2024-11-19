@@ -29,7 +29,7 @@
  * 
  */
 
-#include "cuda_error.hpp"
+#include <xmipp4/cuda/compute/cuda_error.hpp>
 
 #include <sstream>
 

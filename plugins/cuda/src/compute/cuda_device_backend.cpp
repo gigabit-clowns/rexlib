@@ -26,10 +26,10 @@
  * 
  */
 
-#include "cuda_device_backend.hpp"
+#include <xmipp4/cuda/compute/cuda_device_backend.hpp>
 
-#include "cuda_error.hpp"
-#include "cuda_device.hpp"
+#include <xmipp4/cuda/compute/cuda_error.hpp>
+#include <xmipp4/cuda/compute/cuda_device.hpp>
 
 #include <xmipp4/core/compute/device_manager.hpp>
 

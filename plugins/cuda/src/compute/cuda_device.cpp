@@ -26,15 +26,15 @@
  * 
  */
 
-#include "cuda_device.hpp"
+#include <xmipp4/cuda/compute/cuda_device.hpp>
 
-#include "cuda_device_queue.hpp"
-#include "cuda_device_memory_allocator.hpp"
-#include "cuda_host_memory_allocator.hpp"
-#include "cuda_device_to_host_transfer.hpp"
-#include "cuda_host_to_device_transfer.hpp"
-#include "cuda_device_copy.hpp"
-#include "cuda_event.hpp"
+#include <xmipp4/cuda/compute/cuda_device_queue.hpp>
+#include <xmipp4/cuda/compute/cuda_device_memory_allocator.hpp>
+#include <xmipp4/cuda/compute/cuda_host_memory_allocator.hpp>
+#include <xmipp4/cuda/compute/cuda_device_to_host_transfer.hpp>
+#include <xmipp4/cuda/compute/cuda_host_to_device_transfer.hpp>
+#include <xmipp4/cuda/compute/cuda_device_copy.hpp>
+#include <xmipp4/cuda/compute/cuda_event.hpp>
 
 #include <memory>
 

@@ -26,10 +26,10 @@
  * 
  */
 
-#include "cuda_event.hpp"
+#include <xmipp4/cuda/compute/cuda_event.hpp>
 
-#include "cuda_error.hpp"
-#include "cuda_device_queue.hpp"
+#include <xmipp4/cuda/compute/cuda_error.hpp>
+#include <xmipp4/cuda/compute/cuda_device_queue.hpp>
 
 #include <utility>
 

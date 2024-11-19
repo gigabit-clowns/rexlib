@@ -26,11 +26,11 @@
  * 
  */
 
-#include "cuda_device_copy.hpp"
+#include <xmipp4/cuda/compute/cuda_device_copy.hpp>
 
-#include "cuda_error.hpp"
-#include "cuda_device_queue.hpp"
-#include "cuda_device_buffer.hpp"
+#include <xmipp4/cuda/compute/cuda_error.hpp>
+#include <xmipp4/cuda/compute/cuda_device_queue.hpp>
+#include <xmipp4/cuda/compute/cuda_device_buffer.hpp>
 
 #include <xmipp4/core/memory/align.hpp>
 #include <xmipp4/core/compute/checks.hpp>

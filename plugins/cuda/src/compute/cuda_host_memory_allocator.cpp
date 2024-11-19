@@ -26,7 +26,7 @@
  * 
  */
 
-#include "cuda_host_memory_allocator.hpp"
+#include <xmipp4/cuda/compute/cuda_host_memory_allocator.hpp>
 
 #include "default_cuda_host_buffer.hpp"
 

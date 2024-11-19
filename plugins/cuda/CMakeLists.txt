@@ -54,12 +54,18 @@ file(
 )
 
 # Create the shared library
-add_library(${PROJECT_NAME} MODULE ${SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
 set_target_properties(
 	${PROJECT_NAME} 
 	PROPERTIES 
 		CXX_STANDARD 20
 		DEFINE_SYMBOL "XMIPP4_COMPUTE_CUDA_EXPORTING"
+)
+target_include_directories(
+	${PROJECT_NAME} 
+	PUBLIC 
+	  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_compile_definitions(
 	${PROJECT_NAME} 
@@ -100,7 +106,16 @@ endif()
 # Install library's binary files and headers
 install(
 	TARGETS ${PROJECT_NAME}
+	EXPORT ${PROJECT_NAME}-config
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4/plugins/
+)
+install(
+	DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ 
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+install(
+  	EXPORT ${PROJECT_NAME}-config
+  	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
 )
 
 # Only build tests if it is the main project
