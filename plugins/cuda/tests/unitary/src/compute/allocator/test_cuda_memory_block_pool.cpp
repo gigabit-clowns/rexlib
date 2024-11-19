@@ -43,16 +43,53 @@ public:
 
 };
 
+static 
+cuda_memory_block_pool::iterator 
+generate_partitions(cuda_memory_block_pool &pool, std::size_t number)
+{
+    cuda_memory_block_pool::iterator ite;
+    cuda_memory_block_pool::iterator result;
+    const cuda_memory_block_pool::iterator null;
+    const std::size_t size = 1024;
+    std::uintptr_t address = 0xDEADBEEF;
+
+    for (std::size_t i = 0; i < number; ++i)
+    {
+        std::tie(ite, std::ignore) = pool.emplace(
+            std::piecewise_construct,
+            std::forward_as_tuple(reinterpret_cast<void*>(address), size, 16),
+            std::forward_as_tuple(ite, null, false)
+        );
+        update_backward_link(ite);
+        address += size;
+
+        if (i == 0)
+        {
+            result = ite;
+        }
+    }
+
+    return result;
+}
+
+static void invalidate_forward_link(cuda_memory_block_pool::iterator ite)
+{
+    const cuda_memory_block_pool::iterator null;
+    ite->second.get_next_block()->second.set_previous_block(null);
+}
+
+static void invalidate_backward_link(cuda_memory_block_pool::iterator ite)
+{
+    const cuda_memory_block_pool::iterator null;
+    ite->second.get_previous_block()->second.set_next_block(null);
+}
+
+
+
 TEST_CASE( "is_partition should return false when not partitioned", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, false)
-    );
+    auto ite = generate_partitions(pool, 1);
 
     REQUIRE( is_partition(ite->second) == false );
 }
@@ -60,14 +97,7 @@ TEST_CASE( "is_partition should return false when not partitioned", "[cuda_memor
 TEST_CASE( "is_partition should return true when partitioned in two", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, false)
-    );
-    ite = partition_block(pool, ite, 512, 512);
+    auto ite = generate_partitions(pool, 2);
 
     // Check for both halves that the condition is satisfied
     REQUIRE( is_partition(ite->second) == true );
@@ -78,15 +108,7 @@ TEST_CASE( "is_partition should return true when partitioned in two", "[cuda_mem
 TEST_CASE( "is_partition should return true when partitioned in three", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, false)
-    );
-    ite = partition_block(pool, ite, 512, 512);
-    ite = partition_block(pool, ite, 256, 256);
+    auto ite = generate_partitions(pool, 3);
 
     // Check for all thirds that the condition is satisfied
     REQUIRE( is_partition(ite->second) == true );
@@ -105,44 +127,24 @@ TEST_CASE( "is_mergeable should return false when null iterator", "[cuda_memory_
 TEST_CASE( "is_mergeable should return false when occupied", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, false)
-    );
+    auto ite = generate_partitions(pool, 1);
+    ite->second.set_free(false);
     REQUIRE( is_mergeable(ite) == false );
 }
 
 TEST_CASE( "is_mergeable should return true when free", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
+    auto ite = generate_partitions(pool, 1);
+    ite->second.set_free(true);
     REQUIRE( is_mergeable(ite) == true );
 }
 
 TEST_CASE( "update_forward_link should produce valid link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(null, ite, true)
-    );
+    auto ite = generate_partitions(pool, 2);
+    invalidate_forward_link(ite);
 
     REQUIRE( check_forward_link(ite) == false );
     update_forward_link(ite);
@@ -152,18 +154,9 @@ TEST_CASE( "update_forward_link should produce valid link", "[cuda_memory_block_
 TEST_CASE( "update_backward_link should produce valid link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(ite, null, true)
-    );
+    auto ite = generate_partitions(pool, 2);
+    ite = ite->second.get_next_block();
+    invalidate_backward_link(ite);
 
     REQUIRE( check_backward_link(ite) == false );
     update_backward_link(ite);
@@ -173,23 +166,10 @@ TEST_CASE( "update_backward_link should produce valid link", "[cuda_memory_block
 TEST_CASE( "update_links should produce valid links", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite, prev, next;
-    std::tie(prev, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(next, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(2048)), 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(prev, next, true)
-    );
+    auto ite = generate_partitions(pool, 3);
+    ite = ite->second.get_next_block();
+    invalidate_forward_link(ite);
+    invalidate_backward_link(ite);
 
     REQUIRE( check_forward_link(ite) == false );
     REQUIRE( check_backward_link(ite) == false );
@@ -201,18 +181,8 @@ TEST_CASE( "update_links should produce valid links", "[cuda_memory_block_pool]"
 TEST_CASE( "check_forward_link should return false with invalid link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(null, ite, true)
-    );
+    auto ite = generate_partitions(pool, 2);
+    invalidate_forward_link(ite);
 
     REQUIRE( check_forward_link(ite) == false );
 }
@@ -220,34 +190,15 @@ TEST_CASE( "check_forward_link should return false with invalid link", "[cuda_me
 TEST_CASE( "check_forward_link should return true with valid link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator prev, next;
-    std::tie(prev, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(next, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(prev, null, true)
-    );
+    auto ite = generate_partitions(pool, 2);
 
-    prev->second.set_next_block(next);
-
-    REQUIRE( check_forward_link(prev) == true );
+    REQUIRE( check_forward_link(ite) == true );
 }
 
 TEST_CASE( "check_forward_link should return true with empty link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
+    auto ite = generate_partitions(pool, 1);
 
     REQUIRE( check_forward_link(ite) == true );
 }
@@ -255,18 +206,9 @@ TEST_CASE( "check_forward_link should return true with empty link", "[cuda_memor
 TEST_CASE( "check_backward_link should return false with invalid link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(ite, null, true)
-    );
+    auto ite = generate_partitions(pool, 2);
+    ite = ite->second.get_next_block();
+    invalidate_backward_link(ite);
 
     REQUIRE( check_backward_link(ite) == false );
 }
@@ -274,22 +216,18 @@ TEST_CASE( "check_backward_link should return false with invalid link", "[cuda_m
 TEST_CASE( "check_backward_link should return true with valid link", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator prev, next;
-    std::tie(prev, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
-    std::tie(next, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(1024)), 1024, 0),
-        std::forward_as_tuple(prev, null, true)
-    );
+    auto ite = generate_partitions(pool, 2);
+    ite = ite->second.get_next_block();
     
-    prev->second.set_next_block(next);
+    REQUIRE( check_backward_link(ite) == true );
+}
 
-    REQUIRE( check_backward_link(next) == true );
+TEST_CASE( "check_backward_link should return true with empty link", "[cuda_memory_block_pool]" )
+{
+    cuda_memory_block_pool pool;
+    auto ite = generate_partitions(pool, 1);
+
+    REQUIRE( check_backward_link(ite) == true );
 }
 
 TEST_CASE( "find_suitable_block should return the smallest free block larger than the requested size", "[cuda_memory_block_pool]" )
@@ -371,29 +309,16 @@ TEST_CASE( "find_suitable_block should return end when no suitable block is foun
 TEST_CASE( "consider partitioning block should not partition with reminder is smaller than threshold", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
+    auto ite = generate_partitions(pool, 1);
 
     consider_partitioning_block(pool, ite, 768, 512);
-
     REQUIRE( pool.size() == 1 );
 }
 
 TEST_CASE( "consider partitioning block should partition with reminder is greater or equal than threshold", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(nullptr, 1024, 0),
-        std::forward_as_tuple(null, null, true)
-    );
+    auto ite = generate_partitions(pool, 1);
 
     SECTION("equal")
     {
@@ -411,42 +336,31 @@ TEST_CASE( "partition_block should output two valid partitions", "[cuda_memory_b
 {
     cuda_memory_block_pool pool;
     const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(4096)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
+    auto ite = generate_partitions(pool, 1);
 
     ite = partition_block(pool, ite, 768, 256);
     REQUIRE( pool.size() == 2 );
 
-    REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == 4096 );
+    REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == 0xDEADBEEF );
     REQUIRE( ite->first.get_size() == 768 );
-    REQUIRE( ite->first.get_queue_id() == 8 );
+    REQUIRE( ite->first.get_queue_id() == 16 );
     REQUIRE( ite->second.get_previous_block() == null );
-    REQUIRE( ite->second.is_free() == true );
+    REQUIRE( ite->second.is_free() == false );
     REQUIRE( check_forward_link(ite) == true );
 
     ite = ite->second.get_next_block();
-    REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == 4864 );
+    REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == (0xDEADBEEF + 768) );
     REQUIRE( ite->first.get_size() == 256 );
-    REQUIRE( ite->first.get_queue_id() == 8 );
+    REQUIRE( ite->first.get_queue_id() == 16 );
     REQUIRE( ite->second.get_next_block() == null );
-    REQUIRE( ite->second.is_free() == true );
+    REQUIRE( ite->second.is_free() == false );
     REQUIRE( check_backward_link(ite) == true );
 }
 
 TEST_CASE( "consider_merging_block should not merge when is not partition", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
+    auto ite = generate_partitions(pool, 1);
 
     consider_merging_block(pool, ite);
     REQUIRE( pool.size() == 1 );
@@ -455,14 +369,7 @@ TEST_CASE( "consider_merging_block should not merge when is not partition", "[cu
 TEST_CASE( "consider_merging_block should not merge when prev is occupied", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 512, 512);
+    auto ite = generate_partitions(pool, 2);
     ite->second.set_free(false);
     ite = ite->second.get_next_block();
 
@@ -475,20 +382,11 @@ TEST_CASE( "consider_merging_block should not merge when prev is occupied", "[cu
 TEST_CASE( "consider_merging_block should not merge when next is occupied", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 512, 512);
-    ite = ite->second.get_next_block();
-    ite->second.set_free(false);
-    ite = ite->second.get_previous_block();
-    
+    auto ite = generate_partitions(pool, 2);
+    ite->second.get_next_block()->second.set_free(false);
+
     const auto old_ite = ite;
-    ite = consider_merging_block(pool, ite);
+    consider_merging_block(pool, ite);
     REQUIRE( ite == old_ite );
     REQUIRE( pool.size() == 2 );
 }
@@ -496,15 +394,10 @@ TEST_CASE( "consider_merging_block should not merge when next is occupied", "[cu
 TEST_CASE( "consider_merging_block should merge when prev is free", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 512, 512);
+    auto ite = generate_partitions(pool, 2);
+    ite->second.set_free(true);
     ite = ite->second.get_next_block();
+    ite->second.set_free(true);
 
     consider_merging_block(pool, ite);
     REQUIRE( pool.size() == 1 );
@@ -513,50 +406,31 @@ TEST_CASE( "consider_merging_block should merge when prev is free", "[cuda_memor
 TEST_CASE( "consider_merging_block should merge when next is free", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 512, 512);
-    
-    ite = consider_merging_block(pool, ite);
+    auto ite = generate_partitions(pool, 2);
+    ite->second.set_free(true);
+    ite->second.get_next_block()->second.set_free(true);
+
+    consider_merging_block(pool, ite);
     REQUIRE( pool.size() == 1 );
 }
 
 TEST_CASE( "consider_merging_block should merge when prev and next is free", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 512, 512);
-    ite = partition_block(pool, ite, 256, 256);
+    auto ite = generate_partitions(pool, 3);
+    ite->second.set_free(true);
     ite = ite->second.get_next_block();
+    ite->second.set_free(true);
+    ite->second.get_next_block()->second.set_free(true);
 
-    ite = consider_merging_block(pool, ite);
+    consider_merging_block(pool, ite);
     REQUIRE( pool.size() == 1 );
 }
 
 TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 768, 256);
-    ite = partition_block(pool, ite, 512, 256);
-    ite = partition_block(pool, ite, 256, 256);
+    auto ite = generate_partitions(pool, 4);
 
     const auto keep_left = ite;
     const auto merge1 = keep_left->second.get_next_block();
@@ -564,9 +438,9 @@ TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
     const auto keep_right = merge2->second.get_next_block();
 
     const auto merged = merge_blocks(pool, merge1, merge2);
-    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (0xDEADBEEF + 256));
-    REQUIRE( merged->first.get_size() == 512 );
-    REQUIRE( merged->first.get_queue_id() == 8 );
+    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (0xDEADBEEF + 1024));
+    REQUIRE( merged->first.get_size() == 2048 );
+    REQUIRE( merged->first.get_queue_id() == 16 );
     REQUIRE( merged->second.get_previous_block() == keep_left );
     REQUIRE( merged->second.get_next_block() == keep_right );
     REQUIRE( merged->second.is_free() == true );
@@ -577,17 +451,7 @@ TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
 TEST_CASE( "merge_blocks (3) produce valid blocks", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    const cuda_memory_block_pool::iterator null;
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF)), 1024, 8),
-        std::forward_as_tuple(null, null, true)
-    );
-    ite = partition_block(pool, ite, 768, 256);
-    ite = partition_block(pool, ite, 512, 256);
-    ite = partition_block(pool, ite, 256, 256);
-    ite = partition_block(pool, ite, 128, 128);
+    auto ite = generate_partitions(pool, 5);
 
     const auto keep_left = ite;
     const auto merge1 = keep_left->second.get_next_block();
@@ -596,9 +460,9 @@ TEST_CASE( "merge_blocks (3) produce valid blocks", "[cuda_memory_block_pool]" )
     const auto keep_right = merge3->second.get_next_block();
 
     const auto merged = merge_blocks(pool, merge1, merge2, merge3);
-    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (0xDEADBEEF + 128));
-    REQUIRE( merged->first.get_size() == 640 );
-    REQUIRE( merged->first.get_queue_id() == 8 );
+    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (0xDEADBEEF + 1024));
+    REQUIRE( merged->first.get_size() == 3072 );
+    REQUIRE( merged->first.get_queue_id() == 16 );
     REQUIRE( merged->second.get_previous_block() == keep_left );
     REQUIRE( merged->second.get_next_block() == keep_right );
     REQUIRE( merged->second.is_free() == true );
@@ -629,20 +493,16 @@ TEST_CASE( "create_block should call the allocator", "[cuda_memory_block_pool]" 
 
 TEST_CASE( "deallocate_block should call the deallocator with free blocks", "[cuda_memory_block_pool]" )
 {
-    const cuda_memory_block_pool::iterator null;
     cuda_memory_block_pool pool;
+    auto ite = generate_partitions(pool, 1);
+    ite->second.set_free(true);
+
     mock_allocator allocator;
     auto* address = reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF));
-    const auto size = 768;
+    const auto size = 1024;
     REQUIRE_CALL(allocator, deallocate(address, size))
         .TIMES(1);
     
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(address, size, 8),
-        std::forward_as_tuple(null, null, true)
-    );
 
     release_blocks(pool, allocator);
     REQUIRE( pool.size() == 0 );
@@ -650,19 +510,12 @@ TEST_CASE( "deallocate_block should call the deallocator with free blocks", "[cu
 
 TEST_CASE( "deallocate_block should not call the deallocator with free blocks", "[cuda_memory_block_pool]" )
 {
-    const cuda_memory_block_pool::iterator null;
     cuda_memory_block_pool pool;
-    mock_allocator allocator;
-    auto* address = reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF));
-    const auto size = 768;
-    
-    cuda_memory_block_pool::iterator ite;
-    std::tie(ite, std::ignore) = pool.emplace(
-        std::piecewise_construct,
-        std::forward_as_tuple(address, size, 8),
-        std::forward_as_tuple(null, null, false)
-    );
+    auto ite = generate_partitions(pool, 1);
+    ite->second.set_free(false);
 
+    mock_allocator allocator;
+    
     release_blocks(pool, allocator);
     REQUIRE( pool.size() == 1 );
 }
