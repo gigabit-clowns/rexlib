@@ -37,7 +37,7 @@ using namespace xmipp4::compute;
 TEST_CASE( "construct cuda_memory_block", "[cuda_memory_block]" )
 {
     const std::uintptr_t ptr_value = 0xDEADBEEF;
-    void *const ptr = reinterpret_cast<void*>(ptr_value);
+    auto *const ptr = reinterpret_cast<void*>(ptr_value);
 
     cuda_memory_block block(ptr, 0xC0FFE, 1357);
     REQUIRE( block.get_data() == ptr );
