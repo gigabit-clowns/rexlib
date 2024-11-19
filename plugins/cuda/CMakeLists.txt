@@ -76,7 +76,7 @@ target_compile_definitions(
 )
 target_link_libraries(
 	${PROJECT_NAME} 
-	PRIVATE
+	PUBLIC
 		xmipp4-core
 		CUDA::cudart
 )
