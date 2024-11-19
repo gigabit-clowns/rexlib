@@ -39,8 +39,10 @@ static std::string get_cuda_plugin_path()
 {
     #if XMIPP4_WINDOWS
         return "xmipp4-compute-cuda.dll";
-    #elif XMIPP4_APPLE || XMIPP4_LINUX
+    #elif XMIPP4_LINUX
         return "./libxmipp4-compute-cuda.so";
+    #elif XMIPP4_APPLE
+        return "./libxmipp4-compute-cuda.dylib";
     #else
         #error "Unknown platform"
     #endif
