@@ -21,16 +21,16 @@
 /**
  * @file test_cuda_memory_block.cpp
  * @author Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
- * @brief Tests for cuda_memory_blovk.hpp
+ * @brief Tests for cuda_memory_block.hpp
  * @date 2024-11-19
  * 
  */
 
-#include <catch2/catch_test_macros.hpp>
-
 #include <xmipp4/cuda/compute/allocator/cuda_memory_block.hpp>
 
 #include <cstddef>
+
+#include <catch2/catch_test_macros.hpp>
 
 using namespace xmipp4::compute;
 
