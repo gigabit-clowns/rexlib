@@ -45,23 +45,30 @@ public:
 
 static 
 cuda_memory_block_pool::iterator 
-generate_partitions(cuda_memory_block_pool &pool, std::size_t number)
+generate_partitions(cuda_memory_block_pool &pool, 
+                    std::size_t number,
+                    std::uintptr_t address = 0xDEADBEEF,
+                    std::size_t block_size = 1024,
+                    std::size_t queue_id = 16,
+                    bool free = false )
 {
     cuda_memory_block_pool::iterator ite;
     cuda_memory_block_pool::iterator result;
     const cuda_memory_block_pool::iterator null;
-    const std::size_t size = 1024;
-    std::uintptr_t address = 0xDEADBEEF;
 
     for (std::size_t i = 0; i < number; ++i)
     {
         std::tie(ite, std::ignore) = pool.emplace(
             std::piecewise_construct,
-            std::forward_as_tuple(reinterpret_cast<void*>(address), size, 16),
-            std::forward_as_tuple(ite, null, false)
+            std::forward_as_tuple(
+                reinterpret_cast<void*>(address), 
+                block_size, 
+                queue_id
+            ),
+            std::forward_as_tuple(ite, null, free)
         );
         update_backward_link(ite);
-        address += size;
+        address += block_size;
 
         if (i == 0)
         {
@@ -430,7 +437,10 @@ TEST_CASE( "consider_merging_block should merge when prev and next is free", "[c
 TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    auto ite = generate_partitions(pool, 4);
+    const uintptr_t base_address = 0xDEADBEEF;
+    const std::size_t block_size = 1024;
+    const std::size_t queue_id = 15;
+    auto ite = generate_partitions(pool, 4, base_address, block_size, queue_id, true);
 
     const auto keep_left = ite;
     const auto merge1 = keep_left->second.get_next_block();
@@ -438,9 +448,9 @@ TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
     const auto keep_right = merge2->second.get_next_block();
 
     const auto merged = merge_blocks(pool, merge1, merge2);
-    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (0xDEADBEEF + 1024));
-    REQUIRE( merged->first.get_size() == 2048 );
-    REQUIRE( merged->first.get_queue_id() == 16 );
+    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (base_address + block_size));
+    REQUIRE( merged->first.get_size() == 2*block_size );
+    REQUIRE( merged->first.get_queue_id() == queue_id );
     REQUIRE( merged->second.get_previous_block() == keep_left );
     REQUIRE( merged->second.get_next_block() == keep_right );
     REQUIRE( merged->second.is_free() == true );
@@ -451,7 +461,10 @@ TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
 TEST_CASE( "merge_blocks (3) produce valid blocks", "[cuda_memory_block_pool]" )
 {
     cuda_memory_block_pool pool;
-    auto ite = generate_partitions(pool, 5);
+    const uintptr_t base_address = 0xDEADBEEF;
+    const std::size_t block_size = 1024;
+    const std::size_t queue_id = 15;
+    auto ite = generate_partitions(pool, 5, base_address, block_size, queue_id, true);
 
     const auto keep_left = ite;
     const auto merge1 = keep_left->second.get_next_block();
@@ -460,9 +473,9 @@ TEST_CASE( "merge_blocks (3) produce valid blocks", "[cuda_memory_block_pool]" )
     const auto keep_right = merge3->second.get_next_block();
 
     const auto merged = merge_blocks(pool, merge1, merge2, merge3);
-    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (0xDEADBEEF + 1024));
-    REQUIRE( merged->first.get_size() == 3072 );
-    REQUIRE( merged->first.get_queue_id() == 16 );
+    REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (base_address + block_size));
+    REQUIRE( merged->first.get_size() == 3*block_size );
+    REQUIRE( merged->first.get_queue_id() == queue_id );
     REQUIRE( merged->second.get_previous_block() == keep_left );
     REQUIRE( merged->second.get_next_block() == keep_right );
     REQUIRE( merged->second.is_free() == true );
