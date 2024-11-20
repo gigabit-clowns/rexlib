@@ -45,8 +45,6 @@ namespace xmipp4
 namespace compute
 {
 
-const std::string cuda_device_backend::m_name = "cuda";
-
 static std::string pci_id_to_string(int bus_id, int device_id, int domain_id)
 {
     std::ostringstream oss;
@@ -60,9 +58,9 @@ static std::string pci_id_to_string(int bus_id, int device_id, int domain_id)
 
 
 
-const std::string& cuda_device_backend::get_name() const noexcept
+std::string cuda_device_backend::get_name() const noexcept
 {
-    return m_name;
+    return "cuda";
 }
 
 version cuda_device_backend::get_version() const noexcept
@@ -85,6 +83,11 @@ bool cuda_device_backend::is_available() const noexcept
     int count = 0;
     cudaGetDeviceCount(&count);
     return count > 0;
+}
+
+backend_priority cuda_device_backend::get_priority() const noexcept
+{
+    return backend_priority::normal;
 }
 
 void cuda_device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
