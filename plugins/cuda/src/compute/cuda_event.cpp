@@ -126,6 +126,7 @@ bool cuda_event::is_signaled() const
     
     default:
         XMIPP4_CUDA_CHECK(code);
+        result = false; // To avoid warnings. The above line should throw.
         break;
     }
     return result;
