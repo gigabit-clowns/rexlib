@@ -37,6 +37,7 @@ runs:
         options: |
           BUILD_TESTING=OFF
           CMAKE_BUILD_TYPE=Release
+          XMIPP4_CORE_BUILD_SPDLOG=ON
         run-build: true
         build-args: --config ${{ env.BUILD_TYPE }}
 
