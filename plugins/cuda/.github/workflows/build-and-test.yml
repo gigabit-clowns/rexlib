@@ -59,7 +59,7 @@ jobs:
       
       - name: Configure and build with CMake
         if: runner.os != 'Windows'
-        uses: threeal/cmake-action@main
+        uses: threeal/cmake-action@v2
         with:
           source-dir: ${{ github.workspace }}
           build-dir: "${{ github.workspace }}/build"
