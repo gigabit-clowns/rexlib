@@ -68,8 +68,6 @@ jobs:
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
-            CUDA_TOOLKIT_ROOT_DIR=${{ env.CUDA_PATH }}
-            CMAKE_CUDA_COMPILER=nvcc
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
