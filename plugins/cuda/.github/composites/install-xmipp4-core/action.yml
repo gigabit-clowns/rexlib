@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Checkout repository
-      uses: actions/checkout@main
+      uses: actions/checkout@v4
       with:
         repository: gigabit-clowns/xmipp4-core
         ref: ${{ inputs.ref }}
@@ -30,7 +30,7 @@ runs:
       run: mv xmipp4-core "${{ inputs.path }}"
 
     - name: Configure and build with CMake
-      uses: threeal/cmake-action@main
+      uses: threeal/cmake-action@v2
       with:
         source-dir: "${{ inputs.path }}"
         build-dir: "${{ inputs.path }}/build"
