@@ -83,7 +83,7 @@ cuda_device_queue::handle cuda_device_queue::get_handle() noexcept
     return m_stream;
 }
 
-void cuda_device_queue::synchronize() const
+void cuda_device_queue::wait_until_completed() const
 {
     XMIPP4_CUDA_CHECK( cudaStreamSynchronize(m_stream) );
 }

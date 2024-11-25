@@ -59,7 +59,7 @@ public:
     void reset() noexcept;
     handle get_handle() noexcept;
 
-    void synchronize() const override;
+    void wait_until_completed() const override;
 
     std::size_t get_id() const noexcept;
 
