@@ -70,6 +70,9 @@ public:
     void* get_data() noexcept override;
     const void* get_data() const noexcept override;
 
+    host_buffer* get_host_accessible_alias() noexcept override;
+    const host_buffer* get_host_accessible_alias() const noexcept override;
+
     void record_queue(cuda_device_queue &queue);
 
 private:

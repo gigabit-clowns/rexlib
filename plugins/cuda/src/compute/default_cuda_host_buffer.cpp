@@ -130,5 +130,16 @@ const void* default_cuda_host_buffer::get_data() const noexcept
     return m_block ? m_block->get_data() : nullptr;
 }
 
+device_buffer* default_cuda_host_buffer::get_device_accessible_alias() noexcept
+{
+    return nullptr;
+}
+
+const device_buffer* 
+default_cuda_host_buffer::get_device_accessible_alias() const noexcept
+{
+    return nullptr;
+}
+
 } // namespace compute
 } // namespace xmipp4

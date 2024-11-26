@@ -67,6 +67,9 @@ public:
     void* get_data() noexcept override;
     const void* get_data() const noexcept override;
 
+    device_buffer* get_device_accessible_alias() noexcept override;
+    const device_buffer* get_device_accessible_alias() const noexcept override;
+
 private:
     numerical_type m_type;
     std::size_t m_count;

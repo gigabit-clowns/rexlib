@@ -134,6 +134,16 @@ const void* default_cuda_device_buffer::get_data() const noexcept
     return m_block ? m_block->get_data() : nullptr;
 }
 
+host_buffer* default_cuda_device_buffer::get_host_accessible_alias() noexcept
+{
+    return nullptr;
+}
+
+const host_buffer* 
+default_cuda_device_buffer::get_host_accessible_alias() const noexcept
+{
+    return nullptr;
+}
 
 void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
 {
