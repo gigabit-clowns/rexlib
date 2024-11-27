@@ -36,6 +36,8 @@
 #include <xmipp4/cuda/compute/cuda_device_copy.hpp>
 #include <xmipp4/cuda/compute/cuda_event.hpp>
 
+#include <xmipp4/core/compute/device_create_parameters.hpp>
+
 #include <memory>
 
 namespace xmipp4
@@ -43,8 +45,9 @@ namespace xmipp4
 namespace compute
 {
 
-cuda_device::cuda_device(int device)
+cuda_device::cuda_device(int device, const device_create_parameters &params)
     : m_device(device)
+    , m_queue_pool(device, params.get_desired_queue_count())
 {
 }
 
@@ -53,14 +56,9 @@ int cuda_device::get_index() const noexcept
     return m_device;
 }
 
-std::unique_ptr<device_queue> cuda_device::create_queue()
+cuda_device_queue_pool& cuda_device::get_queue_pool()
 {
-    return std::make_unique<cuda_device_queue>(*this);
-}
-
-std::shared_ptr<device_queue> cuda_device::create_queue_shared()
-{
-    return std::make_shared<cuda_device_queue>(*this);
+    return m_queue_pool;
 }
 
 std::unique_ptr<device_memory_allocator> 

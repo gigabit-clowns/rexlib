@@ -47,6 +47,7 @@ class cuda_device_queue final
 public:
     using handle = cudaStream_t;
 
+    cuda_device_queue();
     explicit cuda_device_queue(cuda_device &device);
     cuda_device_queue(const cuda_device_queue &other) = delete;
     cuda_device_queue(cuda_device_queue &&other) noexcept;
@@ -60,6 +61,7 @@ public:
     handle get_handle() noexcept;
 
     void wait_until_completed() const override;
+    bool is_idle() const noexcept override;
 
     std::size_t get_id() const noexcept;
 

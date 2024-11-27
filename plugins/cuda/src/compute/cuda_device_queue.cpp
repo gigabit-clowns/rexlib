@@ -39,6 +39,11 @@ namespace xmipp4
 namespace compute
 {
 
+cuda_device_queue::cuda_device_queue()
+{
+    XMIPP4_CUDA_CHECK( cudaStreamCreate(&m_stream) );
+}
+
 cuda_device_queue::cuda_device_queue(cuda_device &device)
 {
     XMIPP4_CUDA_CHECK( cudaSetDevice(device.get_index()) );
@@ -86,6 +91,29 @@ cuda_device_queue::handle cuda_device_queue::get_handle() noexcept
 void cuda_device_queue::wait_until_completed() const
 {
     XMIPP4_CUDA_CHECK( cudaStreamSynchronize(m_stream) );
+}
+
+bool cuda_device_queue::is_idle() const noexcept
+{
+    const auto code = cudaStreamQuery(m_stream);
+
+    bool result;
+    switch (code)
+    {
+    case cudaSuccess:
+        result = true;
+        break;
+
+    case cudaErrorNotReady:
+        result = false;
+        break;
+    
+    default:
+        XMIPP4_CUDA_CHECK(code);
+        result = false; // To avoid warnings. The above line should throw.
+        break;
+    }
+    return result;
 }
 
 std::size_t cuda_device_queue::get_id() const noexcept

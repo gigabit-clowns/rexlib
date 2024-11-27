@@ -30,29 +30,30 @@
 
 #include <xmipp4/core/compute/device.hpp>
 
+#include "cuda_device_queue_pool.hpp"
+
 namespace xmipp4 
 {
 namespace compute
 {
 
-class cuda_device_backend;
+class device_create_parameters;
 
 class cuda_device final
     : public device
 {
 public:
-    explicit cuda_device(int device);
-    cuda_device(const cuda_device &other) = default;
+    cuda_device(int device, const device_create_parameters &params);
+    cuda_device(const cuda_device &other) = delete;
     cuda_device(cuda_device &&other) = default;
     ~cuda_device() override = default;
 
-    cuda_device& operator=(const cuda_device &other) = default;
+    cuda_device& operator=(const cuda_device &other) = delete;
     cuda_device& operator=(cuda_device &&other) = default;
 
     int get_index() const noexcept;
 
-    std::unique_ptr<device_queue> create_queue() override;
-    std::shared_ptr<device_queue> create_queue_shared() override;
+    cuda_device_queue_pool& get_queue_pool() override;
 
     std::unique_ptr<device_memory_allocator>
     create_device_memory_allocator() override;
@@ -89,6 +90,7 @@ public:
 
 private:
     int m_device;
+    cuda_device_queue_pool m_queue_pool;
 
 }; 
 

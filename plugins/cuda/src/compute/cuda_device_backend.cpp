@@ -135,7 +135,8 @@ bool cuda_device_backend::get_device_properties(std::size_t id,
 }
 
 std::unique_ptr<device> 
-cuda_device_backend::create_device(std::size_t id)
+cuda_device_backend::create_device(std::size_t id,
+                                   const device_create_parameters &params )
 {
     int count;
     XMIPP4_CUDA_CHECK( cudaGetDeviceCount(&count) );
@@ -144,11 +145,12 @@ cuda_device_backend::create_device(std::size_t id)
         throw std::invalid_argument("Invalid device id");
     }
 
-    return std::make_unique<cuda_device>(id);
+    return std::make_unique<cuda_device>(id, params);
 }
 
 std::shared_ptr<device> 
-cuda_device_backend::create_device_shared(std::size_t id)
+cuda_device_backend::create_device_shared(std::size_t id,
+                                          const device_create_parameters &params )
 {
     int count;
     XMIPP4_CUDA_CHECK( cudaGetDeviceCount(&count) );
@@ -157,7 +159,7 @@ cuda_device_backend::create_device_shared(std::size_t id)
         throw std::invalid_argument("Invalid device id");
     }
 
-    return std::make_shared<cuda_device>(id);
+    return std::make_shared<cuda_device>(id, params);
 }
 
 bool cuda_device_backend::register_at(device_manager &manager)
