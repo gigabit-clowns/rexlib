@@ -57,7 +57,15 @@ const cuda_memory_block*
 cuda_caching_memory_allocator<Allocator>::allocate(std::size_t size, 
                                                    std::size_t queue_id )
 {
-    return m_cache.allocate(m_allocator, size, queue_id);
+    const auto *result = m_cache.allocate(m_allocator, size, queue_id);
+    if (!result)
+    {
+        // Re-added retrial
+        m_cache.release();
+        result = m_cache.allocate(m_allocator, size, queue_id);
+    }
+
+    return result;
 }
 
 template <typename Allocator>
