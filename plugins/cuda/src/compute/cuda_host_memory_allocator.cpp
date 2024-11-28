@@ -39,6 +39,11 @@ namespace xmipp4
 namespace compute
 {
 
+cuda_host_memory_allocator::cuda_host_memory_allocator()
+    : m_allocator({}, 512, 2<<20)
+{
+}
+
 std::unique_ptr<host_buffer> 
 cuda_host_memory_allocator::create_buffer(numerical_type type, 
                                           std::size_t count )
@@ -65,8 +70,7 @@ cuda_host_memory_allocator::allocate(numerical_type type, std::size_t count)
     std::lock_guard<std::mutex> lock(m_mutex);
 
     const auto size = count * get_size(type);
-    const auto *block = m_cache.allocate(m_allocator, size, 0);
-
+    const auto *block = m_allocator.allocate(size, 0);
     if(!block)
     {
         throw std::bad_alloc();
@@ -78,7 +82,7 @@ cuda_host_memory_allocator::allocate(numerical_type type, std::size_t count)
 void cuda_host_memory_allocator::deallocate(const cuda_memory_block &block)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_cache.deallocate(block);
+    m_allocator.deallocate(block, {});
 }
 
 } // namespace compute

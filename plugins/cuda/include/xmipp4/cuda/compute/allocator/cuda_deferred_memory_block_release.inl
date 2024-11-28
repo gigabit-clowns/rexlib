@@ -33,6 +33,7 @@ namespace xmipp4
 namespace compute
 {
 
+inline
 void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_pool &cache)
 {
     auto ite = m_pending_free.begin();
@@ -55,6 +56,7 @@ void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_
     }
 }
 
+inline
 void cuda_deferred_memory_block_release::record_events(const cuda_memory_block &block,
                                                        span<cuda_device_queue*> queues )
 {
@@ -86,6 +88,7 @@ void cuda_deferred_memory_block_release::record_events(const cuda_memory_block &
     }
 }
 
+inline
 void cuda_deferred_memory_block_release::pop_completed_events(event_list &events)
 {
     auto prev_ite = events.cbefore_begin();

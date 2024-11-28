@@ -61,6 +61,7 @@ cuda_caching_memory_allocator<Allocator>::allocate(std::size_t size,
 }
 
 template <typename Allocator>
+inline
 void cuda_caching_memory_allocator<Allocator>
 ::deallocate(const cuda_memory_block &block,
              span<cuda_device_queue*> other_queues )
