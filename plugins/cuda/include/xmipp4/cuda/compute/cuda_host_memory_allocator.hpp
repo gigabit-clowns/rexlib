@@ -56,15 +56,29 @@ public:
     operator=(cuda_host_memory_allocator &&other) = delete;
 
     std::unique_ptr<host_buffer> 
-    create_buffer(numerical_type type, 
-                  std::size_t count ) override;
+    create_host_buffer(numerical_type type, 
+                       std::size_t count,
+                       device_queue &queue ) override;
 
     std::shared_ptr<host_buffer> 
-    create_buffer_shared(numerical_type type, 
-                         std::size_t count ) override;
+    create_host_buffer_shared(numerical_type type, 
+                              std::size_t count,
+                              device_queue &queue ) override;
+
+    std::unique_ptr<host_buffer> 
+    create_host_buffer(numerical_type type, 
+                       std::size_t count ) override;
+
+    std::shared_ptr<host_buffer> 
+    create_host_buffer_shared(numerical_type type, 
+                              std::size_t count ) override;
     
     const cuda_memory_block& allocate(numerical_type type, std::size_t count);
-    void deallocate(const cuda_memory_block &block);
+    const cuda_memory_block& allocate(numerical_type type, 
+                                      std::size_t count,
+                                      cuda_device_queue &queue);
+    void deallocate(const cuda_memory_block &block, 
+                    span<cuda_device_queue*> other_queues);
 
 private:
     cuda_caching_memory_allocator<cuda_host_malloc> m_allocator;

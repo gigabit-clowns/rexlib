@@ -49,28 +49,28 @@ cuda_device_memory_allocator::cuda_device_memory_allocator(cuda_device &device)
 }
 
 std::unique_ptr<device_buffer> 
-cuda_device_memory_allocator::create_buffer(numerical_type type, 
-                                            std::size_t count,
-                                            device_queue &queue )
+cuda_device_memory_allocator::create_device_buffer(numerical_type type, 
+                                                   std::size_t count,
+                                                   device_queue &queue )
 {
-    return create_buffer(
+    return create_device_buffer(
         type, count, dynamic_cast<cuda_device_queue&>(queue)
     );
 }
 
 std::shared_ptr<device_buffer> 
-cuda_device_memory_allocator::create_buffer_shared(numerical_type type, 
-                                                   std::size_t count,
-                                                   device_queue &queue )
+cuda_device_memory_allocator::create_device_buffer_shared(numerical_type type, 
+                                                          std::size_t count,
+                                                          device_queue &queue )
 {
-    return create_buffer_shared(
+    return create_device_buffer_shared(
         type, count, dynamic_cast<cuda_device_queue&>(queue)
     );
 }
 std::unique_ptr<cuda_device_buffer> 
-cuda_device_memory_allocator::create_buffer(numerical_type type, 
-                                            std::size_t count, 
-                                            cuda_device_queue &queue )
+cuda_device_memory_allocator::create_device_buffer(numerical_type type, 
+                                                   std::size_t count, 
+                                                   cuda_device_queue &queue )
 {
     const auto &block = allocate(type, count, queue);
     return std::make_unique<default_cuda_device_buffer>(
@@ -79,9 +79,9 @@ cuda_device_memory_allocator::create_buffer(numerical_type type,
 }
 
 std::shared_ptr<cuda_device_buffer> 
-cuda_device_memory_allocator::create_buffer_shared(numerical_type type, 
-                                                   std::size_t count, 
-                                                   cuda_device_queue &queue )
+cuda_device_memory_allocator::create_device_buffer_shared(numerical_type type, 
+                                                          std::size_t count, 
+                                                          cuda_device_queue &queue )
 {
     const auto &block = allocate(type, count, queue);
     return std::make_shared<default_cuda_device_buffer>(

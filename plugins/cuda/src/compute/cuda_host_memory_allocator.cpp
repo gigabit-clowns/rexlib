@@ -45,8 +45,8 @@ cuda_host_memory_allocator::cuda_host_memory_allocator()
 }
 
 std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_buffer(numerical_type type, 
-                                          std::size_t count )
+cuda_host_memory_allocator::create_host_buffer(numerical_type type, 
+                                               std::size_t count )
 {
     const auto &block = allocate(type, count);
     return std::make_unique<default_cuda_host_buffer>(
@@ -55,8 +55,8 @@ cuda_host_memory_allocator::create_buffer(numerical_type type,
 }
 
 std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_buffer_shared(numerical_type type, 
-                                                 std::size_t count )
+cuda_host_memory_allocator::create_host_buffer_shared(numerical_type type, 
+                                                      std::size_t count )
 {
     const auto &block = allocate(type, count);
     return std::make_shared<default_cuda_host_buffer>(
@@ -79,10 +79,11 @@ cuda_host_memory_allocator::allocate(numerical_type type, std::size_t count)
     return *block;
 }
 
-void cuda_host_memory_allocator::deallocate(const cuda_memory_block &block)
+void cuda_host_memory_allocator::deallocate(const cuda_memory_block &block,
+                                            span<cuda_device_queue*> other_queues )
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_allocator.deallocate(block, {});
+    m_allocator.deallocate(block, other_queues);
 }
 
 } // namespace compute
