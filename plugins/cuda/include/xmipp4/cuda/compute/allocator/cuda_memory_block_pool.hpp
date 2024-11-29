@@ -30,7 +30,8 @@
 
 #include "cuda_memory_block.hpp"
 
-#include <map>
+#include <list>
+#include <utility>
 
 namespace xmipp4 
 {
@@ -38,18 +39,49 @@ namespace compute
 {
 
 class cuda_memory_block_context;
+class cuda_device_queue;
 
 /**
- * @brief Collection of cuda_memory_block-s with a context.
+ * @brief Collection of ordered cuda_memory_block-s with a context.
  * 
  * Due to the comparison mechanism used, items are guaranteed to be
- * ordered first by their stream_id, then by their size and finally
+ * ordered first by their queue, then by their size and finally
  * by their data pointer.
  * 
+ * In addition, erased items are kept in a separated a free list for
+ * later re-use.
+ * 
  */
-using cuda_memory_block_pool = std::map<cuda_memory_block, 
-                                        cuda_memory_block_context, 
-                                        cuda_memory_block_less >;
+class cuda_memory_block_pool
+{
+public:
+    using key_type = cuda_memory_block;
+    using mapped_type = cuda_memory_block_context;
+    using value_type = std::pair<key_type, mapped_type>;
+    using list_type = std::list<value_type>;
+    using iterator = list_type::iterator;
+    using const_iterator = list_type::const_iterator;
+
+    std::size_t size() const noexcept;
+
+    iterator begin() noexcept;
+    iterator end() noexcept;
+    const_iterator begin() const noexcept;
+    const_iterator end() const noexcept;
+    const_iterator cbegin() const noexcept;
+    const_iterator cend() const noexcept;
+
+    template <typename... Args>
+    iterator emplace(Args&&... args);
+    iterator erase(iterator pos);
+    iterator find(const cuda_memory_block &item);
+
+private:
+    list_type m_items;
+    list_type m_free_list;
+
+};
+
 
 /**
  * @brief Control block to manage the context of memory blocks in
@@ -257,7 +289,7 @@ bool check_links(cuda_memory_block_pool::iterator ite) noexcept;
 cuda_memory_block_pool::iterator 
 find_suitable_block(cuda_memory_block_pool &blocks, 
                     std::size_t size,
-                    std::size_t queue_id );
+                    const cuda_device_queue *queue );
 
 /**
  * @brief Partition the requested block if necessary.
@@ -364,7 +396,7 @@ template <typename Allocator>
 cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
                                               Allocator& allocator,
                                               std::size_t size,
-                                              std::size_t queue_id );
+                                              const cuda_device_queue *queue );
 
 /**
  * @brief Request a suitable block.
@@ -385,12 +417,12 @@ cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
  * 
  */
 template <typename Allocator>
-const cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks, 
-                                        const Allocator &allocator, 
-                                        std::size_t size,
-                                        std::size_t queue_id,
-                                        std::size_t partition_min_size,
-                                        std::size_t create_size_step );
+cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks, 
+                                  const Allocator &allocator, 
+                                  std::size_t size,
+                                  const cuda_device_queue *queue,
+                                  std::size_t partition_min_size,
+                                  std::size_t create_size_step );
 
 /**
  * @brief Return a block to the pool.

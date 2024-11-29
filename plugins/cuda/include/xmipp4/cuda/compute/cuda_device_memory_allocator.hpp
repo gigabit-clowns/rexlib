@@ -69,26 +69,25 @@ public:
                          std::size_t count, 
                          device_queue &queue ) override;
 
+    std::unique_ptr<cuda_device_buffer> 
+    create_device_buffer_impl(numerical_type type, 
+                              std::size_t count, 
+                              cuda_device_queue &queue );
+
     std::shared_ptr<device_buffer> 
     create_device_buffer_shared(numerical_type type, 
                                 std::size_t count, 
                                 device_queue &queue ) override;
 
-    std::unique_ptr<cuda_device_buffer> 
-    create_device_buffer(numerical_type type, 
-                         std::size_t count, 
-                         cuda_device_queue &queue );
-
     std::shared_ptr<cuda_device_buffer> 
-    create_device_buffer_shared(numerical_type type, 
-                                std::size_t count, 
-                                cuda_device_queue &queue );
+    create_device_buffer_shared_impl(numerical_type type, 
+                                     std::size_t count, 
+                                     cuda_device_queue &queue );
 
-    const cuda_memory_block& allocate(numerical_type type, 
-                                      std::size_t count,
-                                      cuda_device_queue &queue );
-    void deallocate(const cuda_memory_block &block,
-                    span<cuda_device_queue*> queues);
+    cuda_memory_block& allocate(numerical_type type, 
+                                std::size_t count,
+                                cuda_device_queue &queue );
+    void deallocate(const cuda_memory_block &block);
 
 private:
     cuda_caching_memory_allocator<cuda_device_malloc> m_allocator;

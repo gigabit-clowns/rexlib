@@ -46,9 +46,62 @@ cuda_host_memory_allocator::cuda_host_memory_allocator()
 
 std::unique_ptr<host_buffer> 
 cuda_host_memory_allocator::create_host_buffer(numerical_type type, 
+                                               std::size_t count,
+                                               device_queue &queue )
+{
+    return create_host_buffer_impl(
+        type, 
+        count, 
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
+
+std::unique_ptr<host_buffer> 
+cuda_host_memory_allocator::create_host_buffer_impl(numerical_type type, 
+                                                    std::size_t count,
+                                                    cuda_device_queue &queue )
+{
+    auto &block = allocate(type, count, queue);
+    return std::make_unique<default_cuda_host_buffer>(
+        type, count, block, *this
+    );
+}
+
+std::shared_ptr<host_buffer> 
+cuda_host_memory_allocator::create_host_buffer_shared(numerical_type type, 
+                                                      std::size_t count,
+                                                      device_queue &queue )
+{
+    return create_host_buffer_shared_impl(
+        type, 
+        count, 
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
+
+std::shared_ptr<host_buffer> 
+cuda_host_memory_allocator::create_host_buffer_shared_impl(numerical_type type, 
+                                                           std::size_t count,
+                                                           cuda_device_queue &queue )
+{
+    auto &block = allocate(type, count, queue);
+    return std::make_shared<default_cuda_host_buffer>(
+        type, count, block, *this
+    );
+}
+
+std::unique_ptr<host_buffer> 
+cuda_host_memory_allocator::create_host_buffer(numerical_type type, 
                                                std::size_t count )
 {
-    const auto &block = allocate(type, count);
+    return create_host_buffer_impl(type, count);
+}
+
+std::unique_ptr<host_buffer> 
+cuda_host_memory_allocator::create_host_buffer_impl(numerical_type type, 
+                                                    std::size_t count )
+{
+    auto &block = allocate(type, count);
     return std::make_unique<default_cuda_host_buffer>(
         type, count, block, *this
     );
@@ -58,32 +111,43 @@ std::shared_ptr<host_buffer>
 cuda_host_memory_allocator::create_host_buffer_shared(numerical_type type, 
                                                       std::size_t count )
 {
-    const auto &block = allocate(type, count);
+    return create_host_buffer_shared_impl(type, count);
+}
+
+std::shared_ptr<host_buffer> 
+cuda_host_memory_allocator::create_host_buffer_shared_impl(numerical_type type, 
+                                                           std::size_t count )
+{
+    auto &block = allocate(type, count);
     return std::make_shared<default_cuda_host_buffer>(
         type, count, block, *this
     );
 }
 
-const cuda_memory_block&
+cuda_memory_block&
 cuda_host_memory_allocator::allocate(numerical_type type, std::size_t count)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-
     const auto size = count * get_size(type);
-    const auto *block = m_allocator.allocate(size, 0);
-    if(!block)
-    {
-        throw std::bad_alloc();
-    }
 
-    return *block;
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_allocator.allocate(size, nullptr);
 }
 
-void cuda_host_memory_allocator::deallocate(const cuda_memory_block &block,
-                                            span<cuda_device_queue*> other_queues )
+cuda_memory_block& 
+cuda_host_memory_allocator::allocate(numerical_type type, 
+                                     std::size_t count,
+                                     cuda_device_queue &queue)
+{
+    const auto size = count * get_size(type);
+
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_allocator.allocate(size, &queue);
+}
+
+void cuda_host_memory_allocator::deallocate(const cuda_memory_block &block)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_allocator.deallocate(block, other_queues);
+    m_allocator.deallocate(block);
 }
 
 } // namespace compute

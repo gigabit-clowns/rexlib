@@ -41,15 +41,21 @@ namespace xmipp4
 namespace compute
 {
 
-void cuda_device_copy::copy(const device_buffer &src_buffer, 
+void cuda_device_copy::copy(const device_buffer &src_buffer,
                             device_buffer &dst_buffer, 
-                            device_queue &queue )
+                            device_queue &queue ) 
 {
-    const auto &cuda_src_buffer = 
-        dynamic_cast<const cuda_device_buffer&>(src_buffer);    
-    auto &cuda_dst_buffer = 
-        dynamic_cast<cuda_device_buffer&>(dst_buffer);    
-    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
+    copy_impl(
+        dynamic_cast<const cuda_device_buffer&>(src_buffer),
+        dynamic_cast<cuda_device_buffer&>(dst_buffer),
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
+
+void cuda_device_copy::copy_impl(const cuda_device_buffer &src_buffer, 
+                                cuda_device_buffer &dst_buffer, 
+                                cuda_device_queue &queue )
+{
     const auto type = require_same_type(
         src_buffer.get_type(), dst_buffer.get_type()
     );
@@ -60,25 +66,35 @@ void cuda_device_copy::copy(const device_buffer &src_buffer,
 
     XMIPP4_CUDA_CHECK(
         cudaMemcpyAsync(
-            cuda_dst_buffer.get_data(),
-            cuda_src_buffer.get_data(),
+            dst_buffer.get_data(),
+            src_buffer.get_data(),
             element_size*count,
             cudaMemcpyDeviceToDevice,
-            cuda_queue.get_handle()
+            queue.get_handle()
         )
     );
 }
 
 void cuda_device_copy::copy(const device_buffer &src_buffer,
-                            device_buffer &dst_buffer,
+                            device_buffer &dst_buffer, 
                             span<const copy_region> regions,
-                            device_queue &queue )
+                            device_queue &queue ) 
 {
-    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
-    const auto *src_data = 
-        dynamic_cast<const cuda_device_buffer&>(src_buffer).get_data();
-    auto *dst_data = 
-        dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data();
+    copy_impl(
+        dynamic_cast<const cuda_device_buffer&>(src_buffer),
+        dynamic_cast<cuda_device_buffer&>(dst_buffer),
+        regions,
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
+
+void cuda_device_copy::copy_impl(const cuda_device_buffer &src_buffer,
+                                cuda_device_buffer &dst_buffer,
+                                span<const copy_region> regions,
+                                cuda_device_queue &queue )
+{
+    const auto *src_data = src_buffer.get_data();
+    auto *dst_data = dst_buffer.get_data();
     const auto src_count = src_buffer.get_count();
     const auto dst_count = dst_buffer.get_count();
     const auto type = require_same_type(
@@ -97,7 +113,7 @@ void cuda_device_copy::copy(const device_buffer &src_buffer,
                 memory::offset_bytes(src_data, region_bytes.get_source_offset()),
                 region_bytes.get_count(),
                 cudaMemcpyDeviceToDevice,
-                cuda_queue.get_handle()
+                queue.get_handle()
             )
         );
     }

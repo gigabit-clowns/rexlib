@@ -69,15 +69,15 @@ public:
      * @param allocator Allocator object. Used when there are no suitable blocks
      * in cache.
      * @param size Size of the requested block.
-     * @param queue_id Queue if for the requested block.
-     * @return const cuda_memory_block* Suitable block. nullptr if allocation
+     * @param queue Queue of the requested block.
+     * @return cuda_memory_block* Suitable block. nullptr if allocation
      * fails.
      * 
      */
     template <typename Allocator>
-    const cuda_memory_block* allocate(Allocator &allocator, 
-                                      std::size_t size, 
-                                      std::size_t queue_id );
+    cuda_memory_block* allocate(Allocator &allocator, 
+                                std::size_t size, 
+                                const cuda_device_queue *queue );
 
     /**
      * @brief Deallocate a block.
@@ -90,8 +90,7 @@ public:
      * Instead, it caches it for potential re-use.
      * 
      */
-    void deallocate(const cuda_memory_block &block, 
-                    span<cuda_device_queue*> other_queues );
+    void deallocate(const cuda_memory_block &block);
 
 private:
     cuda_memory_block_pool m_block_pool;

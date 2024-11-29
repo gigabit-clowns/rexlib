@@ -80,7 +80,7 @@ public:
      * 
      */
     void record_events(const cuda_memory_block &block,
-                       span<cuda_device_queue*> other_queues );
+                       span<cuda_device_queue *const> other_queues );
 
 private:
     using event_list = std::forward_list<cuda_event>;

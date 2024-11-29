@@ -29,7 +29,9 @@
  */
 
 #include <xmipp4/cuda/compute/cuda_device_buffer.hpp>
+#include <xmipp4/cuda/compute/allocator/cuda_memory_allocator_delete.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace xmipp4 
@@ -47,22 +49,19 @@ class default_cuda_device_buffer final
     : public cuda_device_buffer
 {
 public:
-    default_cuda_device_buffer() noexcept;
     default_cuda_device_buffer(numerical_type type,
                                std::size_t count,
-                               const cuda_memory_block &block , 
+                               cuda_memory_block &block, 
                                cuda_device_memory_allocator &allocator ) noexcept;
     default_cuda_device_buffer(const default_cuda_device_buffer &other) = delete;
-    default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept;
-    ~default_cuda_device_buffer() override;
+    default_cuda_device_buffer(default_cuda_device_buffer &&other) = default;
+    ~default_cuda_device_buffer() override = default;
 
     default_cuda_device_buffer& 
     operator=(const default_cuda_device_buffer &other) = delete;
     default_cuda_device_buffer& 
-    operator=(default_cuda_device_buffer &&other) noexcept;
+    operator=(default_cuda_device_buffer &&other) = default;
 
-    void swap(default_cuda_device_buffer &other) noexcept;
-    void reset() noexcept;
 
     numerical_type get_type() const noexcept override;
     std::size_t get_count() const noexcept override;
@@ -73,15 +72,16 @@ public:
     host_buffer* get_host_accessible_alias() noexcept override;
     const host_buffer* get_host_accessible_alias() const noexcept override;
 
-    void record_queue(cuda_device_queue &queue);
+    void record_queue(device_queue &queue) override;
+    void record_queue_impl(cuda_device_queue &queue);
 
 private:
+    using block_delete = 
+        cuda_memory_allocator_delete<cuda_device_memory_allocator>;
+
     numerical_type m_type;
     std::size_t m_count;
-    const cuda_memory_block *m_block;
-    cuda_device_memory_allocator *m_allocator;
-    std::vector<cuda_device_queue*> m_queues;
-
+    std::unique_ptr<cuda_memory_block, block_delete> m_block;
 }; 
 
 } // namespace compute

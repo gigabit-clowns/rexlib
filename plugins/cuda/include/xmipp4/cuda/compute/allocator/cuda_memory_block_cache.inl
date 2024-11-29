@@ -51,10 +51,10 @@ void cuda_memory_block_cache::release(Allocator &allocator)
 
 template <typename Allocator>
 inline
-const cuda_memory_block* 
+cuda_memory_block* 
 cuda_memory_block_cache::allocate(Allocator &allocator, 
                                   std::size_t size, 
-                                  std::size_t queue_id ) 
+                                  const cuda_device_queue *queue ) 
 {
     m_deferred_blocks.process_pending_free(m_block_pool);
 
@@ -62,23 +62,23 @@ cuda_memory_block_cache::allocate(Allocator &allocator,
         m_block_pool,
         allocator, 
         size,
-        queue_id,
+        queue,
         m_minimum_size,
         m_request_size_step
     );
 }
 
 inline
-void cuda_memory_block_cache::deallocate(const cuda_memory_block &block,
-                                         span<cuda_device_queue*> other_queues )
+void cuda_memory_block_cache::deallocate(const cuda_memory_block &block)
 {
-    if (other_queues.empty())
+    const auto extra_queues = block.get_extra_queues();
+    if (extra_queues.empty())
     {
         deallocate_block(m_block_pool, block);
     }
     else
     {
-        m_deferred_blocks.record_events(block, other_queues);
+        m_deferred_blocks.record_events(block, extra_queues);
     }
 }
 

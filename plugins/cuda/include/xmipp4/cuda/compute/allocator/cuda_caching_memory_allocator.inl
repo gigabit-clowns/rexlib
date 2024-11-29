@@ -28,6 +28,8 @@
 
 #include "cuda_caching_memory_allocator.hpp"
 
+#include <new>
+
 namespace xmipp4
 {
 namespace compute
@@ -53,28 +55,32 @@ void cuda_caching_memory_allocator<Allocator>::release()
 
 template <typename Allocator>
 inline
-const cuda_memory_block* 
-cuda_caching_memory_allocator<Allocator>::allocate(std::size_t size, 
-                                                   std::size_t queue_id )
+cuda_memory_block&
+cuda_caching_memory_allocator<Allocator>
+::allocate(std::size_t size, const cuda_device_queue *queue)
 {
-    const auto *result = m_cache.allocate(m_allocator, size, queue_id);
+    auto *result = m_cache.allocate(m_allocator, size, queue);
     if (!result)
     {
         // Re-added retrial
-        m_cache.release();
-        result = m_cache.allocate(m_allocator, size, queue_id);
+        m_cache.release(m_allocator);
+        result = m_cache.allocate(m_allocator, size, queue);
     }
 
-    return result;
+    if (!result)
+    {
+        throw std::bad_alloc();
+    }
+
+    return *result;
 }
 
 template <typename Allocator>
 inline
 void cuda_caching_memory_allocator<Allocator>
-::deallocate(const cuda_memory_block &block,
-             span<cuda_device_queue*> other_queues )
+::deallocate(const cuda_memory_block &block)
 {
-    m_cache.deallocate(block, other_queues);
+    m_cache.deallocate(block);
 }
     
 } // namespace compute

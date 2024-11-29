@@ -44,59 +44,64 @@ namespace xmipp4
 namespace compute
 {
 
-static void require_nonnull_src(const std::shared_ptr<const host_buffer> &buf)
-{
-    if (!buf)
-    {
-        throw std::invalid_argument("src_buffer cannot be nullptr");
-    }
-}
-
-void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
+void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer, 
                                                  device_buffer &dst_buffer, 
                                                  device_queue &queue )
 {
-    require_nonnull_src(src_buffer);
+    transfer_copy_impl(
+        src_buffer,
+        dynamic_cast<cuda_device_buffer&>(dst_buffer),
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
 
-    auto &cuda_dst_buffer = 
-        dynamic_cast<cuda_device_buffer&>(dst_buffer);    
-    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
+void cuda_host_to_device_transfer::transfer_copy_impl(const host_buffer &src_buffer, 
+                                                      cuda_device_buffer &dst_buffer, 
+                                                      cuda_device_queue &queue )
+{
     const auto type = require_same_type(
-        src_buffer->get_type(), dst_buffer.get_type()
+        src_buffer.get_type(), dst_buffer.get_type()
     );
     const auto count = require_same_count(
-        src_buffer->get_count(), dst_buffer.get_count()
+        src_buffer.get_count(), dst_buffer.get_count()
     );
     const auto element_size = get_size(type);
 
     XMIPP4_CUDA_CHECK(
         cudaMemcpyAsync(
-            cuda_dst_buffer.get_data(),
-            src_buffer->get_data(),
+            dst_buffer.get_data(),
+            src_buffer.get_data(),
             element_size*count,
             cudaMemcpyHostToDevice,
-            cuda_queue.get_handle()
+            queue.get_handle()
         )
     );
-
-    update_current(src_buffer, cuda_queue);
 }
 
-void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const host_buffer> &src_buffer, 
+void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer, 
                                                  device_buffer &dst_buffer, 
                                                  span<const copy_region> regions,
                                                  device_queue &queue )
 {
-    require_nonnull_src(src_buffer);
+    transfer_copy_impl(
+        src_buffer,
+        dynamic_cast<cuda_device_buffer&>(dst_buffer),
+        regions,
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
 
-    auto &cuda_queue = dynamic_cast<cuda_device_queue&>(queue);
-    const auto* src_data = src_buffer->get_data();
-    auto* dst_data = 
-        dynamic_cast<cuda_device_buffer&>(dst_buffer).get_data();
-    const auto src_count = src_buffer->get_count();
+void cuda_host_to_device_transfer::transfer_copy_impl(const host_buffer &src_buffer, 
+                                                      cuda_device_buffer &dst_buffer, 
+                                                      span<const copy_region> regions,
+                                                      cuda_device_queue &queue )
+{
+    const auto* src_data = src_buffer.get_data();
+    auto* dst_data = dst_buffer.get_data();
+    const auto src_count = src_buffer.get_count();
     const auto dst_count = dst_buffer.get_count();
     const auto type = require_same_type(
-        src_buffer->get_type(), dst_buffer.get_type()
+        src_buffer.get_type(), dst_buffer.get_type()
     );
     const auto element_size = get_size(type);
 
@@ -111,12 +116,10 @@ void cuda_host_to_device_transfer::transfer_copy(const std::shared_ptr<const hos
                 memory::offset_bytes(src_data, region_bytes.get_source_offset()),
                 region_bytes.get_count(),
                 cudaMemcpyHostToDevice,
-                cuda_queue.get_handle()
+                queue.get_handle()
             )
         );
     }
-
-    update_current(src_buffer, cuda_queue);
 }
 
 std::shared_ptr<device_buffer> 
@@ -124,15 +127,27 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<host_buffer> &buffe
                                        device_memory_allocator &allocator,
                                        device_queue &queue )
 {
-    std::shared_ptr<device_buffer> result;
+    return transfer_impl(
+        buffer,
+        dynamic_cast<cuda_device_memory_allocator&>(allocator),
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
+
+std::shared_ptr<cuda_device_buffer> 
+cuda_host_to_device_transfer::transfer_impl(const std::shared_ptr<host_buffer> &buffer, 
+                                            cuda_device_memory_allocator &allocator,
+                                            cuda_device_queue &queue )
+{
+    std::shared_ptr<cuda_device_buffer> result;
 
     if (buffer)
     {
-        result = allocator.create_buffer_shared(
+        result = allocator.create_device_buffer_impl(
             buffer->get_type(), buffer->get_count(), queue
         );
 
-        transfer_copy(buffer, *result, queue);
+        transfer_copy_impl(*buffer, *result, queue);
     }
 
     return result;
@@ -143,46 +158,31 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buffer> 
                                        device_memory_allocator &allocator,
                                        device_queue &queue )
 {
-    std::shared_ptr<const device_buffer> result;
+    return transfer_impl(
+        buffer,
+        dynamic_cast<cuda_device_memory_allocator&>(allocator),
+        dynamic_cast<cuda_device_queue&>(queue)
+    );
+}
+
+std::shared_ptr<const cuda_device_buffer> 
+cuda_host_to_device_transfer::transfer_impl(const std::shared_ptr<const host_buffer> &buffer, 
+                                            cuda_device_memory_allocator &allocator,
+                                            cuda_device_queue &queue )
+{
+    std::shared_ptr<const cuda_device_buffer> result;
 
     if (buffer)
     {
-        auto tmp = allocator.create_buffer_shared(
+        auto tmp = allocator.create_device_buffer_impl(
             buffer->get_type(), buffer->get_count(), queue
         );
 
-        transfer_copy(buffer, *tmp, queue);
+        transfer_copy(*buffer, *tmp, queue);
         result = std::move(tmp);
     }
 
     return result;
-}
-
-void cuda_host_to_device_transfer::wait()
-{
-    if (m_current)
-    {
-        m_event.wait();
-        m_current = nullptr;
-    }
-}
-
-void cuda_host_to_device_transfer::wait(device_queue &queue)
-{
-    if (m_current)
-    {
-        m_event.wait(queue);
-    }   
-}
-
-
-void cuda_host_to_device_transfer::update_current(std::shared_ptr<const host_buffer> buffer, 
-                                                  cuda_device_queue &queue )
-{
-    wait(); // Wait the previous transfer to complete
-    m_current = std::move(buffer);
-    m_event.signal(queue);
-
 }
 
 } // namespace compute

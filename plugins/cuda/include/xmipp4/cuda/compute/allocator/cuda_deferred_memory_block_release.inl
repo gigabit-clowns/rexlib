@@ -58,7 +58,7 @@ void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_
 
 inline
 void cuda_deferred_memory_block_release::record_events(const cuda_memory_block &block,
-                                                       span<cuda_device_queue*> queues )
+                                                       span<cuda_device_queue *const> queues )
 {
     decltype(m_pending_free)::iterator ite;
     std::tie(ite, std::ignore) = m_pending_free.emplace(

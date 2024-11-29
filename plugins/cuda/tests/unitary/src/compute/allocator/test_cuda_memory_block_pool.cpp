@@ -50,7 +50,7 @@ generate_partitions(cuda_memory_block_pool &pool,
                     std::size_t number,
                     std::uintptr_t address = 0xDEADBEEF,
                     std::size_t block_size = 1024,
-                    std::size_t queue_id = 16,
+                    const cuda_device_queue *queue = nullptr,
                     bool free = false )
 {
     cuda_memory_block_pool::iterator ite;
@@ -59,12 +59,12 @@ generate_partitions(cuda_memory_block_pool &pool,
 
     for (std::size_t i = 0; i < number; ++i)
     {
-        std::tie(ite, std::ignore) = pool.emplace(
+        ite = pool.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(
                 reinterpret_cast<void*>(address), 
                 block_size, 
-                queue_id
+                queue
             ),
             std::forward_as_tuple(ite, null, free)
         );
@@ -92,47 +92,54 @@ static void invalidate_backward_link(cuda_memory_block_pool::iterator ite)
     ite->second.get_previous_block()->second.set_next_block(null);
 }
 
+static const cuda_device_queue* make_phantom_queue(std::uintptr_t i)
+{
+    return reinterpret_cast<const cuda_device_queue*>(i);
+}
+
 static void populate_test_pool(cuda_memory_block_pool &pool)
 {
     const cuda_memory_block_pool::iterator null;
-    pool = {
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(1)), 32, 1), 
-            cuda_memory_block_context(null, null, true)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(2)), 64, 1), 
-            cuda_memory_block_context(null, null, true)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(3)), 64, 1), 
-            cuda_memory_block_context(null, null, false)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(4)), 32, 2), 
-            cuda_memory_block_context(null, null, true)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(5)), 64, 2), 
-            cuda_memory_block_context(null, null, false)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(6)), 64, 2), 
-            cuda_memory_block_context(null, null, true)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(7)), 128, 2), 
-            cuda_memory_block_context(null, null, true)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(8)), 64, 3), 
-            cuda_memory_block_context(null, null, true)
-        ),
-        std::make_pair(
-            cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(9)), 128, 3), 
-            cuda_memory_block_context(null, null, false)
-        ),
-    };
+    const auto queue1 = reinterpret_cast<const cuda_device_queue*>(std::uintptr_t(1));
+    const auto queue2 = reinterpret_cast<const cuda_device_queue*>(std::uintptr_t(2));
+    const auto queue3 = reinterpret_cast<const cuda_device_queue*>(std::uintptr_t(3));
+
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(1)), 32, queue1), 
+        cuda_memory_block_context(null, null, true)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(2)), 64, queue1), 
+        cuda_memory_block_context(null, null, true)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(3)), 64, queue1), 
+        cuda_memory_block_context(null, null, false)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(4)), 32, queue2), 
+        cuda_memory_block_context(null, null, true)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(5)), 64, queue2), 
+        cuda_memory_block_context(null, null, false)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(6)), 64, queue2), 
+        cuda_memory_block_context(null, null, true)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(7)), 128, queue2), 
+        cuda_memory_block_context(null, null, true)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(8)), 64, queue3), 
+        cuda_memory_block_context(null, null, true)
+    );
+    pool.emplace(
+        cuda_memory_block(reinterpret_cast<void*>(std::uintptr_t(9)), 128, queue3), 
+        cuda_memory_block_context(null, null, false)
+    );
 }
 
 
@@ -286,7 +293,7 @@ TEST_CASE( "find_suitable_block should return the smallest free block larger tha
     cuda_memory_block_pool pool;
     populate_test_pool(pool);
 
-    const auto ite = find_suitable_block(pool, 64, 2);
+    const auto ite = find_suitable_block(pool, 64, make_phantom_queue(2));
     REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == 6 );
 }
 
@@ -295,8 +302,8 @@ TEST_CASE( "find_suitable_block should return end when no suitable block is foun
     cuda_memory_block_pool pool;
     populate_test_pool(pool);
 
-    REQUIRE( find_suitable_block(pool, 32, 4) == pool.end() ); // Non-existent queue_id
-    REQUIRE( find_suitable_block(pool, 128, 3) == pool.end() ); // This queue_id does not contain a large enough block
+    REQUIRE( find_suitable_block(pool, 32, make_phantom_queue(4)) == pool.end() ); // Non-existent queue_id
+    REQUIRE( find_suitable_block(pool, 128, make_phantom_queue(3)) == pool.end() ); // This queue_id does not contain a large enough block
 }
 
 TEST_CASE( "consider partitioning block should not partition with reminder is smaller than threshold", "[cuda_memory_block_pool]" )
@@ -329,14 +336,17 @@ TEST_CASE( "partition_block should output two valid partitions", "[cuda_memory_b
 {
     cuda_memory_block_pool pool;
     const cuda_memory_block_pool::iterator null;
-    auto ite = generate_partitions(pool, 1);
+    const std::uintptr_t address = 0xDEADBEEF;
+    const std::size_t size = 1024;
+    const auto queue = make_phantom_queue(2);
+    auto ite = generate_partitions(pool, 1, address, size, queue);
 
     ite = partition_block(pool, ite, 768, 256);
     REQUIRE( pool.size() == 2 );
 
     REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == 0xDEADBEEF );
     REQUIRE( ite->first.get_size() == 768 );
-    REQUIRE( ite->first.get_queue_id() == 16 );
+    REQUIRE( ite->first.get_queue() == queue );
     REQUIRE( ite->second.get_previous_block() == null );
     REQUIRE( ite->second.is_free() == false );
     REQUIRE( check_forward_link(ite) == true );
@@ -344,7 +354,7 @@ TEST_CASE( "partition_block should output two valid partitions", "[cuda_memory_b
     ite = ite->second.get_next_block();
     REQUIRE( reinterpret_cast<std::uintptr_t>(ite->first.get_data()) == (0xDEADBEEF + 768) );
     REQUIRE( ite->first.get_size() == 256 );
-    REQUIRE( ite->first.get_queue_id() == 16 );
+    REQUIRE( ite->first.get_queue() == queue );
     REQUIRE( ite->second.get_next_block() == null );
     REQUIRE( ite->second.is_free() == false );
     REQUIRE( check_backward_link(ite) == true );
@@ -425,8 +435,8 @@ TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
     cuda_memory_block_pool pool;
     const uintptr_t base_address = 0xDEADBEEF;
     const std::size_t block_size = 1024;
-    const std::size_t queue_id = 15;
-    auto ite = generate_partitions(pool, 4, base_address, block_size, queue_id, true);
+    const auto queue = make_phantom_queue(423);
+    auto ite = generate_partitions(pool, 4, base_address, block_size, queue, true);
 
     const auto keep_left = ite;
     const auto merge1 = keep_left->second.get_next_block();
@@ -436,7 +446,7 @@ TEST_CASE( "merge_blocks (2) produce valid blocks", "[cuda_memory_block_pool]" )
     const auto merged = merge_blocks(pool, merge1, merge2);
     REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (base_address + block_size));
     REQUIRE( merged->first.get_size() == 2*block_size );
-    REQUIRE( merged->first.get_queue_id() == queue_id );
+    REQUIRE( merged->first.get_queue() == queue );
     REQUIRE( merged->second.get_previous_block() == keep_left );
     REQUIRE( merged->second.get_next_block() == keep_right );
     REQUIRE( merged->second.is_free() == true );
@@ -449,8 +459,8 @@ TEST_CASE( "merge_blocks (3) produce valid blocks", "[cuda_memory_block_pool]" )
     cuda_memory_block_pool pool;
     const uintptr_t base_address = 0xDEADBEEF;
     const std::size_t block_size = 1024;
-    const std::size_t queue_id = 15;
-    auto ite = generate_partitions(pool, 5, base_address, block_size, queue_id, true);
+    const auto queue = make_phantom_queue(7548);
+    auto ite = generate_partitions(pool, 5, base_address, block_size, queue, true);
 
     const auto keep_left = ite;
     const auto merge1 = keep_left->second.get_next_block();
@@ -461,7 +471,7 @@ TEST_CASE( "merge_blocks (3) produce valid blocks", "[cuda_memory_block_pool]" )
     const auto merged = merge_blocks(pool, merge1, merge2, merge3);
     REQUIRE( reinterpret_cast<std::uintptr_t>(merged->first.get_data()) == (base_address + block_size));
     REQUIRE( merged->first.get_size() == 3*block_size );
-    REQUIRE( merged->first.get_queue_id() == queue_id );
+    REQUIRE( merged->first.get_queue() == queue );
     REQUIRE( merged->second.get_previous_block() == keep_left );
     REQUIRE( merged->second.get_next_block() == keep_right );
     REQUIRE( merged->second.is_free() == true );
@@ -476,14 +486,15 @@ TEST_CASE( "create_block should call the allocator", "[cuda_memory_block_pool]" 
     mock_allocator allocator;
     auto* address = reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF));
     const auto size = 768;
+    const auto queue = make_phantom_queue(485934);
     REQUIRE_CALL(allocator, allocate(size))
         .RETURN(address)
         .TIMES(1);
 
-    const auto ite = create_block(pool, allocator, size, 8);
+    const auto ite = create_block(pool, allocator, size, queue);
     REQUIRE( ite->first.get_data() == address );
     REQUIRE( ite->first.get_size() == size);
-    REQUIRE( ite->first.get_queue_id() == 8 );
+    REQUIRE( ite->first.get_queue() == queue );
     REQUIRE( ite->second.get_previous_block() == null );
     REQUIRE( ite->second.get_next_block() == null );
     REQUIRE( ite->second.is_free() == true );
@@ -496,9 +507,11 @@ TEST_CASE( "allocate_block should return a pooled block when possible", "[cuda_m
     cuda_memory_block_pool pool;
     populate_test_pool(pool);
 
-    const auto* block = allocate_block(pool, allocator, 64, 2, 1, 1);
+    const auto queue = make_phantom_queue(2);
+    const auto* block = allocate_block(pool, allocator, 64, queue, 1, 1);
     REQUIRE( block != nullptr );
     REQUIRE( reinterpret_cast<std::uintptr_t>(block->get_data()) == 6 );
+    REQUIRE( block->get_queue() == queue );
     REQUIRE( pool.find(*block)->second.is_free() == false ); // Should mark it as occupied
 }
 
@@ -510,6 +523,7 @@ TEST_CASE( "allocate_block should call the allocator when no block is available"
 
     const std::size_t size = 768;
     const std::size_t size_step = 512;
+    const auto queue = make_phantom_queue(2);
     const auto rounded_size = memory::align_ceil(size, size_step);
     auto* address = reinterpret_cast<void*>(std::uintptr_t(0xDEADBEEF));
 
@@ -517,9 +531,10 @@ TEST_CASE( "allocate_block should call the allocator when no block is available"
         .RETURN(address)
         .TIMES(1);
 
-    const auto* block = allocate_block(pool, allocator, size, 2, 0, size_step);
+    const auto* block = allocate_block(pool, allocator, size, queue, 0, size_step);
     REQUIRE( block != nullptr );
     REQUIRE( block->get_data() == address );
+    REQUIRE( block->get_queue() == queue );
     REQUIRE( pool.find(*block)->second.is_free() == false ); // Should mark it as occupied
 }
 
@@ -531,6 +546,8 @@ TEST_CASE( "allocate_block should return null on failure", "[cuda_memory_block_p
 
     const std::size_t size = 768;
     const std::size_t size_step = 512;
+    const auto queue = make_phantom_queue(2);
+
     const auto rounded_size = memory::align_ceil(size, size_step);
     void* address = nullptr;
 
@@ -538,7 +555,7 @@ TEST_CASE( "allocate_block should return null on failure", "[cuda_memory_block_p
         .RETURN(address)
         .TIMES(1);
 
-    const auto* block = allocate_block(pool, allocator, size, 2, 0, size_step);
+    auto* block = allocate_block(pool, allocator, size, queue, 0, size_step);
     REQUIRE( block == nullptr );
 }
 

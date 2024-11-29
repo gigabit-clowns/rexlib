@@ -28,12 +28,17 @@
  * 
  */
 
+#include <xmipp4/core/span.hpp>
+
+#include <vector>
 #include <cstddef>
 
 namespace xmipp4 
 {
 namespace compute
 {
+
+class cuda_device_queue;
 
 /**
  * @brief Represents a chunk of data managed by cuda_memory_cache.
@@ -51,11 +56,11 @@ public:
      * 
      * @param data Referenced data.
      * @param size Number of bytes referenced.
-     * @param queue_id Unique ID of a queue where this belongs.
+     * @param queue Queue where this belongs.
      */
     cuda_memory_block(void *data, 
                       std::size_t size, 
-                      std::size_t queue_id ) noexcept;
+                      const cuda_device_queue *queue ) noexcept;
     cuda_memory_block(const cuda_memory_block &other) = default;
     cuda_memory_block(cuda_memory_block &&other) = default;
     ~cuda_memory_block() = default;
@@ -79,17 +84,23 @@ public:
     std::size_t get_size() const noexcept;
 
     /**
-     * @brief Get the ID of the queue where this block belongs to.
+     * @brief Get the queue where this block belongs to.
      * 
-     * @return std::size_t The ID of the queue.
+     * @return const cuda_device_queue* Pointer to the queue.
      */
-    std::size_t get_queue_id() const noexcept;
+    const cuda_device_queue* get_queue() const noexcept;
+
+    void reset_extra_queues() noexcept;
+
+    void register_extra_queue(cuda_device_queue &queue);
+
+    span<cuda_device_queue *const> get_extra_queues() const noexcept;
 
 private:
     void *m_data;
     std::size_t m_size;
-    std::size_t m_queue_id;
-        
+    const cuda_device_queue *m_queue;
+    std::vector<cuda_device_queue*> m_extra_queues;
 }; 
 
 

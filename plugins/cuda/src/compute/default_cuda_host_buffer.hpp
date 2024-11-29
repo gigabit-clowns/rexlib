@@ -29,6 +29,7 @@
  */
 
 #include <xmipp4/core/compute/host_buffer.hpp>
+#include <xmipp4/cuda/compute/allocator/cuda_memory_allocator_delete.hpp>
 
 namespace xmipp4 
 {
@@ -37,29 +38,24 @@ namespace compute
 
 class cuda_memory_block;
 class cuda_host_memory_allocator;
-
-
+class cuda_device_queue;
 
 class default_cuda_host_buffer final
     : public host_buffer
 {
 public:
-    default_cuda_host_buffer() noexcept;
     default_cuda_host_buffer(numerical_type type,
                              std::size_t count,
-                             const cuda_memory_block &block , 
+                             cuda_memory_block &block , 
                              cuda_host_memory_allocator &allocator) noexcept;
     default_cuda_host_buffer(const default_cuda_host_buffer &other) = delete;
-    default_cuda_host_buffer(default_cuda_host_buffer &&other) noexcept;
-    ~default_cuda_host_buffer() override;
+    default_cuda_host_buffer(default_cuda_host_buffer &&other) = default;
+    ~default_cuda_host_buffer() override = default;
 
     default_cuda_host_buffer& 
     operator=(const default_cuda_host_buffer &other) = delete;
     default_cuda_host_buffer& 
-    operator=(default_cuda_host_buffer &&other) noexcept;
-
-    void swap(default_cuda_host_buffer &other) noexcept;
-    void reset() noexcept;
+    operator=(default_cuda_host_buffer &&other) = default;
 
     numerical_type get_type() const noexcept override;
     std::size_t get_count() const noexcept override;
@@ -70,11 +66,16 @@ public:
     device_buffer* get_device_accessible_alias() noexcept override;
     const device_buffer* get_device_accessible_alias() const noexcept override;
 
+    void record_queue(device_queue &queue) override;
+    void record_queue_impl(cuda_device_queue &queue);
+
 private:
+    using block_delete = 
+        cuda_memory_allocator_delete<cuda_host_memory_allocator>;
+
     numerical_type m_type;
     std::size_t m_count;
-    const cuda_memory_block *m_block;
-    cuda_host_memory_allocator *m_allocator;
+    std::unique_ptr<cuda_memory_block, block_delete> m_block;
 
 }; 
 

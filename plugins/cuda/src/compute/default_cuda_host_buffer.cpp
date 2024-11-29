@@ -40,74 +40,15 @@ namespace xmipp4
 namespace compute
 {
 
-
-default_cuda_host_buffer::default_cuda_host_buffer() noexcept
-    : m_type(numerical_type::unknown)
-    , m_count(0)
-    , m_block(nullptr)
-    , m_allocator(nullptr)
-{
-}
-
 default_cuda_host_buffer
 ::default_cuda_host_buffer(numerical_type type,
                            std::size_t count,
-                           const cuda_memory_block &block , 
+                           cuda_memory_block &block , 
                            cuda_host_memory_allocator &allocator) noexcept
     : m_type(type)
     , m_count(count)
-    , m_block(&block)
-    , m_allocator(&allocator)
+    , m_block(&block, block_delete(allocator))
 {
-}
-
-default_cuda_host_buffer
-::default_cuda_host_buffer(default_cuda_host_buffer &&other) noexcept
-    : m_type(other.m_type)
-    , m_count(other.m_count)
-    , m_block(other.m_block)
-    , m_allocator(other.m_allocator)
-{
-    other.m_type = numerical_type::unknown;
-    other.m_count = 0UL;
-    other.m_block = nullptr;
-    other.m_allocator = nullptr;
-}
-
-default_cuda_host_buffer::~default_cuda_host_buffer()
-{
-    reset();
-}
-
-default_cuda_host_buffer& 
-default_cuda_host_buffer::operator=(default_cuda_host_buffer &&other) noexcept
-{
-    swap(other);
-    other.reset();
-    return *this;
-}
-
-void default_cuda_host_buffer::swap(default_cuda_host_buffer &other) noexcept
-{
-    std::swap(m_type, other.m_type);
-    std::swap(m_count, other.m_count);
-    std::swap(m_block, other.m_block);
-    std::swap(m_allocator, other.m_allocator);
-
-}
-
-void default_cuda_host_buffer::reset() noexcept
-{
-    if (m_block)
-    {
-        XMIPP4_ASSERT(m_allocator);
-        m_allocator->deallocate(*m_block);
-
-        m_type = numerical_type::unknown;
-        m_count = 0UL;
-        m_block = nullptr;
-        m_allocator = nullptr;
-    }
 }
 
 numerical_type default_cuda_host_buffer::get_type() const noexcept
@@ -139,6 +80,16 @@ const device_buffer*
 default_cuda_host_buffer::get_device_accessible_alias() const noexcept
 {
     return nullptr;
+}
+
+void default_cuda_host_buffer::record_queue(device_queue &queue)
+{
+    record_queue_impl(dynamic_cast<cuda_device_queue&>(queue));
+}
+
+void default_cuda_host_buffer::record_queue_impl(cuda_device_queue &queue)
+{
+    m_block->register_extra_queue(queue);
 }
 
 } // namespace compute

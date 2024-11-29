@@ -84,10 +84,10 @@ cuda_event::handle cuda_event::get_handle() noexcept
 
 void cuda_event::signal(device_queue &queue)
 {
-    signal(dynamic_cast<cuda_device_queue&>(queue));
+    signal_impl(dynamic_cast<cuda_device_queue&>(queue));
 }
 
-void cuda_event::signal(cuda_device_queue &queue)
+void cuda_event::signal_impl(cuda_device_queue &queue)
 {
     XMIPP4_CUDA_CHECK( cudaEventRecord(m_event, queue.get_handle()) );
 }
@@ -99,10 +99,10 @@ void cuda_event::wait() const
 
 void cuda_event::wait(device_queue &queue) const
 {
-    wait(dynamic_cast<cuda_device_queue&>(queue));
+    wait_impl(dynamic_cast<cuda_device_queue&>(queue));
 }
 
-void cuda_event::wait(cuda_device_queue &queue) const
+void cuda_event::wait_impl(cuda_device_queue &queue) const
 {
     XMIPP4_CUDA_CHECK(
         cudaStreamWaitEvent(queue.get_handle(), m_event, cudaEventWaitDefault)

@@ -60,25 +60,42 @@ public:
                        std::size_t count,
                        device_queue &queue ) override;
 
+    std::unique_ptr<host_buffer> 
+    create_host_buffer_impl(numerical_type type, 
+                            std::size_t count,
+                            cuda_device_queue &queue );
+
     std::shared_ptr<host_buffer> 
     create_host_buffer_shared(numerical_type type, 
                               std::size_t count,
                               device_queue &queue ) override;
 
+    std::shared_ptr<host_buffer> 
+    create_host_buffer_shared_impl(numerical_type type, 
+                                   std::size_t count,
+                                   cuda_device_queue &queue );
+
     std::unique_ptr<host_buffer> 
     create_host_buffer(numerical_type type, 
                        std::size_t count ) override;
 
+    std::unique_ptr<host_buffer> 
+    create_host_buffer_impl(numerical_type type, 
+                            std::size_t count );
+
     std::shared_ptr<host_buffer> 
     create_host_buffer_shared(numerical_type type, 
                               std::size_t count ) override;
+
+    std::shared_ptr<host_buffer> 
+    create_host_buffer_shared_impl(numerical_type type, 
+                                   std::size_t count );
     
-    const cuda_memory_block& allocate(numerical_type type, std::size_t count);
-    const cuda_memory_block& allocate(numerical_type type, 
-                                      std::size_t count,
-                                      cuda_device_queue &queue);
-    void deallocate(const cuda_memory_block &block, 
-                    span<cuda_device_queue*> other_queues);
+    cuda_memory_block& allocate(numerical_type type, std::size_t count);
+    cuda_memory_block& allocate(numerical_type type, 
+                                std::size_t count,
+                                cuda_device_queue &queue);
+    void deallocate(const cuda_memory_block &block);
 
 private:
     cuda_caching_memory_allocator<cuda_host_malloc> m_allocator;

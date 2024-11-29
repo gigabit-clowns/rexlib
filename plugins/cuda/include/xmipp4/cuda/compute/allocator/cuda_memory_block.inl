@@ -28,6 +28,8 @@
 
 #include "cuda_memory_block.hpp"
 
+#include <algorithm>
+
 namespace xmipp4
 {
 namespace compute
@@ -36,10 +38,10 @@ namespace compute
 inline
 cuda_memory_block::cuda_memory_block(void *data, 
                                      std::size_t size, 
-                                     std::size_t queue_id ) noexcept
+                                     const cuda_device_queue *queue ) noexcept
     : m_data(data)
     , m_size(size)
-    , m_queue_id(queue_id)
+    , m_queue(queue)
 {
 }
 
@@ -56,10 +58,44 @@ std::size_t cuda_memory_block::get_size() const noexcept
 }
 
 inline
-std::size_t cuda_memory_block::get_queue_id() const noexcept
+const cuda_device_queue* cuda_memory_block::get_queue() const noexcept
 {
-    return m_queue_id;
+    return m_queue;
 }
+
+inline
+void cuda_memory_block::reset_extra_queues() noexcept
+{
+    m_extra_queues.clear();
+}
+
+inline
+void cuda_memory_block::register_extra_queue(cuda_device_queue &queue)
+{
+    auto *const queue_pointer = &queue;
+    if (queue_pointer != m_queue)
+    {
+        // Find first element that compares greater or EQUAL.
+        const auto pos = std::lower_bound(
+            m_extra_queues.cbegin(), m_extra_queues.cend(),
+            queue_pointer
+        );
+
+        // Ensure that it is not equal.
+        if (*pos != queue_pointer)
+        {
+            m_extra_queues.insert(pos, queue_pointer);
+        }
+    }
+}
+
+inline
+span<cuda_device_queue *const> 
+cuda_memory_block::get_extra_queues() const noexcept
+{
+    return make_span(m_extra_queues);
+}
+
 
 
 
@@ -71,11 +107,11 @@ bool cuda_memory_block_less::operator()(const cuda_memory_block &lhs,
 {
     bool result;
 
-    if (lhs.get_queue_id() < rhs.get_queue_id())
+    if (lhs.get_queue() < rhs.get_queue())
     {
         result = true;
     }
-    else if (lhs.get_queue_id() == rhs.get_queue_id())
+    else if (lhs.get_queue() == rhs.get_queue())
     {
         if (lhs.get_size() < rhs.get_size())
         {

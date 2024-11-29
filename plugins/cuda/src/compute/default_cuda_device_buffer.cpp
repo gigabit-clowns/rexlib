@@ -43,75 +43,15 @@ namespace xmipp4
 namespace compute
 {
 
-
-default_cuda_device_buffer::default_cuda_device_buffer() noexcept
-    : m_type(numerical_type::unknown)
-    , m_count(0)
-    , m_block(nullptr)
-    , m_allocator(nullptr)
-{
-}
-
 default_cuda_device_buffer
 ::default_cuda_device_buffer(numerical_type type,
                              std::size_t count,
-                             const cuda_memory_block &block , 
+                             cuda_memory_block &block , 
                              cuda_device_memory_allocator &allocator ) noexcept
     : m_type(type)
     , m_count(count)
-    , m_block(&block)
-    , m_allocator(&allocator)
+    , m_block(&block, block_delete(allocator))
 {
-}
-
-default_cuda_device_buffer
-::default_cuda_device_buffer(default_cuda_device_buffer &&other) noexcept
-    : m_type(other.m_type)
-    , m_count(other.m_count)
-    , m_block(other.m_block)
-    , m_allocator(other.m_allocator)
-    , m_queues(std::move(other.m_queues))
-{
-    other.m_type = numerical_type::unknown;
-    other.m_count = 0;
-    other.m_block = nullptr;
-    other.m_allocator = nullptr;
-}
-
-default_cuda_device_buffer::~default_cuda_device_buffer()
-{
-    reset();
-}
-
-default_cuda_device_buffer& 
-default_cuda_device_buffer::operator=(default_cuda_device_buffer &&other) noexcept
-{
-    swap(other);
-    other.reset();
-    return *this;
-}
-
-void default_cuda_device_buffer::swap(default_cuda_device_buffer &other) noexcept
-{
-    std::swap(m_type, other.m_type);
-    std::swap(m_count, other.m_count);
-    std::swap(m_block, other.m_block);
-    std::swap(m_allocator, other.m_allocator);
-}
-
-void default_cuda_device_buffer::reset() noexcept
-{
-    if (m_block)
-    {
-        XMIPP4_ASSERT(m_allocator);
-        m_allocator->deallocate(*m_block, make_span(m_queues));
-
-        m_type = numerical_type::unknown;
-        m_count = 0UL;
-        m_block = nullptr;
-        m_allocator = nullptr;
-        m_queues.clear();
-    }
 }
 
 numerical_type default_cuda_device_buffer::get_type() const noexcept
@@ -144,23 +84,14 @@ default_cuda_device_buffer::get_host_accessible_alias() const noexcept
 {
     return nullptr;
 }
-
-void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
+void default_cuda_device_buffer::record_queue(device_queue &queue)
 {
-    if (queue.get_id() != m_block->get_queue_id())
-    {
-        auto *queue_pointer = &queue;
-        const auto pos = std::lower_bound(
-            m_queues.cbegin(), 
-            m_queues.cend(),
-            queue_pointer
-        );
+    record_queue_impl(dynamic_cast<cuda_device_queue&>(queue));
+}
 
-        if (pos == m_queues.cend() || *pos != queue_pointer)
-        {
-            m_queues.insert(std::next(pos), queue_pointer);
-        }
-    }
+void default_cuda_device_buffer::record_queue_impl(cuda_device_queue &queue)
+{
+    m_block->register_extra_queue(queue);
 }
 
 } // namespace compute
