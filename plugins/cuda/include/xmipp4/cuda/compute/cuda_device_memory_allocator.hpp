@@ -48,8 +48,6 @@ class cuda_device_queue;
 class cuda_device_buffer;
 class cuda_event;
 
-
-
 class cuda_device_memory_allocator
     : public device_memory_allocator
 {
@@ -65,28 +63,29 @@ public:
     operator=(cuda_device_memory_allocator &&other) = default;
 
     std::unique_ptr<device_buffer> 
-    create_device_buffer(numerical_type type, 
-                         std::size_t count, 
+    create_device_buffer(std::size_t size,
+                         std::size_t alignment,
                          device_queue &queue ) override;
 
     std::unique_ptr<cuda_device_buffer> 
-    create_device_buffer_impl(numerical_type type, 
-                              std::size_t count, 
+    create_device_buffer_impl(std::size_t size,
+                              std::size_t alignment,
                               cuda_device_queue &queue );
 
     std::shared_ptr<device_buffer> 
-    create_device_buffer_shared(numerical_type type, 
-                                std::size_t count, 
+    create_device_buffer_shared(std::size_t size,
+                                std::size_t alignment,
                                 device_queue &queue ) override;
 
     std::shared_ptr<cuda_device_buffer> 
-    create_device_buffer_shared_impl(numerical_type type, 
-                                     std::size_t count, 
+    create_device_buffer_shared_impl(std::size_t size,
+                                     std::size_t alignment,
                                      cuda_device_queue &queue );
 
-    cuda_memory_block& allocate(numerical_type type, 
-                                std::size_t count,
-                                cuda_device_queue &queue );
+    const cuda_memory_block& allocate(std::size_t size,
+                                      std::size_t alignment,
+                                      cuda_device_queue *queue,
+                                      cuda_memory_block_usage_tracker **usage_tracker );
     void deallocate(const cuda_memory_block &block);
 
 private:

@@ -28,7 +28,7 @@
 
 #include "cuda_memory_block.hpp"
 
-#include <algorithm>
+#include <xmipp4/core/memory/align.hpp>
 
 namespace xmipp4
 {
@@ -39,16 +39,33 @@ inline
 cuda_memory_block::cuda_memory_block(void *data, 
                                      std::size_t size, 
                                      const cuda_device_queue *queue ) noexcept
+    : cuda_memory_block(data, memory::get_alignment(data), size, queue)
+{
+}
+
+inline
+cuda_memory_block::cuda_memory_block(void *data, 
+                                     std::size_t alignment,
+                                     std::size_t size, 
+                                     const cuda_device_queue *queue ) noexcept
     : m_data(data)
+    , m_alignment(alignment)
     , m_size(size)
     , m_queue(queue)
 {
 }
 
+
 inline
 void* cuda_memory_block::get_data() const noexcept
 {
     return m_data;
+}
+
+inline
+std::size_t cuda_memory_block::get_alignment() const noexcept
+{
+    return m_alignment;
 }
 
 inline
@@ -62,42 +79,6 @@ const cuda_device_queue* cuda_memory_block::get_queue() const noexcept
 {
     return m_queue;
 }
-
-inline
-void cuda_memory_block::reset_extra_queues() noexcept
-{
-    m_extra_queues.clear();
-}
-
-inline
-void cuda_memory_block::register_extra_queue(cuda_device_queue &queue)
-{
-    auto *const queue_pointer = &queue;
-    if (queue_pointer != m_queue)
-    {
-        // Find first element that compares greater or EQUAL.
-        const auto pos = std::lower_bound(
-            m_extra_queues.cbegin(), m_extra_queues.cend(),
-            queue_pointer
-        );
-
-        // Ensure that it is not equal.
-        if (*pos != queue_pointer)
-        {
-            m_extra_queues.insert(pos, queue_pointer);
-        }
-    }
-}
-
-inline
-span<cuda_device_queue *const> 
-cuda_memory_block::get_extra_queues() const noexcept
-{
-    return make_span(m_extra_queues);
-}
-
-
-
 
 
 
@@ -119,7 +100,18 @@ bool cuda_memory_block_less::operator()(const cuda_memory_block &lhs,
         }
         else if (lhs.get_size() == rhs.get_size())
         {
-            result = lhs.get_data() < rhs.get_data();
+            if(lhs.get_alignment() < rhs.get_alignment())
+            {
+                result = true;
+            }
+            else if (lhs.get_alignment() == rhs.get_alignment())
+            {
+                result = lhs.get_data() < rhs.get_data();
+            }
+            else // lhs.get_alignment() > rhs.get_alignment()
+            {
+                result = false;
+            }
         }
         else // lhs.get_size() > rhs.get_size()
         {

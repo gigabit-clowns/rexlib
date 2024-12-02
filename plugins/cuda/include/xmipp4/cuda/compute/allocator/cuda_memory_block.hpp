@@ -30,7 +30,6 @@
 
 #include <xmipp4/core/span.hpp>
 
-#include <vector>
 #include <cstddef>
 
 namespace xmipp4 
@@ -61,6 +60,18 @@ public:
     cuda_memory_block(void *data, 
                       std::size_t size, 
                       const cuda_device_queue *queue ) noexcept;
+    /**
+     * @brief Construct a new cuda memory block from its components.
+     * 
+     * @param data Referenced data.
+     * @param alignment The alignment of the data pointer.
+     * @param size Number of bytes referenced.
+     * @param queue Queue where this belongs.
+     */
+    cuda_memory_block(void *data, 
+                      std::size_t alignment,  
+                      std::size_t size, 
+                      const cuda_device_queue *queue ) noexcept;
     cuda_memory_block(const cuda_memory_block &other) = default;
     cuda_memory_block(cuda_memory_block &&other) = default;
     ~cuda_memory_block() = default;
@@ -77,6 +88,13 @@ public:
     void* get_data() const noexcept;
 
     /**
+     * @brief Get the alignment of the data pointer.
+     * 
+     * @return std::size_t The alignment in bytes.
+     */
+    std::size_t get_alignment() const noexcept;
+
+    /**
      * @brief Get the number of bytes referenced by this object.
      * 
      * @return std::size_t Number of bytes.
@@ -90,17 +108,12 @@ public:
      */
     const cuda_device_queue* get_queue() const noexcept;
 
-    void reset_extra_queues() noexcept;
-
-    void register_extra_queue(cuda_device_queue &queue);
-
-    span<cuda_device_queue *const> get_extra_queues() const noexcept;
-
 private:
     void *m_data;
+    std::size_t m_alignment;
     std::size_t m_size;
     const cuda_device_queue *m_queue;
-    std::vector<cuda_device_queue*> m_extra_queues;
+
 }; 
 
 
@@ -110,6 +123,7 @@ private:
  * 
  * First, queue IDs are compared.
  * If equal, then, sizes are compared.
+ * If equal, then alignments are compared.
  * If equal, data pointers are compared.
  * 
  */

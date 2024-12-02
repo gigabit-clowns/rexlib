@@ -33,125 +33,12 @@
 
 #include <algorithm>
 #include <functional>
-#include <stdexcept>
 #include <tuple>
 
 namespace xmipp4
 {
 namespace compute
 {
-
-inline
-std::size_t cuda_memory_block_pool::size() const noexcept
-{
-    return m_items.size();
-}
-
-inline
-cuda_memory_block_pool::iterator cuda_memory_block_pool::begin() noexcept
-{
-    return m_items.begin();
-}
-
-inline
-cuda_memory_block_pool::iterator cuda_memory_block_pool::end() noexcept
-{
-    return m_items.end();
-}
-
-inline
-cuda_memory_block_pool::const_iterator 
-cuda_memory_block_pool::begin() const noexcept
-{
-    return m_items.begin();
-}
-
-inline
-cuda_memory_block_pool::const_iterator 
-cuda_memory_block_pool::end() const noexcept
-{
-    return m_items.end();
-}
-
-inline
-cuda_memory_block_pool::const_iterator 
-cuda_memory_block_pool::cbegin() const noexcept
-{
-    return m_items.cbegin();
-}
-
-inline
-cuda_memory_block_pool::const_iterator 
-cuda_memory_block_pool::cend() const noexcept
-{
-    return m_items.cend();
-}
-
-
-template <typename... Args>
-inline
-cuda_memory_block_pool::iterator cuda_memory_block_pool::emplace(Args&&... args)
-{
-    iterator result;
-    if (m_free_list.empty())
-    {
-        result = m_free_list.emplace(
-            m_free_list.cbegin(),
-            std::forward<Args>(args)...
-        );
-    }
-    else
-    {
-        result = m_free_list.begin();
-        *result = value_type(std::forward<Args>(args)...);
-    }
-
-    const auto pos = std::lower_bound(
-        m_items.cbegin(), m_items.cend(),
-        result->first,
-        [] (const value_type& lhs, const key_type &rhs)
-        {
-            return cuda_memory_block_less()(lhs.first, rhs);
-        }
-    );
-
-    m_items.splice(pos, m_free_list, result);
-    return result;
-}
-
-inline
-cuda_memory_block_pool::iterator 
-cuda_memory_block_pool::erase(iterator pos)
-{
-    const auto result = std::next(pos);
-    m_free_list.splice(m_free_list.cend(), m_items, pos);
-    return result;
-}
-
-inline
-cuda_memory_block_pool::iterator 
-cuda_memory_block_pool::find(const cuda_memory_block &item)
-{
-    auto ite = std::lower_bound(
-        begin(), end(),
-        item,
-        [] (const value_type& lhs, const key_type &rhs)
-        {
-            return cuda_memory_block_less()(lhs.first, rhs);
-        }
-    );
-
-    if (ite->first.get_data() != item.get_data())
-    {
-        ite = end();
-    }
-
-    return ite;
-}
-
-
-
-
 
 inline
 cuda_memory_block_context::cuda_memory_block_context(iterator prev, 
@@ -161,6 +48,13 @@ cuda_memory_block_context::cuda_memory_block_context(iterator prev,
     , m_next(next)
     , m_free(free)
 {
+}
+
+inline
+cuda_memory_block_usage_tracker&
+cuda_memory_block_context::get_usage_tracker() noexcept
+{
+    return m_usage_tracker;
 }
 
 inline
@@ -303,44 +197,36 @@ inline
 cuda_memory_block_pool::iterator 
 find_suitable_block(cuda_memory_block_pool &blocks, 
                     std::size_t size,
+                    std::size_t alignment,
                     const cuda_device_queue *queue )
 {
     // Assuming that the blocks are ordered according to their queue reference
-    // first and then their sizes, find a feasible range where all elements
-    // belong to a queue and have a size greater or equal to the requested
-    // size.
-    const auto first = std::lower_bound(
-        blocks.begin(), blocks.end(),
-        std::make_tuple(queue, size),
-        [] (const auto &item, const auto &key2) -> bool
-        {
-            const auto &block = item.first;
-            const auto key1 = 
-                std::make_tuple(block.get_queue(), block.get_size());
-            return key1 < key2;
-        }
-    );
+    // first and then their sizes, the best fit is achieved iterating from
+    // the first suitable block.
+    const cuda_memory_block key(nullptr, alignment, size, queue);
+    auto ite = blocks.lower_bound(key);
 
-    const auto last = std::upper_bound(
-        first, blocks.end(),
-        queue,
-        [] (const cuda_device_queue *key1, const auto &item) -> bool
+    while (ite != blocks.end())
+    {
+        if(ite->first.get_queue() != queue)
         {
-            const auto key2 = item.first.get_queue();
-            return key1 < key2;
+            // Reached the end of the allowed range.
+            ite = blocks.end();
+            break;
         }
-    );
-
-    // In the feasible range of blocks, find the smallest free block.
-    auto ite = std::find_if(
-        first, last,
-        [] (const auto &item) -> bool
+        else if (ite->second.is_free())
         {
-            return item.second.is_free();
+            // Found a suitable block
+            break;
         }
-    );
+        else
+        {
+            // Occupied. Try with the next.
+            ++ite;
+        }
+    }
 
-    return ite != last ? ite : blocks.end();
+    return ite;
 }
 
 inline
@@ -370,7 +256,10 @@ partition_block(cuda_memory_block_pool &blocks,
     const auto prev = ite->second.get_previous_block();
     const auto next = ite->second.get_next_block();
 
-    const auto first = blocks.emplace(
+    cuda_memory_block_pool::iterator first;
+    cuda_memory_block_pool::iterator second;
+    bool inserted;
+    std::tie(first, inserted) = blocks.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(
             ite->first.get_data(), 
@@ -383,7 +272,8 @@ partition_block(cuda_memory_block_pool &blocks,
             ite->second.is_free()
         )
     );
-    const auto second = blocks.emplace(
+    XMIPP4_ASSERT(inserted);
+    std::tie(second, inserted) = blocks.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(
             memory::offset_bytes(ite->first.get_data(), size), 
@@ -396,6 +286,7 @@ partition_block(cuda_memory_block_pool &blocks,
             ite->second.is_free()
         )
     );
+    XMIPP4_ASSERT(inserted);
     
     first->second.set_next_block(second);
     update_backward_link(first);
@@ -449,11 +340,15 @@ merge_blocks(cuda_memory_block_pool &blocks,
     const auto prev = first->second.get_previous_block();
     const auto next = second->second.get_next_block();
 
-    const auto ite = blocks.emplace(
+    cuda_memory_block_pool::iterator ite;
+    bool inserted;
+    std::tie(ite, inserted) = blocks.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(data, size, queue),
         std::forward_as_tuple(prev, next, true)
     );
+    XMIPP4_ASSERT(inserted);
+
     update_links(ite);
 
     blocks.erase(first);
@@ -478,11 +373,15 @@ merge_blocks(cuda_memory_block_pool &blocks,
     const auto prev = first->second.get_previous_block();
     const auto next = third->second.get_next_block();
 
-    const auto ite = blocks.emplace(
+    cuda_memory_block_pool::iterator ite;
+    bool inserted;
+    std::tie(ite, inserted) = blocks.emplace(
         std::piecewise_construct,
         std::forward_as_tuple(data, size, queue),
         std::forward_as_tuple(prev, next, true)
     );
+    XMIPP4_ASSERT(inserted);
+
     update_links(ite);
 
     blocks.erase(first);
@@ -509,11 +408,13 @@ cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
         const cuda_memory_block_pool::iterator null;
 
         // Add block
-        result = blocks.emplace(
+        bool inserted;
+        std::tie(result, inserted) = blocks.emplace(
             std::piecewise_construct,
             std::forward_as_tuple(data, size, queue),
             std::forward_as_tuple(null, null, true)
         );
+        XMIPP4_ASSERT(inserted);
     }
     else
     {
@@ -525,16 +426,16 @@ cuda_memory_block_pool::iterator create_block(cuda_memory_block_pool &blocks,
 
 template <typename Allocator>
 inline
-cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks, 
-                                  const Allocator &allocator, 
-                                  std::size_t size,
-                                  const cuda_device_queue *queue,
-                                  std::size_t partition_min_size,
-                                  std::size_t create_size_step )
+cuda_memory_block_pool::iterator 
+allocate_block(cuda_memory_block_pool &blocks, 
+               const Allocator &allocator, 
+               std::size_t size,
+               std::size_t alignment,
+               const cuda_device_queue *queue,
+               std::size_t partition_min_size,
+               std::size_t create_size_step )
 {
-    cuda_memory_block *result;
-
-    auto ite = find_suitable_block(blocks, size, queue);
+    auto ite = find_suitable_block(blocks, size, alignment, queue);
     if (ite == blocks.end())
     {
         const auto create_size = memory::align_ceil(size, create_size_step);
@@ -545,28 +446,17 @@ cuda_memory_block* allocate_block(cuda_memory_block_pool &blocks,
     {
         ite = consider_partitioning_block(blocks, ite, size, partition_min_size);
         ite->second.set_free(false);
-        result = &(ite->first);
-    }
-    else
-    {
-        result = nullptr;
     }
 
-    return result;
+    return ite;
 }
 
 inline
 void deallocate_block(cuda_memory_block_pool &blocks, 
-                      const cuda_memory_block &block)
+                      cuda_memory_block_pool::iterator ite )
 {
-    auto ite = blocks.find(block);
-    if (ite == blocks.end())
-    {
-        throw std::invalid_argument("Block does not belong to this pool");
-    }
-
-    ite->first.reset_extra_queues();
     ite->second.set_free(true);
+    ite->second.get_usage_tracker().reset();
     ite = consider_merging_block(blocks, ite);
 }
 

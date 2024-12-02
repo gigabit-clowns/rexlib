@@ -46,7 +46,9 @@ void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_
         // Return block if completed
         if(events.empty())
         {
-            deallocate_block(cache, ite->first);
+            const auto block = cache.find(ite->first);
+            XMIPP4_ASSERT( block != cache.end() );
+            deallocate_block(cache, block);
             ite = m_pending_free.erase(ite);
         }
         else

@@ -72,18 +72,13 @@ public:
              device_memory_allocator &allocator,
              device_queue &queue ) override;
 
-    std::shared_ptr<cuda_device_buffer> 
-    transfer_impl(const std::shared_ptr<host_buffer> &buffer, 
-                  cuda_device_memory_allocator &allocator,
-                  cuda_device_queue &queue );
-
     std::shared_ptr<const device_buffer> 
     transfer(const std::shared_ptr<const host_buffer> &buffer, 
              device_memory_allocator &allocator,
              device_queue &queue ) override;
 
-    std::shared_ptr<const cuda_device_buffer> 
-    transfer_impl(const std::shared_ptr<const host_buffer> &buffer, 
+    std::shared_ptr<cuda_device_buffer> 
+    transfer_impl(const host_buffer &buffer, 
                   cuda_device_memory_allocator &allocator,
                   cuda_device_queue &queue );
 

@@ -32,7 +32,6 @@
 #include "allocator/cuda_caching_memory_allocator.hpp"
 
 #include <xmipp4/core/compute/host_memory_allocator.hpp>
-#include <xmipp4/core/platform/attributes.hpp>
 
 #include <mutex>
 
@@ -40,6 +39,8 @@ namespace xmipp4
 {
 namespace compute
 {
+
+class cuda_device_queue;
 
 class cuda_host_memory_allocator
     : public host_memory_allocator
@@ -56,45 +57,41 @@ public:
     operator=(cuda_host_memory_allocator &&other) = delete;
 
     std::unique_ptr<host_buffer> 
-    create_host_buffer(numerical_type type, 
-                       std::size_t count,
+    create_host_buffer(std::size_t size,
+                       std::size_t alignment, 
                        device_queue &queue ) override;
 
     std::unique_ptr<host_buffer> 
-    create_host_buffer_impl(numerical_type type, 
-                            std::size_t count,
+    create_host_buffer_impl(std::size_t size,
+                            std::size_t alignment, 
                             cuda_device_queue &queue );
 
     std::shared_ptr<host_buffer> 
-    create_host_buffer_shared(numerical_type type, 
-                              std::size_t count,
+    create_host_buffer_shared(std::size_t size,
+                              std::size_t alignment, 
                               device_queue &queue ) override;
 
     std::shared_ptr<host_buffer> 
-    create_host_buffer_shared_impl(numerical_type type, 
-                                   std::size_t count,
+    create_host_buffer_shared_impl(std::size_t size,
+                                   std::size_t alignment, 
                                    cuda_device_queue &queue );
 
     std::unique_ptr<host_buffer> 
-    create_host_buffer(numerical_type type, 
-                       std::size_t count ) override;
+    create_host_buffer(std::size_t size, std::size_t alignment) override;
 
     std::unique_ptr<host_buffer> 
-    create_host_buffer_impl(numerical_type type, 
-                            std::size_t count );
+    create_host_buffer_impl(std::size_t size, std::size_t alignment);
 
     std::shared_ptr<host_buffer> 
-    create_host_buffer_shared(numerical_type type, 
-                              std::size_t count ) override;
+    create_host_buffer_shared(std::size_t size, std::size_t alignment) override;
 
     std::shared_ptr<host_buffer> 
-    create_host_buffer_shared_impl(numerical_type type, 
-                                   std::size_t count );
+    create_host_buffer_shared_impl(std::size_t size, std::size_t alignment);
     
-    cuda_memory_block& allocate(numerical_type type, std::size_t count);
-    cuda_memory_block& allocate(numerical_type type, 
-                                std::size_t count,
-                                cuda_device_queue &queue);
+    const cuda_memory_block& allocate(std::size_t size,
+                                      std::size_t alignment,
+                                      cuda_device_queue *queue,
+                                      cuda_memory_block_usage_tracker **usage_tracker );
     void deallocate(const cuda_memory_block &block);
 
 private:

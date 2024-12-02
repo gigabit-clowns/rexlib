@@ -30,9 +30,7 @@
 
 #include "default_cuda_host_buffer.hpp"
 
-#include <stdexcept>
-
-#include <cuda_runtime.h>
+#include <xmipp4/cuda/compute/cuda_device_queue.hpp>
 
 namespace xmipp4
 {
@@ -45,103 +43,101 @@ cuda_host_memory_allocator::cuda_host_memory_allocator()
 }
 
 std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer(numerical_type type, 
-                                               std::size_t count,
+cuda_host_memory_allocator::create_host_buffer(std::size_t size, 
+                                               std::size_t alignment,
                                                device_queue &queue )
 {
     return create_host_buffer_impl(
-        type, 
-        count, 
+        size,
+        alignment,
         dynamic_cast<cuda_device_queue&>(queue)
     );
 }
 
 std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_impl(numerical_type type, 
-                                                    std::size_t count,
+cuda_host_memory_allocator::create_host_buffer_impl(std::size_t size, 
+                                                    std::size_t alignment,
                                                     cuda_device_queue &queue )
 {
-    auto &block = allocate(type, count, queue);
     return std::make_unique<default_cuda_host_buffer>(
-        type, count, block, *this
+        size, 
+        alignment, 
+        &queue, 
+        *this
     );
 }
 
 std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_shared(numerical_type type, 
-                                                      std::size_t count,
+cuda_host_memory_allocator::create_host_buffer_shared(std::size_t size, 
+                                                      std::size_t alignment,
                                                       device_queue &queue )
 {
     return create_host_buffer_shared_impl(
-        type, 
-        count, 
+        size,
+        alignment, 
         dynamic_cast<cuda_device_queue&>(queue)
     );
 }
 
 std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_shared_impl(numerical_type type, 
-                                                           std::size_t count,
+cuda_host_memory_allocator::create_host_buffer_shared_impl(std::size_t size, 
+                                                           std::size_t alignment,
                                                            cuda_device_queue &queue )
 {
-    auto &block = allocate(type, count, queue);
     return std::make_shared<default_cuda_host_buffer>(
-        type, count, block, *this
+        size, 
+        alignment, 
+        &queue, 
+        *this
     );
 }
 
 std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer(numerical_type type, 
-                                               std::size_t count )
+cuda_host_memory_allocator::create_host_buffer(std::size_t size, 
+                                               std::size_t alignment )
 {
-    return create_host_buffer_impl(type, count);
+    return create_host_buffer_impl(size, alignment);
 }
 
 std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_impl(numerical_type type, 
-                                                    std::size_t count )
+cuda_host_memory_allocator::create_host_buffer_impl(std::size_t size, 
+                                                    std::size_t alignment )
 {
-    auto &block = allocate(type, count);
     return std::make_unique<default_cuda_host_buffer>(
-        type, count, block, *this
+        size, 
+        alignment, 
+        nullptr,
+        *this
     );
 }
 
 std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_shared(numerical_type type, 
-                                                      std::size_t count )
+cuda_host_memory_allocator::create_host_buffer_shared(std::size_t size, 
+                                                      std::size_t alignment )
 {
-    return create_host_buffer_shared_impl(type, count);
+    return create_host_buffer_shared_impl(size, alignment);
 }
 
 std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_shared_impl(numerical_type type, 
-                                                           std::size_t count )
+cuda_host_memory_allocator::create_host_buffer_shared_impl(std::size_t size, 
+                                                           std::size_t alignment )
 {
-    auto &block = allocate(type, count);
     return std::make_shared<default_cuda_host_buffer>(
-        type, count, block, *this
+        size, 
+        alignment, 
+        nullptr,
+        *this
     );
 }
 
-cuda_memory_block&
-cuda_host_memory_allocator::allocate(numerical_type type, std::size_t count)
+const cuda_memory_block& 
+cuda_host_memory_allocator::allocate(std::size_t size,
+                                     std::size_t alignment,
+                                     cuda_device_queue *queue,
+                                     cuda_memory_block_usage_tracker **usage_tracker )
 {
-    const auto size = count * get_size(type);
-
     std::lock_guard<std::mutex> lock(m_mutex);
-    return m_allocator.allocate(size, nullptr);
-}
-
-cuda_memory_block& 
-cuda_host_memory_allocator::allocate(numerical_type type, 
-                                     std::size_t count,
-                                     cuda_device_queue &queue)
-{
-    const auto size = count * get_size(type);
-
-    std::lock_guard<std::mutex> lock(m_mutex);
-    return m_allocator.allocate(size, &queue);
+    return m_allocator.allocate(size, alignment, queue, usage_tracker);
 }
 
 void cuda_host_memory_allocator::deallocate(const cuda_memory_block &block)

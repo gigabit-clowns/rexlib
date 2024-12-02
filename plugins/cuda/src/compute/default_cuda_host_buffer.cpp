@@ -29,11 +29,9 @@
 #include "default_cuda_host_buffer.hpp"
 
 #include <xmipp4/cuda/compute/allocator/cuda_memory_block.hpp>
+#include <xmipp4/cuda/compute/allocator/cuda_memory_block_usage_tracker.hpp>
+#include <xmipp4/cuda/compute/cuda_device_queue.hpp>
 #include <xmipp4/cuda/compute/cuda_host_memory_allocator.hpp>
-
-#include <xmipp4/core/platform/assert.hpp>
-
-#include <cuda_runtime.h>
 
 namespace xmipp4
 {
@@ -41,24 +39,18 @@ namespace compute
 {
 
 default_cuda_host_buffer
-::default_cuda_host_buffer(numerical_type type,
-                           std::size_t count,
-                           cuda_memory_block &block , 
+::default_cuda_host_buffer(std::size_t size,
+                           std::size_t alignment,
+                           cuda_device_queue *queue,
                            cuda_host_memory_allocator &allocator) noexcept
-    : m_type(type)
-    , m_count(count)
-    , m_block(&block, block_delete(allocator))
+    : m_size(size)
+    , m_block(allocate(size, alignment, queue, allocator, &m_usage_tracker))
 {
 }
 
-numerical_type default_cuda_host_buffer::get_type() const noexcept
+std::size_t default_cuda_host_buffer::get_size() const noexcept
 {
-    return m_type;
-}
-
-std::size_t default_cuda_host_buffer::get_count() const noexcept
-{
-    return m_count;
+    return m_size;
 }
 
 void* default_cuda_host_buffer::get_data() noexcept
@@ -81,7 +73,6 @@ default_cuda_host_buffer::get_device_accessible_alias() const noexcept
 {
     return nullptr;
 }
-
 void default_cuda_host_buffer::record_queue(device_queue &queue)
 {
     record_queue_impl(dynamic_cast<cuda_device_queue&>(queue));
@@ -89,7 +80,29 @@ void default_cuda_host_buffer::record_queue(device_queue &queue)
 
 void default_cuda_host_buffer::record_queue_impl(cuda_device_queue &queue)
 {
-    m_block->register_extra_queue(queue);
+    m_usage_tracker->record_queue(*m_block, queue);
+}
+
+
+
+std::unique_ptr<const cuda_memory_block, default_cuda_host_buffer::block_delete>
+default_cuda_host_buffer::allocate(std::size_t size,
+                                   std::size_t alignment,
+                                   cuda_device_queue *queue,
+                                   cuda_host_memory_allocator &allocator,
+                                   cuda_memory_block_usage_tracker **usage_tracker )
+{
+    const auto &block = allocator.allocate(
+        size, 
+        alignment, 
+        queue, 
+        usage_tracker
+    );
+
+    return std::unique_ptr<const cuda_memory_block, block_delete>(
+        &block,
+        block_delete(allocator)
+    );
 }
 
 } // namespace compute

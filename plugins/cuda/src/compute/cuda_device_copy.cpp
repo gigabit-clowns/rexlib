@@ -56,19 +56,15 @@ void cuda_device_copy::copy_impl(const cuda_device_buffer &src_buffer,
                                 cuda_device_buffer &dst_buffer, 
                                 cuda_device_queue &queue )
 {
-    const auto type = require_same_type(
-        src_buffer.get_type(), dst_buffer.get_type()
+    const auto count = require_same_buffer_size(
+        src_buffer.get_size(), dst_buffer.get_size()
     );
-    const auto count = require_same_count(
-        src_buffer.get_count(), dst_buffer.get_count()
-    );
-    const auto element_size = get_size(type);
 
     XMIPP4_CUDA_CHECK(
         cudaMemcpyAsync(
             dst_buffer.get_data(),
             src_buffer.get_data(),
-            element_size*count,
+            count,
             cudaMemcpyDeviceToDevice,
             queue.get_handle()
         )
@@ -95,23 +91,18 @@ void cuda_device_copy::copy_impl(const cuda_device_buffer &src_buffer,
 {
     const auto *src_data = src_buffer.get_data();
     auto *dst_data = dst_buffer.get_data();
-    const auto src_count = src_buffer.get_count();
-    const auto dst_count = dst_buffer.get_count();
-    const auto type = require_same_type(
-        src_buffer.get_type(), dst_buffer.get_type()
-    );
-    const auto element_size = get_size(type);
+    const auto src_count = src_buffer.get_size();
+    const auto dst_count = dst_buffer.get_size();
 
     for (const copy_region &region : regions)
     {
         require_valid_region(region, src_count, dst_count);
-        const auto region_bytes = as_bytes(region, element_size);
 
         XMIPP4_CUDA_CHECK(
             cudaMemcpyAsync(
-                memory::offset_bytes(dst_data, region_bytes.get_destination_offset()),
-                memory::offset_bytes(src_data, region_bytes.get_source_offset()),
-                region_bytes.get_count(),
+                memory::offset_bytes(dst_data, region.get_destination_offset()),
+                memory::offset_bytes(src_data, region.get_source_offset()),
+                region.get_count(),
                 cudaMemcpyDeviceToDevice,
                 queue.get_handle()
             )

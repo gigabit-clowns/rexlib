@@ -55,16 +55,32 @@ void cuda_caching_memory_allocator<Allocator>::release()
 
 template <typename Allocator>
 inline
-cuda_memory_block&
+const cuda_memory_block&
 cuda_caching_memory_allocator<Allocator>
-::allocate(std::size_t size, const cuda_device_queue *queue)
+::allocate(std::size_t size, 
+           std::size_t alignment,
+           const cuda_device_queue *queue, 
+           cuda_memory_block_usage_tracker **usage_tracker )
 {
-    auto *result = m_cache.allocate(m_allocator, size, queue);
+    auto *result = m_cache.allocate(
+        m_allocator, 
+        size, 
+        alignment, 
+        queue, 
+        usage_tracker
+    );
+
     if (!result)
     {
-        // Re-added retrial
+        // Retry after releasing blocks
         m_cache.release(m_allocator);
-        result = m_cache.allocate(m_allocator, size, queue);
+        result = m_cache.allocate(
+            m_allocator, 
+            size, 
+            alignment, 
+            queue, 
+            usage_tracker
+        );
     }
 
     if (!result)
