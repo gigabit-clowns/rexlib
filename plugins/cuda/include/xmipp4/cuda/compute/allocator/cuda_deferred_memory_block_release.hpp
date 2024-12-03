@@ -65,7 +65,7 @@ public:
      * @brief Iterate through release events and return back all blocks
      * that have no pending events.
      * 
-     * @param cache The cache where the blocks were allocated from.
+     * @param cache The cache from which all blocks were allocated.
      * 
      */
     void process_pending_free(cuda_memory_block_pool &cache);
@@ -74,19 +74,25 @@ public:
      * @brief Record events for each of the provided CUDA streams for a 
      * given block.
      * 
-     * @param block Block for which deallocation will be deferred. 
+     * @param block Iterator to the block. Must be dereferenceable.
      * @param other_queues Queues that need to be processed for actually
      * freeing the block.
      * 
      */
-    void record_events(const cuda_memory_block &block,
+    void record_events(cuda_memory_block_pool::iterator block,
                        span<cuda_device_queue *const> other_queues );
 
 private:
+    using key = cuda_memory_block_pool::iterator;
     using event_list = std::forward_list<cuda_event>;
 
+    struct key_compare
+    {
+        bool operator()(key lhs, key rhs) const noexcept;
+    };
+
     event_list m_event_pool;
-    std::map<cuda_memory_block, event_list, cuda_memory_block_less> m_pending_free;
+    std::map<key, event_list, key_compare> m_pending_free;
 
     /**
      * @brief Pop all signaled events from the list.

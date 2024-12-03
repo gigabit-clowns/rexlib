@@ -34,6 +34,14 @@ namespace compute
 {
 
 inline
+bool 
+cuda_deferred_memory_block_release
+::key_compare::operator()(key lhs, key rhs ) const noexcept
+{
+    return &(*lhs) < &(*rhs);
+}
+
+inline
 void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_pool &cache)
 {
     auto ite = m_pending_free.begin();
@@ -46,9 +54,7 @@ void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_
         // Return block if completed
         if(events.empty())
         {
-            const auto block = cache.find(ite->first);
-            XMIPP4_ASSERT( block != cache.end() );
-            deallocate_block(cache, block);
+            deallocate_block(cache, ite->first);
             ite = m_pending_free.erase(ite);
         }
         else
@@ -59,7 +65,7 @@ void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_
 }
 
 inline
-void cuda_deferred_memory_block_release::record_events(const cuda_memory_block &block,
+void cuda_deferred_memory_block_release::record_events(cuda_memory_block_pool::iterator block,
                                                        span<cuda_device_queue *const> queues )
 {
     decltype(m_pending_free)::iterator ite;

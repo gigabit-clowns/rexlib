@@ -69,9 +69,6 @@ public:
     /**
      * @brief Allocate a new block.
      * 
-     * @tparam Allocator Class that implements allocate() and deallocate()
-     * @param allocator Allocator object. Used when there are no suitable blocks
-     * in cache.
      * @param size Size of the requested block.
      * @param alignment Alignment requirement for the requested blocks.
      * @param queue Queue of the requested block.
