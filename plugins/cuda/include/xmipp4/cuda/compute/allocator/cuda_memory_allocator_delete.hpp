@@ -43,7 +43,6 @@ class cuda_memory_allocator_delete
 public:
     using allocator_type = Allocator;
 
-    cuda_memory_allocator_delete() = default;
     cuda_memory_allocator_delete(allocator_type& allocator) noexcept;
     cuda_memory_allocator_delete(const cuda_memory_allocator_delete &other) = default;
     cuda_memory_allocator_delete(cuda_memory_allocator_delete &&other) = default;
