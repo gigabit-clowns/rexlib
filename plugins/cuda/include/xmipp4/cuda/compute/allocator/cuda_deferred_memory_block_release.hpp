@@ -36,7 +36,8 @@
 #include <xmipp4/core/span.hpp>
 
 #include <forward_list>
-#include <map>
+#include <utility>
+#include <vector>
 
 namespace xmipp4 
 {
@@ -74,25 +75,23 @@ public:
      * @brief Record events for each of the provided CUDA streams for a 
      * given block.
      * 
-     * @param block Iterator to the block. Must be dereferenceable.
+     * @param ite Iterator to the block. Must be dereferenceable.
      * @param other_queues Queues that need to be processed for actually
      * freeing the block.
      * 
+     * @note This function does not check wether ite has been provided 
+     * previously. Calling it twice with the same block before it has
+     * been returned to the pool leads to undefined behavior.
+     * 
      */
-    void record_events(cuda_memory_block_pool::iterator block,
+    void record_events(cuda_memory_block_pool::iterator ite,
                        span<cuda_device_queue *const> other_queues );
 
 private:
-    using key = cuda_memory_block_pool::iterator;
     using event_list = std::forward_list<cuda_event>;
 
-    struct key_compare
-    {
-        bool operator()(key lhs, key rhs) const noexcept;
-    };
-
     event_list m_event_pool;
-    std::map<key, event_list, key_compare> m_pending_free;
+    std::vector<std::pair<cuda_memory_block_pool::iterator, event_list>> m_pending_free;
 
     /**
      * @brief Pop all signaled events from the list.

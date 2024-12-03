@@ -28,54 +28,49 @@
 
 #include "cuda_deferred_memory_block_release.hpp"
 
+#include <algorithm>
+
 namespace xmipp4
 {
 namespace compute
 {
 
 inline
-bool 
-cuda_deferred_memory_block_release
-::key_compare::operator()(key lhs, key rhs ) const noexcept
-{
-    return &(*lhs) < &(*rhs);
-}
-
-inline
 void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_pool &cache)
 {
-    auto ite = m_pending_free.begin();
-    while (ite != m_pending_free.end())
-    {
-        // Remove all completed events
-        auto &events = ite->second;
-        pop_completed_events(events);
+    const auto last = std::remove_if(
+        m_pending_free.begin(), m_pending_free.end(),
+        [this, &cache] (auto &item) -> bool
+        {
+            // Remove all completed events
+            auto &events = item.second;
+            pop_completed_events(events);
 
-        // Return block if completed
-        if(events.empty())
-        {
-            deallocate_block(cache, ite->first);
-            ite = m_pending_free.erase(ite);
+            // Return block if completed
+            const auto remove = events.empty();
+            if(remove)
+            {
+                deallocate_block(cache, item.first);
+            }
+
+            return remove;
         }
-        else
-        {
-            ++ite;
-        }
-    }
+    );
+
+    m_pending_free.erase(last, m_pending_free.end());
 }
 
 inline
-void cuda_deferred_memory_block_release::record_events(cuda_memory_block_pool::iterator block,
+void cuda_deferred_memory_block_release::record_events(cuda_memory_block_pool::iterator ite,
                                                        span<cuda_device_queue *const> queues )
 {
-    decltype(m_pending_free)::iterator ite;
-    std::tie(ite, std::ignore) = m_pending_free.emplace(
+    m_pending_free.emplace_back(
         std::piecewise_construct,
-        std::forward_as_tuple(block),
+        std::forward_as_tuple(ite),
         std::forward_as_tuple()
     );
 
-    auto& events = ite->second;
+    auto& events = m_pending_free.back().second;
     for (cuda_device_queue *queue : queues)
     {
         // Add a new event to the front
