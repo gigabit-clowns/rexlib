@@ -32,7 +32,6 @@
 #include <xmipp4/cuda/compute/cuda_device.hpp>
 
 #include <utility>
-#include <functional>
 
 namespace xmipp4
 {
@@ -114,11 +113,6 @@ bool cuda_device_queue::is_idle() const noexcept
         break;
     }
     return result;
-}
-
-std::size_t cuda_device_queue::get_id() const noexcept
-{
-    return std::hash<cudaStream_t>()(m_stream);
 }
 
 } // namespace compute

@@ -37,8 +37,17 @@ namespace xmipp4
 namespace compute
 {
 
+XMIPP4_CONST_CONSTEXPR
+std::size_t XMIPP4_CUDA_HOST_MEMORY_REQUEST_ROUND_STEP = 512;
+XMIPP4_CONST_CONSTEXPR
+std::size_t XMIPP4_CUDA_HOST_MEMORY_ALLOCATE_ROUND_STEP = 2<<20; // 2MB
+
 cuda_host_memory_allocator::cuda_host_memory_allocator()
-    : m_allocator({}, 512, 2<<20)
+    : m_allocator(
+        {}, 
+        XMIPP4_CUDA_HOST_MEMORY_REQUEST_ROUND_STEP, 
+        XMIPP4_CUDA_HOST_MEMORY_ALLOCATE_ROUND_STEP
+    )
 {
 }
 

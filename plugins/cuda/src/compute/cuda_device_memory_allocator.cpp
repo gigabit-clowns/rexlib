@@ -32,14 +32,24 @@
 
 #include <xmipp4/cuda/compute/cuda_device.hpp>
 #include <xmipp4/cuda/compute/cuda_device_queue.hpp>
+#include <xmipp4/core/platform/constexpr.hpp>
 
 namespace xmipp4
 {
 namespace compute
 {
 
+XMIPP4_CONST_CONSTEXPR
+std::size_t XMIPP4_CUDA_DEVICE_MEMORY_REQUEST_ROUND_STEP = 512;
+XMIPP4_CONST_CONSTEXPR
+std::size_t XMIPP4_CUDA_DEVICE_MEMORY_ALLOCATE_ROUND_STEP = 2<<20; // 2MB
+
 cuda_device_memory_allocator::cuda_device_memory_allocator(cuda_device &device)
-    : m_allocator(cuda_device_malloc(device.get_index()), 512, 2<<20)
+    : m_allocator(
+        cuda_device_malloc(device.get_index()), 
+        XMIPP4_CUDA_DEVICE_MEMORY_REQUEST_ROUND_STEP, 
+        XMIPP4_CUDA_DEVICE_MEMORY_ALLOCATE_ROUND_STEP
+    )
 {
 }
 

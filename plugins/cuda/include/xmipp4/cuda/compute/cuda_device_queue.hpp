@@ -39,8 +39,6 @@ namespace compute
 
 class cuda_device;
 
-
-
 class cuda_device_queue final
     : public device_queue
 {
@@ -62,8 +60,6 @@ public:
 
     void wait_until_completed() const override;
     bool is_idle() const noexcept override;
-
-    std::size_t get_id() const noexcept;
 
 private:
     handle m_stream;
