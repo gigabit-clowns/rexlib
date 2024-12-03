@@ -70,16 +70,19 @@ public:
     std::shared_ptr<device_buffer> 
     transfer(const std::shared_ptr<host_buffer> &buffer, 
              device_memory_allocator &allocator,
+             std::size_t alignment,
              device_queue &queue ) override;
 
     std::shared_ptr<const device_buffer> 
     transfer(const std::shared_ptr<const host_buffer> &buffer, 
              device_memory_allocator &allocator,
+             std::size_t alignment,
              device_queue &queue ) override;
 
     std::shared_ptr<cuda_device_buffer> 
     transfer_impl(const host_buffer &buffer, 
                   cuda_device_memory_allocator &allocator,
+                  std::size_t alignment,
                   cuda_device_queue &queue );
 
 }; 

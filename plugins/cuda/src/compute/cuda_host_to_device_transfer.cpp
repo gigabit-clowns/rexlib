@@ -116,6 +116,7 @@ void cuda_host_to_device_transfer::transfer_copy_impl(const host_buffer &src_buf
 std::shared_ptr<device_buffer> 
 cuda_host_to_device_transfer::transfer(const std::shared_ptr<host_buffer> &buffer, 
                                        device_memory_allocator &allocator,
+                                       std::size_t alignment,
                                        device_queue &queue )
 {
     std::shared_ptr<device_buffer> result;
@@ -125,6 +126,7 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<host_buffer> &buffe
         result = transfer_impl(
             *buffer,
             dynamic_cast<cuda_device_memory_allocator&>(allocator),
+            alignment,
             dynamic_cast<cuda_device_queue&>(queue)
         );
     }
@@ -135,6 +137,7 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<host_buffer> &buffe
 std::shared_ptr<const device_buffer> 
 cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buffer> &buffer, 
                                        device_memory_allocator &allocator,
+                                       std::size_t alignment,
                                        device_queue &queue )
 {
     std::shared_ptr<const device_buffer> result;
@@ -144,6 +147,7 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buffer> 
         result = transfer_impl(
             *buffer,
             dynamic_cast<cuda_device_memory_allocator&>(allocator),
+            alignment,
             dynamic_cast<cuda_device_queue&>(queue)
         );
     }
@@ -154,13 +158,14 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buffer> 
 std::shared_ptr<cuda_device_buffer> 
 cuda_host_to_device_transfer::transfer_impl(const host_buffer &buffer, 
                                             cuda_device_memory_allocator &allocator,
+                                            std::size_t alignment,
                                             cuda_device_queue &queue )
 {
     std::shared_ptr<cuda_device_buffer> result;
 
     result = allocator.create_device_buffer_shared_impl(
         buffer.get_size(),
-        1024, // TODO decide
+        alignment,
         queue
     );
 
