@@ -65,7 +65,7 @@ public:
     void record_queue(const cuda_memory_block &block, cuda_device_queue &queue);
 
     /**
-     * @brief Get the list of queues where th block has been used.
+     * @brief Get the list of queues where the block has been used.
      * 
      * @return span<cuda_device_queue *const> List of queues.
      */
