@@ -53,19 +53,19 @@ public:
                        device_buffer &dst_buffer, 
                        device_queue &queue ) override;
 
-    void transfer_copy_impl(const host_buffer &src_buffer, 
-                            cuda_device_buffer &dst_buffer, 
-                            cuda_device_queue &queue );
+    void transfer_copy(const host_buffer &src_buffer, 
+                       cuda_device_buffer &dst_buffer, 
+                       cuda_device_queue &queue );
 
     void transfer_copy(const host_buffer &src_buffer, 
                        device_buffer &dst_buffer, 
                        span<const copy_region> regions,
                        device_queue &queue ) override;
 
-    void transfer_copy_impl(const host_buffer &src_buffer, 
-                            cuda_device_buffer &dst_buffer, 
-                            span<const copy_region> regions,
-                            cuda_device_queue &queue );
+    void transfer_copy(const host_buffer &src_buffer, 
+                       cuda_device_buffer &dst_buffer, 
+                       span<const copy_region> regions,
+                       cuda_device_queue &queue );
 
     std::shared_ptr<device_buffer> 
     transfer(const std::shared_ptr<host_buffer> &buffer, 
@@ -80,10 +80,16 @@ public:
              device_queue &queue ) override;
 
     std::shared_ptr<cuda_device_buffer> 
-    transfer_impl(const host_buffer &buffer, 
-                  cuda_device_memory_allocator &allocator,
-                  std::size_t alignment,
-                  cuda_device_queue &queue );
+    transfer(const host_buffer *buffer, 
+             device_memory_allocator &allocator,
+             std::size_t alignment,
+             device_queue &queue );
+
+    std::shared_ptr<cuda_device_buffer> 
+    transfer(const host_buffer &buffer, 
+             cuda_device_memory_allocator &allocator,
+             std::size_t alignment,
+             cuda_device_queue &queue );
 
 }; 
 

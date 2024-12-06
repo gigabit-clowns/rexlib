@@ -62,9 +62,9 @@ public:
                        device_queue &queue ) override;
 
     std::unique_ptr<host_buffer> 
-    create_host_buffer_impl(std::size_t size,
-                            std::size_t alignment, 
-                            cuda_device_queue &queue );
+    create_host_buffer(std::size_t size,
+                       std::size_t alignment, 
+                       cuda_device_queue &queue );
 
     std::shared_ptr<host_buffer> 
     create_host_buffer_shared(std::size_t size,
@@ -72,21 +72,15 @@ public:
                               device_queue &queue ) override;
 
     std::shared_ptr<host_buffer> 
-    create_host_buffer_shared_impl(std::size_t size,
-                                   std::size_t alignment, 
-                                   cuda_device_queue &queue );
+    create_host_buffer_shared(std::size_t size,
+                              std::size_t alignment, 
+                              cuda_device_queue &queue );
 
     std::unique_ptr<host_buffer> 
     create_host_buffer(std::size_t size, std::size_t alignment) override;
 
-    std::unique_ptr<host_buffer> 
-    create_host_buffer_impl(std::size_t size, std::size_t alignment);
-
     std::shared_ptr<host_buffer> 
     create_host_buffer_shared(std::size_t size, std::size_t alignment) override;
-
-    std::shared_ptr<host_buffer> 
-    create_host_buffer_shared_impl(std::size_t size, std::size_t alignment);
     
     const cuda_memory_block& allocate(std::size_t size,
                                       std::size_t alignment,

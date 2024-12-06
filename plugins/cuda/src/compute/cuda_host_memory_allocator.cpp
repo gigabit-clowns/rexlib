@@ -56,7 +56,7 @@ cuda_host_memory_allocator::create_host_buffer(std::size_t size,
                                                std::size_t alignment,
                                                device_queue &queue )
 {
-    return create_host_buffer_impl(
+    return create_host_buffer(
         size,
         alignment,
         dynamic_cast<cuda_device_queue&>(queue)
@@ -64,9 +64,9 @@ cuda_host_memory_allocator::create_host_buffer(std::size_t size,
 }
 
 std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_impl(std::size_t size, 
-                                                    std::size_t alignment,
-                                                    cuda_device_queue &queue )
+cuda_host_memory_allocator::create_host_buffer(std::size_t size, 
+                                               std::size_t alignment,
+                                               cuda_device_queue &queue )
 {
     return std::make_unique<default_cuda_host_buffer>(
         size, 
@@ -81,7 +81,7 @@ cuda_host_memory_allocator::create_host_buffer_shared(std::size_t size,
                                                       std::size_t alignment,
                                                       device_queue &queue )
 {
-    return create_host_buffer_shared_impl(
+    return create_host_buffer_shared(
         size,
         alignment, 
         dynamic_cast<cuda_device_queue&>(queue)
@@ -89,9 +89,9 @@ cuda_host_memory_allocator::create_host_buffer_shared(std::size_t size,
 }
 
 std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_shared_impl(std::size_t size, 
-                                                           std::size_t alignment,
-                                                           cuda_device_queue &queue )
+cuda_host_memory_allocator::create_host_buffer_shared(std::size_t size, 
+                                                      std::size_t alignment,
+                                                      cuda_device_queue &queue )
 {
     return std::make_shared<default_cuda_host_buffer>(
         size, 
@@ -105,13 +105,6 @@ std::unique_ptr<host_buffer>
 cuda_host_memory_allocator::create_host_buffer(std::size_t size, 
                                                std::size_t alignment )
 {
-    return create_host_buffer_impl(size, alignment);
-}
-
-std::unique_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_impl(std::size_t size, 
-                                                    std::size_t alignment )
-{
     return std::make_unique<default_cuda_host_buffer>(
         size, 
         alignment, 
@@ -123,13 +116,6 @@ cuda_host_memory_allocator::create_host_buffer_impl(std::size_t size,
 std::shared_ptr<host_buffer> 
 cuda_host_memory_allocator::create_host_buffer_shared(std::size_t size, 
                                                       std::size_t alignment )
-{
-    return create_host_buffer_shared_impl(size, alignment);
-}
-
-std::shared_ptr<host_buffer> 
-cuda_host_memory_allocator::create_host_buffer_shared_impl(std::size_t size, 
-                                                           std::size_t alignment )
 {
     return std::make_shared<default_cuda_host_buffer>(
         size, 

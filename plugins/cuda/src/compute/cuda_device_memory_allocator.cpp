@@ -58,7 +58,7 @@ cuda_device_memory_allocator::create_device_buffer(std::size_t size,
                                                    std::size_t alignment,
                                                    device_queue &queue )
 {
-    return create_device_buffer_impl(
+    return create_device_buffer(
         size, 
         alignment,
         dynamic_cast<cuda_device_queue&>(queue)
@@ -66,9 +66,9 @@ cuda_device_memory_allocator::create_device_buffer(std::size_t size,
 }
 
 std::unique_ptr<cuda_device_buffer> 
-cuda_device_memory_allocator::create_device_buffer_impl(std::size_t size, 
-                                                        std::size_t alignment,
-                                                        cuda_device_queue &queue )
+cuda_device_memory_allocator::create_device_buffer(std::size_t size, 
+                                                   std::size_t alignment,
+                                                   cuda_device_queue &queue )
 {
     return std::make_unique<default_cuda_device_buffer>(
         size,
@@ -83,7 +83,7 @@ cuda_device_memory_allocator::create_device_buffer_shared(std::size_t size,
                                                           std::size_t alignment,
                                                           device_queue &queue )
 {
-    return create_device_buffer_shared_impl(
+    return create_device_buffer_shared(
         size, 
         alignment,
         dynamic_cast<cuda_device_queue&>(queue)
@@ -91,9 +91,9 @@ cuda_device_memory_allocator::create_device_buffer_shared(std::size_t size,
 }
 
 std::shared_ptr<cuda_device_buffer> 
-cuda_device_memory_allocator::create_device_buffer_shared_impl(std::size_t size, 
-                                                               std::size_t alignment,
-                                                               cuda_device_queue &queue )
+cuda_device_memory_allocator::create_device_buffer_shared(std::size_t size, 
+                                                          std::size_t alignment,
+                                                          cuda_device_queue &queue )
 {
     return std::make_shared<default_cuda_device_buffer>(
         size,

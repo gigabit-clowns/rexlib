@@ -48,14 +48,14 @@ void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer,
                                                  device_buffer &dst_buffer, 
                                                  device_queue &queue )
 {
-    transfer_copy_impl(
+    transfer_copy(
         src_buffer,
         dynamic_cast<cuda_device_buffer&>(dst_buffer),
         dynamic_cast<cuda_device_queue&>(queue)
     );
 }
 
-void cuda_host_to_device_transfer::transfer_copy_impl(const host_buffer &src_buffer, 
+void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer, 
                                                       cuda_device_buffer &dst_buffer, 
                                                       cuda_device_queue &queue )
 {
@@ -79,7 +79,7 @@ void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer,
                                                  span<const copy_region> regions,
                                                  device_queue &queue )
 {
-    transfer_copy_impl(
+    transfer_copy(
         src_buffer,
         dynamic_cast<cuda_device_buffer&>(dst_buffer),
         regions,
@@ -87,7 +87,7 @@ void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer,
     );
 }
 
-void cuda_host_to_device_transfer::transfer_copy_impl(const host_buffer &src_buffer, 
+void cuda_host_to_device_transfer::transfer_copy(const host_buffer &src_buffer, 
                                                       cuda_device_buffer &dst_buffer, 
                                                       span<const copy_region> regions,
                                                       cuda_device_queue &queue )
@@ -119,19 +119,7 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<host_buffer> &buffe
                                        std::size_t alignment,
                                        device_queue &queue )
 {
-    std::shared_ptr<device_buffer> result;
-
-    if(buffer)
-    {
-        result = transfer_impl(
-            *buffer,
-            dynamic_cast<cuda_device_memory_allocator&>(allocator),
-            alignment,
-            dynamic_cast<cuda_device_queue&>(queue)
-        );
-    }
-
-    return result;
+    return transfer(buffer.get(), allocator, alignment, queue);
 }
 
 std::shared_ptr<const device_buffer> 
@@ -140,11 +128,20 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buffer> 
                                        std::size_t alignment,
                                        device_queue &queue )
 {
-    std::shared_ptr<const device_buffer> result;
+    return transfer(buffer.get(), allocator, alignment, queue);
+}
+
+std::shared_ptr<cuda_device_buffer> 
+cuda_host_to_device_transfer::transfer(const host_buffer *buffer, 
+                                       device_memory_allocator &allocator,
+                                       std::size_t alignment,
+                                       device_queue &queue )
+{
+    std::shared_ptr<cuda_device_buffer> result;
 
     if(buffer)
     {
-        result = transfer_impl(
+        result = transfer(
             *buffer,
             dynamic_cast<cuda_device_memory_allocator&>(allocator),
             alignment,
@@ -156,20 +153,20 @@ cuda_host_to_device_transfer::transfer(const std::shared_ptr<const host_buffer> 
 }
 
 std::shared_ptr<cuda_device_buffer> 
-cuda_host_to_device_transfer::transfer_impl(const host_buffer &buffer, 
-                                            cuda_device_memory_allocator &allocator,
-                                            std::size_t alignment,
-                                            cuda_device_queue &queue )
+cuda_host_to_device_transfer::transfer(const host_buffer &buffer, 
+                                       cuda_device_memory_allocator &allocator,
+                                       std::size_t alignment,
+                                       cuda_device_queue &queue )
 {
     std::shared_ptr<cuda_device_buffer> result;
 
-    result = allocator.create_device_buffer_shared_impl(
+    result = allocator.create_device_buffer_shared(
         buffer.get_size(),
         alignment,
         queue
     );
 
-    transfer_copy_impl(buffer, *result, queue);
+    transfer_copy(buffer, *result, queue);
 
     return result;
 }

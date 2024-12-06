@@ -71,7 +71,7 @@ public:
     const host_buffer* get_host_accessible_alias() const noexcept override;
 
     void record_queue(device_queue &queue) override;
-    void record_queue_impl(cuda_device_queue &queue);
+    void record_queue(cuda_device_queue &queue);
 
 private:
     using block_delete = 

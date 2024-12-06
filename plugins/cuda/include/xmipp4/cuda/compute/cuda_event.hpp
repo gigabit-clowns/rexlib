@@ -63,11 +63,11 @@ public:
     handle get_handle() noexcept;
 
     void signal(device_queue &queue) override;
-    void signal_impl(cuda_device_queue &queue);
+    void signal(cuda_device_queue &queue);
 
     void wait() const override;
     void wait(device_queue &queue) const override;
-    void wait_impl(cuda_device_queue &queue) const;
+    void wait(cuda_device_queue &queue) const;
 
     bool is_signaled() const override;
 

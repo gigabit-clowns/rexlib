@@ -73,12 +73,13 @@ default_cuda_device_buffer::get_host_accessible_alias() const noexcept
 {
     return nullptr;
 }
+
 void default_cuda_device_buffer::record_queue(device_queue &queue)
 {
-    record_queue_impl(dynamic_cast<cuda_device_queue&>(queue));
+    record_queue(dynamic_cast<cuda_device_queue&>(queue));
 }
 
-void default_cuda_device_buffer::record_queue_impl(cuda_device_queue &queue)
+void default_cuda_device_buffer::record_queue(cuda_device_queue &queue)
 {
     m_usage_tracker->record_queue(*m_block, queue);
 }
