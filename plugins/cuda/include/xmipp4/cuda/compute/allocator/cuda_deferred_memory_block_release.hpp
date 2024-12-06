@@ -46,7 +46,7 @@ namespace compute
 
 /**
  * @brief Handles deferred deallocations to allow mixing multiple
- * CUDA streams.
+ * CUDA queues (streams).
  * 
  */
 class cuda_deferred_memory_block_release

@@ -37,6 +37,11 @@ namespace xmipp4
 namespace compute
 {
 
+/**
+ * @brief Manages a set of cuda_memory_block-s to efficiently
+ * re-use them when possible.
+ * 
+ */
 class cuda_memory_block_cache
 {
 public:

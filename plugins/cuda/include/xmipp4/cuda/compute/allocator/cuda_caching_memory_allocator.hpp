@@ -38,7 +38,7 @@ namespace compute
 {
 
 /**
- * @brief High performance memory allocator to allow stream-synchronous
+ * @brief High performance memory allocator to allow queue-synchronous
  * allocations.
  * 
  */

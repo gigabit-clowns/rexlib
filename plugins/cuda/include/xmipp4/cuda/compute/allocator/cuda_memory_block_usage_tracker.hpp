@@ -41,6 +41,11 @@ namespace compute
 
 class cuda_device_queue;
 
+/**
+ * @brief Keeps track of the usage of a cuda_memory_block across various
+ * CUDA queues/streams.
+ * 
+ */
 class cuda_memory_block_usage_tracker
 {
 public: 
