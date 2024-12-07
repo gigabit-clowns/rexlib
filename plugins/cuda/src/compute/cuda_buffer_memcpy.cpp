@@ -35,6 +35,7 @@
 #include <xmipp4/core/memory/align.hpp>
 #include <xmipp4/core/compute/checks.hpp>
 #include <xmipp4/core/compute/host_buffer.hpp>
+#include <xmipp4/core/compute/copy_region.hpp>
 
 #include <cuda_runtime.h>
 
