@@ -112,7 +112,5 @@ void cuda_memcpy(const host_buffer &src,
                  span<const copy_region> regions,
                  cuda_device_queue &queue );
 
-
 } // namespace compute
 } // namespace xmipp4
-
