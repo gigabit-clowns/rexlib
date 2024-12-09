@@ -55,7 +55,7 @@ void cuda_memory_block_usage_tracker::add_queue(const cuda_memory_block &block,
         );
 
         // Ensure that it is not equal.
-        if (pos != m_queues.cend() && *pos != queue_pointer)
+        if (pos == m_queues.cend() || *pos != queue_pointer)
         {
             m_queues.insert(pos, queue_pointer);
         }
