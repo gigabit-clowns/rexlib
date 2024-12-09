@@ -67,7 +67,7 @@ public:
      * @param block The cuda memory block.
      * @param queue Queue where the block has been used.
      */
-    void record_queue(const cuda_memory_block &block, cuda_device_queue &queue);
+    void add_queue(const cuda_memory_block &block, cuda_device_queue &queue);
 
     /**
      * @brief Get the list of queues where the block has been used.

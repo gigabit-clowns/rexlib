@@ -80,7 +80,7 @@ void default_cuda_host_buffer::record_queue(device_queue &queue)
 
 void default_cuda_host_buffer::record_queue(cuda_device_queue &queue)
 {
-    m_usage_tracker->record_queue(*m_block, queue);
+    m_usage_tracker->add_queue(*m_block, queue);
 }
 
 
