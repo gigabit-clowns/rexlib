@@ -145,7 +145,7 @@ cuda_device_backend::create_device(std::size_t id,
         throw std::invalid_argument("Invalid device id");
     }
 
-    return std::make_unique<cuda_device>(id, params);
+    return std::make_unique<cuda_device>(static_cast<int>(id), params);
 }
 
 std::shared_ptr<device> 
@@ -159,7 +159,7 @@ cuda_device_backend::create_device_shared(std::size_t id,
         throw std::invalid_argument("Invalid device id");
     }
 
-    return std::make_shared<cuda_device>(id, params);
+    return std::make_shared<cuda_device>(static_cast<int>(id), params);
 }
 
 bool cuda_device_backend::register_at(device_manager &manager)

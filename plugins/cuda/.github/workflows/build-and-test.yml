@@ -26,10 +26,7 @@ jobs:
         include:
         - os: windows-latest
           compiler: {cc: cl, cxx: cl}
-          cuda: '11.8.0'
-        - os: windows-latest
-          compiler: {cc: cl, cxx: cl}
-          cuda: '12.2.2'
+          cuda: '12.4.1'
   
     runs-on: ${{ matrix.os }}
     defaults:
@@ -44,21 +41,13 @@ jobs:
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
-          sub-packages: '["nvcc"]'
           non-cuda-sub-packages: '["libcublas", "libcufft", "libcusolver"]'
 
       - name: Install xmipp4-core
         id: install-xmipp4-core
         uses: ./.github/composites/install-xmipp4-core
       
-      #- name: Set CUDA path environment variable
-      #  run: |
-      #    CUDA_PATH_ESCAPED=$(echo "${{ steps.cuda-toolkit.outputs.CUDA_PATH }}" | sed 's/\\/\//g' | sed 's/ /\\ /g')
-      #    echo "CUDA PATH: $CUDA_PATH_ESCAPED"
-      #    echo "CUDA_PATH=$CUDA_PATH_ESCAPED" >> $GITHUB_ENV
-      
       - name: Configure and build with CMake
-        if: runner.os != 'Windows'
         uses: threeal/cmake-action@v2
         with:
           source-dir: ${{ github.workspace }}
@@ -72,6 +61,5 @@ jobs:
           build-args: --config ${{ env.BUILD_TYPE }}
 
       - name: Run tests
-        if: runner.os != 'Windows'
         working-directory: "${{ github.workspace }}/build"
         run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
