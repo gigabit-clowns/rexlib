@@ -111,7 +111,7 @@ void cuda_memory_block_cache::deallocate(const cuda_memory_block &block)
     }
     else
     {
-        m_deferred_blocks.record_events(ite, extra_queues);
+        m_deferred_blocks.signal_events(ite, extra_queues);
     }
 }
 

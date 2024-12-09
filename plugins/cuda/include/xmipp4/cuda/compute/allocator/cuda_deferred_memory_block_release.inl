@@ -61,7 +61,7 @@ void cuda_deferred_memory_block_release::process_pending_free(cuda_memory_block_
 }
 
 inline
-void cuda_deferred_memory_block_release::record_events(cuda_memory_block_pool::iterator ite,
+void cuda_deferred_memory_block_release::signal_events(cuda_memory_block_pool::iterator ite,
                                                        span<cuda_device_queue *const> queues )
 {
     m_pending_free.emplace_back(

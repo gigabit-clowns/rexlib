@@ -72,7 +72,7 @@ public:
     void process_pending_free(cuda_memory_block_pool &cache);
 
     /**
-     * @brief Record events for each of the provided CUDA streams for a 
+     * @brief Signal events for each of the provided CUDA queues for a 
      * given block.
      * 
      * @param ite Iterator to the block. Must be dereferenceable.
@@ -84,7 +84,7 @@ public:
      * been returned to the pool leads to undefined behavior.
      * 
      */
-    void record_events(cuda_memory_block_pool::iterator ite,
+    void signal_events(cuda_memory_block_pool::iterator ite,
                        span<cuda_device_queue *const> other_queues );
 
 private:
