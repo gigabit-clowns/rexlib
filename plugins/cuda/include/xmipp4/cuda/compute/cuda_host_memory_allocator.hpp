@@ -56,31 +56,18 @@ public:
     cuda_host_memory_allocator&
     operator=(cuda_host_memory_allocator &&other) = delete;
 
-    std::unique_ptr<host_buffer> 
+    std::shared_ptr<host_buffer> 
     create_host_buffer(std::size_t size,
                        std::size_t alignment, 
                        device_queue &queue ) override;
 
-    std::unique_ptr<host_buffer> 
+    std::shared_ptr<host_buffer> 
     create_host_buffer(std::size_t size,
                        std::size_t alignment, 
                        cuda_device_queue &queue );
 
     std::shared_ptr<host_buffer> 
-    create_host_buffer_shared(std::size_t size,
-                              std::size_t alignment, 
-                              device_queue &queue ) override;
-
-    std::shared_ptr<host_buffer> 
-    create_host_buffer_shared(std::size_t size,
-                              std::size_t alignment, 
-                              cuda_device_queue &queue );
-
-    std::unique_ptr<host_buffer> 
     create_host_buffer(std::size_t size, std::size_t alignment) override;
-
-    std::shared_ptr<host_buffer> 
-    create_host_buffer_shared(std::size_t size, std::size_t alignment) override;
     
     const cuda_memory_block& allocate(std::size_t size,
                                       std::size_t alignment,

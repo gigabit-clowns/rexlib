@@ -62,25 +62,15 @@ public:
     cuda_device_memory_allocator&
     operator=(cuda_device_memory_allocator &&other) = default;
 
-    std::unique_ptr<device_buffer> 
+    std::shared_ptr<device_buffer> 
     create_device_buffer(std::size_t size,
                          std::size_t alignment,
                          device_queue &queue ) override;
 
-    std::unique_ptr<cuda_device_buffer> 
+    std::shared_ptr<cuda_device_buffer> 
     create_device_buffer(std::size_t size,
                          std::size_t alignment,
                          cuda_device_queue &queue );
-
-    std::shared_ptr<device_buffer> 
-    create_device_buffer_shared(std::size_t size,
-                                std::size_t alignment,
-                                device_queue &queue ) override;
-
-    std::shared_ptr<cuda_device_buffer> 
-    create_device_buffer_shared(std::size_t size,
-                                std::size_t alignment,
-                                cuda_device_queue &queue );
 
     const cuda_memory_block& allocate(std::size_t size,
                                       std::size_t alignment,

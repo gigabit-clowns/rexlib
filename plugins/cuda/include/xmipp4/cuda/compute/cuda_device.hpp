@@ -55,38 +55,25 @@ public:
 
     cuda_device_queue_pool& get_queue_pool() override;
 
-    std::unique_ptr<device_memory_allocator>
-    create_device_memory_allocator() override;
     std::shared_ptr<device_memory_allocator>
-    create_device_memory_allocator_shared() override;
+    create_device_memory_allocator() override;
 
-    std::unique_ptr<host_memory_allocator>
-    create_host_memory_allocator() override;
     std::shared_ptr<host_memory_allocator>
-    create_host_memory_allocator_shared() override;
+    create_host_memory_allocator() override;
 
-    std::unique_ptr<host_to_device_transfer> 
-    create_host_to_device_transfer() override;
     std::shared_ptr<host_to_device_transfer> 
-    create_host_to_device_transfer_shared() override;
+    create_host_to_device_transfer() override;
 
-    std::unique_ptr<device_to_host_transfer> 
-    create_device_to_host_transfer() override;
     std::shared_ptr<device_to_host_transfer> 
-    create_device_to_host_transfer_shared() override;
+    create_device_to_host_transfer() override;
 
-    std::unique_ptr<device_copy> 
-    create_device_copy() override;
     std::shared_ptr<device_copy> 
-    create_device_copy_shared() override;
+    create_device_copy() override;
 
-    std::unique_ptr<device_event> create_device_event() override;
-    std::shared_ptr<device_event> create_device_event_shared() override;
+    std::shared_ptr<device_event> create_device_event() override;
 
-    std::unique_ptr<device_to_host_event> 
-    create_device_to_host_event() override;
     std::shared_ptr<device_to_host_event> 
-    create_device_to_host_event_shared() override;
+    create_device_to_host_event() override;
 
 private:
     int m_device;

@@ -127,7 +127,7 @@ cuda_host_to_device_transfer::transfer(const host_buffer &buffer,
 {
     std::shared_ptr<cuda_device_buffer> result;
 
-    result = allocator.create_device_buffer_shared(
+    result = allocator.create_device_buffer(
         buffer.get_size(),
         alignment,
         queue

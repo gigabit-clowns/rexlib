@@ -53,7 +53,7 @@ cuda_device_memory_allocator::cuda_device_memory_allocator(cuda_device &device)
 {
 }
 
-std::unique_ptr<device_buffer> 
+std::shared_ptr<device_buffer> 
 cuda_device_memory_allocator::create_device_buffer(std::size_t size, 
                                                    std::size_t alignment,
                                                    device_queue &queue )
@@ -65,35 +65,10 @@ cuda_device_memory_allocator::create_device_buffer(std::size_t size,
     );
 }
 
-std::unique_ptr<cuda_device_buffer> 
+std::shared_ptr<cuda_device_buffer> 
 cuda_device_memory_allocator::create_device_buffer(std::size_t size, 
                                                    std::size_t alignment,
                                                    cuda_device_queue &queue )
-{
-    return std::make_unique<default_cuda_device_buffer>(
-        size,
-        alignment,
-        &queue,
-        *this
-    );
-}
-
-std::shared_ptr<device_buffer> 
-cuda_device_memory_allocator::create_device_buffer_shared(std::size_t size, 
-                                                          std::size_t alignment,
-                                                          device_queue &queue )
-{
-    return create_device_buffer_shared(
-        size, 
-        alignment,
-        dynamic_cast<cuda_device_queue&>(queue)
-    );
-}
-
-std::shared_ptr<cuda_device_buffer> 
-cuda_device_memory_allocator::create_device_buffer_shared(std::size_t size, 
-                                                          std::size_t alignment,
-                                                          cuda_device_queue &queue )
 {
     return std::make_shared<default_cuda_device_buffer>(
         size,

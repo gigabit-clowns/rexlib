@@ -2,9 +2,7 @@ name: Build and Test
 
 on:
   pull_request:
-    branches:
-      - main
-
+  
   workflow_dispatch:
 
 env:
@@ -20,13 +18,15 @@ jobs:
         - {cc: gcc, cxx: g++}
         - {cc: clang, cxx: clang++}
         cuda:
-        - '11.8.0'
-        - '12.2.2'
+        - 12.8.1
         
         include:
+        - os: ubuntu-22.04
+          compiler: {cc: gcc, cxx: g++}
+          cuda: 11.8.0
         - os: windows-latest
           compiler: {cc: cl, cxx: cl}
-          cuda: '12.4.1'
+          cuda: 12.8.1
   
     runs-on: ${{ matrix.os }}
     defaults:
@@ -36,12 +36,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: Jimver/cuda-toolkit@v0.2.19
+      - uses: Jimver/cuda-toolkit@v0.2.22
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
           non-cuda-sub-packages: '["libcublas", "libcufft", "libcusolver"]'
+          log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
       - name: Install xmipp4-core
         id: install-xmipp4-core

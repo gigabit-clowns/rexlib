@@ -61,84 +61,43 @@ cuda_device_queue_pool& cuda_device::get_queue_pool()
     return m_queue_pool;
 }
 
-std::unique_ptr<device_memory_allocator> 
-cuda_device::create_device_memory_allocator()
-{
-    return std::make_unique<cuda_device_memory_allocator>(*this);
-}
-
 std::shared_ptr<device_memory_allocator> 
-cuda_device::create_device_memory_allocator_shared()
+cuda_device::create_device_memory_allocator()
 {
     return std::make_shared<cuda_device_memory_allocator>(*this);
 }
 
-std::unique_ptr<host_memory_allocator> 
-cuda_device::create_host_memory_allocator()
-{
-    return std::make_unique<cuda_host_memory_allocator>();
-}
-
 std::shared_ptr<host_memory_allocator> 
-cuda_device::create_host_memory_allocator_shared()
+cuda_device::create_host_memory_allocator()
 {
     return std::make_shared<cuda_host_memory_allocator>();
 }
 
-std::unique_ptr<host_to_device_transfer> 
-cuda_device::create_host_to_device_transfer()
-{
-    return std::make_unique<cuda_host_to_device_transfer>();
-}
-
 std::shared_ptr<host_to_device_transfer> 
-cuda_device::create_host_to_device_transfer_shared()
+cuda_device::create_host_to_device_transfer()
 {
     return std::make_shared<cuda_host_to_device_transfer>();
 }
 
-std::unique_ptr<device_to_host_transfer> 
-cuda_device::create_device_to_host_transfer()
-{
-    return std::make_unique<cuda_device_to_host_transfer>();
-}
-
 std::shared_ptr<device_to_host_transfer> 
-cuda_device::create_device_to_host_transfer_shared()
+cuda_device::create_device_to_host_transfer()
 {
     return std::make_shared<cuda_device_to_host_transfer>();
 }
 
-std::unique_ptr<device_copy> 
-cuda_device::create_device_copy()
-{
-    return std::make_unique<cuda_device_copy>();
-}
-
 std::shared_ptr<device_copy> 
-cuda_device::create_device_copy_shared()
+cuda_device::create_device_copy()
 {
     return std::make_shared<cuda_device_copy>();
 }
 
-std::unique_ptr<device_event> cuda_device::create_device_event()
-{
-    return std::make_unique<cuda_event>();
-}
-
-std::shared_ptr<device_event> cuda_device::create_device_event_shared()
+std::shared_ptr<device_event> cuda_device::create_device_event()
 {
     return std::make_shared<cuda_event>();
 }
 
-std::unique_ptr<device_to_host_event> 
-cuda_device::create_device_to_host_event()
-{
-    return std::make_unique<cuda_event>();
-}
-
 std::shared_ptr<device_to_host_event> 
-cuda_device::create_device_to_host_event_shared()
+cuda_device::create_device_to_host_event()
 {
     return std::make_shared<cuda_event>();
 }
