@@ -1,0 +1,32 @@
+name: Build and test with pip
+
+on:
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  pip-build:
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        - macos-latest
+        - windows-latest
+  
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install xmipp4-core
+        id: install-xmipp4-core
+        uses: ./.github/composites/install-xmipp4-core
+        with:
+          builder: pip
+      
+      - name: Install with pip
+        run: pip install . -vvv
