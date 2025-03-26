@@ -12,6 +12,7 @@ inputs:
   builder:
     description: "Method to build the project with"
     required: false
+    type: choice
     default: cmake
     options:
       - cmake
