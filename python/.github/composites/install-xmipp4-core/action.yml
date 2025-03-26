@@ -38,7 +38,7 @@ runs:
       run: mv xmipp4-core "${{ inputs.path }}"
 
     - name: Configure and build with CMake
-      if: inputs.builder == "cmake"
+      if: inputs.builder == 'cmake'
       uses: threeal/cmake-action@v2
       with:
         source-dir: "${{ inputs.path }}"
@@ -50,7 +50,7 @@ runs:
         build-args: --config Release
     
     - name: Install project with pip
-      if: inputs.builder == "pip"
+      if: inputs.builder == 'pip'
       shell: bash
       working-directory: "${{ inputs.path }}"
       run: pip install . -vvv
