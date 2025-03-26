@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build project
 
 on:
   pull_request:
@@ -48,5 +48,3 @@ jobs:
             xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
-
-# TODO tests
