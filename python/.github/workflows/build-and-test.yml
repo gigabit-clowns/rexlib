@@ -1,0 +1,52 @@
+name: Build and Test
+
+on:
+  pull_request:
+
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        compiler: 
+        - {cc: gcc, cxx: g++}
+        - {cc: clang, cxx: clang++}
+        
+        include:
+        - os: macos-latest
+          compiler: {cc: clang, cxx: clang++}
+        - os: windows-latest
+          compiler: {cc: cl, cxx: cl}
+  
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install xmipp4-core
+        id: install-xmipp4-core
+        uses: ./.github/composites/install-xmipp4-core
+      
+      - name: Configure and build with CMake
+        uses: threeal/cmake-action@v2
+        with:
+          source-dir: ${{ github.workspace }}
+          build-dir: "${{ github.workspace }}/build"
+          c-compiler: ${{ matrix.compiler.cc }}
+          cxx-compiler: ${{ matrix.compiler.cxx }}
+          options: |
+            CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+            xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
+          run-build: true
+          build-args: --config ${{ env.BUILD_TYPE }}
+
+# TODO tests

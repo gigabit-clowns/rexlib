@@ -25,6 +25,6 @@
 namespace xmipp4
 {
 
-void register_version(pybind11::module_ &m);
+void bind_version(pybind11::module_ &m);
 
 } // namespace xmipp4

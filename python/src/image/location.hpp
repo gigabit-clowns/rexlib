@@ -27,7 +27,7 @@ namespace xmipp4
 namespace image
 {
 
-void register_location(pybind11::module_ &m);
+void bind_location(pybind11::module_ &m);
 
 } // namespace image
 } // namespace xmipp4
