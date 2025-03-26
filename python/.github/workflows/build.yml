@@ -31,10 +31,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      
       - name: Install xmipp4-core
         id: install-xmipp4-core
-        uses: ./.github/composites/install-xmipp4-core
+        uses: gigabit-clowns/xmipp4-core/.github/composites/install-xmipp4-core@ms_lib_composites
       
       - name: Configure and build with CMake
         uses: threeal/cmake-action@v2
