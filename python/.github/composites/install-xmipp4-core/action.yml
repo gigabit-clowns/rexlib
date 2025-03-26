@@ -51,6 +51,7 @@ runs:
     
     - name: Install project with pip
       if: inputs.builder == "pip"
+      shell: bash
       working-directory: "${{ inputs.path }}"
       run: pip install . -vvv
 
