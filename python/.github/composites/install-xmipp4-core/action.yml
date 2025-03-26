@@ -9,6 +9,13 @@ inputs:
     description: "Path where xmipp4-core will be downloaded and built"
     required: false
     default: ${{ github.workspace }}/../xmipp4-core
+  builder:
+    description: "Method to build the project with"
+    required: false
+    default: cmake
+    options:
+      - cmake
+      - pip
 
 outputs:
   xmipp4-core-root:
@@ -30,6 +37,7 @@ runs:
       run: mv xmipp4-core "${{ inputs.path }}"
 
     - name: Configure and build with CMake
+      if: inputs.builder == "cmake"
       uses: threeal/cmake-action@v2
       with:
         source-dir: "${{ inputs.path }}"
@@ -39,6 +47,11 @@ runs:
           CMAKE_BUILD_TYPE=Release
         run-build: true
         build-args: --config Release
+    
+    - name: Install project with pip
+      if: inputs.builder == "pip"
+      working-directory: "${{ inputs.path }}"
+      run: pip install . -vvv
 
     - name: Install
       shell: bash
