@@ -33,7 +33,7 @@ namespace xmipp4
 namespace compute
 {
 
-static device_manager& from_registry(interface_registry &registry)
+static device_manager& get_device_manager(interface_registry &registry)
 {
     return registry.get_interface_manager<device_manager>();
 }
@@ -45,12 +45,6 @@ namespace py = pybind11;
 void bind_device_manager(pybind11::module_ &m)
 {
     py::class_<device_manager>(m, "DeviceManager")
-        .def_static(
-            "from_registry",
-            &from_registry,
-            py::return_value_policy::reference,
-            py::keep_alive<0, 1>()
-        )
         .def(
             "enumerate_backends", 
             [](device_manager &self) -> std::vector<std::string> 
@@ -99,6 +93,13 @@ void bind_device_manager(pybind11::module_ &m)
                 return result;
             }
         );
+
+    m.def(
+        "get_device_manager",
+        &get_device_manager,
+        py::return_value_policy::reference,
+        py::keep_alive<0, 1>()
+    );
 
 }
 
