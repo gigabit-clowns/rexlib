@@ -46,9 +46,8 @@ jobs:
           log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
       - name: Install xmipp4-core
-        id: install-xmipp4-core
-        uses: ./.github/composites/install-xmipp4-core
-      
+        run: pip install https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip -vvv
+
       - name: Configure and build with CMake
         uses: threeal/cmake-action@v2
         with:
@@ -58,7 +57,6 @@ jobs:
           cxx-compiler: ${{ matrix.compiler.cxx }}
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-            xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
