@@ -2,6 +2,7 @@
 #include "compute/main.hpp"
 #include "image/main.hpp"
 
+#include "interface_registry.hpp"
 #include "plugin_manager.hpp"
 #include "plugin.hpp"
 #include "version.hpp"
@@ -29,6 +30,7 @@ PYBIND11_MODULE(_core, m) {
     auto image_module = m.def_submodule("image");
     image::bind_image(image_module);
 
+    bind_interface_registry(m);
     bind_plugin_manager(m);
     bind_plugin(m);
     bind_version(m);

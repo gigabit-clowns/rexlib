@@ -21,9 +21,10 @@
 #include "device_manager.hpp"
 
 #include <xmipp4/core/compute/device_manager.hpp>
+
+#include <xmipp4/core/interface_registry.hpp>
 #include <xmipp4/core/compute/device_create_parameters.hpp>
 #include <xmipp4/core/compute/device.hpp>
-#include <xmipp4/core/compute/host/host_device_backend.hpp> // TODO remove
 
 #include <pybind11/stl.h> // Required for std::vector binding
 
@@ -32,12 +33,24 @@ namespace xmipp4
 namespace compute
 {
 
+static device_manager& from_registry(interface_registry &registry)
+{
+    return registry.get_interface_manager<device_manager>();
+}
+
+
+
 namespace py = pybind11;
 
 void bind_device_manager(pybind11::module_ &m)
 {
     py::class_<device_manager>(m, "DeviceManager")
-        .def(py::init<>())
+        .def_static(
+            "from_registry",
+            &from_registry,
+            py::return_value_policy::reference,
+            py::keep_alive<0, 1>()
+        )
         .def(
             "enumerate_backends", 
             [](device_manager &self) -> std::vector<std::string> 
