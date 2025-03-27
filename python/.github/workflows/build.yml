@@ -32,9 +32,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      #- name: Install xmipp4-core
+      #  uses: gigabit-clowns/xmipp4-core/.github/composites/install-xmipp4-core/cmake@ms_lib_composites
+
       - name: Install xmipp4-core
-        uses: gigabit-clowns/xmipp4-core/.github/composites/install-xmipp4-core/cmake@ms_lib_composites
+        run: pip install https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip
+
+      - name: Obtain install path of xmipp4-core
+        run: echo "PIP_ROOT=$(python -c \"import sys; print(sys.prefix)\")" >> "$GITHUB_ENV"
       
+      - name: Test
+        env:
+          PIP_ROOT: ${{ env.PIP_ROOT }}
+        run: echo $PIP_ROOT
+
       - name: Configure and build with CMake
         uses: threeal/cmake-action@v2
         with:
@@ -44,6 +55,6 @@ jobs:
           cxx-compiler: ${{ matrix.compiler.cxx }}
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-            xmipp4-core_ROOT=${{ steps.install-xmipp4-core.outputs.xmipp4-core-root }}
+            CMAKE_PREFIX_PATH=${{ env.PIP_ROOT }}
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
