@@ -69,7 +69,8 @@ void bind_plugin_manager(pybind11::module_ &m)
                 }
 
                 return result;
-            }
+            },
+            py::return_value_policy::reference_internal
         );
 
     m.def("get_plugin_directory", &get_plugin_directory);
