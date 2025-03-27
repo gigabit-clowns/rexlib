@@ -47,6 +47,7 @@ jobs:
 
       - name: Install xmipp4-core
         run: |
+          python -m pip install --upgrade pip
           pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
 
       - name: Configure and build with CMake
