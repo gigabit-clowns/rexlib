@@ -32,7 +32,7 @@ namespace py = pybind11;
 void bind_interface_registry(pybind11::module_ &m)
 {
     py::class_<interface_registry>(m, "InterfaceRegistry")
-        .def(py::init<>())
+        .def(py::init<bool>(), py::arg("register_builtin_backends") = true)
         .def(
             "register_from_plugins", 
             [](interface_registry &registry, const plugin_manager &manager) 
