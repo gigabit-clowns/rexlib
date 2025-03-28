@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from ._core import (
     __doc__, __version__, 
-    compute, image,
+    communication, compute, image,
     InterfaceRegistry,
     PluginManager, Plugin, get_plugin_directory, get_default_plugin_directory,
     Version
