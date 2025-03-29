@@ -1,4 +1,5 @@
 
+#include "communication/main.hpp"
 #include "compute/main.hpp"
 #include "image/main.hpp"
 
@@ -25,6 +26,8 @@ static std::string version_to_string(version ver)
 PYBIND11_MODULE(_core, m) {
     m.attr("__version__") = version_to_string(get_core_version());
 
+    auto communication_module = m.def_submodule("communication");
+    communication::bind_communication(communication_module);
     auto compute_module = m.def_submodule("compute");
     compute::bind_compute(compute_module);
     auto image_module = m.def_submodule("image");

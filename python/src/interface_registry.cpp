@@ -34,7 +34,7 @@ void bind_interface_registry(pybind11::module_ &m)
     py::class_<interface_registry>(m, "InterfaceRegistry")
         .def(py::init<bool>(), py::arg("register_builtin_backends") = true)
         .def(
-            "register_from_plugins", 
+            "register_plugins", 
             [](interface_registry &registry, const plugin_manager &manager) 
             {
                 return register_all_plugins_at(manager, registry);

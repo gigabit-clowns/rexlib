@@ -18,7 +18,7 @@
  *  e-mail address 'xmipp@cnb.csic.es'
  ***************************************************************************/
 
-#include "device_index.hpp"
+#include "device.hpp"
 
 #include <xmipp4/core/compute/device.hpp>
 #include <xmipp4/core/compute/device_queue_pool.hpp>
