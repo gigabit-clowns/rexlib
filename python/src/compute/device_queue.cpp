@@ -45,6 +45,13 @@ void bind_device_queue(pybind11::module_ &m)
     py::class_<device_queue>(m, "DeviceQueue")
         .def("__repr__", &to_repr)
         .def(
+            "wait_util_completed",
+            [](const device_queue &self) -> void
+            {
+                self.wait_until_completed();
+            }
+        )
+        .def(
             "is_idle",
             [](const device_queue &self) -> bool
             {
