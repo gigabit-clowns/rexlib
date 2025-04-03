@@ -46,8 +46,8 @@ void bind_device_manager(pybind11::module_ &m)
 {
     py::class_<device_manager>(m, "DeviceManager")
         .def(
-            "enumerate_backends", 
-            [](device_manager &self) -> std::vector<std::string> 
+            "enumerate_backends",
+            [](device_manager &self) -> std::vector<std::string>
             {
                 std::vector<std::string> backends;
                 self.enumerate_backends(backends);
@@ -55,8 +55,8 @@ void bind_device_manager(pybind11::module_ &m)
             }
         )
         .def(
-            "enumerate_devices", 
-            [](device_manager &self) -> std::vector<device_index> 
+            "enumerate_devices",
+            [](device_manager &self) -> std::vector<device_index>
             {
                 std::vector<device_index> indices;
                 self.enumerate_devices(indices);
@@ -64,8 +64,8 @@ void bind_device_manager(pybind11::module_ &m)
             }
         )
         .def(
-            "get_device_properties", 
-            [](device_manager &self, const device_index &index) -> device_properties 
+            "get_device_properties",
+            [](device_manager &self, const device_index &index) -> device_properties
             {
                 device_properties desc;
                 if(!self.get_device_properties(index, desc)) {
@@ -75,10 +75,10 @@ void bind_device_manager(pybind11::module_ &m)
             }
         )
         .def(
-            "create_device", 
-            [] (device_manager &self, 
-                const device_index& index, 
-                const py::kwargs &kwargs ) -> std::shared_ptr<device> 
+            "create_device",
+            [] (device_manager &self,
+                const device_index& index,
+                const py::kwargs &kwargs ) -> std::shared_ptr<device>
             {
                 std::shared_ptr<device> result;
                 device_create_parameters params;
