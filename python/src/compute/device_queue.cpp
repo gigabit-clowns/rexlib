@@ -22,8 +22,6 @@
 
 #include <xmipp4/core/compute/device_queue.hpp>
 
-#include <pybind11/operators.h>
-
 #include <sstream>
 
 namespace xmipp4
