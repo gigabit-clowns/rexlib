@@ -45,8 +45,8 @@ namespace py = pybind11;
 void bind_device_manager(pybind11::module_ &m)
 {
     py::class_<device_manager>(m, "DeviceManager")
-        .def(
-            "enumerate_backends",
+        .def_property_readonly(
+            "backends",
             [](device_manager &self) -> std::vector<std::string>
             {
                 std::vector<std::string> backends;
@@ -54,8 +54,8 @@ void bind_device_manager(pybind11::module_ &m)
                 return backends;
             }
         )
-        .def(
-            "enumerate_devices",
+        .def_property_readonly(
+            "devices",
             [](device_manager &self) -> std::vector<device_index>
             {
                 std::vector<device_index> indices;
