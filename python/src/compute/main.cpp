@@ -21,6 +21,7 @@
 #include "main.hpp"
 
 #include "device.hpp"
+#include "device_event.hpp"
 #include "device_index.hpp"
 #include "device_manager.hpp"
 #include "device_properties.hpp"
@@ -38,6 +39,7 @@ namespace py = pybind11;
 void bind_compute(pybind11::module_ &m)
 {
     bind_device(m);
+    bind_device_event(m);
     bind_device_index(m);
     bind_device_manager(m);
     bind_device_properties(m);
