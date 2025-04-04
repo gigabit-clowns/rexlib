@@ -20,8 +20,8 @@
 
 #include "device_queue_pool.hpp"
 
-#include <xmipp4/core/compute/device_queue_pool.hpp>
 #include <xmipp4/core/compute/device_queue.hpp>
+#include <xmipp4/core/compute/device_queue_pool.hpp>
 
 #include <sstream>
 
@@ -32,38 +32,27 @@ namespace compute
 
 namespace py = pybind11;
 
-static std::string to_repr(const device_queue_pool &l)
-{
-    std::ostringstream oss;
-    oss << "DeviceQueuePool(size=\"" << l.get_size() << ")";
-    return oss.str();
-}
-
-
-
 void bind_device_queue_pool(pybind11::module_ &m)
 {
     py::class_<device_queue_pool>(m, "DeviceQueuePool")
-        .def("__repr__", &to_repr)
-        .def(
-            "get_size",
-            [](const device_queue_pool &self) -> size_t
+        .def_property_readonly(
+            "queues",
+            [](device_queue_pool &self) -> py::list
             {
-            return self.get_size();
-            }
-        )
-        .def(
-            "get_queue",
-            [](const device_queue_pool &self, const device_index &index) -> std::shared_ptr<device_queue>
-            {
-                std::shared_ptr<device_queue> desc = self.get_queue(index);
-                if(!desc) {
-                    throw std::invalid_argument("Requested device queue does not exist.");
+                py::list queues;
+                const auto size = self.get_size();
+                for (std::size_t i = 0; i < size; ++i)
+                {
+                    auto queue = py::cast(
+                        self.get_queue(i), 
+                        py::return_value_policy::reference
+                    );
+                    queues.append(std::move(queue));
                 }
-                return desc;
-            }
+                return queues;
+            },
+            py::return_value_policy::reference_internal
         );
-
 }
 
 } // namespace compute
