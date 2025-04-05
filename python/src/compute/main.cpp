@@ -27,6 +27,7 @@
 #include "device_properties.hpp"
 #include "device_queue.hpp"
 #include "device_queue_pool.hpp"
+#include "device_to_host_event.hpp"
 #include "device_type.hpp"
 
 namespace xmipp4
@@ -45,6 +46,7 @@ void bind_compute(pybind11::module_ &m)
     bind_device_properties(m);
     bind_device_queue(m);
     bind_device_queue_pool(m);
+    bind_device_to_host_event(m);
     bind_device_type(m);
 }
 
