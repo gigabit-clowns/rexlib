@@ -40,7 +40,12 @@ namespace py = pybind11;
 void bind_device(pybind11::module_ &m)
 {
     py::class_<device, std::shared_ptr<device>>(m, "Device")
-        .def("get_queue_pool", &device::get_queue_pool)
+        .def(
+            "get_queue_pool",
+            &device::get_queue_pool,
+            py::return_value_policy::reference,
+            py::keep_alive<0, 1>()
+        )
         .def("create_device_memory_allocator", &device::create_device_memory_allocator)
         .def("create_host_memory_allocator", &device::create_host_memory_allocator)
         .def("create_host_to_device_transfer", &device::create_host_to_device_transfer)

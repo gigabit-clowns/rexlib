@@ -82,8 +82,8 @@ void bind_device_index(pybind11::module_ &m)
             [](const device_index &l) -> pybind11::tuple // __getstate__
             {
                 return py::make_tuple(
-                    l.get_backend_name(), 
-                    l.get_device_id() 
+                    l.get_backend_name(),
+                    l.get_device_id()
                 );
             },
             [](py::tuple t) -> device_index  // __setstate__
