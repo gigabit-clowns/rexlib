@@ -32,6 +32,13 @@ project(
 # Include CTest to provide BUILD_TESTING option
 include(CTest)
 
+# Find xmipp4-core
+if (NOT TARGET xmipp4-core)
+	find_package(xmipp4-core REQUIRED)
+endif()
+
+set(PLATLIB_DIR "${SKBUILD_PLATLIB_DIR}")
+
 # Declare build options
 #option(XMIPP4_BINDING_PYTHON_BUILD_DOC "Build documentation" ON)
 
@@ -54,5 +61,5 @@ endif()
 # Install python directory
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/python/xmipp4/
-	DESTINATION xmipp4
+	DESTINATION "${PLATLIB_DIR}/xmipp4"
 )

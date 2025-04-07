@@ -34,11 +34,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
-# Find xmipp4-core
-if (NOT TARGET xmipp4-core)
-	find_package(xmipp4-core REQUIRED)
-endif()
-
 # Register all source and header files
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
 file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/include/*.hpp)
@@ -86,5 +81,5 @@ add_custom_command(
 install(
 	TARGETS _core
 	LIBRARY 
-	DESTINATION xmipp4
+	DESTINATION "${PLATLIB_DIR}/xmipp4"
 )

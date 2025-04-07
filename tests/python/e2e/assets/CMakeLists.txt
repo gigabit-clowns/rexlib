@@ -22,12 +22,3 @@
 
 add_subdirectory(dummy_plugin1)
 add_subdirectory(dummy_plugin2)
-
-set(TARGET_NAME "${PROJECT_NAME}_e2e_test_assets")
-set(PLUGINS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/plugins/)
-add_custom_target(
-    ${TARGET_NAME}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PLUGINS_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:dummy_plugin1> ${PLUGINS_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:dummy_plugin2> ${PLUGINS_DIRECTORY}
-)

@@ -36,3 +36,7 @@ target_link_libraries(
 	PRIVATE
 		xmipp4-core
 )
+install(
+	TARGETS ${TARGET_NAME}
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4-plugins/
+)
