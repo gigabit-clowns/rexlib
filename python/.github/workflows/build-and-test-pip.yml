@@ -14,6 +14,19 @@ jobs:
         - ubuntu-22.04
         - macos-latest
         - windows-latest
+        python-version:
+        - '3.13'
+        include:
+        - os: macos-latest
+          python-version: '3.8'
+        - os: macos-latest
+          python-version: '3.9'
+        - os: macos-latest
+          python-version: '3.10'
+        - os: macos-latest
+          python-version: '3.11'
+        - os: macos-latest
+          python-version: '3.12'
   
     runs-on: ${{ matrix.os }}
     defaults:
@@ -23,9 +36,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
       - name: Install xmipp4-core
         run: |
           pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
 
       - name: Install with pip
         run: pip install . -vvv
+
+      - name: Show library version from Python
+        run: |
+          python -c "import xmipp4; print(xmipp4.__version__)"

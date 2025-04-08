@@ -19,6 +19,10 @@
 # ***************************************************************************
 
 from __future__ import annotations
+from .load_core import load_core
+
+# Heuristically load the core library before importing the binding.
+__core_lib = load_core()
 
 from ._core import (
     __doc__, __version__, 
