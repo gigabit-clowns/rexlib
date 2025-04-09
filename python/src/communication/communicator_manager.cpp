@@ -56,11 +56,13 @@ void bind_communicator_manager(pybind11::module_ &m)
         .def(
             "create_world_communicator", 
             &communicator_manager::create_world_communicator, 
-            py::arg("name")
+            py::arg("name"),
+            py::keep_alive<0, 1>()
         )
         .def(
             "create_preferred_world_communicator", 
-            &communicator_manager::create_preferred_world_communicator
+            &communicator_manager::create_preferred_world_communicator,
+            py::keep_alive<0, 1>()
         );
 
     m.def(

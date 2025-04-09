@@ -91,7 +91,8 @@ void bind_device_manager(pybind11::module_ &m)
                 }
 
                 return result;
-            }
+            },
+            py::keep_alive<0, 1>()
         );
 
     m.def(

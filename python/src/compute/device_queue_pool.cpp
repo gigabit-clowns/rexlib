@@ -46,6 +46,7 @@ void bind_device_queue_pool(pybind11::module_ &m)
                     auto queue = py::cast(
                         self.get_queue(i), 
                         py::return_value_policy::reference
+                        // FIXME keep alive the parent object as long as any of the queues is alive
                     );
                     queues.append(std::move(queue));
                 }

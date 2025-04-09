@@ -64,6 +64,7 @@ void bind_plugin_manager(pybind11::module_ &m)
                     auto object = py::cast(
                         manager.get_plugin(i), 
                         py::return_value_policy::reference
+                        // FIXME keep alive the manager
                     );
                     result.append(std::move(object));
                 }
