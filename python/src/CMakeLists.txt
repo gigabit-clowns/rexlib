@@ -25,8 +25,7 @@ cmake_minimum_required(VERSION 3.16)
 include(FetchContent)
 include(GNUInstallDirs)
 
-# Find requirements
-find_package(Python COMPONENTS Interpreter Development REQUIRED)
+# Obtain pybind11
 FetchContent_Declare(
 	pybind11
 	GIT_REPOSITORY https://github.com/pybind/pybind11
@@ -40,47 +39,37 @@ file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR
 file(GLOB_RECURSE INLINE_SOURCES ${PROJECT_SOURCE_DIR}/include/*.inl)
 
 # Create the shared library
-pybind11_add_module(_core ${SOURCES})
+set(TARGET_NAME "_core_binding")
+pybind11_add_module(${TARGET_NAME} ${SOURCES})
 set_target_properties(
-	_core 
+	${TARGET_NAME}
 	PROPERTIES 
 		CXX_STANDARD 20
 )
 target_compile_definitions(
-	_core
+	${TARGET_NAME}
 	PRIVATE
 		VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
 		VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
 		VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
 )
 target_precompile_headers(
-	_core
+	${TARGET_NAME}
 	PRIVATE ${HEADERS}
 )
 target_link_libraries(
-	_core
+	${TARGET_NAME}
 	PRIVATE xmipp4-core
 )
 if(MSVC)
-	target_compile_options(_core PRIVATE /W4 /WX)
+	target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
 else()
-	target_compile_options(_core PRIVATE -Wall -Wextra -Wpedantic)
+	target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
-# Combine with Python source
-set(PYTHON_SOURCE_DIR ${PROJECT_SOURCE_DIR}/python)
-add_custom_command(
-	TARGET _core POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_directory ${PYTHON_SOURCE_DIR} ${PROJECT_BINARY_DIR}/python
-)
-add_custom_command(
-	TARGET _core POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_core> ${PROJECT_BINARY_DIR}/python/xmipp4
-)
 
 # Install library's binary files and headers
 install(
-	TARGETS _core
+	TARGETS ${TARGET_NAME}
 	LIBRARY 
-	DESTINATION "${PLATLIB_DIR}/xmipp4"
+	DESTINATION "${PYTHON_INSTALL_DIR}/xmipp4"
 )

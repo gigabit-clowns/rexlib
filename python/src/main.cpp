@@ -23,7 +23,7 @@ static std::string version_to_string(version ver)
     return oss.str();
 }
 
-PYBIND11_MODULE(_core, m) {
+PYBIND11_MODULE(_core_binding, m) {
     m.attr("__version__") = version_to_string(get_core_version());
 
     auto communication_module = m.def_submodule("communication");

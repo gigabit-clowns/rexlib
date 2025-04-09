@@ -37,7 +37,14 @@ if (NOT TARGET xmipp4-core)
 	find_package(xmipp4-core REQUIRED)
 endif()
 
-set(PLATLIB_DIR "${SKBUILD_PLATLIB_DIR}")
+# Find Python
+find_package(Python COMPONENTS Interpreter Development REQUIRED)
+
+if(SKBUILD_PLATLIB_DIR)
+	set(PYTHON_INSTALL_DIR "${SKBUILD_PLATLIB_DIR}")
+else()
+	set(PYTHON_INSTALL_DIR "${Python_SITEARCH}")
+endif()
 
 # Declare build options
 #option(XMIPP4_BINDING_PYTHON_BUILD_DOC "Build documentation" ON)
@@ -61,5 +68,5 @@ endif()
 # Install python directory
 install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/python/xmipp4/
-	DESTINATION "${PLATLIB_DIR}/xmipp4"
+	DESTINATION "${PYTHON_INSTALL_DIR}/xmipp4"
 )
