@@ -37,22 +37,23 @@ void bind_device_queue_pool(pybind11::module_ &m)
     py::class_<device_queue_pool>(m, "DeviceQueuePool")
         .def_property_readonly(
             "queues",
-            [](device_queue_pool &self) -> py::list
+            [](py::object &self) -> py::list
             {
                 py::list queues;
-                const auto size = self.get_size();
+
+                auto &pool = self.cast<device_queue_pool&>();
+                const auto size = pool.get_size();
                 for (std::size_t i = 0; i < size; ++i)
                 {
                     auto queue = py::cast(
-                        self.get_queue(i), 
-                        py::return_value_policy::reference
-                        // FIXME keep alive the parent object as long as any of the queues is alive
+                        pool.get_queue(i), 
+                        py::return_value_policy::reference_internal,
+                        self
                     );
                     queues.append(std::move(queue));
                 }
                 return queues;
-            },
-            py::return_value_policy::reference_internal
+            }
         );
 }
 

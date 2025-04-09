@@ -54,24 +54,24 @@ void bind_plugin_manager(pybind11::module_ &m)
         )
         .def_property_readonly(
             "plugins",
-            [](const plugin_manager &manager) -> py::list
+            [](const py::object &self) -> py::list
             {
                 py::list result;
                 
+                const auto &manager = self.cast<const plugin_manager&>();
                 const auto count = manager.get_plugin_count();
                 for (std::size_t i = 0; i < count; ++i)
                 {
                     auto object = py::cast(
                         manager.get_plugin(i), 
-                        py::return_value_policy::reference
-                        // FIXME keep alive the manager
+                        py::return_value_policy::reference_internal,
+                        self
                     );
                     result.append(std::move(object));
                 }
 
                 return result;
-            },
-            py::return_value_policy::reference_internal
+            }
         );
 
     m.def("get_plugin_directory", &get_plugin_directory);
