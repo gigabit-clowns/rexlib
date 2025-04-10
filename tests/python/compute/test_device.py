@@ -1,5 +1,6 @@
 #***************************************************************************
 # Authors:     Oier Lauzirika Zarrabeitia (oierlauzi@bizkaia.eu)
+#              Martín Salinas Antón (ssalinasmartin@gmail.com)
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,5 +20,33 @@
 #  All comments concerning this program package may be sent to the
 #  e-mail address 'xmipp@cnb.csic.es'
 # ***************************************************************************
+import pytest
 
-add_subdirectory(assets)
+import xmipp4
+
+def test_returns_device(__setup_device_manager):
+  assert __setup_device_manager.create_device(
+    xmipp4.compute.DeviceIndex('host', 0)
+  ) is not None
+
+@pytest.mark.parametrize(
+  'n_queues',
+  [
+    pytest.param(0, id='Zero queues requested'),
+    pytest.param(1, id='One queue requested'),
+    pytest.param(2, id='Two queues requested'),
+    pytest.param(3, id='Three queues requested')
+  ]
+)
+def test_returns_expected_queues_for_host(__setup_device_manager, n_queues):
+  device = __setup_device_manager.create_device(
+    xmipp4.compute.DeviceIndex('host', 0),
+    desired_queue_count=n_queues
+  )
+  queue_pool = device.get_queue_pool()
+  assert len(queue_pool.queues) == 1
+
+@pytest.fixture
+def __setup_device_manager():
+  ir = xmipp4.InterfaceRegistry()
+  return xmipp4.compute.get_device_manager(ir)

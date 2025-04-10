@@ -20,4 +20,4 @@
 #  e-mail address 'xmipp@cnb.csic.es'
 # ***************************************************************************
 
-add_subdirectory(e2e)
+add_subdirectory(assets)

@@ -44,8 +44,8 @@ namespace py = pybind11;
 void bind_communicator_manager(pybind11::module_ &m)
 {
     py::class_<communicator_manager>(m, "CommunicatorManager")
-        .def(
-            "enumerate_backends",
+        .def_property_readonly(
+            "backends",
             [] (const communicator_manager &manager) -> std::vector<std::string>
             {
                 std::vector<std::string> backends;
