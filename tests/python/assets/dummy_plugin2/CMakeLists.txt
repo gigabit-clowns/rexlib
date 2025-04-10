@@ -38,5 +38,5 @@ target_link_libraries(
 )
 install(
 	TARGETS ${TARGET_NAME}
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4-plugins/
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4-dummy-plugins/
 )
