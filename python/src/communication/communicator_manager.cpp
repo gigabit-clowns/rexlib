@@ -22,7 +22,7 @@
 
 #include <xmipp4/core/communication/communicator_manager.hpp>
 
-#include <xmipp4/core/interface_registry.hpp>
+#include <xmipp4/core/interface_catalog.hpp>
 #include <xmipp4/core/communication/communicator.hpp>
 
 #include <pybind11/stl.h> // Required for std::vector binding
@@ -32,9 +32,9 @@ namespace xmipp4
 namespace communication
 {
 
-static communicator_manager& get_communicator_manager(interface_registry &registry)
+static communicator_manager& get_communicator_manager(interface_catalog &catalog)
 {
-    return registry.get_interface_manager<communicator_manager>();
+    return catalog.get_interface_manager<communicator_manager>();
 }
 
 

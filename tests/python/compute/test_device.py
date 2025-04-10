@@ -48,5 +48,5 @@ def test_returns_expected_queues_for_host(__setup_device_manager, n_queues):
 
 @pytest.fixture
 def __setup_device_manager():
-  ir = xmipp4.InterfaceRegistry()
+  ir = xmipp4.InterfaceCatalog()
   return xmipp4.compute.get_device_manager(ir)

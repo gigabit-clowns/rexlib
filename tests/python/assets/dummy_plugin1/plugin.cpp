@@ -53,7 +53,7 @@ class dummy_plugin1 final
         return version(1, 2, 3);
     }
 
-    void register_at(interface_registry&) const
+    void register_at(interface_catalog&) const
     {
         // NO-OP
     }

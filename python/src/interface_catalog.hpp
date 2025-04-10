@@ -1,3 +1,5 @@
+#pragma once
+
 /***************************************************************************
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,30 +20,11 @@
  *  e-mail address 'xmipp@cnb.csic.es'
  ***************************************************************************/
 
-#include "interface_registry.hpp"
-
-#include <xmipp4/core/interface_registry.hpp>
-
-#include <xmipp4/core/plugin_manager.hpp>
+#include <pybind11/pybind11.h>
 
 namespace xmipp4
 {
 
-namespace py = pybind11;
-
-void bind_interface_registry(pybind11::module_ &m)
-{
-    py::class_<interface_registry>(m, "InterfaceRegistry")
-        .def(py::init<bool>(), py::arg("register_builtin_backends") = true)
-        .def(
-            "register_plugins", 
-            [](interface_registry &registry, const plugin_manager &manager) 
-            {
-                return register_all_plugins_at(manager, registry);
-            },
-            py::keep_alive<1, 2>() // Do not destroy the manager before the registry
-        );
-
-}
+void bind_interface_catalog(pybind11::module_ &m);
 
 } // namespace xmipp4
