@@ -30,7 +30,7 @@
 
 #include <xmipp4/cuda/compute/cuda_device_backend.hpp>
 
-#include <xmipp4/core/interface_registry.hpp>
+#include <xmipp4/core/interface_catalog.hpp>
 #include <xmipp4/core/compute/device_manager.hpp>
 
 namespace xmipp4 
@@ -52,10 +52,10 @@ version cuda_plugin::get_version() const noexcept
     );
 }
 
-void cuda_plugin::register_at(interface_registry& registry) const
+void cuda_plugin::register_at(interface_catalog& catalog) const
 {
     compute::cuda_device_backend::register_at(
-        registry.get_interface_manager<compute::device_manager>()
+        catalog.get_interface_manager<compute::device_manager>()
     );
 }
 
