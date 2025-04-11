@@ -55,10 +55,11 @@ Homepage = "https://github.com/gigabit-clowns/xmipp4-compute-cuda"
 
 [tool.scikit-build]
 experimental=true # For wheel.install-dir
+wheel.install-dir="/data"
 cmake.version = ">=3.16"
 cmake.args = []
-cmake.define = {}
 cmake.verbose = false
 cmake.build-type = "Release"
 
-wheel.install-dir="/data"
+[tool.scikit-build.cmake.define]
+BUILD_TESTING = "OFF"
