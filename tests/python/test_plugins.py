@@ -44,7 +44,7 @@ def test_plugin_manager_discovers_plugins():
   pm = xmipp4.PluginManager()
   pm.discover_plugins(__get_dummy_plugin_directory())
   plugins = set(map(repr, pm.plugins))
-  plugins == {
+  assert plugins == {
     'Plugin(name="dummy-plugin1", version="1.2.3")',
     'Plugin(name="dummy-plugin2", version="4.5.6")',
   }
