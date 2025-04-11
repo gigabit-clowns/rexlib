@@ -22,6 +22,8 @@
 
 cmake_minimum_required(VERSION 3.16)
 
+include(GNUInstallDirs)
+
 set(TARGET_NAME dummy_plugin1)
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/plugin.cpp)
 add_library(${TARGET_NAME} MODULE ${SOURCES})
