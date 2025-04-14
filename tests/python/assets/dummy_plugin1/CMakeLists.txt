@@ -38,8 +38,13 @@ target_link_libraries(
 	PRIVATE
 		xmipp4-core
 )
+
+if(WIN32)
+    set(MODULE_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
+else()
+    set(MODULE_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
+endif()
 install(
 	TARGETS ${TARGET_NAME}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/xmipp4-dummy-plugins/
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4-dummy-plugins/
+	LIBRARY DESTINATION ${MODULE_INSTALL_DIR}/xmipp4-dummy-plugins/
 )
