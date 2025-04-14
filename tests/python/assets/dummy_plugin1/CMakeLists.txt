@@ -38,8 +38,9 @@ target_link_libraries(
 	PRIVATE
 		xmipp4-core
 )
-message("----------- Libdir: ${CMAKE_INSTALL_LIBDIR}")
 install(
 	TARGETS ${TARGET_NAME}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/xmipp4-dummy-plugins/
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4-dummy-plugins/
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/xmipp4-dummy-plugins/
 )
