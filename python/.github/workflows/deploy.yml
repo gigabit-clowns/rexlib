@@ -1,0 +1,73 @@
+name: Generate release
+
+on:
+  release:
+    types: 
+      - published
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels for ${{ matrix.os }} (${{ matrix.architectures }})
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            architectures: "x86_64 i686"
+          - os: ubuntu-24.04-arm
+            architectures: "aarch64"
+          - os: macos-latest
+            architectures: "x86_64 arm64 universal2"
+          - os: windows-latest
+            architectures: "AMD64 x86 ARM64"
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.23.2
+        env:
+          CIBW_ARCHS: "${{ matrix.architectures }}"
+          CIBW_BEFORE_BUILD: | # TODO remove when xmipp4-core is available in PyPI
+            pip install git+https://github.com/gigabit-clowns/xmipp4-core@main
+          CIBW_REPAIR_WHEEL_COMMAND: "" # TODO remove when xmipp4-core is available in PyPI
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -l ./dist
+
+      - name: Upload to PyPI
+        if: false && github.event_name == 'release' && github.event.action == 'published'
+        uses: pypa/gh-action-pypi-publish@release/v1 # TODO enable this in the future
