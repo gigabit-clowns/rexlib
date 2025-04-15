@@ -1,4 +1,4 @@
-name: Build and test with pip
+name: Build and test
 
 on:
   pull_request:
@@ -6,7 +6,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  pip-build:
+  build_with_cmake:
+    name: CMake
+    strategy:
+      matrix:
+        os:
+        - ubuntu-latest
+        compiler: 
+        - {cc: gcc, cxx: g++}
+        - {cc: clang, cxx: clang++}
+        
+        include:
+        - os: macos-latest
+          compiler: {cc: clang, cxx: clang++}
+        - os: windows-latest
+          compiler: {cc: cl, cxx: cl}
+          
+    runs-on: ${{ matrix.os }}
+    env:
+      BUILD_TYPE: Debug
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install xmipp4-core
+        run: |
+          pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -v
+
+      - name: Configure and build with CMake
+        uses: threeal/cmake-action@v2
+        with:
+          source-dir: ${{ github.workspace }}
+          build-dir: "${{ github.workspace }}/build"
+          c-compiler: ${{ matrix.compiler.cc }}
+          cxx-compiler: ${{ matrix.compiler.cxx }}
+          options: |
+            CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+          run-build: true
+          build-args: --config ${{ env.BUILD_TYPE }}
+
+  build_with_pip:
+    name: pip
     strategy:
       matrix:
         os:
@@ -47,9 +90,6 @@ jobs:
 
       - name: Install with pip
         run: pip install .[test] -v -Ccmake.define.BUILD_TESTING=ON
-      
-      - name: Show library version from Python
-        run: python -c "import xmipp4; print(xmipp4.__version__)"
       
       - name: Run tests
         run: |
