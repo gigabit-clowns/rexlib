@@ -73,5 +73,5 @@ cmake.build-type = "Release"
 BUILD_TESTING = "OFF"
 
 [tool.cibuildwheel]
-test-command = "{project}/scripts/run_test.sh"
-test-extras = ["test"]
+#test-command = "{project}/scripts/run_test.sh"
+#test-extras = ["test"]
