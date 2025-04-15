@@ -38,7 +38,7 @@ if (NOT TARGET xmipp4-core)
 endif()
 
 # Find Python
-find_package(Python REQUIRED COMPONENTS Development)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 if(SKBUILD_PLATLIB_DIR)
 	set(PYTHON_INSTALL_DIR "${SKBUILD_PLATLIB_DIR}")
