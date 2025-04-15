@@ -63,7 +63,7 @@ jobs:
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
           CIBW_BEFORE_BUILD: | # TODO remove when xmipp4-core is available in PyPI
-            pip install git+https://github.com/gigabit-clowns/xmipp4-core@olz_build_wheel -vvv
+            pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
 
       - name: List wheels
         run: ls -l ./wheelhouse
