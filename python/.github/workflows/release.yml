@@ -21,7 +21,7 @@
 #  e-mail address 'xmipp@cnb.csic.es'
 # ***************************************************************************
 
-name: Build wheels and source distribution
+name: Generate release
 
 on:
   workflow_dispatch:
