@@ -43,10 +43,10 @@ jobs:
 
       - name: Install xmipp4-core
         run: |
-          pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
+          pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -v
 
       - name: Install with pip
-        run: pip install .[test] -vvv -Ccmake.define.BUILD_TESTING=ON
+        run: pip install .[test] -v -Ccmake.define.BUILD_TESTING=ON
       
       - name: Show library version from Python
         run: python -c "import xmipp4; print(xmipp4.__version__)"

@@ -34,7 +34,7 @@ jobs:
 
       - name: Install xmipp4-core
         run: |
-          pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
+          pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -v
 
       - name: Configure and build with CMake
         uses: threeal/cmake-action@v2
