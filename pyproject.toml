@@ -51,7 +51,7 @@ classifiers = [
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 
-requires-python = ">=3.9"
+requires-python = ">=3.7"
 dependencies = ["xmipp4-core==0.*"]
 
 [project.optional-dependencies]
@@ -64,7 +64,7 @@ Issues = "https://github.com/gigabit-clowns/xmipp4-binding-python/issues"
 [tool.scikit-build]
 experimental=true # For wheel.install-dir
 wheel.install-dir="/data"
-cmake.version = ">=3.16"
+cmake.version = ">=3.18"
 cmake.args = []
 cmake.verbose = false
 cmake.build-type = "Release"
