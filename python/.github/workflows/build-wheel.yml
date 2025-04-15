@@ -24,6 +24,8 @@
 name: Build wheels and source distribution
 
 on:
+  pull_request:
+
   workflow_dispatch:
 
 jobs:
@@ -33,28 +35,18 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            architectures: "x86_64 i686 ppc64le s390x"
-            use_qemu: true
+            architectures: "x86_64 i686"
           - os: ubuntu-24.04-arm
             architectures: "aarch64"
-            use_qemu: false
           - os: macos-latest
             architectures: "x86_64 arm64 universal2"
-            use_qemu: false
           - os: windows-latest
             architectures: "AMD64 x86 ARM64"
-            use_qemu: false
 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        if: matrix.use_qemu
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.23.2
