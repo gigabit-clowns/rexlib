@@ -73,5 +73,5 @@ cmake.build-type = "Release"
 BUILD_TESTING = "OFF"
 
 [tool.cibuildwheel]
-#test-command = "{project}/scripts/run_test.sh"
+#test-command = "{project}/scripts/run_test.sh" # TODO add when xmipp4-core is in PyPI
 #test-extras = ["test"]
