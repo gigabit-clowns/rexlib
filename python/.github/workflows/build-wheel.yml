@@ -24,6 +24,8 @@
 name: Build wheels and source distribution
 
 on:
+  pull_request:
+
   workflow_dispatch:
 
 jobs:
