@@ -24,9 +24,7 @@
 name: Build wheels and source distribution
 
 on:
-  push:
-    branches:
-      - main
+  pull_request:
   
   workflow_dispatch:
 
@@ -64,7 +62,9 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
-    
+          CIBW_BEFORE_BUILD: |
+            pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv # TODO Remove when core is in PyPI
+
       - name: List wheels
         run: ls -l ./wheelhouse
       
