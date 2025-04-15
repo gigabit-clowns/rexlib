@@ -66,9 +66,6 @@ jobs:
             pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
           CIBW_REPAIR_WHEEL_COMMAND: "" # TODO remove when xmipp4-core is available in PyPI
 
-      - name: List wheels
-        run: ls -l ./wheelhouse
-      
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -89,4 +86,20 @@ jobs:
           name: cibw-sdist
           path: dist/*.tar.gz
 
-  # TODO add here the distribution job
+  upload_pypi:
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    # TODO add condition to run only when releasing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -l ./dist
+
+      - name: Upload to PyPI
+        if: false
+        uses: pypa/gh-action-pypi-publish@release/v1 # TODO enable this in the future
