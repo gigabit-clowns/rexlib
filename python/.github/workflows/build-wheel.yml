@@ -62,8 +62,8 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
-          CIBW_BEFORE_BUILD: |
-            pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv # TODO Remove when core is in PyPI
+          CIBW_BEFORE_BUILD: | # TODO remove when xmipp4-core is available in PyPI
+            pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
 
       - name: List wheels
         run: ls -l ./wheelhouse
