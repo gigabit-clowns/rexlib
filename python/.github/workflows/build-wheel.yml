@@ -59,7 +59,7 @@ jobs:
           platforms: all
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22
+        uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
           CIBW_BEFORE_BUILD: | # TODO remove when xmipp4-core is available in PyPI
