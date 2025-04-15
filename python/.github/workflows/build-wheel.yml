@@ -59,13 +59,12 @@ jobs:
           platforms: all
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.2
+        uses: pypa/cibuildwheel@v2.22
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
           CIBW_BEFORE_BUILD: | # TODO remove when xmipp4-core is available in PyPI
             pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -vvv
           CIBW_REPAIR_WHEEL_COMMAND: "" # TODO remove when xmipp4-core is available in PyPI
-          CIBW_ENABLE: cpython-prerelease
 
       - name: List wheels
         run: ls -l ./wheelhouse
