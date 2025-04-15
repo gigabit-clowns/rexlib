@@ -30,7 +30,7 @@ on:
 
 jobs:
   build_wheels:
-    name: Build wheels for ${{ matrix.os }} ${{ matrix.architectures }}
+    name: Build wheels for ${{ matrix.os }} (${{ matrix.architectures }})
     strategy:
       matrix:
         include:
