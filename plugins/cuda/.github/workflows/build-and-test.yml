@@ -5,11 +5,9 @@ on:
   
   workflow_dispatch:
 
-env:
-  BUILD_TYPE: Release
-
 jobs:
-  build:
+  build_with_cmake:
+    name: CMake
     strategy:
       matrix:
         os:
@@ -29,6 +27,8 @@ jobs:
           cuda: 12.8.1
   
     runs-on: ${{ matrix.os }}
+    env:
+      BUILD_TYPE: Release
     defaults:
       run:
         shell: bash -el {0}
