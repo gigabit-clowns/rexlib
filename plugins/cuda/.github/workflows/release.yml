@@ -3,10 +3,6 @@ name: Generate release
 on:
   workflow_dispatch:
 
-  pull_request:
-    branches:
-      - main
-
 jobs:
   tag_and_release:
     uses: gigabit-clowns/xmipp4-core/.github/workflows/release.yml@main
