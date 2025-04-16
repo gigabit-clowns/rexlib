@@ -1,4 +1,4 @@
-name: Generate release
+name: Deploy release
 
 on:
   release:
