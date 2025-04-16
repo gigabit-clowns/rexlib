@@ -19,7 +19,10 @@
 # ***************************************************************************
 
 [build-system]
-requires = ["scikit-build-core==0.10"]
+requires = [
+    "scikit-build-core==0.10",
+    "xmipp4-core @ https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip" # TODO replace when xmipp4-core is in PyPI
+]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -47,7 +50,7 @@ license = {file = "LICENSE"}
 
 requires-python = ">=3.7"
 dependencies = [ 
-    "xmipp4-core==0.1"
+    "xmipp4-core @ https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip" # TODO replace when xmipp4-core is in PyPI
 ]
 
 [project.urls]
@@ -56,6 +59,7 @@ Homepage = "https://github.com/gigabit-clowns/xmipp4-compute-cuda"
 [tool.scikit-build]
 experimental=true # For wheel.install-dir
 wheel.install-dir="/data"
+wheel.py-api = "py3" # Python version agnostic
 cmake.version = ">=3.16"
 cmake.args = []
 cmake.verbose = false

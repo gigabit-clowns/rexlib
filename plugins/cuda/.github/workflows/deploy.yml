@@ -1,0 +1,97 @@
+name: Deploy release
+
+on:
+  release:
+    types: 
+      - published
+  workflow_dispatch:
+
+jobs:
+  build_wheel_manylinux:
+    name: Build wheels for manylinux_${{ matrix.platform.architecture }} ${{ matrix.cuda-version.wheel-suffix }}
+    strategy:
+      matrix:
+        cuda-version:
+        - { wheel-suffix: "cu114", toolkit-package-suffix: "11-4" }
+        - { wheel-suffix: "cu118", toolkit-package-suffix: "11-8" }
+        - { wheel-suffix: "cu121", toolkit-package-suffix: "12-1" }
+        platform:
+        - { runner: "ubuntu-latest", architecture: "x86_64", repo-architecture: "x86_64"}
+        - { runner: "ubuntu-24.04-arm", architecture: "aarch64", repo-architecture: "sbsa"}
+
+    runs-on: ${{ matrix.platform.runner }}
+    env:
+      RHEL8_NVIDIA_REPO: "https://developer.download.nvidia.com/compute/cuda/repos/rhel8/${{ matrix.platform.repo-architecture }}/cuda-rhel8.repo"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.13
+      
+      - name: Install pip dependencies
+        run: pip install toml
+
+      - name: Patch pyproject.toml with the CUDA suffix
+        run: >
+          python scripts/patch_cuda_suffix_pyproject.py
+          -i ./pyproject.toml
+          --suffix ${{ matrix.cuda-version.wheel-suffix }}
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.23.2
+        env:
+          CIBW_ARCHS: ${{ matrix.platform.architecture }}
+          CIBW_BUILD: "cp313-manylinux*" # Python agnostic, pick any version
+          CIBW_BUILD_VERBOSITY: 1
+          CIBW_BEFORE_ALL: | # Based on: https://stackoverflow.com/a/77212119
+            yum install -y wget
+            wget ${{ env.RHEL8_NVIDIA_REPO }} -O /etc/yum.repos.d/cuda.repo
+            yum clean all
+            yum -y install cuda-toolkit-${{ matrix.cuda-version.toolkit-package-suffix }}
+          CIBW_ENVIRONMENT: |
+            CUDACXX=/usr/local/cuda/bin/nvcc
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            auditwheel repair -w {dest_dir} {wheel}
+            --exclude "libxmipp4-core.so*"
+            --exclude "libcudart.so*"
+      
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: cibw-wheels-manylinux-${{ matrix.platform.architecture }}-${{ matrix.cuda-version.wheel-suffix }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build sdist
+        run: pipx run build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cibw-sdist
+          path: dist/*.tar.gz
+
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [build_sdist, build_wheel_manylinux]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: cibw-*
+          path: dist
+          merge-multiple: true
+
+      - name: List artifacts
+        run: ls -l ./dist
+
+      - name: Upload to PyPI
+        if: false && github.event_name == 'release' && github.event.action == 'published'
+        uses: pypa/gh-action-pypi-publish@release/v1 # TODO enable this in the future
