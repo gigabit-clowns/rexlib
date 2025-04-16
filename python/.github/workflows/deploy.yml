@@ -30,9 +30,15 @@ jobs:
         uses: pypa/cibuildwheel@v2.23.2
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
-          CIBW_BEFORE_BUILD: | # TODO remove when xmipp4-core is available in PyPI
+          CIBW_BEFORE_BUILD_WINDOWS: | # FIXME this should not be required
             pip install git+https://github.com/gigabit-clowns/xmipp4-core@main
-          CIBW_REPAIR_WHEEL_COMMAND: "" # TODO remove when xmipp4-core is available in PyPI
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
+            auditwheel repair -w {dest_dir} {wheel} 
+            --exclude "libxmipp4-core.so*"
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
+            delocate-wheel --require-archs {delocate_archs} 
+            -w {dest_dir} -v {wheel}
+            --ignore-missing-dependencies
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4

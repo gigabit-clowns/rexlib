@@ -19,7 +19,10 @@
 # ***************************************************************************
 
 [build-system]
-requires = ["scikit-build-core==0.10"]
+requires = [
+    "scikit-build-core==0.10",
+    "xmipp4-core @ https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip" # TODO replace when xmipp4-core is in PyPI
+]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -52,7 +55,9 @@ readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 
 requires-python = ">=3.7"
-dependencies = ["xmipp4-core==0.*"]
+dependencies = [
+    "xmipp4-core @ https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip" # TODO replace when xmipp4-core is in PyPI
+] 
 
 [project.optional-dependencies]
 test = ["pytest>=8.3.5"]
