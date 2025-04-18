@@ -84,7 +84,7 @@ jobs:
   upload_pypi:
     name: Upload to PyPI
     needs: [build_sdist, build_wheel_manylinux]
-    if: startsWith(github.event.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -97,8 +97,8 @@ jobs:
         run: ls -l ./dist
 
       - name: Upload to PyPI # TODO enable this in the future
-        run: echo I should be uploading here
-        #uses: pypa/gh-action-pypi-publish@release/v1
+        if: false
+        uses: pypa/gh-action-pypi-publish@release/v1
 
   create_developer_release:
     name: Create development release
