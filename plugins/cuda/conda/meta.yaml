@@ -22,6 +22,11 @@
 
 # File based on:
 # https://github.com/pybind/cmake_example/blob/master/conda.recipe/meta.yaml
+# https://scikit-build-core.readthedocs.io/en/stable/faqs.html#making-a-conda-recipe
+# https://docs.conda.io/projects/conda-build/en/stable/resources/define-metadata.html#loading-data-from-other-files
+
+{% set version_match = load_file_regex(load_file="VERSION", regex_pattern='(\\d+\\.\\d+\\.\\d+)') %}
+{% set version = version_match[1] %}
 
 package:
   name: xmipp4-compute-cuda
@@ -35,6 +40,9 @@ source:
   path: ../
 
 requirements:
+  run:
+    - xmipp4-core=0.1
+
   host:
     - python
     - pip
