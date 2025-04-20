@@ -27,7 +27,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "xmipp4-binding-python"
-version = "0.1.0"
+dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
     { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
@@ -76,6 +76,11 @@ cmake.build-type = "Release"
 
 [tool.scikit-build.cmake.define]
 BUILD_TESTING = "OFF"
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "VERSION"
+regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
 
 [tool.cibuildwheel]
 #test-command = "{project}/scripts/run_test.sh" # TODO add when xmipp4-core is in PyPI
