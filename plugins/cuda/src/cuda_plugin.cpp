@@ -55,7 +55,7 @@ version cuda_plugin::get_version() const noexcept
 void cuda_plugin::register_at(interface_catalog& catalog) const
 {
     compute::cuda_device_backend::register_at(
-        catalog.get_interface_manager<compute::device_manager>()
+        catalog.get_backend_manager<compute::device_manager>()
     );
 }
 
