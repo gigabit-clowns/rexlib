@@ -35,7 +35,7 @@ namespace compute
 
 static device_manager& get_device_manager(interface_catalog &catalog)
 {
-    return catalog.get_interface_manager<device_manager>();
+    return catalog.get_backend_manager<device_manager>();
 }
 
 

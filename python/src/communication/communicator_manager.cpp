@@ -34,7 +34,7 @@ namespace communication
 
 static communicator_manager& get_communicator_manager(interface_catalog &catalog)
 {
-    return catalog.get_interface_manager<communicator_manager>();
+    return catalog.get_backend_manager<communicator_manager>();
 }
 
 
