@@ -46,8 +46,12 @@ jobs:
           log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
       - name: Install xmipp4-core
+        working-directory: ${{ github.workspace }}/../
         run: |
-          pip install git+https://github.com/gigabit-clowns/xmipp4-core@main -v
+          git clone https://github.com/gigabit-clowns/xmipp4-core.git
+          cd xmipp4-core
+          git checkout tags/development
+          pip install --no-index --find-links=dist xmipp4-core
 
       - name: Configure and build with CMake
         uses: threeal/cmake-action@v2

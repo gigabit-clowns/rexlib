@@ -60,6 +60,8 @@ jobs:
             auditwheel repair -w {dest_dir} {wheel}
             --exclude "libxmipp4-core.so*"
             --exclude "libcudart.so*"
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
+          CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
       
       - name: Upload wheels
         uses: actions/upload-artifact@v4
