@@ -16,13 +16,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            architectures: "x86_64 i686"
+            architectures: "x86_64"
           - os: ubuntu-24.04-arm
             architectures: "aarch64"
           - os: macos-latest
             architectures: "x86_64 arm64 universal2"
           - os: windows-latest
-            architectures: "AMD64 x86 ARM64"
+            architectures: "AMD64 ARM64"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -42,6 +42,8 @@ jobs:
             delocate-wheel --require-archs {delocate_archs} 
             -w {dest_dir} -v {wheel}
             --ignore-missing-dependencies
+          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
+          CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
