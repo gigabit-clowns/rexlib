@@ -21,7 +21,7 @@
 [build-system]
 requires = [
     "scikit-build-core==0.10",
-    "xmipp4-core==0.1"
+    "xmipp4-core==0.1.*"
 ]
 build-backend = "scikit_build_core.build"
 
