@@ -29,6 +29,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install xmipp4-core # TODO: Remove this when xmipp4-core is in Pypi
+        working-directory: ${{ github.workspace }}/../
+        run: |
+          git clone https://github.com/gigabit-clowns/xmipp4-core.git
+          cd xmipp4-core
+          git checkout tags/development
+          pip install --no-index --find-links=dist xmipp4-core
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.0.0
         env:
@@ -54,6 +62,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install xmipp4-core # TODO: Remove this when xmipp4-core is in Pypi
+        working-directory: ${{ github.workspace }}/../
+        run: |
+          git clone https://github.com/gigabit-clowns/xmipp4-core.git
+          cd xmipp4-core
+          git checkout tags/development
+          pip install --no-index --find-links=dist xmipp4-core
 
       - name: Build sdist
         run: pipx run build --sdist
