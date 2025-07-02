@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.3
+        uses: pypa/cibuildwheel@v3.0.0
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
           CIBW_BEFORE_BUILD_WINDOWS: | # FIXME this should not be required
@@ -42,8 +42,6 @@ jobs:
             delocate-wheel --require-archs {delocate_archs} 
             -w {dest_dir} -v {wheel}
             --ignore-missing-dependencies
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
-          CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
