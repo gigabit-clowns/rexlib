@@ -29,18 +29,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install xmipp4-core # TODO: Remove this when xmipp4-core is in Pypi
-        working-directory: ${{ github.workspace }}/../
+      - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
         run: |
-          git clone https://github.com/gigabit-clowns/xmipp4-core.git
-          cd xmipp4-core
+          git clone https://github.com/gigabit-clowns/xmipp4-core.git ./local_deps/xmipp4-core
+          cd ./local_deps/xmipp4-core
           git checkout tags/development
-          pip install --no-index --find-links=dist xmipp4-core
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.0.0
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
+          CIBW_ENVIRONMENT: 'PIP_FIND_LINKS=local_deps/xmipp4-core/dist' # TODO: Remove when xmipp4-core is in Pypi
           CIBW_BEFORE_BUILD_WINDOWS: | # FIXME this should not be required
             pip install git+https://github.com/gigabit-clowns/xmipp4-core@main
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
@@ -63,16 +62,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install xmipp4-core # TODO: Remove this when xmipp4-core is in Pypi
+      - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
         working-directory: ${{ github.workspace }}/../
         run: |
           git clone https://github.com/gigabit-clowns/xmipp4-core.git
           cd xmipp4-core
           git checkout tags/development
-          pip install --no-index --find-links=dist xmipp4-core
+
+      - name: Install build tool # TODO: Remove when xmipp4-core is in Pypi
+        run: pip install build
 
       - name: Build sdist
-        run: pipx run build --sdist
+        env: # TODO: Remove when xmipp4-core is in Pypi
+          PIP_FIND_LINKS: "${{ github.workspace }}/../xmipp4-core/dist"
+        run: python -m build --sdist # TODO: Remove when xmipp4-core is in Pypi
+        # run: pipx run build --sdist # TODO: Enable when xmipp4-core is in Pypi
 
       - uses: actions/upload-artifact@v4
         with:
