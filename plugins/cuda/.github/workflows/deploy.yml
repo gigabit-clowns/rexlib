@@ -28,12 +28,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.13
-      
+
       - name: Install pip dependencies
         run: pip install toml
 
@@ -44,7 +44,7 @@ jobs:
           --suffix ${{ matrix.cuda-version.wheel-suffix }}
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.23.3
+        uses: pypa/cibuildwheel@v3.0.1
         env:
           CIBW_ARCHS: ${{ matrix.platform.architecture }}
           CIBW_BUILD: "cp313-manylinux*" # Python agnostic, pick any version
@@ -60,9 +60,7 @@ jobs:
             auditwheel repair -w {dest_dir} {wheel}
             --exclude "libxmipp4-core.so*"
             --exclude "libcudart.so*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
-          CIBW_MANYLINUX_PYPY_AARCH64_IMAGE: manylinux_2_28 # TODO remove when it becomes default
-      
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
@@ -121,7 +119,7 @@ jobs:
           pattern: "cibw-*"
           path: dist
           merge-multiple: true
-      
+
       - name: Create or update development tag
         run: |
           git config --global user.name 'GitHub Actions'
@@ -130,6 +128,14 @@ jobs:
           git commit -m "Add pre-built binaries"
           git tag -fa $TAG_NAME -m 'Update development tag with main branch'
           git push origin $TAG_NAME --force
+
+      - name: Delete all old assets from development release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view $TAG_NAME --json assets -q ".assets[].name" | while read asset; do
+            gh release delete-asset $TAG_NAME "$asset" -y
+          done
 
       - name: Create or update development release
         uses: softprops/action-gh-release@v2
