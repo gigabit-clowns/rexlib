@@ -4,6 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # TODO: Remove when update to a higher, working
+      # version of this dependency has been implemented into the project
+      - dependency-name: "Jimver/cuda-toolkit"
+        versions: ["0.2.25", "0.2.26"]
     groups:
       # Group all non-major updates into a single Pull Request
       minor-and-patch:
