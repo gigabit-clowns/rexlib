@@ -121,7 +121,7 @@ jobs:
           pattern: "cibw-*"
           path: dist
           merge-multiple: true
-      
+
       - name: Create or update development tag
         run: |
           git config --global user.name 'GitHub Actions'
@@ -130,6 +130,14 @@ jobs:
           git commit -m "Add pre-built binaries"
           git tag -fa $TAG_NAME -m 'Update development tag with main branch'
           git push origin $TAG_NAME --force
+
+      - name: Delete all old assets from development release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view $TAG_NAME --json assets -q ".assets[].name" | while read asset; do
+            gh release delete-asset $TAG_NAME "$asset" -y
+          done
 
       - name: Create or update development release
         uses: softprops/action-gh-release@v2
