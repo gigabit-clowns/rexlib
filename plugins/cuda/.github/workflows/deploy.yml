@@ -54,8 +54,9 @@ jobs:
             wget ${{ env.RHEL8_NVIDIA_REPO }} -O /etc/yum.repos.d/cuda.repo
             yum clean all
             yum -y install cuda-toolkit-${{ matrix.cuda-version.toolkit-package-suffix }}
-          CIBW_ENVIRONMENT: |
+          CIBW_ENVIRONMENT: >
             CUDACXX=/usr/local/cuda/bin/nvcc
+            CUDAHOSTCXX=/usr/bin/g++
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             auditwheel repair -w {dest_dir} {wheel}
             --exclude "libxmipp4-core.so*"
