@@ -36,7 +36,7 @@ license = {file = "LICENSE"}
 
 requires-python = ">=3.7"
 dependencies = [
-    "xmipp4-core==0.1"
+    "xmipp4-core==0.1.*"
 ] 
 
 [project.optional-dependencies]
