@@ -49,6 +49,8 @@ jobs:
           CIBW_ENVIRONMENT: 'PIP_FIND_LINKS=local_deps/xmipp4-core/dist' # TODO: Remove when xmipp4-core is in Pypi
           CIBW_BEFORE_BUILD_WINDOWS: | # FIXME this should not be required
             pip install git+https://github.com/gigabit-clowns/xmipp4-core@main
+          CIBW_TEST_SKIP: "*-win_arm64" # Windows on ARM cannot be tested, raises warning
+          CIBW_SKIP: "cp3??t-win*" # Skip Python free-threaded builds on Windows
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             auditwheel repair -w {dest_dir} {wheel} 
             --exclude "libxmipp4-core.so*"
