@@ -7,6 +7,6 @@
 namespace xmipp4
 {
 
-void bind_interface_catalog(pybind11::module_ &m);
+void bind_service_catalog(pybind11::module_ &m);
 
 } // namespace xmipp4

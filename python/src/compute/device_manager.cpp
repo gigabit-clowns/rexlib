@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/compute/device_manager.hpp>
 
-#include <xmipp4/core/interface_catalog.hpp>
+#include <xmipp4/core/service_catalog.hpp>
 #include <xmipp4/core/compute/device_create_parameters.hpp>
 #include <xmipp4/core/compute/device.hpp>
 
@@ -15,9 +15,9 @@ namespace xmipp4
 namespace compute
 {
 
-static device_manager& get_device_manager(interface_catalog &catalog)
+static device_manager& get_device_manager(service_catalog &catalog)
 {
-    return catalog.get_backend_manager<device_manager>();
+    return catalog.get_service_manager<device_manager>();
 }
 
 

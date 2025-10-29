@@ -28,10 +28,10 @@ def test_plugin_manager_discovers_plugins():
     'Plugin(name="dummy-plugin2", version="4.5.6")',
   }
 
-def test_interface_catalog_constructor():
+def test_service_catalog_constructor():
   assert xmipp4.InterfaceCatalog() is not None
 
-def test_interface_catalog_registers_plugins_without_plugins():
+def test_service_catalog_registers_plugins_without_plugins():
   ir = xmipp4.InterfaceCatalog()
   pm = xmipp4.PluginManager()
   n_plugins = ir.register_plugins(pm)

@@ -27,7 +27,7 @@ class dummy_plugin1 final
         return version(1, 2, 3);
     }
 
-    void register_at(interface_catalog&) const
+    void register_at(service_catalog&) const
     {
         // NO-OP
     }
