@@ -29,10 +29,10 @@ def test_plugin_manager_discovers_plugins():
   }
 
 def test_service_catalog_constructor():
-  assert xmipp4.InterfaceCatalog() is not None
+  assert xmipp4.ServiceCatalog() is not None
 
 def test_service_catalog_registers_plugins_without_plugins():
-  ir = xmipp4.InterfaceCatalog()
+  ir = xmipp4.ServiceCatalog()
   pm = xmipp4.PluginManager()
   n_plugins = ir.register_plugins(pm)
   assert n_plugins == 0

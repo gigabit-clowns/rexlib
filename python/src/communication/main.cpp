@@ -14,8 +14,8 @@ namespace py = pybind11;
 
 void bind_communication(pybind11::module_ &m)
 {
-    bind_communicator_manager(m);
-    bind_communicator(m);
+	bind_communicator_manager(m);
+	bind_communicator(m);
 }
 
 } // namespace communication

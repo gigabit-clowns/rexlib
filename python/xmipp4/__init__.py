@@ -7,11 +7,11 @@ from .load_core import load_core
 __core_lib = load_core()
 
 from ._core_binding import (
-    __doc__, __version__, 
-    communication, compute, image,
-    InterfaceCatalog,
-    PluginManager, Plugin, get_plugin_directory, get_default_plugin_directory,
-    Version
+	__doc__, __version__, 
+	communication, hardware,
+	ServiceCatalog,
+	PluginManager, Plugin, get_plugin_directory, get_default_plugin_directory,
+	Version
 )
 
-__all__ = ["__doc__", "__version__", "compute", "Version"]
+__all__ = ["__doc__", "__version__", "hardware", "Version"]

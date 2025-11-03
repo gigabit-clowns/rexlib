@@ -6,10 +6,10 @@
 
 namespace xmipp4
 {
-namespace image
+namespace hardware
 {
 
-void bind_location(pybind11::module_ &m);
+void bind_device_type(pybind11::module_ &m);
 
-} // namespace image
+} // namespace hardware
 } // namespace xmipp4

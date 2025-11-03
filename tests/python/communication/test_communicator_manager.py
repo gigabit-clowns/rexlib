@@ -22,4 +22,4 @@ def test_returns_default_backends(__setup_service_catalog):
 
 @pytest.fixture
 def __setup_service_catalog():
-  return xmipp4.InterfaceCatalog()
+  return xmipp4.ServiceCatalog()

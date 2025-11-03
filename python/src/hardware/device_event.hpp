@@ -6,10 +6,10 @@
 
 namespace xmipp4
 {
-namespace compute
+namespace hardware
 {
 
-void bind_device_to_host_event(pybind11::module_ &m);
+void bind_device_event(pybind11::module_ &m);
 
-} // namespace compute
+} // namespace hardware
 } // namespace xmipp4
