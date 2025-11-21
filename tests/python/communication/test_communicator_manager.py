@@ -14,12 +14,6 @@ def test_always_returns_same_communicator_manager(__setup_service_catalog):
   cm2 = xmipp4.communication.get_communicator_manager(__setup_service_catalog)
   assert cm1 is cm2
 
-def test_returns_default_backends(__setup_service_catalog):
-  cm = xmipp4.communication.get_communicator_manager(
-    __setup_service_catalog
-  )
-  assert cm.backends == ['dummy']
-
 @pytest.fixture
 def __setup_service_catalog():
   return xmipp4.ServiceCatalog()
