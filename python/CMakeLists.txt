@@ -11,14 +11,30 @@ project(
 
 # Include CTest to provide BUILD_TESTING option
 include(CTest)
+include(FetchContent)
+include(GNUInstallDirs)
+
+# Declare build options
+#option(XMIPP4_BINDING_PYTHON_BUILD_DOC "Build documentation" ON)
+
+# Set the module path
+#list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+
+# Find Python
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
+
+# Obtain pybind11
+FetchContent_Declare(
+	pybind11
+	GIT_REPOSITORY https://github.com/pybind/pybind11
+	GIT_TAG v2.12.0
+)
+FetchContent_MakeAvailable(pybind11)
 
 # Find xmipp4-core
 if (NOT TARGET xmipp4-core)
 	find_package(xmipp4-core REQUIRED)
 endif()
-
-# Find Python
-find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 
 if(SKBUILD_PLATLIB_DIR)
 	set(PYTHON_INSTALL_DIR "${SKBUILD_PLATLIB_DIR}")
@@ -26,11 +42,9 @@ else()
 	set(PYTHON_INSTALL_DIR "${Python_SITEARCH}")
 endif()
 
-# Declare build options
-#option(XMIPP4_BINDING_PYTHON_BUILD_DOC "Build documentation" ON)
-
-# Set the module path
-#list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+# Set project-wide compilation options
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 
 # Add sources
 add_subdirectory(src)
