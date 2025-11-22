@@ -19,8 +19,6 @@ static communicator_manager& get_communicator_manager(service_catalog &catalog)
 	return catalog.get_service_manager<communicator_manager>();
 }
 
-
-
 namespace py = pybind11;
 
 void bind_communicator_manager(pybind11::module_ &m)

@@ -19,8 +19,6 @@ static device_manager& get_device_manager(service_catalog &catalog)
 	return catalog.get_service_manager<device_manager>();
 }
 
-
-
 namespace py = pybind11;
 
 void bind_device_manager(pybind11::module_ &m)

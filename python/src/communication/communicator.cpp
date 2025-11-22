@@ -18,8 +18,8 @@ void bind_communicator(pybind11::module_ &m)
 		.def_property_readonly("size", &communicator::get_size)
 		.def(
 			"split", 
-			&communicator::split, 
-			py::arg("color"), 
+			&communicator::split,
+			py::arg("color"),
 			py::arg("key"),
 			py::keep_alive<0, 1>()
 		)
