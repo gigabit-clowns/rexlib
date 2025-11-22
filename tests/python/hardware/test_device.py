@@ -4,12 +4,13 @@ import pytest
 
 import xmipp4
 
-def test_returns_device(__setup_device_manager):
-  assert __setup_device_manager.create_device(
-    xmipp4.hardware.DeviceIndex('cpu', 0)
-  ) is not None
+def test_should_allow_inheriting_from_device(__setup_device):
+	assert isinstance(__setup_device, xmipp4.hardware.Device)
 
 @pytest.fixture
-def __setup_device_manager():
-  ir = xmipp4.ServiceCatalog()
-  return xmipp4.hardware.get_device_manager(ir)
+def __setup_device():
+	class DeviceMock(xmipp4.hardware.Device):
+		pass
+	
+
+	return DeviceMock()

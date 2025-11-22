@@ -7,10 +7,10 @@ import pytest
 import xmipp4
 
 def test_constructor_from_params():
-  xmipp4.hardware.DeviceIndex('host', 0) is not None
+  assert xmipp4.hardware.DeviceIndex('host', 0) is not None
 
 def test_constructor_from_string():
-  xmipp4.hardware.DeviceIndex('cuda:0') is not None
+  assert xmipp4.hardware.DeviceIndex('cuda:0') is not None
 
 @pytest.mark.parametrize(
   "backend, device_id",

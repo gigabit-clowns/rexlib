@@ -9,7 +9,7 @@ namespace xmipp4
 namespace hardware
 {
 
-void bind_compute(pybind11::module_ &m);
+void bind_hardware(pybind11::module_ &m);
 
 } // namespace hardware
 } // namespace xmipp4

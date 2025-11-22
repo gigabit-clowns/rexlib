@@ -1,6 +1,20 @@
 # Python binding for the core of Xmipp4
 This binding acts as an interface between the C++ interface functions of [Xmipp4's core](https://github.com/gigabit-clowns/xmipp4-core) and the clients, written in Python.
 
+## Install
+To install this package, simply run:
+```
+pip install xmipp4-binding-python
+```
+To install in development mode, you will first need to install `xmipp4-core` in your current environment, and then, from the root of this project, run:
+```
+CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) pip install . --no-build-isolation -v -Ccmake.define.BUILD_TESTING=ON
+```
+To run the tests for this project (only avaiable when installed in development mode), run:
+```
+./scripts/run-tests.sh
+```
+
 ## SonarCloud status
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
 

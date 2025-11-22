@@ -18,7 +18,7 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_compute(pybind11::module_ &m)
+void bind_hardware(pybind11::module_ &m)
 {
 	bind_device(m);
 	bind_device_event(m);
