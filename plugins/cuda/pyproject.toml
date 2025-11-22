@@ -6,14 +6,14 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "xmipp4-compute-cuda"
+name = "xmipp4-hardware-cuda"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
     { name = "Martín Salinas Antón", email = "ssalinasmartin@gmail.com" },
     { name = "Mikel Iceta Tena", email = "m.icetatena@gmail.com" },
 ]
-description = "CUDA compute backend for xmipp4"
+description = "CUDA hardware backend for xmipp4"
 classifiers = [
 	"Topic :: Scientific/Engineering :: Image Processing",
     "Intended Audience :: Science/Research",
@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/gigabit-clowns/xmipp4-compute-cuda"
+Homepage = "https://github.com/gigabit-clowns/xmipp4-hardware-cuda"
 
 [tool.scikit-build]
 experimental=true # For wheel.install-dir

@@ -16,8 +16,8 @@ file(
 
 # Add the test executable
 add_executable(
-    ${TESTS_NAME}
-    ${TEST_SOURCES}
+	${TESTS_NAME}
+	${TEST_SOURCES}
 )
 set_target_properties(
 	${TESTS_NAME} PROPERTIES 

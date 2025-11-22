@@ -1,4 +1,6 @@
 name: Build and Test
+permissions:
+  contents: read
 
 on:
   pull_request:
@@ -6,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_with_cmake:
+  build_and_test_with_cmake:
     name: CMake
     strategy:
       matrix:
@@ -62,9 +64,35 @@ jobs:
           cxx-compiler: ${{ matrix.compiler.cxx }}
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+            CMAKE_EXPORT_COMPILE_COMMANDS=ON
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
       - name: Run tests
         working-directory: "${{ github.workspace }}/build"
         run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
+
+      - name: Upload compilation database (ubuntu-latest + gcc only)
+        uses: actions/upload-artifact@v5
+        if: matrix.os == 'ubuntu-latest' && matrix.compiler.cc == 'gcc'
+        with:
+          name: build-artifact
+          path: build
+
+  sonar-scan:
+    name: SonarQube scan
+    needs: build_and_test_with_cmake
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: build-artifact
+          path: ${{ github.workspace }}/build
+    
+      - name: SonarQube scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
