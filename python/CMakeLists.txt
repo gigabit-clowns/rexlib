@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.18)
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
 project(
-  xmipp4-binding-python
+  xmipp4-python
 	VERSION ${PROJECT_VERSION}
 	LANGUAGES C CXX
 )
@@ -15,7 +15,7 @@ include(FetchContent)
 include(GNUInstallDirs)
 
 # Declare build options
-#option(XMIPP4_BINDING_PYTHON_BUILD_DOC "Build documentation" ON)
+#option(XMIPP4_PYTHON_BUILD_DOC "Build documentation" ON)
 
 # Set the module path
 #list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)

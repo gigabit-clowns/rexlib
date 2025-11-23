@@ -4,7 +4,7 @@ This binding acts as an interface between the C++ interface functions of [Xmipp4
 ## Install
 To install this package, simply run:
 ```
-pip install xmipp4-binding-python
+pip install xmipp4-python
 ```
 To install in development mode, you will first need to install `xmipp4-core` in your current environment, and then, from the root of this project, run:
 ```
@@ -16,17 +16,17 @@ To run the tests for this project (only avaiable when installed in development m
 ```
 
 ## SonarCloud status
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
 
 ### Ratings
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
 
 ### Specific metrics
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=bugs)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-binding-python&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-binding-python)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=bugs)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)

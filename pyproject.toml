@@ -6,7 +6,7 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "xmipp4-binding-python"
+name = "xmipp4-python"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
@@ -42,8 +42,8 @@ dependencies = [
 test = ["pytest>=8.3.5"]
 
 [project.urls]
-Homepage = "https://github.com/gigabit-clowns/xmipp4-binding-python"
-Issues = "https://github.com/gigabit-clowns/xmipp4-binding-python/issues"
+Homepage = "https://github.com/gigabit-clowns/xmipp4-python"
+Issues = "https://github.com/gigabit-clowns/xmipp4-python/issues"
 
 [tool.scikit-build]
 experimental=true # For wheel.install-dir
