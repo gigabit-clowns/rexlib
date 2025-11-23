@@ -13,20 +13,7 @@ class cuda_host_pinned_memory_resource final
 	: public memory_resource
 {
 public:
-	cuda_host_pinned_memory_resource(
-		const cuda_host_pinned_memory_resource &other
-	) = delete; 
-	cuda_host_pinned_memory_resource(
-		cuda_host_pinned_memory_resource &&other
-	) = delete; 
 	~cuda_host_pinned_memory_resource() override = default;
-	
-	cuda_host_pinned_memory_resource& operator=(
-		const cuda_host_pinned_memory_resource &other
-	) = delete;
-	cuda_host_pinned_memory_resource& operator=(
-		cuda_host_pinned_memory_resource &&other
-	) = delete;
 
 	device* get_target_device() const noexcept override;
 

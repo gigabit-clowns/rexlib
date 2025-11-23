@@ -20,8 +20,6 @@ class cuda_device_memory_resource final
 {
 public:
 	explicit cuda_device_memory_resource(cuda_device &device) noexcept;
-	cuda_device_memory_resource(const cuda_device_memory_resource &other) = default;
-	cuda_device_memory_resource(cuda_device_memory_resource &&other) = default;
 	~cuda_device_memory_resource() override = default;
 
 	cuda_device_memory_resource&
