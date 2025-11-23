@@ -14,7 +14,7 @@
 namespace xmipp4 
 {
 
-const std::string cuda_plugin::name = "xmipp4-hardware-cuda";
+const std::string cuda_plugin::name = "xmipp4-cuda";
 
 const std::string& cuda_plugin::get_name() const noexcept
 {

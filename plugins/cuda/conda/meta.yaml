@@ -7,7 +7,7 @@
 {% set version = version_match[1] %}
 
 package:
-  name: xmipp4-hardware-cuda
+  name: xmipp4-cuda
   version: "0.1.0"
 
 about:

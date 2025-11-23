@@ -13,17 +13,17 @@ using namespace xmipp4;
 static std::string get_cuda_plugin_path()
 {
 	#if XMIPP4_WINDOWS
-		return "xmipp4-hardware-cuda.dll";
+		return "xmipp4-cuda.dll";
 	#elif XMIPP4_LINUX
-		return "./libxmipp4-hardware-cuda.so";
+		return "./libxmipp4-cuda.so";
 	#elif XMIPP4_APPLE
-		return "./libxmipp4-hardware-cuda.dylib";
+		return "./libxmipp4-cuda.dylib";
 	#else
 		#error "Unknown platform"
 	#endif
 }
 
-TEST_CASE( "load and register xmipp4-hardware-cuda plugin", "[hardware-cuda]" ) 
+TEST_CASE( "load and register xmipp4-cuda plugin", "[cuda]" ) 
 {
 	plugin_manager manager;
 
@@ -31,5 +31,5 @@ TEST_CASE( "load and register xmipp4-hardware-cuda plugin", "[hardware-cuda]" )
 		manager.load_plugin(get_cuda_plugin_path());
 
 	REQUIRE( cuda_plugin != nullptr );
-	REQUIRE( cuda_plugin->get_name() == "xmipp4-hardware-cuda" );
+	REQUIRE( cuda_plugin->get_name() == "xmipp4-cuda" );
 }

@@ -32,7 +32,7 @@ class cuda_error
  * @param line Line where the error occurred.
  * 
  */
-XMIPP4_HARDWARE_CUDA_API
+XMIPP4_CUDA_API
 void cuda_check(
 	cudaError_t code, 
 	const char* call, 

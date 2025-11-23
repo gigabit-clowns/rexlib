@@ -15,7 +15,7 @@ class cuda_buffer final
 	: public buffer
 {
 public:
-	XMIPP4_HARDWARE_CUDA_API
+	XMIPP4_CUDA_API
 	cuda_buffer(
 		void *device_pointer,
 		void *host_pointer,
@@ -30,7 +30,7 @@ public:
 	 * 
 	 * @return void* Pointer to the data.
 	 */
-	XMIPP4_HARDWARE_CUDA_API
+	XMIPP4_CUDA_API
 	void* get_device_ptr() noexcept;
 
 	/**
@@ -38,7 +38,7 @@ public:
 	 * 
 	 * @return void* Pointer to the data.
 	 */
-	XMIPP4_HARDWARE_CUDA_API
+	XMIPP4_CUDA_API
 	const void* get_device_ptr() const noexcept;
 
 private:
