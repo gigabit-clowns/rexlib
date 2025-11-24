@@ -4,20 +4,16 @@ include(CTest)
 include(FetchContent)
 
 # Fetch Catch2
+cmake_policy(SET CMP0135 NEW) # To avoid warnings
 FetchContent_Declare(
 	Catch2
-	GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-	GIT_TAG        v3.5.4
+	URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.11.0.tar.gz
 )
-FetchContent_MakeAvailable(Catch2)
-
-# Fetch Trompeloeil
 FetchContent_Declare(
 	Trompeloeil
-	GIT_REPOSITORY https://github.com/rollbear/trompeloeil.git
-	GIT_TAG        v49
+	URL https://github.com/rollbear/trompeloeil/archive/refs/tags/v49.tar.gz
 )
-FetchContent_MakeAvailable(Trompeloeil)
+FetchContent_MakeAvailable(Catch2 Trompeloeil)
 
 include(Catch)
 
