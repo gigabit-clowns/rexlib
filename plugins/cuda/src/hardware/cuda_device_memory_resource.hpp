@@ -22,11 +22,6 @@ public:
 	explicit cuda_device_memory_resource(cuda_device &device) noexcept;
 	~cuda_device_memory_resource() override = default;
 
-	cuda_device_memory_resource&
-	operator=(const cuda_device_memory_resource &other) = default;
-	cuda_device_memory_resource&
-	operator=(cuda_device_memory_resource &&other) = default;
-
 	cuda_device* get_target_device() const noexcept override;
 
 	memory_resource_kind get_kind() const noexcept override;

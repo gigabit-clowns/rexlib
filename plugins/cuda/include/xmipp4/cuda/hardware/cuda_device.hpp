@@ -31,10 +31,11 @@ public:
 	int get_index() const noexcept;
 
 	XMIPP4_CUDA_API
-	void enumerate_memory_resources(
-		std::vector<memory_resource*> &resources
-	) override;
-	
+	memory_resource& get_device_local_memory_resource() noexcept override;
+
+	XMIPP4_CUDA_API
+	memory_resource& get_host_accessible_memory_resource() noexcept override;
+
 	XMIPP4_CUDA_API
 	std::shared_ptr<device_queue>
 	create_device_queue() override;
