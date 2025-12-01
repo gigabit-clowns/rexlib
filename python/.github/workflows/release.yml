@@ -6,4 +6,4 @@ on:
 jobs:
   tag_and_release:
     name: Generate new tag and GitHub release
-    uses: gigabit-clowns/xmipp4-core/.github/workflows/release.yml@main
+    uses: gigabit-clowns/.github/.github/workflows/release.yml@main
