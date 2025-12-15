@@ -93,6 +93,7 @@ bool cuda_device_backend::get_device_properties(
 		desc.set_physical_location(std::move(location));
 		desc.set_type(type);
 		desc.set_total_memory_bytes(prop.totalGlobalMem);
+		desc.set_optimal_data_alignment(256);
 	}
 
 	return result;
