@@ -73,7 +73,7 @@ jobs:
         run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
 
       - name: Upload compilation database (ubuntu-latest + gcc only)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         if: matrix.os == 'ubuntu-latest' && matrix.compiler.cc == 'gcc'
         with:
           name: build-artifact
