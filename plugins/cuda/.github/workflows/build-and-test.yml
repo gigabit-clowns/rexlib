@@ -1,6 +1,4 @@
 name: Build and Test
-permissions:
-  contents: read
 
 on:
   pull_request:
@@ -10,6 +8,8 @@ on:
 jobs:
   build_and_test_with_cmake:
     name: CMake
+    permissions:
+      contents: read
     strategy:
       matrix:
         os:
@@ -38,7 +38,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - uses: Jimver/cuda-toolkit@v0.2.29
+      - uses: Jimver/cuda-toolkit@v0.2.30
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda }}
@@ -81,6 +81,8 @@ jobs:
 
   sonar-scan:
     name: SonarQube scan
+    permissions:
+      contents: read
     needs: build_and_test_with_cmake
     runs-on: ubuntu-latest
     steps:
