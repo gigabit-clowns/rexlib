@@ -43,7 +43,7 @@ jobs:
           git checkout tags/development
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v3.3.0
+        uses: pypa/cibuildwheel@v3.3.1
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
           CIBW_ENVIRONMENT: 'PIP_FIND_LINKS=local_deps/xmipp4-core/dist' # TODO: Remove when xmipp4-core is in Pypi
