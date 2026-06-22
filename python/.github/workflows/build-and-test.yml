@@ -30,7 +30,7 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: Install xmipp4-core
         working-directory: ${{ github.workspace }}/../
@@ -41,7 +41,7 @@ jobs:
           pip install --no-index --find-links=dist xmipp4-core
       
       - name: Configure and build with CMake
-        uses: threeal/cmake-action@v2
+        uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2
         with:
           source-dir: ${{ github.workspace }}
           build-dir: "${{ github.workspace }}/build"
@@ -83,10 +83,10 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: ${{ matrix.python-version }}
   
