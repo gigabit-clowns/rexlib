@@ -36,9 +36,9 @@ jobs:
         shell: bash -el {0}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
-      - uses: Jimver/cuda-toolkit@v0.2.35
+      - uses: Jimver/cuda-toolkit@3d45d157f327c09c04b50ee6ccdea2d9d017ec76 # v0.2.35
         id: cuda-toolkit
         with:
           cuda: ${{ matrix.cuda }}
@@ -56,7 +56,7 @@ jobs:
           pip install --no-index --find-links=dist xmipp4-core
 
       - name: Configure and build with CMake
-        uses: threeal/cmake-action@v2
+        uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2
         with:
           source-dir: ${{ github.workspace }}
           build-dir: "${{ github.workspace }}/build"
@@ -73,7 +73,7 @@ jobs:
         run: ctest -C ${{ env.BUILD_TYPE }} -T test --rerun-failed --output-on-failure
 
       - name: Upload compilation database (ubuntu-latest + gcc only)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: matrix.os == 'ubuntu-latest' && matrix.compiler.cc == 'gcc'
         with:
           name: build-artifact
@@ -87,14 +87,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
 
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: build-artifact
           path: ${{ github.workspace }}/build
     
       - name: SonarQube scan
-        uses: SonarSource/sonarqube-scan-action@v8
+        uses: SonarSource/sonarqube-scan-action@713881670b6b3676cda39549040e2d88c70d582e # v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
