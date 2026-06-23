@@ -6,4 +6,4 @@ on:
 jobs:
   tag_and_release:
     name: Generate new tag and GitHub release
-    uses: gigabit-clowns/.github/.github/workflows/release.yml@dd17c3ee191d10ab2b5e1389420a5f1691e2b7ea # main
+    uses: gigabit-clowns/.github/.github/workflows/release.yml@main
