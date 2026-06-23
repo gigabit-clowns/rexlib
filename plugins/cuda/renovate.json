@@ -8,7 +8,7 @@
   "internalChecksFilter": "strict",
   "packageRules": [
     {
-      "matchDepNames": ["python"],
+      "matchDepNames": ["python", "gigabit-clowns/.github"],
       "enabled": false
     },
     {
