@@ -5,4 +5,4 @@ on:
 
 jobs:
   tag_and_release:
-    uses: gigabit-clowns/.github/.github/workflows/release.yml@e3c2b3c51c3227ce9dd38c7e606518986305ae51 # main
+    uses: gigabit-clowns/.github/.github/workflows/release.yml@0c2061674ae2f2204de0bdc9539c456b5ebe1815 # main
