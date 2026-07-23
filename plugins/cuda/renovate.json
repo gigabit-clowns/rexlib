@@ -6,6 +6,10 @@
   ],
   "minimumReleaseAge": "14 days",
   "internalChecksFilter": "strict",
+  "poetry": {
+    "description": "Not a poetry project.",
+    "enabled": false
+  },
   "packageRules": [
     {
       "matchDepNames": ["python", "gigabit-clowns/.github"],
