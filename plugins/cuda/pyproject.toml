@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "scikit-build-core==1.0.1",
+    "scikit-build-core==1.0.3",
     "xmipp4-core @ https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip" # TODO replace when xmipp4-core is in PyPI
 ]
 build-backend = "scikit_build_core.build"
