@@ -6,6 +6,10 @@
   ],
   "minimumReleaseAge": "14 days",
   "internalChecksFilter": "strict",
+  "poetry": {
+    "description": "Not a poetry project, but supersedes default pep manager if left enabled.",
+    "enabled": false
+  },
   "packageRules": [
     {
       "matchDepNames": ["python", "gigabit-clowns/.github"],
