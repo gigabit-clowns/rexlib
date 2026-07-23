@@ -21,25 +21,29 @@ classifiers = [
 	"Programming Language :: Python",
 	"Programming Language :: Python :: 3",
 	"Programming Language :: Python :: 3 :: Only",
-	"Programming Language :: Python :: 3.7",
-	"Programming Language :: Python :: 3.8",
 	"Programming Language :: Python :: 3.9",
 	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Programming Language :: Python :: 3.14",
 	"Typing :: Typed",
 ]
 
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "GPL-3.0-only"
 
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dependencies = [
     "xmipp4-core==0.1.*"
 ] 
 
 [project.optional-dependencies]
-test = ["pytest>=8.3.5"]
+test = [
+	"pytest==8.3.5; python_version < '3.9'",
+	"pytest==8.4.2; python_version == '3.9'",
+	"pytest==9.1.1; python_version >= '3.10'",
+]
 
 [project.urls]
 Homepage = "https://github.com/gigabit-clowns/xmipp4-python"
