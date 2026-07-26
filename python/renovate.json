@@ -10,10 +10,29 @@
     "description": "Not a poetry project, but supersedes default pep manager if left enabled.",
     "enabled": false
   },
+  "customManagers": [
+    {
+      "description": "Track pybind11, fetched by CMake FetchContent",
+      "customType": "regex",
+      "managerFilePatterns": ["**/CMakeLists.txt"],
+      "matchStrings": ["GIT_REPOSITORY https://github.com/pybind/pybind11\\s+GIT_TAG v(?<currentValue>[^\\s]+)"],
+      "depNameTemplate": "pybind11",
+      "packageNameTemplate": "pybind/pybind11",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    }
+  ],
   "packageRules": [
     {
       "matchDepNames": ["python", "gigabit-clowns/.github"],
       "enabled": false
+    },
+    {
+      "description": "Cap the pytest 3.9 pin to releases that still support 3.9; 9.0.0 raised requires-python to >=3.10.",
+      "matchDepNames": ["pytest"],
+      "matchCurrentVersion": "<9",
+      "constraints": { "python": "3.9" },
+      "constraintsFiltering": "strict"
     },
     {
       "description": "Security advisories bypass the 14-day delay",
