@@ -37,3 +37,4 @@ build/
 # Python Cache
 tests/__pycache__
 **/*.pyc
+.venv
