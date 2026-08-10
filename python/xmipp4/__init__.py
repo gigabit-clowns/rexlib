@@ -8,9 +8,12 @@ __core_lib = load_core()
 
 from ._core_binding import (
 	__doc__, __version__,
-	hardware, ndarray, numerical, dispatch, functional,
+	hardware, ndarray, numerical, dispatch,
 	ServiceCatalog,
 	PluginManager, Plugin, get_plugin_directory, get_default_plugin_directory,
 	Version
 )
 from ._catalog import get_default_catalog
+from ._context import get_active_execution_context
+from ._device import device
+from . import functional
