@@ -28,7 +28,7 @@ classifiers = [
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {file = "LICENSE"}
 
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dependencies = [ 
     "xmipp4-core @ https://github.com/gigabit-clowns/xmipp4-core/archive/refs/heads/main.zip" # TODO replace when xmipp4-core is in PyPI
 ]
