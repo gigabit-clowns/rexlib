@@ -53,7 +53,7 @@ experimental=true # For wheel.install-dir
 wheel.install-dir="/data"
 cmake.version = ">=3.18"
 cmake.args = []
-cmake.verbose = false
+build.verbose = false
 cmake.build-type = "Release"
 
 [tool.scikit-build.cmake.define]

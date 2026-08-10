@@ -23,7 +23,6 @@ void bind_device_type(pybind11::module_ &m)
 	add_value(enumeration, device_type::cpu);
 	add_value(enumeration, device_type::gpu);
 	add_value(enumeration, device_type::integrated_gpu);
-	add_value(enumeration, device_type::fpga);
 }
 
 

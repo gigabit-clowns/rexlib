@@ -6,10 +6,10 @@
 
 namespace xmipp4
 {
-namespace communication
+namespace hardware
 {
 
-void bind_communication(pybind11::module_ &m);
+void bind_device_session(pybind11::module_ &m);
 
-} // namespace communication
+} // namespace hardware
 } // namespace xmipp4

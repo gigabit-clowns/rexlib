@@ -6,10 +6,10 @@
 
 namespace xmipp4
 {
-namespace multidimensional
+namespace hardware
 {
 
-void bind_multidimensional(pybind11::module_ &m);
+void bind_memory_resource_kind(pybind11::module_ &m);
 
-} // namespace multidimensional
+} // namespace hardware
 } // namespace xmipp4
