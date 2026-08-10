@@ -37,10 +37,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git clone https://github.com/gigabit-clowns/xmipp4-core.git ./local_deps/xmipp4-core
-          cd ./local_deps/xmipp4-core
-          git checkout tags/development
+          gh release download development -R gigabit-clowns/xmipp4-core -D local_deps/xmipp4-core/dist -p '*.whl' --clobber
 
       - name: Build wheels
         uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
@@ -75,11 +75,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
-        working-directory: ${{ github.workspace }}/../
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          git clone https://github.com/gigabit-clowns/xmipp4-core.git
-          cd xmipp4-core
-          git checkout tags/development
+          gh release download development -R gigabit-clowns/xmipp4-core -D "${{ github.workspace }}/../xmipp4-core/dist" -p '*.whl' --clobber
 
       - name: Install build tool # TODO: Remove when xmipp4-core is in Pypi
         run: pip install build
