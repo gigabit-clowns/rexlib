@@ -55,9 +55,12 @@ jobs:
             auditwheel repair -w {dest_dir} {wheel} 
             --exclude "libxmipp4-core.so*"
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
-            delocate-wheel --require-archs {delocate_archs} 
+            delocate-wheel --require-archs {delocate_archs}
             -w {dest_dir} -v {wheel}
             --ignore-missing-dependencies
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
+            delvewheel repair -w {dest_dir} -v {wheel}
+            --exclude xmipp4-core.dll
 
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

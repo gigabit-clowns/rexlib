@@ -8,7 +8,7 @@ __core_lib = load_core()
 
 from ._core_binding import (
 	__doc__, __version__,
-	hardware,
+	hardware, ndarray, numerical, dispatch, functional,
 	ServiceCatalog,
 	PluginManager, Plugin, get_plugin_directory, get_default_plugin_directory,
 	Version
