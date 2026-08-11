@@ -1,0 +1,30 @@
+from __future__ import annotations
+import typing
+import xmipp4._core_binding
+import xmipp4._core_binding.hardware
+__all__: list[str] = ['Dispatcher', 'ExecutionContext', 'ProgramManager', 'get_program_manager', 'make_eager_dispatcher']
+class Dispatcher:
+    pass
+class ExecutionContext:
+    @typing.overload
+    def __init__(self) -> None:
+        ...
+    @typing.overload
+    def __init__(self, device_context: xmipp4._core_binding.hardware.DeviceContext, dispatcher: Dispatcher) -> None:
+        ...
+    def with_device_context(self, device_context: xmipp4._core_binding.hardware.DeviceContext) -> ExecutionContext:
+        ...
+    def with_dispatcher(self, dispatcher: Dispatcher) -> ExecutionContext:
+        ...
+    @property
+    def device_context(self) -> xmipp4._core_binding.hardware.DeviceContext:
+        ...
+    @property
+    def dispatcher(self) -> Dispatcher:
+        ...
+class ProgramManager:
+    pass
+def get_program_manager(arg0: xmipp4._core_binding.ServiceCatalog) -> ProgramManager:
+    ...
+def make_eager_dispatcher(program_manager: ProgramManager) -> Dispatcher:
+    ...

@@ -29,7 +29,9 @@ jobs:
           - os: macos-latest
             architectures: "x86_64 arm64 universal2"
           - os: windows-latest
-            architectures: "AMD64 ARM64"
+            architectures: "AMD64"
+          - os: windows-latest
+            architectures: "ARM64"
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -55,13 +57,26 @@ jobs:
           if (-not $crt) { $crt = $env:RUNNER_TEMP }
           Add-Content -Path $env:GITHUB_ENV -Value "ARM64_CRT_DIR=$crt"
 
+      - name: Stage xmipp4-core for CMake (Windows)
+        # Bypasses pip: it refuses to install a wheel tagged for a different
+        # platform than the host (blocks ARM64 cross-compilation), and
+        # scikit-build-core's own CMAKE_PREFIX_PATH auto-detection doesn't
+        # account for xmipp4-core's wheel.install-dir = "/data" layout.
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $dest = python scripts/stage-xmipp4-core-windows.py local_deps/xmipp4-core/dist xmipp4-core-prefix "${{ matrix.architectures }}"
+          Add-Content -Path $env:GITHUB_ENV -Value "CMAKE_PREFIX_PATH=$dest"
+
       - name: Build wheels
         uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
           CIBW_ENVIRONMENT: 'PIP_FIND_LINKS=local_deps/xmipp4-core/dist' # TODO: Remove when xmipp4-core is in Pypi
-          CIBW_BEFORE_BUILD_WINDOWS: | # FIXME this should not be required
-            pip install git+https://github.com/gigabit-clowns/xmipp4-core@main
+          # Windows skips build isolation entirely (CMAKE_PREFIX_PATH above
+          # already points at xmipp4-core), it only needs the build backend.
+          CIBW_BUILD_FRONTEND_WINDOWS: "build; args: --no-isolation"
+          CIBW_BEFORE_BUILD_WINDOWS: pip install scikit-build-core==1.0.3
           CIBW_TEST_SKIP: "*-win_arm64" # Windows on ARM cannot be tested, raises warning
           CIBW_SKIP: "cp3??t-win*" # Skip Python free-threaded builds on Windows
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >

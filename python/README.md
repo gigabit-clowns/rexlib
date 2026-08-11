@@ -15,6 +15,13 @@ To run the tests for this project (only avaiable when installed in development m
 ./scripts/run-tests.sh
 ```
 
+## Type stubs
+`python/xmipp4/_core_binding/*.pyi` are type stubs for the compiled extension, generated with [pybind11-stubgen](https://github.com/sizmailov/pybind11-stubgen). They aren't hand-written, and don't need to be updated for changes to the pure-Python layers (`xmipp4/functional/`, `_device.py`, etc.) — only when the C++ bindings themselves change. After installing in development mode, regenerate them with:
+```
+pip install pybind11-stubgen
+./scripts/generate-stubs.sh
+```
+
 ## SonarCloud status
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)
 

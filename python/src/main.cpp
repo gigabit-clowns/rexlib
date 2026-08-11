@@ -28,23 +28,27 @@ static std::string version_to_string(version ver)
 PYBIND11_MODULE(_core_binding, m) {
 	m.attr("__version__") = version_to_string(get_core_version());
 
-	auto hardware_module = m.def_submodule("hardware");
-	hardware::bind_hardware(hardware_module);
+	// Bound first and in dependency order: pybind11 resolves cross-references
+	// in signatures (e.g. DeviceBackend.version -> Version) using whatever is
+	// registered so far, not lazily, so anything referenced in another
+	// binding's signature must be bound before it.
+	bind_version(m);
+	bind_plugin(m);
+	bind_plugin_manager(m);
+	bind_service_catalog(m);
+
+	auto numerical_module = m.def_submodule("numerical");
+	numerical::bind_numerical(numerical_module);
 
 	auto ndarray_module = m.def_submodule("ndarray");
 	ndarray::bind_ndarray(ndarray_module);
 
-	auto numerical_module = m.def_submodule("numerical");
-	numerical::bind_numerical(numerical_module);
+	auto hardware_module = m.def_submodule("hardware");
+	hardware::bind_hardware(hardware_module);
 
 	auto dispatch_module = m.def_submodule("dispatch");
 	dispatch::bind_dispatch(dispatch_module);
 
 	auto functional_module = m.def_submodule("functional");
 	functional::bind_functional(functional_module);
-
-	bind_service_catalog(m);
-	bind_plugin_manager(m);
-	bind_plugin(m);
-	bind_version(m);
 }

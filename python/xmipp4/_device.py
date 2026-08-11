@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 from __future__ import annotations
-from typing import Optional, Union
+from types import TracebackType
+from typing import Optional, Type, Union
 
 from ._core_binding import hardware, dispatch
 from ._catalog import get_default_catalog
@@ -31,9 +32,13 @@ class _ActiveDeviceContext:
 		self.__previous = _set_active_execution_context(context)
 		return context
 
-	def __exit__(self, *exc_info) -> bool:
+	def __exit__(
+		self,
+		exc_type: Optional[Type[BaseException]],
+		exc_value: Optional[BaseException],
+		traceback: Optional[TracebackType],
+	) -> None:
 		_set_active_execution_context(self.__previous)
-		return False
 
 class Device:
 	"""

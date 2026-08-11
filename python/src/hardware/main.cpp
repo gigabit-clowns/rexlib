@@ -39,8 +39,8 @@ void bind_hardware(pybind11::module_ &m)
 	bind_memory_allocator(m);
 	bind_device(m);
 	bind_device_backend(m);
-	bind_device_manager(m);
 	bind_device_session(m);
+	bind_device_manager(m);
 	bind_device_context(m);
 }
 

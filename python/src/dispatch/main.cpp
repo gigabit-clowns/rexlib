@@ -13,8 +13,8 @@ namespace dispatch
 
 void bind_dispatch(pybind11::module_ &m)
 {
-	bind_dispatcher(m);
 	bind_program_manager(m);
+	bind_dispatcher(m);
 	bind_execution_context(m);
 }
 

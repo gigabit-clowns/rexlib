@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 from __future__ import annotations
+from typing import Optional
 from ._core_binding import ServiceCatalog
 
-__default_catalog: ServiceCatalog = None
+__default_catalog: Optional[ServiceCatalog] = None
 
 def get_default_catalog() -> ServiceCatalog:
 	"""
