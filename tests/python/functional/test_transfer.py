@@ -28,6 +28,16 @@ def test_to_host_copy_returns_array(__setup_context):
 	result = xmipp4.functional.to_host_copy(x, __setup_context)
 	assert isinstance(result, xmipp4.ndarray.Array)
 
+def test_to_device_returns_array(__setup_context):
+	x = __setup_array(__setup_context)
+	result = xmipp4.functional.to_device(x, __setup_context)
+	assert isinstance(result, xmipp4.ndarray.Array)
+
+def test_to_device_copy_returns_array(__setup_context):
+	x = __setup_array(__setup_context)
+	result = xmipp4.functional.to_device_copy(x, __setup_context)
+	assert isinstance(result, xmipp4.ndarray.Array)
+
 def __setup_array(context):
 	descriptor = xmipp4.ndarray.make_contiguous_array_descriptor(
 		[2, 3], xmipp4.numerical.NumericalType.float32

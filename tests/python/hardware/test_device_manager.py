@@ -5,9 +5,10 @@ import pytest
 import xmipp4
 
 def test_returns_device_manager(__setup_service_catalog):
-  assert xmipp4.hardware.get_device_manager(
-    __setup_service_catalog
-  ) is not None
+  assert isinstance(
+    xmipp4.hardware.get_device_manager(__setup_service_catalog),
+    xmipp4.hardware.DeviceManager
+  )
 
 def test_always_returns_same_device_manager(__setup_service_catalog):
   dm1 = xmipp4.hardware.get_device_manager(__setup_service_catalog)

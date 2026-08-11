@@ -1,24 +1,26 @@
+"""Locate and load xmipp4-core's shared library at import time."""
+
 import ctypes
 import os
 import platform
 import sys
-from typing import List, Generator
+from collections.abc import Generator
 
 def __get_library_filename(name: str, system: str) -> str:
 	"""Get the library filename based on the operating system."""
 	if system == 'Darwin':
 		return f"lib{name}.dylib"
-	elif system == 'Windows':
+	if system == 'Windows':
 		return f"{name}.dll"
-	else: # Linux or other Unix-like systems
-		return f"lib{name}.so"
+	# Linux or other Unix-like systems
+	return f"lib{name}.so"
 
-def __get_library_directory_names(system) -> List[str]:
+def __get_library_directory_names(system) -> list[str]:
 	"""Get the library directory names based on the operating system."""
 	if system == 'Windows':
 		return ["bin"]
-	else: # Linux, MacOS, or other Unix-like systems
-		return ["lib", "lib64"]
+	# Linux, MacOS, or other Unix-like systems
+	return ["lib", "lib64"]
 
 def __iter_possible_library_paths(
 		prefix: str, 
@@ -39,7 +41,7 @@ def __load_library(name: str) -> ctypes.CDLL:
 	for dynamic_lib in __iter_possible_library_paths(sys.prefix, filename, system):
 		try:
 			return ctypes.CDLL(dynamic_lib)
-		except OSError:
+		except OSError:  # noqa: PERF203 -- a handful of candidates, not a hot path
 			continue
 	
 	raise OSError(f"Could not find {name}.")

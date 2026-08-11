@@ -15,7 +15,7 @@ def test_uses_active_context_when_none_given():
 	descriptor = xmipp4.ndarray.make_contiguous_array_descriptor(
 		[2, 2], xmipp4.numerical.NumericalType.float32
 	)
-	with xmipp4.device.backend('cpu'):
+	with xmipp4.device('cpu'):
 		result = xmipp4.functional.zeros(
 			descriptor, xmipp4.hardware.MemoryResourceAffinity.host
 		)
@@ -50,7 +50,7 @@ def test_explicit_context_overrides_active_context():
 	descriptor = xmipp4.ndarray.make_contiguous_array_descriptor(
 		[2, 2], xmipp4.numerical.NumericalType.float32
 	)
-	with xmipp4.device.backend('cpu'):
+	with xmipp4.device('cpu'):
 		result = xmipp4.functional.zeros(
 			descriptor, xmipp4.hardware.MemoryResourceAffinity.host, explicit_context
 		)

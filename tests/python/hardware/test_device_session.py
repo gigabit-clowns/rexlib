@@ -8,9 +8,9 @@ def test_creates_session_for_cpu_device(__setup_device_manager):
 	session = __setup_device_manager.create_device_session(
 		xmipp4.hardware.DeviceIndex('cpu', 0)
 	)
-	assert session is not None
-	assert session.device is not None
-	assert session.default_queue is not None
+	assert isinstance(session, xmipp4.hardware.DeviceSession)
+	assert isinstance(session.device, xmipp4.hardware.Device)
+	assert isinstance(session.default_queue, xmipp4.hardware.CommandQueue)
 
 def test_session_provides_host_allocator(__setup_device_manager):
 	session = __setup_device_manager.create_device_session(

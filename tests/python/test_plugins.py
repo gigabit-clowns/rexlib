@@ -5,6 +5,8 @@ import platform
 import sys
 import uuid
 
+import pytest
+
 import xmipp4
 
 def test_plugin_manager_constructor():
@@ -28,6 +30,30 @@ def test_plugin_manager_discovers_plugins():
     'Plugin(name="dummy-plugin2", version="4.5.6")',
   }
 
+def test_plugin_manager_adds_a_discovered_plugin():
+  source = xmipp4.PluginManager()
+  source.discover_plugins(__get_dummy_plugin_directory())
+  target = xmipp4.PluginManager()
+  target.add_plugin(source.plugins[0])
+  assert list(map(repr, target.plugins)) == [repr(source.plugins[0])]
+
+def test_plugin_manager_raises_when_loading_a_missing_plugin():
+  pm = xmipp4.PluginManager()
+  with pytest.raises(RuntimeError):
+    pm.load_plugin(f'/path/to/invalid/plugin/{uuid.uuid4()}')
+
+def test_plugin_exposes_name_and_version():
+  pm = xmipp4.PluginManager()
+  pm.discover_plugins(__get_dummy_plugin_directory())
+  plugin = next(p for p in pm.plugins if p.name == 'dummy-plugin1')
+  assert plugin.version == xmipp4.Version(1, 2, 3)
+
+def test_returns_plugin_directory():
+  assert isinstance(xmipp4.get_plugin_directory(), str)
+
+def test_returns_default_plugin_directory():
+  assert isinstance(xmipp4.get_default_plugin_directory(), str)
+
 def test_service_catalog_constructor():
   assert xmipp4.ServiceCatalog() is not None
 
@@ -43,9 +69,8 @@ def __get_dummy_plugin_directory() -> str:
   
   if platform.system() == 'Windows':
     return os.path.join(prefix, 'bin', DUMMY_PLUGIN_DIRECTORY_NAME)
-  elif os.path.exists(os.path.join(prefix, 'lib')):
+  if os.path.exists(os.path.join(prefix, 'lib')):
     return os.path.join(prefix, 'lib', DUMMY_PLUGIN_DIRECTORY_NAME)
-  elif os.path.exists(os.path.join(prefix, 'lib64')):
+  if os.path.exists(os.path.join(prefix, 'lib64')):
     return os.path.join(prefix, 'lib64', DUMMY_PLUGIN_DIRECTORY_NAME)
-  else:
-    raise OSError("Could not find the dummy plugin directory.")
+  raise OSError("Could not find the dummy plugin directory.")

@@ -1,10 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 from __future__ import annotations
-from typing import Optional
 from ._core_binding import ServiceCatalog
 
-__default_catalog: Optional[ServiceCatalog] = None
+__default_catalog: ServiceCatalog | None = None
 
 def get_default_catalog() -> ServiceCatalog:
 	"""
@@ -19,7 +18,7 @@ def get_default_catalog() -> ServiceCatalog:
 		ServiceCatalog: The default service catalog. The same instance is
 		returned on every call.
 	"""
-	global __default_catalog
+	global __default_catalog  # noqa: PLW0603 -- lazily-initialized singleton
 	if __default_catalog is None:
 		__default_catalog = ServiceCatalog()
 	return __default_catalog

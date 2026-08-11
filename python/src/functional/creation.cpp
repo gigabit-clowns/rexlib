@@ -13,6 +13,8 @@
 #include <xmipp4/core/hardware/memory_resource_affinity.hpp>
 #include <xmipp4/core/dispatch/execution_context.hpp>
 
+#include <string>
+
 namespace xmipp4
 {
 namespace functional
@@ -23,10 +25,28 @@ namespace py = pybind11;
 static scalar_value make_scalar_value(numerical_type type, const py::object &value)
 {
 	return dispatch_numerical_types(
-		[&value](auto tag) -> scalar_value
+		[&value, type](auto tag) -> scalar_value
 		{
 			using T = typename decltype(tag)::type;
-			return scalar_value(value.cast<T>());
+			try
+			{
+				return scalar_value(value.cast<T>());
+			}
+			catch (const py::cast_error&)
+			{
+				const auto given =
+					py::str(py::type::of(value).attr("__name__")).cast<std::string>();
+				auto message =
+					"cannot use a '" + given + "' as a " + to_string(type) +
+					" value";
+				if (type == numerical_type::char8)
+				{
+					message +=
+						"; char8 holds characters, so it takes a "
+						"single-character str or bytes";
+				}
+				throw py::type_error(message);
+			}
 		},
 		type
 	);

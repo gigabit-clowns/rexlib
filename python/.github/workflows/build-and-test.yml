@@ -94,7 +94,10 @@ jobs:
 
       - name: Install with pip
         run: pip install .[test] -v --find-links="${{ github.workspace }}/../xmipp4-core/dist" -Ccmake.define.BUILD_TESTING=ON
-      
+
+      - name: Run ruff
+        run: ruff check .
+
       - name: Run tests
         run: |
           chmod +x ./scripts/run-tests.sh
