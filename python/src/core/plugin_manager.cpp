@@ -6,6 +6,11 @@
 
 #include <xmipp4/core/plugin.hpp>
 
+#include <pybind11/stl.h>
+
+#include <optional>
+#include <string>
+
 namespace xmipp4
 {
 
@@ -29,10 +34,16 @@ void bind_plugin_manager(pybind11::module_ &m)
 		)
 		.def(
 			"discover_plugins",
-			[](plugin_manager &manager, const std::string &directory) {
-				discover_plugins(directory, manager);
+			[](
+				plugin_manager &manager,
+				const std::optional<std::string> &directory
+			) {
+				discover_plugins(
+					directory.value_or(get_plugin_directory()),
+					manager
+				);
 			},
-			py::arg("directory") = get_plugin_directory()
+			py::arg("directory") = py::none()
 		)
 		.def_property_readonly(
 			"plugins",

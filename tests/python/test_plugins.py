@@ -21,6 +21,13 @@ def test_plugin_manager_discovers_no_plugins_in_an_empty_directory():
   pm.discover_plugins(f'/path/to/invalid/directory/{uuid.uuid4()}/')
   assert pm.plugins == []
   
+def test_plugin_manager_discovers_in_the_plugin_directory_by_default():
+  default = xmipp4.PluginManager()
+  default.discover_plugins()
+  explicit = xmipp4.PluginManager()
+  explicit.discover_plugins(xmipp4.get_plugin_directory())
+  assert list(map(repr, default.plugins)) == list(map(repr, explicit.plugins))
+
 def test_plugin_manager_discovers_plugins():
   pm = xmipp4.PluginManager()
   pm.discover_plugins(__get_dummy_plugin_directory())

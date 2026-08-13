@@ -24,12 +24,6 @@ pushd "${ROOT_DIR}" > /dev/null
     sed -i 's/def create_allocator(self) -> \.\.\.:/def create_allocator(self) -> MemoryAllocator:/' \
         "${OUT_DIR}/xmipp4/_core_binding/hardware.pyi"
 
-    # PluginManager.discover_plugins' default resolves
-    # get_default_plugin_directory() at bind time, baking in an absolute,
-    # machine-specific path into the stub.
-    sed -i -E "s/directory: str = '[^']*'/directory: str = .../" \
-        "${OUT_DIR}/xmipp4/_core_binding/__init__.pyi"
-
     # functional.*'s `out` parameters are `array *out = nullptr` in C++,
     # i.e. optional, but pybind11's docstring only records the `None`
     # default, not that the type itself is nullable, so stubgen infers a
