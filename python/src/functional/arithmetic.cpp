@@ -6,7 +6,7 @@
 #include <xmipp4/core/ndarray/array.hpp>
 #include <xmipp4/core/dispatch/execution_context.hpp>
 
-#include <pybind11/stl.h> // Required for std::optional binding
+#include <pybind11/stl.h>
 
 #include <optional>
 
