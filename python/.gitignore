@@ -40,3 +40,4 @@ tests/__pycache__
 .venv
 *.pyd
 .mypy_cache
+.ruff_cache
