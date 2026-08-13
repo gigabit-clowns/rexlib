@@ -11,20 +11,23 @@ namespace hardware
 
 namespace py = pybind11;
 
-static void add_value(py::enum_<device_type> &e, device_type value)
+static void add_value(device_type_class &e, device_type value)
 {
 	e.value(to_string(value), value);
 }
 
-void bind_device_type(pybind11::module_ &m)
+device_type_class declare_device_type(pybind11::module_ &m)
 {
-	auto enumeration = py::enum_<device_type>(m, "DeviceType");
-	add_value(enumeration, device_type::unknown);
-	add_value(enumeration, device_type::cpu);
-	add_value(enumeration, device_type::gpu);
-	add_value(enumeration, device_type::integrated_gpu);
+	return device_type_class(m, "DeviceType");
 }
 
+void define_device_type(device_type_class &c)
+{
+	add_value(c, device_type::unknown);
+	add_value(c, device_type::cpu);
+	add_value(c, device_type::gpu);
+	add_value(c, device_type::integrated_gpu);
+}
 
 } // namespace hardware
 } // namespace xmipp4

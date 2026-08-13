@@ -11,9 +11,14 @@ namespace xmipp4
 
 namespace py = pybind11;
 
-void bind_service_catalog(pybind11::module_ &m)
+service_catalog_class declare_service_catalog(pybind11::module_ &m)
 {
-	py::class_<service_catalog>(m, "ServiceCatalog")
+	return service_catalog_class(m, "ServiceCatalog");
+}
+
+void define_service_catalog(service_catalog_class &c)
+{
+	c
 		.def(py::init<bool>(), py::arg("register_builtin_backends") = true)
 		.def(
 			"register_plugins", 
@@ -23,7 +28,6 @@ void bind_service_catalog(pybind11::module_ &m)
 			},
 			py::keep_alive<1, 2>() // Do not destroy the manager before the catalog
 		);
-
 }
 
 } // namespace xmipp4

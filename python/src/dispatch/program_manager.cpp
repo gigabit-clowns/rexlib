@@ -2,7 +2,6 @@
 
 #include "program_manager.hpp"
 
-#include <xmipp4/core/dispatch/program_manager.hpp>
 #include <xmipp4/core/service_catalog.hpp>
 
 namespace xmipp4
@@ -15,12 +14,13 @@ static std::shared_ptr<program_manager> get_program_manager(service_catalog &cat
 	return catalog.get_service_manager<program_manager>();
 }
 
-namespace py = pybind11;
-
-void bind_program_manager(pybind11::module_ &m)
+program_manager_class declare_program_manager(pybind11::module_ &m)
 {
-	py::class_<program_manager, std::shared_ptr<program_manager>>(m, "ProgramManager");
+	return program_manager_class(m, "ProgramManager");
+}
 
+void define_program_manager(pybind11::module_ &m)
+{
 	m.def("get_program_manager", &get_program_manager);
 }
 

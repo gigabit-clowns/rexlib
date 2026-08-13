@@ -22,12 +22,17 @@ static std::shared_ptr<device_manager> get_device_manager(service_catalog &catal
 
 namespace py = pybind11;
 
-void bind_device_manager(pybind11::module_ &m)
+device_manager_class declare_device_manager(pybind11::module_ &m)
 {
-	py::class_<device_manager, std::shared_ptr<device_manager>>(m, "DeviceManager")
+	return device_manager_class(m, "DeviceManager");
+}
+
+void define_device_manager(device_manager_class &c, pybind11::module_ &m)
+{
+	c
 		.def_property_readonly(
 			"backends",
-			[](device_manager &self) -> std::vector<std::string>
+			[](device_manager &self)
 			{
 				std::vector<std::string> backends;
 				self.enumerate_backends(backends);

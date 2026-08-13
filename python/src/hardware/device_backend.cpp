@@ -15,14 +15,19 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_device_backend(pybind11::module_ &m)
+device_backend_class declare_device_backend(pybind11::module_ &m)
 {
-	py::class_<device_backend>(m, "DeviceBackend")
+	return device_backend_class(m, "DeviceBackend");
+}
+
+void define_device_backend(device_backend_class &c)
+{
+	c
 		.def_property_readonly("name", &device_backend::get_name)
 		.def_property_readonly("version", &device_backend::get_version)
 		.def_property_readonly(
 			"devices",
-			[](const device_backend &self) -> std::vector<std::size_t>
+			[](const device_backend &self)
 			{
 				std::vector<std::size_t> ids;
 				self.enumerate_devices(ids);

@@ -4,12 +4,19 @@
 
 #include <pybind11/pybind11.h>
 
+#include <xmipp4/core/hardware/memory_resource_kind.hpp>
+
+#include <memory>
+
 namespace xmipp4
 {
 namespace hardware
 {
 
-void bind_memory_resource_kind(pybind11::module_ &m);
+using memory_resource_kind_class = pybind11::enum_<memory_resource_kind>;
+
+memory_resource_kind_class declare_memory_resource_kind(pybind11::module_ &m);
+void define_memory_resource_kind(memory_resource_kind_class &c);
 
 } // namespace hardware
 } // namespace xmipp4

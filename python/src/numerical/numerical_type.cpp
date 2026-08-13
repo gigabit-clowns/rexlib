@@ -11,9 +11,14 @@ namespace numerical
 
 namespace py = pybind11;
 
-void bind_numerical_type(pybind11::module_ &m)
+numerical_type_class declare_numerical_type(pybind11::module_ &m)
 {
-	py::enum_<numerical_type>(m, "NumericalType")
+	return numerical_type_class(m, "NumericalType");
+}
+
+void define_numerical_type(numerical_type_class &c)
+{
+	c
 		.value("boolean", numerical_type::boolean)
 		.value("char8", numerical_type::char8)
 		.value("int8", numerical_type::int8)
@@ -30,7 +35,8 @@ void bind_numerical_type(pybind11::module_ &m)
 		.value("complex_float16", numerical_type::complex_float16)
 		.value("complex_float32", numerical_type::complex_float32)
 		.value("complex_float64", numerical_type::complex_float64);
-}
 
-} // namespace numerical
+	}
+}
+ // namespace numerical
 } // namespace xmipp4

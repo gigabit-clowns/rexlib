@@ -11,7 +11,8 @@ namespace numerical
 
 void bind_numerical(pybind11::module_ &m)
 {
-	bind_numerical_type(m);
+	auto numerical_type = declare_numerical_type(m);
+	define_numerical_type(numerical_type);
 }
 
 } // namespace numerical

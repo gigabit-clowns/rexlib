@@ -16,9 +16,14 @@ namespace xmipp4
 
 namespace py = pybind11;
 
-void bind_plugin_manager(pybind11::module_ &m)
+plugin_manager_class declare_plugin_manager(pybind11::module_ &m)
 {
-	py::class_<plugin_manager>(m, "PluginManager")
+	return plugin_manager_class(m, "PluginManager");
+}
+
+void define_plugin_manager(plugin_manager_class &c, pybind11::module_ &m)
+{
+	c
 		.def(py::init<>())
 		.def(
 			"add_plugin", 
@@ -47,7 +52,7 @@ void bind_plugin_manager(pybind11::module_ &m)
 		)
 		.def_property_readonly(
 			"plugins",
-			[](const py::object &self) -> py::list
+			[](const py::object &self)
 			{
 				py::list result;
 				

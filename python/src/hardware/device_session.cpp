@@ -16,9 +16,14 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_device_session(pybind11::module_ &m)
+device_session_class declare_device_session(pybind11::module_ &m)
 {
-	py::class_<device_session, std::shared_ptr<device_session>>(m, "DeviceSession")
+	return device_session_class(m, "DeviceSession");
+}
+
+void define_device_session(device_session_class &c)
+{
+	c
 		.def(
 			py::init<std::shared_ptr<device>, device_properties>(),
 			py::arg("device"), py::arg("properties")

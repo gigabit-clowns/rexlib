@@ -12,9 +12,14 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_command_queue(pybind11::module_ &m)
+command_queue_class declare_command_queue(pybind11::module_ &m)
 {
-	py::class_<command_queue, std::shared_ptr<command_queue>>(m, "CommandQueue")
+	return command_queue_class(m, "CommandQueue");
+}
+
+void define_command_queue(command_queue_class &c)
+{
+	c
 		.def("signal", &command_queue::signal)
 		.def("wait", &command_queue::wait);
 }

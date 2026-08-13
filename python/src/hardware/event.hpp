@@ -4,12 +4,19 @@
 
 #include <pybind11/pybind11.h>
 
+#include <xmipp4/core/hardware/event.hpp>
+
+#include <memory>
+
 namespace xmipp4
 {
 namespace hardware
 {
 
-void bind_event(pybind11::module_ &m);
+using event_class = pybind11::class_<event, std::shared_ptr<event>>;
+
+event_class declare_event(pybind11::module_ &m);
+void define_event(event_class &c);
 
 } // namespace hardware
 } // namespace xmipp4

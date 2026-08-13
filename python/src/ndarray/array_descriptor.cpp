@@ -25,9 +25,14 @@ static array_descriptor make_contiguous_array_descriptor_from_vector(
 	return make_contiguous_array_descriptor(make_span(extents), data_type);
 }
 
-void bind_array_descriptor(pybind11::module_ &m)
+array_descriptor_class declare_array_descriptor(pybind11::module_ &m)
 {
-	py::class_<array_descriptor>(m, "ArrayDescriptor")
+	return array_descriptor_class(m, "ArrayDescriptor");
+}
+
+void define_array_descriptor(array_descriptor_class &c, pybind11::module_ &m)
+{
+	c
 		.def(py::init<>())
 		.def_property_readonly("data_type", &array_descriptor::get_data_type)
 		.def(py::self == py::self)
@@ -40,6 +45,7 @@ void bind_array_descriptor(pybind11::module_ &m)
 	);
 	m.def("is_initialized", &is_initialized);
 }
+
 
 } // namespace ndarray
 } // namespace xmipp4

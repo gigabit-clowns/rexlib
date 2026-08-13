@@ -12,9 +12,14 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_memory_allocator(pybind11::module_ &m)
+memory_allocator_class declare_memory_allocator(pybind11::module_ &m)
 {
-	py::class_<memory_allocator, std::shared_ptr<memory_allocator>>(m, "MemoryAllocator")
+	return memory_allocator_class(m, "MemoryAllocator");
+}
+
+void define_memory_allocator(memory_allocator_class &c)
+{
+	c
 		.def_property_readonly(
 			"memory_resource",
 			&memory_allocator::get_memory_resource,

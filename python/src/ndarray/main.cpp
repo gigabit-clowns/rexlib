@@ -12,8 +12,10 @@ namespace ndarray
 
 void bind_ndarray(pybind11::module_ &m)
 {
-	bind_array(m);
-	bind_array_descriptor(m);
+	declare_array(m);
+	auto array_descriptor = declare_array_descriptor(m);
+
+	define_array_descriptor(array_descriptor, m);
 }
 
 } // namespace ndarray

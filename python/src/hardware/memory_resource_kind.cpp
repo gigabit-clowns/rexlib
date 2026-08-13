@@ -11,9 +11,14 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_memory_resource_kind(pybind11::module_ &m)
+memory_resource_kind_class declare_memory_resource_kind(pybind11::module_ &m)
 {
-	py::enum_<memory_resource_kind>(m, "MemoryResourceKind")
+	return memory_resource_kind_class(m, "MemoryResourceKind");
+}
+
+void define_memory_resource_kind(memory_resource_kind_class &c)
+{
+	c
 		.value("unified", memory_resource_kind::unified)
 		.value("managed", memory_resource_kind::managed)
 		.value("device_local", memory_resource_kind::device_local)

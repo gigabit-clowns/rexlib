@@ -45,9 +45,14 @@ static device_index from_string(const std::string &str)
 
 
 
-void bind_device_index(pybind11::module_ &m)
+device_index_class declare_device_index(pybind11::module_ &m)
 {
-	py::class_<device_index>(m, "DeviceIndex")
+	return device_index_class(m, "DeviceIndex");
+}
+
+void define_device_index(device_index_class &c)
+{
+	c
 		.def(py::init<py::str, py::size_t>(), py::arg("backend"), py::arg("id"))
 		.def(py::init(&from_string))
 		.def(py::self == py::self)
@@ -67,7 +72,8 @@ void bind_device_index(pybind11::module_ &m)
 					l.get_backend_name(),
 					l.get_device_id()
 				);
-			},
+}
+,
 			[](py::tuple t) -> device_index  // __setstate__
 			{
 				return device_index(

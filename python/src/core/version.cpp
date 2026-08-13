@@ -29,9 +29,14 @@ static std::string to_repr(const version &v)
 	return oss.str();
 }
 
-void bind_version(pybind11::module_ &m)
+version_class declare_version(pybind11::module_ &m)
 {
-	py::class_<version>(m, "Version")
+	return version_class(m, "Version");
+}
+
+void define_version(version_class &c)
+{
+	c
 		.def(
 			py::init<py::int_, py::int_, py::int_>(), 
 			py::arg("major"), py::arg("minor"), py::arg("patch")

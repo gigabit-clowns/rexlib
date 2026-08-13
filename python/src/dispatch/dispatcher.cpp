@@ -2,7 +2,6 @@
 
 #include "dispatcher.hpp"
 
-#include <xmipp4/core/dispatch/dispatcher.hpp>
 #include <xmipp4/core/dispatch/program_manager.hpp>
 
 namespace xmipp4
@@ -12,10 +11,13 @@ namespace dispatch
 
 namespace py = pybind11;
 
-void bind_dispatcher(pybind11::module_ &m)
+dispatcher_class declare_dispatcher(pybind11::module_ &m)
 {
-	py::class_<dispatcher, std::shared_ptr<dispatcher>>(m, "Dispatcher");
+	return dispatcher_class(m, "Dispatcher");
+}
 
+void define_dispatcher(pybind11::module_ &m)
+{
 	m.def(
 		"make_eager_dispatcher",
 		&make_eager_dispatcher,

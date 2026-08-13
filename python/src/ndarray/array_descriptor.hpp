@@ -4,12 +4,19 @@
 
 #include <pybind11/pybind11.h>
 
+#include <xmipp4/core/ndarray/array_descriptor.hpp>
+
+#include <memory>
+
 namespace xmipp4
 {
 namespace ndarray
 {
 
-void bind_array_descriptor(pybind11::module_ &m);
+using array_descriptor_class = pybind11::class_<array_descriptor>;
+
+array_descriptor_class declare_array_descriptor(pybind11::module_ &m);
+void define_array_descriptor(array_descriptor_class &c, pybind11::module_ &m);
 
 } // namespace ndarray
 } // namespace xmipp4

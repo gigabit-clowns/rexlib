@@ -12,9 +12,14 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_memory_resource(pybind11::module_ &m)
+memory_resource_class declare_memory_resource(pybind11::module_ &m)
 {
-	py::class_<memory_resource>(m, "MemoryResource")
+	return memory_resource_class(m, "MemoryResource");
+}
+
+void define_memory_resource(memory_resource_class &c, pybind11::module_ &m)
+{
+	c
 		.def_property_readonly("kind", &memory_resource::get_kind)
 		.def("create_allocator", &memory_resource::create_allocator);
 

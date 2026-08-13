@@ -4,12 +4,19 @@
 
 #include <pybind11/pybind11.h>
 
+#include <xmipp4/core/hardware/command_queue.hpp>
+
+#include <memory>
+
 namespace xmipp4
 {
 namespace hardware
 {
 
-void bind_command_queue(pybind11::module_ &m);
+using command_queue_class = pybind11::class_<command_queue, std::shared_ptr<command_queue>>;
+
+command_queue_class declare_command_queue(pybind11::module_ &m);
+void define_command_queue(command_queue_class &c);
 
 } // namespace hardware
 } // namespace xmipp4

@@ -19,12 +19,18 @@ static std::string to_repr(const plugin &p)
 	return oss.str();
 }
 
-void bind_plugin(pybind11::module_ &m)
+plugin_class declare_plugin(pybind11::module_ &m)
 {
-	py::class_<plugin>(m, "Plugin")
+	return plugin_class(m, "Plugin");
+}
+
+void define_plugin(plugin_class &c)
+{
+	c
 		.def_property_readonly("name", &plugin::get_name)
 		.def_property_readonly("version", &plugin::get_version)
 		.def("__repr__", &to_repr);
-}
 
-} // namespace xmipp4
+	}
+}
+ // namespace xmipp4

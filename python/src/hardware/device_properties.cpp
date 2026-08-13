@@ -11,9 +11,14 @@ namespace hardware
 
 namespace py = pybind11;
 
-void bind_device_properties(pybind11::module_ &m)
+device_properties_class declare_device_properties(pybind11::module_ &m)
 {
-	py::class_<device_properties>(m, "DeviceProperties")
+	return device_properties_class(m, "DeviceProperties");
+}
+
+void define_device_properties(device_properties_class &c)
+{
+	c
 		.def(py::init<>())
 		.def_property(
 			"type", 
@@ -50,7 +55,8 @@ void bind_device_properties(pybind11::module_ &m)
 					l.get_total_memory_bytes(),
 					l.get_optimal_data_alignment()
 				);
-			},
+}
+,
 			[](py::tuple t) -> device_properties  // __setstate__
 			{
 				device_properties result;
