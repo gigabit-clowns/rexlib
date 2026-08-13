@@ -17,7 +17,41 @@ on:
   workflow_dispatch:
 
 jobs:
+  generate_stubs:
+    name: Generate type stubs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+
+      - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download development -R gigabit-clowns/xmipp4-core -D local_deps/xmipp4-core/dist -p '*.whl' --clobber
+
+      - name: Install with pip
+        run: pip install . -v --find-links=local_deps/xmipp4-core/dist
+
+      - name: Collect the generated stubs
+        run: |
+          mkdir -p stubs
+          cp "$(python -c 'import xmipp4, pathlib; print(pathlib.Path(xmipp4.__file__).parent)')"/_core_binding/*.pyi stubs/
+          ls -l stubs
+
+      - name: Upload stubs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: type-stubs
+          path: stubs/*.pyi
+
   build_wheels:
+    needs: generate_stubs
     name: Build wheels for ${{ matrix.os }} (${{ matrix.architectures }})
     strategy:
       matrix:
@@ -27,7 +61,11 @@ jobs:
           - os: ubuntu-24.04-arm
             architectures: "aarch64"
           - os: macos-latest
-            architectures: "x86_64 arm64 universal2"
+            architectures: "x86_64"
+          - os: macos-latest
+            architectures: "arm64"
+          - os: macos-latest
+            architectures: "universal2"
           - os: windows-latest
             architectures: "AMD64"
           - os: windows-latest
@@ -43,6 +81,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release download development -R gigabit-clowns/xmipp4-core -D local_deps/xmipp4-core/dist -p '*.whl' --clobber
+
+      - name: Download the type stubs
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: type-stubs
+          path: stubs
 
       - name: Locate MSVC ARM64 redistributable (for delvewheel)
         # delvewheel resolves DLL dependencies via PATH, which never contains
@@ -72,7 +116,9 @@ jobs:
         uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c # v4.1.1
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
-          CIBW_ENVIRONMENT: 'PIP_FIND_LINKS=local_deps/xmipp4-core/dist' # TODO: Remove when xmipp4-core is in Pypi
+          CIBW_ENVIRONMENT: >-
+            PIP_FIND_LINKS=local_deps/xmipp4-core/dist
+            SKBUILD_CMAKE_DEFINE="XMIPP4_STUBS_DIR=stubs"
           # Windows skips build isolation entirely (CMAKE_PREFIX_PATH above
           # already points at xmipp4-core), it only needs the build backend.
           CIBW_BUILD_FRONTEND_WINDOWS: "build; args: --no-isolation"

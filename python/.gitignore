@@ -41,3 +41,6 @@ tests/__pycache__
 *.pyd
 .mypy_cache
 .ruff_cache
+
+# Type stubs, generated when the bindings are built
+python/xmipp4/_core_binding

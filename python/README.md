@@ -16,11 +16,13 @@ To run the tests for this project (only avaiable when installed in development m
 ```
 
 ## Type stubs
-`python/xmipp4/_core_binding/*.pyi` are type stubs for the compiled extension, generated with [pybind11-stubgen](https://github.com/sizmailov/pybind11-stubgen). They aren't hand-written, and don't need to be updated for changes to the pure-Python layers (`xmipp4/functional/`, `_device.py`, etc.) — only when the C++ bindings themselves change. After installing in development mode, regenerate them with:
+Type stubs for the compiled extension are generated with [pybind11-stubgen](https://github.com/sizmailov/pybind11-stubgen) while the bindings are built, and end up in `xmipp4/_core_binding/` next to the extension. They are not kept in the repository and there is nothing to run by hand: installing the package, from source or from a wheel, is enough.
+
+Generating them means importing the extension, which a build cannot do when it is compiling for another architecture. Those builds are handed stubs made elsewhere instead, through `XMIPP4_STUBS_DIR`:
 ```
-pip install pybind11-stubgen
-./scripts/generate-stubs.sh
+pip install . -C cmake.define.XMIPP4_STUBS_DIR=<directory holding the .pyi files>
 ```
+The path may be relative to the project. Stubs describe the Python API, so the same ones are correct for every platform. A build that can neither generate nor be given them fails rather than producing an untyped package.
 
 ## SonarCloud status
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_xmipp4-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_xmipp4-python)

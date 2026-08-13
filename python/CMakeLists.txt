@@ -64,3 +64,56 @@ install(DIRECTORY
 	${CMAKE_CURRENT_SOURCE_DIR}/python/xmipp4/
 	DESTINATION "${PYTHON_INSTALL_DIR}/xmipp4"
 )
+
+# Type stubs are generated from the extension that was just installed, so
+# this has to come after everything the import needs is in place.
+#
+# Generating them requires importing the extension, which a cross-compiling
+# build cannot do. Those builds get stubs handed to them through
+# XMIPP4_STUBS_DIR instead; the stubs describe the Python API, which is the
+# same whatever the target architecture.
+set(XMIPP4_STUBS_DIR "" CACHE PATH
+	"Directory holding pre-generated stubs, for builds that cannot import \
+the extension they produce. Generated during the build when empty.")
+
+set(XMIPP4_STUB_DESTINATION "${PYTHON_INSTALL_DIR}/xmipp4/_core_binding")
+
+# Relative to the project, so that the same value works on a runner and
+# inside a build container, where the project is mounted elsewhere.
+if(XMIPP4_STUBS_DIR AND NOT IS_ABSOLUTE "${XMIPP4_STUBS_DIR}")
+	set(XMIPP4_STUBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${XMIPP4_STUBS_DIR}")
+endif()
+
+if(XMIPP4_STUBS_DIR)
+	# Stubs are not needed at run time, so shipping none of them would go
+	# unnoticed until somebody wondered why their editor stopped helping.
+	file(GLOB XMIPP4_PROVIDED_STUBS "${XMIPP4_STUBS_DIR}/*.pyi")
+	if(NOT XMIPP4_PROVIDED_STUBS)
+		message(FATAL_ERROR
+			"XMIPP4_STUBS_DIR is set to '${XMIPP4_STUBS_DIR}', which holds no "
+			".pyi files."
+		)
+	endif()
+
+	install(DIRECTORY "${XMIPP4_STUBS_DIR}/"
+		DESTINATION "${XMIPP4_STUB_DESTINATION}"
+		FILES_MATCHING PATTERN "*.pyi"
+	)
+else()
+	install(CODE "
+		execute_process(
+			COMMAND \"${Python_EXECUTABLE}\"
+				\"${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate_stubs.py\"
+				--module xmipp4._core_binding
+				--search-path \"${PYTHON_INSTALL_DIR}\"
+				--output \"${XMIPP4_STUB_DESTINATION}\"
+			RESULT_VARIABLE XMIPP4_STUBGEN_RESULT
+		)
+		if(NOT XMIPP4_STUBGEN_RESULT EQUAL 0)
+			message(FATAL_ERROR
+				\"Could not generate the type stubs. Pass XMIPP4_STUBS_DIR \"
+				\"when the extension cannot be imported by the build.\"
+			)
+		endif()
+	")
+endif()
