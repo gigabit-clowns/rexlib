@@ -13,6 +13,9 @@
 #include <xmipp4/core/hardware/memory_resource_affinity.hpp>
 #include <xmipp4/core/dispatch/execution_context.hpp>
 
+#include <pybind11/stl.h> // Required for std::optional binding
+
+#include <optional>
 #include <string>
 
 namespace xmipp4
@@ -52,21 +55,63 @@ static scalar_value make_scalar_value(numerical_type type, const py::object &val
 	);
 }
 
+static array py_empty(
+	array_descriptor descriptor,
+	memory_resource_affinity affinity,
+	const execution_context &context,
+	std::optional<array*> out
+)
+{
+	return xmipp4::empty(
+		std::move(descriptor), affinity, context, out.value_or(nullptr)
+	);
+}
+
+static array py_zeros(
+	array_descriptor descriptor,
+	memory_resource_affinity affinity,
+	const execution_context &context,
+	std::optional<array*> out
+)
+{
+	return xmipp4::zeros(
+		std::move(descriptor), affinity, context, out.value_or(nullptr)
+	);
+}
+
+static array py_ones(
+	array_descriptor descriptor,
+	memory_resource_affinity affinity,
+	const execution_context &context,
+	std::optional<array*> out
+)
+{
+	return xmipp4::ones(
+		std::move(descriptor), affinity, context, out.value_or(nullptr)
+	);
+}
+
 static array py_full(
 	array_descriptor descriptor,
 	memory_resource_affinity affinity,
 	const py::object &fill_value,
 	const execution_context &context,
-	array *out
+	std::optional<array*> out
 )
 {
 	const auto scalar = make_scalar_value(descriptor.get_data_type(), fill_value);
-	return xmipp4::full(std::move(descriptor), affinity, scalar, context, out);
+	return xmipp4::full(
+		std::move(descriptor), affinity, scalar, context, out.value_or(nullptr)
+	);
 }
 
-static array py_copy(array &source, const execution_context &context, array *out)
+static array py_copy(
+	array &source,
+	const execution_context &context,
+	std::optional<array*> out
+)
 {
-	return xmipp4::copy(source, context, out);
+	return xmipp4::copy(source, context, out.value_or(nullptr));
 }
 
 static void py_fill(array &out, const py::object &fill_value, const execution_context &context)
@@ -78,31 +123,28 @@ static void py_fill(array &out, const py::object &fill_value, const execution_co
 void bind_creation(pybind11::module_ &m)
 {
 	m.def(
-		"empty",
-		&xmipp4::empty,
+		"empty", &py_empty,
 		py::arg("descriptor"), py::arg("affinity"), py::arg("context"),
-		py::arg("out") = nullptr
+		py::arg("out") = py::none()
 	);
 	m.def(
-		"zeros",
-		&xmipp4::zeros,
+		"zeros", &py_zeros,
 		py::arg("descriptor"), py::arg("affinity"), py::arg("context"),
-		py::arg("out") = nullptr
+		py::arg("out") = py::none()
 	);
 	m.def(
-		"ones",
-		&xmipp4::ones,
+		"ones", &py_ones,
 		py::arg("descriptor"), py::arg("affinity"), py::arg("context"),
-		py::arg("out") = nullptr
+		py::arg("out") = py::none()
 	);
 	m.def(
 		"full", &py_full,
 		py::arg("descriptor"), py::arg("affinity"), py::arg("fill_value"),
-		py::arg("context"), py::arg("out") = nullptr
+		py::arg("context"), py::arg("out") = py::none()
 	);
 	m.def(
 		"copy", &py_copy,
-		py::arg("source"), py::arg("context"), py::arg("out") = nullptr
+		py::arg("source"), py::arg("context"), py::arg("out") = py::none()
 	);
 	m.def(
 		"fill", &py_fill,

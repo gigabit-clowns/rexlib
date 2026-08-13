@@ -7,6 +7,10 @@
 #include <xmipp4/core/numerical/numerical_type.hpp>
 #include <xmipp4/core/dispatch/execution_context.hpp>
 
+#include <pybind11/stl.h> // Required for std::optional binding
+
+#include <optional>
+
 namespace xmipp4
 {
 namespace functional
@@ -18,10 +22,10 @@ static array py_cast_copy(
 	array &input,
 	numerical_type target_type,
 	const execution_context &context,
-	array *out
+	std::optional<array*> out
 )
 {
-	return xmipp4::cast_copy(input, target_type, context, out);
+	return xmipp4::cast_copy(input, target_type, context, out.value_or(nullptr));
 }
 
 void bind_cast(pybind11::module_ &m)
@@ -34,7 +38,7 @@ void bind_cast(pybind11::module_ &m)
 	m.def(
 		"cast_copy", &py_cast_copy,
 		py::arg("input"), py::arg("target_type"), py::arg("context"),
-		py::arg("out") = nullptr
+		py::arg("out") = py::none()
 	);
 }
 

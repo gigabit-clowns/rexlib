@@ -24,13 +24,6 @@ pushd "${ROOT_DIR}" > /dev/null
     sed -i 's/def create_allocator(self) -> \.\.\.:/def create_allocator(self) -> MemoryAllocator:/' \
         "${OUT_DIR}/xmipp4/_core_binding/hardware.pyi"
 
-    # functional.*'s `out` parameters are `array *out = nullptr` in C++,
-    # i.e. optional, but pybind11's docstring only records the `None`
-    # default, not that the type itself is nullable, so stubgen infers a
-    # non-Optional type with a `None` default (invalid under PEP 484).
-    sed -i -E 's/out: ([A-Za-z0-9_.]+) = None/out: \1 | None = None/g' \
-        "${OUT_DIR}/xmipp4/_core_binding/functional.pyi"
-
     rm -rf python/xmipp4/_core_binding
     cp -r "${OUT_DIR}/xmipp4/_core_binding" python/xmipp4/_core_binding
     rm -rf "${OUT_DIR}"
