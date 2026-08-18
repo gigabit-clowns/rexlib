@@ -24,9 +24,12 @@ jobs:
         - os: ubuntu-22.04
           compiler: {cc: gcc, cxx: g++}
           cuda: 11.8.0
+        # Visual Studio 2026 is only supported from CUDA 13.2 onwards, and it
+        # is what the Windows runner ships. Older toolkits install no MSBuild
+        # integration for it, which the CUDA language needs.
         - os: windows-latest
           compiler: {cc: cl, cxx: cl}
-          cuda: 12.8.1
+          cuda: 13.3.1
   
     runs-on: ${{ matrix.os }}
     env:
@@ -53,7 +56,7 @@ jobs:
           git clone https://github.com/gigabit-clowns/xmipp4-core.git
           cd xmipp4-core
           git checkout tags/development
-          pip install --no-index --find-links=dist xmipp4-core
+          pip install --only-binary :all: --no-index --find-links=dist xmipp4-core
 
       - name: Configure and build with CMake
         uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2

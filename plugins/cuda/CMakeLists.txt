@@ -19,7 +19,7 @@ if(NOT TARGET xmipp4-core)
 endif()
 
 # Find dependencies
-find_package(CUDAToolkit 10 REQUIRED)
+find_package(CUDAToolkit 11 REQUIRED)
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 20)

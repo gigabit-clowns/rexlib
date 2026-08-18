@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/plugin.hpp>
 
-namespace xmipp4 
+namespace xmipp4
 {
 
 class cuda_plugin final

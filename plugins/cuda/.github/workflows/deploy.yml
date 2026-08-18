@@ -42,7 +42,7 @@ jobs:
           python-version: 3.13
 
       - name: Install pip dependencies
-        run: pip install toml
+        run: 'pip install --only-binary :all: toml==0.10.2'
 
       - name: Patch pyproject.toml with the CUDA suffix
         run: >
