@@ -27,7 +27,7 @@ find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 FetchContent_Declare(
 	pybind11
 	GIT_REPOSITORY https://github.com/pybind/pybind11
-	GIT_TAG v3.0.4
+	GIT_TAG v3.1.0
 )
 FetchContent_MakeAvailable(pybind11)
 
