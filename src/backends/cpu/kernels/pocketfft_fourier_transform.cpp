@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/kernels/fourier_transform.hpp>
+#include <backends/cpu/kernels/pocketfft_fourier_transform.hpp>
 
 #include <backends/cpu/config.hpp>
 
