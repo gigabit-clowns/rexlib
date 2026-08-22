@@ -46,9 +46,8 @@ public:
 	) const
 	{
 		// pocketfft is handed a count rather than this pool, threading a
-		// transform from a pool of its own when it threads one at all. It is
-		// currently built with its threading off, so the transform runs on
-		// the calling thread and the count only says what it could use. The
+		// transform from a pool of its own. The count is what it may spread a
+		// transform over, and is ignored where that threading is off. The
 		// grain is stated per element for the conversion pass, which is an
 		// elementwise loop and the only part of this that uses the pool.
 		m_transform(

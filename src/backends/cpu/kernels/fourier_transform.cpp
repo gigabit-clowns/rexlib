@@ -4,24 +4,30 @@
 
 #include <backends/cpu/config.hpp>
 
+#include <xmipp4/core/platform/compiler.h>
+
 #include <complex>
 
 // pocketfft parks its workers in a function local static whose destructor
-// joins them. Compiled into this shared library, that join runs during static
-// destruction, which on Windows is DLL_PROCESS_DETACH: after the loader has
-// already stopped every other thread. MinGW's pthread_join waits there for a
-// completion that never comes, and the process hangs at exit. It is the same
-// reason cpu::device owns the pool this backend threads its own loops over
-// rather than a static holding it.
+// joins them. Built with mingw-w64 that hangs, and the threading is off there
+// for that reason alone: upstream reports it against g++/mingw-w64 and states
+// that MSVC is unaffected, without a diagnosis of the cause, and the fix
+// attempted since has not worked.
 //
-// Nothing has hit this yet, only because pocketfft declines to thread a
-// transform whose axis is shorter than 1000 samples and nothing asks it for a
-// longer one. That is not a property worth relying on, so the threading is
-// off until the transform is spread over cpu::thread_pool instead.
+//   https://github.com/mreineck/pocketfft/issues/1
+//   https://github.com/scipy/scipy/issues/16352
+//
+// SciPy meets the same thing and answers it the same way: conda-forge and
+// MSYS2 ship it with this define, while the MSVC wheels keep their threading.
+// Every toolchain but mingw-w64 is left threaded here for the same reason,
+// the transform being the one part of this backend that is not spread over
+// cpu::thread_pool.
 //
 // This is the only translation unit that includes pocketfft, so defining it
 // here cannot make one build of the header disagree with another.
-#define POCKETFFT_NO_MULTITHREADING
+#ifdef XMIPP4_MINGW
+	#define POCKETFFT_NO_MULTITHREADING
+#endif
 #define POCKETFFT_CACHE_SIZE XMIPP4_POCKETFFT_CACHE_SIZE
 #include <pocketfft_hdronly.h>
 
