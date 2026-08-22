@@ -264,8 +264,13 @@ std::size_t joint_layout_implementation::seek(
 	// the quotient outwards. The quotient runs out once every remaining index
 	// would be zero, which is what iter() has already left behind, so the
 	// loop stops rather than writing them.
-	for (std::size_t i = first_dim; i < last_dim && position; ++i)
+	for (std::size_t i = first_dim; i < last_dim; ++i)
 	{
+		if (position == 0)
+		{
+			break;
+		}
+
 		const auto index = position % m_extents[i];
 		position /= m_extents[i];
 
