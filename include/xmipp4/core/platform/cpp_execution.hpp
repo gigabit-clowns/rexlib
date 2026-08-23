@@ -4,13 +4,13 @@
 
 #include "cpp_features.hpp"
 
-#if XMIPP4_HAS_LIB_EXECUTION
+#if REX_HAS_LIB_EXECUTION
 	#include <execution>
-	#define XMIPP4_SEQ std::execution::seq,
-	#define XMIPP4_PAR std::execution::par,
-	#define XMIPP4_PAR_UNSEQ std::execution::par_unseq,
+	#define REX_SEQ std::execution::seq,
+	#define REX_PAR std::execution::par,
+	#define REX_PAR_UNSEQ std::execution::par_unseq,
 #else
-	#define XMIPP4_SEQ
-	#define XMIPP4_PAR
-	#define XMIPP4_PAR_UNSEQ
+	#define REX_SEQ
+	#define REX_PAR
+	#define REX_PAR_UNSEQ
 #endif

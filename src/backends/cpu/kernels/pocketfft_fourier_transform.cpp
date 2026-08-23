@@ -25,10 +25,10 @@
 //
 // This is the only translation unit that includes pocketfft, so defining it
 // here cannot make one build of the header disagree with another.
-#ifdef XMIPP4_MINGW
+#ifdef REX_MINGW
 	#define POCKETFFT_NO_MULTITHREADING
 #endif
-#define POCKETFFT_CACHE_SIZE XMIPP4_POCKETFFT_CACHE_SIZE
+#define POCKETFFT_CACHE_SIZE REX_POCKETFFT_CACHE_SIZE
 #include <pocketfft_hdronly.h>
 
 namespace xmipp4

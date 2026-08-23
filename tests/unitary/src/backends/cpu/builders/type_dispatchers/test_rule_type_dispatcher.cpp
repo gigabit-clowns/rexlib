@@ -40,9 +40,9 @@ struct reject_float16<T>
 // need something for it to name.
 const operation_descriptor& probe_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REX_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REX_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right");
 	static const operation_descriptor instance = make_operation_descriptor(
 		"xmipp4.test",

@@ -12,9 +12,9 @@ namespace xmipp4
 
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 {
-	#if XMIPP4_WINDOWS
+	#if REX_WINDOWS
 		return _aligned_malloc(size, alignment);
-	#elif XMIPP4_POSIX
+	#elif REX_POSIX
 		void *result;
 		
 		alignment = std::max(alignment, sizeof(void*));
@@ -31,7 +31,7 @@ void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 
 void aligned_free(void* ptr) noexcept
 {
-	#if XMIPP4_WINDOWS
+	#if REX_WINDOWS
 		_aligned_free(ptr);
 	#else
 		std::free(ptr);

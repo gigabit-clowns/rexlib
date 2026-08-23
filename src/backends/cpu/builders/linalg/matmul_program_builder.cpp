@@ -88,7 +88,7 @@ struct matmul_kernel_factory
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_LINALG_PROGRAM_BUILDER_EX(
+REX_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	matmul,
 	ops::matmul_operation,
 	matmul_kernel_factory,

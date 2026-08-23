@@ -104,7 +104,7 @@ struct power_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	power,
 	ops::power_operation,
 	default_kernel_factory<power_kernel>

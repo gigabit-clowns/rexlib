@@ -18,11 +18,11 @@ namespace ops
  * Computed without the intermediate overflow that squaring the
  * operands would cause.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	hypot,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<floating_point_type_domain>
 );

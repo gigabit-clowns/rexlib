@@ -18,11 +18,11 @@ namespace ops
  * Only types that can represent a negative value are admitted, which rules
  * out booleans, characters and unsigned integers.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	negate,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<signed_arithmetic_type_domain>
 );

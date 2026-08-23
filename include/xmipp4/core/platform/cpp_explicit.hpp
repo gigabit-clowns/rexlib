@@ -4,8 +4,8 @@
 
 #include "cpp_features.hpp"
 
-#if XMIPP4_HAS_CONDITIONAL_EXPLICIT
-	#define XMIPP4_NO_EXPLICIT explicit(false)
+#if REX_HAS_CONDITIONAL_EXPLICIT
+	#define REX_NO_EXPLICIT explicit(false)
 #else
-	#define XMIPP4_NO_EXPLICIT
+	#define REX_NO_EXPLICIT
 #endif

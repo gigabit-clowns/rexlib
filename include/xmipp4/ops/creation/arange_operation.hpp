@@ -16,11 +16,11 @@ namespace xmipp4
 namespace ops
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REX_DECLARE_OPERATION_TRAITS(
 	arange,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS(),
+	REX_OPERANDS("result"),
+	REX_OPERANDS(),
 	sequence_operation_shape_policy,
 	nullary_free_rule<real_arithmetic_type_domain>
 );
@@ -41,7 +41,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * be asked where it stops, and the complex plane has none. Use @ref
  * linspace_operation, which is told its length outright, for a complex ramp.
  */
-XMIPP4_BEGIN_TEMPLATE_BASE
+REX_BEGIN_TEMPLATE_BASE
 class REXLIB_API arange_operation final
 	: public parametric_operation<arange_operation, arange_operation_traits>
 {
@@ -84,12 +84,12 @@ public:
 	std::size_t get_count() const noexcept;
 
 private:
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	scalar_value m_start;
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	scalar_value m_step;
 };
-XMIPP4_END_TEMPLATE_BASE
+REX_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace xmipp4

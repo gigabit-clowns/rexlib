@@ -75,7 +75,7 @@ private:
 		);
 	}
 
-	XMIPP4_NO_UNIQUE_ADDRESS F m_functor;
+	REX_NO_UNIQUE_ADDRESS F m_functor;
 	joint_layout m_layout;
 };
 

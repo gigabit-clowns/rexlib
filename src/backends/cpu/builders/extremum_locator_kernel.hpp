@@ -125,7 +125,7 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS Order m_order;
+	REX_NO_UNIQUE_ADDRESS Order m_order;
 };
 
 } // namespace cpu

@@ -8,7 +8,7 @@ namespace cpu
 {
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>::strided_pointer_iterator() noexcept
 	: m_data(nullptr)
 	, m_stride()
@@ -16,7 +16,7 @@ strided_pointer_iterator<T, Stride>::strided_pointer_iterator() noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>::strided_pointer_iterator(
 	pointer data,
 	stride_type stride
@@ -28,7 +28,7 @@ strided_pointer_iterator<T, Stride>::strided_pointer_iterator(
 
 template <typename T, typename Stride>
 template <typename U, typename Stride2, typename>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>::strided_pointer_iterator(
 	const strided_pointer_iterator<U, Stride2> &other
 ) noexcept
@@ -38,7 +38,7 @@ strided_pointer_iterator<T, Stride>::strided_pointer_iterator(
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 typename strided_pointer_iterator<T, Stride>::reference
 strided_pointer_iterator<T, Stride>::operator*() const noexcept
 {
@@ -46,7 +46,7 @@ strided_pointer_iterator<T, Stride>::operator*() const noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 typename strided_pointer_iterator<T, Stride>::pointer
 strided_pointer_iterator<T, Stride>::operator->() const noexcept
 {
@@ -54,7 +54,7 @@ strided_pointer_iterator<T, Stride>::operator->() const noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 typename strided_pointer_iterator<T, Stride>::reference
 strided_pointer_iterator<T, Stride>::operator[](difference_type n) const noexcept
 {
@@ -62,7 +62,7 @@ strided_pointer_iterator<T, Stride>::operator[](difference_type n) const noexcep
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>&
 strided_pointer_iterator<T, Stride>::operator++() noexcept
 {
@@ -71,7 +71,7 @@ strided_pointer_iterator<T, Stride>::operator++() noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>
 strided_pointer_iterator<T, Stride>::operator++(int) noexcept
 {
@@ -81,7 +81,7 @@ strided_pointer_iterator<T, Stride>::operator++(int) noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>&
 strided_pointer_iterator<T, Stride>::operator--() noexcept
 {
@@ -90,7 +90,7 @@ strided_pointer_iterator<T, Stride>::operator--() noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>
 strided_pointer_iterator<T, Stride>::operator--(int) noexcept
 {
@@ -100,7 +100,7 @@ strided_pointer_iterator<T, Stride>::operator--(int) noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>&
 strided_pointer_iterator<T, Stride>::operator+=(difference_type n) noexcept
 {
@@ -109,7 +109,7 @@ strided_pointer_iterator<T, Stride>::operator+=(difference_type n) noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride>&
 strided_pointer_iterator<T, Stride>::operator-=(difference_type n) noexcept
 {
@@ -118,7 +118,7 @@ strided_pointer_iterator<T, Stride>::operator-=(difference_type n) noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 typename strided_pointer_iterator<T, Stride>::pointer
 strided_pointer_iterator<T, Stride>::data() const noexcept
 {
@@ -126,7 +126,7 @@ strided_pointer_iterator<T, Stride>::data() const noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 typename strided_pointer_iterator<T, Stride>::stride_type
 strided_pointer_iterator<T, Stride>::stride() const noexcept
 {
@@ -134,7 +134,7 @@ strided_pointer_iterator<T, Stride>::stride() const noexcept
 }
 
 template <typename T, typename Stride>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 strided_pointer_iterator<T, Stride> make_strided_pointer_iterator(
 	T* data,
 	Stride stride

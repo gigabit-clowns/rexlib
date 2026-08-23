@@ -119,8 +119,8 @@ resolve_output_descriptors(
 )
 {
 	const auto n = output_operands.size();
-	XMIPP4_ASSERT(canonical_shapes.size() == n);
-	XMIPP4_ASSERT(canonical_data_types.size() == n);
+	REX_ASSERT(canonical_shapes.size() == n);
+	REX_ASSERT(canonical_data_types.size() == n);
 
 	boost::container::small_vector<array_descriptor, N> result;
 	result.reserve(n);
@@ -161,7 +161,7 @@ resolve_output_descriptors(
 		}
 	}
 
-	XMIPP4_ASSERT(result.size() == n);
+	REX_ASSERT(result.size() == n);
 	return result;
 }
 
@@ -181,7 +181,7 @@ resolve_output_storage(
 	>;
 
 	const auto n = output_operands.size();
-	XMIPP4_ASSERT(n == descriptors.size());
+	REX_ASSERT(n == descriptors.size());
 
 	result_type result;
 	result.reserve(n);
@@ -212,8 +212,8 @@ resolve_output_storage(
 			output_operand = array(storage, descriptor); // Store in output.
 		}
 
-		XMIPP4_ASSERT(storage);
-		XMIPP4_ASSERT(output_operand.get_descriptor() == descriptor);
+		REX_ASSERT(storage);
+		REX_ASSERT(output_operand.get_descriptor() == descriptor);
 		result.push_back(std::move(storage));
 	}
 
@@ -257,12 +257,12 @@ create_signatures(
 )
 {
 	const auto n = descriptors.size();
-	XMIPP4_ASSERT(n == storages.size());
+	REX_ASSERT(n == storages.size());
 
 	boost::container::small_vector<operand_signature, N> result(n);
 	for (std::size_t i = 0; i < n; ++i)
 	{
-		XMIPP4_ASSERT(storages[i]);
+		REX_ASSERT(storages[i]);
 		result[i] = operand_signature(
 			std::move(descriptors[i]), // Steal descriptors
 			&(storages[i]->get_memory_resource())
@@ -349,11 +349,11 @@ void eager_dispatcher::dispatch(
 )
 {
 	using small_output_size_tag =
-		std::integral_constant<std::size_t, XMIPP4_SMALL_OUTPUT_OPERAND_COUNT>;
+		std::integral_constant<std::size_t, REX_SMALL_OUTPUT_OPERAND_COUNT>;
 	using small_input_size_tag =
-		std::integral_constant<std::size_t, XMIPP4_SMALL_INPUT_OPERAND_COUNT>;
+		std::integral_constant<std::size_t, REX_SMALL_INPUT_OPERAND_COUNT>;
 	using small_scratch_size_tag =
-		std::integral_constant<std::size_t, XMIPP4_SMALL_SCRATCH_OPERAND_COUNT>;
+		std::integral_constant<std::size_t, REX_SMALL_SCRATCH_OPERAND_COUNT>;
 
 	const auto &queue = device_context.get_active_queue();
 	if (!queue)
@@ -459,7 +459,7 @@ void eager_dispatcher::dispatch(
 		make_span(input_storages.data(), n_inputs)
 	);
 
-	XMIPP4_ASSERT(m_program_manager);
+	REX_ASSERT(m_program_manager);
 	auto prog = m_program_manager->build(
 		op,
 		make_span(output_signatures.data(), n_outputs),
@@ -467,7 +467,7 @@ void eager_dispatcher::dispatch(
 		*queue,
 		&m_program_cache
 	);
-	XMIPP4_ASSERT(prog);
+	REX_ASSERT(prog);
 
 	auto scratch = allocate_scratch(
 		prog->get_scratch_requirements(),
@@ -491,7 +491,7 @@ std::shared_ptr<dispatcher> make_eager_dispatcher(
 {
 	return std::make_shared<eager_dispatcher>(
 		std::move(program_manager),
-		XMIPP4_DEFAULT_OPERATION_PROGRAM_CACHE_CAPACITY
+		REX_DEFAULT_OPERATION_PROGRAM_CACHE_CAPACITY
 	);
 }
 

@@ -29,7 +29,7 @@ namespace xmipp4
  * @return T The converted value.
  */
 template <typename T, typename Q>
-XMIPP4_NODISCARD
+REX_NODISCARD
 T numerical_cast(const Q &src) noexcept;
 
 } // namespace xmipp4

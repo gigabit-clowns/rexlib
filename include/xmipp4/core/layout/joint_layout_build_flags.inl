@@ -6,16 +6,16 @@
 namespace xmipp4 
 {
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 const char* to_string(joint_layout_build_flag_bits x) noexcept
 {
 	switch (x)
 	{
-	XMIPP4_ENUM_TO_STR_CASE(
+	REX_ENUM_TO_STR_CASE(
 		joint_layout_build_flag_bits, 
 		enable_reordering
 	)
-	XMIPP4_ENUM_TO_STR_CASE(
+	REX_ENUM_TO_STR_CASE(
 		joint_layout_build_flag_bits, 
 		enable_coalescing
 	)

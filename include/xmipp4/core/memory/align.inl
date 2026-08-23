@@ -8,33 +8,33 @@ namespace xmipp4
 {
 
 template <typename T>
-XMIPP4_NODISCARD inline 
+REX_NODISCARD inline 
 std::size_t get_alignment(T* address) noexcept
 {
 	return get_alignment(reinterpret_cast<std::uintptr_t>(address));
 }
 
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 std::size_t get_alignment(std::uintptr_t address) noexcept
 {
 	return mask_trailing_zeros(address) + 1;
 }
 
 template <typename T>
-XMIPP4_NODISCARD inline
+REX_NODISCARD inline
 bool is_aligned(T* address, std::size_t alignment) noexcept
 {
 	return is_aligned(reinterpret_cast<std::uintptr_t>(address), alignment);
 }
 
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 bool is_aligned(std::uintptr_t address, std::size_t alignment) noexcept
 {
 	return address % alignment == 0;
 }
 
 template <typename T>
-XMIPP4_NODISCARD inline
+REX_NODISCARD inline
 T* align_floor(T* address, std::size_t alignment) noexcept
 {
 	auto value = reinterpret_cast<std::uintptr_t>(address);
@@ -42,14 +42,14 @@ T* align_floor(T* address, std::size_t alignment) noexcept
 	return reinterpret_cast<T*>(value);
 }
 
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 std::uintptr_t align_floor(std::uintptr_t address, std::size_t alignment) noexcept
 {
 	align_floor_inplace(address, alignment);
 	return address;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 std::uintptr_t& align_floor_inplace(std::uintptr_t& address, std::size_t alignment) noexcept
 {
 	address /= alignment;
@@ -58,7 +58,7 @@ std::uintptr_t& align_floor_inplace(std::uintptr_t& address, std::size_t alignme
 }
 
 template <typename T>
-XMIPP4_NODISCARD inline
+REX_NODISCARD inline
 T* align_ceil(T* address, std::size_t alignment) noexcept
 {
 	auto value = reinterpret_cast<std::uintptr_t>(address);
@@ -66,14 +66,14 @@ T* align_ceil(T* address, std::size_t alignment) noexcept
 	return reinterpret_cast<T*>(value);
 }
 
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 std::uintptr_t align_ceil(std::uintptr_t address, std::size_t alignment) noexcept
 {
 	align_ceil_inplace(address, alignment);
 	return address;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 std::uintptr_t& align_ceil_inplace(std::uintptr_t& address, std::size_t alignment) noexcept
 {
 	address += (alignment - 1);
@@ -81,7 +81,7 @@ std::uintptr_t& align_ceil_inplace(std::uintptr_t& address, std::size_t alignmen
 }
 
 template <typename T>
-XMIPP4_NODISCARD inline
+REX_NODISCARD inline
 T* offset_bytes(T* address, std::ptrdiff_t count)
 {
 	auto value = reinterpret_cast<std::uintptr_t>(address);

@@ -21,11 +21,11 @@ namespace ops
  * would, so the two agree by construction rather than by
  * convention.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	divmod,
 	ops_component,
-	XMIPP4_OPERANDS("quotient", "remainder"),
-	XMIPP4_OPERANDS("dividend", "divisor"),
+	REX_OPERANDS("quotient", "remainder"),
+	REX_OPERANDS("dividend", "divisor"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_pair_rule<
 		domain_union<real_arithmetic_type_domain, character_type_domain>

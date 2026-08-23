@@ -64,7 +64,7 @@ public:
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	mean,
 	ops::mean_operation,
 	default_kernel_factory<mean_kernel>

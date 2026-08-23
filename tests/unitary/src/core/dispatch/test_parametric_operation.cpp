@@ -54,11 +54,11 @@ private:
 	std::size_t m_factor;
 };
 
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	stub_scale,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	stub_scaling_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

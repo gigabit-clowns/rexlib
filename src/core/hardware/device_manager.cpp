@@ -57,13 +57,13 @@ public:
 
 	void enumerate_devices(std::vector<device_index> &indices) const
 	{
-		XMIPP4_ASSERT( indices.empty() );
+		REX_ASSERT( indices.empty() );
 
 		std::vector<std::size_t> ids;
 		for(const auto &item : m_backends)
 		{
 			const auto *backend = item.second.get();
-			XMIPP4_ASSERT(backend);
+			REX_ASSERT(backend);
 			backend->enumerate_devices(ids);
 			for(const auto &id : ids)
 			{

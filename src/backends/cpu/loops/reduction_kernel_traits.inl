@@ -33,22 +33,22 @@ namespace detail
 
 // How much of a tile the accumulators may take, and how long the tile may
 // be as a result. See config.hpp for what the defaults are worth and why.
-XMIPP4_CONST_CONSTEXPR std::size_t reduction_tile_budget =
-	XMIPP4_REDUCTION_TILE_BUDGET;
-XMIPP4_CONST_CONSTEXPR std::size_t minimum_reduction_tile =
-	XMIPP4_MINIMUM_REDUCTION_TILE_SIZE;
-XMIPP4_CONST_CONSTEXPR std::size_t maximum_reduction_tile =
-	XMIPP4_MAXIMUM_REDUCTION_TILE_SIZE;
+REX_CONST_CONSTEXPR std::size_t reduction_tile_budget =
+	REX_REDUCTION_TILE_BUDGET;
+REX_CONST_CONSTEXPR std::size_t minimum_reduction_tile =
+	REX_MINIMUM_REDUCTION_TILE_SIZE;
+REX_CONST_CONSTEXPR std::size_t maximum_reduction_tile =
+	REX_MAXIMUM_REDUCTION_TILE_SIZE;
 
 // The same three for the lanes a run is dealt out over.
-XMIPP4_CONST_CONSTEXPR std::size_t reduction_fold_lane_budget =
-	XMIPP4_REDUCTION_FOLD_LANE_BUDGET;
-XMIPP4_CONST_CONSTEXPR std::size_t minimum_reduction_fold_lanes =
-	XMIPP4_MINIMUM_REDUCTION_FOLD_LANES;
-XMIPP4_CONST_CONSTEXPR std::size_t maximum_reduction_fold_lanes =
-	XMIPP4_MAXIMUM_REDUCTION_FOLD_LANES;
+REX_CONST_CONSTEXPR std::size_t reduction_fold_lane_budget =
+	REX_REDUCTION_FOLD_LANE_BUDGET;
+REX_CONST_CONSTEXPR std::size_t minimum_reduction_fold_lanes =
+	REX_MINIMUM_REDUCTION_FOLD_LANES;
+REX_CONST_CONSTEXPR std::size_t maximum_reduction_fold_lanes =
+	REX_MAXIMUM_REDUCTION_FOLD_LANES;
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 std::size_t clamp_reduction_tile(std::size_t count) noexcept
 {
 	if (count > maximum_reduction_tile)
@@ -66,18 +66,18 @@ std::size_t clamp_reduction_tile(std::size_t count) noexcept
 
 // The same three for the accumulators one strip block holds, and the input
 // one pass over the blocks of a strip may span.
-XMIPP4_CONST_CONSTEXPR std::size_t reduction_strip_block_budget =
-	XMIPP4_REDUCTION_STRIP_BLOCK_BUDGET;
-XMIPP4_CONST_CONSTEXPR std::size_t minimum_reduction_strip_block =
-	XMIPP4_MINIMUM_REDUCTION_STRIP_BLOCK;
-XMIPP4_CONST_CONSTEXPR std::size_t maximum_reduction_strip_block =
-	XMIPP4_MAXIMUM_REDUCTION_STRIP_BLOCK;
-XMIPP4_CONST_CONSTEXPR std::size_t reduction_strip_pass_budget =
-	XMIPP4_REDUCTION_STRIP_PASS_BUDGET;
-XMIPP4_CONST_CONSTEXPR std::size_t minimum_reduction_strip_block_run =
-	XMIPP4_MINIMUM_REDUCTION_STRIP_BLOCK_RUN;
+REX_CONST_CONSTEXPR std::size_t reduction_strip_block_budget =
+	REX_REDUCTION_STRIP_BLOCK_BUDGET;
+REX_CONST_CONSTEXPR std::size_t minimum_reduction_strip_block =
+	REX_MINIMUM_REDUCTION_STRIP_BLOCK;
+REX_CONST_CONSTEXPR std::size_t maximum_reduction_strip_block =
+	REX_MAXIMUM_REDUCTION_STRIP_BLOCK;
+REX_CONST_CONSTEXPR std::size_t reduction_strip_pass_budget =
+	REX_REDUCTION_STRIP_PASS_BUDGET;
+REX_CONST_CONSTEXPR std::size_t minimum_reduction_strip_block_run =
+	REX_MINIMUM_REDUCTION_STRIP_BLOCK_RUN;
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 std::size_t clamp_reduction_strip_block(std::size_t count) noexcept
 {
 	if (count > maximum_reduction_strip_block)
@@ -93,7 +93,7 @@ std::size_t clamp_reduction_strip_block(std::size_t count) noexcept
 	return count;
 }
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 std::size_t clamp_reduction_fold_lanes(std::size_t count) noexcept
 {
 	if (count > maximum_reduction_fold_lanes)

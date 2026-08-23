@@ -9,7 +9,7 @@ namespace xmipp4
 namespace cpu
 {
 
-XMIPP4_INSTANTIATE_EIGEN_GEMM(std::complex<float64_t>);
+REX_INSTANTIATE_EIGEN_GEMM(std::complex<float64_t>);
 
 } // namespace cpu
 } // namespace xmipp4

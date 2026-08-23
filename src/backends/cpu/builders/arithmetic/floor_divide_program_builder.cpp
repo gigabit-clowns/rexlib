@@ -26,7 +26,7 @@ struct floor_divide_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	floor_divide,
 	ops::floor_divide_operation,
 	default_kernel_factory<floor_divide_kernel>

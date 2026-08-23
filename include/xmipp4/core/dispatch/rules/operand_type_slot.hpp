@@ -27,7 +27,7 @@ namespace xmipp4
 template <std::size_t PivotIndex, typename Transform = same_type_transform>
 struct operand_type_slot
 {
-	static XMIPP4_CONST_CONSTEXPR std::size_t pivot_index = PivotIndex;
+	static REX_CONST_CONSTEXPR std::size_t pivot_index = PivotIndex;
 
 	using transform_type = Transform;
 };

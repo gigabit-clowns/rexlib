@@ -30,7 +30,7 @@ struct bitwise_xor_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	bitwise_xor,
 	ops::bitwise_xor_operation,
 	default_kernel_factory<bitwise_xor_kernel>

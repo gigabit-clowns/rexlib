@@ -21,9 +21,9 @@ using shape_type = operation_shape_policy::shape_type;
 
 const operation_descriptor& reduction_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REX_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REX_CONST_CONSTEXPR auto inputs =
 		make_operand_names("value");
 	static const operation_descriptor instance =
 		make_operation_descriptor("xmipp4.test", "reduce", outputs, inputs);

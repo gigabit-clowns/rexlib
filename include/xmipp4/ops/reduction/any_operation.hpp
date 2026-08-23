@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Test whether any element along the reduced axes is true.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	any,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_predicate_rule<>
 );

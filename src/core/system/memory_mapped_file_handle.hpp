@@ -37,9 +37,9 @@ void memory_mapped_file_close(void* data, std::size_t size) noexcept;
 
 } // namespace xmipp4
 
-#if XMIPP4_POSIX
+#if REX_POSIX
 	#include "memory_mapped_file_handle_posix.inl"
-#elif XMIPP4_WINDOWS
+#elif REX_WINDOWS
 	#include "memory_mapped_file_handle_windows.inl"
 #else
 	#error "No memory_mapped_file_handle implementation available for this platform"

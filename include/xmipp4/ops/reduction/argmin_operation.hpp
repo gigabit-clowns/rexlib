@@ -18,11 +18,11 @@ namespace ops
  * The result holds indices rather than values, so it is int64 whatever
  * the operand type was.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	argmin,
 	ops_component,
-	XMIPP4_OPERANDS("index"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("index"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_fixed_output_rule<
 		numerical_type::int64,

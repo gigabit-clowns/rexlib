@@ -43,7 +43,7 @@ void pad_extents(
 	std::size_t target_size
 )
 {
-	XMIPP4_ASSERT( extents.size() < target_size );
+	REX_ASSERT( extents.size() < target_size );
 
 	const auto padding = target_size - extents.size();
 	extents.insert(extents.cbegin(), padding, 1U);
@@ -83,7 +83,7 @@ void broadcast_extents(
 		pad_extents(extents2, extents1.size());
 	}
 
-	XMIPP4_ASSERT( extents1.size() == extents2.size() );
+	REX_ASSERT( extents1.size() == extents2.size() );
 	const auto n = extents1.size();
 	for (std::size_t i = 0; i < n; ++i)
 	{
@@ -107,7 +107,7 @@ void broadcast_extents_accumulate(
 	// When other is shorter it is implicitly padded with leading ones, which
 	// leaves the corresponding leading axes of result untouched. Therefore the
 	// two sets of extents are aligned on their trailing axes.
-	XMIPP4_ASSERT( result.size() >= other.size() );
+	REX_ASSERT( result.size() >= other.size() );
 	const auto padding = result.size() - other.size();
 	const auto n = other.size();
 	for (std::size_t i = 0; i < n; ++i)
@@ -133,10 +133,10 @@ bool is_broadcast_compatible(
 		std::swap(extents1, extents2);
 	}
 
-	XMIPP4_ASSERT( extents1.size() >= extents2.size() );
+	REX_ASSERT( extents1.size() >= extents2.size() );
 	const auto padding = extents1.size() - extents2.size();
 	const auto n = extents2.size();
-	XMIPP4_ASSERT( padding + n == extents1.size() );
+	REX_ASSERT( padding + n == extents1.size() );
 
 	for (std::size_t i = 0; i < n; ++i)
 	{
@@ -159,10 +159,10 @@ bool is_broadcastable_to(
 		return false;
 	}
 
-	XMIPP4_ASSERT( to_extents.size() >= from_extents.size() );
+	REX_ASSERT( to_extents.size() >= from_extents.size() );
 	const auto padding = to_extents.size() - from_extents.size();
 	const auto n = from_extents.size();
-	XMIPP4_ASSERT( padding + n == to_extents.size() );
+	REX_ASSERT( padding + n == to_extents.size() );
 
 	for (std::size_t i = 0; i < n; ++i)
 	{

@@ -9,7 +9,7 @@
 namespace xmipp4
 {
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 const char* to_string(example_flag_bits ex) noexcept
 {
     switch (ex)

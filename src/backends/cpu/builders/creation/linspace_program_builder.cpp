@@ -92,7 +92,7 @@ struct linspace_kernel_factory
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_SEQUENCE_PROGRAM_BUILDER(
+REX_REGISTER_SEQUENCE_PROGRAM_BUILDER(
 	linspace,
 	ops::linspace_operation,
 	linspace_kernel_factory

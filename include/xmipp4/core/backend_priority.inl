@@ -6,41 +6,41 @@
 namespace xmipp4 
 {
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 bool operator<(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return static_cast<std::underlying_type<backend_priority>::type>(lhs) <
 		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;  
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 bool operator<=(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return static_cast<std::underlying_type<backend_priority>::type>(lhs) <=
 		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;  
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 bool operator>(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return rhs < lhs;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 bool operator>=(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return rhs <= lhs;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 const char* to_string(backend_priority priority) noexcept
 {
 	switch (priority)
 	{
-	XMIPP4_ENUM_TO_STR_CASE(backend_priority, unsupported)
-	XMIPP4_ENUM_TO_STR_CASE(backend_priority, fallback)
-	XMIPP4_ENUM_TO_STR_CASE(backend_priority, normal)
-	XMIPP4_ENUM_TO_STR_CASE(backend_priority, optimal)
+	REX_ENUM_TO_STR_CASE(backend_priority, unsupported)
+	REX_ENUM_TO_STR_CASE(backend_priority, fallback)
+	REX_ENUM_TO_STR_CASE(backend_priority, normal)
+	REX_ENUM_TO_STR_CASE(backend_priority, optimal)
 	default: return "";
 	}
 }

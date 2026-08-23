@@ -6,10 +6,10 @@
  * @brief Stringfy the literal x
  * 
  */
-#define XMIPP4_STRINGFY(x) #x
+#define REX_STRINGFY(x) #x
 
 /**
  * @brief Stringfy the value of x
  * 
  */
-#define XMIPP4_STRINGFY_VALUE(x) XMIPP4_STRINGFY(x)
+#define REX_STRINGFY_VALUE(x) REX_STRINGFY(x)

@@ -33,7 +33,7 @@ struct copy_support : std::is_convertible<Q, T> {};
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
 	copy,
 	ops::copy_operation,
 	default_kernel_factory<copy_kernel>,

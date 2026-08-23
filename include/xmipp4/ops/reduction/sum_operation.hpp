@@ -19,11 +19,11 @@ namespace ops
  * a disjunction. Overflow is a question about values rather than about
  * types, and is not one a domain can answer.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	sum,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_homogeneous_rule<>
 );

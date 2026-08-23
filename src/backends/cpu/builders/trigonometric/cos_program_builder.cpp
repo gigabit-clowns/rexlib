@@ -29,7 +29,7 @@ struct cos_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	cos,
 	ops::cos_operation,
 	default_kernel_factory<cos_kernel>

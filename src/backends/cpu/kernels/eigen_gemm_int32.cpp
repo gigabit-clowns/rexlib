@@ -9,7 +9,7 @@ namespace xmipp4
 namespace cpu
 {
 
-XMIPP4_INSTANTIATE_EIGEN_GEMM(std::int32_t);
+REX_INSTANTIATE_EIGEN_GEMM(std::int32_t);
 
 } // namespace cpu
 } // namespace xmipp4

@@ -18,11 +18,11 @@ namespace ops
  * Only inexact types can hold either, so an integer array would answer
  * true everywhere.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	is_finite,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_predicate_rule<inexact_type_domain>
 );

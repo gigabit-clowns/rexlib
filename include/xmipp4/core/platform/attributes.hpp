@@ -20,141 +20,141 @@
 #include "builtin.h"
 
 /**
- * @def XMIPP4_NORETURN
+ * @def REX_NORETURN
  * @brief Indicates that the function does not return
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(noreturn)
-	#define XMIPP4_NORETURN XMIPP4_CPP_ATTRIBUTE(noreturn)
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(noreturn)
-	#define XMIPP4_NORETURN XMIPP4_GCC_ATTRIBUTE(noreturn)
+#if REX_HAS_CPP_ATTRIBUTE(noreturn)
+	#define REX_NORETURN REX_CPP_ATTRIBUTE(noreturn)
+#elif REX_HAS_GCC_ATTRIBUTE(noreturn)
+	#define REX_NORETURN REX_GCC_ATTRIBUTE(noreturn)
 #else
-	#define XMIPP4_NORETURN
+	#define REX_NORETURN
 #endif
 
 /**
- * @def XMIPP4_FALLTHROUGH
+ * @def REX_FALLTHROUGH
  * @brief Used to explicitly avoid warnings when a break condition
  * is not desired in a switch statement
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(fallthrough)
-	#define XMIPP4_FALLTHROUGH XMIPP4_CPP_ATTRIBUTE(fallthrough)
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(fallthrough)
-	#define XMIPP4_FALLTHROUGH XMIPP4_GCC_ATTRIBUTE(fallthrough)
+#if REX_HAS_CPP_ATTRIBUTE(fallthrough)
+	#define REX_FALLTHROUGH REX_CPP_ATTRIBUTE(fallthrough)
+#elif REX_HAS_GCC_ATTRIBUTE(fallthrough)
+	#define REX_FALLTHROUGH REX_GCC_ATTRIBUTE(fallthrough)
 #else
-	#define XMIPP4_FALLTHROUGH
+	#define REX_FALLTHROUGH
 #endif
 
 /**
- * @def XMIPP4_DEPRECATED(reason)
+ * @def REX_DEPRECATED(reason)
  * @brief Indicates that a function is deprecated providing a reason
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(deprecated)
-	#if XMIPP4_HAS_CPP14
-		#define XMIPP4_DEPRECATED(reason) XMIPP4_CPP_ATTRIBUTE(deprecated(reason))
+#if REX_HAS_CPP_ATTRIBUTE(deprecated)
+	#if REX_HAS_CPP14
+		#define REX_DEPRECATED(reason) REX_CPP_ATTRIBUTE(deprecated(reason))
 	#else
-		#define XMIPP4_DEPRECATED(reason) XMIPP4_CPP_ATTRIBUTE(deprecated)
+		#define REX_DEPRECATED(reason) REX_CPP_ATTRIBUTE(deprecated)
 	#endif
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(deprecated)
-	#define XMIPP4_DEPRECATED XMIPP4_GCC_ATTRIBUTE(deprecated)
+#elif REX_HAS_GCC_ATTRIBUTE(deprecated)
+	#define REX_DEPRECATED REX_GCC_ATTRIBUTE(deprecated)
 #else
-	#define XMIPP4_DEPRECATED(reason)
+	#define REX_DEPRECATED(reason)
 #endif
 
 /**
- * @def XMIPP4_NODISCARD
+ * @def REX_NODISCARD
  * @brief Indicates that the return value should be used
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(nodiscard)
-	#define XMIPP4_NODISCARD XMIPP4_CPP_ATTRIBUTE(nodiscard)
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(warn_unused_result)
-	#define XMIPP4_NODISCARD XMIPP4_GCC_ATTRIBUTE(warn_unused_result)
+#if REX_HAS_CPP_ATTRIBUTE(nodiscard)
+	#define REX_NODISCARD REX_CPP_ATTRIBUTE(nodiscard)
+#elif REX_HAS_GCC_ATTRIBUTE(warn_unused_result)
+	#define REX_NODISCARD REX_GCC_ATTRIBUTE(warn_unused_result)
 #else
-	#define XMIPP4_NODISCARD
+	#define REX_NODISCARD
 #endif
 
 /**
- * @def XMIPP4_UNUSED
+ * @def REX_UNUSED
  * @brief Indicates that a variable is intentionally declared and but unused.
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(maybe_unused)
-	#define XMIPP4_UNUSED XMIPP4_CPP_ATTRIBUTE(maybe_unused)
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(unused)
-	#define XMIPP4_UNUSED XMIPP4_GCC_ATTRIBUTE(unused)
+#if REX_HAS_CPP_ATTRIBUTE(maybe_unused)
+	#define REX_UNUSED REX_CPP_ATTRIBUTE(maybe_unused)
+#elif REX_HAS_GCC_ATTRIBUTE(unused)
+	#define REX_UNUSED REX_GCC_ATTRIBUTE(unused)
 #else
-	#define XMIPP4_UNUSED
+	#define REX_UNUSED
 #endif
 
 /**
- * @def XMIPP4_NODISCARD_MESSAGE(reason)
+ * @def REX_NODISCARD_MESSAGE(reason)
  * @brief Indicates that the return value should be used, proving a message
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(nodiscard)
-	#if XMIPP4_HAS_CPP20
-		#define XMIPP4_NODISCARD_MESSAGE(reason) XMIPP4_CPP_ATTRIBUTE(nodiscard(reason))
+#if REX_HAS_CPP_ATTRIBUTE(nodiscard)
+	#if REX_HAS_CPP20
+		#define REX_NODISCARD_MESSAGE(reason) REX_CPP_ATTRIBUTE(nodiscard(reason))
 	#else
-		#define XMIPP4_NODISCARD_MESSAGE(reason) XMIPP4_CPP_ATTRIBUTE(nodiscard)
+		#define REX_NODISCARD_MESSAGE(reason) REX_CPP_ATTRIBUTE(nodiscard)
 	#endif
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(warn_unused_result)
-	#define XMIPP4_NODISCARD_MESSAGE(reason) XMIPP4_GCC_ATTRIBUTE(warn_unused_result)
+#elif REX_HAS_GCC_ATTRIBUTE(warn_unused_result)
+	#define REX_NODISCARD_MESSAGE(reason) REX_GCC_ATTRIBUTE(warn_unused_result)
 #else
-	#define XMIPP4_NODISCARD_MESSAGE(reason)
+	#define REX_NODISCARD_MESSAGE(reason)
 #endif
 
 /**
- * @def XMIPP4_NO_UNIQUE_ADDRESS
+ * @def REX_NO_UNIQUE_ADDRESS
  * @brief Indicates that the empty class does not need to have
  * a unique address and instead it can share space with other
  * variables
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(no_unique_address)
-	#define XMIPP4_NO_UNIQUE_ADDRESS XMIPP4_CPP_ATTRIBUTE(no_unique_address)
+#if REX_HAS_CPP_ATTRIBUTE(no_unique_address)
+	#define REX_NO_UNIQUE_ADDRESS REX_CPP_ATTRIBUTE(no_unique_address)
 #else
-	#define XMIPP4_NO_UNIQUE_ADDRESS
+	#define REX_NO_UNIQUE_ADDRESS
 #endif
 
 /**
- * @def XMIPP4_ASSUME(expr)
+ * @def REX_ASSUME(expr)
  * @brief Assume that a particular expression evaluates to true
  * for compiler optimizations
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(assume)
-	#define XMIPP4_ASSUME(expr) XMIPP4_CPP_ATTRIBUTE(assume(expr))
-#elif XMIPP4_HAS_GCC_ATTRIBUTE(assume)
-	#define XMIPP4_ASSUME(expr) XMIPP4_GCC_ATTRIBUTE(assume(expr))
-#elif XMIPP4_HAS_BUILTIN(__builtin_assume)
-	#define XMIPP4_ASSUME(expr) __builtin_assume(expr)
+#if REX_HAS_CPP_ATTRIBUTE(assume)
+	#define REX_ASSUME(expr) REX_CPP_ATTRIBUTE(assume(expr))
+#elif REX_HAS_GCC_ATTRIBUTE(assume)
+	#define REX_ASSUME(expr) REX_GCC_ATTRIBUTE(assume(expr))
+#elif REX_HAS_BUILTIN(__builtin_assume)
+	#define REX_ASSUME(expr) __builtin_assume(expr)
 #elif defined(__assume)
-	#define XMIPP4_ASSUME(expr) __assume(expr)
+	#define REX_ASSUME(expr) __assume(expr)
 #else
-	#define XMIPP4_ASSUME(expr)
+	#define REX_ASSUME(expr)
 #endif
 
 /**
- * @def XMIPP4_LIKELY
+ * @def REX_LIKELY
  * @brief Indicates to the compiler that a particular branch is likely
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(likely)
-	#define XMIPP4_LIKELY XMIPP4_CPP_ATTRIBUTE(likely)
+#if REX_HAS_CPP_ATTRIBUTE(likely)
+	#define REX_LIKELY REX_CPP_ATTRIBUTE(likely)
 #else
-	#define XMIPP4_LIKELY
+	#define REX_LIKELY
 #endif
 
 /**
- * @def XMIPP4_UNLIKELY
+ * @def REX_UNLIKELY
  * @brief Indicates to the compiler that a particular branch is unlikely
  * 
  */
-#if XMIPP4_HAS_CPP_ATTRIBUTE(unlikely)
-	#define XMIPP4_UNLIKELY XMIPP4_CPP_ATTRIBUTE(unlikely)
+#if REX_HAS_CPP_ATTRIBUTE(unlikely)
+	#define REX_UNLIKELY REX_CPP_ATTRIBUTE(unlikely)
 #else
-	#define XMIPP4_UNLIKELY
+	#define REX_UNLIKELY
 #endif

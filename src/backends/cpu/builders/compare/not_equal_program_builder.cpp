@@ -27,7 +27,7 @@ struct not_equal_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	not_equal,
 	ops::not_equal_operation,
 	default_kernel_factory<not_equal_kernel>

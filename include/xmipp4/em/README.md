@@ -53,7 +53,7 @@ and read on every execution rather than discarded after `build()`.
 Arithmetic shared by more than one operation lives in `kernels/`.
 
 Each builder is one self-contained `.cpp` ending in an
-`XMIPP4_REGISTER_*_PROGRAM_BUILDER` macro, which registers it at static
+`REX_REGISTER_*_PROGRAM_BUILDER` macro, which registers it at static
 initialization; there is no registrar list to add to.
 
 ## Coverage policy

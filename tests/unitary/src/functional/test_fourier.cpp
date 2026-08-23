@@ -26,7 +26,7 @@ namespace
 {
 
 // The operand is two dimensional, so the last axis is axis 1.
-XMIPP4_CONST_CONSTEXPR std::size_t last_axis = 1;
+REX_CONST_CONSTEXPR std::size_t last_axis = 1;
 
 } // namespace
 

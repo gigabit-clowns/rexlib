@@ -19,11 +19,11 @@ namespace ops
  * which only a floating point type has. For an integer array,
  * comparing against zero says the same thing more plainly.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	sign_bit,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_predicate_rule<floating_point_type_domain>
 );

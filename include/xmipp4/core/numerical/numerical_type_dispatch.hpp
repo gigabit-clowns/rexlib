@@ -30,7 +30,7 @@ namespace xmipp4
  * @see type_tag
  */
 template <typename F, typename... Types>
-XMIPP4_CONSTEXPR
+REX_CONSTEXPR
 auto dispatch_numerical_types(F&& visitor, Types&& ...types);
 
 

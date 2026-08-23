@@ -16,11 +16,11 @@ namespace xmipp4
 namespace ops
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REX_DECLARE_OPERATION_TRAITS(
 	linspace,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS(),
+	REX_OPERANDS("result"),
+	REX_OPERANDS(),
 	sequence_operation_shape_policy,
 	nullary_free_rule<inexact_type_domain>
 );
@@ -44,7 +44,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * integers. Complex samples are admitted: a segment of the complex plane is
  * as well defined as one of the real line.
  */
-XMIPP4_BEGIN_TEMPLATE_BASE
+REX_BEGIN_TEMPLATE_BASE
 class REXLIB_API linspace_operation final
 	: public parametric_operation<linspace_operation, linspace_operation_traits>
 {
@@ -95,13 +95,13 @@ public:
 	bool get_endpoint() const noexcept;
 
 private:
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	scalar_value m_start;
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	scalar_value m_stop;
 	bool m_endpoint;
 };
-XMIPP4_END_TEMPLATE_BASE
+REX_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace xmipp4

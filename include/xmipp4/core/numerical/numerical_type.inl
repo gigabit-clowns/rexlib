@@ -5,7 +5,7 @@
 namespace xmipp4
 {
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 numerical_type_category get_category(numerical_type type) noexcept
 {
 	switch (type)

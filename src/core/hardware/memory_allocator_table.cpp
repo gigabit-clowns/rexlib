@@ -31,8 +31,8 @@ memory_allocator_table::memory_allocator_table(const device &dev)
 			);
 		}
 
-		XMIPP4_ASSERT(ite != allocators.end());
-		XMIPP4_ASSERT(ite->second != nullptr);
+		REX_ASSERT(ite != allocators.end());
+		REX_ASSERT(ite->second != nullptr);
 		m_allocators[i] = ite->second;
 	}
 }

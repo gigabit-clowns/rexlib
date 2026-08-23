@@ -52,7 +52,7 @@ using count_nonzero_kernel = fold_reduction_kernel<sum_fold, nonzero_lift>;
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	count_nonzero,
 	ops::count_nonzero_operation,
 	default_kernel_factory<count_nonzero_kernel>

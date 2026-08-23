@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Locate the largest element along the reduced axes.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	argmax,
 	ops_component,
-	XMIPP4_OPERANDS("index"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("index"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_fixed_output_rule<
 		numerical_type::int64,

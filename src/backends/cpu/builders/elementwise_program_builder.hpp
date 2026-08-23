@@ -96,7 +96,7 @@ public:
 private:
 	using kernel_factory_type = KernelFactory;
 
-	XMIPP4_NO_UNIQUE_ADDRESS kernel_factory_type m_kernel_factory;
+	REX_NO_UNIQUE_ADDRESS kernel_factory_type m_kernel_factory;
 };
 
 } // namespace cpu
@@ -112,8 +112,8 @@ private:
  * @param op The operation type.
  * @param kernel_factory Factory producing the per-element kernel.
  */
-#define XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(name, op, kernel_factory) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(name, op, kernel_factory) \
+	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
 		::xmipp4::cpu::elementwise_program_builder<op, kernel_factory> \
 	)
@@ -131,10 +131,10 @@ private:
  * @param ... The type dispatcher. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX( \
+#define REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX( \
 	name, op, kernel_factory, ... \
 ) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
 		::xmipp4::cpu::elementwise_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \

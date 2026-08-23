@@ -19,11 +19,11 @@ namespace ops
  * carries the operand type, and a boolean or character shift
  * count is not a quantity that means anything.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	right_shift,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value", "count"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value", "count"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<integral_type_domain>
 );

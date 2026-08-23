@@ -87,7 +87,7 @@ std::string get_default_plugin_directory();
 /**
  * @brief Get the the configured plugin directory.
  * 
- * Returns the value of XMIPP4_PLUGINS_DIRECTORY environment variable,
+ * Returns the value of REX_PLUGINS_DIRECTORY environment variable,
  * if set. Otherwise it returns the default plugin directory
  * 
  * @return std::string The plugin directory.

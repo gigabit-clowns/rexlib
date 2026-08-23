@@ -16,7 +16,7 @@ namespace xmipp4
  * Bounded so that a resolved rule stays a trivially copyable, allocation
  * free value on the dispatch path. Realistic rules use one or two pivots.
  */
-XMIPP4_INLINE_CONST_CONSTEXPR
+REX_INLINE_CONST_CONSTEXPR
 std::size_t max_operand_type_pivot_count = 8;
 
 /**
@@ -69,9 +69,9 @@ template <
 >
 struct operand_type_pivot
 {
-	static XMIPP4_CONST_CONSTEXPR pivot_source source = Source;
-	static XMIPP4_CONST_CONSTEXPR std::size_t index = Index;
-	static XMIPP4_CONST_CONSTEXPR std::ptrdiff_t default_pivot = DefaultPivot;
+	static REX_CONST_CONSTEXPR pivot_source source = Source;
+	static REX_CONST_CONSTEXPR std::size_t index = Index;
+	static REX_CONST_CONSTEXPR std::ptrdiff_t default_pivot = DefaultPivot;
 
 	using domain_type = Domain;
 };

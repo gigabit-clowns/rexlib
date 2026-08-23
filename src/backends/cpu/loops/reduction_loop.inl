@@ -176,7 +176,7 @@ public:
 		"A reduction kernel must declare at least one accumulator."
 	);
 
-	static XMIPP4_CONST_CONSTEXPR std::size_t capacity =
+	static REX_CONST_CONSTEXPR std::size_t capacity =
 		reduction_tile_size<accumulator_types>::value;
 
 	using partial_buffers =
@@ -358,7 +358,7 @@ private:
 		std::false_type
 	) noexcept
 	{
-		XMIPP4_CONST_CONSTEXPR std::size_t element_footprint =
+		REX_CONST_CONSTEXPR std::size_t element_footprint =
 			accumulator_footprint<type_list<Ins...>>::value;
 
 		const auto span = std::max<std::size_t>(width*element_footprint, 1);
@@ -467,7 +467,7 @@ private:
 		set_identity(width, accumulator_indices());
 	}
 
-	XMIPP4_NORETURN
+	REX_NORETURN
 	void set_identity(std::size_t, std::false_type) const
 	{
 		throw std::invalid_argument(
@@ -704,7 +704,7 @@ public:
 		partial_buffers &buffers
 	)
 	{
-		XMIPP4_ASSERT( begin < end );
+		REX_ASSERT( begin < end );
 		arm_reduced_space(begin);
 
 		const auto base = chunk*kept_count;
@@ -756,8 +756,8 @@ public:
 	}
 
 private:
-	static XMIPP4_CONST_CONSTEXPR std::size_t input_count = sizeof...(Ins);
-	static XMIPP4_CONST_CONSTEXPR std::size_t strip_width =
+	static REX_CONST_CONSTEXPR std::size_t input_count = sizeof...(Ins);
+	static REX_CONST_CONSTEXPR std::size_t strip_width =
 		accumulators_type::capacity;
 
 	using input_indices = std::index_sequence_for<Ins...>;
@@ -835,7 +835,7 @@ private:
 			}
 
 			run = m_kept_layout.next(m_kept_cursor, count);
-			XMIPP4_ASSERT( run > 0 );
+			REX_ASSERT( run > 0 );
 		}
 	}
 
@@ -906,7 +906,7 @@ private:
 		std::size_t end
 	)
 	{
-		XMIPP4_ASSERT( begin < end );
+		REX_ASSERT( begin < end );
 
 		m_reduced_cursor = m_reduced_origin;
 
@@ -934,7 +934,7 @@ private:
 		while (remaining)
 		{
 			run = m_reduced_layout.next(m_reduced_cursor, count);
-			XMIPP4_ASSERT( run > 0 );
+			REX_ASSERT( run > 0 );
 
 			count = std::min(run, remaining);
 			fold_run(
@@ -1284,7 +1284,7 @@ void run_reduction_vector_loop(
 	const loop_schedule &schedule
 )
 {
-	XMIPP4_CONST_CONSTEXPR std::index_sequence_for<Ins...> input_indices {};
+	REX_CONST_CONSTEXPR std::index_sequence_for<Ins...> input_indices {};
 
 	const auto kept_count = kept_layout.compute_element_count();
 	const auto workers = schedule.get_concurrency();

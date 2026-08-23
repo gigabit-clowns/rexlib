@@ -18,11 +18,11 @@ namespace ops
  * Every type with a defined bit pattern is admitted, which
  * excludes only the floating point and complex ones.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	bitwise_or,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<
 		domain_difference<any_type_domain, inexact_type_domain>

@@ -24,7 +24,7 @@ using numerical_type_promotion_table =
 		static_cast<std::size_t>(numerical_type::count)
 	>;
 
-XMIPP4_INLINE_CONSTEXPR_CPP23
+REX_INLINE_CONSTEXPR_CPP23
 numerical_type_promotion_lattice
 compute_numerical_type_promotion_lattice() noexcept
 {
@@ -70,7 +70,7 @@ compute_numerical_type_promotion_lattice() noexcept
 	return lattice;
 }
 
-XMIPP4_INLINE_CONSTEXPR_CPP23
+REX_INLINE_CONSTEXPR_CPP23
 numerical_type_promotion_table 
 compute_numerical_type_promotion_table() noexcept
 {
@@ -218,22 +218,22 @@ const char* to_string(numerical_type type) noexcept
 {
 	switch (type)
 	{
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, boolean)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, char8)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, int8)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, uint8)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, int16)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, uint16)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, int32)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, uint32)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, int64)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, uint64)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, float16)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, float32)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, float64)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, complex_float16)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, complex_float32)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type, complex_float64)
+	REX_ENUM_TO_STR_CASE(numerical_type, boolean)
+	REX_ENUM_TO_STR_CASE(numerical_type, char8)
+	REX_ENUM_TO_STR_CASE(numerical_type, int8)
+	REX_ENUM_TO_STR_CASE(numerical_type, uint8)
+	REX_ENUM_TO_STR_CASE(numerical_type, int16)
+	REX_ENUM_TO_STR_CASE(numerical_type, uint16)
+	REX_ENUM_TO_STR_CASE(numerical_type, int32)
+	REX_ENUM_TO_STR_CASE(numerical_type, uint32)
+	REX_ENUM_TO_STR_CASE(numerical_type, int64)
+	REX_ENUM_TO_STR_CASE(numerical_type, uint64)
+	REX_ENUM_TO_STR_CASE(numerical_type, float16)
+	REX_ENUM_TO_STR_CASE(numerical_type, float32)
+	REX_ENUM_TO_STR_CASE(numerical_type, float64)
+	REX_ENUM_TO_STR_CASE(numerical_type, complex_float16)
+	REX_ENUM_TO_STR_CASE(numerical_type, complex_float32)
+	REX_ENUM_TO_STR_CASE(numerical_type, complex_float64)
 	default: return "";
 	}
 }
@@ -242,12 +242,12 @@ const char* to_string(numerical_type_category category) noexcept
 {
 	switch (category)
 	{
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type_category, boolean)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type_category, character)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type_category, signed_integer)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type_category, unsigned_integer)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type_category, floating_point)
-	XMIPP4_ENUM_TO_STR_CASE(numerical_type_category, complex)
+	REX_ENUM_TO_STR_CASE(numerical_type_category, boolean)
+	REX_ENUM_TO_STR_CASE(numerical_type_category, character)
+	REX_ENUM_TO_STR_CASE(numerical_type_category, signed_integer)
+	REX_ENUM_TO_STR_CASE(numerical_type_category, unsigned_integer)
+	REX_ENUM_TO_STR_CASE(numerical_type_category, floating_point)
+	REX_ENUM_TO_STR_CASE(numerical_type_category, complex)
 	default: return "";
 	}
 }

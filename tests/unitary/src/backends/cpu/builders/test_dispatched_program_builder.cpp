@@ -40,11 +40,11 @@ namespace
 {
 
 // A self-contained unary operation over the real types.
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	probe,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

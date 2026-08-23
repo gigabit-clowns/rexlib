@@ -39,7 +39,7 @@ public:
 	/**
 	 * @brief Construct an empty domain.
 	 */
-	XMIPP4_CONSTEXPR
+	REX_CONSTEXPR
 	numerical_type_domain() noexcept;
 
 	/**
@@ -47,7 +47,7 @@ public:
 	 *
 	 * @param mask The bit mask, indexed by numerical_type enumerator.
 	 */
-	XMIPP4_CONSTEXPR
+	REX_CONSTEXPR
 	explicit numerical_type_domain(mask_type mask) noexcept;
 
 	/**
@@ -58,7 +58,7 @@ public:
 	 *
 	 * @param types The types belonging to the domain.
 	 */
-	XMIPP4_CONSTEXPR_CPP14
+	REX_CONSTEXPR_CPP14
 	numerical_type_domain(
 		std::initializer_list<numerical_type> types
 	) noexcept;
@@ -80,7 +80,7 @@ public:
 	 * @return false The type does not belong to the domain, or has no bit
 	 * representation.
 	 */
-	XMIPP4_CONSTEXPR
+	REX_CONSTEXPR
 	bool contains(numerical_type type) const noexcept;
 
 	/**
@@ -89,7 +89,7 @@ public:
 	 * @return true The domain is empty.
 	 * @return false The domain admits at least one type.
 	 */
-	XMIPP4_CONSTEXPR
+	REX_CONSTEXPR
 	bool empty() const noexcept;
 
 	/**
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @return mask_type The bit mask.
 	 */
-	XMIPP4_CONSTEXPR
+	REX_CONSTEXPR
 	mask_type get_mask() const noexcept;
 
 	/**
@@ -105,7 +105,7 @@ public:
 	 *
 	 * @return numerical_type_domain The full domain.
 	 */
-	static XMIPP4_CONSTEXPR
+	static REX_CONSTEXPR
 	numerical_type_domain all() noexcept;
 
 	/**
@@ -113,10 +113,10 @@ public:
 	 *
 	 * @return numerical_type_domain The empty domain.
 	 */
-	static XMIPP4_CONSTEXPR
+	static REX_CONSTEXPR
 	numerical_type_domain none() noexcept;
 
-	friend XMIPP4_CONSTEXPR bool operator==(
+	friend REX_CONSTEXPR bool operator==(
 		const numerical_type_domain &lhs,
 		const numerical_type_domain &rhs
 	) noexcept
@@ -124,7 +124,7 @@ public:
 		return lhs.get_mask() == rhs.get_mask();
 	}
 
-	friend XMIPP4_CONSTEXPR bool operator!=(
+	friend REX_CONSTEXPR bool operator!=(
 		const numerical_type_domain &lhs,
 		const numerical_type_domain &rhs
 	) noexcept
@@ -135,7 +135,7 @@ public:
 	/**
 	 * @brief Compute the intersection of two domains.
 	 */
-	friend XMIPP4_CONSTEXPR numerical_type_domain operator&(
+	friend REX_CONSTEXPR numerical_type_domain operator&(
 		const numerical_type_domain &lhs,
 		const numerical_type_domain &rhs
 	) noexcept
@@ -146,7 +146,7 @@ public:
 	/**
 	 * @brief Compute the union of two domains.
 	 */
-	friend XMIPP4_CONSTEXPR numerical_type_domain operator|(
+	friend REX_CONSTEXPR numerical_type_domain operator|(
 		const numerical_type_domain &lhs,
 		const numerical_type_domain &rhs
 	) noexcept
@@ -182,7 +182,7 @@ private:
  * @return true The type is representable.
  * @return false The type is not representable.
  */
-XMIPP4_CONSTEXPR
+REX_CONSTEXPR
 bool is_domain_representable(numerical_type type) noexcept;
 
 /**
@@ -191,7 +191,7 @@ bool is_domain_representable(numerical_type type) noexcept;
  * The complement is taken with respect to the set of all representable
  * types, so no unrepresentable bit is ever set.
  */
-XMIPP4_CONSTEXPR
+REX_CONSTEXPR
 numerical_type_domain operator~(const numerical_type_domain &domain) noexcept;
 
 /**
@@ -202,7 +202,7 @@ numerical_type_domain operator~(const numerical_type_domain &domain) noexcept;
  *
  * @see numerical_type_category
  */
-XMIPP4_CONSTEXPR_CPP14
+REX_CONSTEXPR_CPP14
 numerical_type_domain make_numerical_type_domain(
 	numerical_type_category category
 ) noexcept;

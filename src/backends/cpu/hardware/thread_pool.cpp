@@ -21,7 +21,7 @@ namespace xmipp4
 namespace cpu
 {
 
-static const char XMIPP4_NUM_THREADS_ENV_VARIABLE[] = "XMIPP4_NUM_THREADS";
+static const char REX_NUM_THREADS_ENV_VARIABLE[] = "REX_NUM_THREADS";
 
 namespace
 {
@@ -426,7 +426,7 @@ std::size_t thread_pool::get_default_worker_count()
 	}
 
 	const char* environment_variable;
-	if ((environment_variable = std::getenv(XMIPP4_NUM_THREADS_ENV_VARIABLE)))
+	if ((environment_variable = std::getenv(REX_NUM_THREADS_ENV_VARIABLE)))
 	{
 		char *end = nullptr;
 		const auto parsed = std::strtoul(environment_variable, &end, 10);
@@ -436,15 +436,15 @@ std::size_t thread_pool::get_default_worker_count()
 		}
 		else
 		{
-			XMIPP4_LOG_WARN(
+			REX_LOG_WARN(
 				"Ignoring {}=\"{}\": expected a positive integer.",
-				XMIPP4_NUM_THREADS_ENV_VARIABLE,
+				REX_NUM_THREADS_ENV_VARIABLE,
 				environment_variable
 			);
 		}
 	}
 
-	XMIPP4_ASSERT( participants > 0 );
+	REX_ASSERT( participants > 0 );
 	return participants - 1;
 }
 

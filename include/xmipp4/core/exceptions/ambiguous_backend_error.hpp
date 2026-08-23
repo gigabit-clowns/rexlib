@@ -13,7 +13,7 @@ namespace xmipp4
  * @brief Exception indicating that could not disambiguate among multiple
  * backend candidates.
  */
-XMIPP4_STD_BASE_INTERFACE
+REX_STD_BASE_INTERFACE
 class REXLIB_API ambiguous_backend_error : public std::runtime_error
 {
 	using runtime_error::runtime_error;

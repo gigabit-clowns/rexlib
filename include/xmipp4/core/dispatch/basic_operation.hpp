@@ -52,9 +52,9 @@ public:
 	using traits_type = Traits;
 	using type_rule = typename Traits::type_rule;
 
-	static XMIPP4_CONST_CONSTEXPR std::size_t output_operand_count =
+	static REX_CONST_CONSTEXPR std::size_t output_operand_count =
 		type_rule::output_count;
-	static XMIPP4_CONST_CONSTEXPR std::size_t input_operand_count =
+	static REX_CONST_CONSTEXPR std::size_t input_operand_count =
 		type_rule::input_count;
 
 	static_assert(
@@ -145,7 +145,7 @@ public:
  * Wrapping the names in their own parentheses is what lets them be passed
  * to the declaration macros as a single argument.
  */
-#define XMIPP4_OPERANDS(...) \
+#define REX_OPERANDS(...) \
 	::xmipp4::make_operand_names(__VA_ARGS__)
 
 /**
@@ -157,19 +157,19 @@ public:
  *
  * Use this directly, together with a hand written class, for an operation
  * that carries parameters or owns a stateful policy. Use
- * @ref XMIPP4_DECLARE_OPERATION for the usual case.
+ * @ref REX_DECLARE_OPERATION for the usual case.
  *
  * @param op The operation verb, such as `add`. The generated class is named
  * `<op>_operation`. 
  * @param component_traits A type providing `get_component()`, naming the
  * component the operation belongs to.
- * @param outputs Output operand names, as @ref XMIPP4_OPERANDS.
- * @param inputs Input operand names, as @ref XMIPP4_OPERANDS.
+ * @param outputs Output operand names, as @ref REX_OPERANDS.
+ * @param inputs Input operand names, as @ref REX_OPERANDS.
  * @param shape_policy Type with a static `get()` returning the shape policy.
  * @param ... The operand typing rule. It comes last so that the commas in
  * its template arguments do not split the macro arguments.
  */
-#define XMIPP4_DECLARE_OPERATION_TRAITS( \
+#define REX_DECLARE_OPERATION_TRAITS( \
 	op, component_traits, outputs, inputs, shape_policy, ... \
 ) \
 	struct op##_operation_traits \
@@ -185,13 +185,13 @@ public:
 		\
 		static const auto& get_output_names() noexcept \
 		{ \
-			static XMIPP4_CONST_CONSTEXPR auto names = outputs; \
+			static REX_CONST_CONSTEXPR auto names = outputs; \
 			return names; \
 		} \
 		\
 		static const auto& get_input_names() noexcept \
 		{ \
-			static XMIPP4_CONST_CONSTEXPR auto names = inputs; \
+			static REX_CONST_CONSTEXPR auto names = inputs; \
 			return names; \
 		} \
 	}
@@ -206,21 +206,21 @@ public:
  *
  * @param op The operation verb, such as `add`.
  * @param component_traits A type providing `get_component()`.
- * @param outputs Output operand names, as @ref XMIPP4_OPERANDS.
- * @param inputs Input operand names, as @ref XMIPP4_OPERANDS.
+ * @param outputs Output operand names, as @ref REX_OPERANDS.
+ * @param inputs Input operand names, as @ref REX_OPERANDS.
  * @param shape_policy Type with a static `get()` returning the shape policy.
  * @param ... The operand typing rule.
  *
- * @see XMIPP4_DECLARE_OPERATION_TRAITS
+ * @see REX_DECLARE_OPERATION_TRAITS
  */
-#define XMIPP4_DECLARE_OPERATION( \
+#define REX_DECLARE_OPERATION( \
 	op, component_traits, outputs, inputs, shape_policy, ... \
 ) \
-	XMIPP4_DECLARE_OPERATION_TRAITS( \
+	REX_DECLARE_OPERATION_TRAITS( \
 		op, component_traits, outputs, inputs, shape_policy, __VA_ARGS__ \
 	); \
 	\
-	XMIPP4_BEGIN_TEMPLATE_BASE \
+	REX_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
 		: public ::xmipp4::trivial_operation< \
 			op##_operation, \
@@ -228,6 +228,6 @@ public:
 		> \
 	{ \
 	}; \
-	XMIPP4_END_TEMPLATE_BASE
+	REX_END_TEMPLATE_BASE
 
 #include "basic_operation.inl"

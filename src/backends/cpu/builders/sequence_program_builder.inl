@@ -54,7 +54,7 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS F m_functor;
+	REX_NO_UNIQUE_ADDRESS F m_functor;
 	sequence_layout_plan m_plan;
 };
 

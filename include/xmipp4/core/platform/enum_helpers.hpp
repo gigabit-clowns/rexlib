@@ -3,7 +3,7 @@
 #pragma once
 
 /**
- * @def XMIPP4_ENUM_TO_STR_CASE(ns, x)
+ * @def REX_ENUM_TO_STR_CASE(ns, x)
  * @brief Generate a switch-case arm that returns the stringified enum value name.
  *
  * Expands to: `case ns::x: return "x"`;
@@ -11,4 +11,4 @@
  * @param ns The enum class name (used as the scope qualifier).
  * @param x  The enumerator name.
  */
-#define XMIPP4_ENUM_TO_STR_CASE(ns, x) case ns::x: return #x;
+#define REX_ENUM_TO_STR_CASE(ns, x) case ns::x: return #x;

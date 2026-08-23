@@ -19,11 +19,11 @@ namespace ops
  * zero, so that it pairs with the remainder computed by modulo. Complex
  * operands are not admitted, having no ordering to round against.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	floor_divide,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("dividend", "divisor"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("dividend", "divisor"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<
 		domain_union<real_arithmetic_type_domain, character_type_domain>

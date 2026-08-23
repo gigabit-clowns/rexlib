@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Multiply the elements along the reduced axes.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	product,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_homogeneous_rule<>
 );

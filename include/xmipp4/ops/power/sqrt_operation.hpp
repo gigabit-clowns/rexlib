@@ -19,11 +19,11 @@ namespace ops
  * and yields a quiet NaN. Callers wanting the complex branch cast the
  * operand first, the element type being what selects it.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	sqrt,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<inexact_type_domain>
 );

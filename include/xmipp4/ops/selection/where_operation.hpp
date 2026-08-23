@@ -18,11 +18,11 @@ namespace ops
  * The element type follows the arrays being selected from and not
  * the condition, which is always boolean.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	where,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("condition", "on_true", "on_false"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("condition", "on_true", "on_false"),
 	elementwise_operation_shape_policy,
 	selection_rule<>
 );

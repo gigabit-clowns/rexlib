@@ -162,7 +162,7 @@ private:
 	);
 
 	template <typename F, typename Pivots>
-	XMIPP4_NORETURN
+	REX_NORETURN
 	static std::shared_ptr<xmipp4::program> invoke_if(
 		std::false_type supported,
 		F &&factory,

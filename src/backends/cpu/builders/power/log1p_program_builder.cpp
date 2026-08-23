@@ -28,7 +28,7 @@ struct log1p_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	log1p,
 	ops::log1p_operation,
 	default_kernel_factory<log1p_kernel>

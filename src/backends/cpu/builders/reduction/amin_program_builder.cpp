@@ -35,7 +35,7 @@ struct minimum_fold
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	amin,
 	ops::amin_operation,
 	default_kernel_factory<fold_reduction_kernel<minimum_fold>>

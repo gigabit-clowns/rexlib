@@ -39,7 +39,7 @@ void elementwise_operation_shape_policy::accept(
 	span<const shape_type> /*input_shapes*/
 ) const
 {
-	XMIPP4_ASSERT(
+	REX_ASSERT(
 		user_output_shapes.size() == canonical_output_shapes.size()
 	);
 

@@ -18,11 +18,11 @@ using namespace xmipp4;
 namespace
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REX_DECLARE_OPERATION_TRAITS(
 	cast_probe,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );
@@ -49,11 +49,11 @@ public:
 	}
 };
 
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	other_probe,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

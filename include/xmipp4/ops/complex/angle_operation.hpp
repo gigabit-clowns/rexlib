@@ -19,11 +19,11 @@ namespace ops
  * having no imaginary part. Integral operands are not admitted: the
  * argument of an integer is a degenerate choice between zero and pi.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	angle,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_real_of_rule<inexact_type_domain>
 );

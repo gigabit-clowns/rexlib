@@ -16,7 +16,7 @@ namespace detail
 {
 
 template <typename F, typename... Entries>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_single_numerical_type(
 	F&& visitor, 
 	numerical_type type
@@ -62,14 +62,14 @@ auto dispatch_single_numerical_type(
 }
 
 template <typename F>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_numerical_types(F&& visitor) 
 {
     return std::forward<F>(visitor)();
 }
 
 template <typename F, typename... Types>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_numerical_types(
 	F&& visitor, 
 	numerical_type type, 
@@ -96,7 +96,7 @@ auto dispatch_numerical_types(
 } // namespace detail
 
 template <typename F, typename... Types>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_numerical_types(
 	F&& visitor, 
 	Types&& ...types

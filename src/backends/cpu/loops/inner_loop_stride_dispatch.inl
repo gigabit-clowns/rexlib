@@ -12,7 +12,7 @@ namespace detail
 {
 	
 template <typename F>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_single_stride(F&& visitor, std::ptrdiff_t stride) 
 {
 	switch (stride) 
@@ -27,14 +27,14 @@ auto dispatch_single_stride(F&& visitor, std::ptrdiff_t stride)
 }
 
 template <typename F>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_strides(F&& visitor) 
 {
 	return std::forward<F>(visitor)();
 }
 
 template <typename F, typename... Integers>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto dispatch_strides(
 	F&& visitor, 
 	std::ptrdiff_t stride, 
@@ -88,13 +88,13 @@ auto dispatch_inner_loop_strides(
 	{
 		// Zero dimensions, no stride to be obtained. Invoke the callable with
 		// a broadcasting tag for every operand.
-		XMIPP4_CONST_CONSTEXPR broadcasting_stride_tag broadcast;
+		REX_CONST_CONSTEXPR broadcasting_stride_tag broadcast;
 		return std::forward<F>(callable)(
 			std::make_tuple(((void)Is, broadcast)...)
 		);
 	}
 
-	XMIPP4_CONST_CONSTEXPR std::size_t inner_index = 0;
+	REX_CONST_CONSTEXPR std::size_t inner_index = 0;
 	return detail::dispatch_strides(
 		[&callable] (auto... stride_tags)
 		{

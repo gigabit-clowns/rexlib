@@ -22,13 +22,13 @@ struct domain_union_value;
 template <typename Domain>
 struct domain_union_value<Domain>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value = Domain::value;
+	static REX_CONST_CONSTEXPR numerical_type_domain value = Domain::value;
 };
 
 template <typename Domain, typename... Rest>
 struct domain_union_value<Domain, Rest...>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		Domain::value | domain_union_value<Rest...>::value;
 };
 
@@ -38,13 +38,13 @@ struct domain_intersection_value;
 template <typename Domain>
 struct domain_intersection_value<Domain>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value = Domain::value;
+	static REX_CONST_CONSTEXPR numerical_type_domain value = Domain::value;
 };
 
 template <typename Domain, typename... Rest>
 struct domain_intersection_value<Domain, Rest...>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		Domain::value & domain_intersection_value<Rest...>::value;
 };
 
@@ -101,7 +101,7 @@ template <numerical_type_category Category>
 struct category_type_domain
 	: named_domain<category_type_domain<Category>>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		make_numerical_type_domain(Category);
 };
 
@@ -133,7 +133,7 @@ struct domain_union
 		"silently admit no type at all."
 	);
 
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		detail::domain_union_value<Domains...>::value;
 };
 
@@ -156,7 +156,7 @@ struct domain_intersection
 		"intersection would silently admit every type."
 	);
 
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		detail::domain_intersection_value<Domains...>::value;
 };
 
@@ -174,7 +174,7 @@ template <typename Domain, typename Excluded>
 struct domain_difference
 	: named_domain<domain_difference<Domain, Excluded>>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		Domain::value & ~Excluded::value;
 };
 
@@ -184,7 +184,7 @@ struct domain_difference
 struct any_type_domain
 	: named_domain<any_type_domain>
 {
-	static XMIPP4_CONST_CONSTEXPR numerical_type_domain value =
+	static REX_CONST_CONSTEXPR numerical_type_domain value =
 		numerical_type_domain::all();
 };
 

@@ -113,7 +113,7 @@ struct vecdot_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	vecdot,
 	ops::vecdot_operation,
 	default_kernel_factory<vecdot_kernel>

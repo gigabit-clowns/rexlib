@@ -60,7 +60,7 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS F m_functor;
+	REX_NO_UNIQUE_ADDRESS F m_functor;
 	linalg_core_layout_plan m_plan;
 };
 

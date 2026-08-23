@@ -9,4 +9,4 @@
  * in release builds
  * 
  */
-#define XMIPP4_ASSERT(expr) assert(expr)
+#define REX_ASSERT(expr) assert(expr)

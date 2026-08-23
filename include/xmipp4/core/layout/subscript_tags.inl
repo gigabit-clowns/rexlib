@@ -7,13 +7,13 @@
 namespace xmipp4 
 {
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 ellipsis_tag ellipsis() noexcept
 {
 	return ellipsis_tag();
 }
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 new_axis_tag new_axis() noexcept
 {
 	return new_axis_tag();

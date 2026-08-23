@@ -12,7 +12,7 @@ namespace xmipp4
 /**
  * @brief Exception indicating that an error occurred when loading a plugin.
  */
-XMIPP4_STD_BASE_INTERFACE
+REX_STD_BASE_INTERFACE
 class REXLIB_API plugin_load_error : public std::runtime_error
 {
 	using runtime_error::runtime_error;

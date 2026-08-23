@@ -29,7 +29,7 @@ struct acosh_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	acosh,
 	ops::acosh_operation,
 	default_kernel_factory<acosh_kernel>

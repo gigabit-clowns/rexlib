@@ -16,7 +16,7 @@ namespace cpu
  * boundary share, and the join all have to be paid for before a second thread
  * is worth having.
  *
- * Read once from the XMIPP4_PARALLEL_GRAIN_SIZE environment variable,
+ * Read once from the REX_PARALLEL_GRAIN_SIZE environment variable,
  * defaulting to the build knob of the same name. It is settable at run time
  * because a test suite works on operands orders of magnitude below any
  * sensible default, and would otherwise never reach the threaded paths at

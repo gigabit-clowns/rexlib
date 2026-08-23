@@ -19,11 +19,11 @@ namespace ops
  * so computing them together is markedly cheaper than computing
  * them apart. Rotations and projections need both.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	sincos,
 	ops_component,
-	XMIPP4_OPERANDS("sine", "cosine"),
-	XMIPP4_OPERANDS("angle"),
+	REX_OPERANDS("sine", "cosine"),
+	REX_OPERANDS("angle"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_pair_rule<>
 );

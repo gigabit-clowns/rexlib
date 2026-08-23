@@ -28,7 +28,7 @@ struct trunc_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	trunc,
 	ops::trunc_operation,
 	default_kernel_factory<trunc_kernel>

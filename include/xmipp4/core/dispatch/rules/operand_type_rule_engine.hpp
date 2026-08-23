@@ -113,7 +113,7 @@ type_rule_resolution check_slots(
  * @param pivots The rule's pivot table.
  * @throws std::invalid_argument Always.
  */
-XMIPP4_NORETURN REXLIB_API
+REX_NORETURN REXLIB_API
 void throw_type_rule_error(
 	const operation_descriptor &descriptor,
 	const type_rule_resolution &resolution,

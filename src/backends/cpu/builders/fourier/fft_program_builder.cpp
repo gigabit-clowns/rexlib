@@ -13,7 +13,7 @@ namespace cpu
 // output and transformed there, which is what lets one transform serve both
 // and is why the full spectrum is stored: half of it is redundant, but
 // storing only that half is what rfft is for.
-XMIPP4_REGISTER_FOURIER_PROGRAM_BUILDER(
+REX_REGISTER_FOURIER_PROGRAM_BUILDER(
 	fft,
 	ops::fft_operation,
 	forward_complex_fourier_transform

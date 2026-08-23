@@ -25,7 +25,7 @@ struct left_shift_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	left_shift,
 	ops::left_shift_operation,
 	default_kernel_factory<left_shift_kernel>

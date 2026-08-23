@@ -20,11 +20,11 @@ namespace ops
  * ordering, and comparing the parts lexicographically would be a
  * convention rather than a meaning.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	less_equal,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_predicate_rule<
 		domain_difference<any_type_domain, complex_type_domain>

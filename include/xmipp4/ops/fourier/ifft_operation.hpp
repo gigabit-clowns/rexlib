@@ -16,11 +16,11 @@ namespace xmipp4
 namespace ops
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REX_DECLARE_OPERATION_TRAITS(
 	ifft,
 	ops_component,
-	XMIPP4_OPERANDS("signal"),
-	XMIPP4_OPERANDS("spectrum"),
+	REX_OPERANDS("signal"),
+	REX_OPERANDS("spectrum"),
 	axiswise_operation_shape_policy,
 	unary_homogeneous_rule<complex_type_domain>
 );
@@ -32,7 +32,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * signal inverts through irfft instead, which both halves the storage
  * and returns a real array.
  */
-XMIPP4_BEGIN_TEMPLATE_BASE
+REX_BEGIN_TEMPLATE_BASE
 class REXLIB_API ifft_operation final
 	: public parametric_operation<ifft_operation, ifft_operation_traits>
 {
@@ -63,7 +63,7 @@ public:
 private:
 	fourier_normalization m_normalization;
 };
-XMIPP4_END_TEMPLATE_BASE
+REX_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace xmipp4

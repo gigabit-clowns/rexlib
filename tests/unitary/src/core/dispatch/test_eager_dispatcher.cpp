@@ -113,9 +113,9 @@ protected:
 	// that whichever of them rejects a launch can name the operand.
 	static const operation_descriptor& mock_descriptor()
 	{
-		static XMIPP4_CONST_CONSTEXPR auto outputs =
+		static REX_CONST_CONSTEXPR auto outputs =
 			make_operand_names("result");
-		static XMIPP4_CONST_CONSTEXPR auto inputs =
+		static REX_CONST_CONSTEXPR auto inputs =
 			make_operand_names("value");
 		static const operation_descriptor instance =
 			make_operation_descriptor("xmipp4.test", "mock", outputs, inputs);

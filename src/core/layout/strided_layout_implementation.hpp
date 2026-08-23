@@ -18,7 +18,7 @@ class strided_layout_implementation
 public:
 	using strided_axis_vector_type = boost::container::small_vector<
 		strided_axis, 
-		XMIPP4_SMALL_AXIS_COUNT
+		REX_SMALL_AXIS_COUNT
 	>;
 
 	strided_layout_implementation() noexcept;

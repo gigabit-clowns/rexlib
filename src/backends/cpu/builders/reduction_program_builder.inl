@@ -58,7 +58,7 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS F m_functor;
+	REX_NO_UNIQUE_ADDRESS F m_functor;
 	reduction_layout_plan m_plan;
 };
 

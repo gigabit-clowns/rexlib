@@ -18,11 +18,11 @@ namespace ops
  * The operands are the ordinate first and the abscissa second,
  * matching std::atan2 rather than reading left to right.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	atan2,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("y", "x"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("y", "x"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<floating_point_type_domain>
 );

@@ -5,7 +5,7 @@
 namespace xmipp4 
 {
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 version::version(
 	std::uint32_t major, 
 	std::uint32_t minor, 
@@ -14,16 +14,16 @@ version::version(
 	: m_data(major) // No need to mask, as it will be shifted
 {
 	// Shift and write fields
-	XMIPP4_CONST_CONSTEXPR std::uint32_t right_minor_mask = (1 << minor_bits) - 1;
+	REX_CONST_CONSTEXPR std::uint32_t right_minor_mask = (1 << minor_bits) - 1;
 	m_data <<= minor_bits;
 	m_data |= minor & right_minor_mask;
 
-	XMIPP4_CONST_CONSTEXPR std::uint32_t right_patch_mask = (1 << patch_bits) - 1;
+	REX_CONST_CONSTEXPR std::uint32_t right_patch_mask = (1 << patch_bits) - 1;
 	m_data <<= patch_bits;
 	m_data |= patch & right_patch_mask;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 void version::set_major(std::uint32_t major) noexcept
 {
 	major <<= major_offset;
@@ -31,13 +31,13 @@ void version::set_major(std::uint32_t major) noexcept
 	m_data |= major;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 std::uint32_t version::get_major() const noexcept
 {
 	return m_data >> major_offset;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 void version::set_minor(std::uint32_t minor) noexcept
 {
 	minor <<= minor_offset;
@@ -46,13 +46,13 @@ void version::set_minor(std::uint32_t minor) noexcept
 	m_data |= minor;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 std::uint32_t version::get_minor() const noexcept
 {
 	return (m_data & minor_mask) >> minor_bits;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 void version::set_patch(std::uint32_t patch) noexcept
 {
 	patch &= patch_mask;
@@ -60,13 +60,13 @@ void version::set_patch(std::uint32_t patch) noexcept
 	m_data |= patch;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 std::uint32_t version::get_patch() const noexcept
 {
 	return m_data & patch_mask;
 }
 
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 std::uint32_t version::get_data() const noexcept
 {
 	return m_data;

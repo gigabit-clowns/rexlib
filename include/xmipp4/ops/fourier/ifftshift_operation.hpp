@@ -18,11 +18,11 @@ namespace ops
  * The inverse of fftshift, which it differs from only for axes of odd
  * extent.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	ifftshift,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	axiswise_operation_shape_policy,
 	unary_homogeneous_rule<>
 );

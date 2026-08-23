@@ -96,7 +96,7 @@ private:
 class reassociable_fold_kernel : public recording_fold_kernel
 {
 public:
-	static XMIPP4_CONST_CONSTEXPR bool reassociable_fold = true;
+	static REX_CONST_CONSTEXPR bool reassociable_fold = true;
 };
 
 /**
@@ -104,7 +104,7 @@ public:
  */
 struct explicitly_serial_kernel
 {
-	static XMIPP4_CONST_CONSTEXPR bool reassociable_fold = false;
+	static REX_CONST_CONSTEXPR bool reassociable_fold = false;
 };
 
 /**
@@ -136,10 +136,10 @@ struct kernel_without_identity
 	};
 };
 
-XMIPP4_CONST_CONSTEXPR std::size_t int_lane_count =
+REX_CONST_CONSTEXPR std::size_t int_lane_count =
 	reduction_fold_lane_count<type_list<int>>::value;
 
-XMIPP4_CONST_CONSTEXPR std::size_t strip_block =
+REX_CONST_CONSTEXPR std::size_t strip_block =
 	reduction_strip_block_size<type_list<int>>::value;
 
 std::vector<int> iota_vector(std::size_t count)
@@ -431,7 +431,7 @@ TEST_CASE(
 	// so the position it reports has to be the absolute one. The merge that
 	// follows a fold split depends on it, and so does anything reporting a
 	// location.
-	XMIPP4_CONST_CONSTEXPR std::size_t offset = 100;
+	REX_CONST_CONSTEXPR std::size_t offset = 100;
 	const auto values = iota_vector(3);
 	const recording_fold_kernel kernel;
 
@@ -460,8 +460,8 @@ TEST_CASE(
 	// elements feeding them come from the kept layout while the run comes
 	// from the reduced one. There are no lanes here, the strip being as many
 	// independent accumulators as it is wide already.
-	XMIPP4_CONST_CONSTEXPR std::size_t width = 4;
-	XMIPP4_CONST_CONSTEXPR std::size_t count = 3;
+	REX_CONST_CONSTEXPR std::size_t width = 4;
+	REX_CONST_CONSTEXPR std::size_t count = 3;
 
 	// A count by width matrix, row major, so a step along the run is `width`
 	// elements and a step along the strip is one.
@@ -506,8 +506,8 @@ TEST_CASE(
 	// width is only a whole number of them by accident. Sweeping across the
 	// width catches a block that is dropped, folded twice, or reads past the
 	// accumulators it was given.
-	XMIPP4_CONST_CONSTEXPR std::size_t count = 3;
-	XMIPP4_CONST_CONSTEXPR std::size_t widest = 4*strip_block + 3;
+	REX_CONST_CONSTEXPR std::size_t count = 3;
+	REX_CONST_CONSTEXPR std::size_t widest = 4*strip_block + 3;
 	const auto values = iota_vector(count*widest);
 
 	for (std::size_t width = 1; width <= widest; ++width)
@@ -551,7 +551,7 @@ TEST_CASE(
 {
 	// A stride tag of zero leaves the operand where it is, so every
 	// accumulator of the strip is fed the same element.
-	XMIPP4_CONST_CONSTEXPR std::size_t width = 3;
+	REX_CONST_CONSTEXPR std::size_t width = 3;
 	const auto values = iota_vector(width);
 	const recording_fold_kernel kernel;
 

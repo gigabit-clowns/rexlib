@@ -48,7 +48,7 @@ using any_kernel = fold_reduction_kernel<disjunction_fold, boolean_lift>;
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	any,
 	ops::any_operation,
 	default_kernel_factory<any_kernel>

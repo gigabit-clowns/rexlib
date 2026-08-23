@@ -18,13 +18,13 @@ enum class access_flag_bits {
 
 using access_flags = flagset<access_flag_bits>;
 
-inline XMIPP4_CONST_CONSTEXPR access_flags read_only(access_flag_bits::read);
-inline XMIPP4_CONST_CONSTEXPR access_flags write_only(access_flag_bits::write);
-inline XMIPP4_CONST_CONSTEXPR access_flags read_write(
+inline REX_CONST_CONSTEXPR access_flags read_only(access_flag_bits::read);
+inline REX_CONST_CONSTEXPR access_flags write_only(access_flag_bits::write);
+inline REX_CONST_CONSTEXPR access_flags read_write(
 	{access_flag_bits::read, access_flag_bits::write}
 );
 
-XMIPP4_CONSTEXPR 
+REX_CONSTEXPR 
 const char* to_string(access_flag_bits v) noexcept;
 
 template<typename T>

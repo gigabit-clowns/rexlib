@@ -55,7 +55,7 @@ public:
 	) const override;
 
 private:
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	axis_list m_axes;
 };
 

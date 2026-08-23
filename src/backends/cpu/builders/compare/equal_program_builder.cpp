@@ -27,7 +27,7 @@ struct equal_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	equal,
 	ops::equal_operation,
 	default_kernel_factory<equal_kernel>

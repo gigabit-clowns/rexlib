@@ -23,11 +23,11 @@ namespace ops
  * @see vecmat
  * @see matmul
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	matvec,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("left", "right"),
 	matrix_vector_shape_policy,
 	binary_homogeneous_rule<arithmetic_type_domain>
 );

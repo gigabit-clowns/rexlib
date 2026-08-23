@@ -41,11 +41,11 @@ fetch_pocketfft(COMMIT c90e55b3d529f8efa40ed01a20de22405f45fc65)
 fetch_eigen(VERSION 5.0.1)
 
 if(WIN32)
-	set(XMIPP4_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}/xmipp4-plugins)
+	set(REX_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}/xmipp4-plugins)
 else()
-	set(XMIPP4_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/xmipp4-plugins)
+	set(REX_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/xmipp4-plugins)
 endif()
-set(XMIPP4_PLUGIN_INSTALL_DIR ${XMIPP4_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the xmipp4 plugins are installed")
+set(REX_PLUGIN_INSTALL_DIR ${REX_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the xmipp4 plugins are installed")
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 17)

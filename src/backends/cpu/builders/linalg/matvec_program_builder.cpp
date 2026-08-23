@@ -85,7 +85,7 @@ struct matvec_kernel_factory
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_LINALG_PROGRAM_BUILDER_EX(
+REX_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	matvec,
 	ops::matvec_operation,
 	matvec_kernel_factory,

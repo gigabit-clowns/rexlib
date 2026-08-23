@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Convert each element of the input array to degrees.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	degrees,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("radians"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("radians"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<floating_point_type_domain>
 );

@@ -18,11 +18,11 @@ namespace ops
  * The output has the real counterpart of the input type, so the magnitude
  * of a complex array is a real one.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	abs,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_real_of_rule<arithmetic_type_domain>
 );

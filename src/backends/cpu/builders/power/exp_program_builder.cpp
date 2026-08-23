@@ -29,7 +29,7 @@ struct exp_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	exp,
 	ops::exp_operation,
 	default_kernel_factory<exp_kernel>

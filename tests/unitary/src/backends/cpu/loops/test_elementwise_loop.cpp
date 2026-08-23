@@ -115,7 +115,7 @@ public:
 		std::size_t count
 	) const
 	{
-		XMIPP4_CONST_CONSTEXPR std::size_t n =
+		REX_CONST_CONSTEXPR std::size_t n =
 			std::tuple_size<PointerTuple>::value;
 
 		vector_loop_call call;

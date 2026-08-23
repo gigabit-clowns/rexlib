@@ -19,11 +19,11 @@ namespace ops
  * pre-allocates one of a different type, which is what makes a converting
  * copy possible without a separate operation.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	copy,
 	ops_component,
-	XMIPP4_OPERANDS("destination"),
-	XMIPP4_OPERANDS("source"),
+	REX_OPERANDS("destination"),
+	REX_OPERANDS("source"),
 	elementwise_operation_shape_policy,
 	converting_rule<>
 );

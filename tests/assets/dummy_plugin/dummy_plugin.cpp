@@ -3,10 +3,10 @@
 #include <xmipp4/core/plugin.hpp>
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-#if defined(XMIPP4_DUMMY_PLUGIN_EXPORTING)
-	#define XMIPP4_DUMMY_PLUGIN_API XMIPP4_EXPORT
+#if defined(REX_DUMMY_PLUGIN_EXPORTING)
+	#define REX_DUMMY_PLUGIN_API REX_EXPORT
 #else
-	#define XMIPP4_DUMMY_PLUGIN_API XMIPP4_IMPORT
+	#define REX_DUMMY_PLUGIN_API REX_IMPORT
 #endif
 
 namespace xmipp4
@@ -39,7 +39,7 @@ static const xmipp4::dummy_plugin instance;
 
 extern "C"
 {
-XMIPP4_DUMMY_PLUGIN_API const xmipp4::plugin* xmipp4_get_plugin() 
+REX_DUMMY_PLUGIN_API const xmipp4::plugin* xmipp4_get_plugin() 
 {
 	return &instance;
 }

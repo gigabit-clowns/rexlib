@@ -30,7 +30,7 @@ struct subtract_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	subtract,
 	ops::subtract_operation,
 	default_kernel_factory<subtract_kernel>

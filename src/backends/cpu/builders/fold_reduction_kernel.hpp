@@ -78,7 +78,7 @@ public:
 	 * reduction along the contiguous axis from being one chain of dependent
 	 * operations.
 	 */
-	static XMIPP4_CONST_CONSTEXPR bool reassociable_fold = true;
+	static REX_CONST_CONSTEXPR bool reassociable_fold = true;
 
 	/**
 	 * @brief A single accumulator, of the output's computation type.
@@ -162,7 +162,7 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS Fold m_fold;
+	REX_NO_UNIQUE_ADDRESS Fold m_fold;
 };
 
 } // namespace cpu

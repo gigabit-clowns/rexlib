@@ -6,13 +6,13 @@
 namespace xmipp4 
 {
 
-XMIPP4_INLINE_CONSTEXPR const char* 
+REX_INLINE_CONSTEXPR const char* 
 to_string(access_flag_bits v) noexcept
 {
 	switch (v)
 	{
-	XMIPP4_ENUM_TO_STR_CASE(access_flag_bits, read)
-	XMIPP4_ENUM_TO_STR_CASE(access_flag_bits, write)
+	REX_ENUM_TO_STR_CASE(access_flag_bits, read)
+	REX_ENUM_TO_STR_CASE(access_flag_bits, write)
 	default: return "";
 	}
 }

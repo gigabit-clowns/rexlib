@@ -23,9 +23,9 @@ using shape_type = operation_shape_policy::shape_type;
 
 const operation_descriptor& transform_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REX_CONST_CONSTEXPR auto outputs =
 		make_operand_names("spectrum");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REX_CONST_CONSTEXPR auto inputs =
 		make_operand_names("signal");
 	static const operation_descriptor instance =
 		make_operation_descriptor(

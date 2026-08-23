@@ -148,7 +148,7 @@ promote_types(numerical_type type1, numerical_type type2) noexcept;
  * classifying types on both sides of the dispatch boundary, such as a
  * numerical_type_domain, depends on there being only one.
  */
-XMIPP4_CONSTEXPR
+REX_CONSTEXPR
 numerical_type_category get_category(numerical_type type) noexcept;
 
 REXLIB_API

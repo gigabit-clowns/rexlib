@@ -20,7 +20,7 @@ enum class example_flag_bits
 
 using example_flags = binary::flagset<example_flag_bits>;
 
-XMIPP4_CONSTEXPR const char* to_string(example_flag_bits ex) noexcept;
+REX_CONSTEXPR const char* to_string(example_flag_bits ex) noexcept;
 bool from_string(std::string_view str, example_flag_bits& ex) noexcept;
 
 template<typename T>
@@ -34,7 +34,7 @@ struct flag_traits<hardware::example_flag_bits>
 {
     using flagset_type = hardware::example_flags;
 
-    static inline XMIPP4_CONST_CONSTEXPR flagset_type all = 
+    static inline REX_CONST_CONSTEXPR flagset_type all = 
     {
         example_flag_bits::first,
         example_flag_bits::second,

@@ -19,11 +19,11 @@ namespace ops
  * sign of the dividend. Complex and boolean operands are not admitted,
  * having no ordering to take a remainder against.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	modulo,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("dividend", "divisor"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("dividend", "divisor"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<
 		domain_union<real_arithmetic_type_domain, character_type_domain>

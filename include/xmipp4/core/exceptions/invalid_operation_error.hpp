@@ -13,7 +13,7 @@ namespace xmipp4
  * @brief Exception indicating that the function call is not available due to
  * a misconfiguration of the class.
  */
-XMIPP4_STD_BASE_INTERFACE
+REX_STD_BASE_INTERFACE
 class REXLIB_API invalid_operation_error : public std::logic_error
 {
 	using logic_error::logic_error;

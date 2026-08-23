@@ -28,7 +28,7 @@ struct logical_or_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	logical_or,
 	ops::logical_or_operation,
 	default_kernel_factory<logical_or_kernel>

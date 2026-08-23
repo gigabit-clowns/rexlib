@@ -74,7 +74,7 @@ public:
 	) const override;
 
 private:
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	axis_list_type m_axes;
 	bool m_keep_dimensions;
 };

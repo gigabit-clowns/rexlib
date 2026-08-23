@@ -33,7 +33,7 @@ public:
 	 * Constant value to be passed to the `last_dim` parameter of `iter()` and
 	 * `next()` to signal the past-the-end axis of the layout.
 	 */
-	static XMIPP4_CONST_CONSTEXPR std::size_t end_dim = 
+	static REX_CONST_CONSTEXPR std::size_t end_dim = 
 		std::numeric_limits<std::size_t>::max();
 
 	REXLIB_API joint_layout();

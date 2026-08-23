@@ -17,11 +17,11 @@ namespace ops
  *
  * Every type but boolean is admitted, division not being defined on it.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	divide,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("dividend", "divisor"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("dividend", "divisor"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<
 		domain_difference<any_type_domain, boolean_type_domain>

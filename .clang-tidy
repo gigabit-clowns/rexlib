@@ -12,7 +12,7 @@ CheckOptions:
   - key:    readability-identifier-naming.MacroDefinitionCase
     value:  UPPER_CASE
   - key:    readability-identifier-naming.MacroDefinitionPrefix
-    value:  XMIPP4_
+    value:  REX_
 
   - key:    readability-identifier-naming.NamespaceCase
     value:  lower_case

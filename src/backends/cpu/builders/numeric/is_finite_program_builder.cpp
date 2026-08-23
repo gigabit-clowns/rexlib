@@ -38,7 +38,7 @@ struct is_finite_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	is_finite,
 	ops::is_finite_operation,
 	default_kernel_factory<is_finite_kernel>

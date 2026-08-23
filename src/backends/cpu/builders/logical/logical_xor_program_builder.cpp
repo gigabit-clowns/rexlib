@@ -30,7 +30,7 @@ struct logical_xor_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	logical_xor,
 	ops::logical_xor_operation,
 	default_kernel_factory<logical_xor_kernel>

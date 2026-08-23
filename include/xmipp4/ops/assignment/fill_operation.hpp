@@ -14,11 +14,11 @@ namespace xmipp4
 namespace ops
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REX_DECLARE_OPERATION_TRAITS(
 	fill,
 	ops_component,
-	XMIPP4_OPERANDS("destination"),
-	XMIPP4_OPERANDS(),
+	REX_OPERANDS("destination"),
+	REX_OPERANDS(),
 	elementwise_operation_shape_policy,
 	nullary_free_rule<>
 );
@@ -29,7 +29,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * With no input to fix it, the element type is the one the destination
  * already carries.
  */
-XMIPP4_BEGIN_TEMPLATE_BASE
+REX_BEGIN_TEMPLATE_BASE
 class REXLIB_API fill_operation final
 	: public trivial_operation<fill_operation, fill_operation_traits>
 {
@@ -49,10 +49,10 @@ public:
 	const scalar_value& get_fill_value() const noexcept;
 
 private:
-	XMIPP4_STD_MEMBER_INTERFACE
+	REX_STD_MEMBER_INTERFACE
 	scalar_value m_fill_value;
 };
-XMIPP4_END_TEMPLATE_BASE
+REX_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace xmipp4

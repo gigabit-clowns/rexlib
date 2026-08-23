@@ -74,7 +74,7 @@ struct round_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	round,
 	ops::round_operation,
 	default_kernel_factory<round_kernel>

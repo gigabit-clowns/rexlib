@@ -51,7 +51,7 @@ const std::shared_ptr<host_memory_allocator>& host_memory_allocator::create()
 		m_instance = std::make_shared<host_memory_allocator>();
 	}
 
-	XMIPP4_ASSERT(m_instance);
+	REX_ASSERT(m_instance);
 	return m_instance;
 }
 

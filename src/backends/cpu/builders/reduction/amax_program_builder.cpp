@@ -35,7 +35,7 @@ struct maximum_fold
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	amax,
 	ops::amax_operation,
 	default_kernel_factory<fold_reduction_kernel<maximum_fold>>

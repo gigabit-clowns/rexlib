@@ -23,7 +23,7 @@ namespace xmipp4
  * @param expected Name of the operation that was expected.
  * @throws std::invalid_argument Always.
  */
-XMIPP4_NORETURN REXLIB_API
+REX_NORETURN REXLIB_API
 void throw_unexpected_operation(
 	const operation &got,
 	const char *expected

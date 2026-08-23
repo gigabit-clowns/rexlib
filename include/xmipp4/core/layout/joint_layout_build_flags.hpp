@@ -29,7 +29,7 @@ enum class joint_layout_build_flag_bits
 using joint_layout_build_flags 
 	= flagset<joint_layout_build_flag_bits>;
 
-XMIPP4_CONSTEXPR 
+REX_CONSTEXPR 
 const char* to_string(joint_layout_build_flag_bits x) noexcept;
 
 template<typename T>

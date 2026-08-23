@@ -29,7 +29,7 @@ struct sin_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	sin,
 	ops::sin_operation,
 	default_kernel_factory<sin_kernel>

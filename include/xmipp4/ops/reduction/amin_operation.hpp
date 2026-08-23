@@ -19,11 +19,11 @@ namespace ops
  * namespace whatever directory they live in, and because min is a macro
  * in windows.h.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	amin,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_homogeneous_rule<
 		domain_difference<any_type_domain, complex_type_domain>

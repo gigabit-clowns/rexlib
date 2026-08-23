@@ -23,7 +23,7 @@ public:
 		std::unique_ptr<program_builder> builder
 	)
 	{
-		XMIPP4_ASSERT(builder);
+		REX_ASSERT(builder);
 		const auto &op_id = builder->get_operation_id();
 		m_builders[op_id].push_back(std::move(builder));
 		return true;

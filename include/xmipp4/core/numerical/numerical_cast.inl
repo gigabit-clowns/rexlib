@@ -113,7 +113,7 @@ struct numerical_cast_helper<
 } // namespace detail
 
 template <typename T, typename Q>
-XMIPP4_NODISCARD
+REX_NODISCARD
 T numerical_cast(const Q &src) noexcept
 {
 	return detail::numerical_cast_helper<T, Q>::cast(src);

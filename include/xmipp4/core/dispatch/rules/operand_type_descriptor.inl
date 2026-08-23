@@ -57,8 +57,8 @@ slot_descriptor::slot_descriptor(
 	, m_transform_domain(transform_domain)
 	, m_relation(relation)
 {
-	XMIPP4_ASSERT(m_apply);
-	XMIPP4_ASSERT(m_relation);
+	REX_ASSERT(m_apply);
+	REX_ASSERT(m_relation);
 }
 
 inline

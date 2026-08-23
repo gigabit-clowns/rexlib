@@ -7,8 +7,8 @@
 
 #include <string>
 
-#ifndef XMIPP4_TEST_ASSET_ROOT
-	#error "XMIPP4_TEST_ASSET_ROOT is not defined. Link against " \
+#ifndef REX_TEST_ASSET_ROOT
+	#error "REX_TEST_ASSET_ROOT is not defined. Link against " \
 	       "xmipp4-test-assets-interface to consume the shared test assets."
 #endif
 
@@ -17,14 +17,14 @@ namespace xmipp4
 
 inline std::string get_asset_root()
 {
-	return XMIPP4_TEST_ASSET_ROOT;
+	return REX_TEST_ASSET_ROOT;
 }
 
 inline std::string get_text_file_path()
 {
-	#if XMIPP4_WINDOWS
+	#if REX_WINDOWS
 		return get_asset_root() + "\\" + "lorem_ipsum.txt";
-	#elif XMIPP4_APPLE || XMIPP4_LINUX
+	#elif REX_APPLE || REX_LINUX
 		return get_asset_root() + "/" + "lorem_ipsum.txt";
 	#else
 		#error "Unknown platform"
@@ -33,9 +33,9 @@ inline std::string get_text_file_path()
 
 inline std::string get_test_plugin_directory()
 {
-	#if XMIPP4_WINDOWS
+	#if REX_WINDOWS
 		return get_asset_root() + "\\plugins";
-	#elif XMIPP4_APPLE || XMIPP4_LINUX
+	#elif REX_APPLE || REX_LINUX
 		return get_asset_root() + "/plugins";
 	#else
 		#error "Unknown platform"
@@ -45,13 +45,13 @@ inline std::string get_test_plugin_directory()
 inline std::string get_mock_plugin_path(const std::string &name)
 {
 
-	#if XMIPP4_WINDOWS
-		#if XMIPP4_MINGW
+	#if REX_WINDOWS
+		#if REX_MINGW
 			return get_asset_root() + "\\plugins\\lib" + name + ".dll";
 		#else
 			return get_asset_root() + "\\plugins\\" + name + ".dll";
 		#endif
-	#elif XMIPP4_APPLE || XMIPP4_LINUX
+	#elif REX_APPLE || REX_LINUX
 		return get_asset_root() + "/plugins/lib" + name + ".so";
 	#else
 		#error "Unknown platform"

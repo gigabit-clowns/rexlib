@@ -29,7 +29,7 @@ struct log_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	log,
 	ops::log_operation,
 	default_kernel_factory<log_kernel>

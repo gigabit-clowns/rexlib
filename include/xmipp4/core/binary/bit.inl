@@ -4,17 +4,17 @@
 #include "../platform/cpp_features.hpp"
 
 #include <limits>
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 		#include <bit>
 #endif
 
 namespace xmipp4
 {
 
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 std::size_t bit(std::size_t i) noexcept
 {
-	XMIPP4_CONSTEXPR auto n_bits = std::numeric_limits<std::size_t>::digits;
+	REX_CONSTEXPR auto n_bits = std::numeric_limits<std::size_t>::digits;
 	if (i >= n_bits)
 	{
 		return 0;
@@ -26,7 +26,7 @@ std::size_t bit(std::size_t i) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_range_mask(std::size_t start, std::size_t end) noexcept
 {
@@ -34,7 +34,7 @@ bit_range_mask(std::size_t start, std::size_t end) noexcept
 }
 
 template<typename T>
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T&>::type
 set_lowest_zero_inplace(T& x) noexcept
 {
@@ -43,7 +43,7 @@ set_lowest_zero_inplace(T& x) noexcept
 }
 
 template<typename T>
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T&>::type
 clear_lowest_one_inplace(T& x) noexcept
 {
@@ -52,7 +52,7 @@ clear_lowest_one_inplace(T& x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 mask_trailing_zeros(T x) noexcept
 {
@@ -60,7 +60,7 @@ mask_trailing_zeros(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 mask_trailing_ones(T x) noexcept
 {
@@ -68,16 +68,16 @@ mask_trailing_ones(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 rotate_left(T x, int s) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::rotl(x, s);
 #else
 	if (s >= 0)
 	{
-		XMIPP4_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
+		REX_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
 		const auto r = static_cast<unsigned>(s) % N;
 		if(r > 0)
 			return (x << r) | (x >> (N - r)); 
@@ -92,16 +92,16 @@ rotate_left(T x, int s) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 rotate_right(T x, int s) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::rotr(x, s);
 #else
 	if (s >= 0)
 	{
-		XMIPP4_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
+		REX_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
 		const auto r = static_cast<unsigned>(s) % N;
 		if(r > 0)
 			return (x >> r) | (x << (N - r)); 
@@ -116,11 +116,11 @@ rotate_right(T x, int s) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 has_single_bit(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_POW2
+#if REX_HAS_LIB_POW2
 	return std::has_single_bit(x);
 #else
 	if(x)
@@ -138,11 +138,11 @@ has_single_bit(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_floor(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_POW2
+#if REX_HAS_LIB_POW2
 	return std::bit_floor(x);
 #else
 	if(x) 
@@ -157,11 +157,11 @@ bit_floor(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_ceil(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_POW2
+#if REX_HAS_LIB_POW2
 	return std::bit_ceil(x);
 #else
 	return x <= T(1) ? T(1) : (T(1) << bit_width(T(x - 1)));
@@ -169,14 +169,14 @@ bit_ceil(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 bit_width(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_POW2
+#if REX_HAS_LIB_POW2
 	return std::bit_width(x);
 #else
-	XMIPP4_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
+	REX_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
 	return N - count_leading_zeros(x); 
 #endif
 }
@@ -185,11 +185,11 @@ namespace detail
 {
 
 template<typename T>
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_zeros(T x) noexcept
 {
-	XMIPP4_CONSTEXPR auto N = std::numeric_limits<T>::digits;
+	REX_CONSTEXPR auto N = std::numeric_limits<T>::digits;
 
 	auto count = N;
 	for(auto n = N >> 1; n; n >>= 1)
@@ -205,8 +205,8 @@ count_leading_zeros(T x) noexcept
 	return x ? (count-1) : count;
 }
 
-#if XMIPP4_HAS_BUILTIN(clz)
-XMIPP4_INLINE_CONSTEXPR unsigned int
+#if REX_HAS_BUILTIN(clz)
+REX_INLINE_CONSTEXPR unsigned int
 count_leading_zeros(unsigned int x) noexcept
 {
 	// __builtin_clz is not defined for zero
@@ -215,12 +215,12 @@ count_leading_zeros(unsigned int x) noexcept
 		return std::numeric_limits<unsigned int>::digits;
 	}
 
-	return XMIPP4_BUILTIN(clz)(x);
+	return REX_BUILTIN(clz)(x);
 }
 #endif
 
-#if XMIPP4_HAS_BUILTIN(clzll)
-XMIPP4_INLINE_CONSTEXPR unsigned int
+#if REX_HAS_BUILTIN(clzll)
+REX_INLINE_CONSTEXPR unsigned int
 count_leading_zeros(unsigned long long x) noexcept
 {
 	// __builtin_clzll is not defined for zero
@@ -229,18 +229,18 @@ count_leading_zeros(unsigned long long x) noexcept
 		return std::numeric_limits<unsigned long long>::digits;
 	}
 
-	return XMIPP4_BUILTIN(clzll)(x);
+	return REX_BUILTIN(clzll)(x);
 }
 #endif
 
 } // namespace detail
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_zeros(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::countl_zero(x);
 #else
 	return detail::count_leading_zeros(x);
@@ -248,11 +248,11 @@ count_leading_zeros(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_ones(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::countl_one(x);
 #else
 	return count_leading_zeros(T(~x));
@@ -263,11 +263,11 @@ namespace detail
 {
 
 template<typename T>
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_zeros(T x) noexcept
 {
-	XMIPP4_CONSTEXPR auto N = std::numeric_limits<T>::digits;
+	REX_CONSTEXPR auto N = std::numeric_limits<T>::digits;
 
 	auto count = N;
 	for(auto n = N >> 1; n; n >>= 1)
@@ -283,8 +283,8 @@ count_trailing_zeros(T x) noexcept
 	return x ? (count-1) : count;
 }
 
-#if XMIPP4_HAS_BUILTIN(ctz)
-XMIPP4_INLINE_CONSTEXPR unsigned int
+#if REX_HAS_BUILTIN(ctz)
+REX_INLINE_CONSTEXPR unsigned int
 count_trailing_zeros(unsigned int x) noexcept
 {
 	// __builtin_ctz is not defined for zero
@@ -293,12 +293,12 @@ count_trailing_zeros(unsigned int x) noexcept
 		return std::numeric_limits<unsigned int>::digits;
 	}
 
-	return XMIPP4_BUILTIN(ctz)(x);
+	return REX_BUILTIN(ctz)(x);
 }
 #endif
 
-#if XMIPP4_HAS_BUILTIN(ctzll)
-XMIPP4_INLINE_CONSTEXPR unsigned int
+#if REX_HAS_BUILTIN(ctzll)
+REX_INLINE_CONSTEXPR unsigned int
 count_trailing_zeros(unsigned long long x) noexcept
 {
 	// __builtin_ctzll is not defined for zero
@@ -307,18 +307,18 @@ count_trailing_zeros(unsigned long long x) noexcept
 		return std::numeric_limits<unsigned long long>::digits;
 	}
 
-	return XMIPP4_BUILTIN(ctzll)(x);
+	return REX_BUILTIN(ctzll)(x);
 }
 #endif
 
 } // namespace detail
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_zeros(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::countr_zero(x);
 #else
 	return detail::count_trailing_zeros(x);
@@ -326,11 +326,11 @@ count_trailing_zeros(T x) noexcept
 }
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_ones(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::countr_one(x);
 #else
 	return count_trailing_zeros(T(~x));
@@ -341,7 +341,7 @@ namespace detail
 {
 
 template<typename T>
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 popcount(T x) noexcept
 {
@@ -354,30 +354,30 @@ popcount(T x) noexcept
 	return count;
 }
 
-#if XMIPP4_HAS_BUILTIN(popcount)
-XMIPP4_INLINE_CONSTEXPR int
+#if REX_HAS_BUILTIN(popcount)
+REX_INLINE_CONSTEXPR int
 popcount(unsigned int x) noexcept
 {
-	return XMIPP4_BUILTIN(popcount)(x);
+	return REX_BUILTIN(popcount)(x);
 }
 #endif
 
-#if XMIPP4_HAS_BUILTIN(popcountll)
-XMIPP4_INLINE_CONSTEXPR int
+#if REX_HAS_BUILTIN(popcountll)
+REX_INLINE_CONSTEXPR int
 popcount(unsigned long long x) noexcept
 {
-	return XMIPP4_BUILTIN(popcountll)(x);
+	return REX_BUILTIN(popcountll)(x);
 }
 #endif
 
 } // namespace detail
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 popcount(T x) noexcept
 {
-#if XMIPP4_HAS_LIB_BITOPS
+#if REX_HAS_LIB_BITOPS
 	return std::popcount(x);
 #else
 	return detail::popcount(x);
@@ -388,7 +388,7 @@ namespace detail
 {
 
 template<typename T>
-XMIPP4_INLINE_CONSTEXPR 
+REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 parity(T x) noexcept
 {
@@ -401,26 +401,26 @@ parity(T x) noexcept
 	return parity;
 }
 
-#if XMIPP4_HAS_BUILTIN(parity)
-XMIPP4_INLINE_CONSTEXPR bool
+#if REX_HAS_BUILTIN(parity)
+REX_INLINE_CONSTEXPR bool
 parity(unsigned int x) noexcept
 {
-	return XMIPP4_BUILTIN(parity)(x); 
+	return REX_BUILTIN(parity)(x); 
 }
 #endif
 
-#if XMIPP4_HAS_BUILTIN(parityll)
-XMIPP4_INLINE_CONSTEXPR bool
+#if REX_HAS_BUILTIN(parityll)
+REX_INLINE_CONSTEXPR bool
 parity(unsigned long long x) noexcept
 {
-	return XMIPP4_BUILTIN(parityll)(x); 
+	return REX_BUILTIN(parityll)(x); 
 }
 #endif
 
 } // namespace detail
 
 template<typename T>
-XMIPP4_NODISCARD XMIPP4_INLINE_CONSTEXPR 
+REX_NODISCARD REX_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 parity(T x) noexcept
 {

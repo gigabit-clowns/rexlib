@@ -18,11 +18,11 @@ namespace ops
  * Real operands are admitted and left unchanged, so that code
  * generic over the element type does not need a special case.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	conjugate,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<arithmetic_type_domain>
 );

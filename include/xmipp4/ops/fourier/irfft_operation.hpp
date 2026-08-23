@@ -16,11 +16,11 @@ namespace xmipp4
 namespace ops
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REX_DECLARE_OPERATION_TRAITS(
 	irfft,
 	ops_component,
-	XMIPP4_OPERANDS("signal"),
-	XMIPP4_OPERANDS("spectrum"),
+	REX_OPERANDS("signal"),
+	REX_OPERANDS("spectrum"),
 	inverse_real_fourier_transform_shape_policy,
 	unary_real_of_rule<complex_type_domain>
 );
@@ -32,7 +32,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * the parity the operation carries, an axis of m coefficients coming
  * from either 2*(m - 1) or 2*m - 1 samples.
  */
-XMIPP4_BEGIN_TEMPLATE_BASE
+REX_BEGIN_TEMPLATE_BASE
 class REXLIB_API irfft_operation final
 	: public parametric_operation<irfft_operation, irfft_operation_traits>
 {
@@ -67,7 +67,7 @@ public:
 private:
 	fourier_normalization m_normalization;
 };
-XMIPP4_END_TEMPLATE_BASE
+REX_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace xmipp4

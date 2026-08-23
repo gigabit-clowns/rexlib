@@ -45,11 +45,11 @@ namespace
 
 
 // A self-contained binary elementwise operation.
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	test_binary,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("left", "right"),
 	ops::elementwise_operation_shape_policy,
 	ops::binary_homogeneous_rule<>
 );

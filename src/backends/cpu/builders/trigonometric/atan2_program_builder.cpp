@@ -28,7 +28,7 @@ struct atan2_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	atan2,
 	ops::atan2_operation,
 	default_kernel_factory<atan2_kernel>

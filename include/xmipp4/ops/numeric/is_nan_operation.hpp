@@ -18,11 +18,11 @@ namespace ops
  * Only inexact types can hold one, so asking an integer array is always a
  * mistake rather than a constant answer.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	is_nan,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_predicate_rule<inexact_type_domain>
 );

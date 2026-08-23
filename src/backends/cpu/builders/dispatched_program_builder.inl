@@ -53,9 +53,9 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	xmipp4::command_queue &queue
 ) const
 {
-	XMIPP4_CONST_CONSTEXPR auto output_count =
+	REX_CONST_CONSTEXPR auto output_count =
 		Op::output_operand_count;
-	XMIPP4_CONST_CONSTEXPR auto input_count =
+	REX_CONST_CONSTEXPR auto input_count =
 		Op::input_operand_count;
 
 	const auto base = program_builder::get_suitability(
@@ -110,9 +110,9 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	program_cache* /*cache*/
 ) const
 {
-	XMIPP4_CONST_CONSTEXPR auto output_count =
+	REX_CONST_CONSTEXPR auto output_count =
 		Op::output_operand_count;
-	XMIPP4_CONST_CONSTEXPR auto input_count =
+	REX_CONST_CONSTEXPR auto input_count =
 		Op::input_operand_count;
 
 	const auto &typed_operation = operation_cast<Op>(operation);

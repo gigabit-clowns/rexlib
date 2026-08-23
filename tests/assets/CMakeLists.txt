@@ -6,18 +6,18 @@ add_subdirectory(faulty_plugin2)
 # Single directory where every asset is staged. Both the unitary and the
 # integration test suites resolve their assets from here through an absolute
 # path, so the tests no longer depend on their working directory.
-set(XMIPP4_TEST_ASSET_ROOT ${CMAKE_CURRENT_BINARY_DIR}/assets)
-set(XMIPP4_TEST_PLUGINS_DIRECTORY ${XMIPP4_TEST_ASSET_ROOT}/plugins)
+set(REX_TEST_ASSET_ROOT ${CMAKE_CURRENT_BINARY_DIR}/assets)
+set(REX_TEST_PLUGINS_DIRECTORY ${REX_TEST_ASSET_ROOT}/plugins)
 
 # Stage the assets next to the build tree.
 add_custom_target(
 	xmipp4-test-assets
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${XMIPP4_TEST_ASSET_ROOT}
-	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/lorem_ipsum.txt ${XMIPP4_TEST_ASSET_ROOT}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${XMIPP4_TEST_PLUGINS_DIRECTORY}
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:dummy-plugin> ${XMIPP4_TEST_PLUGINS_DIRECTORY}
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:faulty-plugin1> ${XMIPP4_TEST_PLUGINS_DIRECTORY}
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:faulty-plugin2> ${XMIPP4_TEST_PLUGINS_DIRECTORY}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${REX_TEST_ASSET_ROOT}
+	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/lorem_ipsum.txt ${REX_TEST_ASSET_ROOT}
+	COMMAND ${CMAKE_COMMAND} -E make_directory ${REX_TEST_PLUGINS_DIRECTORY}
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:dummy-plugin> ${REX_TEST_PLUGINS_DIRECTORY}
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:faulty-plugin1> ${REX_TEST_PLUGINS_DIRECTORY}
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:faulty-plugin2> ${REX_TEST_PLUGINS_DIRECTORY}
 )
 
 # Interface target that gives any test suite access to the assets: the
@@ -32,5 +32,5 @@ target_include_directories(
 target_compile_definitions(
 	xmipp4-test-assets-interface
 	INTERFACE
-		XMIPP4_TEST_ASSET_ROOT="${XMIPP4_TEST_ASSET_ROOT}"
+		REX_TEST_ASSET_ROOT="${REX_TEST_ASSET_ROOT}"
 )

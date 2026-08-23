@@ -30,7 +30,7 @@ public:
 
 	const std::shared_ptr<device>& get_device() const noexcept
 	{
-		XMIPP4_ASSERT(m_device);
+		REX_ASSERT(m_device);
 		return m_device;
 	}
 
@@ -47,7 +47,7 @@ public:
 
 	const std::shared_ptr<command_queue>& get_default_queue() const noexcept
 	{
-		XMIPP4_ASSERT(m_default_queue);
+		REX_ASSERT(m_default_queue);
 		return m_default_queue;
 	}
 
@@ -81,13 +81,13 @@ device_session::~device_session() = default;
 
 const std::shared_ptr<device>& device_session::get_device() const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REX_ASSERT(m_implementation);
 	return m_implementation->get_device();
 }
 
 const device_properties& device_session::get_properties() const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REX_ASSERT(m_implementation);
 	return m_implementation->get_properties();
 }
 
@@ -96,14 +96,14 @@ device_session::get_allocator(
 	memory_resource_affinity affinity
 ) const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REX_ASSERT(m_implementation);
 	return m_implementation->get_allocator(affinity);
 }
 
 const std::shared_ptr<command_queue>&
 device_session::get_default_queue() const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REX_ASSERT(m_implementation);
 	return m_implementation->get_default_queue();
 }
 

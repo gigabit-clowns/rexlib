@@ -19,11 +19,11 @@ namespace ops
  * error rather than a typing one, so it is left for the backend to
  * report.
  */
-XMIPP4_DECLARE_OPERATION(
+REX_DECLARE_OPERATION(
 	power,
 	ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("base", "exponent"),
+	REX_OPERANDS("result"),
+	REX_OPERANDS("base", "exponent"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<arithmetic_type_domain>
 );

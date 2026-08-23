@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Count the non zero elements along the reduced axes.
  */
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REX_DECLARE_PARAMETRIC_OPERATION(
 	count_nonzero,
 	ops_component,
-	XMIPP4_OPERANDS("count"),
-	XMIPP4_OPERANDS("value"),
+	REX_OPERANDS("count"),
+	REX_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_fixed_output_rule<
 		numerical_type::int64,

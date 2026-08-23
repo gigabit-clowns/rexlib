@@ -21,7 +21,7 @@ namespace xmipp4
  * @return std::size_t The alignment (a power of two)
  */
 template <typename T>
-XMIPP4_NODISCARD 
+REX_NODISCARD 
 std::size_t get_alignment(T* address) noexcept;
 
 /**
@@ -32,7 +32,7 @@ std::size_t get_alignment(T* address) noexcept;
  * @param address The address of which the alignment is determined
  * @return std::size_t The alignment (a power of two)
  */
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 std::size_t get_alignment(std::uintptr_t address) noexcept;
 
 /**
@@ -45,7 +45,7 @@ std::size_t get_alignment(std::uintptr_t address) noexcept;
  * @return false If the pointer is not aligned.
  */
 template <typename T>
-XMIPP4_NODISCARD 
+REX_NODISCARD 
 bool is_aligned(T* address, std::size_t alignment) noexcept;
 
 /**
@@ -55,7 +55,7 @@ bool is_aligned(T* address, std::size_t alignment) noexcept;
  * @param alignment The alignment requirement to be checked.
  * @return std::size_t The alignment (a power of two)
  */
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 bool is_aligned(std::uintptr_t address, std::size_t alignment) noexcept;
 
 /**
@@ -68,7 +68,7 @@ bool is_aligned(std::uintptr_t address, std::size_t alignment) noexcept;
  * @return T* Aligned pointer
  */
 template <typename T>
-XMIPP4_NODISCARD 
+REX_NODISCARD 
 T* align_floor(T* address, std::size_t alignment) noexcept;
 
 /**
@@ -79,7 +79,7 @@ T* align_floor(T* address, std::size_t alignment) noexcept;
  * @param alignment The minimum alignment
  * @return std::uintptr_t Aligned address
  */
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 std::uintptr_t align_floor(std::uintptr_t address, std::size_t alignment) noexcept;
 
 /**
@@ -91,7 +91,7 @@ std::uintptr_t align_floor(std::uintptr_t address, std::size_t alignment) noexce
  * @return std::uintptr_t Aligned address
  * @note The result is written in place and a reference is returned
  */
-XMIPP4_CONSTEXPR 
+REX_CONSTEXPR 
 std::uintptr_t& align_floor_inplace(std::uintptr_t& address, std::size_t alignment) noexcept;
 
 /**
@@ -105,7 +105,7 @@ std::uintptr_t& align_floor_inplace(std::uintptr_t& address, std::size_t alignme
  */
 
 template <typename T>
-XMIPP4_NODISCARD 
+REX_NODISCARD 
 T* align_ceil(T* address, std::size_t alignment) noexcept;
 
 /**
@@ -116,7 +116,7 @@ T* align_ceil(T* address, std::size_t alignment) noexcept;
  * @param alignment The minimum alignment
  * @return std::uintptr_t Aligned address
  */
-XMIPP4_NODISCARD XMIPP4_CONSTEXPR 
+REX_NODISCARD REX_CONSTEXPR 
 std::uintptr_t align_ceil(std::uintptr_t address, std::size_t alignment) noexcept;
 
 /**
@@ -128,7 +128,7 @@ std::uintptr_t align_ceil(std::uintptr_t address, std::size_t alignment) noexcep
  * @return std::uintptr_t Aligned address
  * @note The result is written in place and a reference is returned
  */
-XMIPP4_CONSTEXPR 
+REX_CONSTEXPR 
 std::uintptr_t& align_ceil_inplace(std::uintptr_t& address, std::size_t alignment) noexcept;
 
 /**
@@ -144,7 +144,7 @@ std::uintptr_t& align_ceil_inplace(std::uintptr_t& address, std::size_t alignmen
  * 
  */
 template <typename T>
-XMIPP4_NODISCARD
+REX_NODISCARD
 T* offset_bytes(T* address, std::ptrdiff_t count);
 
 } // namespace xmipp4

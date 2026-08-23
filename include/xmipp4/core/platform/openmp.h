@@ -5,12 +5,12 @@
 #include "pragma.h"
 
 /**
- * @def XMIPP4_OMP
+ * @def REX_OMP
  * @brief Provide a OpenMP directive to the compiler.
  * 
  */
 #if _OPENMP
-	#define XMIPP4_OMP(x) XMIPP4_PRAGMA(omp x)
+	#define REX_OMP(x) REX_PRAGMA(omp x)
 #else
-	#define XMIPP4_OMP(x)
+	#define REX_OMP(x)
 #endif

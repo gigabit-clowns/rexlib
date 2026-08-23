@@ -9,28 +9,28 @@
 namespace xmipp4 
 {
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 dynamic_subscript::dynamic_subscript(ellipsis_tag) noexcept
 	: m_data{}
 	, m_type(subscript_type::ellipsis)
 {
 }
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 dynamic_subscript::dynamic_subscript(new_axis_tag) noexcept
 	: m_data{}
 	, m_type(subscript_type::new_axis)
 {
 }
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 dynamic_subscript::dynamic_subscript(std::ptrdiff_t index) noexcept
 	: m_data{index}
 	, m_type(subscript_type::index)
 {
 }
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 dynamic_subscript::dynamic_subscript(const slice &slice) noexcept
 	: m_data{
 		slice.get_start(), 
@@ -41,7 +41,7 @@ dynamic_subscript::dynamic_subscript(const slice &slice) noexcept
 {
 }
 
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 dynamic_subscript::subscript_type 
 dynamic_subscript::get_subscript_type() const noexcept
 {
@@ -75,7 +75,7 @@ slice dynamic_subscript::get_slice() const
 }
 
 template <typename F>
-XMIPP4_INLINE_CONSTEXPR
+REX_INLINE_CONSTEXPR
 auto visit(F&& func, const dynamic_subscript &subscript)
 {
 	switch (subscript.get_subscript_type())

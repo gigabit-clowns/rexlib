@@ -28,7 +28,7 @@ struct sign_bit_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	sign_bit,
 	ops::sign_bit_operation,
 	default_kernel_factory<sign_bit_kernel>
