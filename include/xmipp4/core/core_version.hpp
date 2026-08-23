@@ -9,9 +9,9 @@ namespace rex
 {
 
 /**
- * @brief Get the version of the xmipp-core installation
+ * @brief Get the version of the rexlib installation
  * 
- * This function returns the version of the loaded xmipp-core .so
+ * This function returns the version of the loaded rexlib .so
  * file
  * 
  * @return version Version of the installation
