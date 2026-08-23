@@ -5,10 +5,10 @@
 #include "operand_type_pivot.hpp"
 #include "operand_type_slot.hpp"
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_domain.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/numerical/numerical_type_domain.hpp>
+#include <rex/core/span.hpp>
 
 #include <array>
 #include <cstddef>

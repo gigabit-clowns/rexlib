@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/system/dynamic_library.hpp>
+#include <rex/core/system/dynamic_library.hpp>
 
 #include "dynamic_library_handle.hpp"
 

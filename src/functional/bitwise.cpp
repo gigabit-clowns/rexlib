@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/bitwise.hpp>
+#include <rex/functional/bitwise.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/bitwise/bitwise_and_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_not_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_or_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_xor_operation.hpp>
-#include <xmipp4/ops/bitwise/left_shift_operation.hpp>
-#include <xmipp4/ops/bitwise/right_shift_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/ops/bitwise/bitwise_and_operation.hpp>
+#include <rex/ops/bitwise/bitwise_not_operation.hpp>
+#include <rex/ops/bitwise/bitwise_or_operation.hpp>
+#include <rex/ops/bitwise/bitwise_xor_operation.hpp>
+#include <rex/ops/bitwise/left_shift_operation.hpp>
+#include <rex/ops/bitwise/right_shift_operation.hpp>
 
 namespace rex
 {

@@ -4,7 +4,7 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <xmipp4/core/layout/strided_layout.hpp>
+#include <rex/core/layout/strided_layout.hpp>
 
 #include <algorithm>
 #include <array>

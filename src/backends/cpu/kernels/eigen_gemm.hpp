@@ -4,7 +4,7 @@
 
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <cstddef>

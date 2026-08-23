@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <xmipp4/core/dispatch/rules/operand_type_resolution.hpp>
-#include <xmipp4/core/dispatch/rules/rule_operand_types.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/platform/attributes.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/dispatch/rules/operand_type_descriptor.hpp>
+#include <rex/core/dispatch/rules/operand_type_resolution.hpp>
+#include <rex/core/dispatch/rules/rule_operand_types.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/platform/attributes.hpp>
+#include <rex/core/span.hpp>
 
 #include <array>
 #include <cstddef>

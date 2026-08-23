@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/backend_priority.hpp>
+#include <rex/core/backend_priority.hpp>
 
 namespace rex
 {

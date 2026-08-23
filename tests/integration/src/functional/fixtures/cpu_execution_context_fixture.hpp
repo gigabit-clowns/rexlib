@@ -4,19 +4,19 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/service_catalog.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/dispatch/program_manager.hpp>
-#include <xmipp4/core/dispatch/dispatcher.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/hardware/device_manager.hpp>
-#include <xmipp4/core/hardware/device_index.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/service_catalog.hpp>
+#include <rex/core/dispatch/execution_context.hpp>
+#include <rex/core/dispatch/program_manager.hpp>
+#include <rex/core/dispatch/dispatcher.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/hardware/device_manager.hpp>
+#include <rex/core/hardware/device_index.hpp>
+#include <rex/core/hardware/device_context.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/span.hpp>
 
 #include <cstddef>
 #include <vector>

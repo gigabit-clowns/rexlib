@@ -4,8 +4,8 @@
 
 #include "dispatcher.hpp"
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
-#include <xmipp4/core/hardware/device_context.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
+#include <rex/core/hardware/device_context.hpp>
 
 #include <memory>
 

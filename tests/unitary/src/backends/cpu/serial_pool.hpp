@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
 
 #include <memory>
 

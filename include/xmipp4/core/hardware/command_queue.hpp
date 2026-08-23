@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
+#include <rex/core/span.hpp>
 
 #include <memory>
 

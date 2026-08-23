@@ -4,7 +4,7 @@
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
+#include <rex/core/numerical/numerical_type_dispatch.hpp>
 
 #include <array>
 #include <typeindex>

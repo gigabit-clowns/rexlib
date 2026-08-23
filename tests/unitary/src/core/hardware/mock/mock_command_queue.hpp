@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rex/core/hardware/command_queue.hpp>
 
-#include <xmipp4/core/hardware/event.hpp>
-#include <xmipp4/core/hardware/command.hpp>
+#include <rex/core/hardware/event.hpp>
+#include <rex/core/hardware/command.hpp>
 
 #include <trompeloeil.hpp>
 

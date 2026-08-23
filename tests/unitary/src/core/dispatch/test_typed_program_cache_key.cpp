@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/typed_program_cache_key.hpp>
+#include <rex/core/dispatch/typed_program_cache_key.hpp>
 
 #include <functional>
 #include <string>

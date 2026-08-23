@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/builders/reduction_compute_type.hpp>
 #include <backends/cpu/load_store.hpp>

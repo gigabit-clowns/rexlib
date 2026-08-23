@@ -4,21 +4,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
+#include <rex/core/dispatch/execution_context.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/span.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/hardware/command_queue.hpp>
+#include <rex/core/hardware/device_context.hpp>
+#include <rex/core/hardware/device_properties.hpp>
+#include <rex/core/hardware/device_session.hpp>
+#include <rex/core/hardware/memory_allocator.hpp>
+#include <rex/core/hardware/memory_resource_affinity.hpp>
 
 #include "../../core/dispatch/mock/mock_dispatcher.hpp"
 #include "../../core/hardware/mock/mock_buffer.hpp"

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/rounding.hpp>
+#include <rex/functional/rounding.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/rounding/ceil_operation.hpp>
-#include <xmipp4/ops/rounding/floor_operation.hpp>
-#include <xmipp4/ops/rounding/round_operation.hpp>
-#include <xmipp4/ops/rounding/trunc_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/ops/rounding/ceil_operation.hpp>
+#include <rex/ops/rounding/floor_operation.hpp>
+#include <rex/ops/rounding/round_operation.hpp>
+#include <rex/ops/rounding/trunc_operation.hpp>
 
 namespace rex
 {

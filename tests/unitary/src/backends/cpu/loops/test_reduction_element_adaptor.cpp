@@ -5,8 +5,8 @@
 #include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/reduction_element_adaptor.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include <algorithm>
 #include <cstddef>

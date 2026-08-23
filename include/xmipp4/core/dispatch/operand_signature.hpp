@@ -4,8 +4,8 @@
 
 #include "../ndarray/array_descriptor.hpp"
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/hardware/memory_resource.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 namespace rex
 {

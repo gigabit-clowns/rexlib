@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/layout/joint_cursor.hpp>
+#include <rex/core/layout/joint_cursor.hpp>
 
 using namespace rex;
 

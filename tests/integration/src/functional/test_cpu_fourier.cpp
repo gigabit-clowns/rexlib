@@ -3,13 +3,13 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/functional/fourier.hpp>
+#include <rex/functional/fourier.hpp>
 
 #include "fixtures/fourier_verb_fixture.hpp"
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/ops/fourier/fourier_normalization.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/exceptions/invalid_operation_error.hpp>
+#include <rex/ops/fourier/fourier_normalization.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <cstddef>

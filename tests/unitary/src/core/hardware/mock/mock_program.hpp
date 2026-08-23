@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/program.hpp>
+#include <rex/core/hardware/program.hpp>
 
 #include <trompeloeil.hpp>
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/dynamic_subscript.hpp>
+#include <rex/core/layout/dynamic_subscript.hpp>
 
 #include "mock/mock_subscript_callable.hpp"
 

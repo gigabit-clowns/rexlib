@@ -6,8 +6,8 @@
 #include "loop_schedule.hpp"
 #include "strided_pointer_iterator.hpp"
 
-#include <xmipp4/core/layout/joint_cursor.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rex/core/layout/joint_cursor.hpp>
+#include <rex/core/platform/assert.hpp>
 
 #include <algorithm>
 #include <initializer_list>

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/plugin_manager.hpp>
+#include <rex/core/plugin_manager.hpp>
 
-#include <xmipp4/core/plugin.hpp>
-#include <xmipp4/core/exceptions/plugin_load_error.hpp>
+#include <rex/core/plugin.hpp>
+#include <rex/core/exceptions/plugin_load_error.hpp>
 
-#include <xmipp4/tests/assets.hpp>
+#include <rex/tests/assets.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rex/core/hardware/command_queue.hpp>
 
 namespace rex
 {

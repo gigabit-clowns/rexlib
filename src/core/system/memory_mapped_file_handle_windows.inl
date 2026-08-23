@@ -2,7 +2,7 @@
 
 #include "memory_mapped_file_handle.hpp"
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <sstream>

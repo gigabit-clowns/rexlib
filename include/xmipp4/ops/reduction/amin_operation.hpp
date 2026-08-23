@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/parametric_operation.hpp>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/reduction_operation_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rex/core/dispatch/parametric_operation.hpp>
+#include <rex/ops/ops_component.hpp>
+#include <rex/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rex/ops/rules/operand_type_rules.hpp>
 
 namespace rex
 {

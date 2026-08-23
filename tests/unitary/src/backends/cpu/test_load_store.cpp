@@ -5,7 +5,7 @@
 
 #include <backends/cpu/load_store.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <type_traits>

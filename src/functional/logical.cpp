@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/logical.hpp>
+#include <rex/functional/logical.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/logical/logical_and_operation.hpp>
-#include <xmipp4/ops/logical/logical_not_operation.hpp>
-#include <xmipp4/ops/logical/logical_or_operation.hpp>
-#include <xmipp4/ops/logical/logical_xor_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/ops/logical/logical_and_operation.hpp>
+#include <rex/ops/logical/logical_not_operation.hpp>
+#include <rex/ops/logical/logical_or_operation.hpp>
+#include <rex/ops/logical/logical_xor_operation.hpp>
 
 namespace rex
 {

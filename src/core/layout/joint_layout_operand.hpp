@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/span.hpp>
 
 #include "../config.hpp"
 

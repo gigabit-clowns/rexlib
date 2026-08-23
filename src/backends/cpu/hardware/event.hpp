@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/event.hpp>
+#include <rex/core/hardware/event.hpp>
 
 namespace rex
 {

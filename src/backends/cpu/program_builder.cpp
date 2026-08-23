@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rex/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/hardware/memory_resource.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
 #include <algorithm>

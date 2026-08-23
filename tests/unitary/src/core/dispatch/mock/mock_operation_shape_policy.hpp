@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
+#include <rex/core/dispatch/operation_shape_policy.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
 
 #include <trompeloeil.hpp>
 

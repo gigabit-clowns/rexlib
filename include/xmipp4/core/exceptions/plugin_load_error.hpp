@@ -4,7 +4,7 @@
 
 #include <stdexcept>
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 namespace rex 
 {

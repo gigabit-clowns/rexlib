@@ -2,7 +2,7 @@
 
 #include "strided_axis.hpp"
 
-#include <xmipp4/core/layout/index.hpp>
+#include <rex/core/layout/index.hpp>
 
 #include <boost/functional/hash.hpp>
 

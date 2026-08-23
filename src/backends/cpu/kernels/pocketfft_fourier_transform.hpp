@@ -7,8 +7,8 @@
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
-#include <xmipp4/ops/fourier/fourier_normalization.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
+#include <rex/ops/fourier/fourier_normalization.hpp>
 
 #include <complex>
 #include <cstddef>

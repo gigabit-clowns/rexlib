@@ -4,7 +4,7 @@
 
 #include "reduction_kernel_traits.hpp"
 
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rex/core/platform/cpp_attributes.hpp>
 
 #include <cstddef>
 #include <tuple>

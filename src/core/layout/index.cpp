@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/index.hpp>
+#include <rex/core/layout/index.hpp>
 
 #include <sstream>
 #include <stdexcept>

@@ -2,9 +2,9 @@
 
 #include "dispatched_program_builder.hpp"
 
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_cast.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/dispatch/operation_cast.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>

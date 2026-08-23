@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/system/dynamic_library.hpp>
+#include <rex/core/system/dynamic_library.hpp>
 
 namespace rex
 {

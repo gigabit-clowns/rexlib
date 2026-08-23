@@ -2,15 +2,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/rules/rule_operand_types.hpp>
+#include <rex/core/dispatch/rules/rule_operand_types.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
-#include <xmipp4/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <xmipp4/core/dispatch/rules/rule_operation_data_type_policy.hpp>
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rex/core/dispatch/rules/operand_type_descriptor.hpp>
+#include <rex/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rex/core/numerical/numerical_type_dispatch.hpp>
+#include <rex/ops/rules/operand_type_rules.hpp>
 
 #include "safe_numerical_type_of.hpp"
 

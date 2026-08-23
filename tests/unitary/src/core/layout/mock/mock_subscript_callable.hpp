@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/subscript_tags.hpp>
-#include <xmipp4/core/layout/slice.hpp>
+#include <rex/core/layout/subscript_tags.hpp>
+#include <rex/core/layout/slice.hpp>
 
 #include <trompeloeil.hpp>
 

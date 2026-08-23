@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/dispatch/operation_shape_policy.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 namespace rex
 {

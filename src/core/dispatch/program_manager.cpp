@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/program_manager.hpp>
+#include <rex/core/dispatch/program_manager.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/core/dispatch/program_builder.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_id.hpp>
+#include <rex/core/exceptions/invalid_operation_error.hpp>
+#include <rex/core/dispatch/program_builder.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/dispatch/operation_id.hpp>
 
 #include <core/find_most_suitable_backend.hpp>
 #include <core/dispatch/core_program_builder_registry.hpp>

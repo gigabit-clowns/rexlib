@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/reduction.hpp>
+#include <rex/functional/reduction.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/layout/index.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/ops/policies/reduction_operation_shape_policy.hpp>
-#include <xmipp4/ops/reduction/all_operation.hpp>
-#include <xmipp4/ops/reduction/amax_operation.hpp>
-#include <xmipp4/ops/reduction/amin_operation.hpp>
-#include <xmipp4/ops/reduction/any_operation.hpp>
-#include <xmipp4/ops/reduction/argmax_operation.hpp>
-#include <xmipp4/ops/reduction/argmin_operation.hpp>
-#include <xmipp4/ops/reduction/count_nonzero_operation.hpp>
-#include <xmipp4/ops/reduction/mean_operation.hpp>
-#include <xmipp4/ops/reduction/product_operation.hpp>
-#include <xmipp4/ops/reduction/sum_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/core/layout/index.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rex/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rex/ops/reduction/all_operation.hpp>
+#include <rex/ops/reduction/amax_operation.hpp>
+#include <rex/ops/reduction/amin_operation.hpp>
+#include <rex/ops/reduction/any_operation.hpp>
+#include <rex/ops/reduction/argmax_operation.hpp>
+#include <rex/ops/reduction/argmin_operation.hpp>
+#include <rex/ops/reduction/count_nonzero_operation.hpp>
+#include <rex/ops/reduction/mean_operation.hpp>
+#include <rex/ops/reduction/product_operation.hpp>
+#include <rex/ops/reduction/sum_operation.hpp>
 
 #include <numeric>
 #include <vector>

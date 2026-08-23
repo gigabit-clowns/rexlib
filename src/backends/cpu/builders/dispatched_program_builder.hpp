@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rex/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
 
 #include <backends/cpu/builders/operand_data_types.hpp>
 

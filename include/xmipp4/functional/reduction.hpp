@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/span.hpp>
 
 #include <cstddef>
 

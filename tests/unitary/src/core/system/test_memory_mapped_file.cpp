@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/system/memory_mapped_file.hpp>
+#include <rex/core/system/memory_mapped_file.hpp>
 
-#include <xmipp4/core/system/access_flags.hpp>
+#include <rex/core/system/access_flags.hpp>
 
 #include <fstream>
 #include <string>

@@ -5,7 +5,7 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
+#include <rex/core/exceptions/invalid_operation_error.hpp>
 #include <core/hardware/host_memory/host_memory_resource.hpp>
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
 

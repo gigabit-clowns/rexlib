@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/ops/policies/cross_product_shape_policy.hpp>
-#include <xmipp4/ops/policies/matrix_multiply_shape_policy.hpp>
-#include <xmipp4/ops/policies/matrix_vector_shape_policy.hpp>
-#include <xmipp4/ops/policies/vector_matrix_shape_policy.hpp>
+#include <rex/ops/policies/cross_product_shape_policy.hpp>
+#include <rex/ops/policies/matrix_multiply_shape_policy.hpp>
+#include <rex/ops/policies/matrix_vector_shape_policy.hpp>
+#include <rex/ops/policies/vector_matrix_shape_policy.hpp>
 
-#include <xmipp4/core/dispatch/operand_names.hpp>
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/dispatch/operand_names.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <vector>

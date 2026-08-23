@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/rounding.hpp>
+#include <rex/functional/rounding.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/rounding/ceil_operation.hpp>
-#include <xmipp4/ops/rounding/floor_operation.hpp>
-#include <xmipp4/ops/rounding/round_operation.hpp>
-#include <xmipp4/ops/rounding/trunc_operation.hpp>
+#include <rex/ops/rounding/ceil_operation.hpp>
+#include <rex/ops/rounding/floor_operation.hpp>
+#include <rex/ops/rounding/round_operation.hpp>
+#include <rex/ops/rounding/trunc_operation.hpp>
 
 using namespace rex;
 using namespace rex::ops;

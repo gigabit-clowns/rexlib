@@ -4,7 +4,7 @@
 
 #include "program_cache_key.hpp"
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 #include <cstddef>
 #include <functional>

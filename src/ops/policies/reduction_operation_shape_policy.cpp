@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rex/ops/policies/reduction_operation_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 

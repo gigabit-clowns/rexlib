@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/program_cache.hpp>
-#include <xmipp4/core/dispatch/typed_program_cache_key.hpp>
+#include <rex/core/dispatch/program_cache.hpp>
+#include <rex/core/dispatch/typed_program_cache_key.hpp>
 
 #include <memory>
 #include <stdexcept>

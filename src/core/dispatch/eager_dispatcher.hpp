@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/dispatcher.hpp>
-#include <xmipp4/core/dispatch/program_cache.hpp>
+#include <rex/core/dispatch/dispatcher.hpp>
+#include <rex/core/dispatch/program_cache.hpp>
 
 #include <memory>
 

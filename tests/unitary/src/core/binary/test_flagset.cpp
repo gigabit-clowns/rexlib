@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/binary/flagset.hpp>
+#include <rex/core/binary/flagset.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <cstdint>
 
-#include <xmipp4/core/binary/bit.hpp>
+#include <rex/core/binary/bit.hpp>
 
 using namespace rex;
 

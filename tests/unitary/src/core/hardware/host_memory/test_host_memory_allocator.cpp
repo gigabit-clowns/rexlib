@@ -5,9 +5,9 @@
 
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/system/host.hpp>
+#include <rex/core/hardware/memory_resource.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/system/host.hpp>
 
 #include "../mock/mock_command_queue.hpp"
 

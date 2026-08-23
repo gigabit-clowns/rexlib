@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/hardware/program.hpp>
+#include <rex/core/span.hpp>
 
 namespace rex
 {

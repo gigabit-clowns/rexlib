@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/service_catalog.hpp>
+#include <rex/core/service_catalog.hpp>
 
-#include <xmipp4/core/plugin.hpp>
+#include <rex/core/plugin.hpp>
 
 #include "plugin_loader.hpp"
 

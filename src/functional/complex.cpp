@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/complex.hpp>
+#include <rex/functional/complex.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/ops/complex/angle_operation.hpp>
-#include <xmipp4/ops/complex/conjugate_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/ops/complex/angle_operation.hpp>
+#include <rex/ops/complex/conjugate_operation.hpp>
 
 #include <cstddef>
 #include <sstream>

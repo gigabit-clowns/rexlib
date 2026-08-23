@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/program_builder.hpp>
+#include <rex/core/dispatch/program_builder.hpp>
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 namespace rex
 {

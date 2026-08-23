@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array.hpp>
 
 #include "array_implementation.hpp"
 

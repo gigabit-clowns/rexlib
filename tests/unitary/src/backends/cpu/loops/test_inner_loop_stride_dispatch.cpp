@@ -4,9 +4,9 @@
 
 #include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/layout/joint_layout.hpp>
+#include <rex/core/layout/joint_layout_builder.hpp>
+#include <rex/core/span.hpp>
 
 #include <cstddef>
 #include <tuple>

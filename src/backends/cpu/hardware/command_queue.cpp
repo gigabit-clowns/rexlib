@@ -2,9 +2,9 @@
 
 #include "command_queue.hpp"
 
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
-#include <xmipp4/core/hardware/command.hpp>
+#include <rex/backends/cpu/program.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
+#include <rex/core/hardware/command.hpp>
 
 #include <stdexcept>
 #include <utility>

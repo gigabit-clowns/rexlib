@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/cast.hpp>
+#include <rex/functional/cast.hpp>
 
-#include <xmipp4/ops/assignment/copy_operation.hpp>
+#include <rex/ops/assignment/copy_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

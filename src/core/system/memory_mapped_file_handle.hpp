@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/system/access_flags.hpp>
-#include <xmipp4/core/platform/operating_system.h>
+#include <rex/core/system/access_flags.hpp>
+#include <rex/core/platform/operating_system.h>
 
 namespace rex
 {

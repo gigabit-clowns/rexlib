@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rex/ops/policies/reduction_operation_shape_policy.hpp>
 
-#include <xmipp4/core/dispatch/operand_names.hpp>
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/dispatch/operand_names.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <vector>

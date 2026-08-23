@@ -2,7 +2,7 @@
 
 #include "operand_type_descriptor.hpp"
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rex/core/platform/assert.hpp>
 
 namespace rex
 {

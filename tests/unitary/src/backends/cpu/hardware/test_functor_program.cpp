@@ -4,15 +4,15 @@
 
 #include <backends/cpu/hardware/functor_program.hpp>
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/program_scratch_requirement.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/hardware/program_scratch_requirement.hpp>
+#include <rex/core/hardware/memory_resource_affinity.hpp>
+#include <rex/core/span.hpp>
 
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 

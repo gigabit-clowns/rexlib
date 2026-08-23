@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/linalg.hpp>
+#include <rex/functional/linalg.hpp>
 
 #include "fixtures/reduction_verb_fixture.hpp"
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/linalg/matvec_operation.hpp>
-#include <xmipp4/ops/linalg/vecdot_operation.hpp>
-#include <xmipp4/ops/linalg/vecmat_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/ops/linalg/matvec_operation.hpp>
+#include <rex/ops/linalg/vecdot_operation.hpp>
+#include <rex/ops/linalg/vecmat_operation.hpp>
 
 #include <complex>
 #include <cstddef>

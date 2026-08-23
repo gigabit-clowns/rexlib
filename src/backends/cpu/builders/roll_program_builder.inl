@@ -2,9 +2,9 @@
 
 #include "roll_program_builder.hpp"
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/meta/type_list.hpp>
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>

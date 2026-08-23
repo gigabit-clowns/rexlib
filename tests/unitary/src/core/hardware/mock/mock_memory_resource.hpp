@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rex/core/hardware/memory_resource.hpp>
 
 #include <trompeloeil.hpp>
 

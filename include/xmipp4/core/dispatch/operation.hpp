@@ -8,7 +8,7 @@
 #include "operation_shape_policy.hpp"
 #include "operation_data_type_policy.hpp"
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 #include <ostream>
 #include <string>

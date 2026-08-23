@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rex/core/hardware/buffer.hpp>
 
 #include <trompeloeil.hpp>
 

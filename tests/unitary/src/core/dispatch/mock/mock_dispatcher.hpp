@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/dispatcher.hpp>
+#include <rex/core/dispatch/dispatcher.hpp>
 
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/hardware/device_context.hpp>
+#include <rex/core/hardware/command_queue.hpp>
 
 #include <trompeloeil.hpp>
 

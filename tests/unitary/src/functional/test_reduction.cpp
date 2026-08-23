@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/reduction.hpp>
+#include <rex/functional/reduction.hpp>
 
-#include <xmipp4/ops/reduction/all_operation.hpp>
-#include <xmipp4/ops/reduction/amax_operation.hpp>
-#include <xmipp4/ops/reduction/amin_operation.hpp>
-#include <xmipp4/ops/reduction/any_operation.hpp>
-#include <xmipp4/ops/reduction/argmax_operation.hpp>
-#include <xmipp4/ops/reduction/argmin_operation.hpp>
-#include <xmipp4/ops/reduction/count_nonzero_operation.hpp>
-#include <xmipp4/ops/reduction/mean_operation.hpp>
-#include <xmipp4/ops/reduction/product_operation.hpp>
-#include <xmipp4/ops/reduction/sum_operation.hpp>
+#include <rex/ops/reduction/all_operation.hpp>
+#include <rex/ops/reduction/amax_operation.hpp>
+#include <rex/ops/reduction/amin_operation.hpp>
+#include <rex/ops/reduction/any_operation.hpp>
+#include <rex/ops/reduction/argmax_operation.hpp>
+#include <rex/ops/reduction/argmin_operation.hpp>
+#include <rex/ops/reduction/count_nonzero_operation.hpp>
+#include <rex/ops/reduction/mean_operation.hpp>
+#include <rex/ops/reduction/product_operation.hpp>
+#include <rex/ops/reduction/sum_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

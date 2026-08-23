@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/device.hpp>
+#include <rex/core/hardware/device.hpp>
 
 namespace rex
 {

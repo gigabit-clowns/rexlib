@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rex/backends/cpu/program.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
 
 #include <trompeloeil.hpp>
 

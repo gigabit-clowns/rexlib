@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/dynamic_subscript.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/layout/dynamic_subscript.hpp>
+#include <rex/core/span.hpp>
 
 #include "strided_axis.hpp"
 #include "../config.hpp"

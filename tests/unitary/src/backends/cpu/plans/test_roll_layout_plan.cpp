@@ -6,7 +6,7 @@
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
 
-#include <xmipp4/core/span.hpp>
+#include <rex/core/span.hpp>
 
 #include <vector>
 

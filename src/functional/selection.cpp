@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/selection.hpp>
+#include <rex/functional/selection.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/selection/clip_operation.hpp>
-#include <xmipp4/ops/selection/maximum_operation.hpp>
-#include <xmipp4/ops/selection/minimum_operation.hpp>
-#include <xmipp4/ops/selection/where_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/ops/selection/clip_operation.hpp>
+#include <rex/ops/selection/maximum_operation.hpp>
+#include <rex/ops/selection/minimum_operation.hpp>
+#include <rex/ops/selection/where_operation.hpp>
 
 namespace rex
 {

@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
 
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
+#include <rex/core/hardware/memory_resource_affinity.hpp>
 
 namespace rex
 {

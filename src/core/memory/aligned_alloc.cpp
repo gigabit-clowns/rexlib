@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/memory/aligned_alloc.hpp>
+#include <rex/core/memory/aligned_alloc.hpp>
 
-#include <xmipp4/core/platform/operating_system.h>
+#include <rex/core/platform/operating_system.h>
 
 #include <algorithm>
 #include <cstdlib>

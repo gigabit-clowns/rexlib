@@ -4,7 +4,7 @@
 
 #include "memory_resource_affinity.hpp"
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 #include <cstddef>
 

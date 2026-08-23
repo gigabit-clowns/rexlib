@@ -2,7 +2,7 @@
 
 #include "loop_schedule.hpp"
 
-#include <xmipp4/backends/cpu/parallel_for.hpp>
+#include <rex/backends/cpu/parallel_for.hpp>
 
 namespace rex
 {

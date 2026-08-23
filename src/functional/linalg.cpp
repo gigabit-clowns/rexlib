@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/linalg.hpp>
+#include <rex/functional/linalg.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/layout/index.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/ops/linalg/cross_operation.hpp>
-#include <xmipp4/ops/linalg/matmul_operation.hpp>
-#include <xmipp4/ops/linalg/matvec_operation.hpp>
-#include <xmipp4/ops/linalg/vecdot_operation.hpp>
-#include <xmipp4/ops/linalg/vecmat_operation.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/core/layout/index.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rex/ops/linalg/cross_operation.hpp>
+#include <rex/ops/linalg/matmul_operation.hpp>
+#include <rex/ops/linalg/matvec_operation.hpp>
+#include <rex/ops/linalg/vecdot_operation.hpp>
+#include <rex/ops/linalg/vecmat_operation.hpp>
 
 #include <algorithm>
 #include <vector>

@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/complex.hpp>
+#include <rex/functional/complex.hpp>
 
-#include <xmipp4/ops/complex/angle_operation.hpp>
-#include <xmipp4/ops/complex/conjugate_operation.hpp>
+#include <rex/ops/complex/angle_operation.hpp>
+#include <rex/ops/complex/conjugate_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

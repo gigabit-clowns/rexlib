@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
-#include <xmipp4/core/layout/broadcast.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rex/core/layout/broadcast.hpp>
+#include <rex/core/platform/assert.hpp>
 
 #include <sstream>
 #include <stdexcept>

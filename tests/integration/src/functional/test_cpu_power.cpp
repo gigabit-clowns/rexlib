@@ -2,22 +2,22 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/power.hpp>
+#include <rex/functional/power.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/power/cbrt_operation.hpp>
-#include <xmipp4/ops/power/exp2_operation.hpp>
-#include <xmipp4/ops/power/exp_operation.hpp>
-#include <xmipp4/ops/power/expm1_operation.hpp>
-#include <xmipp4/ops/power/log10_operation.hpp>
-#include <xmipp4/ops/power/log1p_operation.hpp>
-#include <xmipp4/ops/power/log2_operation.hpp>
-#include <xmipp4/ops/power/log_operation.hpp>
-#include <xmipp4/ops/power/power_operation.hpp>
-#include <xmipp4/ops/power/reciprocal_operation.hpp>
-#include <xmipp4/ops/power/sqrt_operation.hpp>
-#include <xmipp4/ops/power/square_operation.hpp>
+#include <rex/ops/power/cbrt_operation.hpp>
+#include <rex/ops/power/exp2_operation.hpp>
+#include <rex/ops/power/exp_operation.hpp>
+#include <rex/ops/power/expm1_operation.hpp>
+#include <rex/ops/power/log10_operation.hpp>
+#include <rex/ops/power/log1p_operation.hpp>
+#include <rex/ops/power/log2_operation.hpp>
+#include <rex/ops/power/log_operation.hpp>
+#include <rex/ops/power/power_operation.hpp>
+#include <rex/ops/power/reciprocal_operation.hpp>
+#include <rex/ops/power/sqrt_operation.hpp>
+#include <rex/ops/power/square_operation.hpp>
 
 using namespace rex;
 using namespace rex::ops;

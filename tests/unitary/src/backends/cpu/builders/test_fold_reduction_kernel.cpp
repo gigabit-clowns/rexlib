@@ -6,8 +6,8 @@
 #include <backends/cpu/load_store.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include <cstddef>
 #include <cstdint>

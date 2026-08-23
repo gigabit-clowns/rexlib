@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
 
 #include <trompeloeil.hpp>
 

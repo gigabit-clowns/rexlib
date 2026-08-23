@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include "float16_conversions.hpp"
 

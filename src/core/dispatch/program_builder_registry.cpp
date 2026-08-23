@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
+#include <rex/core/dispatch/program_builder_registry.hpp>
 
-#include <xmipp4/core/dispatch/program_builder.hpp>
-#include <xmipp4/core/dispatch/program_manager.hpp>
+#include <rex/core/dispatch/program_builder.hpp>
+#include <rex/core/dispatch/program_manager.hpp>
 
 namespace rex
 {

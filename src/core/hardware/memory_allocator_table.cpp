@@ -2,9 +2,9 @@
 
 #include "memory_allocator_table.hpp"
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rex/core/hardware/device.hpp>
+#include <rex/core/hardware/memory_resource.hpp>
+#include <rex/core/platform/assert.hpp>
 
 #include <unordered_map>
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/fourier/fft_operation.hpp>
+#include <rex/ops/fourier/fft_operation.hpp>
 
 #include <backends/cpu/builders/fourier_program_builder.hpp>
 

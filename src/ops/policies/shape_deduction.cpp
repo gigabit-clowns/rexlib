@@ -2,7 +2,7 @@
 
 #include "shape_deduction.hpp"
 
-#include <xmipp4/core/layout/broadcast.hpp>
+#include <rex/core/layout/broadcast.hpp>
 
 #include <algorithm>
 #include <cstddef>

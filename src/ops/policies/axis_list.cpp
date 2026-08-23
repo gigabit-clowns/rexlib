@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/axis_list.hpp>
+#include <rex/ops/policies/axis_list.hpp>
 
 #include <algorithm>
 #include <sstream>

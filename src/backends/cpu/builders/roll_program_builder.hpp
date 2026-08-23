@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rex/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
+#include <rex/core/dispatch/program_builder_registry.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -12,8 +12,8 @@
 #include <backends/cpu/builders/program_builder_registration.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rex/core/layout/joint_layout.hpp>
+#include <rex/core/meta/type_list.hpp>
 
 #include <memory>
 #include <vector>

@@ -6,11 +6,11 @@
 #include "operand_type_pivot.hpp"
 #include "operand_type_rule.hpp"
 
-#include <xmipp4/core/dispatch/operation_data_type_policy.hpp>
+#include <rex/core/dispatch/operation_data_type_policy.hpp>
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
+#include <rex/core/span.hpp>
 
 #include <array>
 #include <cstddef>

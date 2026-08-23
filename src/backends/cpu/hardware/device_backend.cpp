@@ -2,11 +2,11 @@
 
 #include "device_backend.hpp"
 
-#include <xmipp4/backends/cpu/device.hpp>
+#include <rex/backends/cpu/device.hpp>
 
-#include <xmipp4/core/hardware/device_manager.hpp>
-#include <xmipp4/core/core_version.hpp>
-#include <xmipp4/core/system/host.hpp>
+#include <rex/core/hardware/device_manager.hpp>
+#include <rex/core/core_version.hpp>
+#include <rex/core/system/host.hpp>
 
 namespace rex
 {

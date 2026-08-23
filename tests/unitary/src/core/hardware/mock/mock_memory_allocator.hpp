@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rex/core/hardware/memory_allocator.hpp>
 
 #include <trompeloeil.hpp>
 

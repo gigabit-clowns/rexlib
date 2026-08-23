@@ -3,12 +3,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include <xmipp4/core/dispatch/operation_cast.hpp>
+#include <rex/core/dispatch/operation_cast.hpp>
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rex/core/dispatch/basic_operation.hpp>
+#include <rex/ops/ops_component.hpp>
+#include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rex/ops/rules/operand_type_rules.hpp>
 
 #include <stdexcept>
 #include <string>

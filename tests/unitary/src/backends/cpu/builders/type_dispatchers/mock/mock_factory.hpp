@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rex/core/hardware/program.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/numerical/numerical_type_traits.hpp>
 
 #include <trompeloeil.hpp>
 

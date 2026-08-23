@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/numerical/scalar_value.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rex/core/numerical/scalar_value.hpp>
+#include <rex/core/numerical/numerical_type_traits.hpp>
 
 #include <complex>
 #include <type_traits>

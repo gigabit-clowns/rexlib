@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_domain_tags.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/numerical/numerical_type_domain_tags.hpp>
+#include <rex/core/numerical/numerical_type_traits.hpp>
 
 #include <complex>
 

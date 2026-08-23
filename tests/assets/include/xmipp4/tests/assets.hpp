@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/platform/operating_system.h>
-#include <xmipp4/core/platform/compiler.h>
+#include <rex/core/platform/operating_system.h>
+#include <rex/core/platform/compiler.h>
 
 #include <string>
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/plugin.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/plugin.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 #if defined(REX_DUMMY_PLUGIN_EXPORTING)
 	#define REX_DUMMY_PLUGIN_API REX_EXPORT

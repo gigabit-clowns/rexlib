@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rex/core/dispatch/basic_operation.hpp>
+#include <rex/core/numerical/scalar_value.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
+#include <rex/ops/ops_component.hpp>
+#include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rex/ops/rules/operand_type_rules.hpp>
 
 namespace rex
 {

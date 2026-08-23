@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/joint_cursor.hpp>
+#include <rex/core/layout/joint_cursor.hpp>
 
 namespace rex 
 {

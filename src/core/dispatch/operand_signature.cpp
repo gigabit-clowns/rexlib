@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/hardware/buffer.hpp>
 
 #include <boost/functional/hash.hpp>
 

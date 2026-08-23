@@ -2,7 +2,7 @@
 
 #include "plugin_loader.hpp"
 
-#include <xmipp4/core/exceptions/plugin_load_error.hpp>
+#include <rex/core/exceptions/plugin_load_error.hpp>
 
 namespace rex
 {

@@ -4,8 +4,8 @@
 
 #include "operand_type_pivot.hpp"
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 #include <array>
 #include <cstddef>

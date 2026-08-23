@@ -5,8 +5,8 @@
 
 #include <backends/cpu/hardware/command_queue.hpp>
 
-#include <xmipp4/core/hardware/command.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/hardware/command.hpp>
+#include <rex/core/span.hpp>
 
 #include "../serial_pool.hpp"
 #include "mock/mock_program.hpp"

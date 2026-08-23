@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/device_session.hpp>
+#include <rex/core/hardware/device_session.hpp>
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rex/core/hardware/device.hpp>
+#include <rex/core/hardware/device_properties.hpp>
+#include <rex/core/hardware/memory_allocator.hpp>
 
 #include "mock/mock_device.hpp"
 #include "mock/mock_memory_resource.hpp"

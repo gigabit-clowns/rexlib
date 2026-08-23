@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/numerical/numerical_type_traits.hpp>
 
 #include <type_traits>
 

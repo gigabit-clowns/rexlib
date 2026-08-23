@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include <half.hpp>
 

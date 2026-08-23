@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rex/core/hardware/memory_resource.hpp>
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/hardware/device.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include "host_memory/host_memory_resource.hpp"
 

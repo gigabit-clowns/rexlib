@@ -3,11 +3,11 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/hardware/memory_resource.hpp>
 
 #include "../hardware/mock/mock_buffer.hpp"
 

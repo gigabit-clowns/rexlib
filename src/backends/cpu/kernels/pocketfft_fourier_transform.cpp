@@ -4,7 +4,7 @@
 
 #include <backends/cpu/config.hpp>
 
-#include <xmipp4/core/platform/compiler.h>
+#include <rex/core/platform/compiler.h>
 
 #include <complex>
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/system/host.hpp>
-#include <xmipp4/core/platform/operating_system.h>
+#include <rex/core/system/host.hpp>
+#include <rex/core/platform/operating_system.h>
 
 #if REX_LINUX
 	#include <unistd.h>

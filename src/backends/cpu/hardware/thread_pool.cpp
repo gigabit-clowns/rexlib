@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rex/core/platform/assert.hpp>
 
 #include <core/logger.hpp>
 

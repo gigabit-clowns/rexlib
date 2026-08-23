@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/real_fourier_transform_shape_policy.hpp>
+#include <rex/ops/policies/real_fourier_transform_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 

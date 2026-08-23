@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/execute.hpp>
+#include <rex/core/dispatch/execute.hpp>
 
-#include <xmipp4/core/binary/bit.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
-#include <xmipp4/core/dispatch/operation_data_type_policy.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rex/core/binary/bit.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/dispatch/operation_shape_policy.hpp>
+#include <rex/core/dispatch/operation_data_type_policy.hpp>
+#include <rex/core/dispatch/execution_context.hpp>
+#include <rex/core/hardware/memory_allocator.hpp>
+#include <rex/core/hardware/device_properties.hpp>
+#include <rex/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 #include <core/config.hpp>

@@ -2,7 +2,7 @@
 
 #include "dynamic_library_handle.hpp"
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
 #include <dlfcn.h>
 

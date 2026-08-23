@@ -6,13 +6,13 @@
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
+#include <rex/core/platform/constexpr.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/layout/joint_layout.hpp>
+#include <rex/core/layout/joint_layout_builder.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/span.hpp>
 
 #include <algorithm>
 #include <cstddef>

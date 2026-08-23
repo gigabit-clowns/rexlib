@@ -4,9 +4,9 @@
 
 #include "linalg_operand_core.hpp"
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/layout/joint_layout.hpp>
+#include <rex/core/span.hpp>
 
 #include <cstddef>
 

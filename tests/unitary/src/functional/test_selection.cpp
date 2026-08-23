@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/selection.hpp>
+#include <rex/functional/selection.hpp>
 
-#include <xmipp4/ops/selection/clip_operation.hpp>
-#include <xmipp4/ops/selection/maximum_operation.hpp>
-#include <xmipp4/ops/selection/minimum_operation.hpp>
-#include <xmipp4/ops/selection/where_operation.hpp>
+#include <rex/ops/selection/clip_operation.hpp>
+#include <rex/ops/selection/maximum_operation.hpp>
+#include <rex/ops/selection/minimum_operation.hpp>
+#include <rex/ops/selection/where_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

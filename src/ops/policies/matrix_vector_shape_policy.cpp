@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/matrix_vector_shape_policy.hpp>
+#include <rex/ops/policies/matrix_vector_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
-#include <xmipp4/core/layout/broadcast.hpp>
+#include <rex/core/layout/broadcast.hpp>
 
 #include <iterator>
 #include <sstream>

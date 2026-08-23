@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
+#include <rex/core/dispatch/operation_shape_policy.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rex/core/dispatch/operation_descriptor.hpp>
+#include <rex/core/platform/assert.hpp>
 
 #include <stdexcept>
 #include <sstream>

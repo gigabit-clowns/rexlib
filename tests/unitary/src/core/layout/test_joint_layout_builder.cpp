@@ -5,12 +5,12 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
+#include <rex/core/layout/joint_layout_builder.hpp>
 
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/core/layout/broadcast_error.hpp>
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/exceptions/invalid_operation_error.hpp>
+#include <rex/core/layout/broadcast_error.hpp>
+#include <rex/core/layout/joint_layout.hpp>
 #include <core/layout/joint_layout_implementation.hpp>
 
 #include <algorithm>

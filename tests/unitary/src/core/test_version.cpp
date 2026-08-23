@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/version.hpp>
+#include <rex/core/version.hpp>
 
 using namespace rex;
 

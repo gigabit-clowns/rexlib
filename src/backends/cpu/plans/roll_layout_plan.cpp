@@ -2,7 +2,7 @@
 
 #include <backends/cpu/plans/roll_layout_plan.hpp>
 
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
+#include <rex/core/layout/joint_layout_builder.hpp>
 
 namespace rex
 {

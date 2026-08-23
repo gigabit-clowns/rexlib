@@ -3,17 +3,17 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 
-#include <xmipp4/functional/transfer.hpp>
+#include <rex/functional/transfer.hpp>
 
 #include "fixtures/cpu_execution_context_fixture.hpp"
 
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rex/functional/creation.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/const_array.hpp>
+#include <rex/core/hardware/memory_resource_affinity.hpp>
+#include <rex/core/numerical/numerical_type_traits.hpp>
+#include <rex/core/numerical/scalar_value.hpp>
 
 #include <complex>
 #include <cstdint>

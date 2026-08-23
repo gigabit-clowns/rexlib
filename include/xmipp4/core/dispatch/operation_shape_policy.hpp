@@ -4,8 +4,8 @@
 
 #include "operation_descriptor.hpp"
 
-#include <xmipp4/core/span.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rex/core/span.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
 
 #include <vector>
 

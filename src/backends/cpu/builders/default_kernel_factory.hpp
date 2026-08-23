@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rex/core/meta/type_list.hpp>
 
 namespace rex
 {

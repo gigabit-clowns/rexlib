@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
 
 #include <memory>
 

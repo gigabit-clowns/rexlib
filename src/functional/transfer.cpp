@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/transfer.hpp>
+#include <rex/functional/transfer.hpp>
 
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/ops/assignment/copy_operation.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rex/core/dispatch/execution_context.hpp>
+#include <rex/core/dispatch/execute.hpp>
+#include <rex/functional/creation.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rex/ops/assignment/copy_operation.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/hardware/memory_allocator.hpp>
 
 namespace rex
 {

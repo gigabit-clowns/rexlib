@@ -4,12 +4,12 @@
 
 #include "fourier_normalization.hpp"
 
-#include <xmipp4/core/dispatch/parametric_operation.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/axis_list.hpp>
-#include <xmipp4/ops/policies/real_fourier_transform_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rex/core/dispatch/parametric_operation.hpp>
+#include <rex/core/platform/dynamic_shared_object.h>
+#include <rex/ops/ops_component.hpp>
+#include <rex/ops/policies/axis_list.hpp>
+#include <rex/ops/policies/real_fourier_transform_shape_policy.hpp>
+#include <rex/ops/rules/operand_type_rules.hpp>
 
 namespace rex
 {

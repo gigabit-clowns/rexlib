@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
 
-#include <xmipp4/core/platform/enum_helpers.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rex/core/platform/enum_helpers.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
 
 #include "numerical_type_promotion_lattice.hpp"
 

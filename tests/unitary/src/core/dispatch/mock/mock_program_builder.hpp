@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/program_builder.hpp>
+#include <rex/core/dispatch/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/hardware/program.hpp>
+#include <rex/core/hardware/command_queue.hpp>
 
 #include <trompeloeil.hpp>
 

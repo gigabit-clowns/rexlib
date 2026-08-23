@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/assignment/fill_operation.hpp>
+#include <rex/ops/assignment/fill_operation.hpp>
 
 namespace rex
 {

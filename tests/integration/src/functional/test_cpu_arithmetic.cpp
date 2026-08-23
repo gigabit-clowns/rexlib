@@ -2,25 +2,25 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/arithmetic.hpp>
+#include <rex/functional/arithmetic.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/arithmetic/abs_operation.hpp>
-#include <xmipp4/ops/arithmetic/add_operation.hpp>
-#include <xmipp4/ops/arithmetic/divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/divmod_operation.hpp>
-#include <xmipp4/ops/arithmetic/floor_divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/modulo_operation.hpp>
-#include <xmipp4/ops/arithmetic/multiply_operation.hpp>
-#include <xmipp4/ops/arithmetic/negate_operation.hpp>
-#include <xmipp4/ops/arithmetic/sign_operation.hpp>
-#include <xmipp4/ops/arithmetic/subtract_operation.hpp>
+#include <rex/ops/arithmetic/abs_operation.hpp>
+#include <rex/ops/arithmetic/add_operation.hpp>
+#include <rex/ops/arithmetic/divide_operation.hpp>
+#include <rex/ops/arithmetic/divmod_operation.hpp>
+#include <rex/ops/arithmetic/floor_divide_operation.hpp>
+#include <rex/ops/arithmetic/modulo_operation.hpp>
+#include <rex/ops/arithmetic/multiply_operation.hpp>
+#include <rex/ops/arithmetic/negate_operation.hpp>
+#include <rex/ops/arithmetic/sign_operation.hpp>
+#include <rex/ops/arithmetic/subtract_operation.hpp>
 
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rex/functional/creation.hpp>
+#include <rex/core/hardware/memory_resource_affinity.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/numerical/scalar_value.hpp>
 
 #include <cmath>
 #include <complex>

@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/operation_arity.hpp>
+#include <rex/core/dispatch/operation_arity.hpp>
 
 using namespace rex;
 

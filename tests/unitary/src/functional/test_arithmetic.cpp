@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/arithmetic.hpp>
+#include <rex/functional/arithmetic.hpp>
 
-#include <xmipp4/ops/arithmetic/abs_operation.hpp>
-#include <xmipp4/ops/arithmetic/add_operation.hpp>
-#include <xmipp4/ops/arithmetic/divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/divmod_operation.hpp>
-#include <xmipp4/ops/arithmetic/floor_divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/modulo_operation.hpp>
-#include <xmipp4/ops/arithmetic/multiply_operation.hpp>
-#include <xmipp4/ops/arithmetic/negate_operation.hpp>
-#include <xmipp4/ops/arithmetic/sign_operation.hpp>
-#include <xmipp4/ops/arithmetic/subtract_operation.hpp>
+#include <rex/ops/arithmetic/abs_operation.hpp>
+#include <rex/ops/arithmetic/add_operation.hpp>
+#include <rex/ops/arithmetic/divide_operation.hpp>
+#include <rex/ops/arithmetic/divmod_operation.hpp>
+#include <rex/ops/arithmetic/floor_divide_operation.hpp>
+#include <rex/ops/arithmetic/modulo_operation.hpp>
+#include <rex/ops/arithmetic/multiply_operation.hpp>
+#include <rex/ops/arithmetic/negate_operation.hpp>
+#include <rex/ops/arithmetic/sign_operation.hpp>
+#include <rex/ops/arithmetic/subtract_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

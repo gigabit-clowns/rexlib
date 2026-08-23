@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/service_manager.hpp>
+#include <rex/core/service_manager.hpp>
 
 #include <trompeloeil.hpp>
 

@@ -3,7 +3,7 @@
 #pragma once
 
 
-#include <xmipp4/core/platform/operating_system.h>
+#include <rex/core/platform/operating_system.h>
 
 #include <string>
 

@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rex/core/meta/type_list.hpp>
 
 using namespace rex;
 using namespace rex::cpu;

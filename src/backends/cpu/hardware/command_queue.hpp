@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rex/core/hardware/command_queue.hpp>
 
 #include <memory>
 

@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/array_ref.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
+#include <rex/core/ndarray/array.hpp>
+#include <rex/core/ndarray/array_ref.hpp>
+#include <rex/core/ndarray/const_array.hpp>
+#include <rex/core/ndarray/array_descriptor.hpp>
 
 #include "../hardware/mock/mock_buffer.hpp"
 

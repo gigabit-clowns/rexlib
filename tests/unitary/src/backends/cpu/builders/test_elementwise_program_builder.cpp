@@ -9,24 +9,24 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_arity.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rex/core/dispatch/basic_operation.hpp>
+#include <rex/core/dispatch/operation.hpp>
+#include <rex/core/dispatch/operation_arity.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/backends/cpu/program.hpp>
+#include <rex/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rex/core/hardware/buffer.hpp>
+#include <rex/core/hardware/program.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/span.hpp>
 
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rex/ops/ops_component.hpp>
+#include <rex/ops/rules/operand_type_rules.hpp>
 
 #include "../../../core/dispatch/mock/mock_operation.hpp"
 

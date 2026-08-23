@@ -2,10 +2,10 @@
 
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
+#include <rex/core/dispatch/operand_signature.hpp>
+#include <rex/core/layout/joint_layout_builder.hpp>
+#include <rex/core/layout/strided_layout.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
 
 #include <sstream>
 #include <stdexcept>

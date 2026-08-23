@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/span.hpp>
+#include <rex/core/span.hpp>
 
 #include <array>
 

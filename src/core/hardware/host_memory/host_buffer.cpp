@@ -2,8 +2,8 @@
 
 #include "host_buffer.hpp"
 
-#include <xmipp4/core/memory/aligned_alloc.hpp>
-#include <xmipp4/core/memory/align.hpp>
+#include <rex/core/memory/aligned_alloc.hpp>
+#include <rex/core/memory/align.hpp>
 
 #include "host_memory_resource.hpp"
 

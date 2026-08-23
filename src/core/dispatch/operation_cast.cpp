@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_cast.hpp>
+#include <rex/core/dispatch/operation_cast.hpp>
 
 #include <sstream>
 #include <stdexcept>

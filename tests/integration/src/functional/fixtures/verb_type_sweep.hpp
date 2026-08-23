@@ -11,19 +11,19 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <xmipp4/functional/creation.hpp>
+#include <rex/functional/creation.hpp>
 
-#include <xmipp4/core/dispatch/rules/rule_operand_types.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/meta/type_tag.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
-#include <xmipp4/core/numerical/numerical_type_domain_tags.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rex/core/dispatch/rules/rule_operand_types.hpp>
+#include <rex/core/hardware/memory_resource_affinity.hpp>
+#include <rex/core/meta/type_list.hpp>
+#include <rex/core/meta/type_tag.hpp>
+#include <rex/core/ndarray/const_array_ref.hpp>
+#include <rex/core/numerical/fixed_width_float.hpp>
+#include <rex/core/numerical/numerical_type.hpp>
+#include <rex/core/numerical/numerical_type_dispatch.hpp>
+#include <rex/core/numerical/numerical_type_domain_tags.hpp>
+#include <rex/core/numerical/numerical_type_traits.hpp>
+#include <rex/core/numerical/scalar_value.hpp>
 
 #include <complex>
 #include <cstddef>

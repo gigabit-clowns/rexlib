@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rex/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rex/core/dispatch/program_builder_registry.hpp>
+#include <rex/core/platform/cpp_attributes.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -15,7 +15,7 @@
 #include <backends/cpu/kernels/pocketfft_fourier_transform.hpp>
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rex/core/meta/type_list.hpp>
 
 #include <memory>
 

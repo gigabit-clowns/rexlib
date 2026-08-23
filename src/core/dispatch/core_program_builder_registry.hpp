@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
+#include <rex/core/dispatch/program_builder_registry.hpp>
 
 namespace rex
 {
