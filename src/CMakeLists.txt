@@ -117,7 +117,7 @@ function(xmipp4_add_component NAME DIR)
 	)
 endfunction()
 
-xmipp4_add_component(xmipp4-core-obj core)
+xmipp4_add_component(rexlib-obj core)
 xmipp4_add_component(xmipp4-ops-obj ops)
 xmipp4_add_component(xmipp4-functional-obj functional)
 xmipp4_add_component(xmipp4-cpu-obj backends/cpu)
@@ -126,20 +126,20 @@ xmipp4_add_component(xmipp4-cpu-obj backends/cpu)
 
 # Assemble the single shared library from the component objects
 add_library(
-	xmipp4-core
+	rexlib
 	SHARED
-		$<TARGET_OBJECTS:xmipp4-core-obj>
+		$<TARGET_OBJECTS:rexlib-obj>
 		$<TARGET_OBJECTS:xmipp4-ops-obj>
 		$<TARGET_OBJECTS:xmipp4-functional-obj>
 		$<TARGET_OBJECTS:xmipp4-cpu-obj>
 )
 set_target_properties(
-	xmipp4-core
+	rexlib
 	PROPERTIES
 		SOVERSION ${PROJECT_VERSION}
 )
 target_include_directories(
-	xmipp4-core
+	rexlib
 	PUBLIC
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -147,7 +147,7 @@ target_include_directories(
 
 if(MSVC)
 	target_compile_definitions(
-		xmipp4-core
+		rexlib
 		PUBLIC
 			NOMINMAX
 	)
@@ -156,15 +156,15 @@ endif()
 # Add coverage flags if requested
 if(REXLIB_ENABLE_COVERAGE)
 	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-		target_link_options(xmipp4-core PUBLIC --coverage)
+		target_link_options(rexlib PUBLIC --coverage)
 	elseif(MSVC)
-		target_link_options(xmipp4-core PUBLIC /DEBUG)
+		target_link_options(rexlib PUBLIC /DEBUG)
 	endif()
 endif()
 
 # Link dependencies
 target_link_libraries(
-	xmipp4-core
+	rexlib
 	PUBLIC
 		Threads::Threads
 	PRIVATE
@@ -172,12 +172,12 @@ target_link_libraries(
 )
 
 # Create the alias
-add_library(xmipp4::core ALIAS xmipp4-core)
+add_library(xmipp4::core ALIAS rexlib)
 
 # Install library's binary files and headers
 install(
-	TARGETS xmipp4-core
-	EXPORT xmipp4-core-targets
+	TARGETS rexlib
+	EXPORT rexlib-targets
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 install(
@@ -192,21 +192,21 @@ install(
 # Create and install CMake config files
 configure_package_config_file(
 	${PROJECT_SOURCE_DIR}/cmake/config/config.cmake.in
-	${CMAKE_CURRENT_BINARY_DIR}/xmipp4-core-config.cmake
-	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/xmipp4-core
+	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config.cmake
+	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
 )
 write_basic_package_version_file(
-	${CMAKE_CURRENT_BINARY_DIR}/xmipp4-core-config-version.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config-version.cmake
 	COMPATIBILITY SameMinorVersion
 )
 install(
-	EXPORT xmipp4-core-targets
-	FILE xmipp4-core-targets.cmake
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/xmipp4-core
+	EXPORT rexlib-targets
+	FILE rexlib-targets.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
 )
 install(
 	FILES
-	${CMAKE_CURRENT_BINARY_DIR}/xmipp4-core-config.cmake
-	${CMAKE_CURRENT_BINARY_DIR}/xmipp4-core-config-version.cmake
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/xmipp4-core
+	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config-version.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
 )

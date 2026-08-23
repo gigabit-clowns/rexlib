@@ -10,5 +10,5 @@ set_target_properties(
 target_link_libraries(
 	dummy-plugin
 	PRIVATE
-		xmipp4-core
+		rexlib
 )

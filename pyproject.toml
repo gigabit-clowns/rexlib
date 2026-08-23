@@ -5,7 +5,7 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "xmipp4-core"
+name = "rexlib"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
@@ -30,7 +30,7 @@ requires-python = ">=3.9"
 dependencies = []
 
 [project.urls]
-Homepage = "https://github.com/gigabit-clowns/xmipp4-core"
+Homepage = "https://github.com/gigabit-clowns/rexlib"
 
 [tool.scikit-build]
 experimental=true # For wheel.install-dir

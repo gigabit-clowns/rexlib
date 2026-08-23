@@ -5,5 +5,5 @@ add_library(faulty-plugin2 MODULE ${SOURCES})
 target_link_libraries(
 	faulty-plugin2
 	PRIVATE
-		xmipp4-core
+		rexlib
 )

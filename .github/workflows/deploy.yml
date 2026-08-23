@@ -128,8 +128,8 @@ jobs:
         with:
           name: conda-${{ matrix.os }}
           path: |
-            builds/**/xmipp4-core*.tar.bz2
-            builds/**/xmipp4-core*.conda
+            builds/**/rexlib*.tar.bz2
+            builds/**/rexlib*.conda
 
   upload_conda:
     name: Upload to conda-forge

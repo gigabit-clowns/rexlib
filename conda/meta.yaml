@@ -7,14 +7,14 @@
 {% set version = version_match[1] %}
 
 package:
-  name: xmipp4-core
+  name: rexlib
   version: {{ version }}
 
 about:
   summary: Core library for the xmipp4 framework
   license_file: LICENSE
-  dev_url: https://github.com/gigabit-clowns/xmipp4-core
-  doc_url: https://gigabit-clowns.github.io/xmipp4-core/
+  dev_url: https://github.com/gigabit-clowns/rexlib
+  doc_url: https://gigabit-clowns.github.io/rexlib/
 
 source:
   path: ../
