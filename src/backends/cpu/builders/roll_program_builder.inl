@@ -7,6 +7,8 @@
 #include <xmipp4/core/meta/type_list.hpp>
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
+#include <backends/cpu/loops/loop_schedule.hpp>
+#include <backends/cpu/loops/parallel_grain.hpp>
 #include <backends/cpu/plans/roll_layout_plan.hpp>
 
 #include <cstddef>
@@ -54,14 +56,22 @@ public:
 	void operator()(
 		std::tuple<T *> outputs,
 		std::tuple<const T *> inputs,
-		std::tuple<>
+		std::tuple<>,
+		thread_pool &pool
 	) const
 	{
+		// Inside each block rather than across them. A roll of k axes gives
+		// 2^k blocks of very unequal size, so splitting the block loop would
+		// leave one thread with almost all of the work; splitting inside lets
+		// the one large block spread out while the slivers fall below the
+		// grain and stay where they are.
+		const loop_schedule schedule(pool, grain_for_cost(1));
+
 		T *const out = std::get<0>(outputs);
 		const T *const in = std::get<0>(inputs);
 		for (const auto &block : m_blocks)
 		{
-			run_elementwise_loop(roll_assign<T>(), block, out, in);
+			run_elementwise_loop(roll_assign<T>(), block, schedule, out, in);
 		}
 	}
 

@@ -6,6 +6,8 @@
 #include <xmipp4/core/meta/type_list.hpp>
 #include <xmipp4/core/platform/cpp_attributes.hpp>
 
+#include <backends/cpu/loops/loop_schedule.hpp>
+#include <backends/cpu/loops/parallel_grain.hpp>
 #include <backends/cpu/loops/sequence_loop.hpp>
 
 #include <tuple>
@@ -38,14 +40,16 @@ public:
 	void operator()(
 		std::tuple<Out*> outputs,
 		std::tuple<>,
-		std::tuple<>
+		std::tuple<>,
+		thread_pool &pool
 	) const
 	{
 		run_sequence_loop(
 			m_functor,
 			std::get<0>(outputs) + m_plan.get_offset(),
 			m_plan.get_count(),
-			m_plan.get_stride()
+			m_plan.get_stride(),
+			loop_schedule(pool, grain_for_cost(1))
 		);
 	}
 

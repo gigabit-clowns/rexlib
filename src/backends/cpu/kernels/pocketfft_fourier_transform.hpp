@@ -5,11 +5,13 @@
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 #include <backends/cpu/load_store.hpp>
 #include <backends/cpu/loops/elementwise_loop.hpp>
+#include <backends/cpu/loops/loop_schedule.hpp>
 
 #include <xmipp4/core/numerical/fixed_width_float.hpp>
 #include <xmipp4/ops/fourier/fourier_normalization.hpp>
 
 #include <complex>
+#include <cstddef>
 #include <type_traits>
 
 namespace xmipp4
@@ -81,6 +83,9 @@ struct fourier_transform_support<Pivot>
  * @param normalization Which of the transform pair carries the scaling.
  * @param output The transformed operand, displaced by its offset.
  * @param input The operand to transform, displaced by its offset.
+ * @param nthreads How many threads pocketfft may use. Ignored while its
+ * threading is off, see the definition, but still stated so that turning
+ * it back on is one define rather than a signature change.
  */
 template <typename T>
 void run_complex_to_complex_transform(
@@ -88,7 +93,8 @@ void run_complex_to_complex_transform(
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	std::complex<T> *output,
-	const std::complex<T> *input
+	const std::complex<T> *input,
+	std::size_t nthreads
 );
 
 /**
@@ -105,13 +111,15 @@ void run_complex_to_complex_transform(
  * @param direction Which way round to transform.
  * @param normalization Which of the transform pair carries the scaling.
  * @param data The operand, displaced by the output offset.
+ * @param nthreads How many threads pocketfft may use. Currently ignored.
  */
 template <typename T>
 void run_in_place_complex_transform(
 	const fourier_layout_plan &plan,
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
-	std::complex<T> *data
+	std::complex<T> *data,
+	std::size_t nthreads
 );
 
 /**
@@ -124,6 +132,7 @@ void run_in_place_complex_transform(
  * @param normalization Which of the transform pair carries the scaling.
  * @param output The half spectrum, displaced by its offset.
  * @param input The real operand, displaced by its offset.
+ * @param nthreads How many threads pocketfft may use. Currently ignored.
  */
 template <typename T>
 void run_real_to_complex_transform(
@@ -131,7 +140,8 @@ void run_real_to_complex_transform(
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	std::complex<T> *output,
-	const T *input
+	const T *input,
+	std::size_t nthreads
 );
 
 /**
@@ -144,6 +154,7 @@ void run_real_to_complex_transform(
  * @param normalization Which of the transform pair carries the scaling.
  * @param output The real operand, displaced by its offset.
  * @param input The half spectrum, displaced by its offset.
+ * @param nthreads How many threads pocketfft may use. Currently ignored.
  */
 template <typename T>
 void run_complex_to_real_transform(
@@ -151,7 +162,8 @@ void run_complex_to_real_transform(
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	T *output,
-	const std::complex<T> *input
+	const std::complex<T> *input,
+	std::size_t nthreads
 );
 
 namespace detail
@@ -180,17 +192,20 @@ struct fourier_conversion_kernel
  * @param plan The planned transform.
  * @param output The destination, displaced by its offset.
  * @param input The source, displaced by its offset.
+ * @param schedule The threads to spread the conversion over.
  */
 template <typename T, typename Q>
 void run_fourier_conversion(
 	const fourier_layout_plan &plan,
 	T *output,
-	const Q *input
+	const Q *input,
+	const loop_schedule &schedule
 )
 {
 	run_elementwise_loop(
 		detail::fourier_conversion_kernel(),
 		plan.get_conversion_layout(),
+		schedule,
 		output,
 		input
 	);
@@ -225,7 +240,8 @@ public:
 	void operator()(
 		const fourier_layout_plan &plan,
 		std::complex<T> *output,
-		const std::complex<T> *input
+		const std::complex<T> *input,
+		const loop_schedule &schedule
 	) const
 	{
 		if (plan.get_axes().empty())
@@ -235,7 +251,7 @@ public:
 			// once per axis, so with no axis it would write none. One sample
 			// reaches each value, so every convention scales it by one and
 			// none of them has anything to say here.
-			run_fourier_conversion(plan, output, input);
+			run_fourier_conversion(plan, output, input, schedule);
 		}
 		else
 		{
@@ -244,7 +260,8 @@ public:
 				Direction,
 				m_normalization,
 				output,
-				input
+				input,
+				schedule.get_concurrency()
 			);
 		}
 	}
@@ -253,14 +270,15 @@ public:
 	void operator()(
 		const fourier_layout_plan &plan,
 		std::complex<T> *output,
-		const T *input
+		const T *input,
+		const loop_schedule &schedule
 	) const
 	{
 		// A real signal is not a complex array anything can be read out of,
 		// so it is widened into the output and transformed there. The pass
 		// costs one write of the output, against the whole second half of a
 		// spectrum that would otherwise have to be mirrored into place.
-		run_fourier_conversion(plan, output, input);
+		run_fourier_conversion(plan, output, input, schedule);
 
 		if (!plan.get_axes().empty())
 		{
@@ -268,7 +286,8 @@ public:
 				plan,
 				Direction,
 				m_normalization,
-				output
+				output,
+				schedule.get_concurrency()
 			);
 		}
 	}
@@ -297,7 +316,8 @@ public:
 	void operator()(
 		const fourier_layout_plan &plan,
 		std::complex<T> *output,
-		const T *input
+		const T *input,
+		const loop_schedule &schedule
 	) const
 	{
 		run_real_to_complex_transform(
@@ -305,7 +325,8 @@ public:
 			ops::fourier_direction::forward,
 			m_normalization,
 			output,
-			input
+			input,
+			schedule.get_concurrency()
 		);
 	}
 
@@ -333,7 +354,8 @@ public:
 	void operator()(
 		const fourier_layout_plan &plan,
 		T *output,
-		const std::complex<T> *input
+		const std::complex<T> *input,
+		const loop_schedule &schedule
 	) const
 	{
 		run_complex_to_real_transform(
@@ -341,7 +363,8 @@ public:
 			ops::fourier_direction::inverse,
 			m_normalization,
 			output,
-			input
+			input,
+			schedule.get_concurrency()
 		);
 	}
 

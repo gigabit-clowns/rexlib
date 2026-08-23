@@ -6,6 +6,9 @@
 #include <xmipp4/core/meta/type_list.hpp>
 #include <xmipp4/core/platform/cpp_attributes.hpp>
 
+#include <backends/cpu/loops/loop_schedule.hpp>
+#include <backends/cpu/loops/parallel_grain.hpp>
+
 #include <tuple>
 #include <utility>
 
@@ -38,13 +41,20 @@ public:
 	void operator()(
 		std::tuple<Out*> outputs,
 		std::tuple<const In*> inputs,
-		std::tuple<>
+		std::tuple<>,
+		thread_pool &pool
 	) const
 	{
+		// pocketfft is handed a count rather than this pool, threading a
+		// transform from a pool of its own. The count is what it may spread a
+		// transform over, and is ignored where that threading is off. The
+		// grain is stated per element for the conversion pass, which is an
+		// elementwise loop and the only part of this that uses the pool.
 		m_transform(
 			m_plan,
 			std::get<0>(outputs) + m_plan.get_output_offset(),
-			std::get<0>(inputs) + m_plan.get_input_offset()
+			std::get<0>(inputs) + m_plan.get_input_offset(),
+			loop_schedule(pool, grain_for_cost(1))
 		);
 	}
 

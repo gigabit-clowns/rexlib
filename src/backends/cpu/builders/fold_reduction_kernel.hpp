@@ -3,6 +3,7 @@
 #pragma once
 
 #include <xmipp4/core/meta/type_list.hpp>
+#include <xmipp4/core/platform/constexpr.hpp>
 #include <xmipp4/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/builders/reduction_compute_type.hpp>
@@ -63,6 +64,22 @@ template <typename Fold, typename Lift = reduction_conversion_lift>
 class fold_reduction_kernel
 {
 public:
+	/**
+	 * @brief The fold may be dealt out over lanes.
+	 *
+	 * An associative binary operation is what this class is for, so a run may
+	 * be folded in any grouping, and a fold answering with a value rather
+	 * than with a place does not care which elements a lane was dealt. Both
+	 * are what @ref has_reassociable_fold asks for.
+	 *
+	 * What it costs is exactness: a fold over inexact arithmetic stops being
+	 * bit for bit what a single accumulator arrives at. That is the same
+	 * trade the threaded fold split already makes, and it is what keeps a
+	 * reduction along the contiguous axis from being one chain of dependent
+	 * operations.
+	 */
+	static XMIPP4_CONST_CONSTEXPR bool reassociable_fold = true;
+
 	/**
 	 * @brief A single accumulator, of the output's computation type.
 	 *

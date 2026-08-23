@@ -8,6 +8,9 @@
 #include <core/hardware/host_memory/host_buffer.hpp>
 
 #include <xmipp4/backends/cpu/program.hpp>
+#include <xmipp4/backends/cpu/thread_pool.hpp>
+
+#include "../serial_pool.hpp"
 #include <xmipp4/core/dispatch/operand_signature.hpp>
 #include <xmipp4/core/hardware/buffer.hpp>
 #include <xmipp4/core/layout/strided_layout.hpp>
@@ -32,6 +35,7 @@ using namespace xmipp4::cpu;
 
 namespace
 {
+
 
 using complex_type = std::complex<float32_t>;
 
@@ -71,7 +75,8 @@ std::shared_ptr<host_buffer> make_buffer(std::size_t count)
 void run(
 	const std::shared_ptr<xmipp4::program> &program,
 	const std::shared_ptr<host_buffer> &output,
-	const std::shared_ptr<host_buffer> &input
+	const std::shared_ptr<host_buffer> &input,
+	thread_pool &pool = *get_serial_pool()
 )
 {
 	const std::vector<std::shared_ptr<buffer>> outputs { output };
@@ -82,7 +87,8 @@ void run(
 	executable.execute(
 		make_span(outputs),
 		make_span(inputs),
-		make_span(scratches)
+		make_span(scratches),
+		pool
 	);
 }
 
@@ -142,7 +148,7 @@ TEST_CASE(
 	// offset, which is why this is pinned here rather than through one.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const std::vector<operand_signature> outputs {
 		make_signature(unit_extents, { 1 }, 2, numerical_type::complex_float32)
@@ -199,7 +205,7 @@ TEST_CASE(
 	// transformable as one laid out end to end.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const std::vector<operand_signature> outputs {
 		make_signature(unit_extents, { 2 }, 1, numerical_type::complex_float32)
@@ -248,7 +254,7 @@ TEST_CASE(
 	// directly instead of going through the output.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const std::vector<operand_signature> outputs {
 		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32)
@@ -294,7 +300,7 @@ TEST_CASE(
 	// manager look for a backend that can.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	mock_memory_resource host_resource;
 	ALLOW_CALL(host_resource, get_kind())
@@ -330,7 +336,7 @@ TEST_CASE(
 {
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	mock_memory_resource host_resource;
 	ALLOW_CALL(host_resource, get_kind())
@@ -366,7 +372,7 @@ TEST_CASE(
 {
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	// A transform produces exactly one operand.
 	const std::vector<operand_signature> outputs {
@@ -399,7 +405,7 @@ TEST_CASE(
 	// into forward order first.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const std::vector<operand_signature> outputs {
 		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32)
@@ -434,4 +440,118 @@ TEST_CASE(
 	run(program, output_buffer, input_buffer);
 
 	check_ramp_spectrum(output_data, 0, 1);
+}
+
+TEST_CASE(
+	"fourier_program_builder transforms the same over threads as over one",
+	"[fourier_program_builder]"
+)
+{
+	// pocketfft threads a transform from a pool of its own, and every other
+	// case here is too small to make it want to: it spreads a transform over
+	// however many of them it is offered, but only once the count of
+	// transforms divided by the vector width, and quartered again for an axis
+	// under a thousand samples, comes to more than one. A four sample signal
+	// leaves it at one thread whatever it is offered, so nothing else here
+	// reaches the threaded path at all.
+	//
+	// Five hundred and twelve rows of sixty four samples do, and by enough of
+	// a margin to still do it at the widest vector the header compiles for,
+	// which is what keeps this from depending on what the machine supports.
+	constexpr std::size_t row_count = 512;
+	constexpr std::size_t sample_count = 64;
+	constexpr std::size_t count = row_count * sample_count;
+
+	const fft_builder builder;
+	const ops::fft_operation operation{ ops::axis_list{ 1 } };
+	cpu::command_queue queue(get_serial_pool());
+
+	const std::vector<std::size_t> extents = { row_count, sample_count };
+	const std::vector<std::ptrdiff_t> strides = {
+		static_cast<std::ptrdiff_t>(sample_count),
+		1
+	};
+
+	const std::vector<operand_signature> outputs {
+		make_signature(extents, strides, 0, numerical_type::complex_float32)
+	};
+	const std::vector<operand_signature> inputs {
+		make_signature(extents, strides, 0, numerical_type::complex_float32)
+	};
+
+	const auto program = builder.build(
+		operation,
+		make_span(outputs),
+		make_span(inputs),
+		queue,
+		nullptr
+	);
+	REQUIRE( program != nullptr );
+
+	const auto input_buffer = make_buffer<complex_type>(count);
+	auto *input_data = static_cast<complex_type*>(
+		input_buffer->get_host_ptr()
+	);
+
+	// One sample per row, so that every coefficient of that row transforms to
+	// the same value and a row is told apart by it. A chunk that reads or
+	// writes the wrong rows shows up as a value belonging to another one,
+	// which a signal that is the same in every row could not reveal.
+	for (std::size_t i = 0; i < count; ++i)
+	{
+		input_data[i] = complex_type(0.0F, 0.0F);
+	}
+	for (std::size_t row = 0; row < row_count; ++row)
+	{
+		input_data[row*sample_count] =
+			complex_type(static_cast<float32_t>(row + 1), 0.0F);
+	}
+
+	const auto threaded_buffer = make_buffer<complex_type>(count);
+	const auto serial_buffer = make_buffer<complex_type>(count);
+	auto *threaded = static_cast<complex_type*>(
+		threaded_buffer->get_host_ptr()
+	);
+	auto *serial = static_cast<complex_type*>(serial_buffer->get_host_ptr());
+
+	thread_pool pool(3);
+	REQUIRE( pool.get_size() > 1 );
+	run(program, threaded_buffer, input_buffer, pool);
+	run(program, serial_buffer, input_buffer, *get_serial_pool());
+
+	// The transform of a lone sample is that sample at every coefficient, so
+	// every one of the values below is known ahead of the run rather than
+	// taken from whatever the other pool produced.
+	std::size_t threaded_mismatches = 0;
+	std::size_t serial_mismatches = 0;
+	std::size_t disagreements = 0;
+	for (std::size_t row = 0; row < row_count; ++row)
+	{
+		const complex_type expected(static_cast<float32_t>(row + 1), 0.0F);
+		for (std::size_t i = 0; i < sample_count; ++i)
+		{
+			const auto index = row*sample_count + i;
+			if (std::abs(threaded[index] - expected) >= 1e-3F)
+			{
+				++threaded_mismatches;
+			}
+			if (std::abs(serial[index] - expected) >= 1e-3F)
+			{
+				++serial_mismatches;
+			}
+			if (threaded[index] != serial[index])
+			{
+				++disagreements;
+			}
+		}
+	}
+
+	CHECK( threaded_mismatches == 0 );
+	CHECK( serial_mismatches == 0 );
+
+	// Splitting a transform decides which coefficients take the vector path
+	// and which the scalar tail, so this is allowed to be a tolerance rather
+	// than an equality. It is stated as one because it has held so far, and a
+	// failure here is worth looking at before it is loosened.
+	CHECK( disagreements == 0 );
 }

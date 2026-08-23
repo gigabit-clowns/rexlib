@@ -94,8 +94,33 @@ std::size_t joint_layout::iter(
 	return m_implementation->iter(ite, first_dim, last_dim);
 }
 
+std::size_t joint_layout::compute_element_count() const noexcept
+{
+	if (!m_implementation)
+	{
+		return 0UL;
+	}
+
+	return m_implementation->compute_element_count();
+}
+
+std::size_t joint_layout::seek(
+	joint_cursor &ite,
+	std::size_t position,
+	std::size_t first_dim,
+	std::size_t last_dim
+) const
+{
+	if (!m_implementation)
+	{
+		return 0UL;
+	}
+
+	return m_implementation->seek(ite, position, first_dim, last_dim);
+}
+
 std::size_t joint_layout::next(
-	joint_cursor &ite, 
+	joint_cursor &ite,
 	std::size_t n,
 	std::size_t first_dim,
 	std::size_t last_dim

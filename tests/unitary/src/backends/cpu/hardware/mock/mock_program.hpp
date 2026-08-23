@@ -3,6 +3,7 @@
 #pragma once
 
 #include <xmipp4/backends/cpu/program.hpp>
+#include <xmipp4/backends/cpu/thread_pool.hpp>
 
 #include <trompeloeil.hpp>
 
@@ -15,12 +16,13 @@ class mock_program final
 	: public program
 {
 public:
-	MAKE_CONST_MOCK3(
+	MAKE_CONST_MOCK4(
 		execute,
 		void(
 			span<const std::shared_ptr<buffer>> outputs,
 			span<const std::shared_ptr<const buffer>> inputs,
-			span<const std::shared_ptr<buffer>> scratch
+			span<const std::shared_ptr<buffer>> scratch,
+			thread_pool &pool
 		),
 		override
 	);

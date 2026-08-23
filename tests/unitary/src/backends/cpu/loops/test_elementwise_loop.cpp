@@ -858,3 +858,149 @@ TEST_CASE(
 
 	CHECK( calls == 0 );
 }
+
+namespace
+{
+
+/**
+ * @brief Every element an outer loop visits, in the order it visits them.
+ *
+ * Recorded as the offset of each element from the operand's base pointer, so
+ * that a walk over a range and a walk over the whole space can be compared
+ * without either knowing which vector it was in the middle of.
+ */
+std::vector<std::ptrdiff_t> visit_range(
+	const joint_layout &layout,
+	std::size_t begin,
+	std::size_t end,
+	std::ptrdiff_t stride
+)
+{
+	std::vector<std::ptrdiff_t> result;
+
+	// A real buffer rather than a null base: the offsets are only ever read
+	// back as differences, but forming them from a null pointer would not be
+	// pointer arithmetic the language defines.
+	auto buffer = make_buffer();
+	int *const base = buffer.data();
+
+	run_elementwise_outer_loop_range(
+		[&result, base, stride] (int *pointer, std::size_t count)
+		{
+			for (std::size_t i = 0; i < count; ++i)
+			{
+				result.push_back(
+					(pointer - base) + static_cast<std::ptrdiff_t>(i)*stride
+				);
+			}
+		},
+		layout,
+		begin,
+		end,
+		base
+	);
+
+	return result;
+}
+
+} // anonymous namespace
+
+TEST_CASE(
+	"run_elementwise_outer_loop_range should visit between two calls exactly "
+	"what one call visits",
+	"[elementwise_loop]"
+)
+{
+	// Brute force over every way of cutting the iteration space in two. The
+	// whole point of the ranged walk is that the cut is invisible in what
+	// gets visited, so every cut is worth checking, including the ones that
+	// fall in the middle of a vector.
+	std::vector<std::size_t> extents;
+	std::vector<operand_spec> operands;
+	std::ptrdiff_t inner_stride = 1;
+
+	SECTION( "a contiguous vector" )
+	{
+		extents = { 8 };
+		operands = { { { 1 }, 0 } };
+	}
+	SECTION( "several vectors" )
+	{
+		extents = { 4, 3 };
+		operands = { { { 1, 4 }, 0 } };
+	}
+	SECTION( "an operand walked with a stride" )
+	{
+		extents = { 4, 3 };
+		operands = { { { 3, 40 }, 7 } };
+		inner_stride = 3;
+	}
+	SECTION( "an operand broadcast along the inner axis" )
+	{
+		extents = { 4, 3 };
+		operands = { { { 0, 4 }, 0 } };
+		inner_stride = 0;
+	}
+	SECTION( "a deeper space" )
+	{
+		extents = { 2, 3, 2 };
+		operands = { { { 1, 2, 6 }, 0 } };
+	}
+	SECTION( "an axis of extent one" )
+	{
+		extents = { 3, 1, 2 };
+		operands = { { { 1, 3, 3 }, 0 } };
+	}
+
+	const auto layout = make_layout(extents, operands);
+	const auto count = layout.compute_element_count();
+
+	const auto whole = visit_range(layout, 0, count, inner_stride);
+	REQUIRE( whole.size() == count );
+
+	for (std::size_t cut = 0; cut <= count; ++cut)
+	{
+		auto joined = visit_range(layout, 0, cut, inner_stride);
+		const auto tail = visit_range(layout, cut, count, inner_stride);
+		joined.insert(joined.end(), tail.cbegin(), tail.cend());
+
+		INFO( "cut at " << cut );
+		CHECK( joined == whole );
+	}
+}
+
+TEST_CASE(
+	"run_elementwise_outer_loop_range should visit nothing for an empty range",
+	"[elementwise_loop]"
+)
+{
+	const auto layout = make_layout({ 4, 3 }, { { { 1, 4 }, 0 } });
+
+	CHECK( visit_range(layout, 0, 0, 1).empty() );
+	CHECK( visit_range(layout, 5, 5, 1).empty() );
+}
+
+TEST_CASE(
+	"run_elementwise_outer_loop_range should visit nothing for an empty axis",
+	"[elementwise_loop]"
+)
+{
+	const auto layout = make_layout({ 4, 0 }, { { { 1, 4 }, 0 } });
+
+	CHECK( visit_range(layout, 0, 0, 1).empty() );
+}
+
+TEST_CASE(
+	"run_elementwise_outer_loop should visit the whole space of a rank zero "
+	"layout once",
+	"[elementwise_loop]"
+)
+{
+	// A layout of no axes holds one position, and the loop has to visit it:
+	// this is the case where asking the cursor for a remainder would answer
+	// zero and skip it.
+	const auto layout = make_layout({}, { { {}, 5 } });
+
+	CHECK( visit_range(layout, 0, 1, 1) ==
+	       std::vector<std::ptrdiff_t>{ 5 } );
+}

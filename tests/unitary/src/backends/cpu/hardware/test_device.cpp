@@ -8,9 +8,12 @@
 #include <backends/cpu/hardware/command_queue.hpp>
 #include <backends/cpu/hardware/event.hpp>
 
+#include <xmipp4/backends/cpu/thread_pool.hpp>
 #include <xmipp4/core/hardware/memory_resource.hpp>
 #include <xmipp4/core/hardware/command_queue.hpp>
 #include <xmipp4/core/hardware/event.hpp>
+
+#include "../serial_pool.hpp"
 
 using namespace xmipp4;
 using namespace xmipp4::cpu;
@@ -54,6 +57,35 @@ TEST_CASE(
 
 	REQUIRE( queue_a != nullptr );
 	REQUIRE( queue_b != nullptr );
+	CHECK( queue_a != queue_b );
+}
+
+TEST_CASE(
+	"cpu::device should run every queue it creates over its own pool",
+	"[cpu::device]"
+)
+{
+	const cpu::device dev(get_serial_pool());
+	const auto queue = dev.create_command_queue();
+
+	const auto *cpu_queue =
+		cpu::command_queue::try_cast(*queue);
+	REQUIRE( cpu_queue != nullptr );
+	CHECK( &cpu_queue->get_thread_pool() == get_serial_pool().get() );
+}
+
+TEST_CASE(
+	"cpu::device should build its own pool when none is named",
+	"[cpu::device]"
+)
+{
+	// Nothing static holds this one: it is spawned here and joined when the
+	// device below goes out of scope, which is the whole point of the device
+	// owning it.
+	const cpu::device dev;
+
+	REQUIRE( dev.get_thread_pool() != nullptr );
+	CHECK( dev.get_thread_pool()->get_size() >= 1 );
 }
 
 TEST_CASE(

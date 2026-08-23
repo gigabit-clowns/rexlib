@@ -125,13 +125,15 @@ template <typename F, typename Outputs, typename Inputs, typename Scratches>
 inline void functor_program<F, Outputs, Inputs, Scratches>::execute(
 	span<const std::shared_ptr<buffer>> output_operands,
 	span<const std::shared_ptr<const buffer>> input_operands,
-	span<const std::shared_ptr<buffer>> scratch_operands
+	span<const std::shared_ptr<buffer>> scratch_operands,
+	thread_pool &pool
 ) const
 {
 	execute_wrapper(
 		output_operands,
 		input_operands,
 		scratch_operands,
+		pool,
 		std::make_index_sequence<type_list_size<output_types>::value>(),
 		std::make_index_sequence<type_list_size<input_types>::value>(),
 		std::make_index_sequence<type_list_size<scratch_types>::value>()
@@ -159,6 +161,7 @@ inline void functor_program<F, Outputs, Inputs, Scratches>::execute_wrapper(
 	span<const std::shared_ptr<buffer>> output_operands,
 	span<const std::shared_ptr<const buffer>> input_operands,
 	span<const std::shared_ptr<buffer>> scratch_operands,
+	thread_pool &pool,
 	std::index_sequence<OutputIs...>,
 	std::index_sequence<InputIs...>,
 	std::index_sequence<ScratchIs...>
@@ -195,7 +198,8 @@ inline void functor_program<F, Outputs, Inputs, Scratches>::execute_wrapper(
 			detail::get_typed_host_ptr<
 				typename type_list_element<ScratchIs, scratch_types>::type
 			>(*scratch_operands[ScratchIs], "scratch", ScratchIs)...
-		)
+		),
+		pool
 	);
 }
 

@@ -226,6 +226,65 @@ std::size_t joint_layout_implementation::iter(
 }
 
 inline
+std::size_t
+joint_layout_implementation::compute_element_count() const noexcept
+{
+	std::size_t result = 1;
+	for (const auto extent : m_extents)
+	{
+		result *= extent;
+	}
+	return result;
+}
+
+inline
+std::size_t joint_layout_implementation::seek(
+	joint_cursor &ite,
+	std::size_t position,
+	std::size_t first_dim,
+	std::size_t last_dim
+) const
+{
+	const auto run = iter(ite, first_dim, last_dim);
+	if (run == 0 || position == 0)
+	{
+		// Either there is nothing to iterate, or iter() has already left the
+		// cursor exactly where it was asked for.
+		return run;
+	}
+
+	last_dim = std::min(last_dim, m_extents.size());
+	XMIPP4_ASSERT( first_dim < last_dim );
+
+	const auto indices = ite.get_indices();
+	const auto offsets = ite.get_offsets();
+
+	// Decomposing the position the same way the traversal composes it: the
+	// inner-most axis varies fastest, so it takes the remainder and passes
+	// the quotient outwards. The quotient runs out once every remaining index
+	// would be zero, which is what iter() has already left behind, so the
+	// loop stops rather than writing them.
+	for (std::size_t i = first_dim; i < last_dim; ++i)
+	{
+		if (position == 0)
+		{
+			break;
+		}
+
+		const auto index = position % m_extents[i];
+		position /= m_extents[i];
+
+		indices[i] = index;
+		apply_strides(offsets, i, static_cast<std::ptrdiff_t>(index));
+	}
+
+	// Anything left over is a position past the end of the iterated range.
+	XMIPP4_ASSERT( position == 0 );
+
+	return m_extents[first_dim] - indices[first_dim];
+}
+
+inline
 std::size_t joint_layout_implementation::next(
 	joint_cursor &ite,
 	std::size_t n,

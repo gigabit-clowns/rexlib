@@ -8,6 +8,7 @@
 #include <xmipp4/core/hardware/command.hpp>
 #include <xmipp4/core/span.hpp>
 
+#include "../serial_pool.hpp"
 #include "mock/mock_program.hpp"
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 #include "../../../core/hardware/mock/mock_program.hpp"
@@ -22,13 +23,24 @@ using namespace xmipp4;
 using namespace xmipp4::cpu;
 
 TEST_CASE(
-	"cpu::command_queue::create() should return always the same instance",
+	"cpu::command_queue should reject a null thread pool",
 	"[cpu::command_queue]"
 )
 {
-	const auto q1 = cpu::command_queue::create();
-	const auto q2 = cpu::command_queue::create();
-	CHECK( q1 == q2 );
+	CHECK_THROWS_AS(
+		cpu::command_queue(nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
+	"cpu::command_queue should run its programs over the pool it was given",
+	"[cpu::command_queue]"
+)
+{
+	const auto pool = get_serial_pool();
+	const cpu::command_queue queue(pool);
+	CHECK( &queue.get_thread_pool() == pool.get() );
 }
 
 TEST_CASE(
@@ -36,7 +48,7 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 	const command cmd;
 	CHECK_THROWS_AS( queue.submit(cmd), std::invalid_argument );
 }
@@ -46,7 +58,7 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 	const command cmd(std::make_shared<xmipp4::mock_program>());
 	CHECK_THROWS_AS( queue.submit(cmd), std::bad_cast );
 }
@@ -56,7 +68,7 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const auto prog = std::make_shared<cpu::mock_program>();
 	const std::vector<std::shared_ptr<buffer>> outputs = { 
@@ -80,7 +92,15 @@ TEST_CASE(
 	   .bind_inputs(make_span(inputs))
 	   .bind_scratch(make_span(scratch));
 
-	REQUIRE_CALL(*prog, execute(trompeloeil::_, trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		*prog,
+		execute(
+			trompeloeil::_,
+			trompeloeil::_,
+			trompeloeil::_,
+			trompeloeil::_
+		)
+	)
 		.LR_WITH(_1.data() == outputs.data() && _1.size() == outputs.size())
 		.LR_WITH(_2.data() == inputs.data() && _2.size() == inputs.size())
 		.LR_WITH(_3.data() == scratch.data() && _3.size() == scratch.size());
@@ -93,7 +113,7 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 	mock_event event;
 	REQUIRE_NOTHROW( queue.signal(event) );
 }
@@ -103,7 +123,7 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 	mock_event event;
 	REQUIRE_NOTHROW( queue.wait(event) );
 }
@@ -113,19 +133,9 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 	xmipp4::command_queue &base = queue;
 	CHECK( cpu::command_queue::try_cast(base) == &queue );
-}
-
-TEST_CASE(
-	"cpu::command_queue::try_cast returns the singleton for the shared instance",
-	"[cpu::command_queue]"
-)
-{
-	const auto instance = cpu::command_queue::create();
-	xmipp4::command_queue &base = *instance;
-	CHECK( cpu::command_queue::try_cast(base) == instance.get() );
 }
 
 TEST_CASE(
@@ -143,7 +153,7 @@ TEST_CASE(
 	"[cpu::command_queue]"
 )
 {
-	const cpu::command_queue queue;
+	const cpu::command_queue queue(get_serial_pool());
 	const xmipp4::command_queue &base = queue;
 	const cpu::command_queue *result = cpu::command_queue::try_cast(base);
 	CHECK( result == &queue );

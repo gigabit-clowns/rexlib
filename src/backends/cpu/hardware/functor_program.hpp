@@ -5,6 +5,7 @@
 #include <xmipp4/core/meta/type_list.hpp>
 #include <xmipp4/core/platform/cpp_attributes.hpp>
 #include <xmipp4/backends/cpu/program.hpp>
+#include <xmipp4/backends/cpu/thread_pool.hpp>
 
 #include <memory>
 #include <array>
@@ -49,7 +50,8 @@ namespace cpu
  * @tparam F The functor to be wrapped. Must be callable with three tuples of
  * pointers to the operands' element types, in the order (outputs, inputs,
  * scratches), where output and scratch pointers are non-const and input
- * pointers are const-qualified.
+ * pointers are const-qualified, followed by the @ref thread_pool the program
+ * was handed.
  * @tparam Outputs List of output element types, one per output buffer. Must be
  * a specialization of @ref xmipp4::type_list.
  * @tparam Inputs List of input element types, one per input buffer. Must be a
@@ -120,7 +122,8 @@ public:
 	void execute(
 		span<const std::shared_ptr<buffer>> output_operands,
 		span<const std::shared_ptr<const buffer>> input_operands,
-		span<const std::shared_ptr<buffer>> scratch_operands
+		span<const std::shared_ptr<buffer>> scratch_operands,
+		thread_pool &pool
 	) const override;
 
 	span<const program_scratch_requirement> 
@@ -142,6 +145,7 @@ private:
 		span<const std::shared_ptr<buffer>> output_operands,
 		span<const std::shared_ptr<const buffer>> input_operands,
 		span<const std::shared_ptr<buffer>> scratch_operands,
+		thread_pool &pool,
 		std::index_sequence<OutputIs...>,
 		std::index_sequence<InputIs...>,
 		std::index_sequence<ScratchIs...>

@@ -9,6 +9,8 @@ namespace xmipp4
 namespace cpu
 {
 
+class loop_schedule;
+
 /**
  * @brief Write a generated value into every element of a 1D operand.
  *
@@ -38,6 +40,40 @@ void run_sequence_loop(
 	T *pointer,
 	std::size_t count,
 	std::ptrdiff_t stride
+);
+
+/**
+ * @brief Write a sequence, spreading it over the threads a schedule names.
+ *
+ * As the unscheduled overload, but the sequence is cut into contiguous ranges
+ * of its own index and each is written by one thread. The generator is always
+ * handed the position within the whole sequence, never within the chunk, so a
+ * cut is invisible in what gets written.
+ *
+ * @p generator is invoked concurrently on one and the same object, so any
+ * state a chunk needs to itself has to be created inside it. A generator
+ * writing an element from its index alone, which is what this family is for,
+ * needs no thought.
+ *
+ * @tparam Generator Functor invoked as `generator(pointer, index)`.
+ * @tparam T The element type.
+ * @param generator The functor writing each element.
+ * @param pointer The first element of the sequence.
+ * @param count The number of elements.
+ * @param stride The step between consecutive elements.
+ * @param schedule The threads to spread the loop over, and the smallest slice
+ * worth handing to one of them.
+ *
+ * @see run_sequence_loop
+ * @see loop_schedule
+ */
+template <typename Generator, typename T>
+void run_sequence_loop(
+	const Generator &generator,
+	T *pointer,
+	std::size_t count,
+	std::ptrdiff_t stride,
+	const loop_schedule &schedule
 );
 
 } // namespace cpu

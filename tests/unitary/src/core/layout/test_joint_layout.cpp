@@ -10,7 +10,9 @@
 #include <core/layout/joint_layout_implementation.hpp>
 
 #include <algorithm>
+#include <memory>
 #include <stdexcept>
+#include <vector>
 
 using namespace xmipp4;
 
@@ -55,6 +57,46 @@ TEST_CASE( "getting extents on an initialized joint_layout should return its ext
 
 	const auto result = layout.get_extents();
 	REQUIRE( std::equal(extents.cbegin(), extents.cend(), result.begin(), result.end()) );
+}
+
+TEST_CASE( "computing the element count of a default constructed joint_layout should return zero", "[joint_layout]" )
+{
+	joint_layout layout;
+	REQUIRE( layout.compute_element_count() == 0 );
+}
+
+TEST_CASE( "computing the element count of a joint_layout should return the product of its extents", "[joint_layout]" )
+{
+	joint_layout_implementation::extent_vector_type extents =
+		{ 20, 4, 16, 2 };
+	auto implementation =
+		std::make_unique<joint_layout_implementation>(extents);
+	joint_layout layout(std::move(implementation));
+
+	REQUIRE( layout.compute_element_count() == 20*4*16*2 );
+}
+
+TEST_CASE( "computing the element count of a joint_layout with no axes should return one", "[joint_layout]" )
+{
+	// The identity of the product: a layout of no axes holds a single
+	// position, which is the one iter() reports and the one a traversal has
+	// to visit.
+	joint_layout_implementation::extent_vector_type extents;
+	auto implementation =
+		std::make_unique<joint_layout_implementation>(extents);
+	joint_layout layout(std::move(implementation));
+
+	REQUIRE( layout.compute_element_count() == 1 );
+}
+
+TEST_CASE( "computing the element count of a joint_layout with an empty axis should return zero", "[joint_layout]" )
+{
+	joint_layout_implementation::extent_vector_type extents = { 4, 0, 2 };
+	auto implementation =
+		std::make_unique<joint_layout_implementation>(extents);
+	joint_layout layout(std::move(implementation));
+
+	REQUIRE( layout.compute_element_count() == 0 );
 }
 
 TEST_CASE( "getting the number of operands on an joint_layout should return its operand count", "[joint_layout]" )
@@ -513,3 +555,208 @@ TEST_CASE( "calling next on a joint_layout with dim equal to rank should return 
 	REQUIRE( layout.next(ite, 1, 3) == 0 );
 }
 
+
+namespace
+{
+
+/**
+ * @brief Build a layout over the given extents with one operand per stride
+ * set, each starting at a distinct offset.
+ */
+joint_layout make_seek_layout(
+	const joint_layout_implementation::extent_vector_type &extents,
+	const std::vector<
+		joint_layout_implementation::stride_vector_type
+	> &operand_strides
+)
+{
+	auto implementation =
+		std::make_unique<joint_layout_implementation>(extents);
+	for (std::size_t i = 0; i < operand_strides.size(); ++i)
+	{
+		implementation->add_operand(
+			operand_strides[i],
+			static_cast<std::ptrdiff_t>(100*(i + 1))
+		);
+	}
+
+	return joint_layout(std::move(implementation));
+}
+
+/**
+ * @brief Where a cursor sits, as the pair of things a caller can read off it.
+ */
+struct cursor_state
+{
+	std::vector<std::size_t> indices;
+	std::vector<std::ptrdiff_t> offsets;
+
+	bool operator==(const cursor_state &other) const
+	{
+		return indices == other.indices && offsets == other.offsets;
+	}
+};
+
+cursor_state read_cursor(const joint_cursor &ite)
+{
+	const auto indices = ite.get_indices();
+	const auto offsets = ite.get_offsets();
+
+	return cursor_state {
+		std::vector<std::size_t>(indices.begin(), indices.end()),
+		std::vector<std::ptrdiff_t>(offsets.begin(), offsets.end())
+	};
+}
+
+} // anonymous namespace
+
+TEST_CASE(
+	"seek on a joint_layout should land where stepping there lands",
+	"[joint_layout]"
+)
+{
+	// Brute force over every position of the iteration space, against the
+	// only other way of reaching it: iter() followed by that many single
+	// steps of next(). The two have to agree on the indices and on every
+	// operand's offset, because that agreement is exactly what lets an
+	// iteration be cut into ranges and shared out.
+	joint_layout_implementation::extent_vector_type extents;
+	std::vector<joint_layout_implementation::stride_vector_type> strides;
+
+	SECTION( "a contiguous layout" )
+	{
+		extents = { 4, 3, 2 };
+		strides = { { 1, 4, 12 } };
+	}
+	SECTION( "several operands walked differently" )
+	{
+		extents = { 4, 3, 2 };
+		strides = { { 1, 4, 12 }, { 12, 4, 1 }, { 2, 8, 24 } };
+	}
+	SECTION( "an operand broadcast along an axis" )
+	{
+		extents = { 4, 3, 2 };
+		strides = { { 1, 4, 12 }, { 1, 0, 4 } };
+	}
+	SECTION( "an operand walked backwards" )
+	{
+		extents = { 4, 3, 2 };
+		strides = { { -1, -4, -12 } };
+	}
+	SECTION( "an axis of extent one" )
+	{
+		extents = { 4, 1, 2 };
+		strides = { { 1, 4, 4 } };
+	}
+	SECTION( "a single axis" )
+	{
+		extents = { 7 };
+		strides = { { 3 } };
+	}
+	SECTION( "a deeper layout" )
+	{
+		extents = { 2, 3, 2, 2 };
+		strides = { { 1, 2, 6, 12 }, { 24, 8, 4, 1 } };
+	}
+
+	const auto layout = make_seek_layout(extents, strides);
+
+	std::size_t count = 1;
+	for (const auto extent : extents)
+	{
+		count *= extent;
+	}
+
+	joint_cursor stepped;
+	REQUIRE( layout.iter(stepped) != 0 );
+
+	for (std::size_t position = 0; position < count; ++position)
+	{
+		joint_cursor sought;
+		const auto run = layout.seek(sought, position);
+
+		INFO( "position " << position );
+		CHECK( run == extents.front() - (position % extents.front()) );
+		CHECK( read_cursor(sought) == read_cursor(stepped) );
+
+		layout.next(stepped, 1);
+	}
+}
+
+TEST_CASE(
+	"seek on a joint_layout with a position of zero should behave as iter",
+	"[joint_layout]"
+)
+{
+	joint_layout_implementation::extent_vector_type extents = { 4, 3, 2 };
+	const auto layout = make_seek_layout(extents, { { 1, 4, 12 }, { 12, 4, 1 } });
+
+	joint_cursor sought;
+	joint_cursor started;
+
+	CHECK( layout.seek(sought, 0) == layout.iter(started) );
+	CHECK( read_cursor(sought) == read_cursor(started) );
+}
+
+TEST_CASE(
+	"seek on a joint_layout should count only the iterated axes",
+	"[joint_layout]"
+)
+{
+	// With the inner-most axis left out of the window, the position counts
+	// over the remaining axes alone, and the axes outside it stay put.
+	joint_layout_implementation::extent_vector_type extents = { 4, 3, 2 };
+	const auto layout = make_seek_layout(extents, { { 1, 4, 12 } });
+
+	joint_cursor stepped;
+	REQUIRE( layout.iter(stepped, 1) == 3 );
+
+	for (std::size_t position = 0; position < 3*2; ++position)
+	{
+		joint_cursor sought;
+		const auto run = layout.seek(sought, position, 1);
+
+		INFO( "position " << position );
+		CHECK( run == 3 - (position % 3) );
+		CHECK( read_cursor(sought) == read_cursor(stepped) );
+
+		layout.next(stepped, 1, 1);
+	}
+}
+
+TEST_CASE(
+	"seek on a default constructed joint_layout should return zero",
+	"[joint_layout]"
+)
+{
+	joint_layout layout;
+	joint_cursor ite;
+
+	CHECK( layout.seek(ite, 0) == 0 );
+}
+
+TEST_CASE(
+	"seek on a joint_layout with an axis of size zero should return zero",
+	"[joint_layout]"
+)
+{
+	joint_layout_implementation::extent_vector_type extents = { 4, 0, 2 };
+	const auto layout = make_seek_layout(extents, { { 1, 4, 4 } });
+
+	joint_cursor ite;
+	CHECK( layout.seek(ite, 0) == 0 );
+}
+
+TEST_CASE(
+	"seek on a joint_layout with dim equal to rank should return one",
+	"[joint_layout]"
+)
+{
+	// A window holding a single position: there is nowhere to seek to, and
+	// the answer is the one iter() gives.
+	joint_layout_implementation::extent_vector_type extents = { 4, 15, 4 };
+	const auto layout = make_seek_layout(extents, { { 1, 5, 80 } });
+
+	joint_cursor ite;
+	CHECK( layout.seek(ite, 0, 3) == 1 );
+}

@@ -99,6 +99,22 @@ public:
 	const linalg_operand_core& get_left_core() const noexcept;
 	const linalg_operand_core& get_right_core() const noexcept;
 
+	/**
+	 * @brief The arithmetic one batch element costs.
+	 *
+	 * Multiplications, which is the term that decides: a matrix product costs
+	 * the product of the left operand's extents by the width of the right
+	 * one, and a vector operand contributes nothing to that width because it
+	 * has none.
+	 *
+	 * It is only ever divided into a grain, so an order of magnitude is all
+	 * it has to be right by. It lives here rather than on the builder because
+	 * cross builds its functor by hand and has to arrive at the same number.
+	 *
+	 * @return std::size_t The cost, in elementwise operations. Never zero.
+	 */
+	std::size_t get_core_cost() const noexcept;
+
 private:
 	joint_layout m_batch_layout;
 	linalg_operand_core m_output_core;

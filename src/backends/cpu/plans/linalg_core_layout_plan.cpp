@@ -207,17 +207,38 @@ const joint_layout& linalg_core_layout_plan::get_batch_layout() const noexcept
 	return m_batch_layout;
 }
 
-const linalg_operand_core& linalg_core_layout_plan::get_output_core() const noexcept
+std::size_t linalg_core_layout_plan::get_core_cost() const noexcept
+{
+	std::size_t result = 1;
+	for (std::size_t i = 0; i < m_left_core.get_rank(); ++i)
+	{
+		result *= m_left_core.get_extent(i);
+	}
+
+	// Only a matrix on the right widens the product. A vector there is the
+	// matvec case, whose cost the left operand's extents already state.
+	if (m_right_core.get_rank() == 2)
+	{
+		result *= m_right_core.get_extent(1);
+	}
+
+	return result > 0 ? result : 1;
+}
+
+const linalg_operand_core& 
+linalg_core_layout_plan::get_output_core() const noexcept
 {
 	return m_output_core;
 }
 
-const linalg_operand_core& linalg_core_layout_plan::get_left_core() const noexcept
+const linalg_operand_core& 
+linalg_core_layout_plan::get_left_core() const noexcept
 {
 	return m_left_core;
 }
 
-const linalg_operand_core& linalg_core_layout_plan::get_right_core() const noexcept
+const linalg_operand_core& 
+linalg_core_layout_plan::get_right_core() const noexcept
 {
 	return m_right_core;
 }

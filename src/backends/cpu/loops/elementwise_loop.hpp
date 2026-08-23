@@ -11,6 +11,8 @@ namespace xmipp4
 namespace cpu
 {
 
+class loop_schedule;
+
 /**
  * @brief Apply an inner loop to every 1D vector of a multidimensional layout.
  *
@@ -35,6 +37,42 @@ template <typename InnerLoop, typename... Pointers>
 void run_elementwise_outer_loop(
 	InnerLoop &&inner_loop,
 	const joint_layout &layout,
+	Pointers... pointers
+);
+
+/**
+ * @brief Apply an inner loop to part of a multidimensional layout.
+ *
+ * As @ref run_elementwise_outer_loop, but walking only the elements in
+ * `[begin, end)` of the layout's iteration space, counted the way the
+ * traversal counts them. Two calls covering a range between them visit
+ * exactly what one call over the whole of it visits, in the same order per
+ * element, which is what lets an elementwise loop be shared out over threads.
+ *
+ * The range does not have to fall on the boundaries of the innermost axis. A
+ * range starting or ending inside a vector simply hands the inner loop a
+ * shorter one, beginning where it begins: the count says how many elements
+ * there are, never that they start an axis.
+ *
+ * @tparam InnerLoop Functor to be dispatched for 1D vectors. Must have a
+ * signature accepting `(Pointers... operands, std::size_t count)`.
+ * @tparam Pointers CV-qualified pointers. There must be one per operand in
+ * the layout.
+ * @param inner_loop The functor to be invoked for each 1D vector.
+ * @param layout Access layout used for iterating over the operands.
+ * @param begin First element of the iteration space to visit.
+ * @param end Past-the-end element of the iteration space to visit. Must not
+ * exceed the number of elements the layout holds.
+ * @param pointers The base pointer of each operand.
+ *
+ * @see run_elementwise_outer_loop
+ */
+template <typename InnerLoop, typename... Pointers>
+void run_elementwise_outer_loop_range(
+	InnerLoop &&inner_loop,
+	const joint_layout &layout,
+	std::size_t begin,
+	std::size_t end,
 	Pointers... pointers
 );
 
@@ -84,6 +122,44 @@ template <typename Kernel, typename... Pointers>
 void run_elementwise_vector_loop(
 	const Kernel &kernel,
 	const joint_layout &layout,
+	Pointers... pointers
+);
+
+/**
+ * @brief Run an elementwise loop over a layout at 1D-vector granularity,
+ * spreading it over the threads a schedule names.
+ *
+ * As the unscheduled overload, but the iteration space is cut into contiguous
+ * ranges and each is walked by @ref run_elementwise_outer_loop_range. Every
+ * element is visited exactly once between them, and the kernel sees the same
+ * vectors it would see serially, except that one falling across a chunk
+ * boundary reaches it as two shorter ones.
+ *
+ * The kernel is invoked concurrently on one and the same object, so any state
+ * a chunk needs to itself has to be created inside it.
+ *
+ * The stride dispatch happens once per chunk rather than once per loop, which
+ * is what keeps the schedule's body from being instantiated once per stride
+ * combination.
+ *
+ * @tparam Kernel Functor invoked per 1D vector. Must accept
+ * `(std::tuple<Pointers...>, std::tuple<Strides...>, std::size_t)`.
+ * @tparam Pointers CV-qualified operand pointers, one per operand.
+ * @param kernel The functor to be invoked for each 1D vector.
+ * @param layout Access layout used both for stride dispatch and for iterating
+ * over the operands.
+ * @param schedule The threads to spread the loop over, and the smallest slice
+ * worth handing to one of them.
+ * @param pointers The base pointer of each operand.
+ *
+ * @see run_elementwise_vector_loop
+ * @see loop_schedule
+ */
+template <typename Kernel, typename... Pointers>
+void run_elementwise_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	const loop_schedule &schedule,
 	Pointers... pointers
 );
 
@@ -138,6 +214,40 @@ template <typename Op, typename... Pointers>
 void run_elementwise_loop(
 	const Op &op,
 	const joint_layout &layout,
+	Pointers... pointers
+);
+
+/**
+ * @brief Run an elementwise loop over a layout, applying an operation once per
+ * element, spread over the threads a schedule names.
+ *
+ * As the unscheduled overload, with the iteration space cut into contiguous
+ * ranges walked in parallel. Every element is visited exactly once, and each
+ * is written by exactly one thread, so an elementwise operation needs nothing
+ * of its own to be safe here.
+ *
+ * @p op is invoked concurrently on one and the same object, so any state a
+ * chunk needs to itself has to be created inside it. A stateless operation,
+ * which is what every one of them is, needs no thought.
+ *
+ * @tparam Op Operation invoked as `op(pointers...)` with one pointer per
+ * operand, in the same order as @p pointers.
+ * @tparam Pointers CV-qualified operand pointers, one per operand.
+ * @param op The operation to be applied to every element.
+ * @param layout Access layout used both for stride dispatch and for iterating
+ * over the operands.
+ * @param schedule The threads to spread the loop over, and the smallest slice
+ * worth handing to one of them.
+ * @param pointers The base pointer of each operand.
+ *
+ * @see run_elementwise_loop
+ * @see loop_schedule
+ */
+template <typename Op, typename... Pointers>
+void run_elementwise_loop(
+	const Op &op,
+	const joint_layout &layout,
+	const loop_schedule &schedule,
 	Pointers... pointers
 );
 

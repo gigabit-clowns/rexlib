@@ -5,6 +5,8 @@
 #include <xmipp4/backends/cpu/program_builder.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
+#include "serial_pool.hpp"
+
 #include <xmipp4/core/dispatch/operand_signature.hpp>
 #include <xmipp4/core/layout/strided_layout.hpp>
 #include <xmipp4/core/dispatch/operation_id.hpp>
@@ -86,7 +88,7 @@ TEST_CASE(
 		make_signature(&host_resource)
 	};
 
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -124,7 +126,7 @@ TEST_CASE(
 		make_signature(&host_resource)
 	};
 
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -159,7 +161,7 @@ TEST_CASE(
 		make_signature(&device_resource)
 	};
 
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -186,7 +188,7 @@ TEST_CASE(
 	};
 	const std::vector<operand_signature> inputs;
 
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -244,7 +246,7 @@ TEST_CASE(
 	const std::vector<operand_signature> outputs;
 	const std::vector<operand_signature> inputs;
 
-	cpu::command_queue queue;
+	cpu::command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,

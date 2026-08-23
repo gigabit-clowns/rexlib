@@ -57,6 +57,8 @@ public:
 	std::size_t get_number_of_operands() const noexcept;
 
 	span<const std::size_t> get_extents() const noexcept;
+
+	std::size_t compute_element_count() const noexcept;
 	
 	span<const std::ptrdiff_t> get_strides(std::size_t operand) const;
 
@@ -68,9 +70,16 @@ public:
 		std::size_t last_dim
 	) const;
 
+	std::size_t seek(
+		joint_cursor &ite,
+		std::size_t position,
+		std::size_t first_dim,
+		std::size_t last_dim
+	) const;
+
 	std::size_t next(
-		joint_cursor &ite, 
-		std::size_t n, 
+		joint_cursor &ite,
+		std::size_t n,
 		std::size_t first_dim,
 		std::size_t last_dim
 	) const noexcept;
