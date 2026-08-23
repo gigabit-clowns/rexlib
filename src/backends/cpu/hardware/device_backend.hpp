@@ -17,7 +17,7 @@ namespace cpu
  * CPU device.
  */
 class device_backend final
-	: public xmipp4::device_backend
+	: public rex::device_backend
 {
 public:
 	std::string get_name() const override;
@@ -30,10 +30,10 @@ public:
 		device_properties &desc
 	) const override;
 
-	std::shared_ptr<xmipp4::device>
+	std::shared_ptr<rex::device>
 	create_device(std::size_t id) const override;
 
-	static bool register_at(xmipp4::device_manager &manager);
+	static bool register_at(rex::device_manager &manager);
 }; 
 
 } // namespace cpu

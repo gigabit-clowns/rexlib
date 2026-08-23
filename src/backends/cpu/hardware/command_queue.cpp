@@ -64,13 +64,13 @@ void command_queue::wait(const event&)
 }
 
 command_queue*
-command_queue::try_cast(xmipp4::command_queue &queue) noexcept
+command_queue::try_cast(rex::command_queue &queue) noexcept
 {
 	return dynamic_cast<command_queue*>(&queue);
 }
 
 const command_queue*
-command_queue::try_cast(const xmipp4::command_queue &queue) noexcept
+command_queue::try_cast(const rex::command_queue &queue) noexcept
 {
 	return dynamic_cast<const command_queue*>(&queue);
 }

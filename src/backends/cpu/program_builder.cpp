@@ -46,7 +46,7 @@ backend_priority program_builder::get_suitability(
 	const operation& /*operation*/,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	xmipp4::command_queue &queue
+	rex::command_queue &queue
 ) const
 {
 	if (!check_array_signatures(output_signatures))

@@ -11,8 +11,8 @@
 using namespace rex;
 using namespace rex::ops;
 using trompeloeil::_;
-using xmipp4::test::dispatch_record;
-using xmipp4::test::verb_dispatch_fixture;
+using rex::test::dispatch_record;
+using rex::test::verb_dispatch_fixture;
 
 
 //

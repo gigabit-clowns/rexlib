@@ -29,7 +29,7 @@ TEST_CASE(
 )
 {
 	cpu::device_backend backend;
-	REQUIRE( backend.get_version() == xmipp4::get_core_version() );
+	REQUIRE( backend.get_version() == rex::get_core_version() );
 }
 
 TEST_CASE(

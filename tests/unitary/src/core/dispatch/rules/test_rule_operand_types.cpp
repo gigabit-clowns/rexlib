@@ -19,7 +19,7 @@
 #include <vector>
 
 using namespace rex;
-using xmipp4::test::safe_numerical_type_of;
+using rex::test::safe_numerical_type_of;
 
 namespace
 {

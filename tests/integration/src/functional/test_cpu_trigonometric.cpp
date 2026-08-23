@@ -26,9 +26,9 @@
 
 using namespace rex;
 using namespace rex::ops;
-using xmipp4::test::comparison_mode;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using rex::test::comparison_mode;
+using rex::test::element_value;
+using rex::test::elementwise_verb_fixture;
 
 // None of these has a correctly rounded result guaranteed by IEEE-754, so
 // they are compared within a tolerance for their element type. The inputs
@@ -46,7 +46,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sin_operation>(
-		xmipp4::sin,
+		rex::sin,
 		element_value(1),
 		[](auto) { return 0.8414709848078965; },
 		comparison_mode::approximate
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<cos_operation>(
-		xmipp4::cos,
+		rex::cos,
 		element_value(1),
 		[](auto) { return 0.5403023058681398; },
 		comparison_mode::approximate
@@ -74,7 +74,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<tan_operation>(
-		xmipp4::tan,
+		rex::tan,
 		element_value(1),
 		[](auto) { return 1.5574077246549023; },
 		comparison_mode::approximate
@@ -88,7 +88,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<asin_operation>(
-		xmipp4::asin,
+		rex::asin,
 		element_value(0.5),
 		[](auto) { return 0.5235987755982989; },
 		comparison_mode::approximate
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<acos_operation>(
-		xmipp4::acos,
+		rex::acos,
 		element_value(0.5),
 		[](auto) { return 1.0471975511965979; },
 		comparison_mode::approximate
@@ -116,7 +116,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<atan_operation>(
-		xmipp4::atan,
+		rex::atan,
 		element_value(1),
 		[](auto) { return 0.7853981633974483; },
 		comparison_mode::approximate
@@ -130,7 +130,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sinh_operation>(
-		xmipp4::sinh,
+		rex::sinh,
 		element_value(1),
 		[](auto) { return 1.1752011936438014; },
 		comparison_mode::approximate
@@ -144,7 +144,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<cosh_operation>(
-		xmipp4::cosh,
+		rex::cosh,
 		element_value(1),
 		[](auto) { return 1.5430806348152437; },
 		comparison_mode::approximate
@@ -158,7 +158,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<tanh_operation>(
-		xmipp4::tanh,
+		rex::tanh,
 		element_value(1),
 		[](auto) { return 0.7615941559557649; },
 		comparison_mode::approximate
@@ -172,7 +172,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<asinh_operation>(
-		xmipp4::asinh,
+		rex::asinh,
 		element_value(1),
 		[](auto) { return 0.881373587019543; },
 		comparison_mode::approximate
@@ -186,7 +186,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<acosh_operation>(
-		xmipp4::acosh,
+		rex::acosh,
 		element_value(2),
 		[](auto) { return 1.3169578969248166; },
 		comparison_mode::approximate
@@ -200,7 +200,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<atanh_operation>(
-		xmipp4::atanh,
+		rex::atanh,
 		element_value(0.5),
 		[](auto) { return 0.5493061443340549; },
 		comparison_mode::approximate
@@ -216,7 +216,7 @@ TEST_CASE_METHOD(
 	// Deliberately asymmetric: were the operands taken the other way round
 	// this would be zero rather than a quarter turn.
 	check_binary<atan2_operation>(
-		xmipp4::atan2,
+		rex::atan2,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return 1.5707963267948966; },
@@ -231,7 +231,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<hypot_operation>(
-		xmipp4::hypot,
+		rex::hypot,
 		element_value(3),
 		element_value(4),
 		[](auto, auto) { return 5; },
@@ -246,7 +246,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<degrees_operation>(
-		xmipp4::degrees,
+		rex::degrees,
 		element_value(1),
 		[](auto) { return 57.29577951308232; },
 		comparison_mode::approximate
@@ -260,7 +260,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<radians_operation>(
-		xmipp4::radians,
+		rex::radians,
 		element_value(180),
 		[](auto) { return 3.141592653589793; },
 		comparison_mode::approximate
@@ -274,7 +274,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary_pair<sincos_operation>(
-		xmipp4::sincos,
+		rex::sincos,
 		element_value(1),
 		[](auto) { return 0.8414709848078965; },
 		[](auto) { return 0.5403023058681398; },

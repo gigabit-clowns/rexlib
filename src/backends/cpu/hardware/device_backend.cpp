@@ -48,7 +48,7 @@ bool device_backend::get_device_properties(
 	return result;
 }
 
-std::shared_ptr<xmipp4::device> 
+std::shared_ptr<rex::device> 
 device_backend::create_device(std::size_t id) const
 {
 	if (id >= 1)
@@ -59,7 +59,7 @@ device_backend::create_device(std::size_t id) const
 	return std::make_shared<device>();
 }
 
-bool device_backend::register_at(xmipp4::device_manager &manager)
+bool device_backend::register_at(rex::device_manager &manager)
 {
 	return manager.register_backend(std::make_unique<device_backend>());
 }

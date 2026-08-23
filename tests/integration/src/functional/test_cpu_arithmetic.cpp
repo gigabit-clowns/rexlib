@@ -27,9 +27,9 @@
 
 using namespace rex;
 using namespace rex::ops;
-using xmipp4::test::comparison_mode;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using rex::test::comparison_mode;
+using rex::test::element_value;
+using rex::test::elementwise_verb_fixture;
 
 // Each case below sweeps every numerical type, running the verb for the
 // types the operation's rule admits and requiring a rejection for the rest.
@@ -275,7 +275,7 @@ TEST_CASE_METHOD(
 	// The parts are a Pythagorean pair, so the magnitude of the complex
 	// case is exact in every precision.
 	check_unary<abs_operation, signed_arithmetic_type_domain>(
-		xmipp4::abs,
+		rex::abs,
 		element_value(-3, -4),
 		[](auto x) { using std::abs; return abs(x); }
 	);
@@ -288,7 +288,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<abs_operation, unsigned_integer_type_domain>(
-		xmipp4::abs,
+		rex::abs,
 		element_value(3),
 		[](auto x) { return x; }
 	);

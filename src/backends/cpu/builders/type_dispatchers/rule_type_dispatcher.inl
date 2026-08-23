@@ -108,7 +108,7 @@ bool rule_type_dispatcher<Rule, Support>::is_supported(
 
 template <typename Rule, template <typename...> class Support>
 template <typename F, typename Pivots>
-std::shared_ptr<xmipp4::program>
+std::shared_ptr<rex::program>
 rule_type_dispatcher<Rule, Support>::invoke_if(
 	std::true_type /*supported*/,
 	F &&factory,
@@ -123,7 +123,7 @@ rule_type_dispatcher<Rule, Support>::invoke_if(
 
 template <typename Rule, template <typename...> class Support>
 template <typename F, typename Pivots>
-std::shared_ptr<xmipp4::program>
+std::shared_ptr<rex::program>
 rule_type_dispatcher<Rule, Support>::invoke_if(
 	std::false_type /*supported*/,
 	F&& /*factory*/,
@@ -138,7 +138,7 @@ rule_type_dispatcher<Rule, Support>::invoke_if(
 
 template <typename Rule, template <typename...> class Support>
 template <typename F, std::size_t... PivotIndices>
-std::shared_ptr<xmipp4::program>
+std::shared_ptr<rex::program>
 rule_type_dispatcher<Rule, Support>::dispatch_pivots(
 	F &&factory,
 	const type_rule_resolution &resolution,
@@ -146,7 +146,7 @@ rule_type_dispatcher<Rule, Support>::dispatch_pivots(
 )
 {
 	return dispatch_numerical_types(
-		[&factory] (auto... tags) -> std::shared_ptr<xmipp4::program>
+		[&factory] (auto... tags) -> std::shared_ptr<rex::program>
 		{
 			using pivot_types = type_list<typename decltype(tags)::type...>;
 
@@ -169,7 +169,7 @@ rule_type_dispatcher<Rule, Support>::dispatch_pivots(
 
 template <typename Rule, template <typename...> class Support>
 template <typename F, std::size_t OutputCount, std::size_t InputCount>
-std::shared_ptr<xmipp4::program>
+std::shared_ptr<rex::program>
 rule_type_dispatcher<Rule, Support>::dispatch(
 	const operation_descriptor &descriptor,
 	F &&factory,

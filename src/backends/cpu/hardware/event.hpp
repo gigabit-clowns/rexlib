@@ -17,7 +17,7 @@ namespace cpu
  * @ref event_usage_flag_bits::device_wait.
  */
 class event
-	: public xmipp4::event
+	: public rex::event
 {
 public:
 	event_usage_flags get_supported_usage() const noexcept override;

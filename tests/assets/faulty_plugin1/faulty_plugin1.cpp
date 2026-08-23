@@ -11,7 +11,7 @@
 
 extern "C"
 {
-REX_FAULTY_PLUGIN1_API const xmipp4::plugin* xmipp4_get_plugin() 
+REX_FAULTY_PLUGIN1_API const rex::plugin* xmipp4_get_plugin() 
 {
 	return NULL;
 }

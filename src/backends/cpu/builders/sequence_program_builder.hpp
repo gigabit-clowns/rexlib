@@ -149,7 +149,7 @@ private:
 #define REX_REGISTER_SEQUENCE_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::sequence_program_builder<op, kernel_factory> \
+		::rex::cpu::sequence_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -170,7 +170,7 @@ private:
 ) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::sequence_program_builder< \
+		::rex::cpu::sequence_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

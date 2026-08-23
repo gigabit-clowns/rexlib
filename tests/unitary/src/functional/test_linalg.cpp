@@ -14,7 +14,7 @@
 
 using namespace rex;
 using namespace rex::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using rex::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 #include <cstddef>

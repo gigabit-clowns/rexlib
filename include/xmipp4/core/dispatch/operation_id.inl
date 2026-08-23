@@ -32,8 +32,8 @@ namespace std
 
 inline
 std::size_t
-hash<xmipp4::operation_id>::operator()
-(const xmipp4::operation_id &key) const noexcept
+hash<rex::operation_id>::operator()
+(const rex::operation_id &key) const noexcept
 {
 	return key.hash();
 }

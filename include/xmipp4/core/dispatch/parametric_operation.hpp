@@ -129,13 +129,13 @@ private:
 	\
 	REX_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
-		: public ::xmipp4::parametric_operation< \
+		: public ::rex::parametric_operation< \
 			op##_operation, \
 			op##_operation_traits \
 		> \
 	{ \
 	public: \
-		using ::xmipp4::parametric_operation< \
+		using ::rex::parametric_operation< \
 			op##_operation, \
 			op##_operation_traits \
 		>::parametric_operation; \

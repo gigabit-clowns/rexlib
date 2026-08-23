@@ -115,7 +115,7 @@ private:
 #define REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::elementwise_program_builder<op, kernel_factory> \
+		::rex::cpu::elementwise_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -136,7 +136,7 @@ private:
 ) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::elementwise_program_builder< \
+		::rex::cpu::elementwise_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

@@ -35,7 +35,7 @@ device::get_memory_resource(memory_resource_affinity /*affinity*/) const
 	return host_memory_resource::get();
 }
 
-std::shared_ptr<xmipp4::command_queue> device::create_command_queue() const
+std::shared_ptr<rex::command_queue> device::create_command_queue() const
 {
 	// A fresh queue every time, all of them over the one pool this device
 	// owns. The only state a queue holds is that pool, so two of them are
@@ -44,7 +44,7 @@ std::shared_ptr<xmipp4::command_queue> device::create_command_queue() const
 	return std::make_shared<command_queue>(m_pool);
 }
 
-std::shared_ptr<xmipp4::event>
+std::shared_ptr<rex::event>
 device::create_event(event_usage_flags /*usage*/) const
 {
 	return std::make_shared<event>();

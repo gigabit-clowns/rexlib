@@ -138,7 +138,7 @@ public:
 #define REX_REGISTER_FOURIER_PROGRAM_BUILDER(name, op, transform) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::fourier_program_builder<op, transform> \
+		::rex::cpu::fourier_program_builder<op, transform> \
 	)
 
 /**
@@ -158,7 +158,7 @@ public:
 ) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::fourier_program_builder< \
+		::rex::cpu::fourier_program_builder< \
 			op, transform, __VA_ARGS__ \
 		> \
 	)

@@ -146,7 +146,7 @@ public:
  * to the declaration macros as a single argument.
  */
 #define REX_OPERANDS(...) \
-	::xmipp4::make_operand_names(__VA_ARGS__)
+	::rex::make_operand_names(__VA_ARGS__)
 
 /**
  * @brief Declare the static description of an operation.
@@ -222,7 +222,7 @@ public:
 	\
 	REX_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
-		: public ::xmipp4::trivial_operation< \
+		: public ::rex::trivial_operation< \
 			op##_operation, \
 			op##_operation_traits \
 		> \

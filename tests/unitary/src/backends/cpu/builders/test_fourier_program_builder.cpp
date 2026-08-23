@@ -73,7 +73,7 @@ std::shared_ptr<host_buffer> make_buffer(std::size_t count)
  * @brief Run a program over one input buffer and one output buffer.
  */
 void run(
-	const std::shared_ptr<xmipp4::program> &program,
+	const std::shared_ptr<rex::program> &program,
 	const std::shared_ptr<host_buffer> &output,
 	const std::shared_ptr<host_buffer> &input,
 	thread_pool &pool = *get_serial_pool()

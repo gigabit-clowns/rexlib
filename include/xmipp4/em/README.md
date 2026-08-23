@@ -18,7 +18,7 @@ src/em/
 
 ## Namespace
 
-Everything in this component lives in `xmipp4::em` (one namespace per
+Everything in this component lives in `rex::em` (one namespace per
 component). Operations and verbs share it: `em::project_3d_operation`,
 `em::project_3d(...)`.
 
@@ -67,7 +67,7 @@ builders by reporting a higher `backend_priority`.
 
 1. Operation class in `include/xmipp4/em/ops/<category>/` +
    `src/em/ops/<category>/` (reuse the shape/data-type policies from
-   `xmipp4::ops` where possible).
+   `rex::ops` where possible).
 2. Functional verb in `include/xmipp4/em/functional/` +
    `src/em/functional/`.
 3. Reference CPU builder in `src/backends/cpu/builders/em/<category>/`

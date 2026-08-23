@@ -104,7 +104,7 @@ public:
 #define REX_REGISTER_ROLL_PROGRAM_BUILDER(name, op, shift_policy) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::roll_program_builder<op, shift_policy> \
+		::rex::cpu::roll_program_builder<op, shift_policy> \
 	)
 
 #include "roll_program_builder.inl"

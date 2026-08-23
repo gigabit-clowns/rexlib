@@ -327,9 +327,9 @@ private:
 } // namespace rex
 
 template <typename B>
-struct std::hash<xmipp4::flagset<B>>
+struct std::hash<rex::flagset<B>>
 {
-	REX_CONSTEXPR size_t operator()(xmipp4::flagset<B> b) const noexcept;
+	REX_CONSTEXPR size_t operator()(rex::flagset<B> b) const noexcept;
 };
 
 #include "flagset.inl"

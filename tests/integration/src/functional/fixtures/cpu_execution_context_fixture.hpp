@@ -30,12 +30,12 @@ public:
 	cpu_execution_context_fixture()
 	{
 		const auto device_manager =
-			catalog.get_service_manager<xmipp4::device_manager>();
+			catalog.get_service_manager<rex::device_manager>();
 		const auto session = device_manager->create_device_session(
 			device_index("cpu", 0)
 		);
 		const auto program_manager =
-			catalog.get_service_manager<xmipp4::program_manager>();
+			catalog.get_service_manager<rex::program_manager>();
 		context = execution_context(
 			device_context(session),
 			make_eager_dispatcher(program_manager)

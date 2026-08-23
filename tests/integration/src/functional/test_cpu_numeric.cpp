@@ -16,8 +16,8 @@
 
 using namespace rex;
 using namespace rex::ops;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using rex::test::element_value;
+using rex::test::elementwise_verb_fixture;
 
 namespace
 {
@@ -41,7 +41,7 @@ TEST_CASE_METHOD(
 	// A complex operand takes it as its real part, and a complex number
 	// with such a part is not a number either, so one case covers both.
 	check_unary<is_nan_operation>(
-		xmipp4::is_nan,
+		rex::is_nan,
 		element_value(not_a_number),
 		[](auto) { return true; }
 	);
@@ -54,7 +54,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<is_nan_operation>(
-		xmipp4::is_nan,
+		rex::is_nan,
 		element_value(1),
 		[](auto) { return false; }
 	);
@@ -67,7 +67,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<is_nan_operation, complex_type_domain>(
-		xmipp4::is_nan,
+		rex::is_nan,
 		element_value(0, not_a_number),
 		[](auto) { return true; }
 	);
@@ -80,7 +80,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<is_inf_operation>(
-		xmipp4::is_inf,
+		rex::is_inf,
 		element_value(infinity),
 		[](auto) { return true; }
 	);
@@ -95,7 +95,7 @@ TEST_CASE_METHOD(
 	// Neither finite nor infinite, which is what keeps is_inf from being
 	// the negation of is_finite.
 	check_unary<is_inf_operation>(
-		xmipp4::is_inf,
+		rex::is_inf,
 		element_value(not_a_number),
 		[](auto) { return false; }
 	);
@@ -108,7 +108,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<is_finite_operation>(
-		xmipp4::is_finite,
+		rex::is_finite,
 		element_value(1),
 		[](auto) { return true; }
 	);
@@ -121,7 +121,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<is_finite_operation>(
-		xmipp4::is_finite,
+		rex::is_finite,
 		element_value(infinity),
 		[](auto) { return false; }
 	);
@@ -136,7 +136,7 @@ TEST_CASE_METHOD(
 	// Both parts must be finite, unlike is_nan and is_inf, which need
 	// only one part to answer.
 	check_unary<is_finite_operation, complex_type_domain>(
-		xmipp4::is_finite,
+		rex::is_finite,
 		element_value(0, infinity),
 		[](auto) { return false; }
 	);
@@ -149,7 +149,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sign_bit_operation>(
-		xmipp4::sign_bit,
+		rex::sign_bit,
 		element_value(-1),
 		[](auto) { return true; }
 	);
@@ -164,7 +164,7 @@ TEST_CASE_METHOD(
 	// A negative zero compares equal to a positive one, so this is what
 	// separates sign_bit from a comparison against zero.
 	check_unary<sign_bit_operation>(
-		xmipp4::sign_bit,
+		rex::sign_bit,
 		element_value(-0.0),
 		[](auto) { return true; }
 	);
@@ -177,7 +177,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sign_bit_operation>(
-		xmipp4::sign_bit,
+		rex::sign_bit,
 		element_value(0.0),
 		[](auto) { return false; }
 	);
@@ -191,7 +191,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<copysign_operation>(
-		xmipp4::copysign,
+		rex::copysign,
 		element_value(3),
 		element_value(-1),
 		[](auto, auto) { return -3; }
@@ -207,7 +207,7 @@ TEST_CASE_METHOD(
 	// Taken the other way round this would be -3, so the case pins which
 	// operand each role belongs to.
 	check_binary<copysign_operation>(
-		xmipp4::copysign,
+		rex::copysign,
 		element_value(-3),
 		element_value(1),
 		[](auto, auto) { return 3; }

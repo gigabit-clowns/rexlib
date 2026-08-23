@@ -543,7 +543,7 @@ strided_layout_implementation strided_layout_implementation::broadcast_to(
 	{
 		auto &axis = axes[i];
 		const auto extent = extents[i];
-		if (!xmipp4::broadcast_to(axis, extent))
+		if (!rex::broadcast_to(axis, extent))
 		{
 			std::ostringstream oss;
 			oss << "Cannot broadcast axis of extent " << axis.get_extent()

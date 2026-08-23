@@ -71,14 +71,14 @@ public:
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		xmipp4::command_queue &queue
+		rex::command_queue &queue
 	) const override;
 
-	std::shared_ptr<xmipp4::program> build(
+	std::shared_ptr<rex::program> build(
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		xmipp4::command_queue &queue,
+		rex::command_queue &queue,
 		program_cache *cache
 	) const override;
 

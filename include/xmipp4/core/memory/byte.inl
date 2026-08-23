@@ -147,7 +147,7 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b)
 } // namespace rex
 
 REX_INLINE_CONSTEXPR size_t 
-std::hash<xmipp4::byte>::operator()(xmipp4::byte b) const noexcept
+std::hash<rex::byte>::operator()(rex::byte b) const noexcept
 {
-	return xmipp4::as_uint8(b);
+	return rex::as_uint8(b);
 }

@@ -22,7 +22,7 @@ class thread_pool_implementation;
  * returns only once every chunk has finished. There is no queue, no future
  * and no way for work to outlive the call, which is what lets a program keep
  * being handed raw pointers into buffers whose lifetime ends when
- * `command_queue::submit` returns. See @ref xmipp4::command.
+ * `command_queue::submit` returns. See @ref rex::command.
  *
  * The calling thread participates. A pool of no workers therefore costs
  * exactly one indirect call over running the loop inline, which is what makes

@@ -50,7 +50,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	const operation &operation,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	xmipp4::command_queue &queue
+	rex::command_queue &queue
 ) const
 {
 	REX_CONST_CONSTEXPR auto output_count =
@@ -101,12 +101,12 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 }
 
 template <typename Derived, typename Op, typename TypeDispatcher>
-std::shared_ptr<xmipp4::program>
+std::shared_ptr<rex::program>
 dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	const operation &operation,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	xmipp4::command_queue& /*queue*/,
+	rex::command_queue& /*queue*/,
 	program_cache* /*cache*/
 ) const
 {

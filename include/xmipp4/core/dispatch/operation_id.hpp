@@ -55,9 +55,9 @@ namespace std
 {
 
 template<>
-struct hash<xmipp4::operation_id>
+struct hash<rex::operation_id>
 {
-	using key_type = xmipp4::operation_id;
+	using key_type = rex::operation_id;
 	std::size_t operator()(const key_type &k) const noexcept;
 };
 

@@ -24,7 +24,7 @@ class thread_pool;
  * already stopped.
  */
 class REXLIB_API device final
-	: public xmipp4::device
+	: public rex::device
 {
 public:
 	/**
@@ -40,9 +40,9 @@ public:
 	const memory_resource& 
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
-	std::shared_ptr<xmipp4::command_queue> create_command_queue() const override;
+	std::shared_ptr<rex::command_queue> create_command_queue() const override;
 
-	std::shared_ptr<xmipp4::event>
+	std::shared_ptr<rex::event>
 	create_event(event_usage_flags usage) const override;
 
 	/**

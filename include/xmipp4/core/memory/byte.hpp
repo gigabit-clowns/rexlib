@@ -52,9 +52,9 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b);
 } // namespace rex
 
 template <>
-struct std::hash<xmipp4::byte>
+struct std::hash<rex::byte>
 {
-	REX_CONSTEXPR size_t operator()(xmipp4::byte b) const noexcept;
+	REX_CONSTEXPR size_t operator()(rex::byte b) const noexcept;
 };
 
 #include "byte.inl"

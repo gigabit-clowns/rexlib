@@ -172,7 +172,7 @@ target_link_libraries(
 )
 
 # Create the alias
-add_library(xmipp4::core ALIAS rexlib)
+add_library(rex::core ALIAS rexlib)
 
 # Install library's binary files and headers
 install(

@@ -144,10 +144,10 @@ namespace std
 {
 
 template<>
-struct hash<xmipp4::array_descriptor>
+struct hash<rex::array_descriptor>
 {
 	std::size_t operator()(
-		const xmipp4::array_descriptor &descriptor
+		const rex::array_descriptor &descriptor
 	) const noexcept
 	{
 		return descriptor.hash();

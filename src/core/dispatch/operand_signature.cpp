@@ -131,7 +131,7 @@ operand_signature::from_array(const_array_ref a) noexcept
 {
 	return operand_signature(
 		a.get_descriptor(),
-		xmipp4::get_memory_resource(a.get_storage())
+		rex::get_memory_resource(a.get_storage())
 	);
 }
 

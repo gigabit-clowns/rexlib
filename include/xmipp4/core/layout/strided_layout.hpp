@@ -241,10 +241,10 @@ namespace std
 {
 
 template<>
-struct hash<xmipp4::strided_layout>
+struct hash<rex::strided_layout>
 {
 	std::size_t operator()(
-		const xmipp4::strided_layout &layout
+		const rex::strided_layout &layout
 	) const noexcept
 	{
 		return layout.hash();

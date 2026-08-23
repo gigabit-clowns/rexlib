@@ -15,7 +15,7 @@ namespace rex
 static const std::string name = "dummy-plugin";
 
 class dummy_plugin final
-	: public xmipp4::plugin
+	: public rex::plugin
 {
 	const std::string& get_name() const noexcept final
 	{
@@ -35,11 +35,11 @@ class dummy_plugin final
 
 } // namespace rex
 
-static const xmipp4::dummy_plugin instance;
+static const rex::dummy_plugin instance;
 
 extern "C"
 {
-REX_DUMMY_PLUGIN_API const xmipp4::plugin* xmipp4_get_plugin() 
+REX_DUMMY_PLUGIN_API const rex::plugin* xmipp4_get_plugin() 
 {
 	return &instance;
 }

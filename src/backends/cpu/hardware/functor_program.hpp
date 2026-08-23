@@ -53,11 +53,11 @@ namespace cpu
  * pointers are const-qualified, followed by the @ref thread_pool the program
  * was handed.
  * @tparam Outputs List of output element types, one per output buffer. Must be
- * a specialization of @ref xmipp4::type_list.
+ * a specialization of @ref rex::type_list.
  * @tparam Inputs List of input element types, one per input buffer. Must be a
- * specialization of @ref xmipp4::type_list.
+ * specialization of @ref rex::type_list.
  * @tparam Scratches List of scratch (workspace) element types, one per scratch
- * buffer. Must be a specialization of @ref xmipp4::type_list.
+ * buffer. Must be a specialization of @ref rex::type_list.
  *
  * @see program
  * @see make_functor_program
@@ -159,8 +159,8 @@ private:
  * @tparam Outputs Output type list, deduced from @p output_types.
  * @tparam Inputs Input type list, deduced from @p input_types.
  * @param fun The functor to be wrapped.
- * @param output_types A @ref xmipp4::type_list describing the output operands.
- * @param input_types A @ref xmipp4::type_list describing the input operands.
+ * @param output_types A @ref rex::type_list describing the output operands.
+ * @param input_types A @ref rex::type_list describing the input operands.
  * @return The wrapped program, held through a `std::shared_ptr<program>`.
  */
 template <typename F, typename Outputs, typename Inputs>
@@ -182,9 +182,9 @@ std::shared_ptr<program> make_functor_program(
  * @tparam Inputs Input type list, deduced from @p input_types.
  * @tparam Scratches Scratch type list, deduced from @p scratch_types.
  * @param fun The functor to be wrapped.
- * @param output_types A @ref xmipp4::type_list describing the output operands.
- * @param input_types A @ref xmipp4::type_list describing the input operands.
- * @param scratch_types A @ref xmipp4::type_list describing the scratch operands.
+ * @param output_types A @ref rex::type_list describing the output operands.
+ * @param input_types A @ref rex::type_list describing the input operands.
+ * @param scratch_types A @ref rex::type_list describing the scratch operands.
  * @param scratch_requirements One requirement per scratch type, in order.
  * @return The wrapped program, held through a `std::shared_ptr<program>`.
  */

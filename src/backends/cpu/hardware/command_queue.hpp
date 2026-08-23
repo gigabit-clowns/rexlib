@@ -17,7 +17,7 @@ class thread_pool;
  * @brief CPU implementation of @ref command_queue.
  */
 class command_queue final
-	: public xmipp4::command_queue
+	: public rex::command_queue
 {
 public:
 	/**
@@ -48,9 +48,9 @@ public:
 	thread_pool& get_thread_pool() const noexcept;
 
 	static
-	command_queue* try_cast(xmipp4::command_queue &queue) noexcept;
+	command_queue* try_cast(rex::command_queue &queue) noexcept;
 	static
-	const command_queue* try_cast(const xmipp4::command_queue &queue) noexcept;
+	const command_queue* try_cast(const rex::command_queue &queue) noexcept;
 
 private:
 	std::shared_ptr<thread_pool> m_pool;

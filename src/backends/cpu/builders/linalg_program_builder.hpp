@@ -143,7 +143,7 @@ private:
 #define REX_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::linalg_program_builder<op, kernel_factory> \
+		::rex::cpu::linalg_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -163,7 +163,7 @@ private:
 ) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::linalg_program_builder< \
+		::rex::cpu::linalg_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

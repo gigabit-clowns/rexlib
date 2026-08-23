@@ -147,7 +147,7 @@ using indexed_reduction_program_builder =
 #define REX_REGISTER_REDUCTION_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::reduction_program_builder<op, kernel_factory> \
+		::rex::cpu::reduction_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -167,7 +167,7 @@ using indexed_reduction_program_builder =
 ) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::indexed_reduction_program_builder<op, kernel_factory> \
+		::rex::cpu::indexed_reduction_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -188,7 +188,7 @@ using indexed_reduction_program_builder =
 ) \
 	REX_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::reduction_program_builder< \
+		::rex::cpu::reduction_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

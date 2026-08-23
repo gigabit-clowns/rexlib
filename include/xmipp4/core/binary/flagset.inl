@@ -133,14 +133,14 @@ template<typename B>
 REX_INLINE_CONSTEXPR bool
 flagset<B>::parity() const noexcept
 {
-	return xmipp4::parity(m_data);
+	return rex::parity(m_data);
 }
 
 template<typename B>
 REX_INLINE_CONSTEXPR bool
 flagset<B>::has_single_bit() const noexcept
 {
-	return xmipp4::has_single_bit(m_data);
+	return rex::has_single_bit(m_data);
 }
 
 template<typename B>
@@ -191,10 +191,10 @@ flagset<B>::toggle(const flagset& other) noexcept
 
 template <typename B>
 REX_CONSTEXPR size_t 
-std::hash<xmipp4::flagset<B>>::operator()(
-	xmipp4::flagset<B> b
+std::hash<rex::flagset<B>>::operator()(
+	rex::flagset<B> b
 ) const noexcept
 {
-	using underlying_type = typename xmipp4::flagset<B>::underlying_type;
+	using underlying_type = typename rex::flagset<B>::underlying_type;
 	return static_cast<underlying_type>(b);
 }
