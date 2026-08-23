@@ -5,35 +5,39 @@ set(TESTS_NAME "${PROJECT_NAME}_unitary_tests")
 
 # Register all source and header files
 file(
-	GLOB_RECURSE 
-	TEST_SOURCES 
-		${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
+	GLOB_RECURSE
+	TEST_SOURCES
+		${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
 )
 
-# Add the test executable
+# The plugin is a MODULE and cannot be linked against, so the tests embed
+# the same objects it is built from.
 add_executable(
-    ${TESTS_NAME}
-    ${TEST_SOURCES}
+	${TESTS_NAME}
+	${TEST_SOURCES}
+	$<TARGET_OBJECTS:${PROJECT_NAME}-objects>
 )
 set_target_properties(
-	${TESTS_NAME} PROPERTIES 
+	${TESTS_NAME} PROPERTIES
 	CXX_STANDARD 20
 )
 target_link_libraries(
-	${TESTS_NAME} 
-	PRIVATE 
-		${PROJECT_NAME} 
+	${TESTS_NAME}
+	PRIVATE
+		${PROJECT_NAME}-deps
 		Catch2::Catch2WithMain
 		trompeloeil::trompeloeil
 )
 
-# On windows targets, copy the library to the test directory
+# The embedded objects import xmipp4-core, whose DLL is not on the loader's
+# search path, so it has to sit next to the executable that needs it.
 if(WIN32)
 	add_custom_command(TARGET ${TESTS_NAME}
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${CMAKE_CURRENT_BINARY_DIR}"
-		COMMENT "Copy DLL file to ${CMAKE_CURRENT_BINARY_DIR} directory" VERBATIM
+		COMMAND ${CMAKE_COMMAND} -E copy
+			$<TARGET_FILE:xmipp4-core> $<TARGET_FILE_DIR:${TESTS_NAME}>
+		COMMENT "Copy xmipp4-core DLL next to ${TESTS_NAME}" VERBATIM
 	)
 endif()
 

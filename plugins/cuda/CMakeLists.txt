@@ -9,9 +9,14 @@ project(
 	LANGUAGES C CXX CUDA
 )
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
+
 # Include CMake packages
 include(GNUInstallDirs)
 include(CTest)
+
+include(fetch_boost)
+include(fetch_spdlog)
 
 # Find xmipp4-core
 if(NOT TARGET xmipp4-core)
@@ -20,6 +25,8 @@ endif()
 
 # Find dependencies
 find_package(CUDAToolkit 11 REQUIRED)
+fetch_boost(VERSION 1.90.0)
+fetch_spdlog(VERSION 1.17.0)
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 20)

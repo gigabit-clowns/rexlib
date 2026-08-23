@@ -20,20 +20,25 @@ jobs:
         cuda:
         - 12.8.1
         
+        build_type:
+        - Debug
+        
         include:
         - os: ubuntu-22.04
           compiler: {cc: gcc, cxx: g++}
           cuda: 11.8.0
-        # Visual Studio 2026 is only supported from CUDA 13.2 onwards, and it
-        # is what the Windows runner ships. Older toolkits install no MSBuild
-        # integration for it, which the CUDA language needs.
+          build_type: Debug
+        # Visual Studio 2026 is only supported from CUDA 13.2 onwards
         - os: windows-latest
           compiler: {cc: cl, cxx: cl}
           cuda: 13.3.1
+          # Debug here would pair this plugin's /MDd with the /MD of the
+          # prebuilt core wheel, which is always built Release.
+          build_type: Release
   
     runs-on: ${{ matrix.os }}
     env:
-      BUILD_TYPE: Release
+      BUILD_TYPE: ${{ matrix.build_type }}
     defaults:
       run:
         shell: bash -el {0}
@@ -46,8 +51,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
-          sub-packages: ${{ runner.os=='Linux' && '["nvcc", "toolkit"]' || '[]' }} # Fake ternary operator
-          non-cuda-sub-packages: '["libcublas", "libcufft", "libcusolver"]'
+          sub-packages: ${{ runner.os=='Linux' && '["nvcc", "cudart-dev"]' || '[]' }} # Fake ternary operator
           log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
       - name: Install xmipp4-core

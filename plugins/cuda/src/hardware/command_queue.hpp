@@ -43,6 +43,28 @@ public:
 	void signal(xmipp4::event &ev) override;
 	void wait(const xmipp4::event &ev) override;
 
+	/**
+	 * @brief Downcast a queue to this backend's implementation.
+	 *
+	 * @param queue The queue to be cast.
+	 * @return command_queue& The same queue, as a CUDA queue.
+	 *
+	 * @throws std::invalid_argument If the queue was not created by this
+	 * backend.
+	 */
+	static command_queue& cast(xmipp4::command_queue &queue);
+
+	/**
+	 * @brief Downcast a queue to this backend's implementation.
+	 *
+	 * @param queue The queue to be cast.
+	 * @return const command_queue& The same queue, as a CUDA queue.
+	 *
+	 * @throws std::invalid_argument If the queue was not created by this
+	 * backend.
+	 */
+	static const command_queue& cast(const xmipp4::command_queue &queue);
+
 private:
 	handle m_stream;
 	int m_ordinal;

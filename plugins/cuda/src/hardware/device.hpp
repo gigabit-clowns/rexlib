@@ -11,6 +11,8 @@ namespace xmipp4
 namespace cuda
 {
 
+class device_memory_resource;
+
 /**
  * @brief CUDA implementation of @ref xmipp4::device.
  *
@@ -22,7 +24,15 @@ class device final
 	: public xmipp4::device
 {
 public:
-	explicit device(int ordinal) noexcept;
+	/**
+	 * @brief Construct a handle to a device.
+	 *
+	 * @param ordinal Ordinal of the device.
+	 *
+	 * @throws error If the device could not be asked what kind of memory it
+	 * has.
+	 */
+	explicit device(int ordinal);
 	device(const device &other) = delete;
 	device(device &&other) = delete;
 	~device() override;
@@ -42,6 +52,10 @@ public:
 
 private:
 	int m_ordinal;
+
+	/// Null where the device shares the host's memory, since there is then no
+	/// such thing as memory local to it.
+	std::unique_ptr<device_memory_resource> m_memory;
 };
 
 } // namespace cuda

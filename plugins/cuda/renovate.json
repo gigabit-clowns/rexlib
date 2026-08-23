@@ -20,5 +20,25 @@
       "matchUpdateTypes": ["security"],
       "minimumReleaseAge": "0 days"
     }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["**/CMakeLists.txt"],
+      "matchStrings": ["fetch_boost\\(VERSION (?<currentValue>[^)]+)\\)"],
+      "depNameTemplate": "boost",
+      "packageNameTemplate": "boostorg/boost",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^boost-(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["**/CMakeLists.txt"],
+      "matchStrings": ["fetch_spdlog\\(VERSION (?<currentValue>[^)]+)\\)"],
+      "depNameTemplate": "spdlog",
+      "packageNameTemplate": "gabime/spdlog",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    }
   ]
 }

@@ -85,5 +85,31 @@ void command_queue::wait(const xmipp4::event &ev)
 	);
 }
 
+command_queue& command_queue::cast(xmipp4::command_queue &queue)
+{
+	auto *result = dynamic_cast<command_queue*>(&queue);
+	if (!result)
+	{
+		throw std::invalid_argument(
+			"The provided command queue was not created by the CUDA backend."
+		);
+	}
+
+	return *result;
+}
+
+const command_queue& command_queue::cast(const xmipp4::command_queue &queue)
+{
+	const auto *result = dynamic_cast<const command_queue*>(&queue);
+	if (!result)
+	{
+		throw std::invalid_argument(
+			"The provided command queue was not created by the CUDA backend."
+		);
+	}
+
+	return *result;
+}
+
 } // namespace cuda
 } // namespace xmipp4

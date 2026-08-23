@@ -3,7 +3,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
 #include <xmipp4/core/hardware/command.hpp>
 #include <xmipp4/core/hardware/command_queue.hpp>
 #include <xmipp4/core/hardware/device.hpp>
@@ -180,13 +179,6 @@ TEST_CASE( "the CUDA backend reports what it does not implement yet", "[cuda]" )
 	}
 
 	const auto dev = backend->create_device(ids.front());
-
-	// Memory resources arrive with the allocator, so no device session can be
-	// built for a CUDA device yet.
-	REQUIRE_THROWS_AS(
-		dev->get_memory_resource(memory_resource_affinity::device),
-		invalid_operation_error
-	);
 
 	// Submitting requires a program, and this backend provides none.
 	const auto queue = dev->create_command_queue();

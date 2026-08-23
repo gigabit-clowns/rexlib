@@ -17,5 +17,5 @@ FetchContent_MakeAvailable(Catch2 Trompeloeil)
 
 include(Catch)
 
-# add_subdirectory(unitary) # TODO uncomment when the allocator lands
+add_subdirectory(unitary)
 add_subdirectory(integration)

@@ -28,6 +28,9 @@ target_link_libraries(
 	PRIVATE 
 		xmipp4-core
 		Catch2::Catch2WithMain
+		# To check that what the plugin hands out really is what it says it is,
+		# which only the driver can answer.
+		CUDA::cudart
 )
 add_dependencies(${TESTS_NAME} ${PROJECT_NAME})
 

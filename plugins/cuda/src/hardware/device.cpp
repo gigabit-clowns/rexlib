@@ -5,16 +5,27 @@
 #include "command_queue.hpp"
 #include "event.hpp"
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
+#include "device_memory_resource.hpp"
+#include "pinned_memory_resource.hpp"
+
+#include <stdexcept>
 
 namespace xmipp4
 {
 namespace cuda
 {
 
-device::device(int ordinal) noexcept
+device::device(int ordinal)
 	: m_ordinal(ordinal)
 {
+	// Where the host and the device are the same physical memory, a device
+	// local pool would be a second name for the page locked one plus a copy
+	// nothing needs, so both kinds of request are served from the latter.
+	if (pinned_memory_resource::get().get_kind() !=
+	    memory_resource_kind::unified)
+	{
+		m_memory = std::make_unique<device_memory_resource>(ordinal);
+	}
 }
 
 device::~device() = default;
@@ -25,11 +36,28 @@ int device::get_ordinal() const noexcept
 }
 
 const memory_resource&
-device::get_memory_resource(memory_resource_affinity /*affinity*/) const
+device::get_memory_resource(memory_resource_affinity affinity) const
 {
-	throw invalid_operation_error(
-		"The CUDA backend does not expose any memory resource yet."
-	);
+	if (!m_memory)
+	{
+		return pinned_memory_resource::get();
+	}
+
+	switch (affinity)
+	{
+	case memory_resource_affinity::device:
+		return *m_memory;
+
+	case memory_resource_affinity::host:
+		// Page locked, so that transfers to and from the device can run
+		// asynchronously and at full speed.
+		return pinned_memory_resource::get();
+
+	default:
+		throw std::invalid_argument(
+			"device::get_memory_resource: Unknown memory resource affinity."
+		);
+	}
 }
 
 std::shared_ptr<xmipp4::command_queue> device::create_command_queue() const

@@ -5,12 +5,21 @@
 #include "error.hpp"
 
 #include <cstdio>
+#include <new>
 #include <sstream>
 
 namespace xmipp4
 {
 namespace cuda
 {
+
+// The runtime answers with nothing at all for a code it does not know, and
+// streaming that reads past a null pointer.
+static const char* describe(cudaError_t code) noexcept
+{
+	const auto *result = cudaGetErrorString(code);
+	return result ? result : "Unknown error";
+}
 
 static std::string format_error(
 	cudaError_t code,
@@ -21,7 +30,7 @@ static std::string format_error(
 {
 	std::ostringstream oss;
 	oss << "CUDA Runtime Error at: " << file << ":" << line << std::endl;
-	oss << cudaGetErrorString(code) << " " << call << std::endl;
+	oss << describe(code) << " " << call << std::endl;
 	return oss.str();
 }
 
@@ -36,6 +45,21 @@ void check(
 	{
 		throw error(format_error(code, call, file, line));
 	}
+}
+
+void check_allocation(
+	cudaError_t code,
+	const char* call,
+	const char* file,
+	int line
+)
+{
+	if (code == cudaErrorMemoryAllocation)
+	{
+		throw std::bad_alloc();
+	}
+
+	check(code, call, file, line);
 }
 
 void check_no_throw(
@@ -55,7 +79,7 @@ void check_no_throw(
 	std::fprintf(
 		stderr,
 		"CUDA Runtime Error at: %s:%d\n%s %s\n",
-		file, line, cudaGetErrorString(code), call
+		file, line, describe(code), call
 	);
 }
 
