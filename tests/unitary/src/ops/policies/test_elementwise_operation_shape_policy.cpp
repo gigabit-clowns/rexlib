@@ -25,7 +25,7 @@ const operation_descriptor& stub_descriptor()
     static REX_CONST_CONSTEXPR auto inputs =
         make_operand_names("left", "right");
     static const operation_descriptor instance =
-        make_operation_descriptor("xmipp4.test", "probe", outputs, inputs);
+        make_operation_descriptor("rex.test", "probe", outputs, inputs);
     return instance;
 }
 

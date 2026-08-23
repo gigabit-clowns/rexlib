@@ -118,7 +118,7 @@ protected:
 		static REX_CONST_CONSTEXPR auto inputs =
 			make_operand_names("value");
 		static const operation_descriptor instance =
-			make_operation_descriptor("xmipp4.test", "mock", outputs, inputs);
+			make_operation_descriptor("rex.test", "mock", outputs, inputs);
 		return instance;
 	}
 

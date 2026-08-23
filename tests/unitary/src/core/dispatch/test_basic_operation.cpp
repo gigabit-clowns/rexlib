@@ -115,7 +115,7 @@ TEST_CASE(
 {
     std::ostringstream oss;
     oss << stub_add_operation::get_static_descriptor();
-    CHECK( oss.str() == "xmipp4.ops.stub_add" );
+    CHECK( oss.str() == "rex.ops.stub_add" );
 }
 
 TEST_CASE(

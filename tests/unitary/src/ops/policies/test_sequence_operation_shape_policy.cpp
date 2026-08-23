@@ -26,7 +26,7 @@ const operation_descriptor& sequence_descriptor()
 	static REX_CONST_CONSTEXPR auto inputs =
 		make_operand_names();
 	static const operation_descriptor instance =
-		make_operation_descriptor("xmipp4.test", "sequence", outputs, inputs);
+		make_operation_descriptor("rex.test", "sequence", outputs, inputs);
 	return instance;
 }
 

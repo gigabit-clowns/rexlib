@@ -35,7 +35,7 @@ public:
 	 * @brief Construct a descriptor.
 	 *
 	 * @param component Name of the component owning the operation, such as
-	 * "xmipp4.ops". Used to qualify the operation in diagnostics and to
+	 * "rex.ops". Used to qualify the operation in diagnostics and to
 	 * keep names from different components apart.
 	 * @param name Name of the operation, such as "add".
 	 * @param output_operand_names Names of the output operands, in
@@ -119,7 +119,7 @@ public:
 	 * @brief Write the qualified name of an operation.
 	 *
 	 * The component and the name are joined with a dot, as in
-	 * "xmipp4.ops.add".
+	 * "rex.ops.add".
 	 *
 	 * @param os The stream where the descriptor is written.
 	 * @param descriptor The descriptor to be written.

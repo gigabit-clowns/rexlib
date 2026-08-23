@@ -20,7 +20,7 @@ struct ops_component
 {
 	static const char* get_component() noexcept
 	{
-		return "xmipp4.ops";
+		return "rex.ops";
 	}
 };
 

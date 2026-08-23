@@ -30,7 +30,7 @@ const operation_descriptor& product_descriptor()
 		make_operand_names("left", "right");
 	static const operation_descriptor instance =
 		make_operation_descriptor(
-			"xmipp4.test", "product", outputs, inputs
+			"rex.test", "product", outputs, inputs
 		);
 	return instance;
 }
