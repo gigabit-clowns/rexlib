@@ -19,7 +19,7 @@ namespace cpu
 /**
  * @brief Predicate excluding the types Eigen cannot be handed as a scalar.
  *
- * xmipp4's own float16_t (and its complex counterpart) is not a type Eigen
+ * rex's own float16_t (and its complex counterpart) is not a type Eigen
  * knows how to specialize its numeric traits for; every other type
  * arithmetic_type_domain admits (the fixed-width integers, float, double,
  * and their complex counterparts) is a native Eigen scalar type.

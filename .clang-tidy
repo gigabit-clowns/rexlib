@@ -1,4 +1,4 @@
-HeaderFilterRegex: 'xmipp4/core/.*'
+HeaderFilterRegex: 'rex/core/.*'
 Checks: >
   -*,
   performance-*,

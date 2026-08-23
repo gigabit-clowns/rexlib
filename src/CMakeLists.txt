@@ -28,7 +28,7 @@ endif()
 # Define one object library per component. Properties that CMake only
 # applies automatically to SHARED targets (export define, PIC, hidden
 # visibility) must be set explicitly on each object library.
-function(xmipp4_add_component NAME DIR)
+function(rex_add_component NAME DIR)
 	file(
 		GLOB_RECURSE
 		SOURCES
@@ -117,10 +117,10 @@ function(xmipp4_add_component NAME DIR)
 	)
 endfunction()
 
-xmipp4_add_component(rexlib-obj core)
-xmipp4_add_component(rex-ops-obj ops)
-xmipp4_add_component(rex-functional-obj functional)
-xmipp4_add_component(rex-cpu-obj backends/cpu)
+rex_add_component(rexlib-obj core)
+rex_add_component(rex-ops-obj ops)
+rex_add_component(rex-functional-obj functional)
+rex_add_component(rex-cpu-obj backends/cpu)
 # NOTE: register src/em as rex-em-obj once it has sources (an empty
 # GLOB would make add_library fail).
 

@@ -1,5 +1,5 @@
 # rexlib
-Core library for the xmipp4 framework
+Core library for the rex framework
 
 [![Build and Test](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml)
 [![Run tests with memcheck](https://github.com/gigabit-clowns/rexlib/actions/workflows/test-with-memcheck.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/test-with-memcheck.yml)

@@ -31,4 +31,4 @@ if(WIN32)
 endif()
 
 # Register tests
-xmipp4_register_tests(rexlib-integration-tests)
+rex_register_tests(rexlib-integration-tests)

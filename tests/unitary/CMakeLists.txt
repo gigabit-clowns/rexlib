@@ -77,4 +77,4 @@ if(WIN32)
 endif()
 
 # Register tests
-xmipp4_register_tests(rexlib-unitary-tests)
+rex_register_tests(rexlib-unitary-tests)

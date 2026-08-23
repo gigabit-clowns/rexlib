@@ -45,7 +45,7 @@ if(WIN32)
 else()
 	set(REX_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/rex-plugins)
 endif()
-set(REX_PLUGIN_INSTALL_DIR ${REX_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the xmipp4 plugins are installed")
+set(REX_PLUGIN_INSTALL_DIR ${REX_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the rex plugins are installed")
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 17)

@@ -12,7 +12,7 @@ authors = [
     { name = "Martín Salinas Antón", email = "ssalinasmartin@gmail.com" },
     { name = "Mikel Iceta Tena", email = "m.icetatena@gmail.com" },
 ]
-description = "Core component of the xmipp4 framework"
+description = "Core component of the rex framework"
 classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
     "Intended Audience :: Science/Research",
