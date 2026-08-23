@@ -14,12 +14,12 @@ target_link_libraries(
 	rexlib-integration-tests
 	PRIVATE
 		rexlib
-		xmipp4-test-assets-interface
+		rex-test-assets-interface
 		Catch2::Catch2WithMain
 )
 add_dependencies(
 	rexlib-integration-tests
-	xmipp4-test-assets
+	rex-test-assets
 )
 
 # On windows targets, copy the library to the test directory

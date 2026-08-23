@@ -13,9 +13,9 @@ add_executable(
     rexlib-unitary-tests
     ${TEST_SOURCES}
 	$<TARGET_OBJECTS:rexlib-obj>
-	$<TARGET_OBJECTS:xmipp4-ops-obj>
-	$<TARGET_OBJECTS:xmipp4-functional-obj>
-	$<TARGET_OBJECTS:xmipp4-cpu-obj>
+	$<TARGET_OBJECTS:rex-ops-obj>
+	$<TARGET_OBJECTS:rex-functional-obj>
+	$<TARGET_OBJECTS:rex-cpu-obj>
 )
 target_compile_definitions(
 	rexlib-unitary-tests
@@ -32,13 +32,13 @@ target_link_libraries(
 	PRIVATE
 		rexlib
 		$<TARGET_PROPERTY:rexlib,LINK_LIBRARIES>
-		xmipp4-test-assets-interface
+		rex-test-assets-interface
 		Catch2::Catch2WithMain
 		trompeloeil::trompeloeil
 )
 add_dependencies(
 	rexlib-unitary-tests
-	xmipp4-test-assets
+	rex-test-assets
 )
 
 # On Windows enable big objects

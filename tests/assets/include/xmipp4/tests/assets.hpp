@@ -9,7 +9,7 @@
 
 #ifndef REX_TEST_ASSET_ROOT
 	#error "REX_TEST_ASSET_ROOT is not defined. Link against " \
-	       "xmipp4-test-assets-interface to consume the shared test assets."
+	       "rex-test-assets-interface to consume the shared test assets."
 #endif
 
 namespace xmipp4

@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 
 # Usage requirements of the private dependencies, shared by every component
 # object library and by the final shared library.
-add_library(xmipp4-private-deps INTERFACE)
+add_library(rex-private-deps INTERFACE)
 target_link_libraries(
-	xmipp4-private-deps
+	rex-private-deps
 	INTERFACE
 		Threads::Threads
 		spdlog::spdlog_header_only
@@ -19,7 +19,7 @@ target_link_libraries(
 )
 if(WIN32)
 	target_link_libraries(
-		xmipp4-private-deps
+		rex-private-deps
 		INTERFACE
 			ws2_32 # Winsock
 	)
@@ -113,15 +113,15 @@ function(xmipp4_add_component NAME DIR)
 	target_link_libraries(
 		${NAME}
 		PRIVATE
-			xmipp4-private-deps
+			rex-private-deps
 	)
 endfunction()
 
 xmipp4_add_component(rexlib-obj core)
-xmipp4_add_component(xmipp4-ops-obj ops)
-xmipp4_add_component(xmipp4-functional-obj functional)
-xmipp4_add_component(xmipp4-cpu-obj backends/cpu)
-# NOTE: register src/em as xmipp4-em-obj once it has sources (an empty
+xmipp4_add_component(rex-ops-obj ops)
+xmipp4_add_component(rex-functional-obj functional)
+xmipp4_add_component(rex-cpu-obj backends/cpu)
+# NOTE: register src/em as rex-em-obj once it has sources (an empty
 # GLOB would make add_library fail).
 
 # Assemble the single shared library from the component objects
@@ -129,9 +129,9 @@ add_library(
 	rexlib
 	SHARED
 		$<TARGET_OBJECTS:rexlib-obj>
-		$<TARGET_OBJECTS:xmipp4-ops-obj>
-		$<TARGET_OBJECTS:xmipp4-functional-obj>
-		$<TARGET_OBJECTS:xmipp4-cpu-obj>
+		$<TARGET_OBJECTS:rex-ops-obj>
+		$<TARGET_OBJECTS:rex-functional-obj>
+		$<TARGET_OBJECTS:rex-cpu-obj>
 )
 set_target_properties(
 	rexlib
@@ -168,7 +168,7 @@ target_link_libraries(
 	PUBLIC
 		Threads::Threads
 	PRIVATE
-		xmipp4-private-deps
+		rex-private-deps
 )
 
 # Create the alias

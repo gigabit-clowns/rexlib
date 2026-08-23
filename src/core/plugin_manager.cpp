@@ -16,7 +16,7 @@
 
 #include <boost/filesystem.hpp>
 
-static const char REX_PLUGINS_DIRECTORY_NAME[] = "xmipp4-plugins";
+static const char REX_PLUGINS_DIRECTORY_NAME[] = "rex-plugins";
 static const char REX_PLUGINS_ENV_VARIABLE[] = "REX_PLUGINS_DIRECTORY";
 
 namespace xmipp4
