@@ -55,7 +55,7 @@
 
 /**
  * @def REXLIB_API
- * @brief Declares that the function is part of the public core API of XMIPP4
+ * @brief Declares that the function is part of the public core API of REX
  * 
  * The functions declared as public core API will be exported to the shared object. 
  * 
