@@ -4,7 +4,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 array_descriptor::array_descriptor() noexcept
@@ -70,4 +70,4 @@ std::size_t compute_storage_requirement(const array_descriptor &descriptor)
 	return layout.compute_storage_requirement() * get_size(data_type);
 }
 
-} // namespace xmipp4
+} // namespace rex

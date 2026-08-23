@@ -9,7 +9,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 template <typename ForwardIt>
@@ -555,4 +555,4 @@ strided_layout_implementation strided_layout_implementation::broadcast_to(
 	return strided_layout_implementation(std::move(axes), m_offset);
 }
 
-} // namespace xmipp4
+} // namespace rex

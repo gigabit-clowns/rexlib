@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -137,7 +137,7 @@ public:
 	get_operation_data_type_policy() const noexcept override;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Build an operand name list for an operation declaration.

@@ -9,7 +9,7 @@
 #include "memory_resource_affinity.hpp"
 #include "event_usage_flags.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 class command_queue;
@@ -89,4 +89,4 @@ public:
 	std::shared_ptr<event> create_event(event_usage_flags usage) const = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -11,7 +11,7 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 
 TEST_CASE( "load good plugin in the plugin manager", "[plugin_manager]" ) 

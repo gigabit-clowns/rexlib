@@ -10,7 +10,7 @@
 #include <array>
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -210,4 +210,4 @@ private:
 	numerical_type m_offending_type;
 };
 
-} // namespace xmipp4
+} // namespace rex

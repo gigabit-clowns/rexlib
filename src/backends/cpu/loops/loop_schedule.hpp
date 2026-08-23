@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -101,6 +101,6 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "loop_schedule.inl"

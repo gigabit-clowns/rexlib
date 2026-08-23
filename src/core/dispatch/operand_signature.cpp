@@ -8,7 +8,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -135,4 +135,4 @@ operand_signature::from_array(const_array_ref a) noexcept
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

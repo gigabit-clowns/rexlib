@@ -6,7 +6,7 @@
 #include <limits>
 #include <exception>
 
-namespace xmipp4 
+namespace rex 
 {
 
 REX_INLINE_CONSTEXPR 
@@ -207,4 +207,4 @@ slice sanitize_slice(const slice& slice, std::size_t extent)
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rex

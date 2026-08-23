@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -12,4 +12,4 @@ namespace cpu
 REX_INSTANTIATE_EIGEN_GEMM(std::uint8_t);
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

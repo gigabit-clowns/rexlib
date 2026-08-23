@@ -10,7 +10,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -817,4 +817,4 @@ array ifftshift(
 	array *out = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

@@ -6,7 +6,7 @@
 
 #include <xmipp4/core/platform/constexpr.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -436,4 +436,4 @@ make_reduction_element_adaptor(Kernel kernel)
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

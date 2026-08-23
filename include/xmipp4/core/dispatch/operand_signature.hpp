@@ -7,7 +7,7 @@
 #include <xmipp4/core/hardware/memory_resource.hpp>
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4
+namespace rex
 {
 
 class array;
@@ -162,4 +162,4 @@ private:
 	const memory_resource* m_memory_region;
 };
 
-} // namespace xmipp4
+} // namespace rex

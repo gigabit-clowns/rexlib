@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE_METHOD(
 	cpu_execution_context_fixture,

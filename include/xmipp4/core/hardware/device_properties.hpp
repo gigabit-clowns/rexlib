@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -159,4 +159,4 @@ private:
 	const implementation& get_implementation() const noexcept;
 };
 
-} // namespace xmipp4
+} // namespace rex

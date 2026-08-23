@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -115,4 +115,4 @@ array angle(
 	return execute_unary(ops::angle_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -9,7 +9,7 @@
 #include <complex>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace detail
@@ -108,4 +108,4 @@ auto dispatch_numerical_types(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

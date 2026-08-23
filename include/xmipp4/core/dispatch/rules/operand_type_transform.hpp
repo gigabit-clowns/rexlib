@@ -8,7 +8,7 @@
 
 #include <complex>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -229,4 +229,4 @@ struct fixed_type_transform
 
 /** @} */
 
-} // namespace xmipp4
+} // namespace rex

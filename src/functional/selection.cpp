@@ -8,7 +8,7 @@
 #include <xmipp4/ops/selection/minimum_operation.hpp>
 #include <xmipp4/ops/selection/where_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array where(
@@ -53,4 +53,4 @@ array minimum(
 	return execute_binary(ops::minimum_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

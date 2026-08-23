@@ -6,7 +6,7 @@
 
 #include <array>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "span default construction yields empty span", "[span]" )
 {

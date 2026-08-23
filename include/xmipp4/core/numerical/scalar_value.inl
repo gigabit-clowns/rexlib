@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <typeinfo>
 
-namespace xmipp4
+namespace rex
 {
 
 template <typename T>
@@ -121,4 +121,4 @@ T scalar_value_cast(const scalar_value &value)
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class broadcast_error
@@ -30,4 +30,4 @@ private:
 	std::vector<std::size_t> m_second_extents;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/dispatch/operation_arity.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 operation_arity::operation_arity() noexcept
@@ -49,4 +49,4 @@ operation_arity operation_arity::ternary() noexcept
 	return operation_arity(1, 3);
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -9,7 +9,7 @@
 
 #include <xmipp4/core/meta/type_list.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -96,4 +96,4 @@ REX_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

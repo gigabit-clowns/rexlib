@@ -6,7 +6,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -49,7 +49,7 @@ private:
 	std::type_index m_id;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 namespace std
 {

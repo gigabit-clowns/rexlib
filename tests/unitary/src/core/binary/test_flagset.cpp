@@ -11,7 +11,7 @@
 
 #include <xmipp4/core/binary/bit.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 // Definition of the flag bits and its flagset
 

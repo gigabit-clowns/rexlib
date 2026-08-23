@@ -2,7 +2,7 @@
 
 #include "version.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 REX_INLINE_CONSTEXPR 
@@ -72,4 +72,4 @@ std::uint32_t version::get_data() const noexcept
 	return m_data;
 }
 
-} // namespace xmipp4
+} // namespace rex

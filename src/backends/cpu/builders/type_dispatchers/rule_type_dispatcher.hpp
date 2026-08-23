@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 class program;
@@ -171,6 +171,6 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "rule_type_dispatcher.inl"

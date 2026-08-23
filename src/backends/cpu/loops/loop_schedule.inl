@@ -4,7 +4,7 @@
 
 #include <xmipp4/backends/cpu/parallel_for.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -69,4 +69,4 @@ void loop_schedule::run(std::size_t count, const Body &body) const
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

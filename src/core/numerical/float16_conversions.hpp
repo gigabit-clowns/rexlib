@@ -6,7 +6,7 @@
 
 #include <half.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -39,6 +39,6 @@ float float16_to_float(float16_t value) noexcept;
  */
 float16_t float_to_float16(float value) noexcept;
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "float16_conversions.inl"

@@ -4,7 +4,7 @@
 
 #include "fixed_width_float.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 namespace detail
@@ -119,4 +119,4 @@ T numerical_cast(const Q &src) noexcept
 	return detail::numerical_cast_helper<T, Q>::cast(src);
 }
 
-} // namespace xmipp4
+} // namespace rex

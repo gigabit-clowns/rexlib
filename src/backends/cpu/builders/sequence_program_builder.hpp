@@ -18,7 +18,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -134,7 +134,7 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Instantiate and auto-register a CPU sequence program builder.

@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/core_version.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 version get_core_version() noexcept
@@ -14,4 +14,4 @@ version get_core_version() noexcept
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -6,7 +6,7 @@
 #include "../numerical/numerical_type.hpp"
 #include "../platform/dynamic_shared_object.h"
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -138,7 +138,7 @@ bool is_initialized(const array_descriptor &descriptor) noexcept;
 REXLIB_API
 std::size_t compute_storage_requirement(const array_descriptor &descriptor);
 
-} // namespace xmipp4
+} // namespace rex
 
 namespace std
 {

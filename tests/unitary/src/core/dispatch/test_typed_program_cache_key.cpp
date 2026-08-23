@@ -7,7 +7,7 @@
 #include <functional>
 #include <string>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE(
 	"typed_program_cache_key forwards to std::hash",

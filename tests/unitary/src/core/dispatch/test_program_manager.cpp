@@ -14,7 +14,7 @@
 
 #include <array>
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

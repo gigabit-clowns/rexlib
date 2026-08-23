@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 
@@ -89,4 +89,4 @@ std::shared_ptr<dispatcher> make_eager_dispatcher(
 	std::shared_ptr<const program_manager> program_manager
 );
 
-} // namespace xmipp4
+} // namespace rex

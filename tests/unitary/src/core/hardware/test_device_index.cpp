@@ -7,7 +7,7 @@
 #include <sstream>
 
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "construct device_index should produce the expected value", "[device_index]" )
 {

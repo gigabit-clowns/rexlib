@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <cstdint>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "bit shifts left by 1", "[bit]" ) 
 {

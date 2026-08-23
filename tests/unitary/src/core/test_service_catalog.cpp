@@ -8,7 +8,7 @@
 
 #include <utility>
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

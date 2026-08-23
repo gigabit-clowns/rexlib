@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -68,5 +68,5 @@ backend_priority program_builder::get_suitability(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 

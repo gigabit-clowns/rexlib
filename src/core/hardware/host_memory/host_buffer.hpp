@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/hardware/buffer.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -28,4 +28,4 @@ private:
 	std::size_t m_size;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -12,7 +12,7 @@
 #include "../platform/attributes.hpp"
 #include "../platform/cpp_explicit.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 
@@ -160,6 +160,6 @@ template <typename F>
 REX_CONSTEXPR
 auto visit(F&& func, const dynamic_subscript &subscript);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "dynamic_subscript.inl"

@@ -9,7 +9,7 @@
 #include <xmipp4/ops/numeric/is_nan_operation.hpp>
 #include <xmipp4/ops/numeric/sign_bit_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array is_nan(
@@ -58,4 +58,4 @@ array copysign(
 	return execute_binary(ops::copysign_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

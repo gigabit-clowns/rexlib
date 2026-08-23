@@ -19,8 +19,8 @@
 #include <typeinfo>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 TEST_CASE(
 	"cpu::command_queue should reject a null thread pool",

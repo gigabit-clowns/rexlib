@@ -8,7 +8,7 @@
 #include <xmipp4/core/core_version.hpp>
 #include <xmipp4/core/system/host.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -65,4 +65,4 @@ bool device_backend::register_at(xmipp4::device_manager &manager)
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

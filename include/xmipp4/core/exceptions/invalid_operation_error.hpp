@@ -6,7 +6,7 @@
 
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -19,4 +19,4 @@ class REXLIB_API invalid_operation_error : public std::logic_error
 	using logic_error::logic_error;
 };
 
-} // namespace xmipp4
+} // namespace rex

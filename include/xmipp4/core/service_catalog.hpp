@@ -9,7 +9,7 @@
 #include <typeindex>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -71,6 +71,6 @@ private:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "service_catalog.inl"

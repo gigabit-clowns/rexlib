@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

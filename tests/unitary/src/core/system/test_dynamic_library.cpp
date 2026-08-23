@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "open a dynamic library", "[dynamic_library]" ) 
 {

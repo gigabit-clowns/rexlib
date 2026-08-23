@@ -18,7 +18,7 @@
 #include <cstddef>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 namespace test
 {
@@ -655,4 +655,4 @@ private:
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rex

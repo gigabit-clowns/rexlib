@@ -16,7 +16,7 @@
 #include <algorithm>
 #include <iostream>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "default constructing a joint_layout_builder should point to a null implementation", "[joint_layout_builder]" )
 {

@@ -2,10 +2,10 @@
 
 #include <xmipp4/core/dispatch/dispatcher.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 dispatcher::dispatcher() noexcept = default;
 dispatcher::~dispatcher() = default;
 
-} // namespace xmipp4
+} // namespace rex

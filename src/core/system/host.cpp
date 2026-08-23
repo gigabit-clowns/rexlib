@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <array>
 
-namespace xmipp4
+namespace rex
 {
 
 std::string get_hostname()
@@ -123,4 +123,4 @@ std::size_t get_page_size()
 	#endif
 }
 
-} // namespace xmipp4
+} // namespace rex

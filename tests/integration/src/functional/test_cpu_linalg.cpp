@@ -15,8 +15,8 @@
 #include <cstddef>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using xmipp4::test::element_value;
 using xmipp4::test::reduction_verb_fixture;
 

@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/exceptions/plugin_load_error.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 static const plugin* query_plugin(const dynamic_library& lib)
@@ -64,4 +64,4 @@ void plugin_loader::load(const std::string& path)
 	*this = plugin_loader(path);
 }
 
-} // namespace xmipp4
+} // namespace rex

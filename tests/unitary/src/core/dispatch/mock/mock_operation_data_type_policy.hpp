@@ -8,7 +8,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_operation_data_type_policy
@@ -36,4 +36,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("Default constructed array should have no storage", "[array]")
 {

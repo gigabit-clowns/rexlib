@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 class program_builder;
@@ -87,4 +87,4 @@ private:
 	}
 };
 
-} // namespace xmipp4
+} // namespace rex

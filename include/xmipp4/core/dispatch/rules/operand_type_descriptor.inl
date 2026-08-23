@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/platform/assert.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 inline
@@ -86,4 +86,4 @@ const char* slot_descriptor::get_relation() const noexcept
 	return m_relation;
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/system/dynamic_library.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class plugin;
@@ -74,4 +74,4 @@ private:
 	const plugin* m_plugin;
 };
 
-} // namespace xmipp4
+} // namespace rex

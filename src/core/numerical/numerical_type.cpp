@@ -9,7 +9,7 @@
 
 #include <complex>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -262,4 +262,4 @@ std::ostream& operator<<(std::ostream& os, numerical_type_category category)
 	return os << to_string(category);
 }
 
-} // namespace xmipp4
+} // namespace rex

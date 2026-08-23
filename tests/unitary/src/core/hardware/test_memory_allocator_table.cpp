@@ -8,7 +8,7 @@
 #include "mock/mock_memory_allocator.hpp"
 #include "mock/mock_memory_resource.hpp"
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE(
     "memory_allocator_table default constructor leaves all slots null",

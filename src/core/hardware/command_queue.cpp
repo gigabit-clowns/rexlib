@@ -2,10 +2,10 @@
 
 #include <xmipp4/core/hardware/command_queue.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 command_queue::command_queue() noexcept = default;
 command_queue::~command_queue() = default;
 
-} // namespace xmipp4
+} // namespace rex

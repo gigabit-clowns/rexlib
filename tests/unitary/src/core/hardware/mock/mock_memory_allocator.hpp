@@ -6,7 +6,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_memory_allocator final
@@ -30,4 +30,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rex

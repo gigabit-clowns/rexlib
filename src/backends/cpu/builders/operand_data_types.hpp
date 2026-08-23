@@ -9,7 +9,7 @@
 #include <array>
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -31,6 +31,6 @@ void extract_data_types(
 ) noexcept;
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "operand_data_types.inl"

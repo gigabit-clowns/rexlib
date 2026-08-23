@@ -24,8 +24,8 @@
 #include <utility>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 namespace
 {

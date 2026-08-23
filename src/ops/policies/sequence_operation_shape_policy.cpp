@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -44,4 +44,4 @@ void sequence_operation_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

@@ -19,7 +19,7 @@
 static const char REX_PLUGINS_DIRECTORY_NAME[] = "rex-plugins";
 static const char REX_PLUGINS_ENV_VARIABLE[] = "REX_PLUGINS_DIRECTORY";
 
-namespace xmipp4
+namespace rex
 {
 
 static void try_load_plugin(
@@ -217,4 +217,4 @@ std::size_t register_all_plugins_at(
 	return count;
 }
 
-} // namespace xmipp4
+} // namespace rex

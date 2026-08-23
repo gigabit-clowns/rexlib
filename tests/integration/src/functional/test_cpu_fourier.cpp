@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 using xmipp4::test::element_value;
 using xmipp4::test::fourier_verb_fixture;
 

@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "host_buffer should allocate enough space", "[host_buffer]" )
 {

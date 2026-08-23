@@ -15,7 +15,7 @@
  * 
  */
 
-namespace xmipp4 
+namespace rex 
 {
 
 class joint_layout_implementation
@@ -112,6 +112,6 @@ private:
 	) const noexcept;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "joint_layout_implementation.inl"

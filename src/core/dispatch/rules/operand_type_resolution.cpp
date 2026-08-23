@@ -6,7 +6,7 @@
 
 #include <algorithm>
 
-namespace xmipp4
+namespace rex
 {
 
 const char* to_string(type_rule_status status) noexcept
@@ -127,4 +127,4 @@ numerical_type type_rule_resolution::get_offending_type() const noexcept
 	return m_offending_type;
 }
 
-} // namespace xmipp4
+} // namespace rex

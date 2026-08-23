@@ -10,8 +10,8 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 
 using shape_type = std::vector<std::size_t>;
 

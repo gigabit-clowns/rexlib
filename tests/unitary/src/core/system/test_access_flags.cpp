@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/system/access_flags.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "to_string with access_flag_bits should produce correct results", "[access_flags]" ) 
 {

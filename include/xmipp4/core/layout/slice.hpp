@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <ostream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -204,6 +204,6 @@ slice make_slice(
  */
 slice sanitize_slice(const slice &slice, std::size_t extent);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "slice.inl"

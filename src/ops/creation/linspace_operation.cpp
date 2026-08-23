@@ -2,7 +2,7 @@
 
 #include <xmipp4/ops/creation/linspace_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -41,4 +41,4 @@ bool linspace_operation::get_endpoint() const noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

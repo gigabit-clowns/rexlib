@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -94,7 +94,7 @@ private:
 	shape_policy_type m_shape_policy;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Declare an operation owning a stateful shape policy.

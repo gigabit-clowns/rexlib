@@ -18,7 +18,7 @@
 #include <complex>
 #include <cstdint>
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

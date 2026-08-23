@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 joint_layout::joint_layout() = default;
@@ -140,4 +140,4 @@ joint_layout::get_implementation() const noexcept
 	return m_implementation.get();
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -14,7 +14,7 @@
 #include <cstddef>
 #include <functional>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -218,6 +218,6 @@ struct slot_descriptor_table<type_list<Slots...>>
 	}
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "operand_type_descriptor.inl"

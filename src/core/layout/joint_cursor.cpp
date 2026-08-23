@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/layout/joint_cursor.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 joint_cursor::joint_cursor() noexcept = default;
@@ -48,4 +48,4 @@ span<std::ptrdiff_t> joint_cursor::get_offsets() noexcept
 	return make_span(m_offsets);
 }
 
-} // namespace xmipp4
+} // namespace rex

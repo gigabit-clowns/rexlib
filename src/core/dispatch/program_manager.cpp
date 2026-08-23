@@ -13,7 +13,7 @@
 #include <vector>
 #include <unordered_map>
 
-namespace xmipp4
+namespace rex
 {
 
 class program_manager::implementation
@@ -163,4 +163,4 @@ program_manager::get_implementation() const noexcept
 	return m_implementation ? *m_implementation : empty_implementation;
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -12,7 +12,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class strided_layout_implementation;
@@ -235,7 +235,7 @@ private:
 	strided_layout(strided_layout_implementation &&impl);
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 namespace std
 {

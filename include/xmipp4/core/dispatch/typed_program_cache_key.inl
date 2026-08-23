@@ -5,7 +5,7 @@
 #include <utility>
 #include <functional>
 
-namespace xmipp4
+namespace rex
 {
 
 template <typename K>
@@ -41,4 +41,4 @@ typed_program_cache_key<K>::get_key() const noexcept
 	return m_key;
 }
 
-} // namespace xmipp4
+} // namespace rex

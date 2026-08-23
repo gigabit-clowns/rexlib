@@ -10,7 +10,7 @@
 #include <tuple>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -266,6 +266,6 @@ reduction_element_adaptor<Kernel>
 make_reduction_element_adaptor(Kernel kernel);
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "reduction_element_adaptor.inl"

@@ -11,7 +11,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -182,4 +182,4 @@ gemm_fn<T> resolve_vecgemm(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

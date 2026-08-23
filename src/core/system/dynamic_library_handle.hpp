@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -43,7 +43,7 @@ void* dynamic_library_get_symbol(void* handle, const char* name) noexcept;
  */
 std::string dynamic_library_symbol_filename_lookup(const void* symbol);
 
-} // namespace xmipp4
+} // namespace rex
 
 #if REX_POSIX
 	#include "dynamic_library_handle_posix.inl"

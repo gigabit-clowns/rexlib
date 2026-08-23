@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -250,4 +250,4 @@ reduction_layout_plan::get_reduction_count() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

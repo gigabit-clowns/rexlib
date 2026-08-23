@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -407,4 +407,4 @@ array mean(
 	array *out = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

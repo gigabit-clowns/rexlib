@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -268,6 +268,6 @@ REX_NODISCARD REX_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 parity(T x) noexcept;
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "bit.inl"

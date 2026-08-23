@@ -11,7 +11,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class program;
@@ -100,4 +100,4 @@ public:
 	) const = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

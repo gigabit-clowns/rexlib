@@ -13,7 +13,7 @@
 #include <ostream>
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 class operation_id;
@@ -101,4 +101,4 @@ public:
 	get_operation_data_type_policy() const noexcept = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

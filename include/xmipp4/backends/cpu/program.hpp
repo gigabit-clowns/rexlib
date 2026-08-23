@@ -5,7 +5,7 @@
 #include <xmipp4/core/hardware/program.hpp>
 #include <xmipp4/core/span.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class buffer;
@@ -49,4 +49,4 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

@@ -3,7 +3,7 @@
 #include "access_flags.hpp"
 #include "../platform/enum_helpers.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 REX_INLINE_CONSTEXPR const char* 
@@ -24,4 +24,4 @@ operator<<(std::basic_ostream<T>& os, access_flag_bits v)
 	return os << to_string(v);
 }
 
-} // namespace xmipp4
+} // namespace rex

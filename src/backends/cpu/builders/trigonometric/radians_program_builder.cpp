@@ -6,7 +6,7 @@
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -40,4 +40,4 @@ REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class program;
@@ -87,4 +87,4 @@ private:
 	const implementation& get_implementation() const noexcept;
 };
 
-} // namespace xmipp4
+} // namespace rex

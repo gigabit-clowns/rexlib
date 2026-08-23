@@ -9,7 +9,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -145,6 +145,6 @@ struct accumulator_tiles;
 } // namespace detail
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "reduction_kernel_traits.inl"

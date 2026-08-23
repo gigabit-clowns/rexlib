@@ -7,7 +7,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -29,4 +29,4 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

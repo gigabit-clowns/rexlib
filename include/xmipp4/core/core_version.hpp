@@ -5,7 +5,7 @@
 #include "version.hpp"
 #include "platform/dynamic_shared_object.h"
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -19,4 +19,4 @@ namespace xmipp4
 REXLIB_API
 version get_core_version() noexcept;
 
-} // namespace xmipp4
+} // namespace rex

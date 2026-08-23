@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 class cpu_execution_context_fixture
@@ -71,4 +71,4 @@ protected:
 	execution_context context;
 };
 
-} // namespace xmipp4
+} // namespace rex

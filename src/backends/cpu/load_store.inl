@@ -5,7 +5,7 @@
 #include <xmipp4/core/platform/assert.hpp>
 #include <core/numerical/float16_conversions.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -108,4 +108,4 @@ inline void cast(std::complex<T> *destination, const Q *source) noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

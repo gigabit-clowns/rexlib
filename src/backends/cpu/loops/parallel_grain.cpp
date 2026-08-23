@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -71,4 +71,4 @@ std::size_t grain_for_cost(std::size_t cost_per_iteration) noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

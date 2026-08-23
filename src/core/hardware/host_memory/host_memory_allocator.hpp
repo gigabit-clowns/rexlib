@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/hardware/memory_allocator.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -35,4 +35,4 @@ private:
 	static std::shared_ptr<host_memory_allocator> m_instance;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/dispatch/operation_arity.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("Default constructed operation_arity should have no outputs and no inputs", "[operation_arity]")
 {

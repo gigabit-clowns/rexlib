@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class joint_layout_implementation;
@@ -212,4 +212,4 @@ private:
 	> m_implementation;
 };
 
-} // namespace xmipp4
+} // namespace rex

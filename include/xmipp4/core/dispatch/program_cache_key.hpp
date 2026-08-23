@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -51,4 +51,4 @@ public:
 	bool equals(const program_cache_key &other) const noexcept = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

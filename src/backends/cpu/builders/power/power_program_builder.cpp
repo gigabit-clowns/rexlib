@@ -10,7 +10,7 @@
 #include <complex>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -111,4 +111,4 @@ REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

@@ -14,7 +14,7 @@
 #include <memory>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

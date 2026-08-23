@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/hardware/memory_resource_kind.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 int score_host_affinity(memory_resource_kind kind) noexcept
@@ -48,4 +48,4 @@ bool is_device_accessible(memory_resource_kind kind) noexcept
 	return score_device_affinity(kind) > 0;
 }
 
-} // namespace xmipp4
+} // namespace rex

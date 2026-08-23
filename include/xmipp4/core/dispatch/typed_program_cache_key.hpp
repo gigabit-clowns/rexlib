@@ -7,7 +7,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -36,6 +36,6 @@ private:
 	K m_key;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "typed_program_cache_key.inl"

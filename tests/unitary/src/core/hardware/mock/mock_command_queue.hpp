@@ -9,7 +9,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_command_queue final
@@ -21,4 +21,4 @@ public:
 	MAKE_MOCK1(wait, void(const event &event), override);
 };
 
-} // namespace xmipp4
+} // namespace rex

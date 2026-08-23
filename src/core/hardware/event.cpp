@@ -2,11 +2,11 @@
 
 #include <xmipp4/core/hardware/event.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 event::event() noexcept = default;
 event::~event() = default;
 
-} // namespace xmipp4
+} // namespace rex
 

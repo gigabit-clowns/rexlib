@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -20,4 +20,4 @@ enum class memory_resource_affinity
 	count
 };
 
-} // namespace xmipp4
+} // namespace rex

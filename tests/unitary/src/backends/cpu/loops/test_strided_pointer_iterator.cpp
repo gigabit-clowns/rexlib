@@ -9,8 +9,8 @@
 #include <iterator>
 #include <type_traits>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 TEST_CASE(
 	"strided_pointer_iterator exposes the expected iterator traits",

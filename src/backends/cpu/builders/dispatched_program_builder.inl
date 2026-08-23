@@ -13,7 +13,7 @@
 #include <string>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -170,4 +170,4 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

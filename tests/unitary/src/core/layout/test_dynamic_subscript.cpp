@@ -11,7 +11,7 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("construct dynamic_subscript from ellipsis_tag", "[dynamic_subscript]")
 {

@@ -7,7 +7,7 @@
 #include "platform/constexpr.hpp"
 #include "platform/assert.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 template <typename T>
@@ -27,4 +27,4 @@ std::shared_ptr<T> service_catalog::get_service_manager()
 	return value;
 }
 
-} // namespace xmipp4
+} // namespace rex

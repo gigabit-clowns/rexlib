@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class command;
@@ -88,4 +88,4 @@ public:
 	virtual void wait(const event &event) = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

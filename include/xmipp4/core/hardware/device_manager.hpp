@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 class device;
@@ -142,4 +142,4 @@ private:
 	void create_implementation_if_null();
 }; 
 
-} // namespace xmipp4
+} // namespace rex

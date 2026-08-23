@@ -9,8 +9,8 @@
 #include <cstddef>
 #include <sstream>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using Catch::Matchers::WithinRel;
 
 namespace

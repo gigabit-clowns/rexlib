@@ -5,7 +5,7 @@
 #include <xmipp4/core/dispatch/operation_shape_policy.hpp>
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -36,5 +36,5 @@ public:
 };
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex
 

@@ -15,7 +15,7 @@
  * 
  */
 
-namespace xmipp4 
+namespace rex 
 {
 
 inline
@@ -463,4 +463,4 @@ void joint_layout_implementation::apply_strides(
 	}
 }
 
-} // namespace xmipp4
+} // namespace rex

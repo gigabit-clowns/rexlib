@@ -6,7 +6,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_buffer final
@@ -23,4 +23,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rex

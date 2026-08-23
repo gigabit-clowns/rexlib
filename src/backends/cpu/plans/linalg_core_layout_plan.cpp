@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -244,4 +244,4 @@ linalg_core_layout_plan::get_right_core() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

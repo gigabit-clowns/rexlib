@@ -7,7 +7,7 @@
 
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -286,4 +286,4 @@ std::pair<array, array> sincos(
 	array *cosine = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

@@ -2,7 +2,7 @@
 
 #include "numerical_type_domain.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 namespace detail
@@ -141,4 +141,4 @@ numerical_type_domain make_numerical_type_domain(
 	return numerical_type_domain(mask);
 }
 
-} // namespace xmipp4
+} // namespace rex

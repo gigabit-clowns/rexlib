@@ -4,7 +4,7 @@
 
 #include "array_implementation.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 array::array() = default;
@@ -93,4 +93,4 @@ const array_implementation* array::get_implementation() const noexcept
 	return m_implementation.get();
 }
 
-} // namespace xmipp4
+} // namespace rex

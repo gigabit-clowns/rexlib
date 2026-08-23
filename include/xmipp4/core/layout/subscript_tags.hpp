@@ -8,7 +8,7 @@
 #include <ostream>
 #include <type_traits>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -84,6 +84,6 @@ struct new_axis_tag
 REX_CONSTEXPR
 new_axis_tag new_axis() noexcept;
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "subscript_tags.inl"

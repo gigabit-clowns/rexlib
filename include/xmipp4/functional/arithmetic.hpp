@@ -7,7 +7,7 @@
 
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -228,4 +228,4 @@ std::pair<array, array> divmod(
 	array *remainder = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

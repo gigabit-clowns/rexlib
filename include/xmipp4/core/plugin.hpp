@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 class service_catalog;
@@ -52,4 +52,4 @@ public:
 	virtual void register_at(service_catalog& catalog) const = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

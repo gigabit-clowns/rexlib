@@ -18,7 +18,7 @@
 #include <memory>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -92,7 +92,7 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Instantiate and auto-register a CPU roll program builder.

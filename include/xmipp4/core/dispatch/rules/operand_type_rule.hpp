@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace detail
@@ -129,4 +129,4 @@ struct operand_type_rule
 	);
 };
 
-} // namespace xmipp4
+} // namespace rex

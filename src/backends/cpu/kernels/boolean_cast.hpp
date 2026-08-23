@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -27,4 +27,4 @@ bool to_boolean(const T &value) noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

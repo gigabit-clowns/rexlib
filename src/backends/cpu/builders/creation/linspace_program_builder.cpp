@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -99,4 +99,4 @@ REX_REGISTER_SEQUENCE_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

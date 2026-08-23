@@ -7,7 +7,7 @@
 #include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
 #include <xmipp4/ops/rules/operand_type_rules.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -32,4 +32,4 @@ REX_DECLARE_OPERATION(
 );
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

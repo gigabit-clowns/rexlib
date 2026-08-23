@@ -3,7 +3,7 @@
 #include "joint_layout_build_flags.hpp"
 #include "../platform/enum_helpers.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 REX_INLINE_CONSTEXPR 
@@ -33,4 +33,4 @@ std::basic_ostream<T>& operator<<(
 	return os << to_string(x);
 }
 
-} // namespace xmipp4
+} // namespace rex

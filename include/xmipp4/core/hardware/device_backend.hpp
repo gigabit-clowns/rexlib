@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 class device;
@@ -112,4 +112,4 @@ public:
 	virtual std::shared_ptr<device> create_device(std::size_t id) const = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

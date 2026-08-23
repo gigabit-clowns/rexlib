@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/hardware/device_backend.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class device_manager;
@@ -37,4 +37,4 @@ public:
 }; 
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

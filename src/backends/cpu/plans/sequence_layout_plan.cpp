@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -50,4 +50,4 @@ std::ptrdiff_t sequence_layout_plan::get_stride() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

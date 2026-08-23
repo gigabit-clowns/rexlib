@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-using namespace xmipp4::cpu;
+using namespace rex::cpu;
 
 TEST_CASE(
 	"classify_core_layout recognises a contiguous vector",

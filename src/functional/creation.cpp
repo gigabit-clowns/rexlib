@@ -25,7 +25,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -441,4 +441,4 @@ void fill(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

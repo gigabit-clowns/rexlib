@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/layout/joint_cursor.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "default constructed array iterator should be empty", "[joint_cursor]" )
 {

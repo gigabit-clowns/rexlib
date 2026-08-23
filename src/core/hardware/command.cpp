@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/hardware/command.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 command::command() noexcept = default;
@@ -63,4 +63,4 @@ span<const std::shared_ptr<buffer>> command::get_scratch() const noexcept
 	return m_scratch;
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -2,7 +2,7 @@
 
 #include "numerical_type_promotion_lattice.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 REX_INLINE_CONSTEXPR_CPP23
@@ -83,4 +83,4 @@ bool numerical_type_promotion_lattice::is_supremum(
 	return true;
 }
 
-} // namespace xmipp4
+} // namespace rex

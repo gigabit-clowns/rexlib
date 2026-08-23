@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/hardware/device_properties.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class device_properties::implementation
@@ -172,4 +172,4 @@ device_properties::get_implementation() const noexcept
 	return m_implementation ? *m_implementation : empty;
 }
 
-} // namespace xmipp4
+} // namespace rex

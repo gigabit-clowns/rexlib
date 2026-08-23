@@ -7,7 +7,7 @@
 
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 namespace test
 {
@@ -38,4 +38,4 @@ struct safe_numerical_type_of<
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rex

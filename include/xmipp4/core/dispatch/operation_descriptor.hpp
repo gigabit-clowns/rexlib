@@ -12,7 +12,7 @@
 #include <ostream>
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -185,4 +185,4 @@ operation_descriptor make_operation_descriptor(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

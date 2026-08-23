@@ -8,7 +8,7 @@
 		#include <bit>
 #endif
 
-namespace xmipp4
+namespace rex
 {
 
 REX_NODISCARD REX_INLINE_CONSTEXPR 
@@ -427,4 +427,4 @@ parity(T x) noexcept
 	return detail::parity(x);
 }
 
-} // namespace xmipp4
+} // namespace rex

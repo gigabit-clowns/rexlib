@@ -15,7 +15,7 @@
 #include <utility>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -334,4 +334,4 @@ void run_elementwise_loop(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

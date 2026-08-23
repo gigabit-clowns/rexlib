@@ -12,7 +12,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class joint_layout_operand
@@ -43,6 +43,6 @@ private:
 	std::ptrdiff_t m_offset;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "joint_layout_operand.inl"

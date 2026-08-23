@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -60,4 +60,4 @@ void check_axes_within_rank(
 );
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

@@ -18,7 +18,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -132,7 +132,7 @@ using indexed_reduction_program_builder =
 	>;
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Instantiate and auto-register a CPU reduction program builder.

@@ -10,7 +10,7 @@
 #include <memory>
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -63,4 +63,4 @@ public:
 	span<const program_scratch_requirement> get_scratch_requirements() const;
 };
 
-} // namespace xmipp4
+} // namespace rex

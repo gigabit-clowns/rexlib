@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -347,6 +347,6 @@ void apply_slice(
 	const slice &slice
 );
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "strided_axis.inl"

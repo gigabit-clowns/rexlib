@@ -7,7 +7,7 @@
 
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "get_size should return the expected size for each type", "[numerical_type]" ) 
 {

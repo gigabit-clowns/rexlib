@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -44,4 +44,4 @@ void parallel_for(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -252,6 +252,6 @@ void run_elementwise_loop(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "elementwise_loop.inl"

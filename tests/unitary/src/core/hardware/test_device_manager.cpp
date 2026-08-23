@@ -20,7 +20,7 @@
 #include "mock/mock_memory_allocator.hpp"
 #include "mock/mock_command_queue.hpp"
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

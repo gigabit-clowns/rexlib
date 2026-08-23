@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "make_slice with count argument should set count and leave the rest defaulted", "[slice]" ) 
 {

@@ -7,7 +7,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_operation
@@ -34,4 +34,4 @@ public:
 
 };
 
-} // namespace xmipp4
+} // namespace rex

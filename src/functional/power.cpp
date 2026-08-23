@@ -16,7 +16,7 @@
 #include <xmipp4/ops/power/sqrt_operation.hpp>
 #include <xmipp4/ops/power/square_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array power(
@@ -128,4 +128,4 @@ array log1p(
 	return execute_unary(ops::log1p_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

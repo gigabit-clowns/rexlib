@@ -4,7 +4,7 @@
 
 #include "../binary/bit.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 template <typename T>
@@ -89,4 +89,4 @@ T* offset_bytes(T* address, std::ptrdiff_t count)
 	return reinterpret_cast<T*>(value);
 }
 
-} // namespace xmipp4
+} // namespace rex

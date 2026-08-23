@@ -24,8 +24,8 @@
 #include <xmipp4/ops/trigonometric/tan_operation.hpp>
 #include <xmipp4/ops/trigonometric/tanh_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using xmipp4::test::comparison_mode;
 using xmipp4::test::element_value;
 using xmipp4::test::elementwise_verb_fixture;

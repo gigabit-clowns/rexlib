@@ -11,7 +11,7 @@
 #include <initializer_list>
 #include <ostream>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -209,6 +209,6 @@ numerical_type_domain make_numerical_type_domain(
 
 
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "numerical_type_domain.inl"

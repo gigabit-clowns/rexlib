@@ -10,7 +10,7 @@
 #include <functional>
 #include <iostream>
 
-namespace xmipp4
+namespace rex
 {
 
 enum class byte : uint8_t {};
@@ -49,7 +49,7 @@ REX_CONSTEXPR void to_hex(byte b, C &high, C &low) noexcept;
 template<typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b);
 
-} // namespace xmipp4
+} // namespace rex
 
 template <>
 struct std::hash<xmipp4::byte>

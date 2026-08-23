@@ -7,7 +7,7 @@
 
 #include <xmipp4/core/hardware/memory_resource_affinity.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -130,4 +130,4 @@ array to_host_copy(
 	array *out = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

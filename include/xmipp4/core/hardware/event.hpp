@@ -5,7 +5,7 @@
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 #include <xmipp4/core/hardware/event_usage_flags.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -83,4 +83,4 @@ public:
 	virtual bool is_signaled() const = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

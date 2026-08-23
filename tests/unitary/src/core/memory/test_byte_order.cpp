@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/memory/byte_order.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "reverse_byte_order correctly reverses byte order for integral types", "[byte_order]" ) 
 {

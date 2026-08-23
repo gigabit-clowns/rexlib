@@ -8,7 +8,7 @@
 #include <xmipp4/ops/rounding/round_operation.hpp>
 #include <xmipp4/ops/rounding/trunc_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array floor(
@@ -47,4 +47,4 @@ array round(
 	return execute_unary(ops::round_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

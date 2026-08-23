@@ -8,7 +8,7 @@
 #include <array>
 #include <bitset>
 
-namespace xmipp4
+namespace rex
 {
 
 class numerical_type_promotion_lattice
@@ -38,6 +38,6 @@ private:
 	bool is_supremum(const reach_set &common, std::size_t i) const noexcept;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "numerical_type_promotion_lattice.inl"

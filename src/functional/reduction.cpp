@@ -21,7 +21,7 @@
 #include <numeric>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -376,4 +376,4 @@ array mean(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

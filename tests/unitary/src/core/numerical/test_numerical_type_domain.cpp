@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE(
     "a default constructed numerical_type_domain should be empty",

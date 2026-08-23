@@ -5,7 +5,7 @@
 #include "host_memory_allocator.hpp"
 
 
-namespace xmipp4
+namespace rex
 {
 
 const host_memory_resource host_memory_resource::m_instance;
@@ -28,4 +28,4 @@ const host_memory_resource& host_memory_resource::get() noexcept
 	return m_instance;
 }
 
-} // namespace xmipp4
+} // namespace rex

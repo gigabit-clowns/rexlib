@@ -8,7 +8,7 @@
 #include <xmipp4/ops/logical/logical_or_operation.hpp>
 #include <xmipp4/ops/logical/logical_xor_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array logical_and(
@@ -50,4 +50,4 @@ array logical_not(
 	return execute_unary(ops::logical_not_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -16,7 +16,7 @@
 #include <cstddef>
 #include <initializer_list>
 
-namespace xmipp4
+namespace rex
 
 {
 
@@ -136,6 +136,6 @@ struct rule_data_type_policy
 	static const operation_data_type_policy& get() noexcept;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "rule_operation_data_type_policy.inl"

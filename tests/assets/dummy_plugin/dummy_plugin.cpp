@@ -9,7 +9,7 @@
 	#define REX_DUMMY_PLUGIN_API REX_IMPORT
 #endif
 
-namespace xmipp4
+namespace rex
 {
 
 static const std::string name = "dummy-plugin";
@@ -33,7 +33,7 @@ class dummy_plugin final
 	}
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 static const xmipp4::dummy_plugin instance;
 

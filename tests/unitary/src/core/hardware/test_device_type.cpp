@@ -6,7 +6,7 @@
 
 #include <string>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("converting device_type to string should produce the expected string")
 {

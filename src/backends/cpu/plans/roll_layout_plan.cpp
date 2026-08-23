@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/layout/joint_layout_builder.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -92,4 +92,4 @@ std::vector<joint_layout> build_roll_blocks(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

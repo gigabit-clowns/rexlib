@@ -7,7 +7,7 @@
 #include <string_view>
 #include <ostream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -27,6 +27,6 @@ bool from_string(std::string_view str, example_enum& ex) noexcept;
 template<typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, example_enum ex);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "example_enum.inl"

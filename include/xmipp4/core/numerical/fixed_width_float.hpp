@@ -9,7 +9,7 @@
 #include "../platform/attributes.hpp"
 #include "../platform/dynamic_shared_object.h"
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -71,4 +71,4 @@ struct is_floating_point : std::integral_constant<
 	std::is_floating_point<T>::value || std::is_same<T, float16_t>::value
 > {};
 
-} // namespace xmipp4
+} // namespace rex

@@ -19,8 +19,8 @@
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using xmipp4::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(

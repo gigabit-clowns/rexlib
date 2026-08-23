@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -80,4 +80,4 @@ private:
 };
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

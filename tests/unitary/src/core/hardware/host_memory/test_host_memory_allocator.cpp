@@ -13,7 +13,7 @@
 
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "get_max_alignment in host_memory_allocator should return the page size", "[host_memory_allocator]" )
 {

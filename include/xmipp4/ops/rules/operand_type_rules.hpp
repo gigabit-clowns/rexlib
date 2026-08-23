@@ -7,7 +7,7 @@
 #include <xmipp4/core/numerical/numerical_type.hpp>
 #include <xmipp4/core/numerical/numerical_type_domain_tags.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -295,4 +295,4 @@ using converting_rule = operand_type_rule<
 /** @} */
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

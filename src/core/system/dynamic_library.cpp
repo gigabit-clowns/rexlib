@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace xmipp4
+namespace rex
 {
 
 dynamic_library::dynamic_library() noexcept
@@ -91,4 +91,4 @@ void swap(dynamic_library& lhs, dynamic_library& rhs) noexcept
 	lhs.swap(rhs);
 }
 
-} // namespace xmipp4
+} // namespace rex

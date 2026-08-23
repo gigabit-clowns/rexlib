@@ -10,7 +10,7 @@
 #include <string>
 #include <cstring>
 
-using namespace xmipp4;
+using namespace rex;
 
 static void write_test_pattern1(const std::string &path, std::size_t n)
 {

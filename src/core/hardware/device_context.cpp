@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 device_context::device_context(std::shared_ptr<const device_session> session)
@@ -78,4 +78,4 @@ device_context::with_allocator(
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rex

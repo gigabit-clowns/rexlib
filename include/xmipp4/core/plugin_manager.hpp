@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 class plugin;
@@ -131,4 +131,4 @@ std::size_t register_all_plugins_at(
 	service_catalog &catalog
 	);
 
-} // namespace xmipp4
+} // namespace rex

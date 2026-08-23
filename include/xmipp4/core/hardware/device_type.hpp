@@ -4,7 +4,7 @@
 
 #include "../platform/dynamic_shared_object.h"
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -28,4 +28,4 @@ enum class device_type
 REXLIB_API
 const char* to_string(device_type type) noexcept;
 
-} // namespace xmipp4
+} // namespace rex

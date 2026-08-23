@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -163,6 +163,6 @@ std::ostream& operator<<(std::ostream &os, numerical_type type);
 REXLIB_API
 std::ostream& operator<<(std::ostream &os, numerical_type_category category);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "numerical_type.inl"

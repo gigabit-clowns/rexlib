@@ -15,8 +15,8 @@
 
 #include "../serial_pool.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 TEST_CASE(
 	"cpu::device should expose a single memory resource",

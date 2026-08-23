@@ -8,7 +8,7 @@
 #include <memory>
 #include <cstddef>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class memory_resource;
@@ -83,4 +83,4 @@ public:
 	virtual const memory_resource& get_memory_resource() const noexcept = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

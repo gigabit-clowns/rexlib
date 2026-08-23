@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 class operand_signature;
@@ -174,4 +174,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

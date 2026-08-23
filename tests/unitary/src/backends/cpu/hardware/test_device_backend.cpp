@@ -11,8 +11,8 @@
 
 #include <stdexcept>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 TEST_CASE(
 	"cpu::device_backend should be named as cpu",

@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/version.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "version constructor should produce expected values", "[version]" ) 
 {

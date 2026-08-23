@@ -2,10 +2,10 @@
 
 #include <xmipp4/core/hardware/buffer.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 buffer::buffer() noexcept = default;
 buffer::~buffer() = default;
 
-} // namespace xmipp4
+} // namespace rex

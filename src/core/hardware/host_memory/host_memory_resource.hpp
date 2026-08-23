@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/hardware/memory_resource.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class host_memory_resource final
@@ -27,4 +27,4 @@ private:
 	static const host_memory_resource m_instance;
 };
 
-} // namespace xmipp4
+} // namespace rex

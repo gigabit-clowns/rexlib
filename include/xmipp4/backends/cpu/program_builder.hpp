@@ -6,7 +6,7 @@
 
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -24,5 +24,5 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 

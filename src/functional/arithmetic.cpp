@@ -18,7 +18,7 @@
 #include <array>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 array add(
@@ -143,4 +143,4 @@ std::pair<array, array> divmod(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

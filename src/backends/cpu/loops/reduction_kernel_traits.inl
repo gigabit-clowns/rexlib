@@ -8,7 +8,7 @@
 
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -200,4 +200,4 @@ struct has_reassociable_fold<
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

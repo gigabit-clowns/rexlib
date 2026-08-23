@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -47,4 +47,4 @@ public:
 	}
 };
 
-} // namespace xmipp4
+} // namespace rex

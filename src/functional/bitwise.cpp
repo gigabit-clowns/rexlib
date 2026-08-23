@@ -10,7 +10,7 @@
 #include <xmipp4/ops/bitwise/left_shift_operation.hpp>
 #include <xmipp4/ops/bitwise/right_shift_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array bitwise_and(
@@ -72,4 +72,4 @@ array right_shift(
 	return execute_binary(ops::right_shift_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

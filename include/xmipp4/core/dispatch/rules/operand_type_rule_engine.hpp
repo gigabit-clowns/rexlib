@@ -11,7 +11,7 @@
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 #include <xmipp4/core/span.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -123,4 +123,4 @@ void throw_type_rule_error(
 
 /** @} */
 
-} // namespace xmipp4
+} // namespace rex

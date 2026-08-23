@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -19,4 +19,4 @@ public:
 	using type = T; ///< The type passed as the template argument.
 };
 
-} // namespace xmipp4
+} // namespace rex

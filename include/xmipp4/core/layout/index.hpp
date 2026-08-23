@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -24,4 +24,4 @@ namespace xmipp4
 REXLIB_API
 std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent);
 
-} // namespace xmipp4
+} // namespace rex

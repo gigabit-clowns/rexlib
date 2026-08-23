@@ -46,7 +46,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 
 namespace
 {

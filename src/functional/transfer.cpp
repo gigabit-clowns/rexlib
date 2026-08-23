@@ -10,7 +10,7 @@
 #include <xmipp4/core/hardware/buffer.hpp>
 #include <xmipp4/core/hardware/memory_allocator.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array transfer(
@@ -131,4 +131,4 @@ array to_host_copy(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

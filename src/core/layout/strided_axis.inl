@@ -6,7 +6,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 REX_INLINE_CONSTEXPR 
@@ -282,4 +282,4 @@ void apply_slice(
 	detail::apply_slice(axis, offset, sanitized_slice);
 }
 
-} // namespace xmipp4
+} // namespace rex

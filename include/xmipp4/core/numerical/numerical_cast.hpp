@@ -7,7 +7,7 @@
 #include <complex>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -32,6 +32,6 @@ template <typename T, typename Q>
 REX_NODISCARD
 T numerical_cast(const Q &src) noexcept;
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "numerical_cast.inl"

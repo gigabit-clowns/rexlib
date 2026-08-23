@@ -13,8 +13,8 @@
 #include <xmipp4/ops/bitwise/left_shift_operation.hpp>
 #include <xmipp4/ops/bitwise/right_shift_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using xmipp4::test::element_value;
 using xmipp4::test::elementwise_verb_fixture;
 

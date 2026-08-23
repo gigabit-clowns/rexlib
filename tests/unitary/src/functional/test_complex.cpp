@@ -11,8 +11,8 @@
 
 #include <stdexcept>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using xmipp4::test::verb_dispatch_fixture;
 
 namespace

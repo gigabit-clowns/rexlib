@@ -31,7 +31,7 @@
 #define POCKETFFT_CACHE_SIZE REX_POCKETFFT_CACHE_SIZE
 #include <pocketfft_hdronly.h>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -231,4 +231,4 @@ template void run_complex_to_real_transform<float64_t>(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

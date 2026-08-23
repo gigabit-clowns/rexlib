@@ -10,7 +10,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class strided_layout_implementation
@@ -114,6 +114,6 @@ private:
 	std::ptrdiff_t m_offset;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "strided_layout_implementation.inl"

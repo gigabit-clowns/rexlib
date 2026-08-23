@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("Default constructed array_ref should have no storage", "[array_ref]")
 {

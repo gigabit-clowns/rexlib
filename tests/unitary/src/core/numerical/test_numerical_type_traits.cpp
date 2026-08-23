@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/numerical/numerical_type_traits.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "numerical_type_of should contain the expected value", "[numerical_type_of]" )
 {

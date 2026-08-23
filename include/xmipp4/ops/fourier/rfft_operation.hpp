@@ -11,7 +11,7 @@
 #include <xmipp4/ops/policies/real_fourier_transform_shape_policy.hpp>
 #include <xmipp4/ops/rules/operand_type_rules.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -70,4 +70,4 @@ private:
 REX_END_TEMPLATE_BASE
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

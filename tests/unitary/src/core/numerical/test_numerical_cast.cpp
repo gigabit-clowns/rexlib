@@ -9,7 +9,7 @@
 #include <complex>
 #include <type_traits>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE(
 	"numerical_cast returns the destination type",

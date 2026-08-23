@@ -6,7 +6,7 @@
 
 #include "array_implementation.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 array_ref::array_ref() noexcept
@@ -70,4 +70,4 @@ const array_implementation* array_ref::get_implementation() const noexcept
 	return m_implementation;
 }
 
-} // namespace xmipp4
+} // namespace rex

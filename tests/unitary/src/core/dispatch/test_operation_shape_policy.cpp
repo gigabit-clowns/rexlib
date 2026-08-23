@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 
 using shape_type = operation_shape_policy::shape_type;
 

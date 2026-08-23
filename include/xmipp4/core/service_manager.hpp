@@ -5,7 +5,7 @@
 #include "platform/dynamic_shared_object.h"
 
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -42,4 +42,4 @@ public:
 	virtual void register_builtin_backends() { /*By default this is a no-op*/ };
 };
 
-} // namespace xmipp4
+} // namespace rex

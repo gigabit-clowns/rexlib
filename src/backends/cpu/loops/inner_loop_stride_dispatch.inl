@@ -2,7 +2,7 @@
 
 #include "inner_loop_stride_dispatch.hpp"
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -105,4 +105,4 @@ auto dispatch_inner_loop_strides(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

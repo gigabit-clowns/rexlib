@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class strided_layout;
@@ -72,4 +72,4 @@ bool is_broadcastable_to(
 	span<const std::size_t> to_extents
 ) noexcept;
 
-} // namespace xmipp4
+} // namespace rex

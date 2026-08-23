@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -93,4 +93,4 @@ template <typename Slots, typename Pivots>
 using rule_operand_types_t =
 	typename rule_operand_types<Slots, Pivots>::type;
 
-} // namespace xmipp4
+} // namespace rex

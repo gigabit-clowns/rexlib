@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <array>
 
-using namespace xmipp4;
+using namespace rex;
 
 template <std::size_t N>
 static 

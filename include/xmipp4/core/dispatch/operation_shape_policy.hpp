@@ -9,7 +9,7 @@
 
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -89,4 +89,4 @@ public:
 	) const;
 };
 
-} // namespace xmipp4
+} // namespace rex

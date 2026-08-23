@@ -13,7 +13,7 @@
 #include <tuple>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -105,4 +105,4 @@ sequence_program_builder<Op, KernelFactory, TypeDispatcher>
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

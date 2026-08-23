@@ -11,7 +11,7 @@
 
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -56,4 +56,4 @@ const std::shared_ptr<thread_pool>& device::get_thread_pool() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

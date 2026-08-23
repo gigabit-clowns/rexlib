@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -71,4 +71,4 @@ REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

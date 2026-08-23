@@ -25,7 +25,7 @@
 #include <array>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 
 array sin(
@@ -207,4 +207,4 @@ std::pair<array, array> sincos(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rex

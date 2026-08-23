@@ -5,7 +5,7 @@
 #include <xmipp4/core/ndarray/array.hpp>
 #include <xmipp4/core/ndarray/const_array_ref.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -50,4 +50,4 @@ array cast_copy(
 	array *out = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

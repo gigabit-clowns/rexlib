@@ -6,7 +6,7 @@
 
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4
+namespace rex
 {
 
 class buffer;
@@ -84,4 +84,4 @@ public:
 	) = 0;
 };
 
-} // namespace xmipp4
+} // namespace rex

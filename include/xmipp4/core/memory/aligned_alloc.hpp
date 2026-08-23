@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -34,4 +34,4 @@ void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept;
 REXLIB_API
 void aligned_free(void* ptr) noexcept;
 
-} // namespace xmipp4
+} // namespace rex

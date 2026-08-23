@@ -10,7 +10,7 @@
 
 #include <typeinfo>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -83,4 +83,4 @@ const Op& operation_cast(const operation &op)
 	return static_cast<const Op&>(op);
 }
 
-} // namespace xmipp4
+} // namespace rex

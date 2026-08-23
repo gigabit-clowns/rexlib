@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <ostream>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -116,4 +116,4 @@ double get_fourier_scale(
 ) noexcept;
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

@@ -5,7 +5,7 @@
 #include "../platform/dynamic_shared_object.h"
 #include "../span.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 class array;
@@ -142,4 +142,4 @@ array execute_ternary(
 	array *out = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

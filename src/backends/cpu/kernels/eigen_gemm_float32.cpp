@@ -2,7 +2,7 @@
 
 #include <backends/cpu/kernels/eigen_gemm_impl.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -10,4 +10,4 @@ namespace cpu
 REX_INSTANTIATE_EIGEN_GEMM(float32_t);
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

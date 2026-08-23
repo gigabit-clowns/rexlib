@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace xmipp4 
+namespace rex 
 {
 		
 static 
@@ -68,4 +68,4 @@ broadcast_error::get_second_extents() const noexcept
 	return m_second_extents;
 }
 
-} // namespace xmipp4
+} // namespace rex

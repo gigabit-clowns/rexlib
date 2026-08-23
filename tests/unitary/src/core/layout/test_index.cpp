@@ -7,7 +7,7 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("sanitize_index with a in-bounds positive index should return the same value", "[index]")
 {

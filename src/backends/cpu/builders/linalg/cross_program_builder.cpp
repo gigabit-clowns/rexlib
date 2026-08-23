@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -221,4 +221,4 @@ static const program_builder_registration<cross_program_builder>
 cross_program_builder_registration(get_core_program_builder_registry());
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

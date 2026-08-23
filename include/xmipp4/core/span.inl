@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <type_traits>
 
-namespace xmipp4 
+namespace rex 
 {
 
 namespace detail
@@ -232,4 +232,4 @@ make_span(const std::vector<T> &array) noexcept
 	return span<const T>(array.data(), array.size());
 }
 
-} // namespace xmipp4
+} // namespace rex

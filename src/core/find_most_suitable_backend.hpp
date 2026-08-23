@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/backend_priority.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -25,6 +25,6 @@ ForwardIte find_most_suitable_backend(
 	const F& suitability_evaluator
 );
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "find_most_suitable_backend.inl"

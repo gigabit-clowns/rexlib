@@ -5,7 +5,7 @@
 
 #include <xmipp4/core/hardware/program_scratch_requirement.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE(
 	"program_scratch_requirement constructor should store size, alignment, "

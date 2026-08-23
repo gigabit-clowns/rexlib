@@ -2,7 +2,7 @@
 
 #include "operand_pointers.hpp"
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -55,4 +55,4 @@ std::tuple<Pointers...> step_pointers(
 
 } // namespace detail
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

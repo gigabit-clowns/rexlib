@@ -18,7 +18,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace test
 {
@@ -104,4 +104,4 @@ protected:
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rex

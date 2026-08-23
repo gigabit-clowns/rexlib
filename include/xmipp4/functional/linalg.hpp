@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 class execution_context;
@@ -166,4 +166,4 @@ array cross(
 	array *out = nullptr
 );
 
-} // namespace xmipp4
+} // namespace rex

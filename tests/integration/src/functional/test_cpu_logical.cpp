@@ -11,8 +11,8 @@
 #include <xmipp4/ops/logical/logical_or_operation.hpp>
 #include <xmipp4/ops/logical/logical_xor_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using xmipp4::test::element_value;
 using xmipp4::test::elementwise_verb_fixture;
 

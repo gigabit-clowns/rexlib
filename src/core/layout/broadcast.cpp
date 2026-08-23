@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 namespace
@@ -175,4 +175,4 @@ bool is_broadcastable_to(
 	return true;
 }
 
-} // namespace xmipp4
+} // namespace rex

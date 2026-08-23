@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -123,4 +123,4 @@ private:
 	std::size_t m_input_count;
 };
 
-} // namespace xmipp4
+} // namespace rex

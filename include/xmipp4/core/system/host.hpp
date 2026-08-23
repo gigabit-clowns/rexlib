@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -35,4 +35,4 @@ std::size_t get_available_system_memory();
  */
 std::size_t get_page_size();
 
-} // namespace xmipp4
+} // namespace rex

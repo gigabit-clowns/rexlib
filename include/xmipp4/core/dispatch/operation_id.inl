@@ -2,7 +2,7 @@
 
 #include "operation_id.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 inline
@@ -25,7 +25,7 @@ operation_id operation_id::of() noexcept
 	return operation_id(typeid(operation_type));
 }
 
-} // namespace xmipp4
+} // namespace rex
 
 namespace std
 {

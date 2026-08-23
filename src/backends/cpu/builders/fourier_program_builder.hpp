@@ -19,7 +19,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -122,7 +122,7 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Instantiate and auto-register a CPU Fourier program builder.

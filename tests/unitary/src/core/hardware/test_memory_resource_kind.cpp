@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/hardware/memory_resource_kind.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE(
 	"score_host_affinity should return the expected score for each kind",

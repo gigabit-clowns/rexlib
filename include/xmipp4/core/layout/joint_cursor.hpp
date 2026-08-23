@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -96,4 +96,4 @@ private:
 	std::vector<std::ptrdiff_t> m_offsets;
 };
 
-} // namespace xmipp4
+} // namespace rex

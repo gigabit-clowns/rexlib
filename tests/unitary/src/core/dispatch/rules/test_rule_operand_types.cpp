@@ -18,7 +18,7 @@
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rex;
 using xmipp4::test::safe_numerical_type_of;
 
 namespace

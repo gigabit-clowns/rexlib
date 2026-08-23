@@ -6,7 +6,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_event final
@@ -22,4 +22,4 @@ public:
 	MAKE_CONST_MOCK0(is_signaled, bool(), override);
 };
 
-} // namespace xmipp4
+} // namespace rex

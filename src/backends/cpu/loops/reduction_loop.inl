@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -1380,4 +1380,4 @@ void run_reduction_loop(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

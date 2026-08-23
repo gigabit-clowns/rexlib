@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/meta/type_list.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -37,6 +37,6 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "default_kernel_factory.inl"

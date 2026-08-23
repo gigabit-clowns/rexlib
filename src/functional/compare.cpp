@@ -10,7 +10,7 @@
 #include <xmipp4/ops/compare/less_equal_operation.hpp>
 #include <xmipp4/ops/compare/not_equal_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array equal(
@@ -73,4 +73,4 @@ array greater_equal(
 	return execute_binary(ops::greater_equal_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

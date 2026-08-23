@@ -8,7 +8,7 @@
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -216,4 +216,4 @@ rule_type_dispatcher<Rule, Support>::dispatch(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

@@ -6,7 +6,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 class mock_device final
@@ -32,4 +32,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rex

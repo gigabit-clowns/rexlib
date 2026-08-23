@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class array_implementation
@@ -39,6 +39,6 @@ private:
 
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "array_implementation.inl"

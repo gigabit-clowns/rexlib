@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -76,4 +76,4 @@ command_queue::try_cast(const xmipp4::command_queue &queue) noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

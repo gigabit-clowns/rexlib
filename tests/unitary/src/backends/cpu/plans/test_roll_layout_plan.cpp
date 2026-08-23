@@ -10,8 +10,8 @@
 
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 TEST_CASE(
 	"roll_axis_shift stores the axis and shift it is given",

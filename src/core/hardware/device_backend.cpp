@@ -2,10 +2,10 @@
 
 #include <xmipp4/core/hardware/device_backend.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 device_backend::device_backend() noexcept = default;
 device_backend::~device_backend() = default;
 
-} // namespace xmipp4
+} // namespace rex

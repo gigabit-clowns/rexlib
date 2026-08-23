@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -122,6 +122,6 @@ auto visit(Func &&func, const scalar_value &value);
 template <typename T>
 T scalar_value_cast(const scalar_value &value);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "scalar_value.inl"

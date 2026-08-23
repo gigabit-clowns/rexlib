@@ -6,7 +6,7 @@
 #include "loop_schedule.hpp"
 #include "strided_pointer_iterator.hpp"
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -105,4 +105,4 @@ void run_sequence_loop(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

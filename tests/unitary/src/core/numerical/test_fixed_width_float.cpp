@@ -4,7 +4,7 @@
 
 #include <xmipp4/core/numerical/fixed_width_float.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "float16_t default constructor should produce zero", "[float16_t]" )
 {

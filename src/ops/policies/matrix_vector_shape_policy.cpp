@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -108,4 +108,4 @@ matrix_vector_shape_policy::get() noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

@@ -2,7 +2,7 @@
 
 #include <xmipp4/ops/creation/arange_operation.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -34,4 +34,4 @@ std::size_t arange_operation::get_count() const noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

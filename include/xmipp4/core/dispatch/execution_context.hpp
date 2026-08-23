@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 
@@ -131,4 +131,4 @@ private:
 	std::shared_ptr<dispatcher> m_dispatcher;
 };
 
-} // namespace xmipp4
+} // namespace rex

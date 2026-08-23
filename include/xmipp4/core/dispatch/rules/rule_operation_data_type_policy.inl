@@ -2,7 +2,7 @@
 
 #include "rule_operation_data_type_policy.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 template <typename Rule>
@@ -18,4 +18,4 @@ rule_data_type_policy<Rule>::get() noexcept
 	return instance;
 }
 
-} // namespace xmipp4
+} // namespace rex

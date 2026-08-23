@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -77,6 +77,6 @@ void run_sequence_loop(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "sequence_loop.inl"

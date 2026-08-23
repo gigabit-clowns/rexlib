@@ -8,7 +8,7 @@
 #include <xmipp4/core/numerical/numerical_type.hpp>
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -89,4 +89,4 @@ public:
 	) const;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class buffer;
@@ -119,4 +119,4 @@ private:
 	const array_implementation *m_implementation;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <functional>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -324,7 +324,7 @@ private:
 	unsigned_type m_data;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 template <typename B>
 struct std::hash<xmipp4::flagset<B>>

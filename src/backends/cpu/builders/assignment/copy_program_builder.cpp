@@ -7,7 +7,7 @@
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -41,4 +41,4 @@ REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

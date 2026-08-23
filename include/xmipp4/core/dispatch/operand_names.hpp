@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -73,4 +73,4 @@ struct operand_names_count
 {
 };
 
-} // namespace xmipp4
+} // namespace rex

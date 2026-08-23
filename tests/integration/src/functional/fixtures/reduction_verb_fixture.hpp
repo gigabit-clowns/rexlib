@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 namespace test
 {
@@ -374,4 +374,4 @@ private:
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rex

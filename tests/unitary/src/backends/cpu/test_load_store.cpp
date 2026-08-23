@@ -10,8 +10,8 @@
 #include <complex>
 #include <type_traits>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rex;
+using namespace rex::cpu;
 
 // Values used with exact equality are exactly representable in IEEE half
 // precision, so the float16_t round-trips are lossless.

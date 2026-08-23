@@ -8,7 +8,7 @@
 
 #include <ostream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 enum class access_flag_bits {
@@ -30,6 +30,6 @@ const char* to_string(access_flag_bits v) noexcept;
 template<typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, access_flag_bits v);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "access_flags.inl"

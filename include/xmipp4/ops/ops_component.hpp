@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -25,4 +25,4 @@ struct ops_component
 };
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

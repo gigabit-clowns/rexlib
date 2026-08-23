@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/numerical/numerical_type_domain.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 std::ostream& operator<<(
@@ -34,4 +34,4 @@ std::ostream& operator<<(
 	return os;
 }
 
-} // namespace xmipp4
+} // namespace rex

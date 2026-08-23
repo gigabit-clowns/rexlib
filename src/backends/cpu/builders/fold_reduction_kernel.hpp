@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -166,4 +166,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

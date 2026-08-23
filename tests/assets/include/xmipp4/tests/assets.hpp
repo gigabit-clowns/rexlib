@@ -12,7 +12,7 @@
 	       "rex-test-assets-interface to consume the shared test assets."
 #endif
 
-namespace xmipp4
+namespace rex
 {
 
 inline std::string get_asset_root()
@@ -58,4 +58,4 @@ inline std::string get_mock_plugin_path(const std::string &name)
 	#endif
 }
 
-} // namespace xmipp4
+} // namespace rex

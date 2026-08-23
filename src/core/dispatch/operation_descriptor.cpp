@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace xmipp4
+namespace rex
 {
 
 operation_descriptor::operation_descriptor(
@@ -76,4 +76,4 @@ std::string describe_operand(
 	return std::to_string(index);
 }
 
-} // namespace xmipp4
+} // namespace rex

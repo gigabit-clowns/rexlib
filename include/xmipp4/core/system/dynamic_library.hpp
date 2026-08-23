@@ -8,7 +8,7 @@
 #include <string>
 #include <cstdint>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -110,4 +110,4 @@ private:
  */
 REXLIB_API void swap(dynamic_library& lhs, dynamic_library& rhs) noexcept;
 
-} // namespace xmipp4
+} // namespace rex

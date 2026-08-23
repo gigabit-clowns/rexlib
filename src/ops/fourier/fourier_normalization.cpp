@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -75,4 +75,4 @@ double get_fourier_scale(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

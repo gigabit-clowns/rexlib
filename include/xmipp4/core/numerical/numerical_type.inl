@@ -2,7 +2,7 @@
 
 #include "numerical_type.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 REX_INLINE_CONSTEXPR
@@ -37,4 +37,4 @@ numerical_type_category get_category(numerical_type type) noexcept
 	}
 }
 
-} // namespace xmipp4
+} // namespace rex

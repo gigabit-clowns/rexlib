@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class device_session;
@@ -158,4 +158,4 @@ private:
 	allocator_array_type m_allocators;
 };
 
-} // namespace xmipp4
+} // namespace rex

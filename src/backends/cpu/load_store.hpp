@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -180,6 +180,6 @@ struct element_compute_type
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 #include "load_store.inl"

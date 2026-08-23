@@ -5,7 +5,7 @@
 #include <array>
 #include <climits>
 
-namespace xmipp4
+namespace rex
 {
 
 REX_INLINE_CONSTEXPR uint8_t 
@@ -144,7 +144,7 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b)
 	return os << high << low;
 }
 
-} // namespace xmipp4
+} // namespace rex
 
 REX_INLINE_CONSTEXPR size_t 
 std::hash<xmipp4::byte>::operator()(xmipp4::byte b) const noexcept

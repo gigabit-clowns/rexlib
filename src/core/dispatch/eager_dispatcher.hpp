@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class program_manager;
@@ -52,4 +52,4 @@ private:
 	program_cache m_program_cache;
 };
 
-} // namespace xmipp4
+} // namespace rex

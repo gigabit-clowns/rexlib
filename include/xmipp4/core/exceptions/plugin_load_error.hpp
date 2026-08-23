@@ -6,7 +6,7 @@
 
 #include <xmipp4/core/platform/dynamic_shared_object.h>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -18,4 +18,4 @@ class REXLIB_API plugin_load_error : public std::runtime_error
 	using runtime_error::runtime_error;
 };
 
-} // namespace xmipp4
+} // namespace rex

@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -131,4 +131,4 @@ array cross(
 	return cross(x, y, -1, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rex

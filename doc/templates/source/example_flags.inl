@@ -6,7 +6,7 @@
 
 #include <unordered_map>
 
-namespace xmipp4
+namespace rex
 {
 
 REX_INLINE_CONSTEXPR 
@@ -45,4 +45,4 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, enumeration ex)
     return os << to_string(ex);
 }
 
-} // namespace xmipp4
+} // namespace rex

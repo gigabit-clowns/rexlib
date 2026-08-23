@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace
@@ -401,4 +401,4 @@ void throw_type_rule_error(
 	throw std::invalid_argument(oss.str());
 }
 
-} // namespace xmipp4
+} // namespace rex

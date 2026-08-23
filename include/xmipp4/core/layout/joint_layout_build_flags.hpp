@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -38,6 +38,6 @@ std::basic_ostream<T>& operator<<(
 	joint_layout_build_flag_bits x
 );
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "joint_layout_build_flags.inl"

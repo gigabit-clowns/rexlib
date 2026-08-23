@@ -6,7 +6,7 @@
 
 #include "mock/mock_operation.hpp"
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE("Constructing an operation_id should store its data", "[operation_id]")
 {

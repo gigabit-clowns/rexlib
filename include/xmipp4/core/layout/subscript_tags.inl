@@ -4,7 +4,7 @@
 
 #include "subscript_tags.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 REX_INLINE_CONSTEXPR
@@ -19,4 +19,4 @@ new_axis_tag new_axis() noexcept
 	return new_axis_tag();
 }
 
-} // namespace xmipp4
+} // namespace rex

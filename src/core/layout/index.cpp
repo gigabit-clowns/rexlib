@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4 
+namespace rex 
 {
 
 std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
@@ -34,4 +34,4 @@ std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
 	return static_cast<std::size_t>(result);
 }
 
-} // namespace xmipp4
+} // namespace rex

@@ -6,7 +6,7 @@
 #include <xmipp4/core/binary/bit.hpp>
 #include <xmipp4/core/binary/flagset.hpp>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -38,4 +38,4 @@ enum class event_usage_flag_bits
  */
 using event_usage_flags = flagset<event_usage_flag_bits>;
 
-} // namespace xmipp4
+} // namespace rex

@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -147,6 +147,6 @@ template <typename T>
 REX_NODISCARD
 T* offset_bytes(T* address, std::ptrdiff_t count);
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "align.inl"

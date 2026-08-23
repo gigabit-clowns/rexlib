@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -61,4 +61,4 @@ void real_fourier_transform_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

@@ -2,7 +2,7 @@
 
 #include <xmipp4/core/hardware/program.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 program::program() noexcept = default;
@@ -14,4 +14,4 @@ program::get_scratch_requirements() const
 	return {};
 }
 
-} // namespace xmipp4
+} // namespace rex

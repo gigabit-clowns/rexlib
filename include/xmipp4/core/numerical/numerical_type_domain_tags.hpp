@@ -10,7 +10,7 @@
 
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 
 namespace detail
@@ -218,4 +218,4 @@ using signed_arithmetic_type_domain = domain_union<
 	inexact_type_domain
 >;
 
-} // namespace xmipp4
+} // namespace rex

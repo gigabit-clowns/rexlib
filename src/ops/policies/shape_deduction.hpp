@@ -6,7 +6,7 @@
 #include <xmipp4/core/dispatch/operation_shape_policy.hpp>
 #include <xmipp4/core/span.hpp>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -55,4 +55,4 @@ void assign_output_shapes(
 );
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

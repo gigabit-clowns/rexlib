@@ -2,7 +2,7 @@
 
 #include "xmipp4/core/hardware/device_type.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 const char* to_string(device_type type) noexcept
@@ -17,4 +17,4 @@ const char* to_string(device_type type) noexcept
 	}
 }
 
-} // namespace xmipp4
+} // namespace rex

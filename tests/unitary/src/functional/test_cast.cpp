@@ -8,8 +8,8 @@
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rex;
+using namespace rex::ops;
 using trompeloeil::_;
 using xmipp4::test::dispatch_record;
 using xmipp4::test::verb_dispatch_fixture;

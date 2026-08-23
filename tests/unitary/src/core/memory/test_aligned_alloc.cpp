@@ -6,7 +6,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-using namespace xmipp4;
+using namespace rex;
 
 TEST_CASE( "aligned_alloc should produce aligned allocations", "[aligned_alloc]" ) 
 {

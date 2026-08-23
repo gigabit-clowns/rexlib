@@ -33,7 +33,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -628,7 +628,7 @@ gemm_fn<T> resolve_vecgemm(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex
 
 /**
  * @brief Instantiate the three gemm resolvers for one element type.

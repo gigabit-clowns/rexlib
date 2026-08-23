@@ -8,7 +8,7 @@
 #include <limits>
 #include <ostream>
 
-namespace xmipp4 
+namespace rex 
 {
 
 /**
@@ -41,6 +41,6 @@ std::basic_ostream<T>& operator<<(
 	backend_priority priority
 );
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "backend_priority.inl"

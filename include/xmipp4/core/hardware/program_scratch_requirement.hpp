@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -83,4 +83,4 @@ private:
 	memory_resource_affinity m_affinity;
 };
 
-} // namespace xmipp4
+} // namespace rex

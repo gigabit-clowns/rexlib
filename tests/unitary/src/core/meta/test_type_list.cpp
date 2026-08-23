@@ -6,7 +6,7 @@
 
 #include <type_traits>
 
-using namespace xmipp4;
+using namespace rex;
 
 struct test_type {};
 

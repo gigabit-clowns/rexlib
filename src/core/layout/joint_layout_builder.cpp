@@ -8,7 +8,7 @@
 #include "joint_layout_implementation.hpp"
 #include "strided_layout_implementation.hpp"
 
-namespace xmipp4 
+namespace rex 
 {
 
 namespace
@@ -209,4 +209,4 @@ joint_layout joint_layout_builder::build(
 	return joint_layout(std::move(m_implementation));
 }
 
-} // namespace xmipp4
+} // namespace rex

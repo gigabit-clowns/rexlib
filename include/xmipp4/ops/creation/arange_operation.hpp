@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 namespace ops
 {
@@ -92,4 +92,4 @@ private:
 REX_END_TEMPLATE_BASE
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rex

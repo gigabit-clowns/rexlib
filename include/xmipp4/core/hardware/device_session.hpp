@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 class device;
@@ -100,4 +100,4 @@ private:
 	std::unique_ptr<implementation> m_implementation;
 };
 
-} // namespace xmipp4
+} // namespace rex

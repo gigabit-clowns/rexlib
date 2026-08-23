@@ -4,7 +4,7 @@
 
 #include "bit.hpp"
 
-namespace xmipp4
+namespace rex
 {
 
 template<typename B>
@@ -187,7 +187,7 @@ flagset<B>::toggle(const flagset& other) noexcept
 	return *this;
 }
 
-} // namespace xmipp4
+} // namespace rex
 
 template <typename B>
 REX_CONSTEXPR size_t 

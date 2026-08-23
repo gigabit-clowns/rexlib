@@ -10,7 +10,7 @@
 
 #include <memory>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -147,4 +147,4 @@ private:
 	span<const std::shared_ptr<buffer>> m_scratch;
 };
 
-} // namespace xmipp4
+} // namespace rex

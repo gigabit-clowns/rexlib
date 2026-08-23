@@ -8,7 +8,7 @@
 #include <ostream>
 #include <cstdint>
 
-namespace xmipp4 
+namespace rex 
 {
 
 class version
@@ -102,6 +102,6 @@ private:
 	std::uint32_t m_data;
 };
 
-} // namespace xmipp4
+} // namespace rex
 
 #include "version.inl"

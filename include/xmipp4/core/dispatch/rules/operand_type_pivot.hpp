@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -114,4 +114,4 @@ template <std::size_t I = 0, typename Domain = any_type_domain>
 using pivot_from_operation =
 	operand_type_pivot<pivot_source::operation, I, Domain>;
 
-} // namespace xmipp4
+} // namespace rex

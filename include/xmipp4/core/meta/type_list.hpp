@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <cstddef>
 
-namespace xmipp4
+namespace rex
 {
 
 /**
@@ -118,4 +118,4 @@ struct type_list_cat<type_list<As...>, type_list<Bs...>, Rest...>
 template <typename... Lists>
 using type_list_cat_t = typename type_list_cat<Lists...>::type;
 
-} // namespace xmipp4
+} // namespace rex

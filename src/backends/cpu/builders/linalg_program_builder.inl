@@ -14,7 +14,7 @@
 #include <tuple>
 #include <utility>
 
-namespace xmipp4
+namespace rex
 {
 namespace cpu
 {
@@ -124,4 +124,4 @@ linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_loop_functor(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rex

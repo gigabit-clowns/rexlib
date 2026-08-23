@@ -8,7 +8,7 @@
 #include <xmipp4/ops/assignment/copy_operation.hpp>
 #include <xmipp4/core/hardware/memory_resource_affinity.hpp>
 
-namespace xmipp4
+namespace rex
 {
 
 array cast(
@@ -65,4 +65,4 @@ array cast_copy(
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rex
