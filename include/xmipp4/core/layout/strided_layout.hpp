@@ -20,14 +20,14 @@ class strided_layout_implementation;
 class strided_layout
 {
 public:
-	XMIPP4_CORE_API strided_layout() noexcept;
-	XMIPP4_CORE_API strided_layout(const strided_layout &other) noexcept;
-	XMIPP4_CORE_API strided_layout(strided_layout &&other) noexcept;
-	XMIPP4_CORE_API ~strided_layout();
+	REXLIB_API strided_layout() noexcept;
+	REXLIB_API strided_layout(const strided_layout &other) noexcept;
+	REXLIB_API strided_layout(strided_layout &&other) noexcept;
+	REXLIB_API ~strided_layout();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	strided_layout& operator=(const strided_layout &other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	strided_layout& operator=(strided_layout &&other) noexcept;
 
 
@@ -36,7 +36,7 @@ public:
 	 * 
 	 * @return std::size_t The hash. 
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t hash() const noexcept;
 
 	/**
@@ -44,7 +44,7 @@ public:
 	 * 
 	 * @return std::size_t 
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_rank() const noexcept;
 
 	/**
@@ -52,7 +52,7 @@ public:
 	 * 
 	 * @param extents Output parameter where the extents are written.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void get_extents(std::vector<std::size_t> &extents) const;
 
 	/**
@@ -60,7 +60,7 @@ public:
 	 * 
 	 * @param extents Output parameter where the strides are written.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void get_strides(std::vector<std::ptrdiff_t> &strides) const;
 
 	/**
@@ -68,7 +68,7 @@ public:
 	 * 
 	 * @return std::size_t The offset in elements.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::ptrdiff_t get_offset() const noexcept;
 
 	/**
@@ -76,7 +76,7 @@ public:
 	 * 
 	 * @return std::size_t Minimum storage size in elements.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t compute_storage_requirement() const noexcept;
 
 	/**
@@ -84,7 +84,7 @@ public:
 	 * 
 	 * @return std::size_t Number of elements.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t compute_element_count() const noexcept;
 
 	/**
@@ -94,7 +94,7 @@ public:
 	 * @return true If the provided extents match layout's extents.
 	 * @return false If the provided extents do not match layout's extents.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	bool extents_equal(span<const std::size_t> extents) const noexcept;
 
 	/**
@@ -105,7 +105,7 @@ public:
 	 * @throws std::invalid_argument If not all subscripts are processed.
 	 * Or subscript is out of bounds
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout 
 	apply_subscripts(span<const dynamic_subscript> subscripts) const;
 
@@ -114,7 +114,7 @@ public:
 	 * 
 	 * @return strided_layout The resulting layout.
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout transpose() const;
 
 	/**
@@ -126,7 +126,7 @@ public:
 	 * @return strided_layout Permuted layout.
 	 * @throws std::invalid_argument If the permutation order is invalid.
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout permute(span<const std::size_t> order) const;
 
 	/**
@@ -137,7 +137,7 @@ public:
 	 * @return strided_layout Permuted layout.
 	 * @throws std::out_of_range If either axis1 or axis2 exceeds bounds.
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout matrix_transpose(
 		std::ptrdiff_t axis1 = -1, 
 		std::ptrdiff_t axis2 = -2
@@ -153,7 +153,7 @@ public:
 	 * @throws std::out_of_range If either axis1 or axis2 exceeds bounds.
 	 * @throws std::invalid_argument If axis1 and axis2 are equal.
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout matrix_diagonal(
 		std::ptrdiff_t axis1 = -1, 
 		std::ptrdiff_t axis2 = -2
@@ -164,7 +164,7 @@ public:
 	 * 
 	 * @return strided_layout The resulting layout.
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout squeeze() const;
 
 	/**
@@ -180,7 +180,7 @@ public:
 	 * @throws std::invalid_argument If the axes cannot be broadcasted to the 
 	 * provided extents.
 	 */
-	XMIPP4_NODISCARD XMIPP4_CORE_API
+	XMIPP4_NODISCARD REXLIB_API
 	strided_layout broadcast_to(span<const std::size_t> extents) const;
 
 	/**
@@ -200,11 +200,11 @@ public:
 	 * @param extents Extents of the layout.
 	 * @return strided_layout The resulting layout.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static
 	strided_layout make_contiguous_layout(span<const std::size_t> extents);
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	static
 	strided_layout make_custom_layout(
 		span<const std::size_t> extents,
@@ -214,7 +214,7 @@ public:
 
 	// Defined out of line: it compares the implementations, and the
 	// implementation type is incomplete here.
-	friend XMIPP4_CORE_API
+	friend REXLIB_API
 	bool operator==(const strided_layout &lhs, const strided_layout &rhs) noexcept;
 
 	friend bool

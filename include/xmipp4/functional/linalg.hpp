@@ -25,7 +25,7 @@ class execution_context;
  * of them, broadcast between the inputs. A one dimensional input is
  * promoted for the duration and the axis added is dropped again.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array matmul(
 	const_array_ref x,
 	const_array_ref y,
@@ -50,7 +50,7 @@ array matmul(
  * @see vecmat
  * @see matmul
  */
-XMIPP4_CORE_API
+REXLIB_API
 array matvec(
 	const_array_ref x,
 	const_array_ref y,
@@ -75,7 +75,7 @@ array matvec(
  * @see matvec
  * @see matmul
  */
-XMIPP4_CORE_API
+REXLIB_API
 array vecmat(
 	const_array_ref x,
 	const_array_ref y,
@@ -100,7 +100,7 @@ array vecmat(
  *
  * @see matmul
  */
-XMIPP4_CORE_API
+REXLIB_API
 array vecdot(
 	const_array_ref x,
 	const_array_ref y,
@@ -118,7 +118,7 @@ array vecdot(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the contracted products.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array vecdot(
 	const_array_ref x,
 	const_array_ref y,
@@ -140,7 +140,7 @@ array vecdot(
  * @note The inputs are broadcast together, so a stack of vectors crosses
  * with a single one without either being written out.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cross(
 	const_array_ref x,
 	const_array_ref y,
@@ -158,7 +158,7 @@ array cross(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the cross products.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cross(
 	const_array_ref x,
 	const_array_ref y,

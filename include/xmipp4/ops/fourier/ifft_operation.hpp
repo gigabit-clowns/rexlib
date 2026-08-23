@@ -33,7 +33,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * and returns a real array.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API ifft_operation final
+class REXLIB_API ifft_operation final
 	: public parametric_operation<ifft_operation, ifft_operation_traits>
 {
 public:

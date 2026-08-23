@@ -17,7 +17,7 @@ class device;
 /**
  * @brief Abstract description of a physical memory region.
  */
-class XMIPP4_CORE_API memory_resource
+class REXLIB_API memory_resource
 {
 public:
 	memory_resource() noexcept;
@@ -61,7 +61,7 @@ public:
  * @return Reference to the host memory resource singleton. The reference is 
  * valid for the entire lifetime of the process.
  */
-XMIPP4_CORE_API
+REXLIB_API
 const memory_resource& get_host_memory_resource() noexcept;
 
 } // namespace xmipp4

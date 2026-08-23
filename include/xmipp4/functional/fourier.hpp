@@ -32,7 +32,7 @@ class execution_context;
  * precision. The full spectrum is stored; use @ref rfft to store only
  * what a real signal needs.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -58,7 +58,7 @@ array fft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -80,7 +80,7 @@ array fft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the complex spectrum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -102,7 +102,7 @@ array fft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft(
 	const_array_ref x,
 	const execution_context &context,
@@ -123,7 +123,7 @@ array fft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the complex spectrum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft2(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -145,7 +145,7 @@ array fft2(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft2(
 	const_array_ref x,
 	const execution_context &context,
@@ -166,7 +166,7 @@ array fft2(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the complex spectrum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft3(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -188,7 +188,7 @@ array fft3(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fft3(
 	const_array_ref x,
 	const execution_context &context,
@@ -211,7 +211,7 @@ array fft3(
  * @note The result stays complex. Use @ref irfft for a spectrum known to come
  * from a real signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -236,7 +236,7 @@ array ifft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -258,7 +258,7 @@ array ifft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the complex signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -280,7 +280,7 @@ array ifft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft(
 	const_array_ref x,
 	const execution_context &context,
@@ -301,7 +301,7 @@ array ifft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the complex signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft2(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -323,7 +323,7 @@ array ifft2(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft2(
 	const_array_ref x,
 	const execution_context &context,
@@ -344,7 +344,7 @@ array ifft2(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the complex signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft3(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -366,7 +366,7 @@ array ifft3(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifft3(
 	const_array_ref x,
 	const execution_context &context,
@@ -389,7 +389,7 @@ array ifft3(
  * @note Only the half that is not redundant is stored: the last transformed
  * axis holds n / 2 + 1 coefficients. Complex arrays are not accepted.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -414,7 +414,7 @@ array rfft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -436,7 +436,7 @@ array rfft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -458,7 +458,7 @@ array rfft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft(
 	const_array_ref x,
 	const execution_context &context,
@@ -479,7 +479,7 @@ array rfft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft2(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -501,7 +501,7 @@ array rfft2(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft2(
 	const_array_ref x,
 	const execution_context &context,
@@ -522,7 +522,7 @@ array rfft2(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft3(
 	const_array_ref x,
 	ops::fourier_normalization normalization,
@@ -544,7 +544,7 @@ array rfft3(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array rfft3(
 	const_array_ref x,
 	const execution_context &context,
@@ -572,7 +572,7 @@ array rfft3(
  *
  * @see rfft
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -603,7 +603,7 @@ array irfft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -626,7 +626,7 @@ array irfft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft(
 	const_array_ref x,
 	std::size_t extent,
@@ -649,7 +649,7 @@ array irfft(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft(
 	const_array_ref x,
 	std::size_t extent,
@@ -671,7 +671,7 @@ array irfft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft2(
 	const_array_ref x,
 	std::size_t extent,
@@ -694,7 +694,7 @@ array irfft2(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft2(
 	const_array_ref x,
 	std::size_t extent,
@@ -716,7 +716,7 @@ array irfft2(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft3(
 	const_array_ref x,
 	std::size_t extent,
@@ -739,7 +739,7 @@ array irfft3(
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array irfft3(
 	const_array_ref x,
 	std::size_t extent,
@@ -757,7 +757,7 @@ array irfft3(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the shifted array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fftshift(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -775,7 +775,7 @@ array fftshift(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the shifted array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array fftshift(
 	const_array_ref x,
 	const execution_context &context,
@@ -792,7 +792,7 @@ array fftshift(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the shifted array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifftshift(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -810,7 +810,7 @@ array ifftshift(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the shifted array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ifftshift(
 	const_array_ref x,
 	const execution_context &context,

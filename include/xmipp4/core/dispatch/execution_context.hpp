@@ -48,7 +48,7 @@ public:
 	 * The resulting execution context holds an empty
 	 * @ref device_context and a null dispatcher.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context() noexcept;
 
 	/**
@@ -58,22 +58,22 @@ public:
 	 * @param dispatcher The dispatcher used to turn operations into device
 	 * work.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context(
 		device_context device_context,
 		std::shared_ptr<dispatcher> dispatcher
 	);
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context(const execution_context &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context(execution_context &&other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~execution_context();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context& operator=(const execution_context &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context& operator=(execution_context &&other) noexcept;
 
 	/**
@@ -81,7 +81,7 @@ public:
 	 *
 	 * @return A reference to the wrapped device context.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const device_context&
 	get_device_context() const noexcept;
 
@@ -91,7 +91,7 @@ public:
 	 * @return A reference to the dispatcher, or to a null pointer when this
 	 * execution context is empty.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<dispatcher>&
 	get_dispatcher() const noexcept;
 
@@ -109,7 +109,7 @@ public:
 	 * @return A copy of this execution context with @p device_context as its
 	 * device context and the same dispatcher.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context with_device_context(
 		device_context device_context
 	) const;
@@ -121,7 +121,7 @@ public:
 	 * @return A copy of this execution context with @p dispatcher as its
 	 * dispatcher and the same device context.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	execution_context with_dispatcher(
 		std::shared_ptr<dispatcher> dispatcher
 	) const;

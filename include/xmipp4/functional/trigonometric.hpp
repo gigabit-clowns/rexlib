@@ -20,7 +20,7 @@ class execution_context;
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise sine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sin(
 	const_array_ref x,
 	const execution_context &context,
@@ -35,7 +35,7 @@ array sin(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise cosine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cos(
 	const_array_ref x,
 	const execution_context &context,
@@ -50,7 +50,7 @@ array cos(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise tangent.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array tan(
 	const_array_ref x,
 	const execution_context &context,
@@ -65,7 +65,7 @@ array tan(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise arc sine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array asin(
 	const_array_ref x,
 	const execution_context &context,
@@ -80,7 +80,7 @@ array asin(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise arc cosine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array acos(
 	const_array_ref x,
 	const execution_context &context,
@@ -95,7 +95,7 @@ array acos(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise arc tangent.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array atan(
 	const_array_ref x,
 	const execution_context &context,
@@ -110,7 +110,7 @@ array atan(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise hyperbolic sine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sinh(
 	const_array_ref x,
 	const execution_context &context,
@@ -125,7 +125,7 @@ array sinh(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise hyperbolic cosine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cosh(
 	const_array_ref x,
 	const execution_context &context,
@@ -140,7 +140,7 @@ array cosh(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise hyperbolic tangent.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array tanh(
 	const_array_ref x,
 	const execution_context &context,
@@ -155,7 +155,7 @@ array tanh(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise inverse hyperbolic sine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array asinh(
 	const_array_ref x,
 	const execution_context &context,
@@ -170,7 +170,7 @@ array asinh(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise inverse hyperbolic cosine.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array acosh(
 	const_array_ref x,
 	const execution_context &context,
@@ -185,7 +185,7 @@ array acosh(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise inverse hyperbolic tangent.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array atanh(
 	const_array_ref x,
 	const execution_context &context,
@@ -204,7 +204,7 @@ array atanh(
  * @note The ordinate comes first and the abscissa second, matching
  * std::atan2 rather than reading left to right.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array atan2(
 	const_array_ref y,
 	const_array_ref x,
@@ -224,7 +224,7 @@ array atan2(
  * @note Computed without the intermediate overflow that squaring the
  * inputs would cause.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array hypot(
 	const_array_ref x,
 	const_array_ref y,
@@ -240,7 +240,7 @@ array hypot(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the converted angles, in degrees.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array degrees(
 	const_array_ref x,
 	const execution_context &context,
@@ -255,7 +255,7 @@ array degrees(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the converted angles, in radians.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array radians(
 	const_array_ref x,
 	const execution_context &context,
@@ -278,7 +278,7 @@ array radians(
  * @see sin
  * @see cos
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::pair<array, array> sincos(
 	const_array_ref x,
 	const execution_context &context,

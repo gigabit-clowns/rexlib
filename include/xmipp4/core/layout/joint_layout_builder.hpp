@@ -30,19 +30,19 @@ public:
 		joint_layout_build_flag_bits::enable_coalescing
 	};
 
-	XMIPP4_CORE_API joint_layout_builder() noexcept;
+	REXLIB_API joint_layout_builder() noexcept;
 	joint_layout_builder(
 		const joint_layout_builder&
 	) = delete;
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_layout_builder(
 		joint_layout_builder&& other
 	) noexcept;
-	XMIPP4_CORE_API ~joint_layout_builder();
+	REXLIB_API ~joint_layout_builder();
 
 	joint_layout_builder& 
 	operator=(const joint_layout_builder&) = delete;
-	XMIPP4_CORE_API joint_layout_builder& 
+	REXLIB_API joint_layout_builder& 
 	operator=(joint_layout_builder&& other) noexcept;
 
 	/**
@@ -54,7 +54,7 @@ public:
 	 * @note This method can only be called once at most for each layout 
 	 * creation and it must be called before any call to add_operand.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_layout_builder& 
 	set_extents(span<const std::size_t> extents);
 
@@ -70,7 +70,7 @@ public:
 	 * @param layout Layout of the operand.
 	 * @return joint_layout_builder& A reference to *this.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_layout_builder& 
 	add_operand(const strided_layout &layout);
 
@@ -88,7 +88,7 @@ public:
 	 * @param offset The offset of the operand.
 	 * @return joint_layout_builder& A reference to *this.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_layout_builder& 
 	add_operand(
 		span<const std::size_t> extents,
@@ -107,7 +107,7 @@ public:
 	 * layout. By default, all optimizations are enabled.
 	 * @return joint_layout The newly built joint_layout.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_layout build(
 		joint_layout_build_flags flags = default_flags
 	);

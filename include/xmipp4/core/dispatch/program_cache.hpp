@@ -47,11 +47,11 @@ public:
 	 * @param capacity Maximum number of entries the cache may hold. Must
 	 * be greater than zero.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit program_cache(std::size_t capacity) noexcept;
 	program_cache(const program_cache &other) = delete;
 	program_cache(program_cache &&other) = delete;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~program_cache();
 
 	program_cache&
@@ -64,7 +64,7 @@ public:
 	 *
 	 * @return std::size_t The capacity, in entries.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_capacity() const noexcept;
 
 	/**
@@ -80,7 +80,7 @@ public:
 	 * @return std::shared_ptr<void> The stored value, or nullptr if no
 	 * entry is present.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::shared_ptr<void> touch(const program_cache_key &key);
 
 	/**
@@ -96,7 +96,7 @@ public:
 	 * @param value The value to store. Must not be null.
 	 * @throws std::invalid_argument When @p key or @p value is null.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void store(
 		std::unique_ptr<const program_cache_key> key,
 		std::shared_ptr<void> value

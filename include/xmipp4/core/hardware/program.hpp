@@ -23,7 +23,7 @@ namespace xmipp4
  * Each concrete program instance is bound to the device it was created for
  * and may only be submitted to queues belonging to that device.
  */
-class XMIPP4_CORE_API program
+class REXLIB_API program
 {
 public:
 	program() noexcept;

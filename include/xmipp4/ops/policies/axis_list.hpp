@@ -37,7 +37,7 @@ using axis_list = std::vector<std::size_t>;
  * cannot mean anything, and dropping the duplicate would silently give a
  * result the caller did not ask for.
  */
-XMIPP4_CORE_API
+REXLIB_API
 axis_list make_sorted_axis_list(axis_list axes);
 
 /**
@@ -52,7 +52,7 @@ axis_list make_sorted_axis_list(axis_list axes);
  *
  * @throws std::out_of_range When an axis lies beyond @p rank.
  */
-XMIPP4_CORE_API
+REXLIB_API
 void check_axes_within_rank(
 	const operation_descriptor &descriptor,
 	span<const std::size_t> axes,

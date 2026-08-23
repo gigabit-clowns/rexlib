@@ -221,7 +221,7 @@ public:
 	); \
 	\
 	XMIPP4_BEGIN_TEMPLATE_BASE \
-	class XMIPP4_CORE_API op##_operation final \
+	class REXLIB_API op##_operation final \
 		: public ::xmipp4::trivial_operation< \
 			op##_operation, \
 			op##_operation_traits \

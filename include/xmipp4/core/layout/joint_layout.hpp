@@ -36,20 +36,20 @@ public:
 	static XMIPP4_CONST_CONSTEXPR std::size_t end_dim = 
 		std::numeric_limits<std::size_t>::max();
 
-	XMIPP4_CORE_API joint_layout();
-	XMIPP4_CORE_API explicit joint_layout(
+	REXLIB_API joint_layout();
+	REXLIB_API explicit joint_layout(
 		std::unique_ptr<
 			const joint_layout_implementation
 		> implementation
 	);
 	joint_layout(const joint_layout&) = delete;
-	XMIPP4_CORE_API 
+	REXLIB_API 
 	joint_layout(joint_layout&& other) noexcept;
-	XMIPP4_CORE_API ~joint_layout();
+	REXLIB_API ~joint_layout();
 
 	joint_layout& 
 	operator=(const joint_layout&) = delete;
-	XMIPP4_CORE_API joint_layout& 
+	REXLIB_API joint_layout& 
 	operator=(joint_layout&& other) noexcept;
 
 	/**
@@ -57,21 +57,21 @@ public:
 	 * 
 	 * @return std::size_t The number of operands.
 	 */
-	XMIPP4_CORE_API std::size_t get_number_of_operands() const noexcept;
+	REXLIB_API std::size_t get_number_of_operands() const noexcept;
 
 	/**
 	 * @brief Get the number of dimensions.
 	 * 
 	 * @return std::size_t Number of dimensions.
 	 */
-	XMIPP4_CORE_API std::size_t get_rank() const noexcept;
+	REXLIB_API std::size_t get_rank() const noexcept;
 
 	/**
 	 * @brief Get the extents of the iteration space.
 	 *
 	 * @return span<const std::size_t> The extents of the iteration space.
 	 */
-	XMIPP4_CORE_API span<const std::size_t> get_extents() const;
+	REXLIB_API span<const std::size_t> get_extents() const;
 
 	/**
 	 * @brief Computes the number of positions the iteration space holds.
@@ -84,7 +84,7 @@ public:
 	 * @return std::size_t Number of positions. 0 if the layout can not be
 	 * iterated, as `iter()` and `seek()` report it.
 	 */
-	XMIPP4_CORE_API std::size_t compute_element_count() const noexcept;
+	REXLIB_API std::size_t compute_element_count() const noexcept;
 
 	/**
 	 * @brief Get the strides for an operand.
@@ -96,7 +96,7 @@ public:
 	 * 
 	 * @throws std::out_of_range if operand index is out of range.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<const std::ptrdiff_t> get_strides(std::size_t operand) const;
 
 	/**
@@ -108,7 +108,7 @@ public:
 	 * 
 	 * @throws std::out_of_range if operand index is out of range.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::ptrdiff_t get_offset(std::size_t operand) const;
 
 	/**
@@ -123,7 +123,7 @@ public:
 	 * @return std::size_t Number of elements in the dimension. 0 if the
 	 * layout can not be iterated.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t iter(
 		joint_cursor &ite, 
 		std::size_t first_dim = 0,
@@ -155,7 +155,7 @@ public:
 	 * iterated dimension, as `iter()` reports it. 0 if the layout can not be
 	 * iterated.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t seek(
 		joint_cursor &ite,
 		std::size_t position,
@@ -185,7 +185,7 @@ public:
 	 * than the last value returned by `iter()` or last `next()`. If unsure, 
 	 * the new limit may be computed using `next(ite, 0, first_dim, last_dim)`.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t next(
 		joint_cursor &ite, 
 		std::size_t n, 

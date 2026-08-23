@@ -15,9 +15,9 @@ project(
 )
 
 # Declare configuration options
-option(XMIPP4_CORE_BUILD_DOC "Build documentation" OFF)
-option(XMIPP4_CORE_ENABLE_COVERAGE "Enable code coverage" OFF)
-option(XMIPP4_CORE_REGISTER_TESTS_PER_BINARY "Register one test per test executable instead of one per Catch2 case" OFF)
+option(REXLIB_BUILD_DOC "Build documentation" OFF)
+option(REXLIB_ENABLE_COVERAGE "Enable code coverage" OFF)
+option(REXLIB_REGISTER_TESTS_PER_BINARY "Register one test per test executable instead of one per Catch2 case" OFF)
 
 # Add the CMake module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
@@ -60,6 +60,6 @@ if(BUILD_TESTING)
 endif()
 
 # Only build docs if requested
-if(XMIPP4_CORE_BUILD_DOC)
+if(REXLIB_BUILD_DOC)
 	add_subdirectory(doc)
 endif()

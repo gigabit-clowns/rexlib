@@ -28,7 +28,7 @@ namespace ops
  * because they have to be checked against the rank of the operand, and the
  * rank is only known once the operands arrive.
  */
-class XMIPP4_CORE_API axiswise_operation_shape_policy final
+class REXLIB_API axiswise_operation_shape_policy final
 	: public operation_shape_policy
 {
 public:

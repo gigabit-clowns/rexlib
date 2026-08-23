@@ -20,7 +20,7 @@ add_executable(
 target_compile_definitions(
 	xmipp4-core-unitary-tests
 	PRIVATE
-		XMIPP4_CORE_NO_EXPORTS
+		REXLIB_NO_EXPORTS
 )
 target_include_directories(
 	xmipp4-core-unitary-tests

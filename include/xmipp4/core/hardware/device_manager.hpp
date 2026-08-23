@@ -29,7 +29,7 @@ class device_session;
  * load time via @ref register_backend, with @ref register_builtin_backends
  * adding those that are statically linked.
  */
-class XMIPP4_CORE_API device_manager final
+class REXLIB_API device_manager final
 	: public service_manager
 {
 public:

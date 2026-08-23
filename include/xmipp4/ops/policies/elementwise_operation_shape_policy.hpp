@@ -15,7 +15,7 @@ namespace ops
  *
  * This policy allows broadcast compatibility of input operands.
  */
-class XMIPP4_CORE_API elementwise_operation_shape_policy final
+class REXLIB_API elementwise_operation_shape_policy final
 	: public operation_shape_policy
 {
 public:

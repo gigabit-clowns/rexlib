@@ -11,7 +11,7 @@ namespace xmipp4
 namespace cpu
 {
 
-class XMIPP4_CORE_API program_builder
+class REXLIB_API program_builder
 	: public xmipp4::program_builder
 {
 public:

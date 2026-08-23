@@ -15,7 +15,7 @@ namespace xmipp4
  * @brief RAII style class to memory map files
  * 
  */
-class XMIPP4_CORE_API memory_mapped_file
+class REXLIB_API memory_mapped_file
 {
 public:
 	/**
@@ -150,6 +150,6 @@ private:
  * @brief Exchange two memory_mapped_file objects
  *
  */
-XMIPP4_CORE_API void swap(memory_mapped_file& lhs, memory_mapped_file& rhs) noexcept;
+REXLIB_API void swap(memory_mapped_file& lhs, memory_mapped_file& rhs) noexcept;
 
 } //namespace xmipp4

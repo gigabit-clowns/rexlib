@@ -21,7 +21,7 @@ namespace xmipp4
  * @return std::size_t Sanitize value. Guaranteed to be in [0, extent)
  * @throws std::out_of_range if the provided index is out of [-extent, extent)
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent);
 
 } // namespace xmipp4

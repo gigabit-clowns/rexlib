@@ -38,7 +38,7 @@ namespace xmipp4
  * whose capability bit is not advertised by @ref get_supported_usage is a
  * precondition violation and throws @ref invalid_operation_error.
  */
-class XMIPP4_CORE_API event
+class REXLIB_API event
 {
 public:
 	event() noexcept;

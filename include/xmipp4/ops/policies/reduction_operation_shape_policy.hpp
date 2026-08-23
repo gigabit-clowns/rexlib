@@ -31,7 +31,7 @@ namespace ops
  * built. An operation is a rigid description of work, not a request to be
  * interpreted later.
  */
-class XMIPP4_CORE_API reduction_operation_shape_policy final
+class REXLIB_API reduction_operation_shape_policy final
 	: public operation_shape_policy
 {
 public:

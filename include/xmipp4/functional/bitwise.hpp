@@ -22,7 +22,7 @@ class execution_context;
  * @note Every type with a defined bit pattern is accepted, which
  * excludes only the floating point and complex ones.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array bitwise_and(
 	const_array_ref x,
 	const_array_ref y,
@@ -42,7 +42,7 @@ array bitwise_and(
  * @note Every type with a defined bit pattern is accepted, which
  * excludes only the floating point and complex ones.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array bitwise_or(
 	const_array_ref x,
 	const_array_ref y,
@@ -64,7 +64,7 @@ array bitwise_or(
  * @note Every type with a defined bit pattern is accepted, which
  * excludes only the floating point and complex ones.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array bitwise_xor(
 	const_array_ref x,
 	const_array_ref y,
@@ -83,7 +83,7 @@ array bitwise_xor(
  * @note Every type with a defined bit pattern is accepted, which
  * excludes only the floating point and complex ones.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array bitwise_not(
 	const_array_ref x,
 	const execution_context &context,
@@ -103,7 +103,7 @@ array bitwise_not(
  * the value being shifted, and a boolean or character count is
  * not a meaningful quantity.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array left_shift(
 	const_array_ref x,
 	const_array_ref y,
@@ -124,7 +124,7 @@ array left_shift(
  * the value being shifted, and a boolean or character count is
  * not a meaningful quantity.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array right_shift(
 	const_array_ref x,
 	const_array_ref y,

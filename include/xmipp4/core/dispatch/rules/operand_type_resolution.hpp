@@ -55,7 +55,7 @@ enum class type_rule_status
  * @param status The status.
  * @return const char* The representation.
  */
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(type_rule_status status) noexcept;
 
 /**
@@ -75,7 +75,7 @@ public:
 	/**
 	 * @brief Construct a successful resolution with no pivot resolved yet.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	type_rule_resolution() noexcept;
 
 	/**
@@ -90,7 +90,7 @@ public:
 	 * @param type The offending type.
 	 * @return type_rule_resolution The failed resolution.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static type_rule_resolution failure(
 		type_rule_status status,
 		std::size_t operand_index,
@@ -114,7 +114,7 @@ public:
 	 * @param type The offending type.
 	 * @return type_rule_resolution The failed resolution.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	type_rule_resolution fail(
 		type_rule_status status,
 		std::size_t operand_index,
@@ -127,7 +127,7 @@ public:
 	 *
 	 * @return type_rule_status The status.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	type_rule_status get_status() const noexcept;
 
 	/**
@@ -136,7 +136,7 @@ public:
 	 * @return true The rule resolved successfully.
 	 * @return false The rule could not be resolved.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit operator bool() const noexcept;
 
 	/**
@@ -144,7 +144,7 @@ public:
 	 *
 	 * @return std::size_t The pivot count.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_pivot_count() const noexcept;
 
 	/**
@@ -154,7 +154,7 @@ public:
 	 * @return numerical_type The pivot value. May be
 	 * numerical_type::unknown when the pivot is free and was not bound.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	numerical_type get_pivot(std::size_t index) const noexcept;
 
 	/**
@@ -164,7 +164,7 @@ public:
 	 * max_operand_type_pivot_count.
 	 * @param type The pivot value.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_pivot(std::size_t index, numerical_type type) noexcept;
 
 	/**
@@ -173,7 +173,7 @@ public:
 	 * @param count The pivot count. Must not exceed
 	 * max_operand_type_pivot_count.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_pivot_count(std::size_t count) noexcept;
 
 	/**
@@ -181,7 +181,7 @@ public:
 	 *
 	 * @return std::size_t The operand index.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_operand_index() const noexcept;
 
 	/**
@@ -190,7 +190,7 @@ public:
 	 * @return true The operand is an output operand.
 	 * @return false The operand is an input operand.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	bool is_output_operand() const noexcept;
 
 	/**
@@ -198,7 +198,7 @@ public:
 	 *
 	 * @return numerical_type The offending type.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	numerical_type get_offending_type() const noexcept;
 
 private:

@@ -14,7 +14,7 @@ namespace xmipp4
  * a misconfiguration of the class.
  */
 XMIPP4_STD_BASE_INTERFACE
-class XMIPP4_CORE_API invalid_operation_error : public std::logic_error
+class REXLIB_API invalid_operation_error : public std::logic_error
 {
 	using logic_error::logic_error;
 };

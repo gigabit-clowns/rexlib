@@ -20,20 +20,20 @@ class service_catalog;
 class plugin_manager
 {
 public:
-	XMIPP4_CORE_API plugin_manager();
+	REXLIB_API plugin_manager();
 	plugin_manager(const plugin_manager& other) = delete;
-	XMIPP4_CORE_API plugin_manager(plugin_manager&& other) noexcept;
-	XMIPP4_CORE_API ~plugin_manager();
+	REXLIB_API plugin_manager(plugin_manager&& other) noexcept;
+	REXLIB_API ~plugin_manager();
 
 	plugin_manager& operator=(const plugin_manager& other) = delete;
-	XMIPP4_CORE_API plugin_manager& operator=(plugin_manager&& other) noexcept;
+	REXLIB_API plugin_manager& operator=(plugin_manager&& other) noexcept;
 
 	/**
 	 * @brief Add a already loaded plugin.
 	 * 
 	 * @param plugin The plugin to be added.
 	 */
-	XMIPP4_CORE_API void add_plugin(const plugin& plugin);
+	REXLIB_API void add_plugin(const plugin& plugin);
 
 	/**
 	 * @brief Load a plugin from a Shared Object and add it.
@@ -46,14 +46,14 @@ public:
 	 * @return const plugin* The loaded plugin. nullptr if it could not be 
 	 * loaded.
 	 */
-	XMIPP4_CORE_API const plugin* load_plugin(const std::string &path);
+	REXLIB_API const plugin* load_plugin(const std::string &path);
 
 	/**
 	 * @brief Get the number of plugins known by this manager.
 	 * 
 	 * @return std::size_t The number of plugins.
 	 */
-	XMIPP4_CORE_API std::size_t get_plugin_count() const noexcept;
+	REXLIB_API std::size_t get_plugin_count() const noexcept;
 
 	/**
 	 * @brief Get the i-th plugin.
@@ -62,7 +62,7 @@ public:
 	 * the plugin count.
 	 * @return const plugin& The requested plugin.
 	 */
-	XMIPP4_CORE_API const plugin& get_plugin(std::size_t index) const;
+	REXLIB_API const plugin& get_plugin(std::size_t index) const;
 
 private:
 	class implementation;
@@ -81,7 +81,7 @@ private:
  * @return std::string Default plugin directory.
  * 
  */
-XMIPP4_CORE_API 
+REXLIB_API 
 std::string get_default_plugin_directory();
 
 /**
@@ -94,7 +94,7 @@ std::string get_default_plugin_directory();
  * @see get_default_plugin_directory
  * 
  */
-XMIPP4_CORE_API 
+REXLIB_API 
 std::string get_plugin_directory();
 
 /**
@@ -104,7 +104,7 @@ std::string get_plugin_directory();
  * @param manager Plugin manager where plugins are loaded.
  * 
  */
-XMIPP4_CORE_API
+REXLIB_API
 void discover_plugins(const std::string& directory, plugin_manager &manager);
 
 /**
@@ -113,7 +113,7 @@ void discover_plugins(const std::string& directory, plugin_manager &manager);
  * @param manager Plugin manager where plugins are loaded.
  * 
  */
-XMIPP4_CORE_API
+REXLIB_API
 void discover_plugins(plugin_manager &manager);
 
 /**
@@ -125,7 +125,7 @@ void discover_plugins(plugin_manager &manager);
  * @param catalog Interface catalog where plugins will be registered.
  * @return std::size_t Number of plugins registered.
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::size_t register_all_plugins_at(
 	const plugin_manager &manager, 
 	service_catalog &catalog

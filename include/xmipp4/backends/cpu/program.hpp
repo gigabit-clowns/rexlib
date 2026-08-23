@@ -18,7 +18,7 @@ class thread_pool;
 /**
  * @brief CPU base class for executable programs.
  */
-class XMIPP4_CORE_API program
+class REXLIB_API program
 	: public xmipp4::program
 {
 public:

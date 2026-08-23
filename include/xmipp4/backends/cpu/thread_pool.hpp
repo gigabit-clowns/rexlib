@@ -54,13 +54,13 @@ public:
 	 * makes every @ref run serial, which is the shape a test asks for when it
 	 * wants the parallel path exercised on a single deterministic thread.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit thread_pool(std::size_t worker_count);
 
 	thread_pool(const thread_pool &other) = delete;
 	thread_pool(thread_pool &&other) = delete;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	~thread_pool();
 
 	thread_pool& operator=(const thread_pool &other) = delete;
@@ -73,7 +73,7 @@ public:
 	 *
 	 * @return std::size_t The number of participants.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_size() const noexcept;
 
 	/**
@@ -107,7 +107,7 @@ public:
 	 * thread, once every chunk already running has finished. The pool is
 	 * usable again afterwards.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void run(
 		std::size_t count,
 		std::size_t grain_size,
@@ -130,7 +130,7 @@ public:
 	 *
 	 * @return std::size_t The worker count, which may be zero.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static std::size_t get_default_worker_count();
 
 private:

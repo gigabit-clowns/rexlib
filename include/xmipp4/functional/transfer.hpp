@@ -29,7 +29,7 @@ class execution_context;
  * to it may have side-effects on the input array and vice-versa. Prefer
  * @ref transfer_copy if this is a concern.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array transfer(
 	array &input,
 	memory_resource_affinity affinity,
@@ -50,7 +50,7 @@ array transfer(
  * and it will be overwritten with the newly created array.
  * @return array The transferred array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array transfer_copy(
 	const_array_ref input,
 	memory_resource_affinity affinity,
@@ -72,7 +72,7 @@ array transfer_copy(
  * to it may have side-effects on the input array and vice-versa. Prefer 
  * @ref to_device_copy if this is a concern.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array to_device(
 	array &input,
 	const execution_context &context
@@ -87,7 +87,7 @@ array to_device(
  * and it will be overwritten with the newly created array.
  * @return array The transferred array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array to_device_copy(
 	const_array_ref input,
 	const execution_context &context,
@@ -108,7 +108,7 @@ array to_device_copy(
  * to it may have side-effects on the input array and vice-versa. Prefer 
  * @ref to_host_copy if this is a concern. 
  */
-XMIPP4_CORE_API
+REXLIB_API
 array to_host(
 	array &input,
 	const execution_context &context
@@ -123,7 +123,7 @@ array to_host(
  * and it will be overwritten with the newly created array.
  * @return array The transferred array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array to_host_copy(
 	const_array_ref input,
 	const execution_context &context,

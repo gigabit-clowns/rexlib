@@ -24,7 +24,7 @@ namespace xmipp4
  * be changed. Instances are typically lightweight and efficiently copied or
  * moved.
  */
-class XMIPP4_CORE_API program_scratch_requirement
+class REXLIB_API program_scratch_requirement
 {
 public:
 	/**

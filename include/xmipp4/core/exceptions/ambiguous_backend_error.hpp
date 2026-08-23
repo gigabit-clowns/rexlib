@@ -14,7 +14,7 @@ namespace xmipp4
  * backend candidates.
  */
 XMIPP4_STD_BASE_INTERFACE
-class XMIPP4_CORE_API ambiguous_backend_error : public std::runtime_error
+class REXLIB_API ambiguous_backend_error : public std::runtime_error
 {
 	using runtime_error::runtime_error;
 };

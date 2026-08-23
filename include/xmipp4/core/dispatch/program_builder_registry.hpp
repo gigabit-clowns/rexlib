@@ -30,10 +30,10 @@ using program_builder_factory =
 class program_builder_registry
 {
 public:
-	XMIPP4_CORE_API program_builder_registry();
+	REXLIB_API program_builder_registry();
 	program_builder_registry(const program_builder_registry &other) = delete;
 	program_builder_registry(program_builder_registry &&other) = delete;
-	XMIPP4_CORE_API ~program_builder_registry();
+	REXLIB_API ~program_builder_registry();
 
 	program_builder_registry&
 	operator=(const program_builder_registry &other) = delete;
@@ -46,7 +46,7 @@ public:
 	 * @param factory Function creating a fresh builder instance. Null
 	 * factories are ignored.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void add(program_builder_factory factory);
 
 	/**
@@ -55,7 +55,7 @@ public:
 	 *
 	 * @param manager The manager where the builders are registered.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void register_all(program_manager &manager) const;
 
 private:

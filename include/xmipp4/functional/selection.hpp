@@ -23,7 +23,7 @@ class execution_context;
  * @note The condition must be a boolean array. All three inputs must be
  * broadcast-compatible.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array where(
 	const_array_ref condition,
 	const_array_ref x,
@@ -46,7 +46,7 @@ array where(
  * against the value and may vary across it. Complex arrays are
  * not accepted, there being no ordering to clamp against.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array clip(
 	const_array_ref x,
 	const_array_ref lower,
@@ -70,7 +70,7 @@ array clip(
  * @note Complex arrays are not accepted, the complex plane having no
  * ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array maximum(
 	const_array_ref x,
 	const_array_ref y,
@@ -93,7 +93,7 @@ array maximum(
  * @note Complex arrays are not accepted, the complex plane having no
  * ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array minimum(
 	const_array_ref x,
 	const_array_ref y,

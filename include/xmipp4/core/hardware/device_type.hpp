@@ -25,7 +25,7 @@ enum class device_type
 	integrated_gpu,
 };
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(device_type type) noexcept;
 
 } // namespace xmipp4

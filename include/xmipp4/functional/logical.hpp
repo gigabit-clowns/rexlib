@@ -22,7 +22,7 @@ class execution_context;
  * @note Arrays of any type are accepted, an element counting as true
  * when it is non zero, and the result is boolean regardless.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array logical_and(
 	const_array_ref x,
 	const_array_ref y,
@@ -42,7 +42,7 @@ array logical_and(
  * @note Arrays of any type are accepted, an element counting as true
  * when it is non zero, and the result is boolean regardless.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array logical_or(
 	const_array_ref x,
 	const_array_ref y,
@@ -62,7 +62,7 @@ array logical_or(
  * @note Arrays of any type are accepted, an element counting as true
  * when it is non zero, and the result is boolean regardless.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array logical_xor(
 	const_array_ref x,
 	const_array_ref y,
@@ -81,7 +81,7 @@ array logical_xor(
  * @note Arrays of any type are accepted, an element counting as true
  * when it is non zero, and the result is boolean regardless.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array logical_not(
 	const_array_ref x,
 	const execution_context &context,

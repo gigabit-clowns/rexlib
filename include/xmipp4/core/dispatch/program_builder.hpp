@@ -25,7 +25,7 @@ class program_cache;
 /**
  * @brief Abstract representation of a factory class for operation programs
  */
-class XMIPP4_CORE_API program_builder
+class REXLIB_API program_builder
 {
 public:
 	program_builder() noexcept;

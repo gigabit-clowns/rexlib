@@ -25,7 +25,7 @@ namespace ops
  *
  * Stateless, and so shared by every instance.
  */
-class XMIPP4_CORE_API matrix_multiply_shape_policy final
+class REXLIB_API matrix_multiply_shape_policy final
 	: public operation_shape_policy
 {
 public:

@@ -27,7 +27,7 @@ class execution_context;
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array empty(
 	array_descriptor descriptor,
 	memory_resource_affinity affinity,
@@ -45,7 +45,7 @@ array empty(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array zeros(
 	array_descriptor descriptor,
 	memory_resource_affinity affinity,
@@ -63,7 +63,7 @@ array zeros(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ones(
 	array_descriptor descriptor,
 	memory_resource_affinity affinity,
@@ -82,7 +82,7 @@ array ones(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array full(
 	array_descriptor descriptor,
 	memory_resource_affinity affinity,
@@ -118,7 +118,7 @@ array full(
  * @throws std::invalid_argument If the step is zero, or if the length the
  * bounds describe is not a finite number.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array arange(
 	const scalar_value &start,
 	const scalar_value &stop,
@@ -141,7 +141,7 @@ array arange(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array arange(
 	const scalar_value &start,
 	const scalar_value &stop,
@@ -162,7 +162,7 @@ array arange(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array arange(
 	const scalar_value &stop,
 	numerical_type data_type,
@@ -191,7 +191,7 @@ array arange(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array linspace(
 	const scalar_value &start,
 	const scalar_value &stop,
@@ -219,7 +219,7 @@ array linspace(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array linspace(
 	const scalar_value &start,
 	const scalar_value &stop,
@@ -239,7 +239,7 @@ array linspace(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array copy(
 	const_array_ref source,
 	const execution_context &context,
@@ -254,7 +254,7 @@ array copy(
  * @param context The execution context used for dispatching.
  * @return array The filled array.
  */
-XMIPP4_CORE_API
+REXLIB_API
 void fill(
 	array &out,
 	const scalar_value &fill_value,

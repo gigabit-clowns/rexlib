@@ -25,7 +25,7 @@ class execution_context;
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise sum.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array add(
 	const_array_ref x,
 	const_array_ref y,
@@ -46,7 +46,7 @@ array add(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise difference x - y.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array subtract(
 	const_array_ref x,
 	const_array_ref y,
@@ -62,7 +62,7 @@ array subtract(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise negation -x.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array negate(
 	const_array_ref x,
 	const execution_context &context,
@@ -80,7 +80,7 @@ array negate(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise absolute value.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array abs(
 	const_array_ref x,
 	const execution_context &context,
@@ -100,7 +100,7 @@ array abs(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise product.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array multiply(
 	const_array_ref x,
 	const_array_ref y,
@@ -121,7 +121,7 @@ array multiply(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise quotient x / y.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array divide(
 	const_array_ref x,
 	const_array_ref y,
@@ -145,7 +145,7 @@ array divide(
  * @note The modulo behaves as Python's modulo and not like C's modulo. This is,
  * output has the same sign as the divisor.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array modulo(
 	const_array_ref x,
 	const_array_ref y,
@@ -172,7 +172,7 @@ array modulo(
  *
  * @see modulo
  */
-XMIPP4_CORE_API
+REXLIB_API
 array floor_divide(
 	const_array_ref x,
 	const_array_ref y,
@@ -191,7 +191,7 @@ array floor_divide(
  * @note For complex types the result is the unit value with the same
  * argument, x / |x|, rather than the sign of the real part.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sign(
 	const_array_ref x,
 	const execution_context &context,
@@ -219,7 +219,7 @@ array sign(
  * @see floor_divide
  * @see modulo
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::pair<array, array> divmod(
 	const_array_ref x,
 	const_array_ref y,

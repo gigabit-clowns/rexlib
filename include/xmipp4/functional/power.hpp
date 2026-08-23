@@ -26,7 +26,7 @@ class execution_context;
  * @note A negative exponent has no representable result for integer
  * arrays, and is reported by the backend rather than rejected up front.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array power(
 	const_array_ref x,
 	const_array_ref y,
@@ -42,7 +42,7 @@ array power(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise square.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array square(
 	const_array_ref x,
 	const execution_context &context,
@@ -60,7 +60,7 @@ array square(
  * @note Integer arrays are not accepted: the reciprocal of every integer of
  * magnitude above one is zero.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array reciprocal(
 	const_array_ref x,
 	const execution_context &context,
@@ -79,7 +79,7 @@ array reciprocal(
  * type and yields NaN. Cast the input to a complex type first to obtain
  * the complex branch.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sqrt(
 	const_array_ref x,
 	const execution_context &context,
@@ -97,7 +97,7 @@ array sqrt(
  * @note Unlike @ref sqrt this is defined for negative arrays, and accepts only
  * real floating point ones.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cbrt(
 	const_array_ref x,
 	const execution_context &context,
@@ -112,7 +112,7 @@ array cbrt(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise exponential.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array exp(
 	const_array_ref x,
 	const execution_context &context,
@@ -127,7 +127,7 @@ array exp(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise base two exponential.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array exp2(
 	const_array_ref x,
 	const execution_context &context,
@@ -145,7 +145,7 @@ array exp2(
  * @note Accurate for arrays close to zero, where computing the exponential and
  * subtracting one loses the significant digits.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array expm1(
 	const_array_ref x,
 	const execution_context &context,
@@ -160,7 +160,7 @@ array expm1(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise natural logarithm.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array log(
 	const_array_ref x,
 	const execution_context &context,
@@ -175,7 +175,7 @@ array log(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise base two logarithm.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array log2(
 	const_array_ref x,
 	const execution_context &context,
@@ -190,7 +190,7 @@ array log2(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise base ten logarithm.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array log10(
 	const_array_ref x,
 	const execution_context &context,
@@ -208,7 +208,7 @@ array log10(
  * @note Accurate for arrays close to zero, where adding one first loses the
  * significant digits.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array log1p(
 	const_array_ref x,
 	const execution_context &context,

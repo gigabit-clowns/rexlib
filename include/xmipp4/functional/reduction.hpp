@@ -29,7 +29,7 @@ class execution_context;
  * @note Every type add accepts is admitted, including boolean, whose sum is a
  * disjunction. Overflow is a question about values, not about types.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sum(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -46,7 +46,7 @@ array sum(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the sums.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sum(
 	const_array_ref x,
 	const execution_context &context,
@@ -66,7 +66,7 @@ array sum(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the products.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array product(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -83,7 +83,7 @@ array product(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the products.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array product(
 	const_array_ref x,
 	const execution_context &context,
@@ -106,7 +106,7 @@ array product(
  * @note Named apart from the element-wise @ref minimum, which is a different
  * operation. Complex arrays are not accepted, there being no ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array amin(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -123,7 +123,7 @@ array amin(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the minima.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array amin(
 	const_array_ref x,
 	const execution_context &context,
@@ -146,7 +146,7 @@ array amin(
  * @note Named apart from the element-wise @ref maximum, which is a different
  * operation. Complex arrays are not accepted, there being no ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array amax(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -163,7 +163,7 @@ array amax(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the maxima.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array amax(
 	const_array_ref x,
 	const execution_context &context,
@@ -186,7 +186,7 @@ array amax(
  * @note An element counts as true when it is non zero, so any type is accepted
  * and the result is boolean regardless.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array all(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -203,7 +203,7 @@ array all(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the tests.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array all(
 	const_array_ref x,
 	const execution_context &context,
@@ -226,7 +226,7 @@ array all(
  * @note An element counts as true when it is non zero, so any type is accepted
  * and the result is boolean regardless.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array any(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -243,7 +243,7 @@ array any(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the tests.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array any(
 	const_array_ref x,
 	const execution_context &context,
@@ -265,7 +265,7 @@ array any(
  *
  * @note The result holds indices, and so is int64 whatever the input type was.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array argmin(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -282,7 +282,7 @@ array argmin(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the indices of the minima.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array argmin(
 	const_array_ref x,
 	const execution_context &context,
@@ -304,7 +304,7 @@ array argmin(
  *
  * @note The result holds indices, and so is int64 whatever the input type was.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array argmax(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -321,7 +321,7 @@ array argmax(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the indices of the maxima.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array argmax(
 	const_array_ref x,
 	const execution_context &context,
@@ -343,7 +343,7 @@ array argmax(
  *
  * @note The result holds counts, and so is int64 whatever the input type was.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array count_nonzero(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -360,7 +360,7 @@ array count_nonzero(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the counts.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array count_nonzero(
 	const_array_ref x,
 	const execution_context &context,
@@ -383,7 +383,7 @@ array count_nonzero(
  * @note The result has the inexact counterpart of the input type: an integer
  * array averages to float64, while a float32 one stays float32.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array mean(
 	const_array_ref x,
 	span<const std::ptrdiff_t> axes,
@@ -400,7 +400,7 @@ array mean(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the averages.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array mean(
 	const_array_ref x,
 	const execution_context &context,

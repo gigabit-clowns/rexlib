@@ -21,7 +21,7 @@ class event;
  * same queue execute in submission order; programs in different queues may
  * execute concurrently.
  */
-class XMIPP4_CORE_API command_queue
+class REXLIB_API command_queue
 {
 public:
 	command_queue() noexcept;

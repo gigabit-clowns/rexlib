@@ -24,7 +24,7 @@ class operation_id;
  * Subclasses of it may implement the specific behavior for each of the
  * operations.
  */
-class XMIPP4_CORE_API operation
+class REXLIB_API operation
 {
 public:
 	operation() noexcept;

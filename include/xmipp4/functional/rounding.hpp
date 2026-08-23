@@ -20,7 +20,7 @@ class execution_context;
  *
  * @note Integer arrays are not accepted, rounding one being a copy.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array floor(
 	const_array_ref x,
 	const execution_context &context,
@@ -35,7 +35,7 @@ array floor(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise ceiling.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array ceil(
 	const_array_ref x,
 	const execution_context &context,
@@ -50,7 +50,7 @@ array ceil(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise truncation.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array trunc(
 	const_array_ref x,
 	const execution_context &context,
@@ -68,7 +68,7 @@ array trunc(
  * @note Ties are resolved towards the even neighbour, as IEEE 754 requires,
  * rather than away from zero.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array round(
 	const_array_ref x,
 	const execution_context &context,

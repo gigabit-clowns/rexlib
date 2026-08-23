@@ -27,7 +27,7 @@ class program_cache;
  * The operation program builders are cataloged by their intended operation such
  * that it allows fast retrieval.
  */
-class XMIPP4_CORE_API program_manager
+class REXLIB_API program_manager
 	: public service_manager
 {
 public:

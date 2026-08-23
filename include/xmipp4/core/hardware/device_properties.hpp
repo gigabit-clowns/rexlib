@@ -26,18 +26,18 @@ namespace xmipp4
 class device_properties
 {
 public:
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_properties() noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_properties(const device_properties& other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_properties(device_properties&& other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~device_properties();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_properties& operator=(const device_properties& other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_properties& operator=(device_properties&& other) noexcept;
 
 	/**
@@ -50,7 +50,7 @@ public:
 	 *
 	 * @param[in] type The device type.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_type(device_type type);
 
 	/**
@@ -59,7 +59,7 @@ public:
 	 * @return device_type The device type, or @ref device_type::unknown if no
 	 * value has been set.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_type get_type() const noexcept;
 
 	/**
@@ -71,7 +71,7 @@ public:
 	 *
 	 * @param[in] name The device name.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_name(const std::string &name);
 
 	/**
@@ -81,7 +81,7 @@ public:
 	 * none has been set. The reference is valid until the next
 	 * non-const operation on this object.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::string& get_name() const noexcept;
 
 	/**
@@ -93,7 +93,7 @@ public:
 	 *
 	 * @param[in] location The physical location of the device.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_physical_location(const std::string &location);
 
 	/**
@@ -106,7 +106,7 @@ public:
 	 * or an empty string if none has been set. The reference is valid
 	 * until the next non-const operation on this object.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::string& get_physical_location() const noexcept;
 
 	/**
@@ -118,7 +118,7 @@ public:
 	 *
 	 * @param[in] bytes Number of bytes.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_total_memory_bytes(std::size_t bytes);
 
 	/**
@@ -127,7 +127,7 @@ public:
 	 * @return std::size_t Number of bytes, or zero if the value has not
 	 * been set by the backend.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_total_memory_bytes() const noexcept;
 
 	/**
@@ -139,7 +139,7 @@ public:
 	 *
 	 * @param[in] alignment The optimal data alignment in bytes.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_optimal_data_alignment(std::size_t alignment);
 
 	/**
@@ -148,7 +148,7 @@ public:
 	 * @return std::size_t The optimal data alignment in bytes, or zero
 	 * if no value has been set.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_optimal_data_alignment() const noexcept;
 
 private:

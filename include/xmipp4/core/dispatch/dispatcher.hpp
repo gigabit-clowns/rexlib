@@ -34,7 +34,7 @@ class program_manager;
  * Different implementations may realize different execution strategies, such
  * as eager submission or deferred graph building.
  */
-class XMIPP4_CORE_API dispatcher
+class REXLIB_API dispatcher
 {
 public:
 	dispatcher() noexcept;
@@ -84,7 +84,7 @@ public:
  *
  * @throws std::invalid_argument if @p program_manager is null.
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::shared_ptr<dispatcher> make_eager_dispatcher(
 	std::shared_ptr<const program_manager> program_manager
 );

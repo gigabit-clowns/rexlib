@@ -21,7 +21,7 @@ namespace xmipp4
  * @see aligned_free
  * 
  */
-XMIPP4_CORE_API
+REXLIB_API
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept;
 
 /**
@@ -31,7 +31,7 @@ void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept;
 
  * @see aligned_alloc
  */
-XMIPP4_CORE_API
+REXLIB_API
 void aligned_free(void* ptr) noexcept;
 
 } // namespace xmipp4

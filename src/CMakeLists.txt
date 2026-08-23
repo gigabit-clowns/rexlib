@@ -53,7 +53,7 @@ function(xmipp4_add_component NAME DIR)
 	target_compile_definitions(
 		${NAME}
 		PRIVATE
-			XMIPP4_CORE_EXPORTING
+			REXLIB_EXPORTING
 			VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
 			VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
 			VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
@@ -102,7 +102,7 @@ function(xmipp4_add_component NAME DIR)
 	endif()
 
 	# Add coverage flags if requested
-	if(XMIPP4_CORE_ENABLE_COVERAGE)
+	if(REXLIB_ENABLE_COVERAGE)
 		if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 			target_compile_options(${NAME} PRIVATE --coverage -O0 -g)
 		elseif(MSVC)
@@ -154,7 +154,7 @@ if(MSVC)
 endif()
 
 # Add coverage flags if requested
-if(XMIPP4_CORE_ENABLE_COVERAGE)
+if(REXLIB_ENABLE_COVERAGE)
 	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 		target_link_options(xmipp4-core PUBLIC --coverage)
 	elseif(MSVC)

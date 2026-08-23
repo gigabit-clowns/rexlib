@@ -43,7 +43,7 @@ public:
 	 * @param input_operand_names Names of the input operands, in signature
 	 * order.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	operation_descriptor(
 		const char *component,
 		const char *name,
@@ -65,7 +65,7 @@ public:
 	 *
 	 * @return const char* The component name.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const char* get_component() const noexcept;
 
 	/**
@@ -73,7 +73,7 @@ public:
 	 *
 	 * @return const char* The name.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const char* get_name() const noexcept;
 
 	/**
@@ -81,7 +81,7 @@ public:
 	 *
 	 * @return operation_arity The arity.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	operation_arity get_arity() const noexcept;
 
 	/**
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return span<const char* const> The names, in signature order.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<const char* const> get_output_operand_names() const noexcept;
 
 	/**
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @return span<const char* const> The names, in signature order.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<const char* const> get_input_operand_names() const noexcept;
 
 	/**
@@ -109,7 +109,7 @@ public:
 	 * range. Building a diagnostic must not be able to fail, so callers are
 	 * expected to tolerate a missing name rather than assert on it.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const char* get_operand_name(
 		std::size_t index,
 		bool output_operand
@@ -151,7 +151,7 @@ private:
  * @param output_operand Whether the operand is an output.
  * @return std::string The description.
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::string describe_operand(
 	const operation_descriptor &descriptor,
 	std::size_t index,

@@ -19,7 +19,7 @@ class execution_context;
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise comparison.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array equal(
 	const_array_ref x,
 	const_array_ref y,
@@ -36,7 +36,7 @@ array equal(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise comparison.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array not_equal(
 	const_array_ref x,
 	const_array_ref y,
@@ -56,7 +56,7 @@ array not_equal(
  * @note Complex arrays are not accepted, the complex plane having no
  * ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array less(
 	const_array_ref x,
 	const_array_ref y,
@@ -77,7 +77,7 @@ array less(
  * @note Complex arrays are not accepted, the complex plane having no
  * ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array less_equal(
 	const_array_ref x,
 	const_array_ref y,
@@ -97,7 +97,7 @@ array less_equal(
  * @note Complex arrays are not accepted, the complex plane having no
  * ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array greater(
 	const_array_ref x,
 	const_array_ref y,
@@ -118,7 +118,7 @@ array greater(
  * @note Complex arrays are not accepted, the complex plane having no
  * ordering.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array greater_equal(
 	const_array_ref x,
 	const_array_ref y,

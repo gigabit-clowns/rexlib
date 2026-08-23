@@ -23,7 +23,7 @@ class thread_pool;
  * static destruction, which on Windows means joining threads the loader has
  * already stopped.
  */
-class XMIPP4_CORE_API device final
+class REXLIB_API device final
 	: public xmipp4::device
 {
 public:

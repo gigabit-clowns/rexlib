@@ -18,7 +18,7 @@ public:
 	/**
 	 * @brief Construct an arity with no outputs and no inputs.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	operation_arity() noexcept;
 
 	/**
@@ -27,7 +27,7 @@ public:
 	 * @param output_count The number of output operands.
 	 * @param input_count The number of input operands.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	operation_arity(
 		std::size_t output_count,
 		std::size_t input_count
@@ -45,7 +45,7 @@ public:
 	 *
 	 * @return std::size_t The output count.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_output_count() const noexcept;
 
 	/**
@@ -53,7 +53,7 @@ public:
 	 *
 	 * @return std::size_t The input count.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_input_count() const noexcept;
 
 	/**
@@ -64,7 +64,7 @@ public:
 	 *
 	 * @return operation_arity Arity with one output and no inputs.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static operation_arity nullary() noexcept;
 
 	/**
@@ -75,7 +75,7 @@ public:
 	 *
 	 * @return operation_arity Arity with one output and one input.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static operation_arity unary() noexcept;
 
 	/**
@@ -86,7 +86,7 @@ public:
 	 *
 	 * @return operation_arity Arity with one output and two inputs.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static operation_arity binary() noexcept;
 
 	/**
@@ -97,7 +97,7 @@ public:
 	 *
 	 * @return operation_arity Arity with one output and three inputs.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static operation_arity ternary() noexcept;
 
 	friend bool operator==(

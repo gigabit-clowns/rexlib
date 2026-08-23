@@ -30,7 +30,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * already carries.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API fill_operation final
+class REXLIB_API fill_operation final
 	: public trivial_operation<fill_operation, fill_operation_traits>
 {
 public:

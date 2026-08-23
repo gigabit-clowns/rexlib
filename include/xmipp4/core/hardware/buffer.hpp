@@ -21,7 +21,7 @@ class memory_allocator;
  * A buffer is a handle to a contiguous block of memory. It carries no type 
  * information of its own.
  */
-class XMIPP4_CORE_API buffer
+class REXLIB_API buffer
 {
 public:
 	buffer() noexcept;

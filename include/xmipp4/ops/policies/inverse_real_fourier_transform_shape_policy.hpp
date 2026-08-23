@@ -30,10 +30,10 @@ enum class signal_parity
 	odd
 };
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(signal_parity parity) noexcept;
 
-XMIPP4_CORE_API
+REXLIB_API
 std::ostream& operator<<(std::ostream &os, signal_parity parity);
 
 /**
@@ -49,7 +49,7 @@ std::ostream& operator<<(std::ostream &os, signal_parity parity);
  *
  * @see real_fourier_transform_shape_policy
  */
-class XMIPP4_CORE_API inverse_real_fourier_transform_shape_policy final
+class REXLIB_API inverse_real_fourier_transform_shape_policy final
 	: public operation_shape_policy
 {
 public:
@@ -102,7 +102,7 @@ private:
  * @param parity The parity of the axis before it was transformed.
  * @return std::size_t The number of samples.
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::size_t compute_real_signal_extent(
 	std::size_t stored,
 	signal_parity parity
@@ -116,7 +116,7 @@ std::size_t compute_real_signal_extent(
  * @param extent The number of samples along the axis.
  * @return signal_parity The parity.
  */
-XMIPP4_CORE_API
+REXLIB_API
 signal_parity get_signal_parity(std::size_t extent) noexcept;
 
 } // namespace ops

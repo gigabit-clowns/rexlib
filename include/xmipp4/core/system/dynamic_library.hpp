@@ -16,7 +16,7 @@ namespace xmipp4
  * dynamic libraries
  * 
  */
-class XMIPP4_CORE_API dynamic_library
+class REXLIB_API dynamic_library
 {
 public:
 	/**
@@ -108,6 +108,6 @@ private:
 /**
  * @brief Exchange two dynamic_library objects
  */
-XMIPP4_CORE_API void swap(dynamic_library& lhs, dynamic_library& rhs) noexcept;
+REXLIB_API void swap(dynamic_library& lhs, dynamic_library& rhs) noexcept;
 
 } // namespace xmipp4

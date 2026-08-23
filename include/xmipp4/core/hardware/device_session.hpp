@@ -43,14 +43,14 @@ public:
 	 * @throws std::runtime_error if a required @ref memory_resource_affinity
 	 * has no suitable resource on @p dev.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_session(
 		std::shared_ptr<device> dev,
 		device_properties properties
 	);
 	device_session(const device_session &other) = delete;
 	device_session(device_session &&other) = delete;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~device_session();
 
 	device_session& operator=(const device_session &other) = delete;
@@ -61,7 +61,7 @@ public:
 	 *
 	 * @return A reference to the non-null device handle.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<device>& get_device() const noexcept;
 
 	/**
@@ -69,7 +69,7 @@ public:
 	 *
 	 * @return A reference to the device's @ref device_properties.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const device_properties& get_properties() const noexcept;
 
 	/**
@@ -81,7 +81,7 @@ public:
 	 * @param affinity The desired memory_resource_affinity (host or device).
 	 * @return A reference to the non-null allocator for @p affinity.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<memory_allocator>&
 	get_allocator(memory_resource_affinity affinity) const noexcept;
 
@@ -92,7 +92,7 @@ public:
 	 *
 	 * @see command_queue
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<command_queue>& get_default_queue() const noexcept;
 
 private:

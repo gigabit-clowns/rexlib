@@ -163,7 +163,7 @@ public:
 	 * @param domain The domain to be written.
 	 * @return std::ostream& The stream.
 	 */
-	friend XMIPP4_CORE_API std::ostream& operator<<(
+	friend REXLIB_API std::ostream& operator<<(
 		std::ostream &os,
 		const numerical_type_domain &domain
 	);

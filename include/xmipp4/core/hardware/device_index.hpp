@@ -34,7 +34,7 @@ public:
 	 * @param device_id ID of the device within @p backend_name, as
 	 * returned by @ref device_backend::enumerate_devices.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index(const std::string &backend_name, std::size_t device_id);
 
 	/**
@@ -46,21 +46,21 @@ public:
 	 * @param device_id ID of the device within @p backend_name, as
 	 * returned by @ref device_backend::enumerate_devices.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index(std::string &&backend_name, std::size_t device_id);
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index() noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index(const device_index &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index(device_index &&other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~device_index();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index& operator=(const device_index &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_index& operator=(device_index &&other) noexcept;
 
 	/**
@@ -70,7 +70,7 @@ public:
 	 * The reference is valid for the lifetime of this @ref device_index
 	 * and is invalidated by assignment to or destruction of the object.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::string& get_backend_name() const noexcept;
 
 	/**
@@ -80,7 +80,7 @@ public:
 	 * meaningful when interpreted by the backend identified by
 	 * @ref get_backend_name.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t get_device_id() const noexcept;
 
 	friend bool
@@ -160,7 +160,7 @@ private:
  * @return true The string was parsed successfully and the result was written.
  * @return false The string was not parsed and the result was not written.
  */
-XMIPP4_CORE_API
+REXLIB_API
 bool parse_device_index(std::string_view text, device_index &result);
 
 } // namespace xmipp4

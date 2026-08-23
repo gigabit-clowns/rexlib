@@ -41,7 +41,7 @@ namespace xmipp4
  * @param operation_pivots Values supplied by the operation instance.
  * @return type_rule_resolution The resolution.
  */
-XMIPP4_CORE_API
+REXLIB_API
 type_rule_resolution resolve_pivots(
 	span<const pivot_descriptor> pivots,
 	span<const numerical_type> input_types,
@@ -59,7 +59,7 @@ type_rule_resolution resolve_pivots(
  * @param user_output_types Data types of the user supplied outputs.
  * @return type_rule_resolution The resolution with every pivot bound.
  */
-XMIPP4_CORE_API
+REXLIB_API
 type_rule_resolution bind_free_pivots(
 	span<const pivot_descriptor> pivots,
 	const type_rule_resolution &partial,
@@ -75,7 +75,7 @@ type_rule_resolution bind_free_pivots(
  * @return type_rule_resolution A successful resolution, or the reason a
  * transform could not be evaluated.
  */
-XMIPP4_CORE_API
+REXLIB_API
 type_rule_resolution evaluate_slots(
 	span<const slot_descriptor> slots,
 	const type_rule_resolution &resolution,
@@ -94,7 +94,7 @@ type_rule_resolution evaluate_slots(
  * @return type_rule_resolution A successful resolution, or the reason an
  * operand was rejected.
  */
-XMIPP4_CORE_API
+REXLIB_API
 type_rule_resolution check_slots(
 	span<const slot_descriptor> slots,
 	const type_rule_resolution &resolution,
@@ -113,7 +113,7 @@ type_rule_resolution check_slots(
  * @param pivots The rule's pivot table.
  * @throws std::invalid_argument Always.
  */
-XMIPP4_NORETURN XMIPP4_CORE_API
+XMIPP4_NORETURN REXLIB_API
 void throw_type_rule_error(
 	const operation_descriptor &descriptor,
 	const type_rule_resolution &resolution,

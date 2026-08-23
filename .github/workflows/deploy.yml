@@ -170,8 +170,8 @@ jobs:
         source-dir: ${{ github.workspace }}
         build-dir: "${{ github.workspace }}/build"
         options: |
-          XMIPP4_CORE_BUILD_DOC=ON
-          XMIPP4_CORE_BUILD_SPDLOG=ON
+          REXLIB_BUILD_DOC=ON
+          REXLIB_BUILD_SPDLOG=ON
           BUILD_TESTING=OFF
         run-build: true
         build-args: --target doxygen

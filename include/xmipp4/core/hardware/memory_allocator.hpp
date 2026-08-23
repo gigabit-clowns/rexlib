@@ -24,7 +24,7 @@ class memory_resource;
  * work referencing it is still in flight, the allocator defers the actual 
  * release until that work has completed.
  */
-class XMIPP4_CORE_API memory_allocator
+class REXLIB_API memory_allocator
 {
 public:
 	memory_allocator() noexcept;

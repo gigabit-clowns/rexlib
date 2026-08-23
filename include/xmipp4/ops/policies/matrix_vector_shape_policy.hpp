@@ -29,7 +29,7 @@ namespace ops
  * @see vector_matrix_shape_policy
  * @see matrix_multiply_shape_policy
  */
-class XMIPP4_CORE_API matrix_vector_shape_policy final
+class REXLIB_API matrix_vector_shape_policy final
 	: public operation_shape_policy
 {
 public:

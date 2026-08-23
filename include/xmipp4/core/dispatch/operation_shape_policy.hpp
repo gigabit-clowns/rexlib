@@ -29,7 +29,7 @@ namespace xmipp4
  *     override only for policies that admit broader-but-compatible user
  *     outputs.
  */
-class XMIPP4_CORE_API operation_shape_policy
+class REXLIB_API operation_shape_policy
 {
 public:
 	using shape_type = std::vector<std::size_t>;

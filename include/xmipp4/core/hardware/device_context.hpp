@@ -67,7 +67,7 @@ public:
 	 *
 	 * @throws std::invalid_argument if @p session is null.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit device_context(std::shared_ptr<const device_session> session);
 
 	device_context(const device_context &other) = default;
@@ -83,7 +83,7 @@ public:
 	 * @return A reference to the wrapped session, or to a null pointer if
 	 * this context is empty.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<const device_session>&
 	get_device_session() const noexcept;
 
@@ -95,7 +95,7 @@ public:
 	 * @return A reference to the active queue, or to a null pointer if this
 	 * context is empty.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<command_queue>& get_active_queue() const noexcept;
 
 	/**
@@ -108,7 +108,7 @@ public:
 	 * @return A reference to the allocator for @p affinity, or to a null
 	 * pointer if this context is empty.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const std::shared_ptr<memory_allocator>&
 	get_allocator(memory_resource_affinity affinity) const noexcept;
 
@@ -120,7 +120,7 @@ public:
 	 * uses device_session's default queue on the returned device_context.
 	 * @return A copy of this context with @p queue as its active queue.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_context on_queue(std::shared_ptr<command_queue> queue) const;
 
 	/**
@@ -141,7 +141,7 @@ public:
 	 * slot where it is being installed.
 	 * @return A copy of this context with the updated allocator slot.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	device_context with_allocator(
 		memory_resource_affinity affinity,
 		std::shared_ptr<memory_allocator> allocator

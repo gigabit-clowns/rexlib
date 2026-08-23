@@ -21,7 +21,7 @@ class execution_context;
  * @note Only floating point and complex arrays are accepted, no other
  * type being able to hold such a value.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array is_nan(
 	const_array_ref x,
 	const execution_context &context,
@@ -39,7 +39,7 @@ array is_nan(
  * @note Only floating point and complex arrays are accepted, no other
  * type being able to hold an infinity.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array is_inf(
 	const_array_ref x,
 	const execution_context &context,
@@ -57,7 +57,7 @@ array is_inf(
  * @note Only floating point and complex arrays are accepted, no other
  * type being able to hold a non finite value.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array is_finite(
 	const_array_ref x,
 	const execution_context &context,
@@ -76,7 +76,7 @@ array is_finite(
  * negative zero from positive zero; for integers, comparing
  * against zero says the same thing more plainly.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array sign_bit(
 	const_array_ref x,
 	const execution_context &context,
@@ -92,7 +92,7 @@ array sign_bit(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise composition.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array copysign(
 	const_array_ref x,
 	const_array_ref y,

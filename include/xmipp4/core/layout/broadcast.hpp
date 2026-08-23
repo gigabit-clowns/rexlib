@@ -24,7 +24,7 @@ class strided_layout;
  * @param extents2 The second set of extents.
  * @throws std::broadcast_error when one of of the extents cannot be broadcasted.
  */
-XMIPP4_CORE_API
+REXLIB_API
 void broadcast_extents(
 	std::vector<std::size_t> &extents1, 
 	std::vector<std::size_t> &extents2
@@ -38,7 +38,7 @@ void broadcast_extents(
  * @param other The other set of extents.
  * @throws std::broadcast_error when one of of the extents cannot be broadcasted.
  */
-XMIPP4_CORE_API
+REXLIB_API
 void broadcast_extents_accumulate(
 	std::vector<std::size_t> &result, 
 	span<const std::size_t> other
@@ -52,7 +52,7 @@ void broadcast_extents_accumulate(
  * @return true If both shapes are compatible. 
  * @return false If both shapes are not compatible. 
  */
-XMIPP4_CORE_API
+REXLIB_API
 bool is_broadcast_compatible(
 	span<const std::size_t> extents1,
 	span<const std::size_t> extents2
@@ -66,7 +66,7 @@ bool is_broadcast_compatible(
  * @return true If both shapes are compatible. 
  * @return false If both shapes are not compatible. 
  */
-XMIPP4_CORE_API
+REXLIB_API
 bool is_broadcastable_to(
 	span<const std::size_t> from_extents,
 	span<const std::size_t> to_extents

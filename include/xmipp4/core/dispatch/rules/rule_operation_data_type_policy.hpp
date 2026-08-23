@@ -36,7 +36,7 @@ namespace xmipp4
  * @see operand_type_rule
  * @see rule_data_type_policy
  */
-class XMIPP4_CORE_API rule_operation_data_type_policy final
+class REXLIB_API rule_operation_data_type_policy final
 	: public operation_data_type_policy
 {
 public:

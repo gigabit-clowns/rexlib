@@ -33,7 +33,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * from either 2*(m - 1) or 2*m - 1 samples.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API irfft_operation final
+class REXLIB_API irfft_operation final
 	: public parametric_operation<irfft_operation, irfft_operation_traits>
 {
 public:

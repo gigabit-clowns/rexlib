@@ -28,7 +28,7 @@ namespace xmipp4
  *     override only for policies that admit user outputs other than the
  *     canonical one (e.g. type-converting copies).
  */
-class XMIPP4_CORE_API operation_data_type_policy
+class REXLIB_API operation_data_type_policy
 {
 public:
 	operation_data_type_policy() noexcept;

@@ -26,7 +26,7 @@ public:
 	 * unknown numerical type.
 	 * 
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	array_descriptor() noexcept;
 
 	/**
@@ -35,22 +35,22 @@ public:
 	 * @param layout The layout.
 	 * @param data_type The numerical type.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	array_descriptor(
 		strided_layout layout,
 		numerical_type data_type
 	) noexcept;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	array_descriptor(const array_descriptor &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	array_descriptor(array_descriptor &&other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~array_descriptor();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	array_descriptor& operator=(const array_descriptor &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	array_descriptor& operator=(array_descriptor &&other) noexcept;
 
 	/**
@@ -58,7 +58,7 @@ public:
 	 * 
 	 * @return std::size_t The hash value.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t hash() const noexcept;
 
 	/**
@@ -66,7 +66,7 @@ public:
 	 * 
 	 * @return const strided_layout& The layout.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const strided_layout& get_layout() const noexcept;
 
 	/**
@@ -74,7 +74,7 @@ public:
 	 * 
 	 * @return numerical_type The numerical type.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	numerical_type get_data_type() const noexcept;
 
 	friend bool operator==(
@@ -112,7 +112,7 @@ private:
  *
  * @see strided_layout::make_contiguous_layout
  */
-XMIPP4_CORE_API
+REXLIB_API
 array_descriptor make_contiguous_array_descriptor(
 	span<const std::size_t> extents,
 	numerical_type data_type
@@ -125,7 +125,7 @@ array_descriptor make_contiguous_array_descriptor(
  * @return true If the descriptor is initialized.
  * @return false If the descriptor is not initialized.
  */
-XMIPP4_CORE_API
+REXLIB_API
 bool is_initialized(const array_descriptor &descriptor) noexcept;
 
 /**
@@ -135,7 +135,7 @@ bool is_initialized(const array_descriptor &descriptor) noexcept;
  * computed.
  * @return std::size_t Minimum number of bytes required to store the descriptor.
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::size_t compute_storage_requirement(const array_descriptor &descriptor);
 
 } // namespace xmipp4

@@ -26,7 +26,7 @@ namespace ops
  * The rank is one because that is the shape the family produces: a sequence
  * is enumerated along a single axis, and anything else is a reshape of it.
  */
-class XMIPP4_CORE_API sequence_operation_shape_policy final
+class REXLIB_API sequence_operation_shape_policy final
 	: public operation_shape_policy
 {
 public:

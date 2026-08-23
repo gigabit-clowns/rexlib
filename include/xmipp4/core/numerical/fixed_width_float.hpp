@@ -18,7 +18,7 @@ namespace xmipp4
  * As there is no standardized half-width float type in C/C++ use a
  * placeholder.
  */
-class XMIPP4_CORE_API float16_t
+class REXLIB_API float16_t
 {
 public:
 	float16_t() noexcept;

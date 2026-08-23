@@ -74,19 +74,19 @@ enum class fourier_direction
 	inverse
 };
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(fourier_normalization normalization) noexcept;
 
-XMIPP4_CORE_API
+REXLIB_API
 std::ostream& operator<<(
 	std::ostream &os,
 	fourier_normalization normalization
 );
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(fourier_direction direction) noexcept;
 
-XMIPP4_CORE_API
+REXLIB_API
 std::ostream& operator<<(std::ostream &os, fourier_direction direction);
 
 /**
@@ -108,7 +108,7 @@ std::ostream& operator<<(std::ostream &os, fourier_direction direction);
  * there being nothing to scale.
  * @return double The factor.
  */
-XMIPP4_CORE_API
+REXLIB_API
 double get_fourier_scale(
 	fourier_normalization normalization,
 	fourier_direction direction,

@@ -23,7 +23,7 @@ class execution_context;
  * @param input_operands The input operands.
  * @param context The execution context used for dispatching.
  */
-XMIPP4_CORE_API
+REXLIB_API
 void execute(
 	const operation &operation,
 	span<array> output_operands,
@@ -39,7 +39,7 @@ void execute(
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array execute(
 	const operation &operation,
 	span<const const_array_ref> input_operands,
@@ -55,7 +55,7 @@ array execute(
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array execute_unary(
 	const operation &operation,
 	const const_array_ref &input,
@@ -76,7 +76,7 @@ array execute_unary(
  * @param input The input operand.
  * @param context The execution context used for dispatching.
  */
-XMIPP4_CORE_API
+REXLIB_API
 void execute_unary(
 	const operation &operation,
 	span<array> output_operands,
@@ -93,7 +93,7 @@ void execute_unary(
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array execute_binary(
 	const operation &operation,
 	const_array_ref first_input,
@@ -113,7 +113,7 @@ array execute_binary(
  *
  * @see execute_unary
  */
-XMIPP4_CORE_API
+REXLIB_API
 void execute_binary(
 	const operation &operation,
 	span<array> output_operands,
@@ -132,7 +132,7 @@ void execute_binary(
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array execute_ternary(
 	const operation &operation,
 	const_array_ref first_input,

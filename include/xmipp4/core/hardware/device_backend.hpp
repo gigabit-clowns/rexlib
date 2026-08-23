@@ -30,7 +30,7 @@ class device;
  * handle on demand. Backends are non-copyable and non-movable; they are
  * meant to live behind a stable pointer owned by the @ref device_manager.
  */
-class XMIPP4_CORE_API device_backend
+class REXLIB_API device_backend
 {
 public:
 	device_backend() noexcept;

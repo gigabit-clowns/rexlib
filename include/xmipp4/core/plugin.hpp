@@ -19,7 +19,7 @@ class service_catalog;
  * to the core.
  * 
  */
-class XMIPP4_CORE_API plugin
+class REXLIB_API plugin
 {
 public:
 	plugin() = default;

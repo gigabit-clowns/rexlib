@@ -50,7 +50,7 @@ enum class memory_resource_kind
  * @return int Affinity score. Higher means more host-friendly. Returns
  * @c 0 if the memory kind is not host-accessible or @p kind is invalid.
  */
-XMIPP4_CORE_API
+REXLIB_API
 int score_host_affinity(memory_resource_kind kind) noexcept;
 
 /**
@@ -65,7 +65,7 @@ int score_host_affinity(memory_resource_kind kind) noexcept;
  * @return int Affinity score. Higher means more device-friendly. Returns
  * @c 0 if the memory kind is not device-accessible or @p kind is invalid.
  */
-XMIPP4_CORE_API
+REXLIB_API
 int score_device_affinity(memory_resource_kind kind) noexcept;
 
 /**
@@ -76,7 +76,7 @@ int score_device_affinity(memory_resource_kind kind) noexcept;
  * @return false If the memory resource can not be accessed from the host.
  * or an invalid kind was given.
  */
-XMIPP4_CORE_API
+REXLIB_API
 bool is_host_accessible(memory_resource_kind kind) noexcept;
 
 /**
@@ -87,7 +87,7 @@ bool is_host_accessible(memory_resource_kind kind) noexcept;
  * @return false If the memory resource can not be accessed from the device.
  * or an invalid kind was given.
  */
-XMIPP4_CORE_API
+REXLIB_API
 bool is_device_accessible(memory_resource_kind kind) noexcept;
 
 } // namespace xmipp4

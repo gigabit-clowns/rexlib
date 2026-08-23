@@ -28,45 +28,45 @@ class const_array_ref;
 class operand_signature
 {
 public:
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature() noexcept;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit operand_signature(
 		const array_descriptor &descriptor,
 		const memory_resource* resource = nullptr
 	) noexcept;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit operand_signature(
 		array_descriptor &&descriptor,
 		const memory_resource* resource = nullptr
 	) noexcept;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature(
 		const strided_layout& layout,
 		numerical_type data_type,
 		const memory_resource* resource = nullptr
 	) noexcept;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature(
 		strided_layout&& layout,
 		numerical_type data_type,
 		const memory_resource* resource = nullptr
 	) noexcept;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature(const operand_signature &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature(operand_signature &&other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~operand_signature();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature& operator=(const operand_signature &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	operand_signature& operator=(operand_signature &&other) noexcept;
 
 	friend bool operator==(
@@ -92,7 +92,7 @@ public:
 	 *
 	 * @return The hash value.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::size_t hash() const noexcept;
 
 	/**
@@ -100,7 +100,7 @@ public:
 	 *
 	 * @return const strided_layout& The layout.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const strided_layout& get_layout() const noexcept;
 
 	/**
@@ -108,7 +108,7 @@ public:
 	 *
 	 * @return numerical_type The data type.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	numerical_type get_data_type() const noexcept;
 
 	/**
@@ -116,7 +116,7 @@ public:
 	 *
 	 * @return const array_descriptor& The array descriptor.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const array_descriptor& get_descriptor() const noexcept;
 
 	/**
@@ -124,7 +124,7 @@ public:
 	 *
 	 * @param descriptor The new array descriptor.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_descriptor(
 		const array_descriptor &descriptor
 	) noexcept;
@@ -134,7 +134,7 @@ public:
 	 *
 	 * @return const memory_resource* The memory resource.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const memory_resource* get_memory_resource() const noexcept;
 
 	/**
@@ -142,7 +142,7 @@ public:
 	 *
 	 * @param resource The new memory resource.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	void set_memory_resource(
 		const memory_resource* resource
 	) noexcept;
@@ -154,7 +154,7 @@ public:
 	 * deduced.
 	 * @return operand_signature The newly constructed operand signature.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	static operand_signature from_array(const_array_ref a) noexcept;
 
 private:

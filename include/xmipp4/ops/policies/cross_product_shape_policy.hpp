@@ -25,7 +25,7 @@ namespace ops
  * problem: the cross product exists in three dimensions and the check is
  * what keeps a silently wrong shape from reaching a backend.
  */
-class XMIPP4_CORE_API cross_product_shape_policy final
+class REXLIB_API cross_product_shape_policy final
 	: public operation_shape_policy
 {
 public:

@@ -36,7 +36,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * exploit, and storing half of one would lose information.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API rfft_operation final
+class REXLIB_API rfft_operation final
 	: public parametric_operation<rfft_operation, rfft_operation_traits>
 {
 public:

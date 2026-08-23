@@ -29,14 +29,14 @@ public:
 	 * interface catalog should load the backends bundled with the
 	 * core.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	explicit service_catalog(bool register_builtin_backends = true);
 	service_catalog(const service_catalog &other) = delete;
-	XMIPP4_CORE_API service_catalog(service_catalog &&other) noexcept;
-	XMIPP4_CORE_API ~service_catalog();
+	REXLIB_API service_catalog(service_catalog &&other) noexcept;
+	REXLIB_API ~service_catalog();
 
 	service_catalog &operator=(const service_catalog &other) = delete;
-	XMIPP4_CORE_API
+	REXLIB_API
 	service_catalog &operator=(service_catalog &&other) noexcept;
 
 	/**
@@ -61,10 +61,10 @@ private:
 	class implementation;
 	std::unique_ptr<implementation> m_implementation;
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::shared_ptr<service_manager> get_service_manager(std::type_index key);
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	void create_service_manager(
 		std::type_index key,
 		std::shared_ptr<service_manager> manager

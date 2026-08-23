@@ -213,7 +213,7 @@ promote_types(numerical_type type1, numerical_type type2) noexcept
 	return lut[i][j];
 }
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(numerical_type type) noexcept
 {
 	switch (type)

@@ -19,7 +19,7 @@ public:
 	/**
 	 * @brief Default constructor.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_cursor() noexcept;
 
 	/**
@@ -29,22 +29,22 @@ public:
 	 * this amount of zeros.
 	 * @param offsets The base offsets for each operand.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_cursor(
 		std::size_t ndim,
 		std::vector<std::ptrdiff_t> offsets
 	);
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_cursor(const joint_cursor &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_cursor(joint_cursor &&other) noexcept;
-	XMIPP4_CORE_API
+	REXLIB_API
 	~joint_cursor();
 
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_cursor& operator=(const joint_cursor &other);
-	XMIPP4_CORE_API
+	REXLIB_API
 	joint_cursor& operator=(joint_cursor &&other) noexcept;
 
 	/**
@@ -55,7 +55,7 @@ public:
 	 * 
 	 * @return span<const std::size_t> The indices.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<const std::size_t> get_indices() const noexcept;
 
 	/**
@@ -66,7 +66,7 @@ public:
 	 * 
 	 * @return span<std::size_t> The indices.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<std::size_t> get_indices() noexcept;
 
 	/**
@@ -77,7 +77,7 @@ public:
 	 * 
 	 * @return span<const std::ptrdiff_t> The offsets.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<const std::ptrdiff_t> get_offsets() const noexcept;
 
 	/**
@@ -88,7 +88,7 @@ public:
 	 * 
 	 * @return span<std::ptrdiff_t> The offsets.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	span<std::ptrdiff_t> get_offsets() noexcept;
 
 private:

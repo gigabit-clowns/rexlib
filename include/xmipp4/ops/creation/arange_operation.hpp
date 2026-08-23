@@ -42,7 +42,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * linspace_operation, which is told its length outright, for a complex ramp.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API arange_operation final
+class REXLIB_API arange_operation final
 	: public parametric_operation<arange_operation, arange_operation_traits>
 {
 public:

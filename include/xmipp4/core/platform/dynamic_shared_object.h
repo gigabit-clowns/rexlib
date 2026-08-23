@@ -54,19 +54,19 @@
 #endif
 
 /**
- * @def XMIPP4_CORE_API
+ * @def REXLIB_API
  * @brief Declares that the function is part of the public core API of XMIPP4
  * 
  * The functions declared as public core API will be exported to the shared object. 
  * 
  */
-#if defined(XMIPP4_CORE_NO_EXPORTS)
-	#define XMIPP4_CORE_API
+#if defined(REXLIB_NO_EXPORTS)
+	#define REXLIB_API
 #else
-	#if defined(XMIPP4_CORE_EXPORTING)
-		#define XMIPP4_CORE_API XMIPP4_EXPORT
+	#if defined(REXLIB_EXPORTING)
+		#define REXLIB_API XMIPP4_EXPORT
 	#else
-		#define XMIPP4_CORE_API XMIPP4_IMPORT
+		#define REXLIB_API XMIPP4_IMPORT
 	#endif
 #endif
 
@@ -74,7 +74,7 @@
  * @def XMIPP4_STD_BASE_INTERFACE
  * @brief Silence MSVC warning C4275 for the class declared right after it.
  *
- * C4275 fires when a dll-interface class (see @ref XMIPP4_CORE_API) derives
+ * C4275 fires when a dll-interface class (see @ref REXLIB_API) derives
  * from a standard library type (e.g. std::runtime_error) that is not itself a
  * dll-interface. This is safe as long as every module links against the same
  * dynamic C++ runtime (/MD), so the base class has a single shared definition.
@@ -95,7 +95,7 @@
  * @def XMIPP4_STD_MEMBER_INTERFACE
  * @brief Silence MSVC warning C4251 for the data member declared right after it.
  *
- * C4251 fires when a dll-interface class (see @ref XMIPP4_CORE_API) has a data
+ * C4251 fires when a dll-interface class (see @ref REXLIB_API) has a data
  * member whose type is not itself a dll-interface, typically a standard library
  * type such as the std::unique_ptr used for the pimpl idiom or an std::string.
  * This is safe as long as every module links against the same dynamic C++
@@ -119,7 +119,7 @@
  * @def XMIPP4_BEGIN_TEMPLATE_BASE
  * @brief Silence MSVC warning C4275 for a class deriving from a template.
  *
- * C4275 fires when a dll-interface class (see @ref XMIPP4_CORE_API) derives
+ * C4275 fires when a dll-interface class (see @ref REXLIB_API) derives
  * from a class template specialization, which is never itself a
  * dll-interface. This is safe as long as the template is header only, so
  * every module instantiates the same definition.

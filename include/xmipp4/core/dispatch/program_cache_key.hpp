@@ -12,7 +12,7 @@ namespace xmipp4
 /**
  * @brief Abstract base for keys stored in an @ref program_cache.
  */
-class XMIPP4_CORE_API program_cache_key
+class REXLIB_API program_cache_key
 {
 public:
 	program_cache_key() noexcept;

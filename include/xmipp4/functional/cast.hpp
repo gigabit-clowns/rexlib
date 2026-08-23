@@ -23,7 +23,7 @@ class execution_context;
  * @param context The execution context used for dispatching.
  * @return array The array cast to the target type.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cast(
 	array& input,
 	numerical_type target_type,
@@ -42,7 +42,7 @@ array cast(
  * @param out Optional output parameter to be re-used.
  * @return array The newly created array cast to the target type.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array cast_copy(
 	const_array_ref input,
 	numerical_type target_type,

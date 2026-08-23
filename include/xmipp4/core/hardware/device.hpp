@@ -24,7 +24,7 @@ class memory_resource;
  * acts as a factory for the per-device objects used by the rest of the
  * framework (queues, synchronization primitives, ...).
  */
-class XMIPP4_CORE_API device
+class REXLIB_API device
 {
 public:
 	device() noexcept;

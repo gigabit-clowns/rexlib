@@ -45,7 +45,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * as well defined as one of the real line.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API linspace_operation final
+class REXLIB_API linspace_operation final
 	: public parametric_operation<linspace_operation, linspace_operation_traits>
 {
 public:

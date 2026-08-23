@@ -37,7 +37,7 @@ XMIPP4_DECLARE_OPERATION_TRAITS(
  * use rfft to store only what a real signal needs.
  */
 XMIPP4_BEGIN_TEMPLATE_BASE
-class XMIPP4_CORE_API fft_operation final
+class REXLIB_API fft_operation final
 	: public parametric_operation<fft_operation, fft_operation_traits>
 {
 public:

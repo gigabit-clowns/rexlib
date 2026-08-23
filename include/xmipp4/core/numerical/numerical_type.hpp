@@ -72,7 +72,7 @@ enum class numerical_type_category
  * @param type The type for which the size should be obtained.
  * @return std::size_t The size.
  */
-XMIPP4_CORE_API
+REXLIB_API
 std::size_t get_size(numerical_type type) noexcept;
 
 /**
@@ -84,7 +84,7 @@ std::size_t get_size(numerical_type type) noexcept;
  * @param type 
  * @return numerical_type.
  */
-XMIPP4_CORE_API
+REXLIB_API
 numerical_type make_complex(numerical_type type) noexcept;
 
 /**
@@ -98,7 +98,7 @@ numerical_type make_complex(numerical_type type) noexcept;
  * @return numerical_type The equivalent real type. numerical_type::unknown
  * if error.
  */
-XMIPP4_CORE_API
+REXLIB_API
 numerical_type make_real(numerical_type type) noexcept;
 
 /**
@@ -117,7 +117,7 @@ numerical_type make_real(numerical_type type) noexcept;
  * @return numerical_type The equivalent inexact type.
  * numerical_type::unknown if error.
  */
-XMIPP4_CORE_API
+REXLIB_API
 numerical_type make_inexact(numerical_type type) noexcept;
 
 /**
@@ -132,7 +132,7 @@ numerical_type make_inexact(numerical_type type) noexcept;
  * @param type2 Second numerical type.
  * @return numerical_type The common type.
  */
-XMIPP4_CORE_API
+REXLIB_API
 numerical_type 
 promote_types(numerical_type type1, numerical_type type2) noexcept;
 
@@ -151,16 +151,16 @@ promote_types(numerical_type type1, numerical_type type2) noexcept;
 XMIPP4_CONSTEXPR
 numerical_type_category get_category(numerical_type type) noexcept;
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(numerical_type type) noexcept;
 
-XMIPP4_CORE_API
+REXLIB_API
 const char* to_string(numerical_type_category category) noexcept;
 
-XMIPP4_CORE_API
+REXLIB_API
 std::ostream& operator<<(std::ostream &os, numerical_type type);
 
-XMIPP4_CORE_API
+REXLIB_API
 std::ostream& operator<<(std::ostream &os, numerical_type_category category);
 
 } // namespace xmipp4

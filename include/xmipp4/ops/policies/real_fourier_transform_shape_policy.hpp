@@ -31,7 +31,7 @@ namespace ops
  *
  * @see inverse_real_fourier_transform_shape_policy
  */
-class XMIPP4_CORE_API real_fourier_transform_shape_policy final
+class REXLIB_API real_fourier_transform_shape_policy final
 	: public operation_shape_policy
 {
 public:

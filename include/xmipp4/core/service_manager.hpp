@@ -19,7 +19,7 @@ namespace xmipp4
  * @see service_catalog
  * 
  */
-class XMIPP4_CORE_API service_manager
+class REXLIB_API service_manager
 {
 public:
 	service_manager() = default;

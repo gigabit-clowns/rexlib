@@ -31,7 +31,7 @@ class execution_context;
  *
  * @see imag
  */
-XMIPP4_CORE_API
+REXLIB_API
 array real(array &x);
 
 /**
@@ -50,7 +50,7 @@ array real(array &x);
  *
  * @see real
  */
-XMIPP4_CORE_API
+REXLIB_API
 array imag(array &x);
 
 /**
@@ -64,7 +64,7 @@ array imag(array &x);
  * @note Real arrays are accepted and left unchanged, so that code generic
  * over the element type needs no special case.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array conjugate(
 	const_array_ref x,
 	const execution_context &context,
@@ -83,7 +83,7 @@ array conjugate(
  * having no imaginary part. Integer arrays are not accepted: the argument
  * of an integer is a degenerate choice between zero and pi.
  */
-XMIPP4_CORE_API
+REXLIB_API
 array angle(
 	const_array_ref x,
 	const execution_context &context,

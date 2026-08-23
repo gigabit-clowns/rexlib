@@ -37,7 +37,7 @@ public:
 	/**
 	 * @brief Construct an uninitialized const_array_ref.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const_array_ref() noexcept;
 
 	/**
@@ -56,7 +56,7 @@ public:
 	 * @param other The array to be referenced. Must outlive this
 	 * const_array_ref.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const_array_ref(const array &other) noexcept;
 
 	/**
@@ -65,7 +65,7 @@ public:
 	 * @param other The const_array to be referenced. Must outlive this
 	 * const_array_ref.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const_array_ref(const const_array &other) noexcept;
 
 	/**
@@ -74,7 +74,7 @@ public:
 	 * @param other The array_ref whose referenced array is to be
 	 * referenced.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	const_array_ref(array_ref other) noexcept;
 
 	const_array_ref(const const_array_ref& other) noexcept = default;
@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return array_descriptor The descriptor.
 	 */
-	XMIPP4_CORE_API const array_descriptor& get_descriptor() const noexcept;
+	REXLIB_API const array_descriptor& get_descriptor() const noexcept;
 
 	/**
 	 * @brief Get the storage of this array.
@@ -97,7 +97,7 @@ public:
 	 * @return const buffer* The storage. nullptr if the const_array_ref
 	 * is not initialized.
 	 */
-	XMIPP4_CORE_API const buffer* get_storage() const noexcept;
+	REXLIB_API const buffer* get_storage() const noexcept;
 
 	/**
 	 * @brief Get a shared pointer to the storage of this array.
@@ -105,7 +105,7 @@ public:
 	 * @return std::shared_ptr<const buffer> The storage. nullptr if
 	 * the const_array_ref is not initialized.
 	 */
-	XMIPP4_CORE_API
+	REXLIB_API
 	std::shared_ptr<const buffer> share_storage() const noexcept;
 
 	/**
