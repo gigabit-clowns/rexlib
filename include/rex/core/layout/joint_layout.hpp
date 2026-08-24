@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace rex 
+namespace rexlib 
 {
 
 class joint_layout_implementation;
@@ -212,4 +212,4 @@ private:
 	> m_implementation;
 };
 
-} // namespace rex
+} // namespace rexlib

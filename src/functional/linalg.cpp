@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -131,4 +131,4 @@ array cross(
 	return cross(x, y, -1, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

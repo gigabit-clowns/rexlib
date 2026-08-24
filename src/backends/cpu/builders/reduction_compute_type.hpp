@@ -4,7 +4,7 @@
 
 #include <backends/cpu/load_store.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -26,4 +26,4 @@ struct reduction_compute_type
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

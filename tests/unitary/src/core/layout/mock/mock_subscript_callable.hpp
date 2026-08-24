@@ -7,7 +7,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_subscript_callable
@@ -25,4 +25,4 @@ public:
 	}
 };
 
-} // namespace rex
+} // namespace rexlib

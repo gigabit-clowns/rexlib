@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace rex 
+namespace rexlib 
 {
 
 class buffer;
@@ -100,4 +100,4 @@ private:
 	std::shared_ptr<const array_implementation> m_implementation;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -4,7 +4,7 @@
 
 #include <unordered_map>
 
-namespace rex 
+namespace rexlib 
 {
 
 REXLIB_INLINE_CONSTEXPR 
@@ -46,4 +46,4 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, example_enum ex)
     return os << to_string(ex);
 }
 
-} // namespace rex
+} // namespace rexlib

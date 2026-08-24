@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -46,7 +46,7 @@ backend_priority program_builder::get_suitability(
 	const operation& /*operation*/,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	rex::command_queue &queue
+	rexlib::command_queue &queue
 ) const
 {
 	if (!check_array_signatures(output_signatures))
@@ -68,5 +68,5 @@ backend_priority program_builder::get_suitability(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 

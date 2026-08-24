@@ -7,7 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -401,4 +401,4 @@ void throw_type_rule_error(
 	throw std::invalid_argument(oss.str());
 }
 
-} // namespace rex
+} // namespace rexlib

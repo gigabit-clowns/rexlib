@@ -6,7 +6,7 @@
 #include "../numerical/numerical_type.hpp"
 #include "../platform/dynamic_shared_object.h"
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -138,16 +138,16 @@ bool is_initialized(const array_descriptor &descriptor) noexcept;
 REXLIB_API
 std::size_t compute_storage_requirement(const array_descriptor &descriptor);
 
-} // namespace rex
+} // namespace rexlib
 
 namespace std
 {
 
 template<>
-struct hash<rex::array_descriptor>
+struct hash<rexlib::array_descriptor>
 {
 	std::size_t operator()(
-		const rex::array_descriptor &descriptor
+		const rexlib::array_descriptor &descriptor
 	) const noexcept
 	{
 		return descriptor.hash();

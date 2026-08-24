@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace rex 
+namespace rexlib 
 {
 
 std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
@@ -34,4 +34,4 @@ std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
 	return static_cast<std::size_t>(result);
 }
 
-} // namespace rex
+} // namespace rexlib

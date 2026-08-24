@@ -8,7 +8,7 @@
 #include <string>
 #include <cstdint>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -110,4 +110,4 @@ private:
  */
 REXLIB_API void swap(dynamic_library& lhs, dynamic_library& rhs) noexcept;
 
-} // namespace rex
+} // namespace rexlib

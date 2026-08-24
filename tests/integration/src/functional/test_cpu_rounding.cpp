@@ -11,10 +11,10 @@
 #include <rex/ops/rounding/round_operation.hpp>
 #include <rex/ops/rounding/trunc_operation.hpp>
 
-using namespace rex;
-using namespace rex::ops;
-using rex::test::element_value;
-using rex::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // Every value here is exactly representable in every floating point type,
 // float16_t included, and every result is an integer, so these compare
@@ -27,7 +27,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<ceil_operation>(
-		rex::ceil,
+		rexlib::ceil,
 		element_value(2.25),
 		[](auto) { return 3; }
 	);
@@ -40,7 +40,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<ceil_operation>(
-		rex::ceil,
+		rexlib::ceil,
 		element_value(-2.25),
 		[](auto) { return -2; }
 	);
@@ -53,7 +53,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<floor_operation>(
-		rex::floor,
+		rexlib::floor,
 		element_value(2.75),
 		[](auto) { return 2; }
 	);
@@ -66,7 +66,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<floor_operation>(
-		rex::floor,
+		rexlib::floor,
 		element_value(-2.25),
 		[](auto) { return -3; }
 	);
@@ -79,7 +79,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<trunc_operation>(
-		rex::trunc,
+		rexlib::trunc,
 		element_value(2.75),
 		[](auto) { return 2; }
 	);
@@ -92,7 +92,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<trunc_operation>(
-		rex::trunc,
+		rexlib::trunc,
 		element_value(-2.75),
 		[](auto) { return -2; }
 	);
@@ -105,7 +105,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<round_operation>(
-		rex::round,
+		rexlib::round,
 		element_value(2.75),
 		[](auto) { return 3; }
 	);
@@ -120,7 +120,7 @@ TEST_CASE_METHOD(
 	// std::round would give 1 here. Rounding halves to even is what NumPy
 	// does, and what keeps a distribution of them from drifting upwards.
 	check_unary<round_operation>(
-		rex::round,
+		rexlib::round,
 		element_value(0.5),
 		[](auto) { return 0; }
 	);
@@ -133,7 +133,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<round_operation>(
-		rex::round,
+		rexlib::round,
 		element_value(1.5),
 		[](auto) { return 2; }
 	);
@@ -146,7 +146,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<round_operation>(
-		rex::round,
+		rexlib::round,
 		element_value(2.5),
 		[](auto) { return 2; }
 	);
@@ -160,7 +160,7 @@ TEST_CASE_METHOD(
 {
 	// std::round would give -3.
 	check_unary<round_operation>(
-		rex::round,
+		rexlib::round,
 		element_value(-2.5),
 		[](auto) { return -2; }
 	);

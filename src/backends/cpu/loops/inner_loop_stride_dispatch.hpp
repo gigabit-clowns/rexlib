@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <tuple>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -86,6 +86,6 @@ auto dispatch_inner_loop_strides(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "inner_loop_stride_dispatch.inl"

@@ -10,7 +10,7 @@
 #include <functional>
 #include <iostream>
 
-namespace rex
+namespace rexlib
 {
 
 enum class byte : uint8_t {};
@@ -49,12 +49,12 @@ REXLIB_CONSTEXPR void to_hex(byte b, C &high, C &low) noexcept;
 template<typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b);
 
-} // namespace rex
+} // namespace rexlib
 
 template <>
-struct std::hash<rex::byte>
+struct std::hash<rexlib::byte>
 {
-	REXLIB_CONSTEXPR size_t operator()(rex::byte b) const noexcept;
+	REXLIB_CONSTEXPR size_t operator()(rexlib::byte b) const noexcept;
 };
 
 #include "byte.inl"

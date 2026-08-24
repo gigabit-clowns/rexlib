@@ -17,7 +17,7 @@
 #include <array>
 #include <memory>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

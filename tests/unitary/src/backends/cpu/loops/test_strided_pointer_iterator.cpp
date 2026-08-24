@@ -9,8 +9,8 @@
 #include <iterator>
 #include <type_traits>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"strided_pointer_iterator exposes the expected iterator traits",

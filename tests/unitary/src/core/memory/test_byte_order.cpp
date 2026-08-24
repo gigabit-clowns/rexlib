@@ -4,7 +4,7 @@
 
 #include <rex/core/memory/byte_order.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "reverse_byte_order correctly reverses byte order for integral types", "[byte_order]" ) 
 {

@@ -2,11 +2,11 @@
 
 #include <rex/core/hardware/device.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 device::device() noexcept = default;
 
 device::~device() = default;
 
-} // namespace rex
+} // namespace rexlib

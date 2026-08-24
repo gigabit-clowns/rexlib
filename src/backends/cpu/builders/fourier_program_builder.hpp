@@ -19,7 +19,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -122,7 +122,7 @@ public:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU Fourier program builder.
@@ -138,7 +138,7 @@ public:
 #define REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(name, op, transform) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::fourier_program_builder<op, transform> \
+		::rexlib::cpu::fourier_program_builder<op, transform> \
 	)
 
 /**
@@ -158,7 +158,7 @@ public:
 ) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::fourier_program_builder< \
+		::rexlib::cpu::fourier_program_builder< \
 			op, transform, __VA_ARGS__ \
 		> \
 	)

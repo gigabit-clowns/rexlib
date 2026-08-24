@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <cstdint>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "bit shifts left by 1", "[bit]" ) 
 {

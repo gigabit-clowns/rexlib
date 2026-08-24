@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -123,4 +123,4 @@ private:
 	std::size_t m_input_count;
 };
 
-} // namespace rex
+} // namespace rexlib

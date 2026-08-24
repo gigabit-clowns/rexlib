@@ -16,7 +16,7 @@
 #include <cstddef>
 #include <initializer_list>
 
-namespace rex
+namespace rexlib
 
 {
 
@@ -136,6 +136,6 @@ struct rule_data_type_policy
 	static const operation_data_type_policy& get() noexcept;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "rule_operation_data_type_policy.inl"

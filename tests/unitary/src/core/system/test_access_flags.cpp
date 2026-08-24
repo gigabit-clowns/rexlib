@@ -4,7 +4,7 @@
 
 #include <rex/core/system/access_flags.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "to_string with access_flag_bits should produce correct results", "[access_flags]" ) 
 {

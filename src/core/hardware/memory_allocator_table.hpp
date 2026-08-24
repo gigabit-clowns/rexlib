@@ -8,7 +8,7 @@
 #include <memory>
 #include <array>
 
-namespace rex
+namespace rexlib
 {
 
 class device;
@@ -89,4 +89,4 @@ private:
 	allocator_array_type m_allocators;
 };
 
-} // namespace rex
+} // namespace rexlib

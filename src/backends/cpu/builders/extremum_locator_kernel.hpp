@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -129,4 +129,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

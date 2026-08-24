@@ -10,7 +10,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -60,4 +60,4 @@ private:
 };
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

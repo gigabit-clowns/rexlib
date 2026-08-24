@@ -12,7 +12,7 @@
 #include <ostream>
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -185,4 +185,4 @@ operation_descriptor make_operation_descriptor(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

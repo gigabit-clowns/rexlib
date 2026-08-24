@@ -18,7 +18,7 @@
 #include <memory>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -92,7 +92,7 @@ public:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU roll program builder.
@@ -104,7 +104,7 @@ public:
 #define REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(name, op, shift_policy) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::roll_program_builder<op, shift_policy> \
+		::rexlib::cpu::roll_program_builder<op, shift_policy> \
 	)
 
 #include "roll_program_builder.inl"

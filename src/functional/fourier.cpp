@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -654,4 +654,4 @@ array ifftshift(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

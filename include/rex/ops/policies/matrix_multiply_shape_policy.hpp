@@ -5,7 +5,7 @@
 #include <rex/core/dispatch/operation_shape_policy.hpp>
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -39,4 +39,4 @@ public:
 };
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

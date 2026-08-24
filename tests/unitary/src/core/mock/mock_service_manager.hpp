@@ -6,7 +6,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_service_manager final
@@ -16,4 +16,4 @@ public:
 	MAKE_MOCK0(register_builtin_backends, void(), override);
 };
 
-} // namespace rex
+} // namespace rexlib

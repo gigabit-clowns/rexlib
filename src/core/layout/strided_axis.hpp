@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -347,6 +347,6 @@ void apply_slice(
 	const slice &slice
 );
 
-} // namespace rex
+} // namespace rexlib
 
 #include "strided_axis.inl"

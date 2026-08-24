@@ -7,7 +7,7 @@
 
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "host_memory_resource should be a singleton", "[host_memory_resource]" )
 {

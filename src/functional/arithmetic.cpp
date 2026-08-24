@@ -18,7 +18,7 @@
 #include <array>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 array add(
@@ -143,4 +143,4 @@ std::pair<array, array> divmod(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

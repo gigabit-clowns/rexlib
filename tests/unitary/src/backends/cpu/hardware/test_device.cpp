@@ -15,8 +15,8 @@
 
 #include "../serial_pool.hpp"
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"cpu::device should expose a single memory resource",

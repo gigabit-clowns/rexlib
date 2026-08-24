@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -407,4 +407,4 @@ array mean(
 	array *out = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

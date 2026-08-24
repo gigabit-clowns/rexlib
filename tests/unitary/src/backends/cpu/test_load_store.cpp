@@ -10,8 +10,8 @@
 #include <complex>
 #include <type_traits>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 // Values used with exact equality are exactly representable in IEEE half
 // precision, so the float16_t round-trips are lossless.

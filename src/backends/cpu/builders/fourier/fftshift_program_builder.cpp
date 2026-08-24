@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -33,4 +33,4 @@ REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

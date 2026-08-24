@@ -4,7 +4,7 @@
 
 #include <rex/core/numerical/fixed_width_float.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "float16_t default constructor should produce zero", "[float16_t]" )
 {

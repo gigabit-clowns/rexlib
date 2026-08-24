@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace test
 {
@@ -374,4 +374,4 @@ private:
 };
 
 } // namespace test
-} // namespace rex
+} // namespace rexlib

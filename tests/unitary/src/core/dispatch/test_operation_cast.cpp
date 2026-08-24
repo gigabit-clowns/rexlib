@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <string>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -49,6 +49,6 @@ void parallel_for(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "parallel_for.inl"

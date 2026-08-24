@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/buffer.hpp>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -28,4 +28,4 @@ private:
 	std::size_t m_size;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <unordered_map>
 
-namespace rex
+namespace rexlib
 {
 
 class service_catalog::implementation
@@ -84,4 +84,4 @@ void service_catalog::create_service_manager(
 	m_implementation->create_service_manager(key, std::move(value));
 }
 
-} // namespace rex
+} // namespace rexlib

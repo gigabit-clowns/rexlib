@@ -7,7 +7,7 @@
 #include <complex>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -32,6 +32,6 @@ template <typename T, typename Q>
 REXLIB_NODISCARD
 T numerical_cast(const Q &src) noexcept;
 
-} // namespace rex
+} // namespace rexlib
 
 #include "numerical_cast.inl"

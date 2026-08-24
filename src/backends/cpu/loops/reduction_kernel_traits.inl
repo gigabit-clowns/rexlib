@@ -8,7 +8,7 @@
 
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -200,4 +200,4 @@ struct has_reassociable_fold<
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

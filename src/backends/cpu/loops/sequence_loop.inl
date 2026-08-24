@@ -6,7 +6,7 @@
 #include "loop_schedule.hpp"
 #include "strided_pointer_iterator.hpp"
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -105,4 +105,4 @@ void run_sequence_loop(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

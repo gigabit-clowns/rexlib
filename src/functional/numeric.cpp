@@ -9,7 +9,7 @@
 #include <rex/ops/numeric/is_nan_operation.hpp>
 #include <rex/ops/numeric/sign_bit_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array is_nan(
@@ -58,4 +58,4 @@ array copysign(
 	return execute_binary(ops::copysign_operation(), x, y, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

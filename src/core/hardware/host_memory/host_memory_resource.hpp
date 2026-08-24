@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/memory_resource.hpp>
 
-namespace rex 
+namespace rexlib 
 {
 
 class host_memory_resource final
@@ -27,4 +27,4 @@ private:
 	static const host_memory_resource m_instance;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -9,7 +9,7 @@
 #include <string_view>
 #include <ostream>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -163,4 +163,4 @@ private:
 REXLIB_API
 bool parse_device_index(std::string_view text, device_index &result);
 
-} // namespace rex
+} // namespace rexlib

@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 namespace detail
@@ -129,4 +129,4 @@ struct operand_type_rule
 	);
 };
 
-} // namespace rex
+} // namespace rexlib

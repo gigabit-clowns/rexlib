@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <charconv>
 
-namespace rex
+namespace rexlib
 {
 
 device_index::device_index() noexcept = default;
@@ -71,4 +71,4 @@ bool parse_device_index(std::string_view text, device_index &result)
 	return success;
 }
 
-} // namespace rex
+} // namespace rexlib

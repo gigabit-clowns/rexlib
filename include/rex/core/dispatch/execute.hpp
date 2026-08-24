@@ -5,7 +5,7 @@
 #include "../platform/dynamic_shared_object.h"
 #include "../span.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 class array;
@@ -142,4 +142,4 @@ array execute_ternary(
 	array *out = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

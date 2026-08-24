@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/memory_resource_kind.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
 	"score_host_affinity should return the expected score for each kind",

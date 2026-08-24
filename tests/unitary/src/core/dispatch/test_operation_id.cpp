@@ -6,7 +6,7 @@
 
 #include "mock/mock_operation.hpp"
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("Constructing an operation_id should store its data", "[operation_id]")
 {

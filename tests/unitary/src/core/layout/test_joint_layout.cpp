@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "getting extents on an default constructed joint_layout should return empty ", "[joint_layout]" )
 {

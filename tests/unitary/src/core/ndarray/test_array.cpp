@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("Default constructed array should have no storage", "[array]")
 {

@@ -7,7 +7,7 @@
 #include <backends/cpu/builders/extremum_locator_kernel.hpp>
 #include <backends/cpu/kernels/ordering.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -40,4 +40,4 @@ REXLIB_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

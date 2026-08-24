@@ -7,7 +7,7 @@
 #include <sstream>
 
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "construct device_index should produce the expected value", "[device_index]" )
 {

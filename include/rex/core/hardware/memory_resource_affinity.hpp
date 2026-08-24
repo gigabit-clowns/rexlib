@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -20,4 +20,4 @@ enum class memory_resource_affinity
 	count
 };
 
-} // namespace rex
+} // namespace rexlib

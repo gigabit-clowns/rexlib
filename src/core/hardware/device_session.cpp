@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 class device_session::implementation
@@ -107,4 +107,4 @@ device_session::get_default_queue() const noexcept
 	return m_implementation->get_default_queue();
 }
 
-} // namespace rex
+} // namespace rexlib

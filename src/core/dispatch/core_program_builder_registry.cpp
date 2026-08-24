@@ -2,7 +2,7 @@
 
 #include "core_program_builder_registry.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 program_builder_registry& get_core_program_builder_registry() noexcept
@@ -11,4 +11,4 @@ program_builder_registry& get_core_program_builder_registry() noexcept
 	return registry;
 }
 
-} // namespace rex
+} // namespace rexlib

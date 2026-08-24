@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 class strided_layout;
@@ -60,4 +60,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

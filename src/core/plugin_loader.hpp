@@ -4,7 +4,7 @@
 
 #include <rex/core/system/dynamic_library.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class plugin;
@@ -74,4 +74,4 @@ private:
 	const plugin* m_plugin;
 };
 
-} // namespace rex
+} // namespace rexlib

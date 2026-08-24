@@ -9,8 +9,8 @@
 #include <cstddef>
 #include <sstream>
 
-using namespace rex;
-using namespace rex::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 using Catch::Matchers::WithinRel;
 
 namespace

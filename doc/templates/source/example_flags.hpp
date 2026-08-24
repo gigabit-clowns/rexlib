@@ -8,7 +8,7 @@
 #include <string_view>
 #include <ostream>
 
-namespace rex
+namespace rexlib
 {
 
 enum class example_flag_bits
@@ -42,6 +42,6 @@ struct flag_traits<hardware::example_flag_bits>
     };
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "example_flags.inl"

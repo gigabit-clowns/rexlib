@@ -4,7 +4,7 @@
 
 #include <rex/core/dispatch/operation_arity.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("Default constructed operation_arity should have no outputs and no inputs", "[operation_arity]")
 {

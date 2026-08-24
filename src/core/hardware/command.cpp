@@ -2,7 +2,7 @@
 
 #include <rex/core/hardware/command.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 command::command() noexcept = default;
@@ -63,4 +63,4 @@ span<const std::shared_ptr<buffer>> command::get_scratch() const noexcept
 	return m_scratch;
 }
 
-} // namespace rex
+} // namespace rexlib

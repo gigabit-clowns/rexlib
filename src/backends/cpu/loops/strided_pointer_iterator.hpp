@@ -8,7 +8,7 @@
 #include <iterator>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -184,6 +184,6 @@ strided_pointer_iterator<T, Stride> make_strided_pointer_iterator(
 ) noexcept;
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "strided_pointer_iterator.inl"

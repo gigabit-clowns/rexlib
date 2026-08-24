@@ -5,7 +5,7 @@
 #include "platform/dynamic_shared_object.h"
 
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -42,4 +42,4 @@ public:
 	virtual void register_builtin_backends() { /*By default this is a no-op*/ };
 };
 
-} // namespace rex
+} // namespace rexlib

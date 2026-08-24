@@ -7,7 +7,7 @@
 #include <rex/core/hardware/memory_resource.hpp>
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex
+namespace rexlib
 {
 
 class array;
@@ -162,4 +162,4 @@ private:
 	const memory_resource* m_memory_region;
 };
 
-} // namespace rex
+} // namespace rexlib

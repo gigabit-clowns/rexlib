@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 class device;
@@ -112,4 +112,4 @@ public:
 	virtual std::shared_ptr<device> create_device(std::size_t id) const = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

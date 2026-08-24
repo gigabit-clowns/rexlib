@@ -10,7 +10,7 @@
 #include <rex/core/hardware/buffer.hpp>
 #include <rex/core/hardware/memory_allocator.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array transfer(
@@ -131,4 +131,4 @@ array to_host_copy(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

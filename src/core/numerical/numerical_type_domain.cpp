@@ -2,7 +2,7 @@
 
 #include <rex/core/numerical/numerical_type_domain.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 std::ostream& operator<<(
@@ -34,4 +34,4 @@ std::ostream& operator<<(
 	return os;
 }
 
-} // namespace rex
+} // namespace rexlib

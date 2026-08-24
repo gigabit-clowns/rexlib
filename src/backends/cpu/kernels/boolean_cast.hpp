@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -27,4 +27,4 @@ bool to_boolean(const T &value) noexcept
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

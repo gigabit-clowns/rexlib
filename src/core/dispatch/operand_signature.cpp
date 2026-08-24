@@ -8,7 +8,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -131,8 +131,8 @@ operand_signature::from_array(const_array_ref a) noexcept
 {
 	return operand_signature(
 		a.get_descriptor(),
-		rex::get_memory_resource(a.get_storage())
+		rexlib::get_memory_resource(a.get_storage())
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

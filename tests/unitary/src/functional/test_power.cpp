@@ -19,9 +19,9 @@
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace rex;
-using namespace rex::ops;
-using rex::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

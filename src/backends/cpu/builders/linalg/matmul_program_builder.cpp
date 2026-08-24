@@ -9,7 +9,7 @@
 
 #include <rex/core/meta/type_list.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -99,4 +99,4 @@ REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

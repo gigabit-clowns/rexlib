@@ -7,7 +7,7 @@
 
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -228,4 +228,4 @@ std::pair<array, array> divmod(
 	array *remainder = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

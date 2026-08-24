@@ -7,7 +7,7 @@
 #include <rex/core/numerical/numerical_type.hpp>
 #include <rex/core/numerical/numerical_type_domain_tags.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -295,4 +295,4 @@ using converting_rule = operand_type_rule<
 /** @} */
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

@@ -4,7 +4,7 @@
 
 #include <rex/core/meta/type_list.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -37,6 +37,6 @@ public:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "default_kernel_factory.inl"

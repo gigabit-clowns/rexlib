@@ -6,7 +6,7 @@
 
 #include <string>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("converting device_type to string should produce the expected string")
 {

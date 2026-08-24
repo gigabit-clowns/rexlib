@@ -13,7 +13,7 @@
 #include <string>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -50,7 +50,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	const operation &operation,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	rex::command_queue &queue
+	rexlib::command_queue &queue
 ) const
 {
 	REXLIB_CONST_CONSTEXPR auto output_count =
@@ -101,12 +101,12 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 }
 
 template <typename Derived, typename Op, typename TypeDispatcher>
-std::shared_ptr<rex::program>
+std::shared_ptr<rexlib::program>
 dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	const operation &operation,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	rex::command_queue& /*queue*/,
+	rexlib::command_queue& /*queue*/,
 	program_cache* /*cache*/
 ) const
 {
@@ -170,4 +170,4 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

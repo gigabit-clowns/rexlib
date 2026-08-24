@@ -3,7 +3,7 @@
 #include "backend_priority.hpp"
 #include "platform/enum_helpers.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
 REXLIB_INLINE_CONSTEXPR 
@@ -55,4 +55,4 @@ std::basic_ostream<T>& operator<<(
 	return os << to_string(priority);
 }
 
-} // namespace rex
+} // namespace rexlib

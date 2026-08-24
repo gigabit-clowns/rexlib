@@ -2,7 +2,7 @@
 
 #include "basic_operation.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 template <typename Derived, typename Traits>
@@ -67,4 +67,4 @@ trivial_operation<Derived, Traits>
 	return rule_data_type_policy<type_rule>::get();
 }
 
-} // namespace rex
+} // namespace rexlib

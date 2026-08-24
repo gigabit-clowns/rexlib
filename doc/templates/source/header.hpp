@@ -2,9 +2,9 @@
 
 #pragma once
 
-namespace rex 
+namespace rexlib 
 {
 
-} // namespace rex
+} // namespace rexlib
 
 #include "inline_source.inl"

@@ -9,7 +9,7 @@
 #include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
 #include <rex/ops/rules/operand_type_rules.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -55,4 +55,4 @@ private:
 REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

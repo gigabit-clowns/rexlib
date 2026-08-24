@@ -14,7 +14,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -381,4 +381,4 @@ using inverse_complex_fourier_transform =
 	complex_fourier_transform<ops::fourier_direction::inverse>;
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

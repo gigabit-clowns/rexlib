@@ -9,7 +9,7 @@
 #include <typeindex>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -71,6 +71,6 @@ private:
 	);
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "service_catalog.inl"

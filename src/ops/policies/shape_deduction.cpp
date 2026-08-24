@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -59,4 +59,4 @@ void assign_output_shapes(
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

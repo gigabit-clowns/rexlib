@@ -5,7 +5,7 @@
 #include <rex/core/hardware/program.hpp>
 #include <rex/core/span.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class buffer;
@@ -19,7 +19,7 @@ class thread_pool;
  * @brief CPU base class for executable programs.
  */
 class REXLIB_API program
-	: public rex::program
+	: public rexlib::program
 {
 public:
 	/**
@@ -49,4 +49,4 @@ public:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

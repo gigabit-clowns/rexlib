@@ -16,7 +16,7 @@
 #include <rex/ops/power/sqrt_operation.hpp>
 #include <rex/ops/power/square_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array power(
@@ -128,4 +128,4 @@ array log1p(
 	return execute_unary(ops::log1p_operation(), x, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -115,4 +115,4 @@ array angle(
 	return execute_unary(ops::angle_operation(), x, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

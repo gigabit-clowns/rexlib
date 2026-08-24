@@ -19,7 +19,7 @@
  * template arguments do not split the macro arguments.
  */
 #define REXLIB_REGISTER_CPU_PROGRAM_BUILDER(name, ...) \
-	static const ::rex::program_builder_registration<__VA_ARGS__> \
+	static const ::rexlib::program_builder_registration<__VA_ARGS__> \
 	name##_program_builder_registration( \
-		::rex::get_core_program_builder_registry() \
+		::rexlib::get_core_program_builder_registry() \
 	)

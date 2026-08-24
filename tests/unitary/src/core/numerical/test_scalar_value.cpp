@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <typeinfo>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
 	"scalar_value::get_data_type reports the numerical type of the stored "

@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -166,4 +166,4 @@ array cross(
 	array *out = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

@@ -9,7 +9,7 @@
 #include <complex>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -50,4 +50,4 @@ REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

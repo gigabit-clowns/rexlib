@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/fourier_program_builder.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -19,4 +19,4 @@ REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

@@ -6,7 +6,7 @@
 
 #include <type_traits>
 
-using namespace rex;
+using namespace rexlib;
 
 struct test_type {};
 

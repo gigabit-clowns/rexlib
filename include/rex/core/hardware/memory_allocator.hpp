@@ -6,7 +6,7 @@
 
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex
+namespace rexlib
 {
 
 class buffer;
@@ -84,4 +84,4 @@ public:
 	) = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 class program_builder;
@@ -87,4 +87,4 @@ private:
 	}
 };
 
-} // namespace rex
+} // namespace rexlib

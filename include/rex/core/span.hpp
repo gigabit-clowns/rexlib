@@ -12,7 +12,7 @@
 #include <vector>
 #include <array>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -286,6 +286,6 @@ template <typename T>
 REXLIB_CONSTEXPR span<const T> 
 make_span(const std::vector<T> &array) noexcept;
 
-} // namespace rex
+} // namespace rexlib
 
 #include "span.inl"

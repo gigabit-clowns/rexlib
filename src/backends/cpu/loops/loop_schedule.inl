@@ -4,7 +4,7 @@
 
 #include <rex/backends/cpu/parallel_for.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -69,4 +69,4 @@ void loop_schedule::run(std::size_t count, const Body &body) const
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

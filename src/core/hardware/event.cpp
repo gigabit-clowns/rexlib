@@ -2,11 +2,11 @@
 
 #include <rex/core/hardware/event.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 event::event() noexcept = default;
 event::~event() = default;
 
-} // namespace rex
+} // namespace rexlib
 

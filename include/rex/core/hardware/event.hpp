@@ -5,7 +5,7 @@
 #include <rex/core/platform/dynamic_shared_object.h>
 #include <rex/core/hardware/event_usage_flags.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -83,4 +83,4 @@ public:
 	virtual bool is_signaled() const = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

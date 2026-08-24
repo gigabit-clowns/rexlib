@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <tuple>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -320,6 +320,6 @@ void run_reduction_loop(
 /** @} */
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "reduction_loop.inl"

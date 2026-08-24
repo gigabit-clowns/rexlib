@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 class plugin;
@@ -131,4 +131,4 @@ std::size_t register_all_plugins_at(
 	service_catalog &catalog
 	);
 
-} // namespace rex
+} // namespace rexlib

@@ -10,7 +10,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_program_builder
@@ -47,4 +47,4 @@ public:
 	);
 };
 
-} // namespace rex
+} // namespace rexlib

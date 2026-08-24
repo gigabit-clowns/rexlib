@@ -11,10 +11,10 @@
 #include <rex/ops/logical/logical_or_operation.hpp>
 #include <rex/ops/logical/logical_xor_operation.hpp>
 
-using namespace rex;
-using namespace rex::ops;
-using rex::test::element_value;
-using rex::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // These accept every numerical type, reading each element as true when it
 // differs from the zero of its own type, and answer with a boolean.
@@ -26,7 +26,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<logical_and_operation>(
-		rex::logical_and,
+		rexlib::logical_and,
 		element_value(1),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -40,7 +40,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<logical_and_operation>(
-		rex::logical_and,
+		rexlib::logical_and,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return false; }
@@ -54,7 +54,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<logical_or_operation>(
-		rex::logical_or,
+		rexlib::logical_or,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -68,7 +68,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<logical_or_operation>(
-		rex::logical_or,
+		rexlib::logical_or,
 		element_value(0),
 		element_value(0),
 		[](auto, auto) { return false; }
@@ -82,7 +82,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<logical_xor_operation>(
-		rex::logical_xor,
+		rexlib::logical_xor,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -97,7 +97,7 @@ TEST_CASE_METHOD(
 {
 	// This is what separates it from logical_or.
 	check_binary<logical_xor_operation>(
-		rex::logical_xor,
+		rexlib::logical_xor,
 		element_value(1),
 		element_value(1),
 		[](auto, auto) { return false; }
@@ -111,7 +111,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<logical_not_operation>(
-		rex::logical_not,
+		rexlib::logical_not,
 		element_value(0),
 		[](auto) { return true; }
 	);
@@ -124,7 +124,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<logical_not_operation>(
-		rex::logical_not,
+		rexlib::logical_not,
 		element_value(1),
 		[](auto) { return false; }
 	);
@@ -139,7 +139,7 @@ TEST_CASE_METHOD(
 	// The zero of a complex type is the origin, so a number off the real
 	// axis is true however small its real part.
 	check_unary<logical_not_operation, complex_type_domain>(
-		rex::logical_not,
+		rexlib::logical_not,
 		element_value(0, 2),
 		[](auto) { return false; }
 	);

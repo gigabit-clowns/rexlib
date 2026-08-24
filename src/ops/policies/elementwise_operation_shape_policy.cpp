@@ -10,7 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -85,4 +85,4 @@ elementwise_operation_shape_policy::get() noexcept
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

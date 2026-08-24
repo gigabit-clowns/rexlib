@@ -4,7 +4,7 @@
 
 #include <rex/core/version.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "version constructor should produce expected values", "[version]" ) 
 {

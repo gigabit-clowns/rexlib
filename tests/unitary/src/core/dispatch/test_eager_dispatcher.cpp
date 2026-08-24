@@ -46,7 +46,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

@@ -6,7 +6,7 @@
 
 #include <array>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "span default construction yields empty span", "[span]" )
 {

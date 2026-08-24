@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -1380,4 +1380,4 @@ void run_reduction_loop(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

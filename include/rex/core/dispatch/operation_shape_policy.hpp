@@ -9,7 +9,7 @@
 
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -89,4 +89,4 @@ public:
 	) const;
 };
 
-} // namespace rex
+} // namespace rexlib

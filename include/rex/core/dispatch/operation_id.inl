@@ -2,7 +2,7 @@
 
 #include "operation_id.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 inline
@@ -25,15 +25,15 @@ operation_id operation_id::of() noexcept
 	return operation_id(typeid(operation_type));
 }
 
-} // namespace rex
+} // namespace rexlib
 
 namespace std
 {
 
 inline
 std::size_t
-hash<rex::operation_id>::operator()
-(const rex::operation_id &key) const noexcept
+hash<rexlib::operation_id>::operator()
+(const rexlib::operation_id &key) const noexcept
 {
 	return key.hash();
 }

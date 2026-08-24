@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 class cpu_execution_context_fixture
@@ -30,12 +30,12 @@ public:
 	cpu_execution_context_fixture()
 	{
 		const auto device_manager =
-			catalog.get_service_manager<rex::device_manager>();
+			catalog.get_service_manager<rexlib::device_manager>();
 		const auto session = device_manager->create_device_session(
 			device_index("cpu", 0)
 		);
 		const auto program_manager =
-			catalog.get_service_manager<rex::program_manager>();
+			catalog.get_service_manager<rexlib::program_manager>();
 		context = execution_context(
 			device_context(session),
 			make_eager_dispatcher(program_manager)
@@ -71,4 +71,4 @@ protected:
 	execution_context context;
 };
 
-} // namespace rex
+} // namespace rexlib

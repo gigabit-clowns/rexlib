@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -77,6 +77,6 @@ void run_sequence_loop(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "sequence_loop.inl"

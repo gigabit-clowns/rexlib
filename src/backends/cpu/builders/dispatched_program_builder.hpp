@@ -13,7 +13,7 @@
 #include <cstddef>
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -71,14 +71,14 @@ public:
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		rex::command_queue &queue
+		rexlib::command_queue &queue
 	) const override;
 
-	std::shared_ptr<rex::program> build(
+	std::shared_ptr<rexlib::program> build(
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		rex::command_queue &queue,
+		rexlib::command_queue &queue,
 		program_cache *cache
 	) const override;
 
@@ -109,6 +109,6 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "dispatched_program_builder.inl"

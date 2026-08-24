@@ -2,10 +2,10 @@
 
 #include <rex/core/hardware/buffer.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 buffer::buffer() noexcept = default;
 buffer::~buffer() = default;
 
-} // namespace rex
+} // namespace rexlib

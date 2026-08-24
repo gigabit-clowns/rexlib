@@ -2,7 +2,7 @@
 
 #include <rex/core/hardware/program.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 program::program() noexcept = default;
@@ -14,4 +14,4 @@ program::get_scratch_requirements() const
 	return {};
 }
 
-} // namespace rex
+} // namespace rexlib

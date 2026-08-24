@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -137,7 +137,7 @@ public:
 	get_operation_data_type_policy() const noexcept override;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 /**
  * @brief Build an operand name list for an operation declaration.
@@ -146,7 +146,7 @@ public:
  * to the declaration macros as a single argument.
  */
 #define REXLIB_OPERANDS(...) \
-	::rex::make_operand_names(__VA_ARGS__)
+	::rexlib::make_operand_names(__VA_ARGS__)
 
 /**
  * @brief Declare the static description of an operation.
@@ -222,7 +222,7 @@ public:
 	\
 	REXLIB_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
-		: public ::rex::trivial_operation< \
+		: public ::rexlib::trivial_operation< \
 			op##_operation, \
 			op##_operation_traits \
 		> \

@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 device_context::device_context(std::shared_ptr<const device_session> session)
@@ -78,4 +78,4 @@ device_context::with_allocator(
 	return result;
 }
 
-} // namespace rex
+} // namespace rexlib

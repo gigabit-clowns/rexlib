@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -80,4 +80,4 @@ private:
 };
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 using shape_type = operation_shape_policy::shape_type;
 

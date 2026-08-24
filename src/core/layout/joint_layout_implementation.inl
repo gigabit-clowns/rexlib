@@ -15,7 +15,7 @@
  * 
  */
 
-namespace rex 
+namespace rexlib 
 {
 
 inline
@@ -463,4 +463,4 @@ void joint_layout_implementation::apply_strides(
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

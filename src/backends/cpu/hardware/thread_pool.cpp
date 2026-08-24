@@ -16,7 +16,7 @@
 #include <thread>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -449,4 +449,4 @@ std::size_t thread_pool::get_default_worker_count()
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -51,4 +51,4 @@ public:
 	bool equals(const program_cache_key &other) const noexcept = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

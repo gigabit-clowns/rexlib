@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -108,7 +108,7 @@ public:
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		rex::command_queue &queue
+		rexlib::command_queue &queue
 	) const override
 	{
 		constexpr auto output_count = ops::cross_operation::output_operand_count;
@@ -146,11 +146,11 @@ public:
 		return base;
 	}
 
-	std::shared_ptr<rex::program> build(
+	std::shared_ptr<rexlib::program> build(
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		rex::command_queue& /*queue*/,
+		rexlib::command_queue& /*queue*/,
 		program_cache* /*cache*/
 	) const override
 	{
@@ -221,4 +221,4 @@ static const program_builder_registration<cross_program_builder>
 cross_program_builder_registration(get_core_program_builder_registry());
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

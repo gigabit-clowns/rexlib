@@ -6,7 +6,7 @@
 #include <rex/core/binary/bit.hpp>
 #include <rex/core/binary/flagset.hpp>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -38,4 +38,4 @@ enum class event_usage_flag_bits
  */
 using event_usage_flags = flagset<event_usage_flag_bits>;
 
-} // namespace rex
+} // namespace rexlib

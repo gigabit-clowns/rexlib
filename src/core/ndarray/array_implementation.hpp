@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace rex 
+namespace rexlib 
 {
 
 class array_implementation
@@ -39,6 +39,6 @@ private:
 
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "array_implementation.inl"

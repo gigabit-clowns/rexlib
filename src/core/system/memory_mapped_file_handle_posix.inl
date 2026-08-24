@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace rex
+namespace rexlib
 {
 
 inline int access_flags_to_open_flags(
@@ -167,4 +167,4 @@ inline void memory_mapped_file_close(void* data, std::size_t size) noexcept
 	munmap(data, size);
 }
 
-} // namespace rex
+} // namespace rexlib

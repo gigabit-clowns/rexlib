@@ -8,7 +8,7 @@
 #include <rex/ops/logical/logical_or_operation.hpp>
 #include <rex/ops/logical/logical_xor_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array logical_and(
@@ -50,4 +50,4 @@ array logical_not(
 	return execute_unary(ops::logical_not_operation(), x, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -7,7 +7,7 @@
 #include <tuple>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -81,6 +81,6 @@ std::tuple<Pointers...> step_pointers(
 
 } // namespace detail
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "operand_pointers.inl"

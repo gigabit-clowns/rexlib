@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -25,4 +25,4 @@ struct ops_component
 };
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

@@ -11,7 +11,7 @@
 #include <memory>
 #include <typeindex>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -107,4 +107,4 @@ private:
 	std::unique_ptr<implementation> m_implementation;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -5,7 +5,7 @@
 #include <utility>
 #include <functional>
 
-namespace rex
+namespace rexlib
 {
 
 template <typename K>
@@ -41,4 +41,4 @@ typed_program_cache_key<K>::get_key() const noexcept
 	return m_key;
 }
 
-} // namespace rex
+} // namespace rexlib

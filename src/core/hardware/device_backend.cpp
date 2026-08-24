@@ -2,10 +2,10 @@
 
 #include <rex/core/hardware/device_backend.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 device_backend::device_backend() noexcept = default;
 device_backend::~device_backend() = default;
 
-} // namespace rex
+} // namespace rexlib

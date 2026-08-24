@@ -7,7 +7,7 @@
 
 #include <cstdint>
 
-namespace rex
+namespace rexlib
 {
 
 REXLIB_INLINE_CONSTEXPR byte_order 
@@ -189,4 +189,4 @@ convert_byte_order_inplace(T& x, byte_order from, byte_order to) noexcept
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace rex 
+namespace rexlib 
 {
 
 class broadcast_error
@@ -30,4 +30,4 @@ private:
 	std::vector<std::size_t> m_second_extents;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -4,7 +4,7 @@
 
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -24,4 +24,4 @@ fourier_normalization rfft_operation::get_normalization() const noexcept
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

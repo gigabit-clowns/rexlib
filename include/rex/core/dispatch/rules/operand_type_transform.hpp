@@ -8,7 +8,7 @@
 
 #include <complex>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -229,4 +229,4 @@ struct fixed_type_transform
 
 /** @} */
 
-} // namespace rex
+} // namespace rexlib

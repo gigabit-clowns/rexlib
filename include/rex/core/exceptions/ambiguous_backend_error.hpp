@@ -6,7 +6,7 @@
 
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -19,4 +19,4 @@ class REXLIB_API ambiguous_backend_error : public std::runtime_error
 	using runtime_error::runtime_error;
 };
 
-} // namespace rex
+} // namespace rexlib

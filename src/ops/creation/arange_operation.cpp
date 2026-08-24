@@ -2,7 +2,7 @@
 
 #include <rex/ops/creation/arange_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -34,4 +34,4 @@ std::size_t arange_operation::get_count() const noexcept
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

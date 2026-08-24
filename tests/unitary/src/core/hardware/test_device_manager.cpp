@@ -20,7 +20,7 @@
 #include "mock/mock_memory_allocator.hpp"
 #include "mock/mock_command_queue.hpp"
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

@@ -8,7 +8,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -180,6 +180,6 @@ struct element_compute_type
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "load_store.inl"

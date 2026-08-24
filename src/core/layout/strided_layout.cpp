@@ -4,7 +4,7 @@
 
 #include "strided_layout_implementation.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
 strided_layout::strided_layout() noexcept = default;
@@ -229,4 +229,4 @@ bool operator==(const strided_layout &lhs, const strided_layout &rhs) noexcept
 	return lhs.get_implementation() == rhs.get_implementation();
 }
 
-} // namespace rex
+} // namespace rexlib

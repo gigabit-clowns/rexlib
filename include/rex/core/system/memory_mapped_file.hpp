@@ -8,7 +8,7 @@
 
 #include <type_traits>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -152,4 +152,4 @@ private:
  */
 REXLIB_API void swap(memory_mapped_file& lhs, memory_mapped_file& rhs) noexcept;
 
-} //namespace rex
+} //namespace rexlib

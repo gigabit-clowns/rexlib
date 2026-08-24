@@ -7,7 +7,7 @@
 
 #include <sstream>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "get_size should return the expected size for each type", "[numerical_type]" ) 
 {

@@ -5,7 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 
 void throw_unexpected_operation(
@@ -19,4 +19,4 @@ void throw_unexpected_operation(
 	throw std::invalid_argument(oss.str());
 }
 
-} // namespace rex
+} // namespace rexlib

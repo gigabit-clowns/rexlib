@@ -8,7 +8,7 @@
 #include <memory>
 #include <cstddef>
 
-namespace rex 
+namespace rexlib 
 {
 
 class memory_resource;
@@ -83,4 +83,4 @@ public:
 	virtual const memory_resource& get_memory_resource() const noexcept = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

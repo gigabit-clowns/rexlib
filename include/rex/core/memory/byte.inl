@@ -5,7 +5,7 @@
 #include <array>
 #include <climits>
 
-namespace rex
+namespace rexlib
 {
 
 REXLIB_INLINE_CONSTEXPR uint8_t 
@@ -144,10 +144,10 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b)
 	return os << high << low;
 }
 
-} // namespace rex
+} // namespace rexlib
 
 REXLIB_INLINE_CONSTEXPR size_t 
-std::hash<rex::byte>::operator()(rex::byte b) const noexcept
+std::hash<rexlib::byte>::operator()(rexlib::byte b) const noexcept
 {
-	return rex::as_uint8(b);
+	return rexlib::as_uint8(b);
 }

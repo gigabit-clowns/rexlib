@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -159,4 +159,4 @@ private:
 	const implementation& get_implementation() const noexcept;
 };
 
-} // namespace rex
+} // namespace rexlib

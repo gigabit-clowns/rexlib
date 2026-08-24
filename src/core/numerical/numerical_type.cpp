@@ -9,7 +9,7 @@
 
 #include <complex>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -262,4 +262,4 @@ std::ostream& operator<<(std::ostream& os, numerical_type_category category)
 	return os << to_string(category);
 }
 
-} // namespace rex
+} // namespace rexlib

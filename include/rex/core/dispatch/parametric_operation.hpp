@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -94,7 +94,7 @@ private:
 	shape_policy_type m_shape_policy;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 /**
  * @brief Declare an operation owning a stateful shape policy.
@@ -129,13 +129,13 @@ private:
 	\
 	REXLIB_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
-		: public ::rex::parametric_operation< \
+		: public ::rexlib::parametric_operation< \
 			op##_operation, \
 			op##_operation_traits \
 		> \
 	{ \
 	public: \
-		using ::rex::parametric_operation< \
+		using ::rexlib::parametric_operation< \
 			op##_operation, \
 			op##_operation_traits \
 		>::parametric_operation; \

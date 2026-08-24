@@ -7,7 +7,7 @@
 #include <backends/cpu/builders/fold_reduction_kernel.hpp>
 #include <backends/cpu/kernels/boolean_cast.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -59,4 +59,4 @@ REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

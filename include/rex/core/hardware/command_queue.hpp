@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 
 class command;
@@ -88,4 +88,4 @@ public:
 	virtual void wait(const event &event) = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

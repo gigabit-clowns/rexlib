@@ -18,7 +18,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -132,7 +132,7 @@ using indexed_reduction_program_builder =
 	>;
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU reduction program builder.
@@ -147,7 +147,7 @@ using indexed_reduction_program_builder =
 #define REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::reduction_program_builder<op, kernel_factory> \
+		::rexlib::cpu::reduction_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -167,7 +167,7 @@ using indexed_reduction_program_builder =
 ) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::indexed_reduction_program_builder<op, kernel_factory> \
+		::rexlib::cpu::indexed_reduction_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -188,7 +188,7 @@ using indexed_reduction_program_builder =
 ) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::reduction_program_builder< \
+		::rexlib::cpu::reduction_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

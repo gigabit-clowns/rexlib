@@ -8,7 +8,7 @@
 #include <ostream>
 #include <cstdint>
 
-namespace rex 
+namespace rexlib 
 {
 
 class version
@@ -102,6 +102,6 @@ private:
 	std::uint32_t m_data;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "version.inl"

@@ -10,7 +10,7 @@
 #include <memory>
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -63,4 +63,4 @@ public:
 	span<const program_scratch_requirement> get_scratch_requirements() const;
 };
 
-} // namespace rex
+} // namespace rexlib

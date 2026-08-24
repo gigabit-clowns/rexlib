@@ -7,7 +7,7 @@
 
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -286,4 +286,4 @@ std::pair<array, array> sincos(
 	array *cosine = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

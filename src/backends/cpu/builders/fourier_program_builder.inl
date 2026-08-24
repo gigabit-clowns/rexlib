@@ -12,7 +12,7 @@
 #include <tuple>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -102,4 +102,4 @@ fourier_program_builder<Op, Transform, TypeDispatcher>::make_loop_functor(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

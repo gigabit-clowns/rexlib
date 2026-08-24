@@ -9,7 +9,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -74,4 +74,4 @@ using slot_inexact_of = operand_type_slot<I, inexact_type_transform>;
 template <numerical_type Type, std::size_t I = 0>
 using slot_fixed = operand_type_slot<I, fixed_type_transform<Type>>;
 
-} // namespace rex
+} // namespace rexlib

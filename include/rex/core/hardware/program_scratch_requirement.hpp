@@ -8,7 +8,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -83,4 +83,4 @@ private:
 	memory_resource_affinity m_affinity;
 };
 
-} // namespace rex
+} // namespace rexlib

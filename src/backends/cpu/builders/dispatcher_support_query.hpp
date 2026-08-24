@@ -5,7 +5,7 @@
 #include <rex/core/numerical/numerical_type.hpp>
 #include <rex/core/span.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -50,4 +50,4 @@ struct dispatcher_support_query<
 
 } // namespace detail
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

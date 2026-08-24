@@ -8,7 +8,7 @@
 #include <rex/core/numerical/numerical_type.hpp>
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -89,4 +89,4 @@ public:
 	) const;
 };
 
-} // namespace rex
+} // namespace rexlib

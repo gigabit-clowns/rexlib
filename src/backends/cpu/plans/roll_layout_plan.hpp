@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -65,4 +65,4 @@ std::vector<joint_layout> build_roll_blocks(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

@@ -6,7 +6,7 @@
 
 #include "array_implementation.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
 const_array::const_array() = default;
@@ -58,4 +58,4 @@ const_array::get_implementation() const noexcept
 	return m_implementation.get();
 }
 
-} // namespace rex
+} // namespace rexlib

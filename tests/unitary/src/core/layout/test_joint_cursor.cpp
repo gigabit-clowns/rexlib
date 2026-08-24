@@ -4,7 +4,7 @@
 
 #include <rex/core/layout/joint_cursor.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "default constructed array iterator should be empty", "[joint_cursor]" )
 {

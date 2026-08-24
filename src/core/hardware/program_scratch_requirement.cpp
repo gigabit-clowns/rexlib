@@ -2,7 +2,7 @@
 
 #include <rex/core/hardware/program_scratch_requirement.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 program_scratch_requirement::program_scratch_requirement(
@@ -32,4 +32,4 @@ memory_resource_affinity program_scratch_requirement::get_affinity() const
 	return m_affinity;
 }
 
-} // namespace rex
+} // namespace rexlib

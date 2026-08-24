@@ -6,23 +6,23 @@
 
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
 
 class REXLIB_API program_builder
-	: public rex::program_builder
+	: public rexlib::program_builder
 {
 public:
 	backend_priority get_suitability(
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		rex::command_queue &queue
+		rexlib::command_queue &queue
 	) const override;
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 

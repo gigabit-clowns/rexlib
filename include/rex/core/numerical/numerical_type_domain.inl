@@ -2,7 +2,7 @@
 
 #include "numerical_type_domain.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 namespace detail
@@ -141,4 +141,4 @@ numerical_type_domain make_numerical_type_domain(
 	return numerical_type_domain(mask);
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -6,7 +6,7 @@
 #include <rex/core/dispatch/operation_shape_policy.hpp>
 #include <rex/core/span.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -55,4 +55,4 @@ void assign_output_shapes(
 );
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

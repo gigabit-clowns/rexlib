@@ -19,8 +19,8 @@
 #include <typeinfo>
 #include <vector>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"cpu::command_queue should reject a null thread pool",
@@ -59,7 +59,7 @@ TEST_CASE(
 )
 {
 	cpu::command_queue queue(get_serial_pool());
-	const command cmd(std::make_shared<rex::mock_program>());
+	const command cmd(std::make_shared<rexlib::mock_program>());
 	CHECK_THROWS_AS( queue.submit(cmd), std::bad_cast );
 }
 
@@ -134,7 +134,7 @@ TEST_CASE(
 )
 {
 	cpu::command_queue queue(get_serial_pool());
-	rex::command_queue &base = queue;
+	rexlib::command_queue &base = queue;
 	CHECK( cpu::command_queue::try_cast(base) == &queue );
 }
 
@@ -144,7 +144,7 @@ TEST_CASE(
 )
 {
 	mock_command_queue queue;
-	rex::command_queue &base = queue;
+	rexlib::command_queue &base = queue;
 	CHECK( cpu::command_queue::try_cast(base) == nullptr );
 }
 
@@ -154,7 +154,7 @@ TEST_CASE(
 )
 {
 	const cpu::command_queue queue(get_serial_pool());
-	const rex::command_queue &base = queue;
+	const rexlib::command_queue &base = queue;
 	const cpu::command_queue *result = cpu::command_queue::try_cast(base);
 	CHECK( result == &queue );
 }

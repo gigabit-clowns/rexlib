@@ -11,8 +11,8 @@
 
 #include <stdexcept>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"cpu::device_backend should be named as cpu",
@@ -29,7 +29,7 @@ TEST_CASE(
 )
 {
 	cpu::device_backend backend;
-	REQUIRE( backend.get_version() == rex::get_core_version() );
+	REQUIRE( backend.get_version() == rexlib::get_core_version() );
 }
 
 TEST_CASE(

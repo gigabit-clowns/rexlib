@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -60,4 +60,4 @@ void check_axes_within_rank(
 );
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

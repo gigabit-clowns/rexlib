@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace rex 
+namespace rexlib 
 {
 
 REXLIB_INLINE_CONSTEXPR
@@ -91,4 +91,4 @@ auto visit(F&& func, const dynamic_subscript &subscript)
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

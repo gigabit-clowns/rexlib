@@ -12,7 +12,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_dispatcher final
@@ -31,4 +31,4 @@ public:
 	);
 };
 
-} // namespace rex
+} // namespace rexlib

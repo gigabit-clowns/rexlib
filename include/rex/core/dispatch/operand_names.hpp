@@ -9,7 +9,7 @@
 #include <cstddef>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -73,4 +73,4 @@ struct operand_names_count
 {
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -31,4 +31,4 @@ inline const std::shared_ptr<thread_pool>& get_serial_pool()
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

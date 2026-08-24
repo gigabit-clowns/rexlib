@@ -9,7 +9,7 @@
 #include <tuple>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -145,6 +145,6 @@ struct accumulator_tiles;
 } // namespace detail
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "reduction_kernel_traits.inl"

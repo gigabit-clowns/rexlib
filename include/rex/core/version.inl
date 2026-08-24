@@ -2,7 +2,7 @@
 
 #include "version.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
 REXLIB_INLINE_CONSTEXPR 
@@ -72,4 +72,4 @@ std::uint32_t version::get_data() const noexcept
 	return m_data;
 }
 
-} // namespace rex
+} // namespace rexlib

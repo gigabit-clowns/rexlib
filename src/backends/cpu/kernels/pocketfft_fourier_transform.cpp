@@ -31,7 +31,7 @@
 #define POCKETFFT_CACHE_SIZE REXLIB_POCKETFFT_CACHE_SIZE
 #include <pocketfft_hdronly.h>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -231,4 +231,4 @@ template void run_complex_to_real_transform<float64_t>(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

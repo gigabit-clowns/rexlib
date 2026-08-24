@@ -15,10 +15,10 @@
 #include <cstddef>
 #include <vector>
 
-using namespace rex;
-using namespace rex::ops;
-using rex::test::element_value;
-using rex::test::reduction_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::reduction_verb_fixture;
 
 // vecdot is a broadcast followed by a sum along an axis, so it shares the
 // reduction shape policy and the reduction loop with the reduction family.
@@ -37,7 +37,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::vecdot(left_ref, right_ref, context, nullptr),
+		rexlib::vecdot(left_ref, right_ref, context, nullptr),
 		{},
 		{ 32 }
 	);
@@ -55,7 +55,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::vecdot(left_ref, right_ref, context, nullptr),
+		rexlib::vecdot(left_ref, right_ref, context, nullptr),
 		{ 2 },
 		{ 1, 5 }
 	);
@@ -75,7 +75,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::vecdot(left_ref, right_ref, context, nullptr),
+		rexlib::vecdot(left_ref, right_ref, context, nullptr),
 		{ 2 },
 		{ 6, 15 }
 	);
@@ -93,7 +93,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::vecdot(left_ref, right_ref, 0, context, nullptr),
+		rexlib::vecdot(left_ref, right_ref, 0, context, nullptr),
 		{ 3 },
 		{ 9, 12, 15 }
 	);
@@ -118,7 +118,7 @@ TEST_CASE_METHOD(
 	const const_array_ref operand_ref = operand;
 
 	const auto result =
-		rex::vecdot(operand_ref, operand_ref, context, nullptr);
+		rexlib::vecdot(operand_ref, operand_ref, context, nullptr);
 
 	// |3 + 4i|^2 + |1 - 2i|^2 = 25 + 5, with no imaginary part left.
 	const auto value = read_host<complex_type>(result, 1).front();
@@ -142,7 +142,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::matmul(left_ref, right_ref, context, nullptr),
+		rexlib::matmul(left_ref, right_ref, context, nullptr),
 		{ 2, 4 },
 		{ 38, 44, 50, 56, 83, 98, 113, 128 }
 	);
@@ -179,7 +179,7 @@ TEST_CASE_METHOD(
 	}
 
 	check_values<float32_t>(
-		rex::matmul(left_ref, right_ref, context, nullptr),
+		rexlib::matmul(left_ref, right_ref, context, nullptr),
 		{ 5, 2, 4 },
 		expected
 	);
@@ -204,7 +204,7 @@ TEST_CASE_METHOD(
 	const const_array_ref identity_ref = identity;
 
 	check_values<float32_t>(
-		rex::matmul(left_ref, identity_ref, context, nullptr),
+		rexlib::matmul(left_ref, identity_ref, context, nullptr),
 		{ 3, 3 },
 		{ 1, 2, 3, 4, 5, 6, 7, 8, 9 }
 	);
@@ -228,7 +228,7 @@ TEST_CASE_METHOD(
 	const const_array_ref identity_ref = identity;
 
 	check_values<float32_t>(
-		rex::matmul(left_ref, identity_ref, context, nullptr),
+		rexlib::matmul(left_ref, identity_ref, context, nullptr),
 		{ 4, 4 },
 		{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }
 	);
@@ -251,7 +251,7 @@ TEST_CASE_METHOD(
 	const const_array_ref identity_ref = identity;
 
 	check_values<float32_t>(
-		rex::matmul(left_ref, identity_ref, context, nullptr),
+		rexlib::matmul(left_ref, identity_ref, context, nullptr),
 		{ 3, 4 },
 		{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }
 	);
@@ -270,7 +270,7 @@ TEST_CASE_METHOD(
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
-	const auto result = rex::execute_binary(
+	const auto result = rexlib::execute_binary(
 		matvec_operation(), left_ref, right_ref, context, nullptr
 	);
 
@@ -296,7 +296,7 @@ TEST_CASE_METHOD(
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
-	const auto result = rex::execute_binary(
+	const auto result = rexlib::execute_binary(
 		matvec_operation(), left_ref, right_ref, context, nullptr
 	);
 
@@ -334,7 +334,7 @@ TEST_CASE_METHOD(
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
-	const auto result = rex::execute_binary(
+	const auto result = rexlib::execute_binary(
 		matvec_operation(), left_ref, right_ref, context, nullptr
 	);
 
@@ -369,7 +369,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<complex_type>(
-		rex::matvec(left_ref, right_ref, context, nullptr),
+		rexlib::matvec(left_ref, right_ref, context, nullptr),
 		{ 2 },
 		{ element_value(3.0, 4.0), element_value(5.0, 1.0) }
 	);
@@ -388,7 +388,7 @@ TEST_CASE_METHOD(
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
-	const auto result = rex::execute_binary(
+	const auto result = rexlib::execute_binary(
 		vecmat_operation(), left_ref, right_ref, context, nullptr
 	);
 
@@ -416,7 +416,7 @@ TEST_CASE_METHOD(
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
-	const auto result = rex::execute_binary(
+	const auto result = rexlib::execute_binary(
 		vecmat_operation(), left_ref, right_ref, context, nullptr
 	);
 
@@ -454,7 +454,7 @@ TEST_CASE_METHOD(
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
-	const auto result = rex::execute_binary(
+	const auto result = rexlib::execute_binary(
 		vecmat_operation(), left_ref, right_ref, context, nullptr
 	);
 
@@ -495,7 +495,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<complex_type>(
-		rex::vecmat(left_ref, right_ref, context, nullptr),
+		rexlib::vecmat(left_ref, right_ref, context, nullptr),
 		{ 2 },
 		{ element_value(3.0, -4.0), element_value(1.0, 2.0) }
 	);
@@ -513,7 +513,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::cross(left_ref, right_ref, context, nullptr),
+		rexlib::cross(left_ref, right_ref, context, nullptr),
 		{ 3 },
 		{ 0, 0, 1 }
 	);
@@ -539,7 +539,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::cross(left_ref, right_ref, context, nullptr),
+		rexlib::cross(left_ref, right_ref, context, nullptr),
 		{ 4, 3 },
 		{
 			0, -1, 0,
@@ -579,7 +579,7 @@ TEST_CASE_METHOD(
 	const const_array_ref right_ref = right;
 
 	check_values<float32_t>(
-		rex::cross(left_ref, right_ref, 0, context, nullptr),
+		rexlib::cross(left_ref, right_ref, 0, context, nullptr),
 		{ 3, 4 },
 		{
 			0, 1, 0, 1,

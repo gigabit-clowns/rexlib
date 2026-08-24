@@ -7,7 +7,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 class operand_signature;
@@ -128,4 +128,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

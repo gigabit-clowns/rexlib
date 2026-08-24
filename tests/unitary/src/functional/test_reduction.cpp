@@ -21,9 +21,9 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace rex;
-using namespace rex::ops;
-using rex::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 TEST_CASE_METHOD(

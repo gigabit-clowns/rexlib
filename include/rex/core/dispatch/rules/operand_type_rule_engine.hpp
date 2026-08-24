@@ -11,7 +11,7 @@
 #include <rex/core/platform/dynamic_shared_object.h>
 #include <rex/core/span.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -123,4 +123,4 @@ void throw_type_rule_error(
 
 /** @} */
 
-} // namespace rex
+} // namespace rexlib

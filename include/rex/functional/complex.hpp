@@ -5,7 +5,7 @@
 #include <rex/core/ndarray/array.hpp>
 #include <rex/core/ndarray/const_array_ref.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -90,4 +90,4 @@ array angle(
 	array *out = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

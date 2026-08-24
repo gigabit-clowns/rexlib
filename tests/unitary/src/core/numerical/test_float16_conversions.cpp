@@ -7,7 +7,7 @@
 
 #include <half.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
 	"half_to_float16 and float16_to_half should be inverses",

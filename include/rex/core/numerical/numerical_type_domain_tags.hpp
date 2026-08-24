@@ -10,7 +10,7 @@
 
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 namespace detail
@@ -218,4 +218,4 @@ using signed_arithmetic_type_domain = domain_union<
 	inexact_type_domain
 >;
 
-} // namespace rex
+} // namespace rexlib

@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-namespace rex
+namespace rexlib
 {
 
 rule_operation_data_type_policy::rule_operation_data_type_policy(
@@ -179,4 +179,4 @@ void rule_operation_data_type_policy::accept(
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

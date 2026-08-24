@@ -33,8 +33,8 @@
 #include <utility>
 #include <vector>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

@@ -25,7 +25,7 @@
 #include <array>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 array sin(
@@ -207,4 +207,4 @@ std::pair<array, array> sincos(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

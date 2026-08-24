@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -24,4 +24,4 @@ namespace rex
 REXLIB_API
 std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent);
 
-} // namespace rex
+} // namespace rexlib

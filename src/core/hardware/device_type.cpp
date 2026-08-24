@@ -2,7 +2,7 @@
 
 #include "rex/core/hardware/device_type.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 const char* to_string(device_type type) noexcept
@@ -17,4 +17,4 @@ const char* to_string(device_type type) noexcept
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

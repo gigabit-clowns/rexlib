@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -147,6 +147,6 @@ template <typename T>
 REXLIB_NODISCARD
 T* offset_bytes(T* address, std::ptrdiff_t count);
 
-} // namespace rex
+} // namespace rexlib
 
 #include "align.inl"

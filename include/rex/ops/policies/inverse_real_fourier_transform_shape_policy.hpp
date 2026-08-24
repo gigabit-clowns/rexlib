@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <ostream>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -120,4 +120,4 @@ REXLIB_API
 signal_parity get_signal_parity(std::size_t extent) noexcept;
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

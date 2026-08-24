@@ -5,7 +5,7 @@
 
 #include <rex/core/hardware/program_scratch_requirement.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
 	"program_scratch_requirement constructor should store size, alignment, "

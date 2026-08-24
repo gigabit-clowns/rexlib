@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -129,7 +129,7 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU matmul/matvec/vecmat family
@@ -143,7 +143,7 @@ private:
 #define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::linalg_program_builder<op, kernel_factory> \
+		::rexlib::cpu::linalg_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -163,7 +163,7 @@ private:
 ) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rex::cpu::linalg_program_builder< \
+		::rexlib::cpu::linalg_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

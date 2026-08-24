@@ -7,7 +7,7 @@
 #include <iterator>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -65,4 +65,4 @@ void reduction_operation_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

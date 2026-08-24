@@ -5,7 +5,7 @@
 #include <rex/core/platform/assert.hpp>
 #include <core/numerical/float16_conversions.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -108,4 +108,4 @@ inline void cast(std::complex<T> *destination, const Q *source) noexcept
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

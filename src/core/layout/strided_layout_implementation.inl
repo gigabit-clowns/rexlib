@@ -9,7 +9,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace rex 
+namespace rexlib 
 {
 
 template <typename ForwardIt>
@@ -543,7 +543,7 @@ strided_layout_implementation strided_layout_implementation::broadcast_to(
 	{
 		auto &axis = axes[i];
 		const auto extent = extents[i];
-		if (!rex::broadcast_to(axis, extent))
+		if (!rexlib::broadcast_to(axis, extent))
 		{
 			std::ostringstream oss;
 			oss << "Cannot broadcast axis of extent " << axis.get_extent()
@@ -555,4 +555,4 @@ strided_layout_implementation strided_layout_implementation::broadcast_to(
 	return strided_layout_implementation(std::move(axes), m_offset);
 }
 
-} // namespace rex
+} // namespace rexlib

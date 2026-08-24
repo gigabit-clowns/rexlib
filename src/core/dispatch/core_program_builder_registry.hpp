@@ -4,7 +4,7 @@
 
 #include <rex/core/dispatch/program_builder_registry.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -20,4 +20,4 @@ namespace rex
  */
 program_builder_registry& get_core_program_builder_registry() noexcept;
 
-} // namespace rex
+} // namespace rexlib

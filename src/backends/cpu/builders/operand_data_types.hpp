@@ -9,7 +9,7 @@
 #include <array>
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -31,6 +31,6 @@ void extract_data_types(
 ) noexcept;
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "operand_data_types.inl"

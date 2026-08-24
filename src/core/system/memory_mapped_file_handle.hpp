@@ -5,7 +5,7 @@
 #include <rex/core/system/access_flags.hpp>
 #include <rex/core/platform/operating_system.h>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -35,7 +35,7 @@ void* memory_mapped_file_open(
 void memory_mapped_file_close(void* data, std::size_t size) noexcept;
 
 
-} // namespace rex
+} // namespace rexlib
 
 #if REXLIB_POSIX
 	#include "memory_mapped_file_handle_posix.inl"

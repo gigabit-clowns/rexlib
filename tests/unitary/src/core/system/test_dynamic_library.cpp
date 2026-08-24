@@ -10,7 +10,7 @@
 #include <sstream>
 #include <string>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "open a dynamic library", "[dynamic_library]" ) 
 {

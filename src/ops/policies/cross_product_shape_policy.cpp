@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -67,4 +67,4 @@ void cross_product_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

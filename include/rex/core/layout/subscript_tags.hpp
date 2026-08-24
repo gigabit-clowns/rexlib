@@ -8,7 +8,7 @@
 #include <ostream>
 #include <type_traits>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -84,6 +84,6 @@ struct new_axis_tag
 REXLIB_CONSTEXPR
 new_axis_tag new_axis() noexcept;
 
-} // namespace rex
+} // namespace rexlib
 
 #include "subscript_tags.inl"

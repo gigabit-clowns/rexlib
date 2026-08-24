@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/program.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

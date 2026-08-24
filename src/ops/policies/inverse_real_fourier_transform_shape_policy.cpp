@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -110,4 +110,4 @@ void inverse_real_fourier_transform_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

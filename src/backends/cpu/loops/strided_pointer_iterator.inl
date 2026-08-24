@@ -2,7 +2,7 @@
 
 #include "strided_pointer_iterator.hpp"
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -144,4 +144,4 @@ strided_pointer_iterator<T, Stride> make_strided_pointer_iterator(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

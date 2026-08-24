@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("Default constructed array_ref should have no storage", "[array_ref]")
 {

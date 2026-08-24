@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace rex 
+namespace rexlib 
 {
 
 namespace
@@ -175,4 +175,4 @@ bool is_broadcastable_to(
 	return true;
 }
 
-} // namespace rex
+} // namespace rexlib

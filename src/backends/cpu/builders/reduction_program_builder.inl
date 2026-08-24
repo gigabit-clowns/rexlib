@@ -13,7 +13,7 @@
 #include <tuple>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -116,4 +116,4 @@ reduction_program_builder<Op, KernelFactory, TypeDispatcher, Ordered>
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

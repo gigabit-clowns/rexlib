@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -19,4 +19,4 @@ public:
 	using type = T; ///< The type passed as the template argument.
 };
 
-} // namespace rex
+} // namespace rexlib

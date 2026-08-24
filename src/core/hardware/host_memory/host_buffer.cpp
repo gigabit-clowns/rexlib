@@ -9,7 +9,7 @@
 
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 
 host_buffer::host_buffer(
@@ -54,4 +54,4 @@ const memory_resource& host_buffer::get_memory_resource() const noexcept
 	return host_memory_resource::get();
 }
 
-} // namespace rex
+} // namespace rexlib

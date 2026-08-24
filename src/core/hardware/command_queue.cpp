@@ -2,10 +2,10 @@
 
 #include <rex/core/hardware/command_queue.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 command_queue::command_queue() noexcept = default;
 command_queue::~command_queue() = default;
 
-} // namespace rex
+} // namespace rexlib

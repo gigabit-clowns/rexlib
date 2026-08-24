@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/event.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -17,7 +17,7 @@ namespace cpu
  * @ref event_usage_flag_bits::device_wait.
  */
 class event
-	: public rex::event
+	: public rexlib::event
 {
 public:
 	event_usage_flags get_supported_usage() const noexcept override;
@@ -27,4 +27,4 @@ public:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

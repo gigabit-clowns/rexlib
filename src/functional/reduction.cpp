@@ -21,7 +21,7 @@
 #include <numeric>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -376,4 +376,4 @@ array mean(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

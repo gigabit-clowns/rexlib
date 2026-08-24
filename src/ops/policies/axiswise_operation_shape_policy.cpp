@@ -6,7 +6,7 @@
 
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -42,4 +42,4 @@ void axiswise_operation_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

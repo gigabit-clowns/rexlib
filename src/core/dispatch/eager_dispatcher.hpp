@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 
 class program_manager;
@@ -52,4 +52,4 @@ private:
 	program_cache m_program_cache;
 };
 
-} // namespace rex
+} // namespace rexlib

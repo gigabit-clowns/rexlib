@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -47,4 +47,4 @@ public:
 	}
 };
 
-} // namespace rex
+} // namespace rexlib

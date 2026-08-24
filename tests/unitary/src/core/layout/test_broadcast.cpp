@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 
 TEST_CASE(

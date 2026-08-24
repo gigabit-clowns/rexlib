@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -45,4 +45,4 @@ void check_axes_within_rank(
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

@@ -8,7 +8,7 @@
 
 #include <utility>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

@@ -2,7 +2,7 @@
 
 #include "event.hpp"
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -27,4 +27,4 @@ bool event::is_signaled() const
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

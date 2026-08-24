@@ -10,8 +10,8 @@
 
 #include <vector>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"roll_axis_shift stores the axis and shift it is given",

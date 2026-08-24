@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 class operand_signature;
@@ -174,4 +174,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

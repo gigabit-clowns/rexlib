@@ -8,7 +8,7 @@
 #include <rex/ops/assignment/copy_operation.hpp>
 #include <rex/core/hardware/memory_resource_affinity.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array cast(
@@ -65,4 +65,4 @@ array cast_copy(
 	return result;
 }
 
-} // namespace rex
+} // namespace rexlib

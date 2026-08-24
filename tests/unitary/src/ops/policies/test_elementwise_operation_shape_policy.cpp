@@ -10,8 +10,8 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace rex;
-using namespace rex::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 
 using shape_type = std::vector<std::size_t>;
 

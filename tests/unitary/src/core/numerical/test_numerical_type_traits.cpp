@@ -4,7 +4,7 @@
 
 #include <rex/core/numerical/numerical_type_traits.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "numerical_type_of should contain the expected value", "[numerical_type_of]" )
 {

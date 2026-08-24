@@ -2,7 +2,7 @@
 
 #include <rex/core/dispatch/operation_arity.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 operation_arity::operation_arity() noexcept
@@ -49,4 +49,4 @@ operation_arity operation_arity::ternary() noexcept
 	return operation_arity(1, 3);
 }
 
-} // namespace rex
+} // namespace rexlib

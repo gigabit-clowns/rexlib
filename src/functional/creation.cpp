@@ -25,7 +25,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -441,4 +441,4 @@ void fill(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

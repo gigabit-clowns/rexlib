@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -92,4 +92,4 @@ private:
 REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

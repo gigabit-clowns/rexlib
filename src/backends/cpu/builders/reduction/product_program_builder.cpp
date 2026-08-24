@@ -6,7 +6,7 @@
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/fold_reduction_kernel.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -45,4 +45,4 @@ REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

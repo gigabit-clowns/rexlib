@@ -7,7 +7,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -36,6 +36,6 @@ private:
 	K m_key;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "typed_program_cache_key.inl"

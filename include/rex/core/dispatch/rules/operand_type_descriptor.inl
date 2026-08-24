@@ -4,7 +4,7 @@
 
 #include <rex/core/platform/assert.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 inline
@@ -86,4 +86,4 @@ const char* slot_descriptor::get_relation() const noexcept
 	return m_relation;
 }
 
-} // namespace rex
+} // namespace rexlib

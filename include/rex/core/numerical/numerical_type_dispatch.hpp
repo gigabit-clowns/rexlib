@@ -10,7 +10,7 @@
 #include <complex>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -34,6 +34,6 @@ REXLIB_CONSTEXPR
 auto dispatch_numerical_types(F&& visitor, Types&& ...types);
 
 
-} // namespace rex
+} // namespace rexlib
 
 #include "numerical_type_dispatch.inl"

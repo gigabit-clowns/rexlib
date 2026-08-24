@@ -8,7 +8,7 @@
 #include <rex/core/core_version.hpp>
 #include <rex/core/system/host.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -48,7 +48,7 @@ bool device_backend::get_device_properties(
 	return result;
 }
 
-std::shared_ptr<rex::device> 
+std::shared_ptr<rexlib::device> 
 device_backend::create_device(std::size_t id) const
 {
 	if (id >= 1)
@@ -59,10 +59,10 @@ device_backend::create_device(std::size_t id) const
 	return std::make_shared<device>();
 }
 
-bool device_backend::register_at(rex::device_manager &manager)
+bool device_backend::register_at(rexlib::device_manager &manager)
 {
 	return manager.register_backend(std::make_unique<device_backend>());
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

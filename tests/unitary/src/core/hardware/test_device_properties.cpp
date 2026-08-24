@@ -6,7 +6,7 @@
 
 #include <array>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "setting and getting attributes in device_properties should preserve them", "[hardware]" )
 {

@@ -6,7 +6,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_memory_resource final
@@ -21,4 +21,4 @@ public:
 	);
 };
 
-} // namespace rex
+} // namespace rexlib

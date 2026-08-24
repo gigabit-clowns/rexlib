@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -24,7 +24,7 @@ class thread_pool;
  * already stopped.
  */
 class REXLIB_API device final
-	: public rex::device
+	: public rexlib::device
 {
 public:
 	/**
@@ -40,9 +40,9 @@ public:
 	const memory_resource& 
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
-	std::shared_ptr<rex::command_queue> create_command_queue() const override;
+	std::shared_ptr<rexlib::command_queue> create_command_queue() const override;
 
-	std::shared_ptr<rex::event>
+	std::shared_ptr<rexlib::event>
 	create_event(event_usage_flags usage) const override;
 
 	/**
@@ -57,4 +57,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

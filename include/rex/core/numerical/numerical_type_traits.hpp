@@ -7,7 +7,7 @@
 
 #include <complex>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -236,4 +236,4 @@ struct native_type_of<numerical_type::complex_float64>
 	using type = std::complex<float64_t>;
 };
 
-} // namespace rex
+} // namespace rexlib

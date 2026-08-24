@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-namespace rex
+namespace rexlib
 {
 
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
@@ -38,4 +38,4 @@ void aligned_free(void* ptr) noexcept
 	#endif
 }
 
-} // namespace rex
+} // namespace rexlib

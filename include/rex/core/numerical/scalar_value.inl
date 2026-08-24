@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <typeinfo>
 
-namespace rex
+namespace rexlib
 {
 
 template <typename T>
@@ -121,4 +121,4 @@ T scalar_value_cast(const scalar_value &value)
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

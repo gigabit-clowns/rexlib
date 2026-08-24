@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 operation_descriptor::operation_descriptor(
@@ -76,4 +76,4 @@ std::string describe_operand(
 	return std::to_string(index);
 }
 
-} // namespace rex
+} // namespace rexlib

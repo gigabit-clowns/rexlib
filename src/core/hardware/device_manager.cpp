@@ -11,7 +11,7 @@
 #include <tuple>
 #include <unordered_map>
 
-namespace rex
+namespace rexlib
 {
 
 class device_manager::implementation
@@ -167,4 +167,4 @@ void device_manager::create_implementation_if_null()
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

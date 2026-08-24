@@ -6,8 +6,8 @@
 
 #include <rex/core/meta/type_list.hpp>
 
-using namespace rex;
-using namespace rex::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

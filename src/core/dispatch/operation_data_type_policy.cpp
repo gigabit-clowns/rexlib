@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace rex
+namespace rexlib
 {
 
 operation_data_type_policy::operation_data_type_policy() noexcept = default;
@@ -37,4 +37,4 @@ void operation_data_type_policy::accept(
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

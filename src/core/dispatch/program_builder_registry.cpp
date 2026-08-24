@@ -5,7 +5,7 @@
 #include <rex/core/dispatch/program_builder.hpp>
 #include <rex/core/dispatch/program_manager.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 program_builder_registry::program_builder_registry() = default;
@@ -27,4 +27,4 @@ void program_builder_registry::register_all(program_manager &manager) const
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

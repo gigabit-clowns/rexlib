@@ -16,7 +16,7 @@
 #include <cstdint>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE_METHOD(
 	cpu_execution_context_fixture,

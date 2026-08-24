@@ -5,7 +5,7 @@
 #include "version.hpp"
 #include "platform/dynamic_shared_object.h"
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -19,4 +19,4 @@ namespace rex
 REXLIB_API
 version get_core_version() noexcept;
 
-} // namespace rex
+} // namespace rexlib

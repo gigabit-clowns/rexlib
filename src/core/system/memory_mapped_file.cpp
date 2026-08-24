@@ -4,7 +4,7 @@
 
 #include "memory_mapped_file_handle.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 memory_mapped_file::memory_mapped_file() noexcept
@@ -110,4 +110,4 @@ void swap(memory_mapped_file& lhs, memory_mapped_file& rhs) noexcept
 	lhs.swap(rhs);
 }
 
-} // namespace rex
+} // namespace rexlib

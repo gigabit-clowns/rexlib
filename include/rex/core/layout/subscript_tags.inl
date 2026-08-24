@@ -4,7 +4,7 @@
 
 #include "subscript_tags.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
 REXLIB_INLINE_CONSTEXPR
@@ -19,4 +19,4 @@ new_axis_tag new_axis() noexcept
 	return new_axis_tag();
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -2,7 +2,7 @@
 
 #include "parametric_operation.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 template <typename Derived, typename Traits>
@@ -39,4 +39,4 @@ parametric_operation<Derived, Traits>
 	return rule_data_type_policy<type_rule>::get();
 }
 
-} // namespace rex
+} // namespace rexlib

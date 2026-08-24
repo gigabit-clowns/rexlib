@@ -10,7 +10,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -147,4 +147,4 @@ private:
 	span<const std::shared_ptr<buffer>> m_scratch;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -2,7 +2,7 @@
 
 #include "default_kernel_factory.hpp"
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -19,4 +19,4 @@ Kernel default_kernel_factory<Kernel>::operator()(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

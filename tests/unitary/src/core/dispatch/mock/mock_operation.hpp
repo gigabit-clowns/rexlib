@@ -7,7 +7,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_operation
@@ -34,4 +34,4 @@ public:
 
 };
 
-} // namespace rex
+} // namespace rexlib

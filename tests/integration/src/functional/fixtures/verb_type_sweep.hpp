@@ -31,7 +31,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace test
 {
@@ -418,4 +418,4 @@ using reject_case = case_tag<case_kind::reject>;
 } // namespace detail
 
 } // namespace test
-} // namespace rex
+} // namespace rexlib

@@ -5,7 +5,7 @@
 
 #include <rex/core/ndarray/array_descriptor.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("Default constructed array_descriptor should have an empty layout and unknown numerical type", "[array_descriptor]")
 {

@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace rex 
+namespace rexlib 
 {
 
 class strided_layout;
@@ -72,4 +72,4 @@ bool is_broadcastable_to(
 	span<const std::size_t> to_extents
 ) noexcept;
 
-} // namespace rex
+} // namespace rexlib

@@ -5,7 +5,7 @@
 #include <cmath>
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -116,4 +116,4 @@ floor_mod(T x, T y)
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

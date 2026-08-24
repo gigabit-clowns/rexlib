@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -69,4 +69,4 @@ linalg_operand_core pad_as_row(const linalg_operand_core &vector_core) noexcept
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

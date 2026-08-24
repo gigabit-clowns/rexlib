@@ -8,7 +8,7 @@
 		#include <bit>
 #endif
 
-namespace rex
+namespace rexlib
 {
 
 REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
@@ -427,4 +427,4 @@ parity(T x) noexcept
 	return detail::parity(x);
 }
 
-} // namespace rex
+} // namespace rexlib

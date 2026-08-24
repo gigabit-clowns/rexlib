@@ -2,10 +2,10 @@
 
 #include <rex/core/dispatch/dispatcher.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 dispatcher::dispatcher() noexcept = default;
 dispatcher::~dispatcher() = default;
 
-} // namespace rex
+} // namespace rexlib

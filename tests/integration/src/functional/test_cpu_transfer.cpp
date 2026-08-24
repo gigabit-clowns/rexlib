@@ -18,7 +18,7 @@
 #include <complex>
 #include <cstdint>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

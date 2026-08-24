@@ -10,7 +10,7 @@
 #include <rex/ops/bitwise/left_shift_operation.hpp>
 #include <rex/ops/bitwise/right_shift_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array bitwise_and(
@@ -72,4 +72,4 @@ array right_shift(
 	return execute_binary(ops::right_shift_operation(), x, y, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

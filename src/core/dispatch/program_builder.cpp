@@ -2,10 +2,10 @@
 
 #include <rex/core/dispatch/program_builder.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 program_builder::program_builder() noexcept = default;
 program_builder::~program_builder() = default;
 
-} // namespace rex
+} // namespace rexlib

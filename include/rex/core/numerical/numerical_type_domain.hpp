@@ -11,7 +11,7 @@
 #include <initializer_list>
 #include <ostream>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -209,6 +209,6 @@ numerical_type_domain make_numerical_type_domain(
 
 
 
-} // namespace rex
+} // namespace rexlib
 
 #include "numerical_type_domain.inl"

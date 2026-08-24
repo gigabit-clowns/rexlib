@@ -6,7 +6,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -49,15 +49,15 @@ private:
 	std::type_index m_id;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 namespace std
 {
 
 template<>
-struct hash<rex::operation_id>
+struct hash<rexlib::operation_id>
 {
-	using key_type = rex::operation_id;
+	using key_type = rexlib::operation_id;
 	std::size_t operator()(const key_type &k) const noexcept;
 };
 

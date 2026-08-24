@@ -2,7 +2,7 @@
 
 #include "header.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
-} // namespace rex
+} // namespace rexlib

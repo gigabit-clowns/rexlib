@@ -2,7 +2,7 @@
 
 #include <rex/core/hardware/device_properties.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class device_properties::implementation
@@ -172,4 +172,4 @@ device_properties::get_implementation() const noexcept
 	return m_implementation ? *m_implementation : empty;
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -2,7 +2,7 @@
 
 #include <rex/ops/assignment/fill_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -18,4 +18,4 @@ const scalar_value& fill_operation::get_fill_value() const noexcept
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

@@ -11,7 +11,7 @@
 
 #include <rex/core/binary/bit.hpp>
 
-using namespace rex;
+using namespace rexlib;
 
 // Definition of the flag bits and its flagset
 

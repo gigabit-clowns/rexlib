@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <functional>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -324,12 +324,12 @@ private:
 	unsigned_type m_data;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 template <typename B>
-struct std::hash<rex::flagset<B>>
+struct std::hash<rexlib::flagset<B>>
 {
-	REXLIB_CONSTEXPR size_t operator()(rex::flagset<B> b) const noexcept;
+	REXLIB_CONSTEXPR size_t operator()(rexlib::flagset<B> b) const noexcept;
 };
 
 #include "flagset.inl"

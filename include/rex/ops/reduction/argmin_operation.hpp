@@ -7,7 +7,7 @@
 #include <rex/ops/policies/reduction_operation_shape_policy.hpp>
 #include <rex/ops/rules/operand_type_rules.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -31,4 +31,4 @@ REXLIB_DECLARE_PARAMETRIC_OPERATION(
 );
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

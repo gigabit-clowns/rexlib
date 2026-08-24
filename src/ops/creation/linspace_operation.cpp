@@ -2,7 +2,7 @@
 
 #include <rex/ops/creation/linspace_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -41,4 +41,4 @@ bool linspace_operation::get_endpoint() const noexcept
 }
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

@@ -10,7 +10,7 @@
 #include <rex/ops/compare/less_equal_operation.hpp>
 #include <rex/ops/compare/not_equal_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array equal(
@@ -73,4 +73,4 @@ array greater_equal(
 	return execute_binary(ops::greater_equal_operation(), x, y, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

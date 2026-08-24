@@ -10,7 +10,7 @@
 
 #include <typeinfo>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -83,4 +83,4 @@ const Op& operation_cast(const operation &op)
 	return static_cast<const Op&>(op);
 }
 
-} // namespace rex
+} // namespace rexlib

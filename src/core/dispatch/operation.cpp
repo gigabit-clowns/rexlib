@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-namespace rex
+namespace rexlib
 {
 
 operation::operation() noexcept = default;
@@ -15,4 +15,4 @@ operation_id operation::get_id() const noexcept
 	return operation_id(typeid(*this));
 }
 
-} // namespace rex
+} // namespace rexlib

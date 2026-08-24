@@ -7,7 +7,7 @@
 
 #include <type_traits>
 
-namespace rex
+namespace rexlib
 {
 
 enum class byte_order 
@@ -49,6 +49,6 @@ REXLIB_CONSTEXPR
 typename std::enable_if<std::is_integral<T>::value, T&>::type
 convert_byte_order_inplace(T& x, byte_order from, byte_order to) noexcept;
 
-} // namespace rex
+} // namespace rexlib
 
 #include "byte_order.inl"

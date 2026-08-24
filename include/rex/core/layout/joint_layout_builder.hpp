@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace rex 
+namespace rexlib 
 {
 
 class strided_layout;
@@ -128,4 +128,4 @@ private:
 	std::unique_ptr<joint_layout_implementation> m_implementation;
 };
 
-} // namespace rex
+} // namespace rexlib

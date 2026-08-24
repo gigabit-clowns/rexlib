@@ -12,7 +12,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace rex 
+namespace rexlib 
 {
 
 class strided_layout_implementation;
@@ -235,16 +235,16 @@ private:
 	strided_layout(strided_layout_implementation &&impl);
 };
 
-} // namespace rex
+} // namespace rexlib
 
 namespace std
 {
 
 template<>
-struct hash<rex::strided_layout>
+struct hash<rexlib::strided_layout>
 {
 	std::size_t operator()(
-		const rex::strided_layout &layout
+		const rexlib::strided_layout &layout
 	) const noexcept
 	{
 		return layout.hash();

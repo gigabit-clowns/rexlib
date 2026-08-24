@@ -4,7 +4,7 @@
 
 #include <rex/core/backend_priority.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -25,6 +25,6 @@ ForwardIte find_most_suitable_backend(
 	const F& suitability_evaluator
 );
 
-} // namespace rex
+} // namespace rexlib
 
 #include "find_most_suitable_backend.inl"

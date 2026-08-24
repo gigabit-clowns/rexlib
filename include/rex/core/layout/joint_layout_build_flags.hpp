@@ -7,7 +7,7 @@
 
 #include <ostream>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -38,6 +38,6 @@ std::basic_ostream<T>& operator<<(
 	joint_layout_build_flag_bits x
 );
 
-} // namespace rex
+} // namespace rexlib
 
 #include "joint_layout_build_flags.inl"

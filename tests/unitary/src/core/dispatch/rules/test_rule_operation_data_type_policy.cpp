@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

@@ -14,7 +14,7 @@
 #include <memory>
 #include <stdexcept>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

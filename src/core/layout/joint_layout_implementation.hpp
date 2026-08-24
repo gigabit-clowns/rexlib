@@ -15,7 +15,7 @@
  * 
  */
 
-namespace rex 
+namespace rexlib 
 {
 
 class joint_layout_implementation
@@ -112,6 +112,6 @@ private:
 	) const noexcept;
 };
 
-} // namespace rex
+} // namespace rexlib
 
 #include "joint_layout_implementation.inl"

@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/memory_allocator.hpp>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -35,4 +35,4 @@ private:
 	static std::shared_ptr<host_memory_allocator> m_instance;
 };
 
-} // namespace rex
+} // namespace rexlib

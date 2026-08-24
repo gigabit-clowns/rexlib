@@ -10,7 +10,7 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -270,4 +270,4 @@ fourier_layout_plan::get_conversion_layout() const noexcept
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

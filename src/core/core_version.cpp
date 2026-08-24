@@ -2,7 +2,7 @@
 
 #include <rex/core/core_version.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 version get_core_version() noexcept
@@ -14,4 +14,4 @@ version get_core_version() noexcept
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

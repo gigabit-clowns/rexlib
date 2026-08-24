@@ -13,7 +13,7 @@
 #include <ostream>
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 class operation_id;
@@ -101,4 +101,4 @@ public:
 	get_operation_data_type_policy() const noexcept = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

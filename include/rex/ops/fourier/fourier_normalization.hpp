@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <ostream>
 
-namespace rex
+namespace rexlib
 {
 namespace ops
 {
@@ -116,4 +116,4 @@ double get_fourier_scale(
 ) noexcept;
 
 } // namespace ops
-} // namespace rex
+} // namespace rexlib

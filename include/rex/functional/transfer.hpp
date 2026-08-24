@@ -7,7 +7,7 @@
 
 #include <rex/core/hardware/memory_resource_affinity.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -130,4 +130,4 @@ array to_host_copy(
 	array *out = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

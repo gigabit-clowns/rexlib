@@ -8,7 +8,7 @@
 
 #include <trompeloeil.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 class mock_operation_shape_policy
@@ -38,4 +38,4 @@ public:
 	);
 };
 
-} // namespace rex
+} // namespace rexlib

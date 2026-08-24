@@ -4,7 +4,7 @@
 
 #include "float16_conversions.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 float16_t::float16_t() noexcept
@@ -27,4 +27,4 @@ std::uint16_t float16_t::get_bits() const noexcept
 	return m_bits;
 }
 
-} // namespace rex
+} // namespace rexlib

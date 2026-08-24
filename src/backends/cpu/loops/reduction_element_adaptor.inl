@@ -6,7 +6,7 @@
 
 #include <rex/core/platform/constexpr.hpp>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -436,4 +436,4 @@ make_reduction_element_adaptor(Kernel kernel)
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

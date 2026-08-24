@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <sstream>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "make_slice with count argument should set count and leave the rest defaulted", "[slice]" ) 
 {

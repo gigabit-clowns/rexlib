@@ -8,7 +8,7 @@
 #include <sstream>
 #include <windows.h>
 
-namespace rex
+namespace rexlib
 {
 
 inline DWORD access_flags_to_open_access(
@@ -240,4 +240,4 @@ inline void memory_mapped_file_close(void* data, std::size_t) noexcept
 	UnmapViewOfFile(data);
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -8,7 +8,7 @@
 
 #include "memory_resource_kind.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 class memory_allocator;
@@ -64,4 +64,4 @@ public:
 REXLIB_API
 const memory_resource& get_host_memory_resource() noexcept;
 
-} // namespace rex
+} // namespace rexlib

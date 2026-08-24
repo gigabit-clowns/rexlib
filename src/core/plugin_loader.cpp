@@ -4,7 +4,7 @@
 
 #include <rex/core/exceptions/plugin_load_error.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 static const plugin* query_plugin(const dynamic_library& lib)
@@ -64,4 +64,4 @@ void plugin_loader::load(const std::string& path)
 	*this = plugin_loader(path);
 }
 
-} // namespace rex
+} // namespace rexlib

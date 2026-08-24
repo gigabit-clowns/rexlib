@@ -4,7 +4,7 @@
 
 #include <backends/cpu/plans/linalg_operand_core.hpp>
 
-using namespace rex::cpu;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"linalg_operand_core default constructs as an empty core",

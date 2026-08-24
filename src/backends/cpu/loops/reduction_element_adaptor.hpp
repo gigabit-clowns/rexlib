@@ -10,7 +10,7 @@
 #include <tuple>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -266,6 +266,6 @@ reduction_element_adaptor<Kernel>
 make_reduction_element_adaptor(Kernel kernel);
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "reduction_element_adaptor.inl"

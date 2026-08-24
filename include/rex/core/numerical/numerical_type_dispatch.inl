@@ -9,7 +9,7 @@
 #include <complex>
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 
 namespace detail
@@ -108,4 +108,4 @@ auto dispatch_numerical_types(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

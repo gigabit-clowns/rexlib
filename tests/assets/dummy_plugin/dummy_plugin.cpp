@@ -9,13 +9,13 @@
 	#define REXLIB_DUMMY_PLUGIN_API REXLIB_IMPORT
 #endif
 
-namespace rex
+namespace rexlib
 {
 
 static const std::string name = "dummy-plugin";
 
 class dummy_plugin final
-	: public rex::plugin
+	: public rexlib::plugin
 {
 	const std::string& get_name() const noexcept final
 	{
@@ -33,13 +33,13 @@ class dummy_plugin final
 	}
 };
 
-} // namespace rex
+} // namespace rexlib
 
-static const rex::dummy_plugin instance;
+static const rexlib::dummy_plugin instance;
 
 extern "C"
 {
-REXLIB_DUMMY_PLUGIN_API const rex::plugin* rex_get_plugin() 
+REXLIB_DUMMY_PLUGIN_API const rexlib::plugin* rex_get_plugin() 
 {
 	return &instance;
 }

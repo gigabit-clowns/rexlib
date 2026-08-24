@@ -5,7 +5,7 @@
 #include <memory>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 execution_context::execution_context() noexcept = default;
@@ -65,4 +65,4 @@ execution_context execution_context::with_dispatcher(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

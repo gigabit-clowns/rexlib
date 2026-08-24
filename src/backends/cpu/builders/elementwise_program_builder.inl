@@ -15,7 +15,7 @@
 #include <tuple>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -125,4 +125,4 @@ elementwise_program_builder<Op, KernelFactory, TypeDispatcher>
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

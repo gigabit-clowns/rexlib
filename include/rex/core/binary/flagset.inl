@@ -4,7 +4,7 @@
 
 #include "bit.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 template<typename B>
@@ -133,14 +133,14 @@ template<typename B>
 REXLIB_INLINE_CONSTEXPR bool
 flagset<B>::parity() const noexcept
 {
-	return rex::parity(m_data);
+	return rexlib::parity(m_data);
 }
 
 template<typename B>
 REXLIB_INLINE_CONSTEXPR bool
 flagset<B>::has_single_bit() const noexcept
 {
-	return rex::has_single_bit(m_data);
+	return rexlib::has_single_bit(m_data);
 }
 
 template<typename B>
@@ -187,14 +187,14 @@ flagset<B>::toggle(const flagset& other) noexcept
 	return *this;
 }
 
-} // namespace rex
+} // namespace rexlib
 
 template <typename B>
 REXLIB_CONSTEXPR size_t 
-std::hash<rex::flagset<B>>::operator()(
-	rex::flagset<B> b
+std::hash<rexlib::flagset<B>>::operator()(
+	rexlib::flagset<B> b
 ) const noexcept
 {
-	using underlying_type = typename rex::flagset<B>::underlying_type;
+	using underlying_type = typename rexlib::flagset<B>::underlying_type;
 	return static_cast<underlying_type>(b);
 }

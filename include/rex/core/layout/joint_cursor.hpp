@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -96,4 +96,4 @@ private:
 	std::vector<std::ptrdiff_t> m_offsets;
 };
 
-} // namespace rex
+} // namespace rexlib

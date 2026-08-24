@@ -7,7 +7,7 @@
 #include <functional>
 #include <string>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
 	"typed_program_cache_key forwards to std::hash",

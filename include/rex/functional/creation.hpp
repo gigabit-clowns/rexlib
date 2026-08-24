@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -261,4 +261,4 @@ void fill(
 	const execution_context &context
 );
 
-} // namespace rex
+} // namespace rexlib

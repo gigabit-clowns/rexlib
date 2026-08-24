@@ -8,7 +8,7 @@
 #include <rex/ops/rounding/round_operation.hpp>
 #include <rex/ops/rounding/trunc_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array floor(
@@ -47,4 +47,4 @@ array round(
 	return execute_unary(ops::round_operation(), x, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -64,16 +64,16 @@ void command_queue::wait(const event&)
 }
 
 command_queue*
-command_queue::try_cast(rex::command_queue &queue) noexcept
+command_queue::try_cast(rexlib::command_queue &queue) noexcept
 {
 	return dynamic_cast<command_queue*>(&queue);
 }
 
 const command_queue*
-command_queue::try_cast(const rex::command_queue &queue) noexcept
+command_queue::try_cast(const rexlib::command_queue &queue) noexcept
 {
 	return dynamic_cast<const command_queue*>(&queue);
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

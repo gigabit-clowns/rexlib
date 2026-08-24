@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
     "command default constructor produces null program and empty spans",

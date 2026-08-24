@@ -2,7 +2,7 @@
 
 #include "operand_data_types.hpp"
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -20,4 +20,4 @@ void extract_data_types(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

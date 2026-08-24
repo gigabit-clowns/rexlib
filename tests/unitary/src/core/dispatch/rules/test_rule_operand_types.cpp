@@ -18,8 +18,8 @@
 #include <type_traits>
 #include <vector>
 
-using namespace rex;
-using rex::test::safe_numerical_type_of;
+using namespace rexlib;
+using rexlib::test::safe_numerical_type_of;
 
 namespace
 {

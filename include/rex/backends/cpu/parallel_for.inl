@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -44,4 +44,4 @@ void parallel_for(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

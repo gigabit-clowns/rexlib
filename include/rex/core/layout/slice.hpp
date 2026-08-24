@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <ostream>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -204,6 +204,6 @@ slice make_slice(
  */
 slice sanitize_slice(const slice &slice, std::size_t extent);
 
-} // namespace rex
+} // namespace rexlib
 
 #include "slice.inl"

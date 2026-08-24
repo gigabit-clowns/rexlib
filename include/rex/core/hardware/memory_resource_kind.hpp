@@ -4,7 +4,7 @@
 
 #include <rex/core/platform/dynamic_shared_object.h>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -90,4 +90,4 @@ bool is_host_accessible(memory_resource_kind kind) noexcept;
 REXLIB_API
 bool is_device_accessible(memory_resource_kind kind) noexcept;
 
-} // namespace rex
+} // namespace rexlib

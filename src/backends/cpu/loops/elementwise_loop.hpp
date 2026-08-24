@@ -6,7 +6,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -252,6 +252,6 @@ void run_elementwise_loop(
 );
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib
 
 #include "elementwise_loop.inl"

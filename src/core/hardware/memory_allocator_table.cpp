@@ -8,7 +8,7 @@
 
 #include <unordered_map>
 
-namespace rex
+namespace rexlib
 {
 
 memory_allocator_table::memory_allocator_table(const device &dev)
@@ -55,5 +55,5 @@ memory_allocator_table::get_allocator(
 	return m_allocators[static_cast<std::size_t>(affinity)];
 }
 
-} // namespace rex
+} // namespace rexlib
 

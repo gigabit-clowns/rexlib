@@ -11,11 +11,11 @@
 
 #include <complex>
 
-using namespace rex;
-using namespace rex::ops;
-using rex::test::comparison_mode;
-using rex::test::element_value;
-using rex::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::comparison_mode;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 TEST_CASE_METHOD(
 	elementwise_verb_fixture,
@@ -26,7 +26,7 @@ TEST_CASE_METHOD(
 	// A real operand is the point on the real axis, so the real and the
 	// complex types answer alike and one case covers both.
 	check_unary<angle_operation>(
-		rex::angle,
+		rexlib::angle,
 		element_value(1),
 		[](auto) { return 0; }
 	);
@@ -39,7 +39,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<angle_operation>(
-		rex::angle,
+		rexlib::angle,
 		element_value(-1),
 		[](auto) { return 3.141592653589793; },
 		comparison_mode::approximate
@@ -55,7 +55,7 @@ TEST_CASE_METHOD(
 	// Straight up from the origin, a quarter turn. Only the complex types
 	// can hold such an operand.
 	check_unary<angle_operation, complex_type_domain>(
-		rex::angle,
+		rexlib::angle,
 		element_value(0, 1),
 		[](auto) { return 1.5707963267948966; },
 		comparison_mode::approximate
@@ -78,7 +78,7 @@ TEST_CASE_METHOD(
 	);
 	const_array_ref x_ref = x;
 
-	const auto result = rex::angle(x_ref, context, nullptr);
+	const auto result = rexlib::angle(x_ref, context, nullptr);
 
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::float32 );
 }
@@ -90,7 +90,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<conjugate_operation, real_arithmetic_type_domain>(
-		rex::conjugate,
+		rexlib::conjugate,
 		element_value(2),
 		[](auto x) { return x; }
 	);
@@ -103,7 +103,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<conjugate_operation, complex_type_domain>(
-		rex::conjugate,
+		rexlib::conjugate,
 		element_value(2, 3),
 		[](auto x) { return std::conj(x); }
 	);

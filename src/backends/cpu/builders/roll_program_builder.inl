@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -138,4 +138,4 @@ roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_loop_functor(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

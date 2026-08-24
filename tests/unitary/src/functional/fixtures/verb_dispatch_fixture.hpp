@@ -35,7 +35,7 @@
 #include <typeinfo>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace test
 {
@@ -524,4 +524,4 @@ protected:
 };
 
 } // namespace test
-} // namespace rex
+} // namespace rexlib

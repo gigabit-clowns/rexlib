@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -244,4 +244,4 @@ linalg_core_layout_plan::get_right_core() const noexcept
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

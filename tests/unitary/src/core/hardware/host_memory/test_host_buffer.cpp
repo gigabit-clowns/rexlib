@@ -11,7 +11,7 @@
 
 #include <sstream>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE( "host_buffer should allocate enough space", "[host_buffer]" )
 {

@@ -4,7 +4,7 @@
 
 #include <string>
 
-namespace rex 
+namespace rexlib 
 {
 
 /**
@@ -35,4 +35,4 @@ std::size_t get_available_system_memory();
  */
 std::size_t get_page_size();
 
-} // namespace rex
+} // namespace rexlib

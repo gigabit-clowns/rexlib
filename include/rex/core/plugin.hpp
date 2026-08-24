@@ -7,7 +7,7 @@
 
 #include <string>
 
-namespace rex
+namespace rexlib
 {
 
 class service_catalog;
@@ -52,4 +52,4 @@ public:
 	virtual void register_at(service_catalog& catalog) const = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

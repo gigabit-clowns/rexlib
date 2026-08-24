@@ -29,7 +29,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 namespace
@@ -495,4 +495,4 @@ std::shared_ptr<dispatcher> make_eager_dispatcher(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

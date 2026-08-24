@@ -11,7 +11,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 
 class program;
@@ -100,4 +100,4 @@ public:
 	) const = 0;
 };
 
-} // namespace rex
+} // namespace rexlib

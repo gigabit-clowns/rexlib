@@ -4,7 +4,7 @@
 
 #include <complex>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -12,4 +12,4 @@ namespace cpu
 REXLIB_INSTANTIATE_EIGEN_GEMM(std::complex<float32_t>);
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

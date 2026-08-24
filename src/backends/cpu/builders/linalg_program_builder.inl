@@ -14,7 +14,7 @@
 #include <tuple>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 namespace cpu
 {
@@ -124,4 +124,4 @@ linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_loop_functor(
 }
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

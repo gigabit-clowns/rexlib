@@ -14,7 +14,7 @@
 #include <memory>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("Default constructed operand_signature should have empty descriptor and null memory resource", "[operand_signature]")
 {

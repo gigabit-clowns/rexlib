@@ -9,7 +9,7 @@
 #include <array>
 #include <typeindex>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE("dispatch_numerical_types called with a single argument and default mapping should invoke an appropriately typed function")
 {

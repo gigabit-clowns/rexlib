@@ -13,7 +13,7 @@
 
 #include <stdexcept>
 
-namespace rex
+namespace rexlib
 {
 
 std::shared_ptr<host_memory_allocator> host_memory_allocator::m_instance;
@@ -55,4 +55,4 @@ const std::shared_ptr<host_memory_allocator>& host_memory_allocator::create()
 	return m_instance;
 }
 
-} // namespace rex
+} // namespace rexlib

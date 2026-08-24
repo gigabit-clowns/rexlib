@@ -11,8 +11,8 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace rex;
-using namespace rex::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 
 namespace
 {

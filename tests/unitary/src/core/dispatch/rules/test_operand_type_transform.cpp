@@ -10,7 +10,7 @@
 #include <complex>
 #include <type_traits>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

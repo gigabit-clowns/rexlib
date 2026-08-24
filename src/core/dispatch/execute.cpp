@@ -24,7 +24,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 void execute(
@@ -174,4 +174,4 @@ array execute_ternary(
 	);
 }
 
-} // namespace rex
+} // namespace rexlib

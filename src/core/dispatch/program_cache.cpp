@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 class program_cache::implementation
@@ -207,4 +207,4 @@ void program_cache::store(
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

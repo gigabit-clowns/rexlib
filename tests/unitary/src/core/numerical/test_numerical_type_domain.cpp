@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <sstream>
 
-using namespace rex;
+using namespace rexlib;
 
 TEST_CASE(
     "a default constructed numerical_type_domain should be empty",

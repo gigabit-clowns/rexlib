@@ -4,7 +4,7 @@
 
 #include "../binary/bit.hpp"
 
-namespace rex
+namespace rexlib
 {
 
 template <typename T>
@@ -89,4 +89,4 @@ T* offset_bytes(T* address, std::ptrdiff_t count)
 	return reinterpret_cast<T*>(value);
 }
 
-} // namespace rex
+} // namespace rexlib

@@ -8,7 +8,7 @@
 #include <rex/ops/selection/minimum_operation.hpp>
 #include <rex/ops/selection/where_operation.hpp>
 
-namespace rex
+namespace rexlib
 {
 
 array where(
@@ -53,4 +53,4 @@ array minimum(
 	return execute_binary(ops::minimum_operation(), x, y, context, out);
 }
 
-} // namespace rex
+} // namespace rexlib

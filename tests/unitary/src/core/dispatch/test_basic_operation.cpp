@@ -16,7 +16,7 @@
 #include <type_traits>
 #include <vector>
 
-using namespace rex;
+using namespace rexlib;
 
 namespace
 {

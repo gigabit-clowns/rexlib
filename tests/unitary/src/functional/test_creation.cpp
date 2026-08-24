@@ -9,11 +9,11 @@
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace rex;
-using namespace rex::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 using trompeloeil::_;
-using rex::test::dispatch_record;
-using rex::test::verb_dispatch_fixture;
+using rexlib::test::dispatch_record;
+using rexlib::test::verb_dispatch_fixture;
 
 namespace
 {

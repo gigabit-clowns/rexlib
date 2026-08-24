@@ -10,7 +10,7 @@
 #include <array>
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 /**
@@ -210,4 +210,4 @@ private:
 	numerical_type m_offending_type;
 };
 
-} // namespace rex
+} // namespace rexlib

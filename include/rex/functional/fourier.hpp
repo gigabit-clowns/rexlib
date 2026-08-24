@@ -10,7 +10,7 @@
 
 #include <cstddef>
 
-namespace rex
+namespace rexlib
 {
 
 class execution_context;
@@ -817,4 +817,4 @@ array ifftshift(
 	array *out = nullptr
 );
 
-} // namespace rex
+} // namespace rexlib

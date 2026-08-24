@@ -9,7 +9,7 @@
 
 #include <memory>
 
-namespace rex
+namespace rexlib
 {
 
 
@@ -131,4 +131,4 @@ private:
 	std::shared_ptr<dispatcher> m_dispatcher;
 };
 
-} // namespace rex
+} // namespace rexlib

@@ -4,7 +4,7 @@
 
 #include <rex/core/hardware/device_backend.hpp>
 
-namespace rex 
+namespace rexlib 
 {
 
 class device_manager;
@@ -17,7 +17,7 @@ namespace cpu
  * CPU device.
  */
 class device_backend final
-	: public rex::device_backend
+	: public rexlib::device_backend
 {
 public:
 	std::string get_name() const override;
@@ -30,11 +30,11 @@ public:
 		device_properties &desc
 	) const override;
 
-	std::shared_ptr<rex::device>
+	std::shared_ptr<rexlib::device>
 	create_device(std::size_t id) const override;
 
-	static bool register_at(rex::device_manager &manager);
+	static bool register_at(rexlib::device_manager &manager);
 }; 
 
 } // namespace cpu
-} // namespace rex
+} // namespace rexlib

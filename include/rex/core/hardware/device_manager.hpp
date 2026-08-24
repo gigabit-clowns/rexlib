@@ -13,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace rex
+namespace rexlib
 {
 
 class device;
@@ -142,4 +142,4 @@ private:
 	void create_implementation_if_null();
 }; 
 
-} // namespace rex
+} // namespace rexlib

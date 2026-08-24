@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace rex
+namespace rexlib
 {
 
 operation_shape_policy::operation_shape_policy() noexcept = default;
@@ -36,4 +36,4 @@ void operation_shape_policy::accept(
 	}
 }
 
-} // namespace rex
+} // namespace rexlib

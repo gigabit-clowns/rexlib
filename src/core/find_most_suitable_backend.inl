@@ -6,7 +6,7 @@
 
 #include <utility>
 
-namespace rex
+namespace rexlib
 {
 
 template <typename ForwardIte, typename F>
@@ -34,4 +34,4 @@ ForwardIte find_most_suitable_backend(
 	return best.first;
 }
 
-} // namespace rex
+} // namespace rexlib

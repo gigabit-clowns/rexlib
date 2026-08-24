@@ -2,7 +2,7 @@
 
 #include "array_implementation.hpp"
 
-namespace rex 
+namespace rexlib 
 {
 
 inline
@@ -34,4 +34,4 @@ array_implementation::share_storage() const noexcept
 	return m_storage;
 }
 
-} // namespace rex
+} // namespace rexlib
