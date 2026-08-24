@@ -117,7 +117,7 @@ function(rexlib_add_component NAME DIR)
 	)
 endfunction()
 
-rexlib_add_component(rexlib-obj core)
+rexlib_add_component(rexlib-core-obj core)
 rexlib_add_component(rexlib-ops-obj ops)
 rexlib_add_component(rexlib-functional-obj functional)
 rexlib_add_component(rexlib-cpu-obj backends/cpu)
@@ -128,7 +128,7 @@ rexlib_add_component(rexlib-cpu-obj backends/cpu)
 add_library(
 	rexlib
 	SHARED
-		$<TARGET_OBJECTS:rexlib-obj>
+		$<TARGET_OBJECTS:rexlib-core-obj>
 		$<TARGET_OBJECTS:rexlib-ops-obj>
 		$<TARGET_OBJECTS:rexlib-functional-obj>
 		$<TARGET_OBJECTS:rexlib-cpu-obj>
@@ -172,7 +172,7 @@ target_link_libraries(
 )
 
 # Create the alias
-add_library(rexlib::core ALIAS rexlib)
+add_library(rexlib::rexlib ALIAS rexlib)
 
 # Install library's binary files and headers
 install(

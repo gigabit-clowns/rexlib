@@ -12,7 +12,7 @@ file(
 add_executable(
     rexlib-unitary-tests
     ${TEST_SOURCES}
-	$<TARGET_OBJECTS:rexlib-obj>
+	$<TARGET_OBJECTS:rexlib-core-obj>
 	$<TARGET_OBJECTS:rexlib-ops-obj>
 	$<TARGET_OBJECTS:rexlib-functional-obj>
 	$<TARGET_OBJECTS:rexlib-cpu-obj>
