@@ -202,6 +202,7 @@ write_basic_package_version_file(
 install(
 	EXPORT rexlib-targets
 	FILE rexlib-targets.cmake
+	NAMESPACE rexlib::
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
 )
 install(
