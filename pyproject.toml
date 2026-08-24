@@ -45,7 +45,5 @@ input = "VERSION"
 regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
 
 [tool.scikit-build.cmake.define]
-REXLIB_BUILD_SPDLOG = {env="REXLIB_BUILD_SPDLOG", default="ON"}
-REXLIB_BUILD_HALF = {env="REXLIB_BUILD_HALF", default="ON"}
 BUILD_TESTING = "OFF"
 CMAKE_INSTALL_LIBDIR = "lib" # avoid using lib64

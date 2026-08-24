@@ -171,7 +171,6 @@ jobs:
         build-dir: "${{ github.workspace }}/build"
         options: |
           REXLIB_BUILD_DOC=ON
-          REXLIB_BUILD_SPDLOG=ON
           BUILD_TESTING=OFF
         run-build: true
         build-args: --target doxygen
