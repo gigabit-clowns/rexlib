@@ -3,15 +3,15 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <rex/backends/cpu/device.hpp>
+#include <rexlib/backends/cpu/device.hpp>
 
 #include <backends/cpu/hardware/command_queue.hpp>
 #include <backends/cpu/hardware/event.hpp>
 
-#include <rex/backends/cpu/thread_pool.hpp>
-#include <rex/core/hardware/memory_resource.hpp>
-#include <rex/core/hardware/command_queue.hpp>
-#include <rex/core/hardware/event.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/event.hpp>
 
 #include "../serial_pool.hpp"
 

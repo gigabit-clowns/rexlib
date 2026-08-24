@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
 
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 
 #include "joint_layout_implementation.hpp"
 #include "strided_layout_implementation.hpp"

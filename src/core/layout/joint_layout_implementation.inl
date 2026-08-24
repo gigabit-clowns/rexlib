@@ -2,7 +2,7 @@
 
 #include "joint_layout_implementation.hpp"
 
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <numeric>
 #include <algorithm>

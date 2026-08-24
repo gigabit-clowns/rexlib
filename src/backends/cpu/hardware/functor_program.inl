@@ -2,7 +2,7 @@
 
 #include "functor_program.hpp"
 
-#include <rex/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <tuple>
 #include <utility>

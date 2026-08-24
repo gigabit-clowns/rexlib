@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
 #include <trompeloeil.hpp>
 

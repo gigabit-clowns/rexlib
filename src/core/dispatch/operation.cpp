@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
 
 #include <sstream>
 

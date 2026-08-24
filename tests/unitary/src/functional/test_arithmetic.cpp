@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/arithmetic.hpp>
+#include <rexlib/functional/arithmetic.hpp>
 
-#include <rex/ops/arithmetic/abs_operation.hpp>
-#include <rex/ops/arithmetic/add_operation.hpp>
-#include <rex/ops/arithmetic/divide_operation.hpp>
-#include <rex/ops/arithmetic/divmod_operation.hpp>
-#include <rex/ops/arithmetic/floor_divide_operation.hpp>
-#include <rex/ops/arithmetic/modulo_operation.hpp>
-#include <rex/ops/arithmetic/multiply_operation.hpp>
-#include <rex/ops/arithmetic/negate_operation.hpp>
-#include <rex/ops/arithmetic/sign_operation.hpp>
-#include <rex/ops/arithmetic/subtract_operation.hpp>
+#include <rexlib/ops/arithmetic/abs_operation.hpp>
+#include <rexlib/ops/arithmetic/add_operation.hpp>
+#include <rexlib/ops/arithmetic/divide_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/modulo_operation.hpp>
+#include <rexlib/ops/arithmetic/multiply_operation.hpp>
+#include <rexlib/ops/arithmetic/negate_operation.hpp>
+#include <rexlib/ops/arithmetic/sign_operation.hpp>
+#include <rexlib/ops/arithmetic/subtract_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

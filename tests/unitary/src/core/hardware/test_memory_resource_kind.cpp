@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
 
 using namespace rexlib;
 

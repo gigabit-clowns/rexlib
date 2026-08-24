@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array.hpp>
 
 #include "array_implementation.hpp"
 

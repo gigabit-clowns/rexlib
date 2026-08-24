@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/linalg/vecmat_operation.hpp>
+#include <rexlib/ops/linalg/vecmat_operation.hpp>
 
 #include <backends/cpu/builders/linalg_program_builder.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 #include <backends/cpu/kernels/eigen_gemm.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
-#include <rex/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 namespace rexlib
 {

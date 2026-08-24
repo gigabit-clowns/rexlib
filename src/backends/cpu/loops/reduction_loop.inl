@@ -8,10 +8,10 @@
 #include "parallel_grain.hpp"
 #include "reduction_element_adaptor.hpp"
 
-#include <rex/core/layout/joint_cursor.hpp>
-#include <rex/core/platform/assert.hpp>
-#include <rex/core/platform/constexpr.hpp>
-#include <rex/core/platform/attributes.hpp>
+#include <rexlib/core/layout/joint_cursor.hpp>
+#include <rexlib/core/platform/assert.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/attributes.hpp>
 
 #include <algorithm>
 #include <limits>

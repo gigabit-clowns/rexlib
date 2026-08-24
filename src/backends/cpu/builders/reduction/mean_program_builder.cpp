@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/reduction/mean_operation.hpp>
+#include <rexlib/ops/reduction/mean_operation.hpp>
 
-#include <rex/core/numerical/numerical_cast.hpp>
+#include <rexlib/core/numerical/numerical_cast.hpp>
 
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>

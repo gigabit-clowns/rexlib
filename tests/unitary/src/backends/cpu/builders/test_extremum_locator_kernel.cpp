@@ -7,8 +7,8 @@
 #include <backends/cpu/load_store.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <cstddef>
 #include <cstdint>

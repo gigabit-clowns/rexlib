@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
 
-#include <rex/core/hardware/device_session.hpp>
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <backends/cpu/hardware/device_backend.hpp>
 

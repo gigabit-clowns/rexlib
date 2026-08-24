@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "rex/core/hardware/device_index.hpp"
+#include "rexlib/core/hardware/device_index.hpp"
 
 #include <algorithm>
 #include <charconv>

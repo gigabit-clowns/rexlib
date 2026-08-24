@@ -4,19 +4,19 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/service_catalog.hpp>
-#include <rex/core/dispatch/execution_context.hpp>
-#include <rex/core/dispatch/program_manager.hpp>
-#include <rex/core/dispatch/dispatcher.hpp>
-#include <rex/core/ndarray/array.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/hardware/device_manager.hpp>
-#include <rex/core/hardware/device_index.hpp>
-#include <rex/core/hardware/device_context.hpp>
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/service_catalog.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_index.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <vector>

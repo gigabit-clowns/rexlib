@@ -2,11 +2,11 @@
 
 #include "device_backend.hpp"
 
-#include <rex/backends/cpu/device.hpp>
+#include <rexlib/backends/cpu/device.hpp>
 
-#include <rex/core/hardware/device_manager.hpp>
-#include <rex/core/core_version.hpp>
-#include <rex/core/system/host.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/core_version.hpp>
+#include <rexlib/core/system/host.hpp>
 
 namespace rexlib
 {

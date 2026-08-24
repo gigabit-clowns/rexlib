@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/dispatch/operation.hpp>
-#include <rex/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
 
 #include <trompeloeil.hpp>
 

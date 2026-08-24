@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/dispatch/basic_operation.hpp>
 
-#include <rex/core/numerical/scalar_value.hpp>
-#include <rex/ops/ops_component.hpp>
-#include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <rex/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <array>
 #include <sstream>

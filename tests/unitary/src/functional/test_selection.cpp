@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/selection.hpp>
+#include <rexlib/functional/selection.hpp>
 
-#include <rex/ops/selection/clip_operation.hpp>
-#include <rex/ops/selection/maximum_operation.hpp>
-#include <rex/ops/selection/minimum_operation.hpp>
-#include <rex/ops/selection/where_operation.hpp>
+#include <rexlib/ops/selection/clip_operation.hpp>
+#include <rexlib/ops/selection/maximum_operation.hpp>
+#include <rexlib/ops/selection/minimum_operation.hpp>
+#include <rexlib/ops/selection/where_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

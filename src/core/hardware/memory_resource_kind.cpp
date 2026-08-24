@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
 
 namespace rexlib 
 {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/fourier/rfft_operation.hpp>
+#include <rexlib/ops/fourier/rfft_operation.hpp>
 
 #include <backends/cpu/builders/fourier_program_builder.hpp>
 

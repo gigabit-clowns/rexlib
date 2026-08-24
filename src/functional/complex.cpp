@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/complex.hpp>
+#include <rexlib/functional/complex.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/ops/complex/angle_operation.hpp>
-#include <rex/ops/complex/conjugate_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/ops/complex/angle_operation.hpp>
+#include <rexlib/ops/complex/conjugate_operation.hpp>
 
 #include <cstddef>
 #include <sstream>

@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/hardware/device_type.hpp>
+#include <rexlib/core/hardware/device_type.hpp>
 
 #include <string>
 

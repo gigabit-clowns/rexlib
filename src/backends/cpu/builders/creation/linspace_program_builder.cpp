@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/creation/linspace_operation.hpp>
+#include <rexlib/ops/creation/linspace_operation.hpp>
 
 #include <backends/cpu/builders/sequence_program_builder.hpp>
 #include <backends/cpu/load_store.hpp>

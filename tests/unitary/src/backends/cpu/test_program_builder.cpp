@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
 #include "serial_pool.hpp"
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/dispatch/operation_id.hpp>
-#include <rex/core/hardware/memory_resource_kind.hpp>
-#include <rex/core/backend_priority.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "../../core/dispatch/mock/mock_operation.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"

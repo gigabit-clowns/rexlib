@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 namespace rexlib
 {

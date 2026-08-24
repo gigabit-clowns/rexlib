@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/system/access_flags.hpp>
+#include <rexlib/core/system/access_flags.hpp>
 
 using namespace rexlib;
 

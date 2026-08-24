@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/version.hpp>
+#include <rexlib/core/version.hpp>
 
 using namespace rexlib;
 

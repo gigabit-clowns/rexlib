@@ -2,9 +2,9 @@
 
 #include "rule_type_dispatcher.hpp"
 
-#include <rex/core/dispatch/rules/operand_type_rule_engine.hpp>
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/numerical_type_dispatch.hpp>
 
 #include <stdexcept>
 

@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/trigonometric.hpp>
+#include <rexlib/functional/trigonometric.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/span.hpp>
-#include <rex/ops/trigonometric/acos_operation.hpp>
-#include <rex/ops/trigonometric/acosh_operation.hpp>
-#include <rex/ops/trigonometric/asin_operation.hpp>
-#include <rex/ops/trigonometric/asinh_operation.hpp>
-#include <rex/ops/trigonometric/atan_operation.hpp>
-#include <rex/ops/trigonometric/atan2_operation.hpp>
-#include <rex/ops/trigonometric/atanh_operation.hpp>
-#include <rex/ops/trigonometric/cos_operation.hpp>
-#include <rex/ops/trigonometric/cosh_operation.hpp>
-#include <rex/ops/trigonometric/degrees_operation.hpp>
-#include <rex/ops/trigonometric/hypot_operation.hpp>
-#include <rex/ops/trigonometric/radians_operation.hpp>
-#include <rex/ops/trigonometric/sin_operation.hpp>
-#include <rex/ops/trigonometric/sincos_operation.hpp>
-#include <rex/ops/trigonometric/sinh_operation.hpp>
-#include <rex/ops/trigonometric/tan_operation.hpp>
-#include <rex/ops/trigonometric/tanh_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/ops/trigonometric/acos_operation.hpp>
+#include <rexlib/ops/trigonometric/acosh_operation.hpp>
+#include <rexlib/ops/trigonometric/asin_operation.hpp>
+#include <rexlib/ops/trigonometric/asinh_operation.hpp>
+#include <rexlib/ops/trigonometric/atan_operation.hpp>
+#include <rexlib/ops/trigonometric/atan2_operation.hpp>
+#include <rexlib/ops/trigonometric/atanh_operation.hpp>
+#include <rexlib/ops/trigonometric/cos_operation.hpp>
+#include <rexlib/ops/trigonometric/cosh_operation.hpp>
+#include <rexlib/ops/trigonometric/degrees_operation.hpp>
+#include <rexlib/ops/trigonometric/hypot_operation.hpp>
+#include <rexlib/ops/trigonometric/radians_operation.hpp>
+#include <rexlib/ops/trigonometric/sin_operation.hpp>
+#include <rexlib/ops/trigonometric/sincos_operation.hpp>
+#include <rexlib/ops/trigonometric/sinh_operation.hpp>
+#include <rexlib/ops/trigonometric/tan_operation.hpp>
+#include <rexlib/ops/trigonometric/tanh_operation.hpp>
 
 #include <array>
 #include <utility>

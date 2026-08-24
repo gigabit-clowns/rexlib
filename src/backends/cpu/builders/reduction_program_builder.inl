@@ -2,9 +2,9 @@
 
 #include "reduction_program_builder.hpp"
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/parallel_grain.hpp>

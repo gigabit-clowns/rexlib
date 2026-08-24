@@ -2,7 +2,7 @@
 
 #include "memory_mapped_file_handle.hpp"
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <system_error>

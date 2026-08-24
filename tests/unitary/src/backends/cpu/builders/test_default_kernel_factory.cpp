@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 
-#include <rex/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 using namespace rexlib;
 using namespace rexlib::cpu;

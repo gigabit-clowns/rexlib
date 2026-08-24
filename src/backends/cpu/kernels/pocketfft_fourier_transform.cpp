@@ -4,7 +4,7 @@
 
 #include <backends/cpu/config.hpp>
 
-#include <rex/core/platform/compiler.h>
+#include <rexlib/core/platform/compiler.h>
 
 #include <complex>
 

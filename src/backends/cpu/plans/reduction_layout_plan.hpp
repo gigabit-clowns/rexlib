@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/layout/joint_layout.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 

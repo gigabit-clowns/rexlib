@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <array>
 #include <bitset>

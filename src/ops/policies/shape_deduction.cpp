@@ -2,7 +2,7 @@
 
 #include "shape_deduction.hpp"
 
-#include <rex/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
 
 #include <algorithm>
 #include <cstddef>

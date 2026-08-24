@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/memory/byte_order.hpp>
+#include <rexlib/core/memory/byte_order.hpp>
 
 using namespace rexlib;
 

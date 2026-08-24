@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/backends/cpu/parallel_for.hpp>
-#include <rex/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/parallel_for.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <algorithm>
 #include <atomic>

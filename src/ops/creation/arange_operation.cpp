@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/creation/arange_operation.hpp>
+#include <rexlib/ops/creation/arange_operation.hpp>
 
 namespace rexlib
 {

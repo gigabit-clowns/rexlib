@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/execute.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
 
-#include <rex/core/binary/bit.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/ndarray/array.hpp>
-#include <rex/core/ndarray/const_array_ref.hpp>
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/dispatch/operation.hpp>
-#include <rex/core/dispatch/operation_shape_policy.hpp>
-#include <rex/core/dispatch/operation_data_type_policy.hpp>
-#include <rex/core/dispatch/execution_context.hpp>
-#include <rex/core/hardware/memory_allocator.hpp>
-#include <rex/core/hardware/device_properties.hpp>
-#include <rex/core/hardware/buffer.hpp>
+#include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/dispatch/operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 #include <core/config.hpp>

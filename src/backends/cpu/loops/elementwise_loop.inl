@@ -6,8 +6,8 @@
 #include "loop_schedule.hpp"
 #include "strided_pointer_iterator.hpp"
 
-#include <rex/core/layout/joint_cursor.hpp>
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/layout/joint_cursor.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
 #include <initializer_list>

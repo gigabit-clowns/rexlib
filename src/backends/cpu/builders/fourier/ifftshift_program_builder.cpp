@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/fourier/ifftshift_operation.hpp>
+#include <rexlib/ops/fourier/ifftshift_operation.hpp>
 
 #include <backends/cpu/builders/roll_program_builder.hpp>
 

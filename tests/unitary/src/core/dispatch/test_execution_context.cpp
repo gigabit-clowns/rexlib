@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
 
-#include <rex/core/hardware/device_context.hpp>
-#include <rex/core/hardware/device_session.hpp>
-#include <rex/core/hardware/device.hpp>
-#include <rex/core/hardware/device_properties.hpp>
-#include <rex/core/hardware/memory_allocator.hpp>
-#include <rex/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
 #include "mock/mock_dispatcher.hpp"
 #include "../hardware/mock/mock_device.hpp"

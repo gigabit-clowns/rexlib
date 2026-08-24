@@ -4,7 +4,7 @@
 
 #include "../config.hpp"
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <utility>
 

@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/complex.hpp>
+#include <rexlib/functional/complex.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <rex/ops/complex/angle_operation.hpp>
-#include <rex/ops/complex/conjugate_operation.hpp>
+#include <rexlib/ops/complex/angle_operation.hpp>
+#include <rexlib/ops/complex/conjugate_operation.hpp>
 
 #include <complex>
 

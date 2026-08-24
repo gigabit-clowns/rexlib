@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/layout/joint_cursor.hpp>
+#include <rexlib/core/layout/joint_cursor.hpp>
 
 namespace rexlib 
 {

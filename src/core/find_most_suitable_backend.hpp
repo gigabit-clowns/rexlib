@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/backend_priority.hpp>
+#include <rexlib/core/backend_priority.hpp>
 
 namespace rexlib
 {

@@ -3,13 +3,13 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <rex/functional/fourier.hpp>
+#include <rexlib/functional/fourier.hpp>
 
 #include "fixtures/fourier_verb_fixture.hpp"
 
-#include <rex/core/exceptions/invalid_operation_error.hpp>
-#include <rex/ops/fourier/fourier_normalization.hpp>
-#include <rex/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/ops/fourier/fourier_normalization.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <cstddef>

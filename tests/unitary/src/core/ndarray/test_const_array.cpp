@@ -3,10 +3,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <rex/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
 
-#include <rex/core/ndarray/array.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <core/ndarray/array_implementation.hpp>
 
 #include "../hardware/mock/mock_buffer.hpp"

@@ -4,10 +4,10 @@
 
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <stdexcept>

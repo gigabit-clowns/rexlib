@@ -6,8 +6,8 @@
 
 #include <backends/cpu/hardware/device_backend.hpp>
 
-#include <rex/core/hardware/device.hpp>
-#include <rex/core/core_version.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/core_version.hpp>
 
 #include <stdexcept>
 

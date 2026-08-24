@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/dispatch/execution_context.hpp>
-#include <rex/core/ndarray/array.hpp>
-#include <rex/core/ndarray/const_array_ref.hpp>
-#include <rex/core/hardware/device_context.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
 
 #include "mock/mock_dispatcher.hpp"
 #include "mock/mock_operation.hpp"

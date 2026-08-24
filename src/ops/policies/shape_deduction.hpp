@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <rex/core/dispatch/operation_descriptor.hpp>
-#include <rex/core/dispatch/operation_shape_policy.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/span.hpp>
 
 namespace rexlib
 {

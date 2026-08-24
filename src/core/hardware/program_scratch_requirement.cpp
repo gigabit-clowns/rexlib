@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
 namespace rexlib
 {

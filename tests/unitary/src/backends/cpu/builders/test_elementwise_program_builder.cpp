@@ -9,24 +9,24 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <rex/core/dispatch/basic_operation.hpp>
-#include <rex/core/dispatch/operation.hpp>
-#include <rex/core/dispatch/operation_arity.hpp>
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/backends/cpu/program.hpp>
-#include <rex/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
 
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/hardware/program.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
-#include <rex/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <rex/ops/ops_component.hpp>
-#include <rex/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include "../../../core/dispatch/mock/mock_operation.hpp"
 

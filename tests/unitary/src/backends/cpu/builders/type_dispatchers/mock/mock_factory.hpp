@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rex/core/hardware/program.hpp>
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
 #include <trompeloeil.hpp>
 

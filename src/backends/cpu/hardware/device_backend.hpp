@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/hardware/device_backend.hpp>
+#include <rexlib/core/hardware/device_backend.hpp>
 
 namespace rexlib 
 {

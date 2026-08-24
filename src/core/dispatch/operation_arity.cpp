@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
 
 namespace rexlib
 {

@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/logical.hpp>
+#include <rexlib/functional/logical.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <rex/ops/logical/logical_and_operation.hpp>
-#include <rex/ops/logical/logical_not_operation.hpp>
-#include <rex/ops/logical/logical_or_operation.hpp>
-#include <rex/ops/logical/logical_xor_operation.hpp>
+#include <rexlib/ops/logical/logical_and_operation.hpp>
+#include <rexlib/ops/logical/logical_not_operation.hpp>
+#include <rexlib/ops/logical/logical_or_operation.hpp>
+#include <rexlib/ops/logical/logical_xor_operation.hpp>
 
 using namespace rexlib;
 using namespace rexlib::ops;

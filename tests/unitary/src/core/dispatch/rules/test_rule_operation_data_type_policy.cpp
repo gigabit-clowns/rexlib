@@ -3,12 +3,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include <rex/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/rules/rule_operation_data_type_policy.hpp>
 
-#include <rex/core/dispatch/operation_descriptor.hpp>
-#include <rex/core/platform/constexpr.hpp>
-#include <rex/core/dispatch/rules/operand_type_rule_engine.hpp>
-#include <rex/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <stdexcept>
 #include <string>

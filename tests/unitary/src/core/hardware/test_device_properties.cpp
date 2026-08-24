@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
 
 #include <array>
 

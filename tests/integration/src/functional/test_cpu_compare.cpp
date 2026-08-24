@@ -2,16 +2,16 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/compare.hpp>
+#include <rexlib/functional/compare.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <rex/ops/compare/equal_operation.hpp>
-#include <rex/ops/compare/greater_equal_operation.hpp>
-#include <rex/ops/compare/greater_operation.hpp>
-#include <rex/ops/compare/less_equal_operation.hpp>
-#include <rex/ops/compare/less_operation.hpp>
-#include <rex/ops/compare/not_equal_operation.hpp>
+#include <rexlib/ops/compare/equal_operation.hpp>
+#include <rexlib/ops/compare/greater_equal_operation.hpp>
+#include <rexlib/ops/compare/greater_operation.hpp>
+#include <rexlib/ops/compare/less_equal_operation.hpp>
+#include <rexlib/ops/compare/less_operation.hpp>
+#include <rexlib/ops/compare/not_equal_operation.hpp>
 
 using namespace rexlib;
 using namespace rexlib::ops;

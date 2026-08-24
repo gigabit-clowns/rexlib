@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 namespace rexlib 
 {

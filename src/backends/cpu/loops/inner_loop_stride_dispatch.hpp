@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include <type_traits>
 #include <cstddef>

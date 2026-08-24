@@ -2,13 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/numeric.hpp>
+#include <rexlib/functional/numeric.hpp>
 
-#include <rex/ops/numeric/copysign_operation.hpp>
-#include <rex/ops/numeric/is_finite_operation.hpp>
-#include <rex/ops/numeric/is_inf_operation.hpp>
-#include <rex/ops/numeric/is_nan_operation.hpp>
-#include <rex/ops/numeric/sign_bit_operation.hpp>
+#include <rexlib/ops/numeric/copysign_operation.hpp>
+#include <rexlib/ops/numeric/is_finite_operation.hpp>
+#include <rexlib/ops/numeric/is_inf_operation.hpp>
+#include <rexlib/ops/numeric/is_nan_operation.hpp>
+#include <rexlib/ops/numeric/sign_bit_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

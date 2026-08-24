@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/dispatch/program_manager.hpp>
-#include <rex/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
 
-#include <rex/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 
 #include "mock/mock_operation.hpp"
 #include "mock/mock_program_builder.hpp"

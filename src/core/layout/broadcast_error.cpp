@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/layout/broadcast_error.hpp>
+#include <rexlib/core/layout/broadcast_error.hpp>
 
 #include <sstream>
 

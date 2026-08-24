@@ -2,7 +2,7 @@
 
 #include "dynamic_library_handle.hpp"
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <dlfcn.h>
 

@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/bitwise.hpp>
+#include <rexlib/functional/bitwise.hpp>
 
-#include <rex/ops/bitwise/bitwise_and_operation.hpp>
-#include <rex/ops/bitwise/bitwise_not_operation.hpp>
-#include <rex/ops/bitwise/bitwise_or_operation.hpp>
-#include <rex/ops/bitwise/bitwise_xor_operation.hpp>
-#include <rex/ops/bitwise/left_shift_operation.hpp>
-#include <rex/ops/bitwise/right_shift_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_and_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_not_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_or_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_xor_operation.hpp>
+#include <rexlib/ops/bitwise/left_shift_operation.hpp>
+#include <rexlib/ops/bitwise/right_shift_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

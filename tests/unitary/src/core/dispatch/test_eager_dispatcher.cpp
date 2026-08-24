@@ -3,30 +3,30 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <rex/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
 
-#include <rex/core/dispatch/program_manager.hpp>
-#include <rex/core/dispatch/program_cache.hpp>
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/dispatch/operation_id.hpp>
-#include <rex/core/dispatch/operation_arity.hpp>
-#include <rex/core/ndarray/array.hpp>
-#include <rex/core/ndarray/const_array.hpp>
-#include <rex/core/ndarray/const_array_ref.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/backend_priority.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/backend_priority.hpp>
 
-#include <rex/core/hardware/device_context.hpp>
-#include <rex/core/hardware/device_session.hpp>
-#include <rex/core/hardware/device.hpp>
-#include <rex/core/hardware/device_properties.hpp>
-#include <rex/core/hardware/memory_allocator.hpp>
-#include <rex/core/hardware/command_queue.hpp>
-#include <rex/core/hardware/command.hpp>
-#include <rex/core/hardware/program.hpp>
-#include <rex/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
 #include "mock/mock_operation.hpp"
 #include "mock/mock_operation_shape_policy.hpp"

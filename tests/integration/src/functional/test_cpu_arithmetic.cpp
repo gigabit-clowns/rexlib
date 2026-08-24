@@ -2,25 +2,25 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/arithmetic.hpp>
+#include <rexlib/functional/arithmetic.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <rex/ops/arithmetic/abs_operation.hpp>
-#include <rex/ops/arithmetic/add_operation.hpp>
-#include <rex/ops/arithmetic/divide_operation.hpp>
-#include <rex/ops/arithmetic/divmod_operation.hpp>
-#include <rex/ops/arithmetic/floor_divide_operation.hpp>
-#include <rex/ops/arithmetic/modulo_operation.hpp>
-#include <rex/ops/arithmetic/multiply_operation.hpp>
-#include <rex/ops/arithmetic/negate_operation.hpp>
-#include <rex/ops/arithmetic/sign_operation.hpp>
-#include <rex/ops/arithmetic/subtract_operation.hpp>
+#include <rexlib/ops/arithmetic/abs_operation.hpp>
+#include <rexlib/ops/arithmetic/add_operation.hpp>
+#include <rexlib/ops/arithmetic/divide_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/modulo_operation.hpp>
+#include <rexlib/ops/arithmetic/multiply_operation.hpp>
+#include <rexlib/ops/arithmetic/negate_operation.hpp>
+#include <rexlib/ops/arithmetic/sign_operation.hpp>
+#include <rexlib/ops/arithmetic/subtract_operation.hpp>
 
-#include <rex/functional/creation.hpp>
-#include <rex/core/hardware/memory_resource_affinity.hpp>
-#include <rex/core/ndarray/const_array_ref.hpp>
-#include <rex/core/numerical/scalar_value.hpp>
+#include <rexlib/functional/creation.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <cmath>
 #include <complex>

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/system/memory_mapped_file.hpp>
+#include <rexlib/core/system/memory_mapped_file.hpp>
 
 #include "memory_mapped_file_handle.hpp"
 

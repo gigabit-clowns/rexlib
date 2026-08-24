@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/program_cache_key.hpp>
+#include <rexlib/core/dispatch/program_cache_key.hpp>
 
 namespace rexlib
 {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/fourier/fourier_normalization.hpp>
+#include <rexlib/ops/fourier/fourier_normalization.hpp>
 
 #include <cmath>
 

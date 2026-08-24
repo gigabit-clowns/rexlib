@@ -2,8 +2,8 @@
 
 #include "linalg_core_layout_plan.hpp"
 
-#include <rex/core/layout/joint_layout_builder.hpp>
-#include <rex/core/layout/strided_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
 #include <array>
 #include <stdexcept>

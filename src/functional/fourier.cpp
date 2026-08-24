@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/fourier.hpp>
+#include <rexlib/functional/fourier.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/layout/index.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/ops/policies/axis_list.hpp>
-#include <rex/ops/fourier/fft_operation.hpp>
-#include <rex/ops/fourier/fftshift_operation.hpp>
-#include <rex/ops/fourier/ifft_operation.hpp>
-#include <rex/ops/fourier/ifftshift_operation.hpp>
-#include <rex/ops/fourier/irfft_operation.hpp>
-#include <rex/ops/fourier/rfft_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/layout/index.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/ops/policies/axis_list.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/fourier/fftshift_operation.hpp>
+#include <rexlib/ops/fourier/ifft_operation.hpp>
+#include <rexlib/ops/fourier/ifftshift_operation.hpp>
+#include <rexlib/ops/fourier/irfft_operation.hpp>
+#include <rexlib/ops/fourier/rfft_operation.hpp>
 
 #include <numeric>
 #include <sstream>

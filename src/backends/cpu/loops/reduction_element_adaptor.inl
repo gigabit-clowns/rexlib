@@ -4,7 +4,7 @@
 
 #include "operand_pointers.hpp"
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 namespace rexlib
 {

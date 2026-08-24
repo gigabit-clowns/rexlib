@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/plugin_manager.hpp>
+#include <rexlib/core/plugin_manager.hpp>
 
 #include "plugin_loader.hpp"
 
-#include <rex/core/plugin.hpp>
-#include <rex/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/plugin_load_error.hpp>
 
 #include <core/logger.hpp>
 

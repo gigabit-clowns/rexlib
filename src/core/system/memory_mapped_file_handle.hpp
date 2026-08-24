@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/system/access_flags.hpp>
-#include <rex/core/platform/operating_system.h>
+#include <rexlib/core/system/access_flags.hpp>
+#include <rexlib/core/platform/operating_system.h>
 
 namespace rexlib
 {

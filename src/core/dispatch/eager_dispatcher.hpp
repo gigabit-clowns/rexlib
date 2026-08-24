@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/dispatch/dispatcher.hpp>
-#include <rex/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
 
 #include <memory>
 

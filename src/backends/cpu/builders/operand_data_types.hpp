@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <cstddef>

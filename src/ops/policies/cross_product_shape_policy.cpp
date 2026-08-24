@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/policies/cross_product_shape_policy.hpp>
+#include <rexlib/ops/policies/cross_product_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 

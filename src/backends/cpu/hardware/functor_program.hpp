@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/platform/cpp_attributes.hpp>
-#include <rex/backends/cpu/program.hpp>
-#include <rex/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <memory>
 #include <array>

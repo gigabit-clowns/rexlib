@@ -5,10 +5,10 @@
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
 
-#include <rex/core/layout/joint_layout.hpp>
-#include <rex/core/layout/joint_layout_builder.hpp>
-#include <rex/core/span.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
 #include <memory>

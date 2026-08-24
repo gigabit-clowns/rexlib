@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
 
-#include <rex/core/layout/broadcast_error.hpp>
+#include <rexlib/core/layout/broadcast_error.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>

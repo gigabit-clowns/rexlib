@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/linalg/cross_operation.hpp>
+#include <rexlib/ops/linalg/cross_operation.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/builders/linalg_program_builder.hpp>
@@ -10,12 +10,12 @@
 #include <backends/cpu/kernels/eigen_gemm.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <rex/backends/cpu/program_builder.hpp>
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/dispatch/operation.hpp>
-#include <rex/core/dispatch/operation_cast.hpp>
-#include <rex/core/dispatch/program_builder_registry.hpp>
-#include <rex/core/meta/type_list.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 

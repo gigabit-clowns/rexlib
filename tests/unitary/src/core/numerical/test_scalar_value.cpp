@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/numerical/scalar_value.hpp>
-#include <rex/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
 #include <complex>
 #include <type_traits>

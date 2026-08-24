@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/event.hpp>
+#include <rexlib/core/hardware/event.hpp>
 
 namespace rexlib
 {

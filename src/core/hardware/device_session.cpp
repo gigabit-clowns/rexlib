@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
 
-#include <rex/core/hardware/device.hpp>
-#include <rex/core/hardware/command_queue.hpp>
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include "memory_allocator_table.hpp"
 

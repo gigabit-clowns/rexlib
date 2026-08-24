@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
 #include <memory>
 

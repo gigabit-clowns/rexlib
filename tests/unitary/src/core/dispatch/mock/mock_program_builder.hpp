@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <rex/core/dispatch/program_builder.hpp>
+#include <rexlib/core/dispatch/program_builder.hpp>
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/hardware/program.hpp>
-#include <rex/core/hardware/command_queue.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
 #include <trompeloeil.hpp>
 

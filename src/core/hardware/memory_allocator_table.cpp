@@ -2,9 +2,9 @@
 
 #include "memory_allocator_table.hpp"
 
-#include <rex/core/hardware/device.hpp>
-#include <rex/core/hardware/memory_resource.hpp>
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <unordered_map>
 

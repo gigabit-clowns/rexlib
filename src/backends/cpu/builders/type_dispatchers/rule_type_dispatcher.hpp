@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <rex/core/dispatch/operation_descriptor.hpp>
-#include <rex/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <rex/core/dispatch/rules/operand_type_resolution.hpp>
-#include <rex/core/dispatch/rules/rule_operand_types.hpp>
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/platform/attributes.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_resolution.hpp>
+#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/platform/attributes.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <cstddef>

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
 
-#include <rex/core/layout/broadcast_error.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/layout/broadcast_error.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <stdexcept>
 #include <sstream>

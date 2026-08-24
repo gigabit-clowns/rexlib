@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
 
 #include "mock/mock_operation.hpp"
 

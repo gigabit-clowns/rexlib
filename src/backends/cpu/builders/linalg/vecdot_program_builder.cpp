@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/linalg/vecdot_operation.hpp>
+#include <rexlib/ops/linalg/vecdot_operation.hpp>
 
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/reduction_compute_type.hpp>
 #include <backends/cpu/load_store.hpp>
 
-#include <rex/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <complex>
 #include <cstddef>

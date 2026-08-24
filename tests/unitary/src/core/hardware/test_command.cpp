@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/hardware/command.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "mock/mock_buffer.hpp"
 #include "mock/mock_program.hpp"

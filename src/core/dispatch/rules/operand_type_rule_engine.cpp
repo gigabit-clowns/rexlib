@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
 
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <sstream>
 #include <stdexcept>

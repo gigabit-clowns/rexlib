@@ -4,7 +4,7 @@
 
 #include "reduction_kernel_traits.hpp"
 
-#include <rex/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include <cstddef>
 #include <tuple>

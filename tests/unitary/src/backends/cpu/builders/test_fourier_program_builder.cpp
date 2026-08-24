@@ -7,20 +7,20 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <rex/backends/cpu/program.hpp>
-#include <rex/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/numerical/fixed_width_float.hpp>
-#include <rex/core/hardware/memory_resource_kind.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
-#include <rex/ops/fourier/fft_operation.hpp>
-#include <rex/ops/policies/axis_list.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/policies/axis_list.hpp>
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 

@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/transfer.hpp>
+#include <rexlib/functional/transfer.hpp>
 
-#include <rex/ops/assignment/copy_operation.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

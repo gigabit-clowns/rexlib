@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <rex/core/dispatch/operation_descriptor.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <vector>

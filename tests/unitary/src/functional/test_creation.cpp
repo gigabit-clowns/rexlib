@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <rex/ops/assignment/copy_operation.hpp>
-#include <rex/ops/assignment/fill_operation.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
+#include <rexlib/ops/assignment/fill_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

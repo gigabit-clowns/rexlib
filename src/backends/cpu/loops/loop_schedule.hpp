@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <cstddef>
 

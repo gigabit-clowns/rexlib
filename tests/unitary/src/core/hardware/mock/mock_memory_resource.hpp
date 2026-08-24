@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 
 #include <trompeloeil.hpp>
 

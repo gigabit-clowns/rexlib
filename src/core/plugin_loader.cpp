@@ -2,7 +2,7 @@
 
 #include "plugin_loader.hpp"
 
-#include <rex/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/exceptions/plugin_load_error.hpp>
 
 namespace rexlib
 {

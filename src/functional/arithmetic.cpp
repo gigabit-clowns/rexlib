@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/arithmetic.hpp>
+#include <rexlib/functional/arithmetic.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/span.hpp>
-#include <rex/ops/arithmetic/abs_operation.hpp>
-#include <rex/ops/arithmetic/add_operation.hpp>
-#include <rex/ops/arithmetic/divide_operation.hpp>
-#include <rex/ops/arithmetic/divmod_operation.hpp>
-#include <rex/ops/arithmetic/floor_divide_operation.hpp>
-#include <rex/ops/arithmetic/modulo_operation.hpp>
-#include <rex/ops/arithmetic/multiply_operation.hpp>
-#include <rex/ops/arithmetic/negate_operation.hpp>
-#include <rex/ops/arithmetic/sign_operation.hpp>
-#include <rex/ops/arithmetic/subtract_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/ops/arithmetic/abs_operation.hpp>
+#include <rexlib/ops/arithmetic/add_operation.hpp>
+#include <rexlib/ops/arithmetic/divide_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/modulo_operation.hpp>
+#include <rexlib/ops/arithmetic/multiply_operation.hpp>
+#include <rexlib/ops/arithmetic/negate_operation.hpp>
+#include <rexlib/ops/arithmetic/sign_operation.hpp>
+#include <rexlib/ops/arithmetic/subtract_operation.hpp>
 
 #include <array>
 #include <utility>

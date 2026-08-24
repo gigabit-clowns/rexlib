@@ -5,9 +5,9 @@
 
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
 
-#include <rex/core/hardware/memory_resource.hpp>
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/system/host.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/system/host.hpp>
 
 #include "../mock/mock_command_queue.hpp"
 

@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/layout/dynamic_subscript.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/layout/dynamic_subscript.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "strided_axis.hpp"
 #include "../config.hpp"

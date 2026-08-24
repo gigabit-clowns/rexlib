@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/meta/type_tag.hpp>
+#include <rexlib/core/meta/type_tag.hpp>
 
 #include <type_traits>
 

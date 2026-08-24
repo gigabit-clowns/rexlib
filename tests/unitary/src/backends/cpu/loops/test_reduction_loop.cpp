@@ -6,13 +6,13 @@
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
-#include <rex/backends/cpu/thread_pool.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
-#include <rex/core/layout/joint_layout.hpp>
-#include <rex/core/layout/joint_layout_builder.hpp>
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/span.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <algorithm>
 #include <cstddef>

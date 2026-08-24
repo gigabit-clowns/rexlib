@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <rex/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 
 #include <sstream>
 

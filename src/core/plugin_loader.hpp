@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/system/dynamic_library.hpp>
+#include <rexlib/core/system/dynamic_library.hpp>
 
 namespace rexlib
 {

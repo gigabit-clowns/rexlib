@@ -2,9 +2,9 @@
 
 #include "dispatched_program_builder.hpp"
 
-#include <rex/core/dispatch/operation.hpp>
-#include <rex/core/dispatch/operation_cast.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>

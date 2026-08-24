@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/layout/strided_layout.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
 #include "strided_layout_implementation.hpp"
 

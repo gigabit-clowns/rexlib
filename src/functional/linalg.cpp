@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/linalg.hpp>
+#include <rexlib/functional/linalg.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/layout/index.hpp>
-#include <rex/core/layout/strided_layout.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/ops/linalg/cross_operation.hpp>
-#include <rex/ops/linalg/matmul_operation.hpp>
-#include <rex/ops/linalg/matvec_operation.hpp>
-#include <rex/ops/linalg/vecdot_operation.hpp>
-#include <rex/ops/linalg/vecmat_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/layout/index.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/ops/linalg/cross_operation.hpp>
+#include <rexlib/ops/linalg/matmul_operation.hpp>
+#include <rexlib/ops/linalg/matvec_operation.hpp>
+#include <rexlib/ops/linalg/vecdot_operation.hpp>
+#include <rexlib/ops/linalg/vecmat_operation.hpp>
 
 #include <algorithm>
 #include <vector>

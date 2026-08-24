@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/tests/assets.hpp>
+#include <rexlib/tests/assets.hpp>
 
-#include <rex/core/system/dynamic_library.hpp>
+#include <rexlib/core/system/dynamic_library.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 

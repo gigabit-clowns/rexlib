@@ -2,11 +2,11 @@
 
 #include "host_memory_allocator.hpp"
 
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/hardware/command_queue.hpp>
-#include <rex/core/memory/align.hpp>
-#include <rex/core/system/host.hpp>
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/memory/align.hpp>
+#include <rexlib/core/system/host.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include "host_memory_resource.hpp"
 #include "host_buffer.hpp"

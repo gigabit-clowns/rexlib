@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/numerical/numerical_type_domain_tags.hpp>
+#include <rexlib/core/numerical/numerical_type_domain_tags.hpp>
 
 #include <complex>
 #include <cstdint>

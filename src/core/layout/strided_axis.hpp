@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <rex/core/layout/slice.hpp>
-#include <rex/core/platform/constexpr.hpp>
-#include <rex/core/platform/attributes.hpp>
+#include <rexlib/core/layout/slice.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/attributes.hpp>
 
 #include <cstddef>
 

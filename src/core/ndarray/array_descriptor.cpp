@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 
 #include <boost/functional/hash.hpp>
 

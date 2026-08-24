@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/service_manager.hpp>
+#include <rexlib/core/service_manager.hpp>
 
 #include <trompeloeil.hpp>
 

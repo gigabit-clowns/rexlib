@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/service_catalog.hpp>
+#include <rexlib/core/service_catalog.hpp>
 
 #include "mock/mock_service_manager.hpp"
 

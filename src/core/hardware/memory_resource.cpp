@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 
-#include <rex/core/hardware/device.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include "host_memory/host_memory_resource.hpp"
 

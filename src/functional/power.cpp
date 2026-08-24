@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/power.hpp>
+#include <rexlib/functional/power.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/ops/power/cbrt_operation.hpp>
-#include <rex/ops/power/exp_operation.hpp>
-#include <rex/ops/power/exp2_operation.hpp>
-#include <rex/ops/power/expm1_operation.hpp>
-#include <rex/ops/power/log_operation.hpp>
-#include <rex/ops/power/log10_operation.hpp>
-#include <rex/ops/power/log1p_operation.hpp>
-#include <rex/ops/power/log2_operation.hpp>
-#include <rex/ops/power/power_operation.hpp>
-#include <rex/ops/power/reciprocal_operation.hpp>
-#include <rex/ops/power/sqrt_operation.hpp>
-#include <rex/ops/power/square_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/power/cbrt_operation.hpp>
+#include <rexlib/ops/power/exp_operation.hpp>
+#include <rexlib/ops/power/exp2_operation.hpp>
+#include <rexlib/ops/power/expm1_operation.hpp>
+#include <rexlib/ops/power/log_operation.hpp>
+#include <rexlib/ops/power/log10_operation.hpp>
+#include <rexlib/ops/power/log1p_operation.hpp>
+#include <rexlib/ops/power/log2_operation.hpp>
+#include <rexlib/ops/power/power_operation.hpp>
+#include <rexlib/ops/power/reciprocal_operation.hpp>
+#include <rexlib/ops/power/sqrt_operation.hpp>
+#include <rexlib/ops/power/square_operation.hpp>
 
 namespace rexlib
 {

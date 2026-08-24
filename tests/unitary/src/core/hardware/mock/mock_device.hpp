@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device.hpp>
 
 #include <trompeloeil.hpp>
 

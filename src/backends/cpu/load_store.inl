@@ -2,7 +2,7 @@
 
 #include "load_store.hpp"
 
-#include <rex/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 #include <core/numerical/float16_conversions.hpp>
 
 namespace rexlib

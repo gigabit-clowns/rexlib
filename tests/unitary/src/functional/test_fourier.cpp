@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/fourier.hpp>
+#include <rexlib/functional/fourier.hpp>
 
-#include <rex/ops/fourier/fft_operation.hpp>
-#include <rex/ops/fourier/fftshift_operation.hpp>
-#include <rex/ops/fourier/ifft_operation.hpp>
-#include <rex/ops/fourier/ifftshift_operation.hpp>
-#include <rex/ops/fourier/irfft_operation.hpp>
-#include <rex/ops/fourier/rfft_operation.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/fourier/fftshift_operation.hpp>
+#include <rexlib/ops/fourier/ifft_operation.hpp>
+#include <rexlib/ops/fourier/ifftshift_operation.hpp>
+#include <rexlib/ops/fourier/irfft_operation.hpp>
+#include <rexlib/ops/fourier/rfft_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

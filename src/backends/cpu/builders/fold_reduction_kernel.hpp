@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/platform/constexpr.hpp>
-#include <rex/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/builders/reduction_compute_type.hpp>
 #include <backends/cpu/load_store.hpp>

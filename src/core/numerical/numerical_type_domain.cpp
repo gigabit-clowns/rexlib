@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/numerical/numerical_type_domain.hpp>
+#include <rexlib/core/numerical/numerical_type_domain.hpp>
 
 namespace rexlib
 {

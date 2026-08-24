@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
 
 namespace rexlib
 {

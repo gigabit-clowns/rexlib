@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 

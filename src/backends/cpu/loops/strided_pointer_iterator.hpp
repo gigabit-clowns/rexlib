@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
 #include <iterator>

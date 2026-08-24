@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/ops/fourier/ifft_operation.hpp>
+#include <rexlib/ops/fourier/ifft_operation.hpp>
 
 #include <utility>
 

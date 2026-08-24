@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/transfer.hpp>
+#include <rexlib/functional/transfer.hpp>
 
-#include <rex/core/dispatch/execution_context.hpp>
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/functional/creation.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/ops/assignment/copy_operation.hpp>
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/functional/creation.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
 namespace rexlib
 {

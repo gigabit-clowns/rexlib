@@ -3,16 +3,16 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 
-#include <rex/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
 #include "fixtures/cpu_execution_context_fixture.hpp"
 
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/ndarray/array.hpp>
-#include <rex/core/ndarray/const_array.hpp>
-#include <rex/core/hardware/memory_resource_affinity.hpp>
-#include <rex/core/numerical/numerical_type_traits.hpp>
-#include <rex/core/numerical/scalar_value.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <complex>
 #include <cstddef>

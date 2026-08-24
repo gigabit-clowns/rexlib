@@ -6,7 +6,7 @@
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
 
-#include <rex/core/span.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <vector>
 

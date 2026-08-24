@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/core/dispatch/parametric_operation.hpp>
+#include <rexlib/core/dispatch/parametric_operation.hpp>
 
-#include <rex/ops/ops_component.hpp>
-#include <rex/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <cstddef>
 #include <type_traits>

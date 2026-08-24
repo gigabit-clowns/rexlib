@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/logical.hpp>
+#include <rexlib/functional/logical.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/ops/logical/logical_and_operation.hpp>
-#include <rex/ops/logical/logical_not_operation.hpp>
-#include <rex/ops/logical/logical_or_operation.hpp>
-#include <rex/ops/logical/logical_xor_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/logical/logical_and_operation.hpp>
+#include <rexlib/ops/logical/logical_not_operation.hpp>
+#include <rexlib/ops/logical/logical_or_operation.hpp>
+#include <rexlib/ops/logical/logical_xor_operation.hpp>
 
 namespace rexlib
 {

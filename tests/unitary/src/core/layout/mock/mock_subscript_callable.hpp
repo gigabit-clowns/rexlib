@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/layout/subscript_tags.hpp>
-#include <rex/core/layout/slice.hpp>
+#include <rexlib/core/layout/subscript_tags.hpp>
+#include <rexlib/core/layout/slice.hpp>
 
 #include <trompeloeil.hpp>
 

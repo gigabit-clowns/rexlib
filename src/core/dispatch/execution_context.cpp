@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
 
 #include <memory>
 #include <utility>

@@ -11,19 +11,19 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <rex/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <rex/core/dispatch/rules/rule_operand_types.hpp>
-#include <rex/core/hardware/memory_resource_affinity.hpp>
-#include <rex/core/meta/type_list.hpp>
-#include <rex/core/meta/type_tag.hpp>
-#include <rex/core/ndarray/const_array_ref.hpp>
-#include <rex/core/numerical/fixed_width_float.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/numerical/numerical_type_dispatch.hpp>
-#include <rex/core/numerical/numerical_type_domain_tags.hpp>
-#include <rex/core/numerical/numerical_type_traits.hpp>
-#include <rex/core/numerical/scalar_value.hpp>
+#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_tag.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/core/numerical/numerical_type_domain_tags.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <complex>
 #include <cstddef>

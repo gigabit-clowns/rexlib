@@ -2,12 +2,12 @@
 
 #include <backends/cpu/plans/reduction_layout_plan.hpp>
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/layout/broadcast.hpp>
-#include <rex/core/layout/joint_layout_builder.hpp>
-#include <rex/core/layout/strided_layout.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <algorithm>
 #include <sstream>

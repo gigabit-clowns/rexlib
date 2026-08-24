@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rex/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <rex/core/dispatch/operand_signature.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 
 #include <backends/cpu/builders/operand_data_types.hpp>
 

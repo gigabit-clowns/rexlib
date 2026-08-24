@@ -2,13 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/linalg.hpp>
+#include <rexlib/functional/linalg.hpp>
 
-#include <rex/ops/linalg/cross_operation.hpp>
-#include <rex/ops/linalg/matmul_operation.hpp>
-#include <rex/ops/linalg/matvec_operation.hpp>
-#include <rex/ops/linalg/vecdot_operation.hpp>
-#include <rex/ops/linalg/vecmat_operation.hpp>
+#include <rexlib/ops/linalg/cross_operation.hpp>
+#include <rexlib/ops/linalg/matmul_operation.hpp>
+#include <rexlib/ops/linalg/matvec_operation.hpp>
+#include <rexlib/ops/linalg/vecdot_operation.hpp>
+#include <rexlib/ops/linalg/vecmat_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/backends/cpu/device.hpp>
+#include <rexlib/backends/cpu/device.hpp>
 
 #include "command_queue.hpp"
 #include "event.hpp"
 
-#include <rex/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <core/hardware/host_memory/host_memory_resource.hpp>
 

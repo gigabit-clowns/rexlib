@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <rex/core/ndarray/array_descriptor.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/ops/assignment/copy_operation.hpp>
-#include <rex/ops/assignment/fill_operation.hpp>
-#include <rex/ops/creation/arange_operation.hpp>
-#include <rex/ops/creation/linspace_operation.hpp>
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/core/dispatch/execution_context.hpp>
-#include <rex/core/binary/bit.hpp>
-#include <rex/core/hardware/device_context.hpp>
-#include <rex/core/hardware/device_session.hpp>
-#include <rex/core/hardware/device_properties.hpp>
-#include <rex/core/hardware/memory_allocator.hpp>
-#include <rex/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
+#include <rexlib/ops/assignment/fill_operation.hpp>
+#include <rexlib/ops/creation/arange_operation.hpp>
+#include <rexlib/ops/creation/linspace_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 

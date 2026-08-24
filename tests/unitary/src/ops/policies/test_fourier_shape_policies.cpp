@@ -2,13 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/ops/policies/axiswise_operation_shape_policy.hpp>
-#include <rex/ops/policies/inverse_real_fourier_transform_shape_policy.hpp>
-#include <rex/ops/policies/real_fourier_transform_shape_policy.hpp>
+#include <rexlib/ops/policies/axiswise_operation_shape_policy.hpp>
+#include <rexlib/ops/policies/inverse_real_fourier_transform_shape_policy.hpp>
+#include <rexlib/ops/policies/real_fourier_transform_shape_policy.hpp>
 
-#include <rex/core/dispatch/operand_names.hpp>
-#include <rex/core/dispatch/operation_descriptor.hpp>
-#include <rex/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operand_names.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <vector>

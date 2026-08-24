@@ -2,7 +2,7 @@
 
 #include "sequence_layout_plan.hpp"
 
-#include <rex/core/layout/strided_layout.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
 #include <stdexcept>
 #include <vector>

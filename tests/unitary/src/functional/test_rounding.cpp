@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/rounding.hpp>
+#include <rexlib/functional/rounding.hpp>
 
-#include <rex/ops/rounding/ceil_operation.hpp>
-#include <rex/ops/rounding/floor_operation.hpp>
-#include <rex/ops/rounding/round_operation.hpp>
-#include <rex/ops/rounding/trunc_operation.hpp>
+#include <rexlib/ops/rounding/ceil_operation.hpp>
+#include <rexlib/ops/rounding/floor_operation.hpp>
+#include <rexlib/ops/rounding/round_operation.hpp>
+#include <rexlib/ops/rounding/trunc_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rex/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <type_traits>

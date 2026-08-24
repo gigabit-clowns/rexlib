@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rex/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <rex/core/dispatch/program_builder_registry.hpp>
-#include <rex/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -13,8 +13,8 @@
 #include <backends/cpu/builders/program_builder_registration.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
-#include <rex/core/layout/joint_layout.hpp>
-#include <rex/core/meta/type_list.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <memory>
 

@@ -7,13 +7,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rex/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <rex/core/hardware/memory_resource_affinity.hpp>
-#include <rex/core/ndarray/const_array_ref.hpp>
-#include <rex/core/numerical/numerical_type.hpp>
-#include <rex/core/numerical/numerical_type_traits.hpp>
-#include <rex/core/numerical/scalar_value.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <algorithm>
 #include <cstddef>

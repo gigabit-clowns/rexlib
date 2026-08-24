@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/hardware/memory_allocator.hpp>
-#include <rex/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
 
 #include <memory>
 #include <array>

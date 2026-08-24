@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <rex/core/hardware/buffer.hpp>
-#include <rex/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 
 #include <memory>
 

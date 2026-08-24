@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rex/functional/rounding.hpp>
+#include <rexlib/functional/rounding.hpp>
 
-#include <rex/core/dispatch/execute.hpp>
-#include <rex/ops/rounding/ceil_operation.hpp>
-#include <rex/ops/rounding/floor_operation.hpp>
-#include <rex/ops/rounding/round_operation.hpp>
-#include <rex/ops/rounding/trunc_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/rounding/ceil_operation.hpp>
+#include <rexlib/ops/rounding/floor_operation.hpp>
+#include <rexlib/ops/rounding/round_operation.hpp>
+#include <rexlib/ops/rounding/trunc_operation.hpp>
 
 namespace rexlib
 {
