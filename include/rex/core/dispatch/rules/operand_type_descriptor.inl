@@ -57,8 +57,8 @@ slot_descriptor::slot_descriptor(
 	, m_transform_domain(transform_domain)
 	, m_relation(relation)
 {
-	REX_ASSERT(m_apply);
-	REX_ASSERT(m_relation);
+	REXLIB_ASSERT(m_apply);
+	REXLIB_ASSERT(m_relation);
 }
 
 inline

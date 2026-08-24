@@ -80,7 +80,7 @@ public:
 
 private:
 	class implementation;
-	REX_STD_MEMBER_INTERFACE 
+	REXLIB_STD_MEMBER_INTERFACE 
 	std::unique_ptr<implementation> m_implementation;
 
 	implementation& create_if_null();

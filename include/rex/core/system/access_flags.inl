@@ -6,13 +6,13 @@
 namespace rex 
 {
 
-REX_INLINE_CONSTEXPR const char* 
+REXLIB_INLINE_CONSTEXPR const char* 
 to_string(access_flag_bits v) noexcept
 {
 	switch (v)
 	{
-	REX_ENUM_TO_STR_CASE(access_flag_bits, read)
-	REX_ENUM_TO_STR_CASE(access_flag_bits, write)
+	REXLIB_ENUM_TO_STR_CASE(access_flag_bits, read)
+	REXLIB_ENUM_TO_STR_CASE(access_flag_bits, write)
 	default: return "";
 	}
 }

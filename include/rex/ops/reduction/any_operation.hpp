@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Test whether any element along the reduced axes is true.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	any,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_predicate_rule<>
 );

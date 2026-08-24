@@ -19,11 +19,11 @@ namespace ops
  * rarely being representable in an exact one. An integer array therefore
  * averages to float64, while a float32 one stays float32.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	mean,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_inexact_of_rule<>
 );

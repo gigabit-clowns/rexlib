@@ -38,7 +38,7 @@ struct sum_fold
 
 } // anonymous namespace
 
-REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	sum,
 	ops::sum_operation,
 	default_kernel_factory<fold_reduction_kernel<sum_fold>>

@@ -33,7 +33,7 @@ struct minimum_order
 
 } // anonymous namespace
 
-REX_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
 	argmin,
 	ops::argmin_operation,
 	default_kernel_factory<extremum_locator_kernel<minimum_order>>

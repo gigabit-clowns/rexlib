@@ -24,11 +24,11 @@ namespace ops
  * Integers are admitted: multiplying adjacency or count matrices is
  * meaningful and needs no division.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	matmul,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	matrix_multiply_shape_policy,
 	binary_homogeneous_rule<arithmetic_type_domain>
 );

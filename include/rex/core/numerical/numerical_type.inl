@@ -5,7 +5,7 @@
 namespace rex
 {
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_category get_category(numerical_type type) noexcept
 {
 	switch (type)

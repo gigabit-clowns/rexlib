@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Invert the bits of each element of the input array.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	bitwise_not,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<
 		domain_difference<any_type_domain, inexact_type_domain>

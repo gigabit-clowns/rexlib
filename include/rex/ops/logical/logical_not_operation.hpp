@@ -18,11 +18,11 @@ namespace ops
  * An element is true when it is non zero, and the result is boolean
  * whatever the operand was.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	logical_not,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_predicate_rule<>
 );

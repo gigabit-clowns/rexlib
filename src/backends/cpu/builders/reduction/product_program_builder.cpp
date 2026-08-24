@@ -38,7 +38,7 @@ struct product_fold
 
 } // anonymous namespace
 
-REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	product,
 	ops::product_operation,
 	default_kernel_factory<fold_reduction_kernel<product_fold>>

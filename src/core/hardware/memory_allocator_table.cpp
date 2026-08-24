@@ -31,8 +31,8 @@ memory_allocator_table::memory_allocator_table(const device &dev)
 			);
 		}
 
-		REX_ASSERT(ite != allocators.end());
-		REX_ASSERT(ite->second != nullptr);
+		REXLIB_ASSERT(ite != allocators.end());
+		REXLIB_ASSERT(ite->second != nullptr);
 		m_allocators[i] = ite->second;
 	}
 }

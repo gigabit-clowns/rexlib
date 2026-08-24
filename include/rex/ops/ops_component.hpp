@@ -14,7 +14,7 @@ namespace ops
  * qualifies it in diagnostics and keeps the names of different components
  * apart. 
  *
- * @see REX_DECLARE_OPERATION
+ * @see REXLIB_DECLARE_OPERATION
  */
 struct ops_component
 {

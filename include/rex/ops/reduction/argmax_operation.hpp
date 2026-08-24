@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Locate the largest element along the reduced axes.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	argmax,
 	ops_component,
-	REX_OPERANDS("index"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("index"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_fixed_output_rule<
 		numerical_type::int64,

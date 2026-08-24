@@ -30,7 +30,7 @@ struct greater_equal_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	greater_equal,
 	ops::greater_equal_operation,
 	default_kernel_factory<greater_equal_kernel>

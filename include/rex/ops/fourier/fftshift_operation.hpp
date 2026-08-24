@@ -18,11 +18,11 @@ namespace ops
  * Rearranges elements without changing the shape or the type, so any
  * operand is admitted.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	fftshift,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	axiswise_operation_shape_policy,
 	unary_homogeneous_rule<>
 );

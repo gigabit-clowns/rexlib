@@ -16,11 +16,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	rfft,
 	ops_component,
-	REX_OPERANDS("spectrum"),
-	REX_OPERANDS("signal"),
+	REXLIB_OPERANDS("spectrum"),
+	REXLIB_OPERANDS("signal"),
 	real_fourier_transform_shape_policy,
 	unary_complex_of_rule<floating_point_type_domain>
 );
@@ -35,7 +35,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * Complex operands are not admitted. Their spectra have no symmetry to
  * exploit, and storing half of one would lose information.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API rfft_operation final
 	: public parametric_operation<rfft_operation, rfft_operation_traits>
 {
@@ -67,7 +67,7 @@ public:
 private:
 	fourier_normalization m_normalization;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

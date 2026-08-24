@@ -21,7 +21,7 @@ static_assert(
  * @param type The type. Must be representable.
  * @return numerical_type_domain::mask_type The bit.
  */
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain::mask_type
 numerical_type_domain_bit(numerical_type type) noexcept
 {
@@ -33,7 +33,7 @@ numerical_type_domain_bit(numerical_type type) noexcept
  *
  * @return numerical_type_domain::mask_type The mask.
  */
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain::mask_type
 numerical_type_domain_all_bits() noexcept
 {
@@ -45,26 +45,26 @@ numerical_type_domain_all_bits() noexcept
 
 } // namespace detail
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 bool is_domain_representable(numerical_type type) noexcept
 {
 	return static_cast<int>(type) >= 0 &&
 	       static_cast<int>(type) < static_cast<int>(numerical_type::count);
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain::numerical_type_domain() noexcept
 	: m_mask(0)
 {
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain::numerical_type_domain(mask_type mask) noexcept
 	: m_mask(mask)
 {
 }
 
-REX_INLINE_CONSTEXPR_CPP14
+REXLIB_INLINE_CONSTEXPR_CPP14
 numerical_type_domain::numerical_type_domain(
 	std::initializer_list<numerical_type> types
 ) noexcept
@@ -79,39 +79,39 @@ numerical_type_domain::numerical_type_domain(
 	}
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 bool numerical_type_domain::contains(numerical_type type) const noexcept
 {
 	return is_domain_representable(type) &&
 	       (m_mask & detail::numerical_type_domain_bit(type)) != 0;
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 bool numerical_type_domain::empty() const noexcept
 {
 	return m_mask == 0;
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain::mask_type
 numerical_type_domain::get_mask() const noexcept
 {
 	return m_mask;
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain numerical_type_domain::all() noexcept
 {
 	return numerical_type_domain(detail::numerical_type_domain_all_bits());
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain numerical_type_domain::none() noexcept
 {
 	return numerical_type_domain();
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 numerical_type_domain operator~(const numerical_type_domain &domain) noexcept
 {
 	return numerical_type_domain(
@@ -121,7 +121,7 @@ numerical_type_domain operator~(const numerical_type_domain &domain) noexcept
 
 
 
-REX_INLINE_CONSTEXPR_CPP14
+REXLIB_INLINE_CONSTEXPR_CPP14
 numerical_type_domain make_numerical_type_domain(
 	numerical_type_category category
 ) noexcept

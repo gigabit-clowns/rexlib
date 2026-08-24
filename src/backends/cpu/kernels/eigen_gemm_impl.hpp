@@ -22,7 +22,7 @@
  * costs nothing at runtime, since either way the grid is walked once per
  * program and collapses to a stored function pointer.
  *
- * @see REX_INSTANTIATE_EIGEN_GEMM
+ * @see REXLIB_INSTANTIATE_EIGEN_GEMM
  */
 
 #include <backends/cpu/kernels/eigen_gemm.hpp>
@@ -639,7 +639,7 @@ gemm_fn<T> resolve_vecgemm(
  *
  * @param T The element type, which must satisfy eigen_scalar_support.
  */
-#define REX_INSTANTIATE_EIGEN_GEMM(T)                                      \
+#define REXLIB_INSTANTIATE_EIGEN_GEMM(T)                                      \
 	template gemm_fn<T> resolve_gemm<T>(                                      \
 		std::size_t, std::size_t, std::size_t,                                \
 		core_layout_kind, core_layout_kind, core_layout_kind                  \

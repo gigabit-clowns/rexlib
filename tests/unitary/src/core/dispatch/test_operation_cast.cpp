@@ -18,11 +18,11 @@ using namespace rex;
 namespace
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	cast_probe,
 	ops::ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );
@@ -49,11 +49,11 @@ public:
 	}
 };
 
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	other_probe,
 	ops::ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

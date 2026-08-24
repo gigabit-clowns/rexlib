@@ -26,7 +26,7 @@ struct fftshift_shift_policy
 
 } // anonymous namespace
 
-REX_REGISTER_ROLL_PROGRAM_BUILDER(
+REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(
 	fftshift,
 	ops::fftshift_operation,
 	fftshift_shift_policy

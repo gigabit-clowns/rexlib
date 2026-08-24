@@ -5,7 +5,7 @@
 namespace rex
 {
 
-REX_INLINE_CONSTEXPR_CPP23
+REXLIB_INLINE_CONSTEXPR_CPP23
 numerical_type_promotion_lattice::numerical_type_promotion_lattice() noexcept
 {
 	for (std::size_t i = 0; i < m_reach.size(); ++i)
@@ -14,7 +14,7 @@ numerical_type_promotion_lattice::numerical_type_promotion_lattice() noexcept
 	}
 }
 
-REX_INLINE_CONSTEXPR_CPP23
+REXLIB_INLINE_CONSTEXPR_CPP23
 numerical_type_promotion_lattice& 
 numerical_type_promotion_lattice::add_edge(
 	numerical_type from, 
@@ -40,7 +40,7 @@ numerical_type_promotion_lattice::add_edge(
 	return *this;
 }
 
-REX_INLINE_CONSTEXPR_CPP23
+REXLIB_INLINE_CONSTEXPR_CPP23
 numerical_type numerical_type_promotion_lattice::get_supremum(
 	numerical_type a, 
 	numerical_type b
@@ -61,7 +61,7 @@ numerical_type numerical_type_promotion_lattice::get_supremum(
 	return numerical_type::unknown;
 }
 
-REX_INLINE_CONSTEXPR_CPP23
+REXLIB_INLINE_CONSTEXPR_CPP23
 bool numerical_type_promotion_lattice::is_supremum(
 	const reach_set &common, 
 	std::size_t i

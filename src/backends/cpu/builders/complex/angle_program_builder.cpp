@@ -38,7 +38,7 @@ struct angle_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	angle,
 	ops::angle_operation,
 	default_kernel_factory<angle_kernel>

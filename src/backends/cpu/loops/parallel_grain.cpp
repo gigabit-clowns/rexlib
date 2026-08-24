@@ -14,18 +14,18 @@ namespace rex
 namespace cpu
 {
 
-static const char REX_GRAIN_SIZE_ENV_VARIABLE[] =
-	"REX_PARALLEL_GRAIN_SIZE";
+static const char REXLIB_GRAIN_SIZE_ENV_VARIABLE[] =
+	"REXLIB_PARALLEL_GRAIN_SIZE";
 
 namespace
 {
 
 std::size_t read_parallel_grain_size()
 {
-	std::size_t result = REX_PARALLEL_GRAIN_SIZE;
+	std::size_t result = REXLIB_PARALLEL_GRAIN_SIZE;
 
 	const char* environment_variable;
-	if ((environment_variable = std::getenv(REX_GRAIN_SIZE_ENV_VARIABLE)))
+	if ((environment_variable = std::getenv(REXLIB_GRAIN_SIZE_ENV_VARIABLE)))
 	{
 		char *end = nullptr;
 		const auto parsed = std::strtoul(environment_variable, &end, 10);
@@ -35,9 +35,9 @@ std::size_t read_parallel_grain_size()
 		}
 		else
 		{
-			REX_LOG_WARN(
+			REXLIB_LOG_WARN(
 				"Ignoring {}=\"{}\": expected a positive integer.",
-				REX_GRAIN_SIZE_ENV_VARIABLE,
+				REXLIB_GRAIN_SIZE_ENV_VARIABLE,
 				environment_variable
 			);
 		}

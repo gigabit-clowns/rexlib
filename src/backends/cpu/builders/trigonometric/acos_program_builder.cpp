@@ -29,7 +29,7 @@ struct acos_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	acos,
 	ops::acos_operation,
 	default_kernel_factory<acos_kernel>

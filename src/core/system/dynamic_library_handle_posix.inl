@@ -13,7 +13,7 @@ namespace rex
 
 inline void* dynamic_library_open(const char* filename)
 {
-	REX_CONST_CONSTEXPR int flags = RTLD_LAZY;
+	REXLIB_CONST_CONSTEXPR int flags = RTLD_LAZY;
 	auto *const result = ::dlopen(filename, flags);
 	if (result == nullptr)
 	{

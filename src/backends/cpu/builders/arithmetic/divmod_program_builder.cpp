@@ -37,7 +37,7 @@ struct divmod_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	divmod,
 	ops::divmod_operation,
 	default_kernel_factory<divmod_kernel>

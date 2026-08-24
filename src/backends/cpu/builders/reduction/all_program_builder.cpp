@@ -48,7 +48,7 @@ using all_kernel = fold_reduction_kernel<conjunction_fold, boolean_lift>;
 
 } // anonymous namespace
 
-REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	all,
 	ops::all_operation,
 	default_kernel_factory<all_kernel>

@@ -15,7 +15,7 @@ class version
 {
 public:
 	version() = default;
-	REX_CONSTEXPR version(
+	REXLIB_CONSTEXPR version(
 		std::uint32_t major, 
 		std::uint32_t minor, 
 		std::uint32_t patch
@@ -25,48 +25,48 @@ public:
 
 	version& operator=(const version& other) = default;
 
-	REX_CONSTEXPR void set_major(std::uint32_t major) noexcept;
-	REX_CONSTEXPR std::uint32_t get_major() const noexcept;
+	REXLIB_CONSTEXPR void set_major(std::uint32_t major) noexcept;
+	REXLIB_CONSTEXPR std::uint32_t get_major() const noexcept;
 
-	REX_CONSTEXPR void set_minor(std::uint32_t minor) noexcept;
-	REX_CONSTEXPR std::uint32_t get_minor() const noexcept;
+	REXLIB_CONSTEXPR void set_minor(std::uint32_t minor) noexcept;
+	REXLIB_CONSTEXPR std::uint32_t get_minor() const noexcept;
 
-	REX_CONSTEXPR void set_patch(std::uint32_t patch) noexcept;
-	REX_CONSTEXPR std::uint32_t get_patch() const noexcept;
+	REXLIB_CONSTEXPR void set_patch(std::uint32_t patch) noexcept;
+	REXLIB_CONSTEXPR std::uint32_t get_patch() const noexcept;
 
-	REX_CONSTEXPR std::uint32_t get_data() const noexcept;
+	REXLIB_CONSTEXPR std::uint32_t get_data() const noexcept;
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator==(const version& lhs, const version& rhs) noexcept
 	{
 		return lhs.get_data() == rhs.get_data();
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator!=(const version& lhs, const version& rhs) noexcept
 	{
 		return lhs.get_data() != rhs.get_data();
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator<(const version& lhs, const version& rhs) noexcept
 	{
 		return lhs.get_data() < rhs.get_data();
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator<=(const version& lhs, const version& rhs) noexcept
 	{
 		return lhs.get_data() <= rhs.get_data();
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator>(const version& lhs, const version& rhs) noexcept
 	{
 		return lhs.get_data() > rhs.get_data();
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator>=(const version& lhs, const version& rhs) noexcept
 	{
 		return lhs.get_data() >= rhs.get_data();
@@ -76,7 +76,7 @@ public:
 	friend std::basic_ostream<T>&
 	operator<<(std::basic_ostream<T>& os, const version& ver)
 	{
-		REX_CONST_CONSTEXPR T sep = '.';
+		REXLIB_CONST_CONSTEXPR T sep = '.';
 		return os
 			<< ver.get_major() << sep
 			<< ver.get_minor() << sep
@@ -84,19 +84,19 @@ public:
 	}
 
 private:
-	static REX_INLINE_CONST_CONSTEXPR std::size_t patch_bits = 10;
-	static REX_INLINE_CONST_CONSTEXPR std::size_t minor_bits = 10;
-	static REX_INLINE_CONST_CONSTEXPR std::size_t major_bits = 12;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t patch_bits = 10;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t minor_bits = 10;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t major_bits = 12;
 
-	static REX_INLINE_CONST_CONSTEXPR std::size_t patch_offset = 0;
-	static REX_INLINE_CONST_CONSTEXPR std::size_t minor_offset = patch_offset + patch_bits;
-	static REX_INLINE_CONST_CONSTEXPR std::size_t major_offset = minor_offset + minor_bits;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t patch_offset = 0;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t minor_offset = patch_offset + patch_bits;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t major_offset = minor_offset + minor_bits;
 
-	static REX_INLINE_CONST_CONSTEXPR std::uint32_t patch_mask = 
+	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t patch_mask = 
 		bit_range_mask<std::uint32_t>(patch_offset, patch_offset+patch_bits);
-	static REX_INLINE_CONST_CONSTEXPR std::uint32_t minor_mask = 
+	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t minor_mask = 
 		bit_range_mask<std::uint32_t>(minor_offset, minor_offset+minor_bits);
-	static REX_INLINE_CONST_CONSTEXPR std::uint32_t major_mask = 
+	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t major_mask = 
 		bit_range_mask<std::uint32_t>(major_offset, major_offset+major_bits);
 
 	std::uint32_t m_data;

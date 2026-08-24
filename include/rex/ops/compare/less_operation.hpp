@@ -20,11 +20,11 @@ namespace ops
  * ordering, and comparing the parts lexicographically would be a
  * convention rather than a meaning.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	less,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_predicate_rule<
 		domain_difference<any_type_domain, complex_type_domain>

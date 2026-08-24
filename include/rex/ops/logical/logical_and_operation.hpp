@@ -18,11 +18,11 @@ namespace ops
  * Operands of any type are admitted, an element being true when
  * it is non zero, and the result is boolean whatever they were.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	logical_and,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_predicate_rule<>
 );

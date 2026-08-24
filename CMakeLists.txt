@@ -41,11 +41,11 @@ fetch_pocketfft(COMMIT c90e55b3d529f8efa40ed01a20de22405f45fc65)
 fetch_eigen(VERSION 5.0.1)
 
 if(WIN32)
-	set(REX_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}/rex-plugins)
+	set(REXLIB_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR}/rex-plugins)
 else()
-	set(REX_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/rex-plugins)
+	set(REXLIB_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/rex-plugins)
 endif()
-set(REX_PLUGIN_INSTALL_DIR ${REX_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the rex plugins are installed")
+set(REXLIB_PLUGIN_INSTALL_DIR ${REXLIB_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the rex plugins are installed")
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 17)

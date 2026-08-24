@@ -21,11 +21,11 @@ namespace ops
  * would, so the two agree by construction rather than by
  * convention.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	divmod,
 	ops_component,
-	REX_OPERANDS("quotient", "remainder"),
-	REX_OPERANDS("dividend", "divisor"),
+	REXLIB_OPERANDS("quotient", "remainder"),
+	REXLIB_OPERANDS("dividend", "divisor"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_pair_rule<
 		domain_union<real_arithmetic_type_domain, character_type_domain>

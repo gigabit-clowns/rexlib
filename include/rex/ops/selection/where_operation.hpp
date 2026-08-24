@@ -18,11 +18,11 @@ namespace ops
  * The element type follows the arrays being selected from and not
  * the condition, which is always boolean.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	where,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("condition", "on_true", "on_false"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("condition", "on_true", "on_false"),
 	elementwise_operation_shape_policy,
 	selection_rule<>
 );

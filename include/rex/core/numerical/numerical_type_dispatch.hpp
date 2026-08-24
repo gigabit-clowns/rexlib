@@ -30,7 +30,7 @@ namespace rex
  * @see type_tag
  */
 template <typename F, typename... Types>
-REX_CONSTEXPR
+REXLIB_CONSTEXPR
 auto dispatch_numerical_types(F&& visitor, Types&& ...types);
 
 

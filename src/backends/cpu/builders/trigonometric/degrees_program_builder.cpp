@@ -33,7 +33,7 @@ struct degrees_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	degrees,
 	ops::degrees_operation,
 	default_kernel_factory<degrees_kernel>

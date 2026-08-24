@@ -30,7 +30,7 @@ struct multiply_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	multiply,
 	ops::multiply_operation,
 	default_kernel_factory<multiply_kernel>

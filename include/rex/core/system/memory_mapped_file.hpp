@@ -22,7 +22,7 @@ public:
 	 * @brief Constant meaning to map the whole file
 	 * 
 	 */
-	static REX_INLINE_CONST_CONSTEXPR std::size_t whole_file = 0;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t whole_file = 0;
 
 	/**
 	 * @brief Construct an empty memory-mapped file

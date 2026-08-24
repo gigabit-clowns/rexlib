@@ -130,10 +130,10 @@ public:
 	get_scratch_requirements() const override;
 
 private:
-	REX_NO_UNIQUE_ADDRESS 
+	REXLIB_NO_UNIQUE_ADDRESS 
 	functor_type m_function;
 
-	REX_NO_UNIQUE_ADDRESS 
+	REXLIB_NO_UNIQUE_ADDRESS 
 	scratch_requirement_array_type m_scratch_requirements;
 
 	template<

@@ -64,7 +64,7 @@ public:
 
 } // anonymous namespace
 
-REX_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	mean,
 	ops::mean_operation,
 	default_kernel_factory<mean_kernel>

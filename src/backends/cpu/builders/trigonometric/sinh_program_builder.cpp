@@ -29,7 +29,7 @@ struct sinh_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	sinh,
 	ops::sinh_operation,
 	default_kernel_factory<sinh_kernel>

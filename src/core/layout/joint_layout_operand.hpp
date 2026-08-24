@@ -20,7 +20,7 @@ class joint_layout_operand
 public:
 	using stride_vector_type = boost::container::small_vector<
 		std::ptrdiff_t, 
-		REX_SMALL_AXIS_COUNT
+		REXLIB_SMALL_AXIS_COUNT
 	>;
 
 	joint_layout_operand(

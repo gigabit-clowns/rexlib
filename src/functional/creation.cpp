@@ -45,7 +45,7 @@ std::shared_ptr<buffer> reuse_array_storage(
 
 	if (&storage->get_memory_resource() != &target_resource)
 	{
-		REX_LOG_WARN(
+		REXLIB_LOG_WARN(
 			"empty: the output array storage lives on a different "
 			"memory resource than the one requested by the affinity; "
 			"reallocating on the requested resource."
@@ -68,7 +68,7 @@ std::shared_ptr<buffer> allocate_array_storage(
 )
 {
 	const auto &session = device_context.get_device_session();
-	REX_ASSERT(session);
+	REXLIB_ASSERT(session);
 
 	const auto &properties = session->get_properties();
 	const auto &queue = device_context.get_active_queue();

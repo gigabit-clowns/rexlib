@@ -46,7 +46,7 @@ struct fill_kernel_factory
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	fill,
 	ops::fill_operation,
 	fill_kernel_factory

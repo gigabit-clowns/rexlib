@@ -16,11 +16,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	ifft,
 	ops_component,
-	REX_OPERANDS("signal"),
-	REX_OPERANDS("spectrum"),
+	REXLIB_OPERANDS("signal"),
+	REXLIB_OPERANDS("spectrum"),
 	axiswise_operation_shape_policy,
 	unary_homogeneous_rule<complex_type_domain>
 );
@@ -32,7 +32,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * signal inverts through irfft instead, which both halves the storage
  * and returns a real array.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API ifft_operation final
 	: public parametric_operation<ifft_operation, ifft_operation_traits>
 {
@@ -63,7 +63,7 @@ public:
 private:
 	fourier_normalization m_normalization;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

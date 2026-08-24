@@ -8,13 +8,13 @@
 namespace rex
 {
 
-REX_INLINE_CONSTEXPR uint8_t 
+REXLIB_INLINE_CONSTEXPR uint8_t 
 as_uint8(byte b) noexcept
 {
 	return static_cast<uint8_t>(b);
 }
 
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 as_byte(uint8_t b) noexcept
 {
 	return static_cast<byte>(b);
@@ -35,21 +35,21 @@ as_bytes(const T* ptr) noexcept
 }
 
 template <class IntegerType>
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 operator<<(byte b, IntegerType shift) noexcept
 {
 	return as_byte(as_uint8(b) << shift);
 }
 
 template <class IntegerType>
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 operator>>(byte b, IntegerType shift) noexcept
 {
 	return as_byte(as_uint8(b) >> shift);
 }
 
 template <class IntegerType>
-REX_INLINE_CONSTEXPR byte& 
+REXLIB_INLINE_CONSTEXPR byte& 
 operator<<=(byte& b, IntegerType shift) noexcept
 {
 	b = b << shift;
@@ -57,59 +57,59 @@ operator<<=(byte& b, IntegerType shift) noexcept
 }
 
 template <class IntegerType>
-REX_INLINE_CONSTEXPR byte& 
+REXLIB_INLINE_CONSTEXPR byte& 
 operator>>=(byte& b, IntegerType shift) noexcept
 {
 	b = b >> shift;
 	return b;
 }
 
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 operator~(byte b) noexcept
 {
 	return as_byte(~as_uint8(b));
 }
 
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 operator|(byte lhs, byte rhs) noexcept
 {
 	return as_byte(as_uint8(lhs) | as_uint8(rhs));
 }
 
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 operator&(byte lhs, byte rhs) noexcept
 {
 	return as_byte(as_uint8(lhs) & as_uint8(rhs));
 }
 
-REX_INLINE_CONSTEXPR byte 
+REXLIB_INLINE_CONSTEXPR byte 
 operator^(byte lhs, byte rhs) noexcept
 {
 	return as_byte(as_uint8(lhs) ^ as_uint8(rhs));
 }
 
-REX_INLINE_CONSTEXPR byte& 
+REXLIB_INLINE_CONSTEXPR byte& 
 operator|=(byte& lhs, byte rhs) noexcept
 {
 	lhs = lhs | rhs;
 	return lhs;
 }
 
-REX_INLINE_CONSTEXPR byte& 
+REXLIB_INLINE_CONSTEXPR byte& 
 operator&=(byte& lhs, byte rhs) noexcept
 {
 	lhs = lhs & rhs;
 	return lhs;
 }
 
-REX_INLINE_CONSTEXPR byte& 
+REXLIB_INLINE_CONSTEXPR byte& 
 operator^=(byte& lhs, byte rhs) noexcept
 {
 	lhs = lhs ^ rhs;
 	return lhs;
 }
 
-REX_INLINE_CONSTEXPR std::size_t 
+REXLIB_INLINE_CONSTEXPR std::size_t 
 get_byte_bits() noexcept
 {
 	#if defined(CHAR_BIT)
@@ -121,10 +121,10 @@ get_byte_bits() noexcept
 }
 
 template <typename C>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 void to_hex(byte b, C &high, C &low) noexcept
 {
-	REX_CONST_CONSTEXPR std::array<C, 16> hex_characters = {
+	REXLIB_CONST_CONSTEXPR std::array<C, 16> hex_characters = {
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
 		'A', 'B', 'C', 'D', 'E', 'F'
 	};
@@ -146,7 +146,7 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const byte& b)
 
 } // namespace rex
 
-REX_INLINE_CONSTEXPR size_t 
+REXLIB_INLINE_CONSTEXPR size_t 
 std::hash<rex::byte>::operator()(rex::byte b) const noexcept
 {
 	return rex::as_uint8(b);

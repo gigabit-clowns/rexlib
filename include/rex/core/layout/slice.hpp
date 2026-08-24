@@ -32,7 +32,7 @@ public:
 	 * @param count Number of elements.
 	 * @param step Step between consecutive elements
 	 */
-	REX_CONSTEXPR 
+	REXLIB_CONSTEXPR 
 	slice(start_type start, count_type count, step_type step ) noexcept;
 
 	slice() = default;
@@ -48,44 +48,44 @@ public:
 	 * 
 	 * @param start Index of the first element
 	 */
-	REX_CONSTEXPR void set_start(start_type start) noexcept;
+	REXLIB_CONSTEXPR void set_start(start_type start) noexcept;
 
 	/**
 	 * @brief Get the starting index
 	 * 
 	 * @return start_type const& Index of the first element
 	 */
-	REX_CONSTEXPR const start_type& get_start() const noexcept;
+	REXLIB_CONSTEXPR const start_type& get_start() const noexcept;
 	
 	/**
 	 * @brief Set the index element count.
 	 * 
 	 * @param count New number of elements referred by this slice.
 	 */
-	REX_CONSTEXPR void set_count(count_type count) noexcept;
+	REXLIB_CONSTEXPR void set_count(count_type count) noexcept;
 
 	/**
 	 * @brief Get the element count.
 	 * 
 	 * @return count_type const& Number of elements referred by this slice.
 	 */
-	REX_CONSTEXPR const count_type& get_count() const noexcept;
+	REXLIB_CONSTEXPR const count_type& get_count() const noexcept;
 
 	/**
 	 * @brief Set the step
 	 * 
 	 * @param step Step between consecutive elements
 	 */
-	REX_CONSTEXPR void set_step(step_type step) noexcept;
+	REXLIB_CONSTEXPR void set_step(step_type step) noexcept;
 
 	/**
 	 * @brief Get the step
 	 * 
 	 * @return step_type const& Step between consecutive elements
 	 */
-	REX_CONSTEXPR const step_type& get_step() const noexcept;
+	REXLIB_CONSTEXPR const step_type& get_step() const noexcept;
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator==(const slice &lhs, const slice &rhs) noexcept
 	{
 		return
@@ -94,7 +94,7 @@ public:
 			lhs.get_step() == rhs.get_step();
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator!=(const slice &lhs, const slice &rhs) noexcept
 	{
 		return !(lhs == rhs);
@@ -123,28 +123,28 @@ private:
  * @return std::size_t end value
  * 
  */
-REX_CONSTEXPR std::size_t end() noexcept;
+REXLIB_CONSTEXPR std::size_t end() noexcept;
 
 /**
  * @brief Construct an slice containing all positions in the axis.
  * 
  * @return An slice representing all positions in the axis.
  */
-REX_CONSTEXPR slice all() noexcept;
+REXLIB_CONSTEXPR slice all() noexcept;
 
 /**
  * @brief Construct an slice containing even positions in the axis.
  * 
  * @return An slice representing even positions in the axis.
  */
-REX_CONSTEXPR slice even() noexcept;
+REXLIB_CONSTEXPR slice even() noexcept;
 
 /**
  * @brief Construct an slice containing odd positions in the axis.
  * 
  * @return An slice representing odd positions in the axis.
  */
-REX_CONSTEXPR slice odd() noexcept;
+REXLIB_CONSTEXPR slice odd() noexcept;
 
 /**
  * @brief Create an slice using its count value.
@@ -155,7 +155,7 @@ REX_CONSTEXPR slice odd() noexcept;
  * @param count Number of elements.
  * @return slice An slice representing the first count positions in the axis.
  */
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 slice make_slice(std::size_t count) noexcept;
 
 /**
@@ -168,7 +168,7 @@ slice make_slice(std::size_t count) noexcept;
  * @return slice An slice representing the first count positions starting from
  * start.
  */
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 slice make_slice(std::ptrdiff_t start, std::size_t count) noexcept;
 
 /**
@@ -182,7 +182,7 @@ slice make_slice(std::ptrdiff_t start, std::size_t count) noexcept;
  * @return slice An slice representing the first count positions starting from
  * start from step to step.
  */
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 slice make_slice(
 	std::ptrdiff_t start, 
 	std::size_t count, 

@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Take the magnitude of one array and the sign of another.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	copysign,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("magnitude", "sign"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("magnitude", "sign"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<floating_point_type_domain>
 );

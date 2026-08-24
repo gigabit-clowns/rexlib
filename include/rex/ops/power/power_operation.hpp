@@ -19,11 +19,11 @@ namespace ops
  * error rather than a typing one, so it is left for the backend to
  * report.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	power,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("base", "exponent"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("base", "exponent"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<arithmetic_type_domain>
 );

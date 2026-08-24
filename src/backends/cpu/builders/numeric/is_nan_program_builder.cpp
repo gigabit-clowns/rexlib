@@ -38,7 +38,7 @@ struct is_nan_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	is_nan,
 	ops::is_nan_operation,
 	default_kernel_factory<is_nan_kernel>

@@ -16,11 +16,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	arange,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS(),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS(),
 	sequence_operation_shape_policy,
 	nullary_free_rule<real_arithmetic_type_domain>
 );
@@ -41,7 +41,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * be asked where it stops, and the complex plane has none. Use @ref
  * linspace_operation, which is told its length outright, for a complex ramp.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API arange_operation final
 	: public parametric_operation<arange_operation, arange_operation_traits>
 {
@@ -84,12 +84,12 @@ public:
 	std::size_t get_count() const noexcept;
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	scalar_value m_start;
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	scalar_value m_step;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

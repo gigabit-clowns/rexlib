@@ -29,7 +29,7 @@ struct asinh_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	asinh,
 	ops::asinh_operation,
 	default_kernel_factory<asinh_kernel>

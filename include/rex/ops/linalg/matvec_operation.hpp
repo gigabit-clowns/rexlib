@@ -23,11 +23,11 @@ namespace ops
  * @see vecmat
  * @see matmul
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	matvec,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	matrix_vector_shape_policy,
 	binary_homogeneous_rule<arithmetic_type_domain>
 );

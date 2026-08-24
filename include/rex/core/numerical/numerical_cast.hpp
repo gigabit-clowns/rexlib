@@ -29,7 +29,7 @@ namespace rex
  * @return T The converted value.
  */
 template <typename T, typename Q>
-REX_NODISCARD
+REXLIB_NODISCARD
 T numerical_cast(const Q &src) noexcept;
 
 } // namespace rex

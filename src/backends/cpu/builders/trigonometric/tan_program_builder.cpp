@@ -29,7 +29,7 @@ struct tan_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	tan,
 	ops::tan_operation,
 	default_kernel_factory<tan_kernel>

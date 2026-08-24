@@ -39,7 +39,7 @@ void elementwise_operation_shape_policy::accept(
 	span<const shape_type> /*input_shapes*/
 ) const
 {
-	REX_ASSERT(
+	REXLIB_ASSERT(
 		user_output_shapes.size() == canonical_output_shapes.size()
 	);
 

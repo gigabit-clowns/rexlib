@@ -9,4 +9,4 @@
  * in release builds
  * 
  */
-#define REX_ASSERT(expr) assert(expr)
+#define REXLIB_ASSERT(expr) assert(expr)

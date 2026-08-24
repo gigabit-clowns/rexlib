@@ -45,11 +45,11 @@ namespace
 
 
 // A self-contained binary elementwise operation.
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	test_binary,
 	ops::ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	ops::elementwise_operation_shape_policy,
 	ops::binary_homogeneous_rule<>
 );

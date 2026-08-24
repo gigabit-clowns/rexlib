@@ -28,7 +28,7 @@ struct ceil_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	ceil,
 	ops::ceil_operation,
 	default_kernel_factory<ceil_kernel>

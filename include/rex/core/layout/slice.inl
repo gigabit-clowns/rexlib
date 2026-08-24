@@ -9,7 +9,7 @@
 namespace rex 
 {
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 slice::slice(start_type start, count_type count, step_type step ) noexcept
 	: m_start(start)
 	, m_count(count)
@@ -17,75 +17,75 @@ slice::slice(start_type start, count_type count, step_type step ) noexcept
 {
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 void slice::set_start(start_type start) noexcept
 {
 	m_start = start;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const slice::start_type& slice::get_start() const noexcept
 {
 	return m_start;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 void slice::set_count(count_type count) noexcept
 {
 	m_count = count;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const slice::count_type& slice::get_count() const noexcept
 {
 	return m_count;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 void slice::set_step(step_type step) noexcept
 {
 	m_step = step;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const typename slice::step_type& slice::get_step() const noexcept
 {
 	return m_step;
 }
 
-REX_INLINE_CONSTEXPR std::size_t end() noexcept
+REXLIB_INLINE_CONSTEXPR std::size_t end() noexcept
 {
 	return std::numeric_limits<std::size_t>::max();
 }
 
-REX_INLINE_CONSTEXPR slice all() noexcept
+REXLIB_INLINE_CONSTEXPR slice all() noexcept
 {
 	return slice(0, end(), 1);
 }
 
-REX_INLINE_CONSTEXPR slice even() noexcept
+REXLIB_INLINE_CONSTEXPR slice even() noexcept
 {
 	return slice(0, end(), 2);
 }
 
-REX_INLINE_CONSTEXPR slice odd() noexcept
+REXLIB_INLINE_CONSTEXPR slice odd() noexcept
 {
 	return slice(1, end(), 2);
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 slice make_slice(std::size_t count) noexcept
 {
 	return slice(0, count, 1);
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 slice make_slice(std::ptrdiff_t start, std::size_t count) noexcept
 {
 	return slice(start, count, 1);
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 slice make_slice(
 	std::ptrdiff_t start, 
 	std::size_t count, 

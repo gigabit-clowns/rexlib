@@ -45,14 +45,14 @@ public:
 	 * @brief Construct a dynamic_subscript holding an ellipsis_tag.
 	 * 
 	 */
-	REX_NO_EXPLICIT REX_CONSTEXPR
+	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(ellipsis_tag) noexcept;
 
 	/**
 	 * @brief Construct a dynamic_subscript holding a new_axis_tag.
 	 * 
 	 */
-	REX_NO_EXPLICIT REX_CONSTEXPR
+	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(new_axis_tag) noexcept;
 
 	/**
@@ -61,7 +61,7 @@ public:
 	 * @param index The index that is assigned to this object.
 
 		*/
-	REX_NO_EXPLICIT REX_CONSTEXPR
+	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(std::ptrdiff_t index) noexcept;
 
 	/**
@@ -70,7 +70,7 @@ public:
 	 * @param slice the slice that is assigned to this object.
 	 * 
 	 */
-	REX_NO_EXPLICIT REX_CONSTEXPR
+	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(const slice &slice) noexcept;
 
 	dynamic_subscript(const dynamic_subscript &other) = default;
@@ -85,7 +85,7 @@ public:
 	 * 
 	 * @return subscript_type 
 	 */
-	REX_CONSTEXPR
+	REXLIB_CONSTEXPR
 	subscript_type get_subscript_type() const noexcept;
 
 	/**
@@ -157,7 +157,7 @@ public:
  * @return auto result of calling func with the evaluated argument.
  */
 template <typename F>
-REX_CONSTEXPR
+REXLIB_CONSTEXPR
 auto visit(F&& func, const dynamic_subscript &subscript);
 
 } // namespace rex

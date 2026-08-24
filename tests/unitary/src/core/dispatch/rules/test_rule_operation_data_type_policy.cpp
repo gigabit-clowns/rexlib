@@ -29,9 +29,9 @@ using type_vector = std::vector<numerical_type>;
  */
 const operation_descriptor& rule_descriptor()
 {
-	static REX_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result", "second_result");
-	static REX_CONST_CONSTEXPR auto inputs =
+	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right", "third");
 	static const operation_descriptor instance =
 		make_operation_descriptor("rex.test", "probe", outputs, inputs);

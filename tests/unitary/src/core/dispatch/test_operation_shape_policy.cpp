@@ -21,9 +21,9 @@ namespace
 
 const operation_descriptor& stub_descriptor()
 {
-	static REX_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static REX_CONST_CONSTEXPR auto inputs = make_operand_names("value");
+	static REXLIB_CONST_CONSTEXPR auto inputs = make_operand_names("value");
 	static const operation_descriptor instance =
 		make_operation_descriptor("rex.test", "stub", outputs, inputs);
 	return instance;

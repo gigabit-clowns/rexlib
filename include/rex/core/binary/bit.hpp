@@ -22,7 +22,7 @@ namespace rex
  * starting from the LSB
  * @return std::size_t with one or zero bits set.
  */
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 std::size_t bit(std::size_t i) noexcept;
 
 /**
@@ -34,7 +34,7 @@ std::size_t bit(std::size_t i) noexcept;
  * @return T The mask
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_range_mask(std::size_t start, std::size_t end) noexcept;
 
@@ -49,7 +49,7 @@ bit_range_mask(std::size_t start, std::size_t end) noexcept;
  * @return A reference to x
  */
 template<typename T>
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T&>::type
 set_lowest_zero_inplace(T& x) noexcept;
 
@@ -64,7 +64,7 @@ set_lowest_zero_inplace(T& x) noexcept;
  * @return A reference to x
  */
 template<typename T>
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T&>::type
 clear_lowest_one_inplace(T& x) noexcept;
 
@@ -83,7 +83,7 @@ clear_lowest_one_inplace(T& x) noexcept;
  * @return The mask
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 mask_trailing_zeros(T x) noexcept;
 
@@ -101,7 +101,7 @@ mask_trailing_zeros(T x) noexcept;
  * @return The mask
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 mask_trailing_ones(T x) noexcept;
 
@@ -120,7 +120,7 @@ mask_trailing_ones(T x) noexcept;
  * @return Input word rotated left
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 rotate_left(T x, int s) noexcept;
 
@@ -139,7 +139,7 @@ rotate_left(T x, int s) noexcept;
  * @return Input word rotated right
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 rotate_right(T x, int s) noexcept;
 
@@ -151,7 +151,7 @@ rotate_right(T x, int s) noexcept;
  * @return true when x has a single bit set, otherwise false
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 has_single_bit(T x) noexcept;
 
@@ -165,7 +165,7 @@ has_single_bit(T x) noexcept;
  * @return The result
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_floor(T x) noexcept;
 
@@ -177,7 +177,7 @@ bit_floor(T x) noexcept;
  * @return The result 
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_ceil(T x) noexcept;
 
@@ -189,7 +189,7 @@ bit_ceil(T x) noexcept;
  * @return The number of bits required to represent the input
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 bit_width(T x) noexcept;
 
@@ -201,7 +201,7 @@ bit_width(T x) noexcept;
  * @return The number of consecutive '0's in the input 
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_zeros(T x) noexcept;
 
@@ -213,7 +213,7 @@ count_leading_zeros(T x) noexcept;
  * @return The number of consecutive '1's in the input 
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_ones(T x) noexcept;
 
@@ -225,7 +225,7 @@ count_leading_ones(T x) noexcept;
  * @return The number of consecutive '0's in the input 
  */
 template<typename T>
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_zeros(T x) noexcept;
 
@@ -237,7 +237,7 @@ count_trailing_zeros(T x) noexcept;
  * @return The number of consecutive '1's in the input 
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_ones(T x) noexcept;
 
@@ -249,7 +249,7 @@ count_trailing_ones(T x) noexcept;
  * @return The number of '1's in the input 
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 popcount(T x) noexcept;
 
@@ -264,7 +264,7 @@ popcount(T x) noexcept;
  * @return The number of '1's in the input 
  */
 template<typename T>
-REX_NODISCARD REX_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 parity(T x) noexcept;
 

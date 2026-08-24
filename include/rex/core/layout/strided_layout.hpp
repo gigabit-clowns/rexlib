@@ -105,7 +105,7 @@ public:
 	 * @throws std::invalid_argument If not all subscripts are processed.
 	 * Or subscript is out of bounds
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout 
 	apply_subscripts(span<const dynamic_subscript> subscripts) const;
 
@@ -114,7 +114,7 @@ public:
 	 * 
 	 * @return strided_layout The resulting layout.
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout transpose() const;
 
 	/**
@@ -126,7 +126,7 @@ public:
 	 * @return strided_layout Permuted layout.
 	 * @throws std::invalid_argument If the permutation order is invalid.
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout permute(span<const std::size_t> order) const;
 
 	/**
@@ -137,7 +137,7 @@ public:
 	 * @return strided_layout Permuted layout.
 	 * @throws std::out_of_range If either axis1 or axis2 exceeds bounds.
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout matrix_transpose(
 		std::ptrdiff_t axis1 = -1, 
 		std::ptrdiff_t axis2 = -2
@@ -153,7 +153,7 @@ public:
 	 * @throws std::out_of_range If either axis1 or axis2 exceeds bounds.
 	 * @throws std::invalid_argument If axis1 and axis2 are equal.
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout matrix_diagonal(
 		std::ptrdiff_t axis1 = -1, 
 		std::ptrdiff_t axis2 = -2
@@ -164,7 +164,7 @@ public:
 	 * 
 	 * @return strided_layout The resulting layout.
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout squeeze() const;
 
 	/**
@@ -180,7 +180,7 @@ public:
 	 * @throws std::invalid_argument If the axes cannot be broadcasted to the 
 	 * provided extents.
 	 */
-	REX_NODISCARD REXLIB_API
+	REXLIB_NODISCARD REXLIB_API
 	strided_layout broadcast_to(span<const std::size_t> extents) const;
 
 	/**

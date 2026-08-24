@@ -17,11 +17,11 @@ namespace ops
  *
  * Named apart from the elementwise maximum, as amin is.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	amax,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_homogeneous_rule<
 		domain_difference<any_type_domain, complex_type_domain>

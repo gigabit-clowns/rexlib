@@ -4,8 +4,8 @@
 
 #include "cpp_features.hpp"
 
-#if REX_HAS_CONDITIONAL_EXPLICIT
-	#define REX_NO_EXPLICIT explicit(false)
+#if REXLIB_HAS_CONDITIONAL_EXPLICIT
+	#define REXLIB_NO_EXPLICIT explicit(false)
 #else
-	#define REX_NO_EXPLICIT
+	#define REXLIB_NO_EXPLICIT
 #endif

@@ -28,7 +28,7 @@ struct expm1_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	expm1,
 	ops::expm1_operation,
 	default_kernel_factory<expm1_kernel>

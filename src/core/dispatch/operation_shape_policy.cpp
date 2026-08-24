@@ -21,7 +21,7 @@ void operation_shape_policy::accept(
 	span<const shape_type> /*input_shapes*/
 ) const
 {
-	REX_ASSERT(user_output_shapes.size() == canonical_output_shapes.size());
+	REXLIB_ASSERT(user_output_shapes.size() == canonical_output_shapes.size());
 
 	for (std::size_t i = 0; i < user_output_shapes.size(); ++i)
 	{

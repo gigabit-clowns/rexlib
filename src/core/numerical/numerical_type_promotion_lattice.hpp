@@ -14,14 +14,14 @@ namespace rex
 class numerical_type_promotion_lattice
 {
 public:
-	REX_CONSTEXPR_CPP23
+	REXLIB_CONSTEXPR_CPP23
 	numerical_type_promotion_lattice() noexcept;
 
-	REX_CONSTEXPR_CPP23
+	REXLIB_CONSTEXPR_CPP23
 	numerical_type_promotion_lattice& 
 	add_edge(numerical_type from, numerical_type to) noexcept;
 
-	REX_CONSTEXPR_CPP23
+	REXLIB_CONSTEXPR_CPP23
 	numerical_type 
 	get_supremum(numerical_type a, numerical_type b) const noexcept;
 
@@ -34,7 +34,7 @@ private:
 		static_cast<std::size_t>(numerical_type::count)
 	> m_reach;
 
-	REX_CONSTEXPR_CPP23
+	REXLIB_CONSTEXPR_CPP23
 	bool is_supremum(const reach_set &common, std::size_t i) const noexcept;
 };
 

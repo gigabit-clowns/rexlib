@@ -19,11 +19,11 @@ namespace ops
  * the closest analogue of a sign the complex plane has, and keeps the
  * result in the operand type.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	sign,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<arithmetic_type_domain>
 );

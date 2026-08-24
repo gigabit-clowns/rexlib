@@ -60,7 +60,7 @@ public:
 	}
 
 private:
-	REX_NO_UNIQUE_ADDRESS F m_functor;
+	REXLIB_NO_UNIQUE_ADDRESS F m_functor;
 	linalg_core_layout_plan m_plan;
 };
 

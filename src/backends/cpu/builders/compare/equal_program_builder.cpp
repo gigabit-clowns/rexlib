@@ -27,7 +27,7 @@ struct equal_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	equal,
 	ops::equal_operation,
 	default_kernel_factory<equal_kernel>

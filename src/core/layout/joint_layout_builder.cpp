@@ -43,7 +43,7 @@ void broadcast_to(
 	span<const std::size_t> target_extents
 )
 {
-	REX_ASSERT( extents.size() == strides.size() );
+	REXLIB_ASSERT( extents.size() == strides.size() );
 
 	const auto n = target_extents.size();
 	if (extents.size() < n )
@@ -54,8 +54,8 @@ void broadcast_to(
 		strides.insert(strides.cbegin(), padding, 0UL);
 	}
 
-	REX_ASSERT( extents.size() == n );
-	REX_ASSERT( strides.size() == n );
+	REXLIB_ASSERT( extents.size() == n );
+	REXLIB_ASSERT( strides.size() == n );
 
 	for (std::size_t i = 0; i < n; ++i)
 	{
@@ -87,7 +87,7 @@ void create_or_add_operand(
 
 	}
 
-	REX_ASSERT( implementation );
+	REXLIB_ASSERT( implementation );
 	implementation->add_operand(std::move(strides), offset);
 }
 

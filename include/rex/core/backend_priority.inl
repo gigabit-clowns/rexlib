@@ -6,41 +6,41 @@
 namespace rex 
 {
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 bool operator<(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return static_cast<std::underlying_type<backend_priority>::type>(lhs) <
 		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;  
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 bool operator<=(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return static_cast<std::underlying_type<backend_priority>::type>(lhs) <=
 		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;  
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 bool operator>(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return rhs < lhs;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 bool operator>=(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return rhs <= lhs;
 }
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const char* to_string(backend_priority priority) noexcept
 {
 	switch (priority)
 	{
-	REX_ENUM_TO_STR_CASE(backend_priority, unsupported)
-	REX_ENUM_TO_STR_CASE(backend_priority, fallback)
-	REX_ENUM_TO_STR_CASE(backend_priority, normal)
-	REX_ENUM_TO_STR_CASE(backend_priority, optimal)
+	REXLIB_ENUM_TO_STR_CASE(backend_priority, unsupported)
+	REXLIB_ENUM_TO_STR_CASE(backend_priority, fallback)
+	REXLIB_ENUM_TO_STR_CASE(backend_priority, normal)
+	REXLIB_ENUM_TO_STR_CASE(backend_priority, optimal)
 	default: return "";
 	}
 }

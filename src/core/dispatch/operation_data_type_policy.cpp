@@ -20,7 +20,7 @@ void operation_data_type_policy::accept(
 	span<const numerical_type> /*input_types*/
 ) const
 {
-	REX_ASSERT(user_output_types.size() == canonical_output_types.size());
+	REXLIB_ASSERT(user_output_types.size() == canonical_output_types.size());
 
 	for (std::size_t i = 0; i < user_output_types.size(); ++i)
 	{

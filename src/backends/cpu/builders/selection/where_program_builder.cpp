@@ -32,7 +32,7 @@ struct where_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	where,
 	ops::where_operation,
 	default_kernel_factory<where_kernel>

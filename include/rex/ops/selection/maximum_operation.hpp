@@ -22,11 +22,11 @@ namespace ops
  * Complex operands are not admitted, there being no ordering to
  * select by.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	maximum,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<
 		domain_difference<any_type_domain, complex_type_domain>

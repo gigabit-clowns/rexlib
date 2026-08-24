@@ -28,7 +28,7 @@ struct sign_bit_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	sign_bit,
 	ops::sign_bit_operation,
 	default_kernel_factory<sign_bit_kernel>

@@ -33,7 +33,7 @@ struct maximum_order
 
 } // anonymous namespace
 
-REX_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
 	argmax,
 	ops::argmax_operation,
 	default_kernel_factory<extremum_locator_kernel<maximum_order>>

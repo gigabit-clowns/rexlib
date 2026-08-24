@@ -9,7 +9,7 @@
 namespace rex
 {
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const char* to_string(example_flag_bits ex) noexcept
 {
     switch (ex)

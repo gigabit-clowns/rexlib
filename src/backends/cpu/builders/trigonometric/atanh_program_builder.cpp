@@ -29,7 +29,7 @@ struct atanh_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	atanh,
 	ops::atanh_operation,
 	default_kernel_factory<atanh_kernel>

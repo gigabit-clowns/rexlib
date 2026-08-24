@@ -4,13 +4,13 @@
 
 #include "cpp_features.hpp"
 
-#if REX_HAS_LIB_EXECUTION
+#if REXLIB_HAS_LIB_EXECUTION
 	#include <execution>
-	#define REX_SEQ std::execution::seq,
-	#define REX_PAR std::execution::par,
-	#define REX_PAR_UNSEQ std::execution::par_unseq,
+	#define REXLIB_SEQ std::execution::seq,
+	#define REXLIB_PAR std::execution::par,
+	#define REXLIB_PAR_UNSEQ std::execution::par_unseq,
 #else
-	#define REX_SEQ
-	#define REX_PAR
-	#define REX_PAR_UNSEQ
+	#define REXLIB_SEQ
+	#define REXLIB_PAR
+	#define REXLIB_PAR_UNSEQ
 #endif

@@ -29,7 +29,7 @@ struct log10_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	log10,
 	ops::log10_operation,
 	default_kernel_factory<log10_kernel>

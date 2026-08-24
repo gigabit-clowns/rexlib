@@ -45,9 +45,9 @@ std::string dynamic_library_symbol_filename_lookup(const void* symbol);
 
 } // namespace rex
 
-#if REX_POSIX
+#if REXLIB_POSIX
 	#include "dynamic_library_handle_posix.inl"
-#elif REX_WINDOWS
+#elif REXLIB_WINDOWS
 	#include "dynamic_library_handle_windows.inl"
 #else
 	#error "No dynamic library_handle implementation available for this platform"

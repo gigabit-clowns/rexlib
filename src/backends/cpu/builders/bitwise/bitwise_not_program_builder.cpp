@@ -30,7 +30,7 @@ struct bitwise_not_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	bitwise_not,
 	ops::bitwise_not_operation,
 	default_kernel_factory<bitwise_not_kernel>

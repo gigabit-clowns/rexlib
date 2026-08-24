@@ -31,7 +31,7 @@ namespace cpu
  * share this builder; @p ShiftPolicy supplies that one difference.
  *
  * @tparam Op The operation type, declared through
- * REX_DECLARE_PARAMETRIC_OPERATION with an axiswise_operation_shape_policy.
+ * REXLIB_DECLARE_PARAMETRIC_OPERATION with an axiswise_operation_shape_policy.
  * @tparam ShiftPolicy Provides
  * `static std::size_t shift_amount(std::size_t extent) noexcept`, the
  * distance an axis of that extent is cyclically shifted by.
@@ -101,8 +101,8 @@ public:
  * @param op The operation type.
  * @param shift_policy The shift policy type.
  */
-#define REX_REGISTER_ROLL_PROGRAM_BUILDER(name, op, shift_policy) \
-	REX_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(name, op, shift_policy) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
 		::rex::cpu::roll_program_builder<op, shift_policy> \
 	)

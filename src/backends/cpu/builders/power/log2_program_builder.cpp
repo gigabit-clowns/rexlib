@@ -28,7 +28,7 @@ struct log2_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	log2,
 	ops::log2_operation,
 	default_kernel_factory<log2_kernel>

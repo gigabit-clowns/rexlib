@@ -30,7 +30,7 @@ struct bitwise_or_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	bitwise_or,
 	ops::bitwise_or_operation,
 	default_kernel_factory<bitwise_or_kernel>

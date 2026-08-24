@@ -30,7 +30,7 @@ struct less_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	less,
 	ops::less_operation,
 	default_kernel_factory<less_kernel>

@@ -26,7 +26,7 @@ struct maximum_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	maximum,
 	ops::maximum_operation,
 	default_kernel_factory<maximum_kernel>

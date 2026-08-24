@@ -30,7 +30,7 @@ struct bitwise_xor_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	bitwise_xor,
 	ops::bitwise_xor_operation,
 	default_kernel_factory<bitwise_xor_kernel>

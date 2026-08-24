@@ -6,16 +6,16 @@
 namespace rex 
 {
 
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const char* to_string(joint_layout_build_flag_bits x) noexcept
 {
 	switch (x)
 	{
-	REX_ENUM_TO_STR_CASE(
+	REXLIB_ENUM_TO_STR_CASE(
 		joint_layout_build_flag_bits, 
 		enable_reordering
 	)
-	REX_ENUM_TO_STR_CASE(
+	REXLIB_ENUM_TO_STR_CASE(
 		joint_layout_build_flag_bits, 
 		enable_coalescing
 	)

@@ -5,7 +5,7 @@
 #include "c_features.h"
 #include "cpp_version.hpp"
 
-#if REX_HAS_CPP20
+#if REXLIB_HAS_CPP20
 # include <version>
 #endif
 
@@ -16,29 +16,29 @@
  * @see https://en.cppreference.com/w/cpp/feature_test
  * 
  */
-#define REX_HAS_CPP_FEATURE(feature, version) \
+#define REXLIB_HAS_CPP_FEATURE(feature, version) \
 	((__cpp_##feature >= version) || \
-	(REX_HAS_C_FEATURE(cxx_##feature) && REX_CPLUSPLUS >= version))
+	(REXLIB_HAS_C_FEATURE(cxx_##feature) && REXLIB_CPLUSPLUS >= version))
 
 /**
- * @def REX_HAS_CONSTEXPR 
+ * @def REXLIB_HAS_CONSTEXPR 
  * @brief Tests if constexpr is supported by the compiler
  * 
  */
-#if REX_HAS_CPP_FEATURE(constexpr, 200704L)
-#	define REX_HAS_CONSTEXPR 1
-#elif REX_HAS_CPP11 && defined(_MSC_VER)
+#if REXLIB_HAS_CPP_FEATURE(constexpr, 200704L)
+#	define REXLIB_HAS_CONSTEXPR 1
+#elif REXLIB_HAS_CPP11 && defined(_MSC_VER)
 #	if _MSC_VER >= 1900
-#		define REX_HAS_CONSTEXPR 1
+#		define REXLIB_HAS_CONSTEXPR 1
 #	else
-#		define REX_HAS_CONSTEXPR 0
+#		define REXLIB_HAS_CONSTEXPR 0
 #	endif
 #else
-#	define REX_HAS_CONSTEXPR 0
+#	define REXLIB_HAS_CONSTEXPR 0
 #endif
 
-#define REX_HAS_IF_CONSTEXPR REX_HAS_CPP_FEATURE(if_constexpr, 201606L)
-#define REX_HAS_LIB_BITOPS REX_HAS_CPP_FEATURE(lib_bitops, 201907)
-#define REX_HAS_LIB_POW2 REX_HAS_CPP_FEATURE(lib_pow2, 202002)
-#define REX_HAS_LIB_EXECUTION REX_HAS_CPP_FEATURE(lib_execution, 201603)
-#define REX_HAS_CONDITIONAL_EXPLICIT REX_HAS_CPP_FEATURE(conditional_explicit, 201806L)
+#define REXLIB_HAS_IF_CONSTEXPR REXLIB_HAS_CPP_FEATURE(if_constexpr, 201606L)
+#define REXLIB_HAS_LIB_BITOPS REXLIB_HAS_CPP_FEATURE(lib_bitops, 201907)
+#define REXLIB_HAS_LIB_POW2 REXLIB_HAS_CPP_FEATURE(lib_pow2, 202002)
+#define REXLIB_HAS_LIB_EXECUTION REXLIB_HAS_CPP_FEATURE(lib_execution, 201603)
+#define REXLIB_HAS_CONDITIONAL_EXPLICIT REXLIB_HAS_CPP_FEATURE(conditional_explicit, 201806L)

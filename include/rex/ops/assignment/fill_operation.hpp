@@ -14,11 +14,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	fill,
 	ops_component,
-	REX_OPERANDS("destination"),
-	REX_OPERANDS(),
+	REXLIB_OPERANDS("destination"),
+	REXLIB_OPERANDS(),
 	elementwise_operation_shape_policy,
 	nullary_free_rule<>
 );
@@ -29,7 +29,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * With no input to fix it, the element type is the one the destination
  * already carries.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API fill_operation final
 	: public trivial_operation<fill_operation, fill_operation_traits>
 {
@@ -49,10 +49,10 @@ public:
 	const scalar_value& get_fill_value() const noexcept;
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	scalar_value m_fill_value;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

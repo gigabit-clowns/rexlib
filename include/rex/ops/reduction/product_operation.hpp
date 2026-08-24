@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Multiply the elements along the reduced axes.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	product,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_homogeneous_rule<>
 );

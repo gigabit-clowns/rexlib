@@ -18,11 +18,11 @@ namespace ops
  * Accurate for operands close to zero, where computing the exponential
  * and subtracting one loses the significant digits.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	expm1,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<floating_point_type_domain>
 );

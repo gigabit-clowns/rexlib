@@ -3,15 +3,15 @@
 #include <rex/core/system/host.hpp>
 #include <rex/core/platform/operating_system.h>
 
-#if REX_LINUX
+#if REXLIB_LINUX
 	#include <unistd.h>
 	#include <sys/sysinfo.h>
-#elif REX_APPLE
+#elif REXLIB_APPLE
 	#include <unistd.h>
 	#include <sys/types.h>
 	#include <sys/sysctl.h>
 	#include <mach/mach.h>
-#elif REX_WINDOWS
+#elif REXLIB_WINDOWS
 	#include <windows.h>
 	#include <Winsock.h>
 	#include <WinBase.h>
@@ -27,9 +27,9 @@ std::string get_hostname()
 {
 	std::array<char, 512> hostname = {};
 
-	#if REX_POSIX
+	#if REXLIB_POSIX
 		gethostname(hostname.data(), hostname.size());
-	#elif REX_WINDOWS
+	#elif REXLIB_WINDOWS
 		gethostname(hostname.data(), static_cast<int>(hostname.size()));
 	#else
 		#pragma message ("Cannot determine hostname for this platform")
@@ -41,12 +41,12 @@ std::string get_hostname()
 
 std::size_t get_total_system_memory()
 {
-	#if REX_LINUX
+	#if REXLIB_LINUX
 		struct sysinfo info;
 		sysinfo(&info);
 		return info.totalram * info.mem_unit;
 
-	#elif REX_APPLE
+	#elif REXLIB_APPLE
 		int mib[2] = { CTL_HW, HW_MEMSIZE };
 		int64_t total_memory;
 		size_t length = sizeof(total_memory);
@@ -58,7 +58,7 @@ std::size_t get_total_system_memory()
 
 		return total_memory;
 
-	#elif REX_WINDOWS
+	#elif REXLIB_WINDOWS
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(status);
 		GlobalMemoryStatusEx(&status);
@@ -72,12 +72,12 @@ std::size_t get_total_system_memory()
 
 std::size_t get_available_system_memory()
 {
-	#if REX_LINUX
+	#if REXLIB_LINUX
 		struct sysinfo info;
 		sysinfo(&info);
 		return info.freeram * info.mem_unit;
 
-	#elif REX_APPLE
+	#elif REXLIB_APPLE
 		// Get free and inactive memory using mach API
 		vm_statistics64_data_t vm_info;
 		mach_msg_type_number_t info_count = HOST_VM_INFO64_COUNT;
@@ -98,7 +98,7 @@ std::size_t get_available_system_memory()
 		const auto inactive_memory = vm_info.inactive_count * page_size;
 		return free_memory + inactive_memory; // Available memory in bytes
 
-	#elif REX_WINDOWS
+	#elif REXLIB_WINDOWS
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(status);
 		GlobalMemoryStatusEx(&status);
@@ -112,9 +112,9 @@ std::size_t get_available_system_memory()
 
 std::size_t get_page_size()
 {
-	#if REX_POSIX
+	#if REXLIB_POSIX
 		return sysconf(_SC_PAGESIZE);
-	#elif REX_WINDOWS
+	#elif REXLIB_WINDOWS
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
 		return si.dwPageSize;

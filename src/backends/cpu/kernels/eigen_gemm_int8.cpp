@@ -9,7 +9,7 @@ namespace rex
 namespace cpu
 {
 
-REX_INSTANTIATE_EIGEN_GEMM(std::int8_t);
+REXLIB_INSTANTIATE_EIGEN_GEMM(std::int8_t);
 
 } // namespace cpu
 } // namespace rex

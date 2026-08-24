@@ -7,7 +7,7 @@ namespace rex
 namespace cpu
 {
 
-REX_INSTANTIATE_EIGEN_GEMM(float64_t);
+REXLIB_INSTANTIATE_EIGEN_GEMM(float64_t);
 
 } // namespace cpu
 } // namespace rex

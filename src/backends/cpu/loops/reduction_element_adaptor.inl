@@ -131,7 +131,7 @@ void reduction_element_adaptor<Kernel>::combine_run(
 	std::index_sequence<Is...> input_indices
 ) const
 {
-	REX_CONST_CONSTEXPR std::size_t lanes =
+	REXLIB_CONST_CONSTEXPR std::size_t lanes =
 		reduction_fold_lane_count<type_list<Accumulators...>>::value;
 
 	// A run with less than one element per lane twice over has nothing to
@@ -239,12 +239,12 @@ void reduction_element_adaptor<Kernel>::combine_strip(
 	std::size_t position
 ) const
 {
-	REX_CONST_CONSTEXPR std::size_t block =
+	REXLIB_CONST_CONSTEXPR std::size_t block =
 		reduction_strip_block_size<type_list<Accumulators...>>::value;
 
-	REX_CONST_CONSTEXPR std::integral_constant<std::size_t, block> tag {};
-	REX_CONST_CONSTEXPR std::index_sequence_for<Accumulators...> as {};
-	REX_CONST_CONSTEXPR std::index_sequence_for<Ins...> is {};
+	REXLIB_CONST_CONSTEXPR std::integral_constant<std::size_t, block> tag {};
+	REXLIB_CONST_CONSTEXPR std::index_sequence_for<Accumulators...> as {};
+	REXLIB_CONST_CONSTEXPR std::index_sequence_for<Ins...> is {};
 
 	// Over a run this short the walk down the reduced axis that a block reads
 	// never gets going, and costs more than holding the accumulators saves.

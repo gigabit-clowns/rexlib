@@ -28,7 +28,7 @@ struct cbrt_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	cbrt,
 	ops::cbrt_operation,
 	default_kernel_factory<cbrt_kernel>

@@ -96,7 +96,7 @@ struct sign_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	sign,
 	ops::sign_operation,
 	default_kernel_factory<sign_kernel>

@@ -74,7 +74,7 @@ public:
 	) const override;
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	axis_list_type m_axes;
 	bool m_keep_dimensions;
 };

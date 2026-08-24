@@ -15,11 +15,11 @@ namespace ops
 /**
  * @brief Convert each element of the input array to radians.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	radians,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("degrees"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("degrees"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<floating_point_type_domain>
 );

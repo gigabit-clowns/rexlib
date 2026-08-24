@@ -18,7 +18,7 @@
  * @param ... The builder type. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define REX_REGISTER_CPU_PROGRAM_BUILDER(name, ...) \
+#define REXLIB_REGISTER_CPU_PROGRAM_BUILDER(name, ...) \
 	static const ::rex::program_builder_registration<__VA_ARGS__> \
 	name##_program_builder_registration( \
 		::rex::get_core_program_builder_registry() \

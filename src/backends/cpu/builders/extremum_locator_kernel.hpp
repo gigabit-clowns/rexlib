@@ -125,7 +125,7 @@ public:
 	}
 
 private:
-	REX_NO_UNIQUE_ADDRESS Order m_order;
+	REXLIB_NO_UNIQUE_ADDRESS Order m_order;
 };
 
 } // namespace cpu

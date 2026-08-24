@@ -19,11 +19,11 @@ namespace ops
  * so computing them together is markedly cheaper than computing
  * them apart. Rotations and projections need both.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	sincos,
 	ops_component,
-	REX_OPERANDS("sine", "cosine"),
-	REX_OPERANDS("angle"),
+	REXLIB_OPERANDS("sine", "cosine"),
+	REXLIB_OPERANDS("angle"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_pair_rule<>
 );

@@ -18,11 +18,11 @@ namespace ops
  * An element counts as true when it is non zero, so any type is
  * admitted and the result is boolean whatever it was.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	all,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_predicate_rule<>
 );

@@ -10,8 +10,8 @@
 // proportionally shorter tile and the footprint stays the same. Half of a
 // typical first level data cache, leaving the other half to the input
 // streaming past.
-#ifndef REX_REDUCTION_TILE_BUDGET
-	#define REX_REDUCTION_TILE_BUDGET 16384UL
+#ifndef REXLIB_REDUCTION_TILE_BUDGET
+	#define REXLIB_REDUCTION_TILE_BUDGET 16384UL
 #endif
 
 // Every worker of a threaded reduction holds a tile of its own, on its own
@@ -22,12 +22,12 @@
 // Bounds on the resulting tile. A tile shorter than the minimum stops the
 // input reads from streaming, whatever the accumulators cost; one longer than
 // the maximum stops fitting.
-#ifndef REX_MINIMUM_REDUCTION_TILE_SIZE
-	#define REX_MINIMUM_REDUCTION_TILE_SIZE 64UL
+#ifndef REXLIB_MINIMUM_REDUCTION_TILE_SIZE
+	#define REXLIB_MINIMUM_REDUCTION_TILE_SIZE 64UL
 #endif
 
-#ifndef REX_MAXIMUM_REDUCTION_TILE_SIZE
-	#define REX_MAXIMUM_REDUCTION_TILE_SIZE 4096UL
+#ifndef REXLIB_MAXIMUM_REDUCTION_TILE_SIZE
+	#define REXLIB_MAXIMUM_REDUCTION_TILE_SIZE 4096UL
 #endif
 
 // Budget in bytes for the sub-accumulators one run is folded into at a time,
@@ -40,20 +40,20 @@
 // are what break it: the run is dealt out over several sub-accumulators and
 // they are merged once at the end. Only a kernel that says its fold may be
 // reassociated is folded this way; see has_reassociable_fold.
-#ifndef REX_REDUCTION_FOLD_LANE_BUDGET
-	#define REX_REDUCTION_FOLD_LANE_BUDGET 256UL
+#ifndef REXLIB_REDUCTION_FOLD_LANE_BUDGET
+	#define REXLIB_REDUCTION_FOLD_LANE_BUDGET 256UL
 #endif
 
 // Bounds on the resulting lane count. The maximum is where the measurement
 // above stops improving; past it the seeding and the merge cost more than
 // the extra independence buys. The minimum keeps the arithmetic meaningful
 // for a kernel whose accumulators exceed the budget on their own.
-#ifndef REX_MAXIMUM_REDUCTION_FOLD_LANES
-	#define REX_MAXIMUM_REDUCTION_FOLD_LANES 16UL
+#ifndef REXLIB_MAXIMUM_REDUCTION_FOLD_LANES
+	#define REXLIB_MAXIMUM_REDUCTION_FOLD_LANES 16UL
 #endif
 
-#ifndef REX_MINIMUM_REDUCTION_FOLD_LANES
-	#define REX_MINIMUM_REDUCTION_FOLD_LANES 2UL
+#ifndef REXLIB_MINIMUM_REDUCTION_FOLD_LANES
+	#define REXLIB_MINIMUM_REDUCTION_FOLD_LANES 2UL
 #endif
 
 // Budget in bytes for the accumulators one strip block holds, read the same
@@ -67,16 +67,16 @@
 //
 // At the default this is a handful of vector registers, which is what the
 // same arrangement in PyTorch's vectorized_outer_sum reserves.
-#ifndef REX_REDUCTION_STRIP_BLOCK_BUDGET
-	#define REX_REDUCTION_STRIP_BLOCK_BUDGET 128UL
+#ifndef REXLIB_REDUCTION_STRIP_BLOCK_BUDGET
+	#define REXLIB_REDUCTION_STRIP_BLOCK_BUDGET 128UL
 #endif
 
-#ifndef REX_MAXIMUM_REDUCTION_STRIP_BLOCK
-	#define REX_MAXIMUM_REDUCTION_STRIP_BLOCK 32UL
+#ifndef REXLIB_MAXIMUM_REDUCTION_STRIP_BLOCK
+	#define REXLIB_MAXIMUM_REDUCTION_STRIP_BLOCK 32UL
 #endif
 
-#ifndef REX_MINIMUM_REDUCTION_STRIP_BLOCK
-	#define REX_MINIMUM_REDUCTION_STRIP_BLOCK 4UL
+#ifndef REXLIB_MINIMUM_REDUCTION_STRIP_BLOCK
+	#define REXLIB_MINIMUM_REDUCTION_STRIP_BLOCK 4UL
 #endif
 
 // The shortest run worth folding a block at a time.
@@ -86,8 +86,8 @@
 // it costs is the read of the input, which becomes a walk of a block's width
 // down the reduced axis rather than one stretch of the strip. Over a short
 // run that walk never gets going, and the block loses more than it saves.
-#ifndef REX_MINIMUM_REDUCTION_STRIP_BLOCK_RUN
-	#define REX_MINIMUM_REDUCTION_STRIP_BLOCK_RUN 16UL
+#ifndef REXLIB_MINIMUM_REDUCTION_STRIP_BLOCK_RUN
+	#define REXLIB_MINIMUM_REDUCTION_STRIP_BLOCK_RUN 16UL
 #endif
 
 // How much of the input one pass over the blocks of a strip may span, in
@@ -102,8 +102,8 @@
 //
 // Half of a small second level cache, so that a machine with less than this
 // one degrades rather than thrashes.
-#ifndef REX_REDUCTION_STRIP_PASS_BUDGET
-	#define REX_REDUCTION_STRIP_PASS_BUDGET 262144UL
+#ifndef REXLIB_REDUCTION_STRIP_PASS_BUDGET
+	#define REXLIB_REDUCTION_STRIP_PASS_BUDGET 262144UL
 #endif
 
 // pocketfft re-derives the twiddle factors of a transform every time it is
@@ -111,8 +111,8 @@
 // once and run many times, so without this every run would pay for a plan it
 // had already made. The cache is a bounded, mutex guarded set of function
 // local statics inside pocketfft itself.
-#ifndef REX_POCKETFFT_CACHE_SIZE
-	#define REX_POCKETFFT_CACHE_SIZE 16UL
+#ifndef REXLIB_POCKETFFT_CACHE_SIZE
+	#define REXLIB_POCKETFFT_CACHE_SIZE 16UL
 #endif
 
 // How much elementwise work a thread has to be given for waking it to pay for
@@ -126,8 +126,8 @@
 // element costs a whole matrix product. See grain_for_cost.
 //
 // This is the default. It may be overridden at run time through the
-// REX_PARALLEL_GRAIN_SIZE environment variable, which is what lets a test
+// REXLIB_PARALLEL_GRAIN_SIZE environment variable, which is what lets a test
 // suite of small operands reach the threaded paths at all.
-#ifndef REX_PARALLEL_GRAIN_SIZE
-	#define REX_PARALLEL_GRAIN_SIZE 32768UL
+#ifndef REXLIB_PARALLEL_GRAIN_SIZE
+	#define REXLIB_PARALLEL_GRAIN_SIZE 32768UL
 #endif

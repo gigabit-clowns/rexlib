@@ -25,7 +25,7 @@ struct divide_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	divide,
 	ops::divide_operation,
 	default_kernel_factory<divide_kernel>

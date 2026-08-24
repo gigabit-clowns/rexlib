@@ -30,7 +30,7 @@ struct greater_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	greater,
 	ops::greater_operation,
 	default_kernel_factory<greater_kernel>

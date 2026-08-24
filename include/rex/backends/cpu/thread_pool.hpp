@@ -122,7 +122,7 @@ public:
 	 * thread that asked for it is one of them, so this is one fewer than that.
 	 *
 	 * The number may be capped from the environment, through
-	 * REX_NUM_THREADS. The machine is a run time property, so a compile
+	 * REXLIB_NUM_THREADS. The machine is a run time property, so a compile
 	 * time knob could not answer this: a user under a batch scheduler or
 	 * inside a process pool needs to cap the library from outside it, which
 	 * is what every peer library offers a variable for. A value of one means
@@ -134,7 +134,7 @@ public:
 	static std::size_t get_default_worker_count();
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	std::unique_ptr<thread_pool_implementation> m_implementation;
 };
 

@@ -28,7 +28,7 @@ struct hypot_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	hypot,
 	ops::hypot_operation,
 	default_kernel_factory<hypot_kernel>

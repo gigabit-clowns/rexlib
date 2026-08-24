@@ -30,7 +30,7 @@ struct add_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	add,
 	ops::add_operation,
 	default_kernel_factory<add_kernel>

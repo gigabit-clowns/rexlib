@@ -17,11 +17,11 @@ namespace ops
  *
  * Every type but boolean is admitted, division not being defined on it.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	divide,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("dividend", "divisor"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("dividend", "divisor"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<
 		domain_difference<any_type_domain, boolean_type_domain>

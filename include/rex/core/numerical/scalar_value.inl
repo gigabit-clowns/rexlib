@@ -98,7 +98,7 @@ scalar_value_cast_impl(const Q &value)
 }
 
 template <typename T, typename Q>
-REX_NORETURN
+REXLIB_NORETURN
 inline
 typename std::enable_if<!std::is_constructible<T, Q>::value, T>::type
 scalar_value_cast_impl(const Q&)

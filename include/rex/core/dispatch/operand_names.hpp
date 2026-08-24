@@ -26,7 +26,7 @@ namespace rex
 template <std::size_t N>
 struct operand_names
 {
-	static REX_CONST_CONSTEXPR std::size_t count = N;
+	static REXLIB_CONST_CONSTEXPR std::size_t count = N;
 
 	std::array<const char*, N> values;
 
@@ -48,7 +48,7 @@ struct operand_names
  * @return operand_names<sizeof...(Names)> The name list.
  */
 template <typename... Names>
-REX_CONSTEXPR
+REXLIB_CONSTEXPR
 operand_names<sizeof...(Names)> make_operand_names(Names... names) noexcept
 {
 	return operand_names<sizeof...(Names)>{ { names... } };

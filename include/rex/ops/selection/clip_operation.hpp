@@ -21,11 +21,11 @@ namespace ops
  * Complex operands are not admitted, there being no ordering to
  * clamp against.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	clip,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value", "lower", "upper"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value", "lower", "upper"),
 	elementwise_operation_shape_policy,
 	ternary_homogeneous_rule<
 		domain_difference<any_type_domain, complex_type_domain>

@@ -135,8 +135,8 @@ public:
  * @param op The operation type.
  * @param transform The transform to perform.
  */
-#define REX_REGISTER_FOURIER_PROGRAM_BUILDER(name, op, transform) \
-	REX_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(name, op, transform) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
 		::rex::cpu::fourier_program_builder<op, transform> \
 	)
@@ -153,10 +153,10 @@ public:
  * @param ... The type dispatcher. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define REX_REGISTER_FOURIER_PROGRAM_BUILDER_EX( \
+#define REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER_EX( \
 	name, op, transform, ... \
 ) \
-	REX_REGISTER_CPU_PROGRAM_BUILDER( \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
 		::rex::cpu::fourier_program_builder< \
 			op, transform, __VA_ARGS__ \

@@ -59,7 +59,7 @@ struct arange_kernel_factory
 
 } // anonymous namespace
 
-REX_REGISTER_SEQUENCE_PROGRAM_BUILDER(
+REXLIB_REGISTER_SEQUENCE_PROGRAM_BUILDER(
 	arange,
 	ops::arange_operation,
 	arange_kernel_factory

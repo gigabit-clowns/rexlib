@@ -32,7 +32,7 @@ struct copysign_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	copysign,
 	ops::copysign_operation,
 	default_kernel_factory<copysign_kernel>

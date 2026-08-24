@@ -72,7 +72,7 @@ void run_elementwise_outer_loop_impl(
 		}
 
 		run = layout.next(ite, count);
-		REX_ASSERT( run > 0 ); // end was past the end of the layout.
+		REXLIB_ASSERT( run > 0 ); // end was past the end of the layout.
 	}
 }
 

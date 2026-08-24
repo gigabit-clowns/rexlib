@@ -18,11 +18,11 @@ namespace ops
  * Computed without the intermediate overflow that squaring the
  * operands would cause.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	hypot,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<floating_point_type_domain>
 );

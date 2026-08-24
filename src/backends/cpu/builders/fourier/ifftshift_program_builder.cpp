@@ -28,7 +28,7 @@ struct ifftshift_shift_policy
 
 } // anonymous namespace
 
-REX_REGISTER_ROLL_PROGRAM_BUILDER(
+REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(
 	ifftshift,
 	ops::ifftshift_operation,
 	ifftshift_shift_policy

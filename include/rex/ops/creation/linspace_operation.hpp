@@ -16,11 +16,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	linspace,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS(),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS(),
 	sequence_operation_shape_policy,
 	nullary_free_rule<inexact_type_domain>
 );
@@ -44,7 +44,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * integers. Complex samples are admitted: a segment of the complex plane is
  * as well defined as one of the real line.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API linspace_operation final
 	: public parametric_operation<linspace_operation, linspace_operation_traits>
 {
@@ -95,13 +95,13 @@ public:
 	bool get_endpoint() const noexcept;
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	scalar_value m_start;
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	scalar_value m_stop;
 	bool m_endpoint;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

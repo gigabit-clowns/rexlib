@@ -88,14 +88,14 @@ public:
 	) const override;
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	span<const pivot_descriptor> m_pivots;
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	span<const slot_descriptor> m_output_slots;
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	span<const slot_descriptor> m_input_slots;
 
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	std::array<numerical_type, max_operand_type_pivot_count>
 		m_operation_pivots;
 	std::size_t m_operation_pivot_count;

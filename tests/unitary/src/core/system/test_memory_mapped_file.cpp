@@ -55,7 +55,7 @@ static bool check_test_pattern2(const char* data, std::size_t count)
 TEST_CASE( "memory map a file for reading and writing", "[memory_mapped_file]" ) 
 {
 	const std::string path = "memory_mapped_file.txt";
-	REX_CONST_CONSTEXPR std::size_t n = 1 << 20; // 1 MiB
+	REXLIB_CONST_CONSTEXPR std::size_t n = 1 << 20; // 1 MiB
 	write_test_pattern1(path, n);
 
 	SECTION ("Read first few bytes")

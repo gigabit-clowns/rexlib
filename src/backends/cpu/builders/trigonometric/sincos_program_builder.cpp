@@ -36,7 +36,7 @@ struct sincos_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	sincos,
 	ops::sincos_operation,
 	default_kernel_factory<sincos_kernel>

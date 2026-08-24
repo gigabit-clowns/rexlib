@@ -19,11 +19,11 @@ namespace ops
  * namespace whatever directory they live in, and because min is a macro
  * in windows.h.
  */
-REX_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	amin,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	reduction_operation_shape_policy,
 	unary_homogeneous_rule<
 		domain_difference<any_type_domain, complex_type_domain>

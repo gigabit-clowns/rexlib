@@ -10,24 +10,24 @@
 namespace rex
 {
 
-REX_INLINE_CONSTEXPR byte_order 
+REXLIB_INLINE_CONSTEXPR byte_order 
 get_system_byte_order() noexcept
 {
-	#if REX_BYTE_ORDER == REX_BYTE_ORDER_LITTLE_ENDIAN
+	#if REXLIB_BYTE_ORDER == REXLIB_BYTE_ORDER_LITTLE_ENDIAN
 		return byte_order::little_endian;
-	#elif REX_BYTE_ORDER == REX_BYTE_ORDER_BIG_ENDIAN
+	#elif REXLIB_BYTE_ORDER == REXLIB_BYTE_ORDER_BIG_ENDIAN
 		return byte_order::big_endian;
 	#else
 		#error "Unknown byte ordering"
 	#endif
 }
 
-REX_INLINE_CONSTEXPR byte_order 
+REXLIB_INLINE_CONSTEXPR byte_order 
 get_fpu_byte_order() noexcept
 {
-	#if REX_FLOAT_BYTE_ORDER == REX_BYTE_ORDER_LITTLE_ENDIAN
+	#if REXLIB_FLOAT_BYTE_ORDER == REXLIB_BYTE_ORDER_LITTLE_ENDIAN
 		return byte_order::little_endian;
-	#elif REX_FLOAT_BYTE_ORDER == REX_BYTE_ORDER_BIG_ENDIAN
+	#elif REXLIB_FLOAT_BYTE_ORDER == REXLIB_BYTE_ORDER_BIG_ENDIAN
 		return byte_order::big_endian;
 	#else
 		#error "Unknown byte ordering"
@@ -38,7 +38,7 @@ namespace detail
 {
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, uint8_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
@@ -46,7 +46,7 @@ reverse_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, int8_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
@@ -54,19 +54,19 @@ reverse_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, uint16_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
-	#if REX_HAS_BUILTIN(bswap16)
-		return REX_BUILTIN(bswap16)(x); 
+	#if REXLIB_HAS_BUILTIN(bswap16)
+		return REXLIB_BUILTIN(bswap16)(x); 
 	#else
 		return (x << 8) | (x >> 8) ;
 	#endif
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, int16_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
@@ -74,19 +74,19 @@ reverse_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, uint32_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
-	#if REX_HAS_BUILTIN(bswap32)
-		return REX_BUILTIN(bswap32)(x); 
+	#if REXLIB_HAS_BUILTIN(bswap32)
+		return REXLIB_BUILTIN(bswap32)(x); 
 	#else
 		return (x>>24) | ((x<<8) & 0x00FF0000) | ((x>>8) & 0x0000FF00) | (x<<24);
 	#endif
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, int32_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
@@ -94,12 +94,12 @@ reverse_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, uint64_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
-	#if REX_HAS_BUILTIN(bswap64)
-		return REX_BUILTIN(bswap64)(x); 
+	#if REXLIB_HAS_BUILTIN(bswap64)
+		return REXLIB_BUILTIN(bswap64)(x); 
 	#else
 		return 
 			(x>>56) |
@@ -114,7 +114,7 @@ reverse_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_same<T, int64_t>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
@@ -124,7 +124,7 @@ reverse_byte_order(T x) noexcept
 } // namespace detail
 
 template<typename T>
-REX_NODISCARD REX_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_integral<T>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
@@ -132,13 +132,13 @@ reverse_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR T& reverse_byte_order_inplace(T& x) noexcept
+REXLIB_INLINE_CONSTEXPR T& reverse_byte_order_inplace(T& x) noexcept
 {
 	return x = reverse_byte_order(x);
 }
 
 template<byte_order From, byte_order To, typename T>
-REX_NODISCARD REX_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_integral<T>::value, T>::type
 convert_byte_order(T x) noexcept
 {
@@ -146,7 +146,7 @@ convert_byte_order(T x) noexcept
 }
 
 template<typename T>
-REX_NODISCARD REX_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_integral<T>::value, T>::type
 convert_byte_order(T x, byte_order from, byte_order to) noexcept
 {
@@ -155,7 +155,7 @@ convert_byte_order(T x, byte_order from, byte_order to) noexcept
 }
 
 template<byte_order From, byte_order To, typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_integral<T>::value, T&>::type
 convert_byte_order_inplace(T& x) noexcept
 {
@@ -163,7 +163,7 @@ convert_byte_order_inplace(T& x) noexcept
 }
 
 template<typename T>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename std::enable_if<std::is_integral<T>::value, T&>::type
 convert_byte_order_inplace(T& x, byte_order from, byte_order to) noexcept
 {

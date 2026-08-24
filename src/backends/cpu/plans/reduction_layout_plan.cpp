@@ -220,7 +220,7 @@ reduction_layout_plan::reduction_layout_plan(
 	// Merging adjacent axes leaves the order of the positions untouched;
 	// sorting them for locality does not, so an ordered traversal keeps only
 	// the former.
-	REX_CONST_CONSTEXPR joint_layout_build_flags ordered_flags = {
+	REXLIB_CONST_CONSTEXPR joint_layout_build_flags ordered_flags = {
 		joint_layout_build_flag_bits::enable_coalescing
 	};
 

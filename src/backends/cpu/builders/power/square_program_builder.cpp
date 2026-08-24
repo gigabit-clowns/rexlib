@@ -30,7 +30,7 @@ struct square_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	square,
 	ops::square_operation,
 	default_kernel_factory<square_kernel>

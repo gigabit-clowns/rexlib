@@ -21,7 +21,7 @@ enum class example_enum
     third,
 };
 
-REX_CONSTEXPR const char* to_string(example_enum ex) noexcept;
+REXLIB_CONSTEXPR const char* to_string(example_enum ex) noexcept;
 bool from_string(std::string_view str, example_enum& ex) noexcept;
 
 template<typename T>

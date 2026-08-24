@@ -8,26 +8,26 @@ namespace rex
 {
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>::flagset() noexcept
+REXLIB_INLINE_CONSTEXPR flagset<B>::flagset() noexcept
 	: flagset(unsigned_type(0))
 {
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>::flagset(bit_type bit) noexcept
+REXLIB_INLINE_CONSTEXPR flagset<B>::flagset(bit_type bit) noexcept
 	: flagset(static_cast<unsigned_type>(bit))
 {
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>::flagset(underlying_type data) noexcept
+REXLIB_INLINE_CONSTEXPR flagset<B>::flagset(underlying_type data) noexcept
 	: m_data(data)
 {
 }
 
 template<typename B>
 template<typename It>
-REX_INLINE_CONSTEXPR flagset<B>::flagset(It first, It last) noexcept
+REXLIB_INLINE_CONSTEXPR flagset<B>::flagset(It first, It last) noexcept
 	: flagset()
 {
 	while (first != last)
@@ -38,25 +38,25 @@ REX_INLINE_CONSTEXPR flagset<B>::flagset(It first, It last) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>::flagset(std::initializer_list<bit_type> bits) noexcept
+REXLIB_INLINE_CONSTEXPR flagset<B>::flagset(std::initializer_list<bit_type> bits) noexcept
 	: flagset(bits.begin(), bits.end())
 {
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>::operator bool() const noexcept
+REXLIB_INLINE_CONSTEXPR flagset<B>::operator bool() const noexcept
 {
 	return static_cast<bool>(m_data);
 }
 
 template<typename B>
-REX_CONSTEXPR flagset<B>::operator underlying_type() const noexcept
+REXLIB_CONSTEXPR flagset<B>::operator underlying_type() const noexcept
 {
 	return get_bits();
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::operator|=(const flagset& rhs) noexcept
 {
 	m_data |= rhs.m_data;
@@ -64,7 +64,7 @@ flagset<B>::operator|=(const flagset& rhs) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::operator&=(const flagset& rhs) noexcept
 {
 	m_data &= rhs.m_data;
@@ -72,7 +72,7 @@ flagset<B>::operator&=(const flagset& rhs) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::operator^=(const flagset& rhs) noexcept
 {
 	m_data ^= rhs.m_data;
@@ -80,7 +80,7 @@ flagset<B>::operator^=(const flagset& rhs) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 typename flagset<B>::underlying_type
 flagset<B>::get_bits() const noexcept
 {
@@ -88,63 +88,63 @@ flagset<B>::get_bits() const noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool 
+REXLIB_INLINE_CONSTEXPR bool 
 flagset<B>::contains(const bit_type& bit) const noexcept
 {
 	return any_of(flagset(bit));
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool 
+REXLIB_INLINE_CONSTEXPR bool 
 flagset<B>::all_of(const flagset& other) const noexcept
 {
 	return (*this & other) == other;
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool 
+REXLIB_INLINE_CONSTEXPR bool 
 flagset<B>::any_of(const flagset& other) const noexcept
 {
 	return static_cast<bool>(*this & other);
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool 
+REXLIB_INLINE_CONSTEXPR bool 
 flagset<B>::none_of(const flagset& other) const noexcept
 {
 	return !any_of(other);
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool 
+REXLIB_INLINE_CONSTEXPR bool 
 flagset<B>::only_of(const flagset& other) const noexcept
 {
 	return other.all_of(*this);
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR int 
+REXLIB_INLINE_CONSTEXPR int 
 flagset<B>::count() const noexcept
 {
 	return popcount(m_data);
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool
+REXLIB_INLINE_CONSTEXPR bool
 flagset<B>::parity() const noexcept
 {
 	return rex::parity(m_data);
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR bool
+REXLIB_INLINE_CONSTEXPR bool
 flagset<B>::has_single_bit() const noexcept
 {
 	return rex::has_single_bit(m_data);
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::set(const flagset& other, bool value) noexcept
 {
 	if(value) {
@@ -156,7 +156,7 @@ flagset<B>::set(const flagset& other, bool value) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::set(const flagset& other) noexcept
 {
 	*this |= other;
@@ -164,7 +164,7 @@ flagset<B>::set(const flagset& other) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::clear() noexcept
 {
 	*this = flagset();
@@ -172,7 +172,7 @@ flagset<B>::clear() noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::clear(const flagset& other) noexcept
 {
 	m_data &= ~other.m_data;
@@ -180,7 +180,7 @@ flagset<B>::clear(const flagset& other) noexcept
 }
 
 template<typename B>
-REX_INLINE_CONSTEXPR flagset<B>& 
+REXLIB_INLINE_CONSTEXPR flagset<B>& 
 flagset<B>::toggle(const flagset& other) noexcept
 {
 	*this ^= other;
@@ -190,7 +190,7 @@ flagset<B>::toggle(const flagset& other) noexcept
 } // namespace rex
 
 template <typename B>
-REX_CONSTEXPR size_t 
+REXLIB_CONSTEXPR size_t 
 std::hash<rex::flagset<B>>::operator()(
 	rex::flagset<B> b
 ) const noexcept

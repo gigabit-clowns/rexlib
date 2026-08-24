@@ -195,7 +195,7 @@ TEST_CASE(
 	"[thread_pool]"
 )
 {
-	REX_CONST_CONSTEXPR std::size_t count = 10000;
+	REXLIB_CONST_CONSTEXPR std::size_t count = 10000;
 	thread_pool pool(4);
 
 	std::vector<int> visits(count, 0);

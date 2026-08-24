@@ -59,7 +59,7 @@ public:
 	}
 
 private:
-	REX_NO_UNIQUE_ADDRESS Transform m_transform;
+	REXLIB_NO_UNIQUE_ADDRESS Transform m_transform;
 	fourier_layout_plan m_plan;
 };
 

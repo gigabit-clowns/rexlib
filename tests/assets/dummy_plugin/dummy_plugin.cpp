@@ -3,10 +3,10 @@
 #include <rex/core/plugin.hpp>
 #include <rex/core/platform/dynamic_shared_object.h>
 
-#if defined(REX_DUMMY_PLUGIN_EXPORTING)
-	#define REX_DUMMY_PLUGIN_API REX_EXPORT
+#if defined(REXLIB_DUMMY_PLUGIN_EXPORTING)
+	#define REXLIB_DUMMY_PLUGIN_API REXLIB_EXPORT
 #else
-	#define REX_DUMMY_PLUGIN_API REX_IMPORT
+	#define REXLIB_DUMMY_PLUGIN_API REXLIB_IMPORT
 #endif
 
 namespace rex
@@ -39,7 +39,7 @@ static const rex::dummy_plugin instance;
 
 extern "C"
 {
-REX_DUMMY_PLUGIN_API const rex::plugin* rex_get_plugin() 
+REXLIB_DUMMY_PLUGIN_API const rex::plugin* rex_get_plugin() 
 {
 	return &instance;
 }

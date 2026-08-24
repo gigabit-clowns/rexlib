@@ -21,9 +21,9 @@ using shape_type = operation_shape_policy::shape_type;
 
 const operation_descriptor& reduction_descriptor()
 {
-	static REX_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static REX_CONST_CONSTEXPR auto inputs =
+	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("value");
 	static const operation_descriptor instance =
 		make_operation_descriptor("rex.test", "reduce", outputs, inputs);

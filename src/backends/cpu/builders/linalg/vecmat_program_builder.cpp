@@ -87,7 +87,7 @@ struct vecmat_kernel_factory
 
 } // anonymous namespace
 
-REX_REGISTER_LINALG_PROGRAM_BUILDER_EX(
+REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	vecmat,
 	ops::vecmat_operation,
 	vecmat_kernel_factory,

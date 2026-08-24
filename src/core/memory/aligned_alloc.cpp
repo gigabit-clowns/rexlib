@@ -12,9 +12,9 @@ namespace rex
 
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 {
-	#if REX_WINDOWS
+	#if REXLIB_WINDOWS
 		return _aligned_malloc(size, alignment);
-	#elif REX_POSIX
+	#elif REXLIB_POSIX
 		void *result;
 		
 		alignment = std::max(alignment, sizeof(void*));
@@ -31,7 +31,7 @@ void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 
 void aligned_free(void* ptr) noexcept
 {
-	#if REX_WINDOWS
+	#if REXLIB_WINDOWS
 		_aligned_free(ptr);
 	#else
 		std::free(ptr);

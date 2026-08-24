@@ -7,8 +7,8 @@
 
 #include <string>
 
-#ifndef REX_TEST_ASSET_ROOT
-	#error "REX_TEST_ASSET_ROOT is not defined. Link against " \
+#ifndef REXLIB_TEST_ASSET_ROOT
+	#error "REXLIB_TEST_ASSET_ROOT is not defined. Link against " \
 	       "rex-test-assets-interface to consume the shared test assets."
 #endif
 
@@ -17,14 +17,14 @@ namespace rex
 
 inline std::string get_asset_root()
 {
-	return REX_TEST_ASSET_ROOT;
+	return REXLIB_TEST_ASSET_ROOT;
 }
 
 inline std::string get_text_file_path()
 {
-	#if REX_WINDOWS
+	#if REXLIB_WINDOWS
 		return get_asset_root() + "\\" + "lorem_ipsum.txt";
-	#elif REX_APPLE || REX_LINUX
+	#elif REXLIB_APPLE || REXLIB_LINUX
 		return get_asset_root() + "/" + "lorem_ipsum.txt";
 	#else
 		#error "Unknown platform"
@@ -33,9 +33,9 @@ inline std::string get_text_file_path()
 
 inline std::string get_test_plugin_directory()
 {
-	#if REX_WINDOWS
+	#if REXLIB_WINDOWS
 		return get_asset_root() + "\\plugins";
-	#elif REX_APPLE || REX_LINUX
+	#elif REXLIB_APPLE || REXLIB_LINUX
 		return get_asset_root() + "/plugins";
 	#else
 		#error "Unknown platform"
@@ -45,13 +45,13 @@ inline std::string get_test_plugin_directory()
 inline std::string get_mock_plugin_path(const std::string &name)
 {
 
-	#if REX_WINDOWS
-		#if REX_MINGW
+	#if REXLIB_WINDOWS
+		#if REXLIB_MINGW
 			return get_asset_root() + "\\plugins\\lib" + name + ".dll";
 		#else
 			return get_asset_root() + "\\plugins\\" + name + ".dll";
 		#endif
-	#elif REX_APPLE || REX_LINUX
+	#elif REXLIB_APPLE || REXLIB_LINUX
 		return get_asset_root() + "/plugins/lib" + name + ".so";
 	#else
 		#error "Unknown platform"

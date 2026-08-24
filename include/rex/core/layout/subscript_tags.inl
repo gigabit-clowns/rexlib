@@ -7,13 +7,13 @@
 namespace rex 
 {
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 ellipsis_tag ellipsis() noexcept
 {
 	return ellipsis_tag();
 }
 
-REX_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 new_axis_tag new_axis() noexcept
 {
 	return new_axis_tag();

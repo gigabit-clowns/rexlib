@@ -99,7 +99,7 @@ type_rule_resolution resolve_pivots(
 		{
 		case pivot_source::input:
 		{
-			REX_ASSERT(pivot.get_index() < input_types.size());
+			REXLIB_ASSERT(pivot.get_index() < input_types.size());
 			const auto type = input_types[pivot.get_index()];
 			if (!check_pivot_value(pivot, type, status))
 			{
@@ -160,8 +160,8 @@ type_rule_resolution resolve_pivots(
 
 		const auto source_index =
 			static_cast<std::size_t>(pivot.get_default_pivot());
-		REX_ASSERT(source_index < pivots.size());
-		REX_ASSERT(pivots[source_index].get_source() != pivot_source::output);
+		REXLIB_ASSERT(source_index < pivots.size());
+		REXLIB_ASSERT(pivots[source_index].get_source() != pivot_source::output);
 
 		const auto type = result.get_pivot(source_index);
 		auto status = type_rule_status::ok;
@@ -200,7 +200,7 @@ type_rule_resolution bind_free_pivots(
 			continue;
 		}
 
-		REX_ASSERT(pivot.get_index() < user_output_types.size());
+		REXLIB_ASSERT(pivot.get_index() < user_output_types.size());
 		const auto type = user_output_types[pivot.get_index()];
 		auto status = type_rule_status::ok;
 		if (!check_pivot_value(pivot, type, status))
@@ -229,8 +229,8 @@ type_rule_resolution evaluate_slots(
 	bool output_operands
 ) noexcept
 {
-	REX_ASSERT(slots.size() == types.size());
-	REX_ASSERT(resolution);
+	REXLIB_ASSERT(slots.size() == types.size());
+	REXLIB_ASSERT(resolution);
 
 	for (std::size_t i = 0; i < slots.size(); ++i)
 	{
@@ -269,8 +269,8 @@ type_rule_resolution check_slots(
 	bool output_operands
 ) noexcept
 {
-	REX_ASSERT(slots.size() == types.size());
-	REX_ASSERT(resolution);
+	REXLIB_ASSERT(slots.size() == types.size());
+	REXLIB_ASSERT(resolution);
 
 	for (std::size_t i = 0; i < slots.size(); ++i)
 	{
@@ -318,7 +318,7 @@ void throw_type_rule_error(
 	span<const pivot_descriptor> pivots
 )
 {
-	REX_ASSERT(!resolution);
+	REXLIB_ASSERT(!resolution);
 
 	const auto index = resolution.get_operand_index();
 	const auto output = resolution.is_output_operand();

@@ -23,7 +23,7 @@ namespace rex
  * @param expected Name of the operation that was expected.
  * @throws std::invalid_argument Always.
  */
-REX_NORETURN REXLIB_API
+REXLIB_NORETURN REXLIB_API
 void throw_unexpected_operation(
 	const operation &got,
 	const char *expected

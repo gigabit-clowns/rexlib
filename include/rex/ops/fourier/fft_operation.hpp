@@ -16,11 +16,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	fft,
 	ops_component,
-	REX_OPERANDS("spectrum"),
-	REX_OPERANDS("signal"),
+	REXLIB_OPERANDS("spectrum"),
+	REXLIB_OPERANDS("signal"),
 	axiswise_operation_shape_policy,
 	unary_complex_of_rule<inexact_type_domain>
 );
@@ -36,7 +36,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * same precision. The full spectrum is stored, redundant halves and all;
  * use rfft to store only what a real signal needs.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API fft_operation final
 	: public parametric_operation<fft_operation, fft_operation_traits>
 {
@@ -66,7 +66,7 @@ public:
 private:
 	fourier_normalization m_normalization;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

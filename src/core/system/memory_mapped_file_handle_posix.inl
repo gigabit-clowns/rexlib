@@ -93,7 +93,7 @@ inline void* memory_map_file_descriptor(
 {
 	const int prot = access_flags_to_mmap_prot_flags(access); 
 	const int flags = copy_on_write ? MAP_PRIVATE : MAP_SHARED;
-	REX_CONST_CONSTEXPR off_t offset = 0;
+	REXLIB_CONST_CONSTEXPR off_t offset = 0;
 
 	auto *const result = mmap(
 		nullptr,

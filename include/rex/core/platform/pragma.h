@@ -5,8 +5,8 @@
 #include "stringfy.h"
 
 /**
- * @def REX_PRAGMA
+ * @def REXLIB_PRAGMA
  * @brief Provide a directive to the compiler.
  * 
  */
-#define REX_PRAGMA(x) _Pragma(REX_STRINGFY(x))
+#define REXLIB_PRAGMA(x) _Pragma(REXLIB_STRINGFY(x))

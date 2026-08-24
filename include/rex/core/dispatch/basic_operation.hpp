@@ -52,9 +52,9 @@ public:
 	using traits_type = Traits;
 	using type_rule = typename Traits::type_rule;
 
-	static REX_CONST_CONSTEXPR std::size_t output_operand_count =
+	static REXLIB_CONST_CONSTEXPR std::size_t output_operand_count =
 		type_rule::output_count;
-	static REX_CONST_CONSTEXPR std::size_t input_operand_count =
+	static REXLIB_CONST_CONSTEXPR std::size_t input_operand_count =
 		type_rule::input_count;
 
 	static_assert(
@@ -145,7 +145,7 @@ public:
  * Wrapping the names in their own parentheses is what lets them be passed
  * to the declaration macros as a single argument.
  */
-#define REX_OPERANDS(...) \
+#define REXLIB_OPERANDS(...) \
 	::rex::make_operand_names(__VA_ARGS__)
 
 /**
@@ -157,19 +157,19 @@ public:
  *
  * Use this directly, together with a hand written class, for an operation
  * that carries parameters or owns a stateful policy. Use
- * @ref REX_DECLARE_OPERATION for the usual case.
+ * @ref REXLIB_DECLARE_OPERATION for the usual case.
  *
  * @param op The operation verb, such as `add`. The generated class is named
  * `<op>_operation`. 
  * @param component_traits A type providing `get_component()`, naming the
  * component the operation belongs to.
- * @param outputs Output operand names, as @ref REX_OPERANDS.
- * @param inputs Input operand names, as @ref REX_OPERANDS.
+ * @param outputs Output operand names, as @ref REXLIB_OPERANDS.
+ * @param inputs Input operand names, as @ref REXLIB_OPERANDS.
  * @param shape_policy Type with a static `get()` returning the shape policy.
  * @param ... The operand typing rule. It comes last so that the commas in
  * its template arguments do not split the macro arguments.
  */
-#define REX_DECLARE_OPERATION_TRAITS( \
+#define REXLIB_DECLARE_OPERATION_TRAITS( \
 	op, component_traits, outputs, inputs, shape_policy, ... \
 ) \
 	struct op##_operation_traits \
@@ -185,13 +185,13 @@ public:
 		\
 		static const auto& get_output_names() noexcept \
 		{ \
-			static REX_CONST_CONSTEXPR auto names = outputs; \
+			static REXLIB_CONST_CONSTEXPR auto names = outputs; \
 			return names; \
 		} \
 		\
 		static const auto& get_input_names() noexcept \
 		{ \
-			static REX_CONST_CONSTEXPR auto names = inputs; \
+			static REXLIB_CONST_CONSTEXPR auto names = inputs; \
 			return names; \
 		} \
 	}
@@ -206,21 +206,21 @@ public:
  *
  * @param op The operation verb, such as `add`.
  * @param component_traits A type providing `get_component()`.
- * @param outputs Output operand names, as @ref REX_OPERANDS.
- * @param inputs Input operand names, as @ref REX_OPERANDS.
+ * @param outputs Output operand names, as @ref REXLIB_OPERANDS.
+ * @param inputs Input operand names, as @ref REXLIB_OPERANDS.
  * @param shape_policy Type with a static `get()` returning the shape policy.
  * @param ... The operand typing rule.
  *
- * @see REX_DECLARE_OPERATION_TRAITS
+ * @see REXLIB_DECLARE_OPERATION_TRAITS
  */
-#define REX_DECLARE_OPERATION( \
+#define REXLIB_DECLARE_OPERATION( \
 	op, component_traits, outputs, inputs, shape_policy, ... \
 ) \
-	REX_DECLARE_OPERATION_TRAITS( \
+	REXLIB_DECLARE_OPERATION_TRAITS( \
 		op, component_traits, outputs, inputs, shape_policy, __VA_ARGS__ \
 	); \
 	\
-	REX_BEGIN_TEMPLATE_BASE \
+	REXLIB_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
 		: public ::rex::trivial_operation< \
 			op##_operation, \
@@ -228,6 +228,6 @@ public:
 		> \
 	{ \
 	}; \
-	REX_END_TEMPLATE_BASE
+	REXLIB_END_TEMPLATE_BASE
 
 #include "basic_operation.inl"

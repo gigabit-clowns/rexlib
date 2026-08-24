@@ -101,33 +101,33 @@ private:
  *
  * Generates `<op>_operation_traits` and an exported `<op>_operation` class
  * whose constructors are those of its shape policy. As with
- * @ref REX_DECLARE_OPERATION the class is a plain named type rather than
+ * @ref REXLIB_DECLARE_OPERATION the class is a plain named type rather than
  * an alias of a template specialization, so that its identity is well
  * defined across shared object boundaries.
  *
- * Use @ref REX_DECLARE_OPERATION_TRAITS with a hand written class
+ * Use @ref REXLIB_DECLARE_OPERATION_TRAITS with a hand written class
  * instead when the parameters need validating, which an inherited
  * constructor has no place to do.
  *
  * @param op The operation verb, such as `sum`.
  * @param component_traits A type providing `get_component()`.
- * @param outputs Output operand names, as @ref REX_OPERANDS.
- * @param inputs Input operand names, as @ref REX_OPERANDS.
+ * @param outputs Output operand names, as @ref REXLIB_OPERANDS.
+ * @param inputs Input operand names, as @ref REXLIB_OPERANDS.
  * @param shape_policy The stateful shape policy type. Its constructors
  * become the constructors of the operation.
  * @param ... The operand typing rule.
  *
- * @see REX_DECLARE_OPERATION
+ * @see REXLIB_DECLARE_OPERATION
  * @see parametric_operation
  */
-#define REX_DECLARE_PARAMETRIC_OPERATION( \
+#define REXLIB_DECLARE_PARAMETRIC_OPERATION( \
 	op, component_traits, outputs, inputs, shape_policy, ... \
 ) \
-	REX_DECLARE_OPERATION_TRAITS( \
+	REXLIB_DECLARE_OPERATION_TRAITS( \
 		op, component_traits, outputs, inputs, shape_policy, __VA_ARGS__ \
 	); \
 	\
-	REX_BEGIN_TEMPLATE_BASE \
+	REXLIB_BEGIN_TEMPLATE_BASE \
 	class REXLIB_API op##_operation final \
 		: public ::rex::parametric_operation< \
 			op##_operation, \
@@ -140,6 +140,6 @@ private:
 			op##_operation_traits \
 		>::parametric_operation; \
 	}; \
-	REX_END_TEMPLATE_BASE
+	REXLIB_END_TEMPLATE_BASE
 
 #include "parametric_operation.inl"

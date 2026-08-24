@@ -31,7 +31,7 @@ void joint_layout_implementation::add_operand(
 	std::ptrdiff_t offset
 )
 {
-	REX_ASSERT( m_extents.size() == strides.size() );
+	REXLIB_ASSERT( m_extents.size() == strides.size() );
 	m_operands.emplace_back(
 		strides,
 		offset
@@ -44,7 +44,7 @@ void joint_layout_implementation::add_operand(
 	std::ptrdiff_t offset
 )
 {
-	REX_ASSERT( m_extents.size() == strides.size() );
+	REXLIB_ASSERT( m_extents.size() == strides.size() );
 	m_operands.emplace_back(
 		std::move(strides),
 		offset
@@ -101,7 +101,7 @@ void joint_layout_implementation::sort_axes_by_locality()
 
 	// Start with reversed indices n-1, n-2 ... 1, 0
 	boost::container::small_vector<
-		std::size_t, REX_SMALL_AXIS_COUNT
+		std::size_t, REXLIB_SMALL_AXIS_COUNT
 	> permutation(n);
 	const auto permutation_view = span<std::size_t>(permutation.data(), n);
 	std::generate(
@@ -254,7 +254,7 @@ std::size_t joint_layout_implementation::seek(
 	}
 
 	last_dim = std::min(last_dim, m_extents.size());
-	REX_ASSERT( first_dim < last_dim );
+	REXLIB_ASSERT( first_dim < last_dim );
 
 	const auto indices = ite.get_indices();
 	const auto offsets = ite.get_offsets();
@@ -279,7 +279,7 @@ std::size_t joint_layout_implementation::seek(
 	}
 
 	// Anything left over is a position past the end of the iterated range.
-	REX_ASSERT( position == 0 );
+	REXLIB_ASSERT( position == 0 );
 
 	return m_extents[first_dim] - indices[first_dim];
 }
@@ -303,7 +303,7 @@ std::size_t joint_layout_implementation::next(
 	}
 	
 	const auto indices = ite.get_indices();
-	REX_ASSERT( indices.size() == n_dim );
+	REXLIB_ASSERT( indices.size() == n_dim );
 
 	if (n == 0)
 	{
@@ -455,7 +455,7 @@ void joint_layout_implementation::apply_strides(
 ) const noexcept
 {
 	const auto n_operands = offsets.size();
-	REX_ASSERT( m_operands.size() == n_operands );
+	REXLIB_ASSERT( m_operands.size() == n_operands );
 	for (std::size_t j = 0; j < n_operands; ++j) 
 	{
 		const auto strides = m_operands[j].get_strides();

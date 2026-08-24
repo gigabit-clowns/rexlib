@@ -40,11 +40,11 @@ namespace
 {
 
 // A self-contained unary operation over the real types.
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	probe,
 	ops::ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

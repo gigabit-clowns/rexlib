@@ -745,8 +745,8 @@ TEST_CASE(
 	// folded start to finish by one thread and in the serial order. The
 	// answer therefore has to match bit for bit, sums included, which is
 	// what a tolerance here would hide rather than check.
-	REX_CONST_CONSTEXPR std::size_t kept = 37;
-	REX_CONST_CONSTEXPR std::size_t reduced = 11;
+	REXLIB_CONST_CONSTEXPR std::size_t kept = 37;
+	REXLIB_CONST_CONSTEXPR std::size_t reduced = 11;
 
 	std::vector<double> input(kept*reduced);
 	for (std::size_t i = 0; i < input.size(); ++i)
@@ -817,7 +817,7 @@ TEST_CASE(
 	// Deep enough to be worth threading at the default grain, so that the
 	// fold split is the path actually taken here rather than something the
 	// case only describes.
-	REX_CONST_CONSTEXPR std::size_t reduced = 4*REX_PARALLEL_GRAIN_SIZE;
+	REXLIB_CONST_CONSTEXPR std::size_t reduced = 4*REXLIB_PARALLEL_GRAIN_SIZE;
 
 	// Whole numbers, so that the sum is exact whatever order it is added in
 	// and the check can be an equality rather than a tolerance. That the fold

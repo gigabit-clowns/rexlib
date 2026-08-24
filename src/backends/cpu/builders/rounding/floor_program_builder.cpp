@@ -28,7 +28,7 @@ struct floor_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	floor,
 	ops::floor_operation,
 	default_kernel_factory<floor_kernel>

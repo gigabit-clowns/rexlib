@@ -17,11 +17,11 @@ namespace ops
  *
  * Boolean operands are added as a disjunction.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	add,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	elementwise_operation_shape_policy,
 	binary_homogeneous_rule<>
 );

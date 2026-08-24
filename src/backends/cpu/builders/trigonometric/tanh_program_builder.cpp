@@ -29,7 +29,7 @@ struct tanh_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	tanh,
 	ops::tanh_operation,
 	default_kernel_factory<tanh_kernel>

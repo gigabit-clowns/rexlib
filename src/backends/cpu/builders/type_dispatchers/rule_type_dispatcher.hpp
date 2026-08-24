@@ -162,7 +162,7 @@ private:
 	);
 
 	template <typename F, typename Pivots>
-	REX_NORETURN
+	REXLIB_NORETURN
 	static std::shared_ptr<rex::program> invoke_if(
 		std::false_type supported,
 		F &&factory,

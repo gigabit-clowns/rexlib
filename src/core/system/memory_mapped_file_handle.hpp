@@ -37,9 +37,9 @@ void memory_mapped_file_close(void* data, std::size_t size) noexcept;
 
 } // namespace rex
 
-#if REX_POSIX
+#if REXLIB_POSIX
 	#include "memory_mapped_file_handle_posix.inl"
-#elif REX_WINDOWS
+#elif REXLIB_WINDOWS
 	#include "memory_mapped_file_handle_windows.inl"
 #else
 	#error "No memory_mapped_file_handle implementation available for this platform"

@@ -24,7 +24,7 @@ class joint_layout_implementation;
 class joint_layout_builder
 {
 public:
-	static REX_CONST_CONSTEXPR 
+	static REXLIB_CONST_CONSTEXPR 
 	joint_layout_build_flags default_flags = {
 		joint_layout_build_flag_bits::enable_reordering,
 		joint_layout_build_flag_bits::enable_coalescing

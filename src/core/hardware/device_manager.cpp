@@ -57,13 +57,13 @@ public:
 
 	void enumerate_devices(std::vector<device_index> &indices) const
 	{
-		REX_ASSERT( indices.empty() );
+		REXLIB_ASSERT( indices.empty() );
 
 		std::vector<std::size_t> ids;
 		for(const auto &item : m_backends)
 		{
 			const auto *backend = item.second.get();
-			REX_ASSERT(backend);
+			REXLIB_ASSERT(backend);
 			backend->enumerate_devices(ids);
 			for(const auto &id : ids)
 			{

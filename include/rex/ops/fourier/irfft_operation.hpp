@@ -16,11 +16,11 @@ namespace rex
 namespace ops
 {
 
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	irfft,
 	ops_component,
-	REX_OPERANDS("signal"),
-	REX_OPERANDS("spectrum"),
+	REXLIB_OPERANDS("signal"),
+	REXLIB_OPERANDS("spectrum"),
 	inverse_real_fourier_transform_shape_policy,
 	unary_real_of_rule<complex_type_domain>
 );
@@ -32,7 +32,7 @@ REX_DECLARE_OPERATION_TRAITS(
  * the parity the operation carries, an axis of m coefficients coming
  * from either 2*(m - 1) or 2*m - 1 samples.
  */
-REX_BEGIN_TEMPLATE_BASE
+REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API irfft_operation final
 	: public parametric_operation<irfft_operation, irfft_operation_traits>
 {
@@ -67,7 +67,7 @@ public:
 private:
 	fourier_normalization m_normalization;
 };
-REX_END_TEMPLATE_BASE
+REXLIB_END_TEMPLATE_BASE
 
 } // namespace ops
 } // namespace rex

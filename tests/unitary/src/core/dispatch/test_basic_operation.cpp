@@ -22,11 +22,11 @@ namespace
 {
 
 // The usual case: the whole declaration of an operation.
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	stub_add,
 	ops::ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	ops::elementwise_operation_shape_policy,
 	ops::binary_homogeneous_rule<>
 );
@@ -34,11 +34,11 @@ REX_DECLARE_OPERATION(
 // The escape hatch: an operation carrying a parameter still declares its
 // description with the macro, and only writes by hand what is genuinely its
 // own.
-REX_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	stub_fill,
 	ops::ops_component,
-	REX_OPERANDS("destination"),
-	REX_OPERANDS(),
+	REXLIB_OPERANDS("destination"),
+	REXLIB_OPERANDS(),
 	ops::elementwise_operation_shape_policy,
 	ops::nullary_free_rule<>
 );

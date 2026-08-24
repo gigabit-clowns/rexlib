@@ -33,7 +33,7 @@ struct radians_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	radians,
 	ops::radians_operation,
 	default_kernel_factory<radians_kernel>

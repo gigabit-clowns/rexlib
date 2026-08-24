@@ -82,11 +82,11 @@ inline HANDLE open_file(
 )
 {
 	const DWORD desired_access = access_flags_to_open_access(access, copy_on_write);
-	REX_CONST_CONSTEXPR DWORD share_mode = 0;
-	REX_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
-	REX_CONST_CONSTEXPR DWORD create_mode = OPEN_EXISTING;
-	REX_CONST_CONSTEXPR DWORD flags = FILE_ATTRIBUTE_NORMAL;
-	REX_CONST_CONSTEXPR HANDLE template_file = 0;
+	REXLIB_CONST_CONSTEXPR DWORD share_mode = 0;
+	REXLIB_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
+	REXLIB_CONST_CONSTEXPR DWORD create_mode = OPEN_EXISTING;
+	REXLIB_CONST_CONSTEXPR DWORD flags = FILE_ATTRIBUTE_NORMAL;
+	REXLIB_CONST_CONSTEXPR HANDLE template_file = 0;
 
 	HANDLE result = CreateFileA(
 		filename,
@@ -115,10 +115,10 @@ inline HANDLE create_file_mapping(
 )
 {
 	const DWORD protect = access_flags_to_memory_map_protect(access, copy_on_write);
-	REX_CONST_CONSTEXPR DWORD maximum_size_low = 0;
-	REX_CONST_CONSTEXPR DWORD maximum_size_high = 0;
-	REX_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
-	REX_CONST_CONSTEXPR LPCSTR name = 0;
+	REXLIB_CONST_CONSTEXPR DWORD maximum_size_low = 0;
+	REXLIB_CONST_CONSTEXPR DWORD maximum_size_high = 0;
+	REXLIB_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
+	REXLIB_CONST_CONSTEXPR LPCSTR name = 0;
 
 	HANDLE result = CreateFileMappingA(
 		file, 
@@ -147,8 +147,8 @@ inline HANDLE create_file_mapping_view(
 )
 {
 	const DWORD desired_access = access_flags_to_view_access(access, copy_on_write);
-	REX_CONST_CONSTEXPR DWORD offset_high = 0;
-	REX_CONST_CONSTEXPR DWORD offset_low = 0;
+	REXLIB_CONST_CONSTEXPR DWORD offset_high = 0;
+	REXLIB_CONST_CONSTEXPR DWORD offset_low = 0;
 
 	void* result = MapViewOfFile(
 		mapping,

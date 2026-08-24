@@ -18,11 +18,11 @@ namespace ops
  * Unlike the square root this is defined for negative operands, and
  * unlike it there is no complex counterpart to fall back on.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	cbrt,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_homogeneous_rule<floating_point_type_domain>
 );

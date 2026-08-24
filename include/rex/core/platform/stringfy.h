@@ -6,10 +6,10 @@
  * @brief Stringfy the literal x
  * 
  */
-#define REX_STRINGFY(x) #x
+#define REXLIB_STRINGFY(x) #x
 
 /**
  * @brief Stringfy the value of x
  * 
  */
-#define REX_STRINGFY_VALUE(x) REX_STRINGFY(x)
+#define REXLIB_STRINGFY_VALUE(x) REXLIB_STRINGFY(x)

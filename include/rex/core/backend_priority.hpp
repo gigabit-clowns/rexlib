@@ -24,16 +24,16 @@ enum class backend_priority
 	optimal = 1024, ///< Backend specially optimized for the use case.
 };
 
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool operator<(backend_priority lhs, backend_priority rhs) noexcept;
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool operator<=(backend_priority lhs, backend_priority rhs) noexcept;
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool operator>(backend_priority lhs, backend_priority rhs) noexcept;
-REX_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool operator>=(backend_priority lhs, backend_priority rhs) noexcept;
 
-REX_CONSTEXPR const char* to_string(backend_priority priority) noexcept;
+REXLIB_CONSTEXPR const char* to_string(backend_priority priority) noexcept;
 
 template<typename T>
 std::basic_ostream<T>& operator<<(

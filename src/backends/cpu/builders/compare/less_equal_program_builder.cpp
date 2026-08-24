@@ -30,7 +30,7 @@ struct less_equal_kernel
 
 } // anonymous namespace
 
-REX_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	less_equal,
 	ops::less_equal_operation,
 	default_kernel_factory<less_equal_kernel>

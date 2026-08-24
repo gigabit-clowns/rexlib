@@ -20,13 +20,13 @@ namespace rex
  */
 struct ellipsis_tag
 {
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator==(ellipsis_tag, ellipsis_tag) noexcept
 	{
 		return true;
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator!=(ellipsis_tag, ellipsis_tag) noexcept
 	{
 		return false;
@@ -45,7 +45,7 @@ struct ellipsis_tag
  * 
  * @return ellipsis_tag Newly constructed tag.
  */
-REX_CONSTEXPR
+REXLIB_CONSTEXPR
 ellipsis_tag ellipsis() noexcept;
 
 /**
@@ -56,13 +56,13 @@ ellipsis_tag ellipsis() noexcept;
  */
 struct new_axis_tag
 {
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator==(new_axis_tag, new_axis_tag) noexcept
 	{
 		return true;
 	}
 
-	friend REX_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator!=(new_axis_tag, new_axis_tag) noexcept
 	{
 		return false;
@@ -81,7 +81,7 @@ struct new_axis_tag
  * 
  * @return new_axis_tag Newly constructed tag.
  */
-REX_CONSTEXPR
+REXLIB_CONSTEXPR
 new_axis_tag new_axis() noexcept;
 
 } // namespace rex

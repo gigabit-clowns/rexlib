@@ -55,7 +55,7 @@ public:
 	) const override;
 
 private:
-	REX_STD_MEMBER_INTERFACE
+	REXLIB_STD_MEMBER_INTERFACE
 	axis_list m_axes;
 };
 

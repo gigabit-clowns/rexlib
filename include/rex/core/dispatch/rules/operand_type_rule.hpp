@@ -98,11 +98,11 @@ struct operand_type_rule
 	using output_slot_list = Outputs;
 	using input_slot_list = Inputs;
 
-	static REX_CONST_CONSTEXPR std::size_t pivot_count =
+	static REXLIB_CONST_CONSTEXPR std::size_t pivot_count =
 		type_list_size<Pivots>::value;
-	static REX_CONST_CONSTEXPR std::size_t output_count =
+	static REXLIB_CONST_CONSTEXPR std::size_t output_count =
 		type_list_size<Outputs>::value;
-	static REX_CONST_CONSTEXPR std::size_t input_count =
+	static REXLIB_CONST_CONSTEXPR std::size_t input_count =
 		type_list_size<Inputs>::value;
 
 	static_assert(

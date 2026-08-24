@@ -23,11 +23,11 @@ class joint_layout_implementation
 public:    
 	using extent_vector_type = boost::container::small_vector<
 		std::size_t, 
-		REX_SMALL_AXIS_COUNT
+		REXLIB_SMALL_AXIS_COUNT
 	>;
 	using operand_vector_type = boost::container::small_vector<
 		joint_layout_operand, 
-		REX_SMALL_OPERAND_COUNT
+		REXLIB_SMALL_OPERAND_COUNT
 	>;
 	using stride_vector_type = joint_layout_operand::stride_vector_type;
 

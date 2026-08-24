@@ -167,7 +167,7 @@ public:
 private:
 	using lane_folding = typename has_reassociable_fold<Kernel>::type;
 
-	REX_NO_UNIQUE_ADDRESS Kernel m_kernel;
+	REXLIB_NO_UNIQUE_ADDRESS Kernel m_kernel;
 
 	template <
 		typename... Accumulators,

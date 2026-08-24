@@ -18,11 +18,11 @@ namespace ops
  * Only inexact types can hold one, so asking an integer array is always a
  * mistake rather than a constant answer.
  */
-REX_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	is_nan,
 	ops_component,
-	REX_OPERANDS("result"),
-	REX_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	elementwise_operation_shape_policy,
 	unary_predicate_rule<inexact_type_domain>
 );

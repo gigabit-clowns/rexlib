@@ -35,7 +35,7 @@ rule_operation_data_type_policy::rule_operation_data_type_policy(
 ) noexcept
 	: rule_operation_data_type_policy(pivots, output_slots, input_slots)
 {
-	REX_ASSERT(operation_pivots.size() <= max_operand_type_pivot_count);
+	REXLIB_ASSERT(operation_pivots.size() <= max_operand_type_pivot_count);
 
 	m_operation_pivot_count = std::min(
 		operation_pivots.size(),
