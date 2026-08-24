@@ -1,5 +1,5 @@
 # rexlib
-Core library for the rexlib framework
+Device-agnostic array computing library with a pluggable backend architecture
 
 [![Build and Test](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml)
 [![Run tests with memcheck](https://github.com/gigabit-clowns/rexlib/actions/workflows/test-with-memcheck.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/test-with-memcheck.yml)

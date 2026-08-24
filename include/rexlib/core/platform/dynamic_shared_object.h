@@ -55,9 +55,9 @@
 
 /**
  * @def REXLIB_API
- * @brief Declares that the function is part of the public core API of REXLIB
+ * @brief Declares that the function is part of the public API of rexlib
  * 
- * The functions declared as public core API will be exported to the shared object. 
+ * The functions declared as public API will be exported to the shared object. 
  * 
  */
 #if defined(REXLIB_NO_EXPORTS)

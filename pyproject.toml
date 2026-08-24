@@ -5,14 +5,14 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "rexlib"
+name = "rexlib-native"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
     { name = "Martín Salinas Antón", email = "ssalinasmartin@gmail.com" },
     { name = "Mikel Iceta Tena", email = "m.icetatena@gmail.com" },
 ]
-description = "Core component of the rexlib framework"
+description = "Device-agnostic array computing library with a pluggable backend architecture"
 classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
     "Intended Audience :: Science/Research",
