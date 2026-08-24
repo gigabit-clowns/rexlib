@@ -13,7 +13,6 @@ on:
       - main
     paths:
       - '.github/workflows/deploy.yml'
-      - 'pyproject.toml'
 
   workflow_dispatch:
 
