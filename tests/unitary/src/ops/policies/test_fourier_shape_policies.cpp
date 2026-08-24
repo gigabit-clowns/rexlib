@@ -29,7 +29,7 @@ const operation_descriptor& transform_descriptor()
 		make_operand_names("signal");
 	static const operation_descriptor instance =
 		make_operation_descriptor(
-			"rex.test", "transform", outputs, inputs
+			"rexlib.test", "transform", outputs, inputs
 		);
 	return instance;
 }

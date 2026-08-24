@@ -34,7 +34,7 @@ const operation_descriptor& rule_descriptor()
 	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right", "third");
 	static const operation_descriptor instance =
-		make_operation_descriptor("rex.test", "probe", outputs, inputs);
+		make_operation_descriptor("rexlib.test", "probe", outputs, inputs);
 	return instance;
 }
 
@@ -330,7 +330,7 @@ TEST_CASE(
         using Catch::Matchers::ContainsSubstring;
         // Naming the operand is the whole point of the operand names: an
         // index alone is not much help behind a Python front end.
-        CHECK_THAT( message, ContainsSubstring("rex.test.probe") );
+        CHECK_THAT( message, ContainsSubstring("rexlib.test.probe") );
         CHECK_THAT( message, ContainsSubstring("input operand 'right'") );
         CHECK_THAT( message, ContainsSubstring("float32") );
         CHECK_THAT( message, ContainsSubstring("float64") );

@@ -45,7 +45,7 @@ const operation_descriptor& probe_descriptor()
 	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right");
 	static const operation_descriptor instance = make_operation_descriptor(
-		"rex.test",
+		"rexlib.test",
 		"probe",
 		outputs,
 		inputs

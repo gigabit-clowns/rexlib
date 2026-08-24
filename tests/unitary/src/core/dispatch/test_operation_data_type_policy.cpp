@@ -20,7 +20,7 @@ const operation_descriptor& stub_descriptor()
 		make_operand_names("result");
 	static REXLIB_CONST_CONSTEXPR auto inputs = make_operand_names("value");
 	static const operation_descriptor instance =
-		make_operation_descriptor("rex.test", "stub", outputs, inputs);
+		make_operation_descriptor("rexlib.test", "stub", outputs, inputs);
 	return instance;
 }
 
@@ -92,7 +92,7 @@ TEST_CASE(
 		policy.accept(stub_descriptor(), make_span(user), make_span(canonical), {}),
 		std::invalid_argument,
 		Catch::Matchers::Message(
-			"rex.test.stub: output operand 'result' has data type "
+			"rexlib.test.stub: output operand 'result' has data type "
 			"float32, but this operation deduces float64 from its inputs."
 		)
 	);
@@ -121,7 +121,7 @@ TEST_CASE(
 		policy.accept(stub_descriptor(), make_span(user), make_span(canonical), {}),
 		std::invalid_argument,
 		Catch::Matchers::Message(
-			"rex.test.stub: output operand 2 has data type uint8, but "
+			"rexlib.test.stub: output operand 2 has data type uint8, but "
 			"this operation deduces int64 from its inputs."
 		)
 	);
