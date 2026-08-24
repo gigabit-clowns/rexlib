@@ -5,7 +5,7 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "rexlib-native"
+name = "librexlib"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
