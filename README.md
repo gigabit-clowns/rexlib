@@ -19,17 +19,3 @@ Device-agnostic array computing library with a pluggable backend architecture
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-
-## Platform support
-On Windows, the published binaries (wheels and conda packages) are built
-with MSVC. This is a hard requirement, not just the default: the C++ ABI
-(symbol mangling, vtable layout) is not compatible across compilers on
-Windows, so any code that links against rexlib there must also be built 
-with MSVC. Linking against these binaries with MinGW/gcc will fail with 
-undefined-reference errors on exported C++ symbols (e.g. class vtables).
-
-This only affects linking on Windows. rexlib itself is still built
-and tested with gcc (via MinGW) in CI, since that only involves compiling
-rexlib from source with a single, consistent toolchain — the
-incompatibility only shows up when mixing toolchains across the binary
-boundary of a prebuilt artifact.
