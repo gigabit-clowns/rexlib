@@ -25,7 +25,7 @@ component). Operations and verbs share it: `em::project_3d_operation`,
 ## Dependencies
 
 `em` may depend on `core`, `ops` and `functional`. Nothing outside `em/`
-may include `rex/em/` headers, and `core` must never learn about this
+may include `rexlib/em/` headers, and `core` must never learn about this
 component. Keep the arrows pointing downwards.
 
 ## Backend builders

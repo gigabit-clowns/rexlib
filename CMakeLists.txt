@@ -45,7 +45,7 @@ if(WIN32)
 else()
 	set(REXLIB_PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/rexlib-plugins)
 endif()
-set(REXLIB_PLUGIN_INSTALL_DIR ${REXLIB_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the rex plugins are installed")
+set(REXLIB_PLUGIN_INSTALL_DIR ${REXLIB_PLUGIN_INSTALL_DIR} CACHE PATH "Directory where the rexlib plugins are installed")
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 17)
