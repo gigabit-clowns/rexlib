@@ -17,6 +17,6 @@ namespace rexlib
  * @return version Version of the installation
  */
 REXLIB_API
-version get_core_version() noexcept;
+version get_library_version() noexcept;
 
 } // namespace rexlib

@@ -7,7 +7,7 @@
 #include <backends/cpu/hardware/device_backend.hpp>
 
 #include <rexlib/core/hardware/device.hpp>
-#include <rexlib/core/core_version.hpp>
+#include <rexlib/core/library_version.hpp>
 
 #include <stdexcept>
 
@@ -29,7 +29,7 @@ TEST_CASE(
 )
 {
 	cpu::device_backend backend;
-	REQUIRE( backend.get_version() == rexlib::get_core_version() );
+	REQUIRE( backend.get_version() == rexlib::get_library_version() );
 }
 
 TEST_CASE(

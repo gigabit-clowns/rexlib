@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/core/core_version.hpp>
+#include <rexlib/core/library_version.hpp>
 
 namespace rexlib
 {
 
-version get_core_version() noexcept
+version get_library_version() noexcept
 {
 	return version(
 		REXLIB_VERSION_MAJOR,

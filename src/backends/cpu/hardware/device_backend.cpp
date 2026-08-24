@@ -5,7 +5,7 @@
 #include <rexlib/backends/cpu/device.hpp>
 
 #include <rexlib/core/hardware/device_manager.hpp>
-#include <rexlib/core/core_version.hpp>
+#include <rexlib/core/library_version.hpp>
 #include <rexlib/core/system/host.hpp>
 
 namespace rexlib
@@ -20,7 +20,7 @@ std::string device_backend::get_name() const
 
 version device_backend::get_version() const
 {
-	return get_core_version();
+	return get_library_version();
 }
 
 void device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
