@@ -102,11 +102,7 @@ public:
 
 private:
 	/// One block and the points that have to be reached before it can go back.
-	struct pending_release
-	{
-		memory_block *block;
-		std::vector<event_ticket> tickets;
-	};
+	using pending_release = std::pair<memory_block*, std::vector<event_ticket>>;
 
 	/// Whether each of one block's points has been reached. As long as how
 	/// many queues touched a single buffer, which is a handful.

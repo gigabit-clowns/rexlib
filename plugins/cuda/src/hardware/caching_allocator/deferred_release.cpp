@@ -81,10 +81,10 @@ void deferred_release::process(memory_block_pool &pool)
 		m_pending.begin(), m_pending.end(),
 		[&pool] (const pending_release &item) noexcept
 		{
-			const auto reached = item.tickets.empty();
+			const auto reached = item.second.empty();
 			if (reached)
 			{
-				pool.release(*item.block);
+				pool.release(*item.first);
 			}
 			return reached;
 		}
@@ -100,12 +100,12 @@ void deferred_release::wait_all(memory_block_pool &pool)
 	auto ite = m_pending.begin();
 	while (ite != m_pending.end())
 	{
-		for (const auto &ticket : ite->tickets)
+		for (const auto &ticket : ite->second)
 		{
 			ticket.wait();
 		}
 
-		pool.release(*ite->block);
+		pool.release(*ite->first);
 		ite = m_pending.erase(ite);
 	}
 }
@@ -117,7 +117,7 @@ std::size_t deferred_release::get_pending_count() const noexcept
 
 void deferred_release::drop_reached_points(pending_release &item)
 {
-	auto &tickets = item.tickets;
+	auto &tickets = item.second;
 
 	// Same reason as in process: every point is queried before any ticket is
 	// moved, so that a query failing leaves the block waiting for exactly the
