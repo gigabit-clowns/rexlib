@@ -34,6 +34,12 @@ jobs:
         - os: windows-latest
           compiler: {c: gcc, cxx: g++}
           generator: "Ninja"
+        - os: windows-11-arm
+          compiler: {c: cl, cxx: cl}
+          generator: "Ninja"
+        - os: windows-11-arm
+          compiler: {c: gcc, cxx: g++}
+          generator: "Ninja"
 
     env:
       BUILD_TYPE: Debug
