@@ -8,9 +8,9 @@ namespace rexlib
 version get_core_version() noexcept
 {
 	return version(
-		VERSION_MAJOR,
-		VERSION_MINOR,
-		VERSION_PATCH
+		REXLIB_VERSION_MAJOR,
+		REXLIB_VERSION_MINOR,
+		REXLIB_VERSION_PATCH
 	);
 }
 
