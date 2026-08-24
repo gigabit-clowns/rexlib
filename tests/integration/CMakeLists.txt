@@ -14,12 +14,12 @@ target_link_libraries(
 	rexlib-integration-tests
 	PRIVATE
 		rexlib
-		rex-test-assets-interface
+		rexlib-test-assets-interface
 		Catch2::Catch2WithMain
 )
 add_dependencies(
 	rexlib-integration-tests
-	rex-test-assets
+	rexlib-test-assets
 )
 
 # On windows targets, copy the library to the test directory
@@ -31,4 +31,4 @@ if(WIN32)
 endif()
 
 # Register tests
-rex_register_tests(rexlib-integration-tests)
+rexlib_register_tests(rexlib-integration-tests)

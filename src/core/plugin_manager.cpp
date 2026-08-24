@@ -16,7 +16,7 @@
 
 #include <boost/filesystem.hpp>
 
-static const char REXLIB_PLUGINS_DIRECTORY_NAME[] = "rex-plugins";
+static const char REXLIB_PLUGINS_DIRECTORY_NAME[] = "rexlib-plugins";
 static const char REXLIB_PLUGINS_ENV_VARIABLE[] = "REXLIB_PLUGINS_DIRECTORY";
 
 namespace rexlib

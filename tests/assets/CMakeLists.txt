@@ -11,7 +11,7 @@ set(REXLIB_TEST_PLUGINS_DIRECTORY ${REXLIB_TEST_ASSET_ROOT}/plugins)
 
 # Stage the assets next to the build tree.
 add_custom_target(
-	rex-test-assets
+	rexlib-test-assets
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${REXLIB_TEST_ASSET_ROOT}
 	COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/lorem_ipsum.txt ${REXLIB_TEST_ASSET_ROOT}
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${REXLIB_TEST_PLUGINS_DIRECTORY}
@@ -22,15 +22,15 @@ add_custom_target(
 
 # Interface target that gives any test suite access to the assets: the
 # assets.hpp helper header and the absolute root where they are staged.
-# Consumers must additionally add a build dependency on rex-test-assets.
-add_library(rex-test-assets-interface INTERFACE)
+# Consumers must additionally add a build dependency on rexlib-test-assets.
+add_library(rexlib-test-assets-interface INTERFACE)
 target_include_directories(
-	rex-test-assets-interface
+	rexlib-test-assets-interface
 	INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 target_compile_definitions(
-	rex-test-assets-interface
+	rexlib-test-assets-interface
 	INTERFACE
 		REXLIB_TEST_ASSET_ROOT="${REXLIB_TEST_ASSET_ROOT}"
 )

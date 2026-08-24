@@ -9,7 +9,7 @@
 
 #ifndef REXLIB_TEST_ASSET_ROOT
 	#error "REXLIB_TEST_ASSET_ROOT is not defined. Link against " \
-	       "rex-test-assets-interface to consume the shared test assets."
+	       "rexlib-test-assets-interface to consume the shared test assets."
 #endif
 
 namespace rexlib

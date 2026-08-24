@@ -11,7 +11,7 @@
 
 extern "C"
 {
-REXLIB_FAULTY_PLUGIN1_API const rexlib::plugin* rex_get_plugin() 
+REXLIB_FAULTY_PLUGIN1_API const rexlib::plugin* rexlib_get_plugin() 
 {
 	return NULL;
 }

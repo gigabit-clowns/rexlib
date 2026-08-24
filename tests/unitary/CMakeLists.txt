@@ -13,9 +13,9 @@ add_executable(
     rexlib-unitary-tests
     ${TEST_SOURCES}
 	$<TARGET_OBJECTS:rexlib-obj>
-	$<TARGET_OBJECTS:rex-ops-obj>
-	$<TARGET_OBJECTS:rex-functional-obj>
-	$<TARGET_OBJECTS:rex-cpu-obj>
+	$<TARGET_OBJECTS:rexlib-ops-obj>
+	$<TARGET_OBJECTS:rexlib-functional-obj>
+	$<TARGET_OBJECTS:rexlib-cpu-obj>
 )
 target_compile_definitions(
 	rexlib-unitary-tests
@@ -32,13 +32,13 @@ target_link_libraries(
 	PRIVATE
 		rexlib
 		$<TARGET_PROPERTY:rexlib,LINK_LIBRARIES>
-		rex-test-assets-interface
+		rexlib-test-assets-interface
 		Catch2::Catch2WithMain
 		trompeloeil::trompeloeil
 )
 add_dependencies(
 	rexlib-unitary-tests
-	rex-test-assets
+	rexlib-test-assets
 )
 
 # On Windows enable big objects
@@ -77,4 +77,4 @@ if(WIN32)
 endif()
 
 # Register tests
-rex_register_tests(rexlib-unitary-tests)
+rexlib_register_tests(rexlib-unitary-tests)

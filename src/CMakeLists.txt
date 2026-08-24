@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 
 # Usage requirements of the private dependencies, shared by every component
 # object library and by the final shared library.
-add_library(rex-private-deps INTERFACE)
+add_library(rexlib-private-deps INTERFACE)
 target_link_libraries(
-	rex-private-deps
+	rexlib-private-deps
 	INTERFACE
 		Threads::Threads
 		spdlog::spdlog_header_only
@@ -19,7 +19,7 @@ target_link_libraries(
 )
 if(WIN32)
 	target_link_libraries(
-		rex-private-deps
+		rexlib-private-deps
 		INTERFACE
 			ws2_32 # Winsock
 	)
@@ -28,7 +28,7 @@ endif()
 # Define one object library per component. Properties that CMake only
 # applies automatically to SHARED targets (export define, PIC, hidden
 # visibility) must be set explicitly on each object library.
-function(rex_add_component NAME DIR)
+function(rexlib_add_component NAME DIR)
 	file(
 		GLOB_RECURSE
 		SOURCES
@@ -113,15 +113,15 @@ function(rex_add_component NAME DIR)
 	target_link_libraries(
 		${NAME}
 		PRIVATE
-			rex-private-deps
+			rexlib-private-deps
 	)
 endfunction()
 
-rex_add_component(rexlib-obj core)
-rex_add_component(rex-ops-obj ops)
-rex_add_component(rex-functional-obj functional)
-rex_add_component(rex-cpu-obj backends/cpu)
-# NOTE: register src/em as rex-em-obj once it has sources (an empty
+rexlib_add_component(rexlib-obj core)
+rexlib_add_component(rexlib-ops-obj ops)
+rexlib_add_component(rexlib-functional-obj functional)
+rexlib_add_component(rexlib-cpu-obj backends/cpu)
+# NOTE: register src/em as rexlib-em-obj once it has sources (an empty
 # GLOB would make add_library fail).
 
 # Assemble the single shared library from the component objects
@@ -129,9 +129,9 @@ add_library(
 	rexlib
 	SHARED
 		$<TARGET_OBJECTS:rexlib-obj>
-		$<TARGET_OBJECTS:rex-ops-obj>
-		$<TARGET_OBJECTS:rex-functional-obj>
-		$<TARGET_OBJECTS:rex-cpu-obj>
+		$<TARGET_OBJECTS:rexlib-ops-obj>
+		$<TARGET_OBJECTS:rexlib-functional-obj>
+		$<TARGET_OBJECTS:rexlib-cpu-obj>
 )
 set_target_properties(
 	rexlib
@@ -168,7 +168,7 @@ target_link_libraries(
 	PUBLIC
 		Threads::Threads
 	PRIVATE
-		rex-private-deps
+		rexlib-private-deps
 )
 
 # Create the alias
