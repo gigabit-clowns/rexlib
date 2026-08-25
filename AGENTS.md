@@ -1,8 +1,10 @@
 # Working on rexlib
 
 rexlib is a device-agnostic array computing library with a pluggable backend
-architecture. Backends for particular hardware live in their own repositories
-and are loaded at run time.
+architecture. It is built as a generic ND-array framework, although it will 
+gain focus on Cryo-Electron Microscopy (CryoEM) image processing algorithms.
+Backends (implementations) for particular hardware live in their own repositories
+(except for CPU) and are loaded at run time.
 
 Keep this file true. When a change makes something here wrong or missing —
 a moved directory, a new convention, a dependency, a workflow — update it in
