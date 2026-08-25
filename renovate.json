@@ -9,7 +9,7 @@
   "ignorePresets": [":ignoreModulesAndTests"],
   "packageRules": [
     {
-      "matchDepNames": ["python", "gigabit-clowns/.github"],
+      "matchDepNames": ["gigabit-clowns/.github"],
       "enabled": false
     },
     {
