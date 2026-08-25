@@ -14,9 +14,6 @@ function(fetch_pocketfft)
 	FetchContent_Declare(
 		pocketfft
 		URL https://github.com/mreineck/pocketfft/archive/${arg_COMMIT}.tar.gz
-		CONFIGURE_COMMAND ${NO_OP_COMMAND}
-		BUILD_COMMAND ${NO_OP_COMMAND}
-		INSTALL_COMMAND ${NO_OP_COMMAND}
 	)
 	FetchContent_MakeAvailable(pocketfft)
 
