@@ -1,8 +1,8 @@
 # Working on rexlib
 
-rexlib is the core of the xmipp4 framework: a C++17 shared library that
-dispatches array operations onto pluggable backends. Plugins for other hardware
-live in their own repositories and are loaded at run time.
+rexlib is a device-agnostic array computing library with a pluggable backend
+architecture. Backends for particular hardware live in their own repositories
+and are loaded at run time.
 
 Keep this file true. When a change makes something here wrong or missing —
 a moved directory, a new convention, a dependency, a workflow — update it in
@@ -33,9 +33,12 @@ cmake --build build -j
 ctest --test-dir build
 ```
 
-CMake 3.16 is the minimum. The standard is C++17 and it is not raised without
-a decision: several `REXLIB_*` macros exist to use newer features where the
-compiler has them.
+CMake 3.16 is the minimum. The sources are written to C++14 and reach anything
+newer through the `REXLIB_*` feature macros, so that a compiler without it
+still builds them; CMake asks for C++17 but leaves
+`CMAKE_CXX_STANDARD_REQUIRED` off, so the request is a preference. One
+declaration does not follow this, `parse_device_index` in
+`core/hardware/device_index.hpp`, which takes a `std::string_view`.
 
 Options, all `OFF` by default:
 
