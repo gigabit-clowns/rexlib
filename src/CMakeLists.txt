@@ -209,5 +209,6 @@ install(
 	FILES
 	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config-version.cmake
+	${PROJECT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
 )
