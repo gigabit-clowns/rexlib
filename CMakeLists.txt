@@ -47,6 +47,10 @@ else()
 endif()
 set(REXLIB_PLUGINS_INSTALL_DIR ${REXLIB_PLUGINS_INSTALL_DIR} CACHE PATH "Directory where the rexlib plugins are installed")
 
+# Same helper the installed package config offers, so that a plugin built
+# inside a superbuild installs itself exactly as an out-of-tree one does.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake)
+
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
