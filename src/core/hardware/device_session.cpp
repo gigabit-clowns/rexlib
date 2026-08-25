@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include "memory_allocator_table.hpp"
 
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class device_session::implementation
@@ -30,7 +30,7 @@ public:
 
 	const std::shared_ptr<device>& get_device() const noexcept
 	{
-		XMIPP4_ASSERT(m_device);
+		REXLIB_ASSERT(m_device);
 		return m_device;
 	}
 
@@ -47,7 +47,7 @@ public:
 
 	const std::shared_ptr<command_queue>& get_default_queue() const noexcept
 	{
-		XMIPP4_ASSERT(m_default_queue);
+		REXLIB_ASSERT(m_default_queue);
 		return m_default_queue;
 	}
 
@@ -81,13 +81,13 @@ device_session::~device_session() = default;
 
 const std::shared_ptr<device>& device_session::get_device() const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REXLIB_ASSERT(m_implementation);
 	return m_implementation->get_device();
 }
 
 const device_properties& device_session::get_properties() const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REXLIB_ASSERT(m_implementation);
 	return m_implementation->get_properties();
 }
 
@@ -96,15 +96,15 @@ device_session::get_allocator(
 	memory_resource_affinity affinity
 ) const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REXLIB_ASSERT(m_implementation);
 	return m_implementation->get_allocator(affinity);
 }
 
 const std::shared_ptr<command_queue>&
 device_session::get_default_queue() const noexcept
 {
-	XMIPP4_ASSERT(m_implementation);
+	REXLIB_ASSERT(m_implementation);
 	return m_implementation->get_default_queue();
 }
 
-} // namespace xmipp4
+} // namespace rexlib

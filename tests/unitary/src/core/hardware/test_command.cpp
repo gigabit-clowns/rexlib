@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/command.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "mock/mock_buffer.hpp"
 #include "mock/mock_program.hpp"
@@ -11,7 +11,7 @@
 #include <memory>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
     "command default constructor produces null program and empty spans",

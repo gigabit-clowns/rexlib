@@ -5,13 +5,13 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <core/hardware/host_memory/host_memory_resource.hpp>
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
 
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "host_buffer should allocate enough space", "[host_buffer]" )
 {

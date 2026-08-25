@@ -4,12 +4,12 @@
 
 #include <cstdint>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
 
-XMIPP4_INSTANTIATE_EIGEN_GEMM(std::uint32_t);
+REXLIB_INSTANTIATE_EIGEN_GEMM(std::uint32_t);
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

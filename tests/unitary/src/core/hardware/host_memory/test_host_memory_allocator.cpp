@@ -5,15 +5,15 @@
 
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/system/host.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/system/host.hpp>
 
 #include "../mock/mock_command_queue.hpp"
 
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "get_max_alignment in host_memory_allocator should return the page size", "[host_memory_allocator]" )
 {

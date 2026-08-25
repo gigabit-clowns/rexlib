@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/rounding.hpp>
+#include <rexlib/functional/rounding.hpp>
 
-#include <xmipp4/ops/rounding/ceil_operation.hpp>
-#include <xmipp4/ops/rounding/floor_operation.hpp>
-#include <xmipp4/ops/rounding/round_operation.hpp>
-#include <xmipp4/ops/rounding/trunc_operation.hpp>
+#include <rexlib/ops/rounding/ceil_operation.hpp>
+#include <rexlib/ops/rounding/floor_operation.hpp>
+#include <rexlib/ops/rounding/round_operation.hpp>
+#include <rexlib/ops/rounding/trunc_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

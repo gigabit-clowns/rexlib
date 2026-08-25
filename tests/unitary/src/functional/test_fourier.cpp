@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/fourier.hpp>
+#include <rexlib/functional/fourier.hpp>
 
-#include <xmipp4/ops/fourier/fft_operation.hpp>
-#include <xmipp4/ops/fourier/fftshift_operation.hpp>
-#include <xmipp4/ops/fourier/ifft_operation.hpp>
-#include <xmipp4/ops/fourier/ifftshift_operation.hpp>
-#include <xmipp4/ops/fourier/irfft_operation.hpp>
-#include <xmipp4/ops/fourier/rfft_operation.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/fourier/fftshift_operation.hpp>
+#include <rexlib/ops/fourier/ifft_operation.hpp>
+#include <rexlib/ops/fourier/ifftshift_operation.hpp>
+#include <rexlib/ops/fourier/irfft_operation.hpp>
+#include <rexlib/ops/fourier/rfft_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
@@ -17,16 +17,16 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 namespace
 {
 
 // The operand is two dimensional, so the last axis is axis 1.
-XMIPP4_CONST_CONSTEXPR std::size_t last_axis = 1;
+REXLIB_CONST_CONSTEXPR std::size_t last_axis = 1;
 
 } // namespace
 

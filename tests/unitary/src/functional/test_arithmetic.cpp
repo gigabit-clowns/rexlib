@@ -2,24 +2,24 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/arithmetic.hpp>
+#include <rexlib/functional/arithmetic.hpp>
 
-#include <xmipp4/ops/arithmetic/abs_operation.hpp>
-#include <xmipp4/ops/arithmetic/add_operation.hpp>
-#include <xmipp4/ops/arithmetic/divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/divmod_operation.hpp>
-#include <xmipp4/ops/arithmetic/floor_divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/modulo_operation.hpp>
-#include <xmipp4/ops/arithmetic/multiply_operation.hpp>
-#include <xmipp4/ops/arithmetic/negate_operation.hpp>
-#include <xmipp4/ops/arithmetic/sign_operation.hpp>
-#include <xmipp4/ops/arithmetic/subtract_operation.hpp>
+#include <rexlib/ops/arithmetic/abs_operation.hpp>
+#include <rexlib/ops/arithmetic/add_operation.hpp>
+#include <rexlib/ops/arithmetic/divide_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/modulo_operation.hpp>
+#include <rexlib/ops/arithmetic/multiply_operation.hpp>
+#include <rexlib/ops/arithmetic/negate_operation.hpp>
+#include <rexlib/ops/arithmetic/sign_operation.hpp>
+#include <rexlib/ops/arithmetic/subtract_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 TEST_CASE_METHOD(

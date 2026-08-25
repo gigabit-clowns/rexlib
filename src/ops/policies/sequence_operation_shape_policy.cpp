@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/sequence_operation_shape_policy.hpp>
+#include <rexlib/ops/policies/sequence_operation_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -44,4 +44,4 @@ void sequence_operation_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

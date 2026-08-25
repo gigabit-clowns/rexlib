@@ -6,13 +6,13 @@
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <algorithm>
 #include <cstddef>
@@ -23,8 +23,8 @@
 #include <tuple>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
@@ -745,8 +745,8 @@ TEST_CASE(
 	// folded start to finish by one thread and in the serial order. The
 	// answer therefore has to match bit for bit, sums included, which is
 	// what a tolerance here would hide rather than check.
-	XMIPP4_CONST_CONSTEXPR std::size_t kept = 37;
-	XMIPP4_CONST_CONSTEXPR std::size_t reduced = 11;
+	REXLIB_CONST_CONSTEXPR std::size_t kept = 37;
+	REXLIB_CONST_CONSTEXPR std::size_t reduced = 11;
 
 	std::vector<double> input(kept*reduced);
 	for (std::size_t i = 0; i < input.size(); ++i)
@@ -817,7 +817,7 @@ TEST_CASE(
 	// Deep enough to be worth threading at the default grain, so that the
 	// fold split is the path actually taken here rather than something the
 	// case only describes.
-	XMIPP4_CONST_CONSTEXPR std::size_t reduced = 4*XMIPP4_PARALLEL_GRAIN_SIZE;
+	REXLIB_CONST_CONSTEXPR std::size_t reduced = 4*REXLIB_PARALLEL_GRAIN_SIZE;
 
 	// Whole numbers, so that the sum is exact whatever order it is added in
 	// and the check can be an equality rather than a tolerance. That the fold

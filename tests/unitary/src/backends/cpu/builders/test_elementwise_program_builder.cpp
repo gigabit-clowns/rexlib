@@ -9,24 +9,24 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_arity.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include "../../../core/dispatch/mock/mock_operation.hpp"
 
@@ -37,19 +37,19 @@
 #include <string>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
 
 
 // A self-contained binary elementwise operation.
-XMIPP4_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	test_binary,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	ops::elementwise_operation_shape_policy,
 	ops::binary_homogeneous_rule<>
 );

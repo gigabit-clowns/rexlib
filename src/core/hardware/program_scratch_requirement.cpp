@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 program_scratch_requirement::program_scratch_requirement(
@@ -32,4 +32,4 @@ memory_resource_affinity program_scratch_requirement::get_affinity() const
 	return m_affinity;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

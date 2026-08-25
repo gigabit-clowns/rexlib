@@ -3,16 +3,16 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/catch_template_test_macros.hpp>
 
-#include <xmipp4/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
 #include "fixtures/cpu_execution_context_fixture.hpp"
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <complex>
 #include <cstddef>
@@ -20,7 +20,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

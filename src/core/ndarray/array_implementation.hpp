@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 
 #include <memory>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 class array_implementation
@@ -39,6 +39,6 @@ private:
 
 };
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "array_implementation.inl"

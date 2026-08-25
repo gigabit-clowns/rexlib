@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/cast.hpp>
+#include <rexlib/functional/cast.hpp>
 
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/assignment/copy_operation.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/functional/creation.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array cast(
@@ -65,4 +65,4 @@ array cast_copy(
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

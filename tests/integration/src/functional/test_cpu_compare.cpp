@@ -2,21 +2,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/compare.hpp>
+#include <rexlib/functional/compare.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/compare/equal_operation.hpp>
-#include <xmipp4/ops/compare/greater_equal_operation.hpp>
-#include <xmipp4/ops/compare/greater_operation.hpp>
-#include <xmipp4/ops/compare/less_equal_operation.hpp>
-#include <xmipp4/ops/compare/less_operation.hpp>
-#include <xmipp4/ops/compare/not_equal_operation.hpp>
+#include <rexlib/ops/compare/equal_operation.hpp>
+#include <rexlib/ops/compare/greater_equal_operation.hpp>
+#include <rexlib/ops/compare/greater_operation.hpp>
+#include <rexlib/ops/compare/less_equal_operation.hpp>
+#include <rexlib/ops/compare/less_operation.hpp>
+#include <rexlib/ops/compare/not_equal_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // The operands are zero and one throughout. Every admitted type holds both
 // and orders them the same way, booleans included, which is what lets one
@@ -34,7 +34,7 @@ TEST_CASE_METHOD(
 {
 	// Both parts agree, so the complex types answer the same as the rest.
 	check_binary<equal_operation>(
-		xmipp4::equal,
+		rexlib::equal,
 		element_value(1, 2),
 		element_value(1, 2),
 		[](auto, auto) { return true; }
@@ -48,7 +48,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<equal_operation>(
-		xmipp4::equal,
+		rexlib::equal,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return false; }
@@ -62,7 +62,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<not_equal_operation>(
-		xmipp4::not_equal,
+		rexlib::not_equal,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<not_equal_operation>(
-		xmipp4::not_equal,
+		rexlib::not_equal,
 		element_value(1, 2),
 		element_value(1, 2),
 		[](auto, auto) { return false; }
@@ -90,7 +90,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<less_operation>(
-		xmipp4::less,
+		rexlib::less,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -106,7 +106,7 @@ TEST_CASE_METHOD(
 	// The operands swapped, so a symmetric comparison would answer the
 	// same and this would fail.
 	check_binary<less_operation>(
-		xmipp4::less,
+		rexlib::less,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return false; }
@@ -120,7 +120,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<less_equal_operation>(
-		xmipp4::less_equal,
+		rexlib::less_equal,
 		element_value(1),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -134,7 +134,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<less_equal_operation>(
-		xmipp4::less_equal,
+		rexlib::less_equal,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return false; }
@@ -148,7 +148,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<greater_operation>(
-		xmipp4::greater,
+		rexlib::greater,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return true; }
@@ -162,7 +162,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<greater_operation>(
-		xmipp4::greater,
+		rexlib::greater,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return false; }
@@ -176,7 +176,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<greater_equal_operation>(
-		xmipp4::greater_equal,
+		rexlib::greater_equal,
 		element_value(1),
 		element_value(1),
 		[](auto, auto) { return true; }
@@ -190,7 +190,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<greater_equal_operation>(
-		xmipp4::greater_equal,
+		rexlib::greater_equal,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return false; }

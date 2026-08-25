@@ -9,26 +9,26 @@ file(
 )
 
 # Add the test executable
-add_executable(xmipp4-core-integration-tests ${TEST_SOURCES})
+add_executable(rexlib-integration-tests ${TEST_SOURCES})
 target_link_libraries(
-	xmipp4-core-integration-tests
+	rexlib-integration-tests
 	PRIVATE
-		xmipp4-core
-		xmipp4-test-assets-interface
+		rexlib
+		rexlib-test-assets-interface
 		Catch2::Catch2WithMain
 )
 add_dependencies(
-	xmipp4-core-integration-tests
-	xmipp4-test-assets
+	rexlib-integration-tests
+	rexlib-test-assets
 )
 
 # On windows targets, copy the library to the test directory
 if(WIN32)
-	add_custom_command(TARGET xmipp4-core-integration-tests
+	add_custom_command(TARGET rexlib-integration-tests
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:xmipp4-core> $<TARGET_FILE_DIR:xmipp4-core-integration-tests>
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rexlib> $<TARGET_FILE_DIR:rexlib-integration-tests>
 	)
 endif()
 
 # Register tests
-xmipp4_register_tests(xmipp4-core-integration-tests)
+rexlib_register_tests(rexlib-integration-tests)

@@ -2,16 +2,16 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/parametric_operation.hpp>
+#include <rexlib/core/dispatch/parametric_operation.hpp>
 
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <cstddef>
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
@@ -54,11 +54,11 @@ private:
 	std::size_t m_factor;
 };
 
-XMIPP4_DECLARE_PARAMETRIC_OPERATION(
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	stub_scale,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	stub_scaling_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

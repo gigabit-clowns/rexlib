@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/complex/conjugate_operation.hpp>
+#include <rexlib/ops/complex/conjugate_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
@@ -8,7 +8,7 @@
 
 #include <complex>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -39,11 +39,11 @@ struct conjugate_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	conjugate,
 	ops::conjugate_operation,
 	default_kernel_factory<conjugate_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

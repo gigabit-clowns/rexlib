@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/binary/bit.hpp>
+#include <rexlib/core/binary/bit.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -9,7 +9,7 @@
 #include <type_traits>
 #include <cstdint>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "bit shifts left by 1", "[bit]" ) 
 {

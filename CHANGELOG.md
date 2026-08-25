@@ -1,5 +1,5 @@
 # Release v0.1.0
-Initial xmipp4-core release. Still work in progress.
+Initial rexlib release. Still work in progress.
 
 - Defined and implemented plugin architecture.
 - Defined communication API for executing multi-process and multi-node

@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/event.hpp>
+#include <rexlib/core/hardware/event.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -17,7 +17,7 @@ namespace cpu
  * @ref event_usage_flag_bits::device_wait.
  */
 class event
-	: public xmipp4::event
+	: public rexlib::event
 {
 public:
 	event_usage_flags get_supported_usage() const noexcept override;
@@ -27,4 +27,4 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

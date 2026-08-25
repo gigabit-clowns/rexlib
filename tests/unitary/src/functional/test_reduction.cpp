@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/reduction.hpp>
+#include <rexlib/functional/reduction.hpp>
 
-#include <xmipp4/ops/reduction/all_operation.hpp>
-#include <xmipp4/ops/reduction/amax_operation.hpp>
-#include <xmipp4/ops/reduction/amin_operation.hpp>
-#include <xmipp4/ops/reduction/any_operation.hpp>
-#include <xmipp4/ops/reduction/argmax_operation.hpp>
-#include <xmipp4/ops/reduction/argmin_operation.hpp>
-#include <xmipp4/ops/reduction/count_nonzero_operation.hpp>
-#include <xmipp4/ops/reduction/mean_operation.hpp>
-#include <xmipp4/ops/reduction/product_operation.hpp>
-#include <xmipp4/ops/reduction/sum_operation.hpp>
+#include <rexlib/ops/reduction/all_operation.hpp>
+#include <rexlib/ops/reduction/amax_operation.hpp>
+#include <rexlib/ops/reduction/amin_operation.hpp>
+#include <rexlib/ops/reduction/any_operation.hpp>
+#include <rexlib/ops/reduction/argmax_operation.hpp>
+#include <rexlib/ops/reduction/argmin_operation.hpp>
+#include <rexlib/ops/reduction/count_nonzero_operation.hpp>
+#include <rexlib/ops/reduction/mean_operation.hpp>
+#include <rexlib/ops/reduction/product_operation.hpp>
+#include <rexlib/ops/reduction/sum_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
@@ -21,9 +21,9 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 TEST_CASE_METHOD(

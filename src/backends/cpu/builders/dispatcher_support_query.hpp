@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -50,4 +50,4 @@ struct dispatcher_support_query<
 
 } // namespace detail
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/axis_list.hpp>
+#include <rexlib/ops/policies/axis_list.hpp>
 
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -45,4 +45,4 @@ void check_axes_within_rank(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

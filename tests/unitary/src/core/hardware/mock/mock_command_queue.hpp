@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
-#include <xmipp4/core/hardware/event.hpp>
-#include <xmipp4/core/hardware/command.hpp>
+#include <rexlib/core/hardware/event.hpp>
+#include <rexlib/core/hardware/command.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_command_queue final
@@ -21,4 +21,4 @@ public:
 	MAKE_MOCK1(wait, void(const event &event), override);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

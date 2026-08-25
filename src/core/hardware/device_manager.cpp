@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
 
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <backends/cpu/hardware/device_backend.hpp>
 
@@ -11,7 +11,7 @@
 #include <tuple>
 #include <unordered_map>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class device_manager::implementation
@@ -57,13 +57,13 @@ public:
 
 	void enumerate_devices(std::vector<device_index> &indices) const
 	{
-		XMIPP4_ASSERT( indices.empty() );
+		REXLIB_ASSERT( indices.empty() );
 
 		std::vector<std::size_t> ids;
 		for(const auto &item : m_backends)
 		{
 			const auto *backend = item.second.get();
-			XMIPP4_ASSERT(backend);
+			REXLIB_ASSERT(backend);
 			backend->enumerate_devices(ids);
 			for(const auto &id : ids)
 			{
@@ -167,4 +167,4 @@ void device_manager::create_implementation_if_null()
 	}
 }
 
-} // namespace xmipp4
+} // namespace rexlib

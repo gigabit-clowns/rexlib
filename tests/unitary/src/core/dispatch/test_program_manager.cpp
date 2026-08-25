@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/program_manager.hpp>
-#include <xmipp4/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 
 #include "mock/mock_operation.hpp"
 #include "mock/mock_program_builder.hpp"
@@ -14,7 +14,7 @@
 
 #include <array>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

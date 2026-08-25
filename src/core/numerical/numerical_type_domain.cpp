@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/numerical/numerical_type_domain.hpp>
+#include <rexlib/core/numerical/numerical_type_domain.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 std::ostream& operator<<(
@@ -34,4 +34,4 @@ std::ostream& operator<<(
 	return os;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -29,4 +29,4 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rexlib/ops/policies/reduction_operation_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
 #include <iterator>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -65,4 +65,4 @@ void reduction_operation_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

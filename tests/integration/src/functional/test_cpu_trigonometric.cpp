@@ -2,33 +2,33 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/trigonometric.hpp>
+#include <rexlib/functional/trigonometric.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/trigonometric/acos_operation.hpp>
-#include <xmipp4/ops/trigonometric/acosh_operation.hpp>
-#include <xmipp4/ops/trigonometric/asin_operation.hpp>
-#include <xmipp4/ops/trigonometric/asinh_operation.hpp>
-#include <xmipp4/ops/trigonometric/atan2_operation.hpp>
-#include <xmipp4/ops/trigonometric/atan_operation.hpp>
-#include <xmipp4/ops/trigonometric/atanh_operation.hpp>
-#include <xmipp4/ops/trigonometric/cos_operation.hpp>
-#include <xmipp4/ops/trigonometric/cosh_operation.hpp>
-#include <xmipp4/ops/trigonometric/degrees_operation.hpp>
-#include <xmipp4/ops/trigonometric/hypot_operation.hpp>
-#include <xmipp4/ops/trigonometric/radians_operation.hpp>
-#include <xmipp4/ops/trigonometric/sin_operation.hpp>
-#include <xmipp4/ops/trigonometric/sincos_operation.hpp>
-#include <xmipp4/ops/trigonometric/sinh_operation.hpp>
-#include <xmipp4/ops/trigonometric/tan_operation.hpp>
-#include <xmipp4/ops/trigonometric/tanh_operation.hpp>
+#include <rexlib/ops/trigonometric/acos_operation.hpp>
+#include <rexlib/ops/trigonometric/acosh_operation.hpp>
+#include <rexlib/ops/trigonometric/asin_operation.hpp>
+#include <rexlib/ops/trigonometric/asinh_operation.hpp>
+#include <rexlib/ops/trigonometric/atan2_operation.hpp>
+#include <rexlib/ops/trigonometric/atan_operation.hpp>
+#include <rexlib/ops/trigonometric/atanh_operation.hpp>
+#include <rexlib/ops/trigonometric/cos_operation.hpp>
+#include <rexlib/ops/trigonometric/cosh_operation.hpp>
+#include <rexlib/ops/trigonometric/degrees_operation.hpp>
+#include <rexlib/ops/trigonometric/hypot_operation.hpp>
+#include <rexlib/ops/trigonometric/radians_operation.hpp>
+#include <rexlib/ops/trigonometric/sin_operation.hpp>
+#include <rexlib/ops/trigonometric/sincos_operation.hpp>
+#include <rexlib/ops/trigonometric/sinh_operation.hpp>
+#include <rexlib/ops/trigonometric/tan_operation.hpp>
+#include <rexlib/ops/trigonometric/tanh_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::comparison_mode;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::comparison_mode;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // None of these has a correctly rounded result guaranteed by IEEE-754, so
 // they are compared within a tolerance for their element type. The inputs
@@ -46,7 +46,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sin_operation>(
-		xmipp4::sin,
+		rexlib::sin,
 		element_value(1),
 		[](auto) { return 0.8414709848078965; },
 		comparison_mode::approximate
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<cos_operation>(
-		xmipp4::cos,
+		rexlib::cos,
 		element_value(1),
 		[](auto) { return 0.5403023058681398; },
 		comparison_mode::approximate
@@ -74,7 +74,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<tan_operation>(
-		xmipp4::tan,
+		rexlib::tan,
 		element_value(1),
 		[](auto) { return 1.5574077246549023; },
 		comparison_mode::approximate
@@ -88,7 +88,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<asin_operation>(
-		xmipp4::asin,
+		rexlib::asin,
 		element_value(0.5),
 		[](auto) { return 0.5235987755982989; },
 		comparison_mode::approximate
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<acos_operation>(
-		xmipp4::acos,
+		rexlib::acos,
 		element_value(0.5),
 		[](auto) { return 1.0471975511965979; },
 		comparison_mode::approximate
@@ -116,7 +116,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<atan_operation>(
-		xmipp4::atan,
+		rexlib::atan,
 		element_value(1),
 		[](auto) { return 0.7853981633974483; },
 		comparison_mode::approximate
@@ -130,7 +130,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sinh_operation>(
-		xmipp4::sinh,
+		rexlib::sinh,
 		element_value(1),
 		[](auto) { return 1.1752011936438014; },
 		comparison_mode::approximate
@@ -144,7 +144,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<cosh_operation>(
-		xmipp4::cosh,
+		rexlib::cosh,
 		element_value(1),
 		[](auto) { return 1.5430806348152437; },
 		comparison_mode::approximate
@@ -158,7 +158,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<tanh_operation>(
-		xmipp4::tanh,
+		rexlib::tanh,
 		element_value(1),
 		[](auto) { return 0.7615941559557649; },
 		comparison_mode::approximate
@@ -172,7 +172,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<asinh_operation>(
-		xmipp4::asinh,
+		rexlib::asinh,
 		element_value(1),
 		[](auto) { return 0.881373587019543; },
 		comparison_mode::approximate
@@ -186,7 +186,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<acosh_operation>(
-		xmipp4::acosh,
+		rexlib::acosh,
 		element_value(2),
 		[](auto) { return 1.3169578969248166; },
 		comparison_mode::approximate
@@ -200,7 +200,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<atanh_operation>(
-		xmipp4::atanh,
+		rexlib::atanh,
 		element_value(0.5),
 		[](auto) { return 0.5493061443340549; },
 		comparison_mode::approximate
@@ -216,7 +216,7 @@ TEST_CASE_METHOD(
 	// Deliberately asymmetric: were the operands taken the other way round
 	// this would be zero rather than a quarter turn.
 	check_binary<atan2_operation>(
-		xmipp4::atan2,
+		rexlib::atan2,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return 1.5707963267948966; },
@@ -231,7 +231,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<hypot_operation>(
-		xmipp4::hypot,
+		rexlib::hypot,
 		element_value(3),
 		element_value(4),
 		[](auto, auto) { return 5; },
@@ -246,7 +246,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<degrees_operation>(
-		xmipp4::degrees,
+		rexlib::degrees,
 		element_value(1),
 		[](auto) { return 57.29577951308232; },
 		comparison_mode::approximate
@@ -260,7 +260,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<radians_operation>(
-		xmipp4::radians,
+		rexlib::radians,
 		element_value(180),
 		[](auto) { return 3.141592653589793; },
 		comparison_mode::approximate
@@ -274,7 +274,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary_pair<sincos_operation>(
-		xmipp4::sincos,
+		rexlib::sincos,
 		element_value(1),
 		[](auto) { return 0.8414709848078965; },
 		[](auto) { return 0.5403023058681398; },

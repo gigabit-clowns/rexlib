@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/program.hpp>
+#include <rexlib/core/hardware/program.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

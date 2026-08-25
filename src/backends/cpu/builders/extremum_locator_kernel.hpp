@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/builders/reduction_compute_type.hpp>
 #include <backends/cpu/load_store.hpp>
@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -125,8 +125,8 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS Order m_order;
+	REXLIB_NO_UNIQUE_ADDRESS Order m_order;
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

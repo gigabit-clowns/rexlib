@@ -20,6 +20,7 @@ jobs:
       matrix:
         os:
         - ubuntu-latest
+        - ubuntu-22.04
         compiler: 
         - {c: gcc, cxx: g++}
         - {c: clang, cxx: clang++}
@@ -31,6 +32,12 @@ jobs:
           compiler: {c: cl, cxx: cl}
           generator: "Ninja"
         - os: windows-latest
+          compiler: {c: gcc, cxx: g++}
+          generator: "Ninja"
+        - os: windows-11-arm
+          compiler: {c: cl, cxx: cl}
+          generator: "Ninja"
+        - os: windows-11-arm
           compiler: {c: gcc, cxx: g++}
           generator: "Ninja"
 
@@ -86,7 +93,7 @@ jobs:
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
-            XMIPP4_CORE_ENABLE_COVERAGE=ON
+            REXLIB_ENABLE_COVERAGE=ON
             CMAKE_C_COMPILER_LAUNCHER=ccache
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
             ${{ matrix.compiler.cxx == 'cl' && 'CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
@@ -118,66 +125,6 @@ jobs:
         with:
           name: build-artifact
           path: build
-
-  build_with_pip:
-    name: pip
-    permissions:
-      contents: read
-    if: github.event_name != 'push'
-    strategy:
-      matrix:
-        os:
-        - ubuntu-latest
-        - ubuntu-22.04
-        - macos-latest
-        - windows-latest
-
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash -el {0}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Upgrade pip & packaging for ubuntu 22.04
-        if: matrix.os == 'ubuntu-22.04'
-        run: python -m pip install --upgrade pip packaging
-
-      - name: Install xmipp4-core with pip
-        run: pip install . -v
-
-  build_with_conda:
-    name: conda
-    permissions:
-      contents: read
-    if: github.event_name != 'push'
-    strategy:
-      matrix:
-        os:
-        - ubuntu-latest
-        - macos-latest
-        - windows-latest
-
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash -el {0}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Set up conda
-        uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4
-        with:
-          auto-activate: true
-          activate-environment: "" # Base is required for conda-build
-
-      - name: Install conda-build and conda-verify
-        run: conda install -y conda-build conda-verify python=3.12
-
-      - name: Build with conda
-        run: conda build conda
 
   sonar-scan:
     name: SonarQube scan

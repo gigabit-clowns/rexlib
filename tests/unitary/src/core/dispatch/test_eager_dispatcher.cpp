@@ -3,30 +3,30 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
 
-#include <xmipp4/core/dispatch/program_manager.hpp>
-#include <xmipp4/core/dispatch/program_cache.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/dispatch/operation_id.hpp>
-#include <xmipp4/core/dispatch/operation_arity.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/backend_priority.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/backend_priority.hpp>
 
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/hardware/command.hpp>
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
 #include "mock/mock_operation.hpp"
 #include "mock/mock_operation_shape_policy.hpp"
@@ -46,7 +46,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
@@ -113,12 +113,12 @@ protected:
 	// that whichever of them rejects a launch can name the operand.
 	static const operation_descriptor& mock_descriptor()
 	{
-		static XMIPP4_CONST_CONSTEXPR auto outputs =
+		static REXLIB_CONST_CONSTEXPR auto outputs =
 			make_operand_names("result");
-		static XMIPP4_CONST_CONSTEXPR auto inputs =
+		static REXLIB_CONST_CONSTEXPR auto inputs =
 			make_operand_names("value");
 		static const operation_descriptor instance =
-			make_operation_descriptor("xmipp4.test", "mock", outputs, inputs);
+			make_operation_descriptor("rexlib.test", "mock", outputs, inputs);
 		return instance;
 	}
 

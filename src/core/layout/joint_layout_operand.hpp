@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "../config.hpp"
 
@@ -12,7 +12,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 class joint_layout_operand
@@ -20,7 +20,7 @@ class joint_layout_operand
 public:
 	using stride_vector_type = boost::container::small_vector<
 		std::ptrdiff_t, 
-		XMIPP4_SMALL_AXIS_COUNT
+		REXLIB_SMALL_AXIS_COUNT
 	>;
 
 	joint_layout_operand(
@@ -43,6 +43,6 @@ private:
 	std::ptrdiff_t m_offset;
 };
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "joint_layout_operand.inl"

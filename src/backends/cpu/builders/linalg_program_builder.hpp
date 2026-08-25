@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -14,12 +14,12 @@
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <cstddef>
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -125,11 +125,11 @@ public:
 private:
 	using kernel_factory_type = KernelFactory;
 
-	XMIPP4_NO_UNIQUE_ADDRESS kernel_factory_type m_kernel_factory;
+	REXLIB_NO_UNIQUE_ADDRESS kernel_factory_type m_kernel_factory;
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU matmul/matvec/vecmat family
@@ -140,10 +140,10 @@ private:
  * specialization.
  * @param kernel_factory Factory producing the per-batch-element kernel.
  */
-#define XMIPP4_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::linalg_program_builder<op, kernel_factory> \
+		::rexlib::cpu::linalg_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -158,12 +158,12 @@ private:
  * @param ... The type dispatcher. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define XMIPP4_REGISTER_LINALG_PROGRAM_BUILDER_EX( \
+#define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX( \
 	name, op, kernel_factory, ... \
 ) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::linalg_program_builder< \
+		::rexlib::cpu::linalg_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

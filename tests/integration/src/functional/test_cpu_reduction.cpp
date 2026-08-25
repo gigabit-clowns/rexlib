@@ -3,20 +3,20 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/functional/reduction.hpp>
+#include <rexlib/functional/reduction.hpp>
 
 #include "fixtures/reduction_verb_fixture.hpp"
 
-#include <xmipp4/ops/reduction/all_operation.hpp>
-#include <xmipp4/ops/reduction/amax_operation.hpp>
-#include <xmipp4/ops/reduction/amin_operation.hpp>
-#include <xmipp4/ops/reduction/any_operation.hpp>
-#include <xmipp4/ops/reduction/argmax_operation.hpp>
-#include <xmipp4/ops/reduction/argmin_operation.hpp>
-#include <xmipp4/ops/reduction/count_nonzero_operation.hpp>
-#include <xmipp4/ops/reduction/mean_operation.hpp>
-#include <xmipp4/ops/reduction/product_operation.hpp>
-#include <xmipp4/ops/reduction/sum_operation.hpp>
+#include <rexlib/ops/reduction/all_operation.hpp>
+#include <rexlib/ops/reduction/amax_operation.hpp>
+#include <rexlib/ops/reduction/amin_operation.hpp>
+#include <rexlib/ops/reduction/any_operation.hpp>
+#include <rexlib/ops/reduction/argmax_operation.hpp>
+#include <rexlib/ops/reduction/argmin_operation.hpp>
+#include <rexlib/ops/reduction/count_nonzero_operation.hpp>
+#include <rexlib/ops/reduction/mean_operation.hpp>
+#include <rexlib/ops/reduction/product_operation.hpp>
+#include <rexlib/ops/reduction/sum_operation.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -24,10 +24,10 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::element_value;
-using xmipp4::test::reduction_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::reduction_verb_fixture;
 
 namespace
 {
@@ -54,7 +54,7 @@ TEST_CASE_METHOD(
 	// The last axis is the contiguous one, so this is the orientation whose
 	// reduced elements are walked contiguously.
 	check_reduction<sum_operation>(
-		xmipp4::sum,
+		rexlib::sum,
 		{ 2 },
 		false,
 		element_value(1),
@@ -71,7 +71,7 @@ TEST_CASE_METHOD(
 	// The surviving axes are the contiguous ones here, which is the other
 	// orientation of the loop and the one a naive per-output pass gets wrong.
 	check_reduction<sum_operation>(
-		xmipp4::sum,
+		rexlib::sum,
 		{ 0 },
 		false,
 		element_value(1),
@@ -86,7 +86,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<sum_operation>(
-		xmipp4::sum,
+		rexlib::sum,
 		{ 0, 2 },
 		false,
 		element_value(1),
@@ -103,7 +103,7 @@ TEST_CASE_METHOD(
 	// Leaves an output of rank zero, which is the shape the surviving space
 	// collapses to.
 	check_reduction<sum_operation>(
-		xmipp4::sum,
+		rexlib::sum,
 		{ 0, 1, 2 },
 		false,
 		element_value(1),
@@ -120,7 +120,7 @@ TEST_CASE_METHOD(
 	// An empty axis list is not a request to reduce everything, so this is a
 	// copy rather than a total.
 	check_reduction<sum_operation>(
-		xmipp4::sum,
+		rexlib::sum,
 		{},
 		false,
 		element_value(1),
@@ -135,7 +135,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<sum_operation>(
-		xmipp4::sum,
+		rexlib::sum,
 		{ 1 },
 		true,
 		element_value(1),
@@ -150,7 +150,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<product_operation>(
-		xmipp4::product,
+		rexlib::product,
 		{ 1 },
 		false,
 		element_value(1),
@@ -167,14 +167,14 @@ TEST_CASE_METHOD(
 	// Every element being equal, this pins the typing and the shape rather
 	// than the choice itself, which the cases below make.
 	check_reduction<amax_operation>(
-		xmipp4::amax,
+		rexlib::amax,
 		{ 0, 2 },
 		false,
 		element_value(2),
 		[](auto x, std::size_t) { return x; }
 	);
 	check_reduction<amin_operation>(
-		xmipp4::amin,
+		rexlib::amin,
 		{ 0, 2 },
 		false,
 		element_value(2),
@@ -195,7 +195,7 @@ TEST_CASE_METHOD(
 	const const_array_ref operand_ref = operand;
 
 	const std::vector<std::ptrdiff_t> axes = { 0 };
-	const auto result = xmipp4::product(
+	const auto result = rexlib::product(
 		operand_ref, make_span(axes), false, context, nullptr
 	);
 
@@ -217,12 +217,12 @@ TEST_CASE_METHOD(
 	{
 		const std::vector<std::ptrdiff_t> axes = { 0 };
 		check_values<float32_t>(
-			xmipp4::amax(operand_ref, make_span(axes), false, context, nullptr),
+			rexlib::amax(operand_ref, make_span(axes), false, context, nullptr),
 			{ 3 },
 			{ 5, 7, 9 }
 		);
 		check_values<float32_t>(
-			xmipp4::amin(operand_ref, make_span(axes), false, context, nullptr),
+			rexlib::amin(operand_ref, make_span(axes), false, context, nullptr),
 			{ 3 },
 			{ 3, 1, 2 }
 		);
@@ -232,12 +232,12 @@ TEST_CASE_METHOD(
 	{
 		const std::vector<std::ptrdiff_t> axes = { 1 };
 		check_values<float32_t>(
-			xmipp4::amax(operand_ref, make_span(axes), false, context, nullptr),
+			rexlib::amax(operand_ref, make_span(axes), false, context, nullptr),
 			{ 2 },
 			{ 9, 7 }
 		);
 		check_values<float32_t>(
-			xmipp4::amin(operand_ref, make_span(axes), false, context, nullptr),
+			rexlib::amin(operand_ref, make_span(axes), false, context, nullptr),
 			{ 2 },
 			{ 1, 2 }
 		);
@@ -265,9 +265,9 @@ TEST_CASE_METHOD(
 	const const_array_ref operand_ref = operand;
 
 	const auto largest =
-		xmipp4::amax(operand_ref, make_span(axes), false, context, nullptr);
+		rexlib::amax(operand_ref, make_span(axes), false, context, nullptr);
 	const auto smallest =
-		xmipp4::amin(operand_ref, make_span(axes), false, context, nullptr);
+		rexlib::amin(operand_ref, make_span(axes), false, context, nullptr);
 
 	CHECK( std::isnan(read_host<float32_t>(largest, 1).front()) );
 	CHECK( std::isnan(read_host<float32_t>(smallest, 1).front()) );
@@ -287,11 +287,11 @@ TEST_CASE_METHOD(
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 
 	CHECK_THROWS_AS(
-		xmipp4::amax(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::amax(operand_ref, make_span(axes), false, context, nullptr),
 		std::invalid_argument
 	);
 	CHECK_THROWS_AS(
-		xmipp4::amin(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::amin(operand_ref, make_span(axes), false, context, nullptr),
 		std::invalid_argument
 	);
 }
@@ -310,7 +310,7 @@ TEST_CASE_METHOD(
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 
 	check_values<float32_t>(
-		xmipp4::sum(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::sum(operand_ref, make_span(axes), false, context, nullptr),
 		{ 3 },
 		{ 0, 0, 0 }
 	);
@@ -325,7 +325,7 @@ TEST_CASE_METHOD(
 	// Every element being the same, the average is that element, whatever
 	// the count. The division is pinned by the case below instead.
 	check_reduction<mean_operation>(
-		xmipp4::mean,
+		rexlib::mean,
 		{ 1 },
 		false,
 		element_value(2),
@@ -346,7 +346,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 1 };
 	check_values<float32_t>(
-		xmipp4::mean(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::mean(operand_ref, make_span(axes), false, context, nullptr),
 		{ 2 },
 		{ 2, 5 }
 	);
@@ -365,7 +365,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 	check_values<float64_t>(
-		xmipp4::mean(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::mean(operand_ref, make_span(axes), false, context, nullptr),
 		{},
 		{ 1.5 }
 	);
@@ -378,7 +378,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<count_nonzero_operation>(
-		xmipp4::count_nonzero,
+		rexlib::count_nonzero,
 		{ 0 },
 		false,
 		element_value(1),
@@ -393,7 +393,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<count_nonzero_operation>(
-		xmipp4::count_nonzero,
+		rexlib::count_nonzero,
 		{ 0 },
 		false,
 		element_value(0),
@@ -412,7 +412,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 1 };
 	check_values<int64_t>(
-		xmipp4::count_nonzero(
+		rexlib::count_nonzero(
 			operand_ref, make_span(axes), false, context, nullptr
 		),
 		{ 2 },
@@ -427,14 +427,14 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<any_operation>(
-		xmipp4::any,
+		rexlib::any,
 		{ 2 },
 		false,
 		element_value(1),
 		[](auto, std::size_t) { return true; }
 	);
 	check_reduction<all_operation>(
-		xmipp4::all,
+		rexlib::all,
 		{ 2 },
 		false,
 		element_value(1),
@@ -449,14 +449,14 @@ TEST_CASE_METHOD(
 )
 {
 	check_reduction<any_operation>(
-		xmipp4::any,
+		rexlib::any,
 		{ 2 },
 		false,
 		element_value(0),
 		[](auto, std::size_t) { return false; }
 	);
 	check_reduction<all_operation>(
-		xmipp4::all,
+		rexlib::all,
 		{ 2 },
 		false,
 		element_value(0),
@@ -477,12 +477,12 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 1 };
 	check_values<bool>(
-		xmipp4::any(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::any(operand_ref, make_span(axes), false, context, nullptr),
 		{ 2 },
 		{ 1, 1 }
 	);
 	check_values<bool>(
-		xmipp4::all(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::all(operand_ref, make_span(axes), false, context, nullptr),
 		{ 2 },
 		{ 0, 1 }
 	);
@@ -501,12 +501,12 @@ TEST_CASE_METHOD(
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 
 	check_values<bool>(
-		xmipp4::any(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::any(operand_ref, make_span(axes), false, context, nullptr),
 		{ 3 },
 		{ 0, 0, 0 }
 	);
 	check_values<bool>(
-		xmipp4::all(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::all(operand_ref, make_span(axes), false, context, nullptr),
 		{ 3 },
 		{ 1, 1, 1 }
 	);
@@ -526,7 +526,7 @@ TEST_CASE_METHOD(
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 
 	const auto result =
-		xmipp4::mean(operand_ref, make_span(axes), false, context, nullptr);
+		rexlib::mean(operand_ref, make_span(axes), false, context, nullptr);
 
 	for (const auto value : read_host<float32_t>(result, 3))
 	{
@@ -543,14 +543,14 @@ TEST_CASE_METHOD(
 	// Every element being equal, both report the first, which is what pins
 	// that a tie keeps the earliest place rather than the latest.
 	check_reduction<argmax_operation>(
-		xmipp4::argmax,
+		rexlib::argmax,
 		{ 1 },
 		false,
 		element_value(2),
 		[](auto, std::size_t) { return 0; }
 	);
 	check_reduction<argmin_operation>(
-		xmipp4::argmin,
+		rexlib::argmin,
 		{ 1 },
 		false,
 		element_value(2),
@@ -573,13 +573,13 @@ TEST_CASE_METHOD(
 	{
 		const std::vector<std::ptrdiff_t> axes = { 0 };
 		check_values<int64_t>(
-			xmipp4::argmax(operand_ref, make_span(axes), false, context,
+			rexlib::argmax(operand_ref, make_span(axes), false, context,
 			               nullptr),
 			{ 3 },
 			{ 0, 1, 0 }
 		);
 		check_values<int64_t>(
-			xmipp4::argmin(operand_ref, make_span(axes), false, context,
+			rexlib::argmin(operand_ref, make_span(axes), false, context,
 			               nullptr),
 			{ 3 },
 			{ 1, 0, 1 }
@@ -590,13 +590,13 @@ TEST_CASE_METHOD(
 	{
 		const std::vector<std::ptrdiff_t> axes = { 1 };
 		check_values<int64_t>(
-			xmipp4::argmax(operand_ref, make_span(axes), false, context,
+			rexlib::argmax(operand_ref, make_span(axes), false, context,
 			               nullptr),
 			{ 2 },
 			{ 2, 1 }
 		);
 		check_values<int64_t>(
-			xmipp4::argmin(operand_ref, make_span(axes), false, context,
+			rexlib::argmin(operand_ref, make_span(axes), false, context,
 			               nullptr),
 			{ 2 },
 			{ 1, 2 }
@@ -621,7 +621,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 0, 1 };
 	check_values<int64_t>(
-		xmipp4::argmax(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmax(operand_ref, make_span(axes), false, context, nullptr),
 		{},
 		{ 4 }
 	);
@@ -645,12 +645,12 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 	check_values<int64_t>(
-		xmipp4::argmax(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmax(operand_ref, make_span(axes), false, context, nullptr),
 		{},
 		{ 1 }
 	);
 	check_values<int64_t>(
-		xmipp4::argmin(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmin(operand_ref, make_span(axes), false, context, nullptr),
 		{},
 		{ 1 }
 	);
@@ -673,12 +673,12 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 	check_values<int64_t>(
-		xmipp4::argmax(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmax(operand_ref, make_span(axes), false, context, nullptr),
 		{},
 		{ 1 }
 	);
 	check_values<int64_t>(
-		xmipp4::argmin(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmin(operand_ref, make_span(axes), false, context, nullptr),
 		{},
 		{ 1 }
 	);
@@ -695,11 +695,11 @@ TEST_CASE_METHOD(
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 
 	CHECK_THROWS_AS(
-		xmipp4::argmax(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmax(operand_ref, make_span(axes), false, context, nullptr),
 		std::invalid_argument
 	);
 	CHECK_THROWS_AS(
-		xmipp4::argmin(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmin(operand_ref, make_span(axes), false, context, nullptr),
 		std::invalid_argument
 	);
 }
@@ -724,7 +724,7 @@ TEST_CASE_METHOD(
 	// nothing but zeros and answers with the first of them.
 	const std::vector<std::ptrdiff_t> axes = { 0, 2 };
 	check_values<int64_t>(
-		xmipp4::argmax(operand_ref, make_span(axes), false, context, nullptr),
+		rexlib::argmax(operand_ref, make_span(axes), false, context, nullptr),
 		{ 2 },
 		{ 0, 5 }
 	);

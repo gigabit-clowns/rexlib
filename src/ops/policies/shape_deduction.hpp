@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/span.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -55,4 +55,4 @@ void assign_output_shapes(
 );
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

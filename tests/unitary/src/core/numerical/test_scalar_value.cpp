@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/numerical/scalar_value.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
 #include <complex>
 #include <type_traits>
 #include <typeinfo>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"scalar_value::get_data_type reports the numerical type of the stored "

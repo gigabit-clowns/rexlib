@@ -2,21 +2,21 @@
 
 #include "eager_dispatcher.hpp"
 
-#include <xmipp4/core/binary/bit.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/program_manager.hpp>
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/hardware/command.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/hardware/program_scratch_requirement.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 #include <core/config.hpp>
@@ -29,7 +29,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace
@@ -119,8 +119,8 @@ resolve_output_descriptors(
 )
 {
 	const auto n = output_operands.size();
-	XMIPP4_ASSERT(canonical_shapes.size() == n);
-	XMIPP4_ASSERT(canonical_data_types.size() == n);
+	REXLIB_ASSERT(canonical_shapes.size() == n);
+	REXLIB_ASSERT(canonical_data_types.size() == n);
 
 	boost::container::small_vector<array_descriptor, N> result;
 	result.reserve(n);
@@ -161,7 +161,7 @@ resolve_output_descriptors(
 		}
 	}
 
-	XMIPP4_ASSERT(result.size() == n);
+	REXLIB_ASSERT(result.size() == n);
 	return result;
 }
 
@@ -181,7 +181,7 @@ resolve_output_storage(
 	>;
 
 	const auto n = output_operands.size();
-	XMIPP4_ASSERT(n == descriptors.size());
+	REXLIB_ASSERT(n == descriptors.size());
 
 	result_type result;
 	result.reserve(n);
@@ -212,8 +212,8 @@ resolve_output_storage(
 			output_operand = array(storage, descriptor); // Store in output.
 		}
 
-		XMIPP4_ASSERT(storage);
-		XMIPP4_ASSERT(output_operand.get_descriptor() == descriptor);
+		REXLIB_ASSERT(storage);
+		REXLIB_ASSERT(output_operand.get_descriptor() == descriptor);
 		result.push_back(std::move(storage));
 	}
 
@@ -257,12 +257,12 @@ create_signatures(
 )
 {
 	const auto n = descriptors.size();
-	XMIPP4_ASSERT(n == storages.size());
+	REXLIB_ASSERT(n == storages.size());
 
 	boost::container::small_vector<operand_signature, N> result(n);
 	for (std::size_t i = 0; i < n; ++i)
 	{
-		XMIPP4_ASSERT(storages[i]);
+		REXLIB_ASSERT(storages[i]);
 		result[i] = operand_signature(
 			std::move(descriptors[i]), // Steal descriptors
 			&(storages[i]->get_memory_resource())
@@ -349,11 +349,11 @@ void eager_dispatcher::dispatch(
 )
 {
 	using small_output_size_tag =
-		std::integral_constant<std::size_t, XMIPP4_SMALL_OUTPUT_OPERAND_COUNT>;
+		std::integral_constant<std::size_t, REXLIB_SMALL_OUTPUT_OPERAND_COUNT>;
 	using small_input_size_tag =
-		std::integral_constant<std::size_t, XMIPP4_SMALL_INPUT_OPERAND_COUNT>;
+		std::integral_constant<std::size_t, REXLIB_SMALL_INPUT_OPERAND_COUNT>;
 	using small_scratch_size_tag =
-		std::integral_constant<std::size_t, XMIPP4_SMALL_SCRATCH_OPERAND_COUNT>;
+		std::integral_constant<std::size_t, REXLIB_SMALL_SCRATCH_OPERAND_COUNT>;
 
 	const auto &queue = device_context.get_active_queue();
 	if (!queue)
@@ -459,7 +459,7 @@ void eager_dispatcher::dispatch(
 		make_span(input_storages.data(), n_inputs)
 	);
 
-	XMIPP4_ASSERT(m_program_manager);
+	REXLIB_ASSERT(m_program_manager);
 	auto prog = m_program_manager->build(
 		op,
 		make_span(output_signatures.data(), n_outputs),
@@ -467,7 +467,7 @@ void eager_dispatcher::dispatch(
 		*queue,
 		&m_program_cache
 	);
-	XMIPP4_ASSERT(prog);
+	REXLIB_ASSERT(prog);
 
 	auto scratch = allocate_scratch(
 		prog->get_scratch_requirements(),
@@ -491,8 +491,8 @@ std::shared_ptr<dispatcher> make_eager_dispatcher(
 {
 	return std::make_shared<eager_dispatcher>(
 		std::move(program_manager),
-		XMIPP4_DEFAULT_OPERATION_PROGRAM_CACHE_CAPACITY
+		REXLIB_DEFAULT_OPERATION_PROGRAM_CACHE_CAPACITY
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

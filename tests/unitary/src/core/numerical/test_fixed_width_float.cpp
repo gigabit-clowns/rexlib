@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "float16_t default constructor should produce zero", "[float16_t]" )
 {

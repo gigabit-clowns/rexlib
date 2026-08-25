@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "span default construction yields empty span", "[span]" )
 {

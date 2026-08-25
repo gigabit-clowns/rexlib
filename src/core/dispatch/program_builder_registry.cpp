@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
 
-#include <xmipp4/core/dispatch/program_builder.hpp>
-#include <xmipp4/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_builder.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 program_builder_registry::program_builder_registry() = default;
@@ -27,4 +27,4 @@ void program_builder_registry::register_all(program_manager &manager) const
 	}
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
 
 #include <string>
 
-namespace xmipp4
+namespace rexlib
 {
 
 operation_descriptor::operation_descriptor(
@@ -76,4 +76,4 @@ std::string describe_operand(
 	return std::to_string(index);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

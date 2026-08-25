@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/kernels/floor_division.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -37,11 +37,11 @@ struct divmod_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	divmod,
 	ops::divmod_operation,
 	default_kernel_factory<divmod_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

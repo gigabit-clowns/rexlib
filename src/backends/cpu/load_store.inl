@@ -2,10 +2,10 @@
 
 #include "load_store.hpp"
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 #include <core/numerical/float16_conversions.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -13,19 +13,19 @@ namespace cpu
 template <typename T>
 inline T load(const T *ptr) noexcept
 {
-	XMIPP4_ASSERT(ptr);
+	REXLIB_ASSERT(ptr);
 	return *ptr;
 }
 
 inline float load(const float16_t *ptr) noexcept
 {
-	XMIPP4_ASSERT(ptr);
+	REXLIB_ASSERT(ptr);
 	return float16_to_float(*ptr);
 }
 
 inline std::complex<float> load(const std::complex<float16_t> *ptr) noexcept
 {
-	XMIPP4_ASSERT(ptr);
+	REXLIB_ASSERT(ptr);
 	return std::complex<float>(
 		float16_to_float(ptr->real()),
 		float16_to_float(ptr->imag())
@@ -35,13 +35,13 @@ inline std::complex<float> load(const std::complex<float16_t> *ptr) noexcept
 template <typename T, typename U>
 inline void store(T *ptr, const U &value) noexcept
 {
-	XMIPP4_ASSERT(ptr);
+	REXLIB_ASSERT(ptr);
 	*ptr = static_cast<T>(value);
 }
 
 inline void store(float16_t *ptr, float value) noexcept
 {
-	XMIPP4_ASSERT(ptr);
+	REXLIB_ASSERT(ptr);
 	*ptr = float_to_float16(value);
 }
 
@@ -50,7 +50,7 @@ inline void store(
 	const std::complex<float> &value
 ) noexcept
 {
-	XMIPP4_ASSERT(ptr);
+	REXLIB_ASSERT(ptr);
 	*ptr = std::complex<float16_t>(
 		float_to_float16(value.real()),
 		float_to_float16(value.imag())
@@ -60,8 +60,8 @@ inline void store(
 template <typename T, typename Q>
 inline void cast(T *destination, const Q *source) noexcept
 {
-	XMIPP4_ASSERT(destination);
-	XMIPP4_ASSERT(source);
+	REXLIB_ASSERT(destination);
+	REXLIB_ASSERT(source);
 	*destination = static_cast<T>(*source);
 }
 
@@ -69,7 +69,7 @@ template <typename Q>
 inline typename std::enable_if<std::is_arithmetic<Q>::value>::type
 cast(float16_t *destination, const Q *source) noexcept
 {
-	XMIPP4_ASSERT(source);
+	REXLIB_ASSERT(source);
 	store(destination, static_cast<float>(*source));
 }
 
@@ -77,7 +77,7 @@ template <typename T>
 inline typename std::enable_if<std::is_arithmetic<T>::value>::type
 cast(T *destination, const float16_t *source) noexcept
 {
-	XMIPP4_ASSERT(destination);
+	REXLIB_ASSERT(destination);
 	*destination = static_cast<T>(load(source));
 }
 
@@ -87,8 +87,8 @@ inline void cast(
 	const std::complex<Q> *source
 ) noexcept
 {
-	XMIPP4_ASSERT(destination);
-	XMIPP4_ASSERT(source);
+	REXLIB_ASSERT(destination);
+	REXLIB_ASSERT(source);
 	const Q source_real = source->real();
 	const Q source_imag = source->imag();
 	T real;
@@ -101,11 +101,11 @@ inline void cast(
 template <typename T, typename Q>
 inline void cast(std::complex<T> *destination, const Q *source) noexcept
 {
-	XMIPP4_ASSERT(destination);
+	REXLIB_ASSERT(destination);
 	T real;
 	cast(&real, source);
 	*destination = std::complex<T>(real);
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

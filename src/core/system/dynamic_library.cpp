@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/system/dynamic_library.hpp>
+#include <rexlib/core/system/dynamic_library.hpp>
 
 #include "dynamic_library_handle.hpp"
 
 #include <sstream>
 
-namespace xmipp4
+namespace rexlib
 {
 
 dynamic_library::dynamic_library() noexcept
@@ -91,4 +91,4 @@ void swap(dynamic_library& lhs, dynamic_library& rhs) noexcept
 	lhs.swap(rhs);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
 
 #include <memory>
 #include <array>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class device;
@@ -89,4 +89,4 @@ private:
 	allocator_array_type m_allocators;
 };
 
-} // namespace xmipp4
+} // namespace rexlib

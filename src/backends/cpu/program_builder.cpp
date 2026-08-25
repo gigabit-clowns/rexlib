@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
 #include <algorithm>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -46,7 +46,7 @@ backend_priority program_builder::get_suitability(
 	const operation& /*operation*/,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	xmipp4::command_queue &queue
+	rexlib::command_queue &queue
 ) const
 {
 	if (!check_array_signatures(output_signatures))
@@ -68,5 +68,5 @@ backend_priority program_builder::get_suitability(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 

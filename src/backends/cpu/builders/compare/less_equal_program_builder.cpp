@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/compare/less_equal_operation.hpp>
+#include <rexlib/ops/compare/less_equal_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -30,11 +30,11 @@ struct less_equal_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	less_equal,
 	ops::less_equal_operation,
 	default_kernel_factory<less_equal_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

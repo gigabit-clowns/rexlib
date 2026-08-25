@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -15,11 +15,11 @@
 #include <backends/cpu/kernels/pocketfft_fourier_transform.hpp>
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -122,7 +122,7 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU Fourier program builder.
@@ -135,10 +135,10 @@ public:
  * @param op The operation type.
  * @param transform The transform to perform.
  */
-#define XMIPP4_REGISTER_FOURIER_PROGRAM_BUILDER(name, op, transform) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(name, op, transform) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::fourier_program_builder<op, transform> \
+		::rexlib::cpu::fourier_program_builder<op, transform> \
 	)
 
 /**
@@ -153,12 +153,12 @@ public:
  * @param ... The type dispatcher. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define XMIPP4_REGISTER_FOURIER_PROGRAM_BUILDER_EX( \
+#define REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER_EX( \
 	name, op, transform, ... \
 ) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::fourier_program_builder< \
+		::rexlib::cpu::fourier_program_builder< \
 			op, transform, __VA_ARGS__ \
 		> \
 	)

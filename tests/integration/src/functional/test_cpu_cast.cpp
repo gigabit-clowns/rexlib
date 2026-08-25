@@ -2,21 +2,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/cast.hpp>
+#include <rexlib/functional/cast.hpp>
 
 #include "fixtures/cpu_execution_context_fixture.hpp"
 
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rexlib/functional/creation.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <cstdint>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE_METHOD(
 	cpu_execution_context_fixture,

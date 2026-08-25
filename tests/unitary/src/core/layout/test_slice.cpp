@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/slice.hpp>
+#include <rexlib/core/layout/slice.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -10,7 +10,7 @@
 #include <type_traits>
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "make_slice with count argument should set count and leave the rest defaulted", "[slice]" ) 
 {

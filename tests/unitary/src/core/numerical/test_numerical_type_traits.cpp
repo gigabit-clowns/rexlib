@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "numerical_type_of should contain the expected value", "[numerical_type_of]" )
 {

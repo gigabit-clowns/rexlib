@@ -5,10 +5,10 @@
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/span.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -16,8 +16,8 @@
 #include <utility>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
@@ -115,7 +115,7 @@ public:
 		std::size_t count
 	) const
 	{
-		XMIPP4_CONST_CONSTEXPR std::size_t n =
+		REXLIB_CONST_CONSTEXPR std::size_t n =
 			std::tuple_size<PointerTuple>::value;
 
 		vector_loop_call call;

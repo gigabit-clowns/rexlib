@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
 
 #include "array_implementation.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 
 const_array_ref::const_array_ref() noexcept
@@ -67,4 +67,4 @@ const_array_ref::get_implementation() const noexcept
 	return m_implementation;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

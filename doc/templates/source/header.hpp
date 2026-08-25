@@ -2,9 +2,9 @@
 
 #pragma once
 
-namespace xmipp4 
+namespace rexlib 
 {
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "inline_source.inl"

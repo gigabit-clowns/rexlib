@@ -2,7 +2,7 @@
 
 #include "inner_loop_stride_dispatch.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -12,7 +12,7 @@ namespace detail
 {
 	
 template <typename F>
-XMIPP4_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 auto dispatch_single_stride(F&& visitor, std::ptrdiff_t stride) 
 {
 	switch (stride) 
@@ -27,14 +27,14 @@ auto dispatch_single_stride(F&& visitor, std::ptrdiff_t stride)
 }
 
 template <typename F>
-XMIPP4_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 auto dispatch_strides(F&& visitor) 
 {
 	return std::forward<F>(visitor)();
 }
 
 template <typename F, typename... Integers>
-XMIPP4_INLINE_CONSTEXPR
+REXLIB_INLINE_CONSTEXPR
 auto dispatch_strides(
 	F&& visitor, 
 	std::ptrdiff_t stride, 
@@ -88,13 +88,13 @@ auto dispatch_inner_loop_strides(
 	{
 		// Zero dimensions, no stride to be obtained. Invoke the callable with
 		// a broadcasting tag for every operand.
-		XMIPP4_CONST_CONSTEXPR broadcasting_stride_tag broadcast;
+		REXLIB_CONST_CONSTEXPR broadcasting_stride_tag broadcast;
 		return std::forward<F>(callable)(
 			std::make_tuple(((void)Is, broadcast)...)
 		);
 	}
 
-	XMIPP4_CONST_CONSTEXPR std::size_t inner_index = 0;
+	REXLIB_CONST_CONSTEXPR std::size_t inner_index = 0;
 	return detail::dispatch_strides(
 		[&callable] (auto... stride_tags)
 		{
@@ -105,4 +105,4 @@ auto dispatch_inner_loop_strides(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

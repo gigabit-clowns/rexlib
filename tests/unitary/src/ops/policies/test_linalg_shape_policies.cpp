@@ -2,20 +2,20 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/ops/policies/cross_product_shape_policy.hpp>
-#include <xmipp4/ops/policies/matrix_multiply_shape_policy.hpp>
-#include <xmipp4/ops/policies/matrix_vector_shape_policy.hpp>
-#include <xmipp4/ops/policies/vector_matrix_shape_policy.hpp>
+#include <rexlib/ops/policies/cross_product_shape_policy.hpp>
+#include <rexlib/ops/policies/matrix_multiply_shape_policy.hpp>
+#include <rexlib/ops/policies/matrix_vector_shape_policy.hpp>
+#include <rexlib/ops/policies/vector_matrix_shape_policy.hpp>
 
-#include <xmipp4/core/dispatch/operand_names.hpp>
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operand_names.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 
 namespace
 {
@@ -24,13 +24,13 @@ using shape_type = operation_shape_policy::shape_type;
 
 const operation_descriptor& product_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right");
 	static const operation_descriptor instance =
 		make_operation_descriptor(
-			"xmipp4.test", "product", outputs, inputs
+			"rexlib.test", "product", outputs, inputs
 		);
 	return instance;
 }

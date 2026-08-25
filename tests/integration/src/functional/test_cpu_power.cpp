@@ -2,28 +2,28 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/power.hpp>
+#include <rexlib/functional/power.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/power/cbrt_operation.hpp>
-#include <xmipp4/ops/power/exp2_operation.hpp>
-#include <xmipp4/ops/power/exp_operation.hpp>
-#include <xmipp4/ops/power/expm1_operation.hpp>
-#include <xmipp4/ops/power/log10_operation.hpp>
-#include <xmipp4/ops/power/log1p_operation.hpp>
-#include <xmipp4/ops/power/log2_operation.hpp>
-#include <xmipp4/ops/power/log_operation.hpp>
-#include <xmipp4/ops/power/power_operation.hpp>
-#include <xmipp4/ops/power/reciprocal_operation.hpp>
-#include <xmipp4/ops/power/sqrt_operation.hpp>
-#include <xmipp4/ops/power/square_operation.hpp>
+#include <rexlib/ops/power/cbrt_operation.hpp>
+#include <rexlib/ops/power/exp2_operation.hpp>
+#include <rexlib/ops/power/exp_operation.hpp>
+#include <rexlib/ops/power/expm1_operation.hpp>
+#include <rexlib/ops/power/log10_operation.hpp>
+#include <rexlib/ops/power/log1p_operation.hpp>
+#include <rexlib/ops/power/log2_operation.hpp>
+#include <rexlib/ops/power/log_operation.hpp>
+#include <rexlib/ops/power/power_operation.hpp>
+#include <rexlib/ops/power/reciprocal_operation.hpp>
+#include <rexlib/ops/power/sqrt_operation.hpp>
+#include <rexlib/ops/power/square_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::comparison_mode;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::comparison_mode;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // A result is required exactly only where IEEE-754 requires the operation
 // to be correctly rounded, which covers the square, the reciprocal and the
@@ -42,7 +42,7 @@ TEST_CASE_METHOD(
 {
 	// (2 + i)^2 == 3 + 4i, so the complex case stays exact as well.
 	check_unary<square_operation>(
-		xmipp4::square,
+		rexlib::square,
 		element_value(2, 1),
 		[](auto x) { return x * x; }
 	);
@@ -55,7 +55,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<reciprocal_operation>(
-		xmipp4::reciprocal,
+		rexlib::reciprocal,
 		element_value(4),
 		[](auto) { return 0.25; }
 	);
@@ -68,7 +68,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<sqrt_operation>(
-		xmipp4::sqrt,
+		rexlib::sqrt,
 		element_value(4),
 		[](auto) { return 2; }
 	);
@@ -81,7 +81,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<cbrt_operation>(
-		xmipp4::cbrt,
+		rexlib::cbrt,
 		element_value(8),
 		[](auto) { return 2; },
 		comparison_mode::approximate
@@ -95,7 +95,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<exp_operation>(
-		xmipp4::exp,
+		rexlib::exp,
 		element_value(1),
 		[](auto) { return 2.718281828459045; },
 		comparison_mode::approximate
@@ -109,7 +109,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<exp2_operation>(
-		xmipp4::exp2,
+		rexlib::exp2,
 		element_value(3),
 		[](auto) { return 8; },
 		comparison_mode::approximate
@@ -123,7 +123,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<expm1_operation>(
-		xmipp4::expm1,
+		rexlib::expm1,
 		element_value(1),
 		[](auto) { return 1.718281828459045; },
 		comparison_mode::approximate
@@ -137,7 +137,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<log_operation>(
-		xmipp4::log,
+		rexlib::log,
 		element_value(2),
 		[](auto) { return 0.6931471805599453; },
 		comparison_mode::approximate
@@ -151,7 +151,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<log2_operation>(
-		xmipp4::log2,
+		rexlib::log2,
 		element_value(8),
 		[](auto) { return 3; },
 		comparison_mode::approximate
@@ -165,7 +165,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<log10_operation>(
-		xmipp4::log10,
+		rexlib::log10,
 		element_value(100),
 		[](auto) { return 2; },
 		comparison_mode::approximate
@@ -179,7 +179,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<log1p_operation>(
-		xmipp4::log1p,
+		rexlib::log1p,
 		element_value(1),
 		[](auto) { return 0.6931471805599453; },
 		comparison_mode::approximate
@@ -196,7 +196,7 @@ TEST_CASE_METHOD(
 	// one case enough for a domain holding both them and the complex types
 	// that reach this through a logarithm.
 	check_binary<power_operation>(
-		xmipp4::power,
+		rexlib::power,
 		element_value(2),
 		element_value(3),
 		[](auto, auto) { return 8; },
@@ -214,7 +214,7 @@ TEST_CASE_METHOD(
 	// into the operand type leaves nothing. NumPy raises instead, which a
 	// per-element kernel cannot do.
 	check_binary<power_operation, signed_integer_type_domain>(
-		xmipp4::power,
+		rexlib::power,
 		element_value(2),
 		element_value(-1),
 		[](auto, auto) { return 0; }
@@ -230,7 +230,7 @@ TEST_CASE_METHOD(
 	// One and minus one are the two bases whose negative powers remain
 	// representable.
 	check_binary<power_operation, signed_integer_type_domain>(
-		xmipp4::power,
+		rexlib::power,
 		element_value(1),
 		element_value(-3),
 		[](auto, auto) { return 1; }

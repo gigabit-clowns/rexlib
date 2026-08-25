@@ -7,7 +7,7 @@
 #include <string_view>
 #include <ostream>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 /**
@@ -21,12 +21,12 @@ enum class example_enum
     third,
 };
 
-XMIPP4_CONSTEXPR const char* to_string(example_enum ex) noexcept;
+REXLIB_CONSTEXPR const char* to_string(example_enum ex) noexcept;
 bool from_string(std::string_view str, example_enum& ex) noexcept;
 
 template<typename T>
 std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, example_enum ex);
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "example_enum.inl"

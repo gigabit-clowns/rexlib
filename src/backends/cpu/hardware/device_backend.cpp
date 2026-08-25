@@ -2,13 +2,13 @@
 
 #include "device_backend.hpp"
 
-#include <xmipp4/backends/cpu/device.hpp>
+#include <rexlib/backends/cpu/device.hpp>
 
-#include <xmipp4/core/hardware/device_manager.hpp>
-#include <xmipp4/core/core_version.hpp>
-#include <xmipp4/core/system/host.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/library_version.hpp>
+#include <rexlib/core/system/host.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -20,7 +20,7 @@ std::string device_backend::get_name() const
 
 version device_backend::get_version() const
 {
-	return get_core_version();
+	return get_library_version();
 }
 
 void device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
@@ -48,7 +48,7 @@ bool device_backend::get_device_properties(
 	return result;
 }
 
-std::shared_ptr<xmipp4::device> 
+std::shared_ptr<rexlib::device> 
 device_backend::create_device(std::size_t id) const
 {
 	if (id >= 1)
@@ -59,10 +59,10 @@ device_backend::create_device(std::size_t id) const
 	return std::make_shared<device>();
 }
 
-bool device_backend::register_at(xmipp4::device_manager &manager)
+bool device_backend::register_at(rexlib::device_manager &manager)
 {
 	return manager.register_backend(std::make_unique<device_backend>());
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

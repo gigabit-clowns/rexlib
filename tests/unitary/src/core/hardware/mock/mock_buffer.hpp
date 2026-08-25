@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_buffer final
@@ -23,4 +23,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

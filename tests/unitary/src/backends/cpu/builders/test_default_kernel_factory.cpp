@@ -4,10 +4,10 @@
 
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

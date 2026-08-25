@@ -3,11 +3,11 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "get_size should return the expected size for each type", "[numerical_type]" ) 
 {

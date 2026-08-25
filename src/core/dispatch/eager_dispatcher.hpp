@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/dispatcher.hpp>
-#include <xmipp4/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
 
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class program_manager;
@@ -52,4 +52,4 @@ private:
 	program_cache m_program_cache;
 };
 
-} // namespace xmipp4
+} // namespace rexlib

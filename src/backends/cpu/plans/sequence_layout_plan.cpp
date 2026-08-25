@@ -2,12 +2,12 @@
 
 #include "sequence_layout_plan.hpp"
 
-#include <xmipp4/core/layout/strided_layout.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -50,4 +50,4 @@ std::ptrdiff_t sequence_layout_plan::get_stride() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/device_type.hpp>
+#include <rexlib/core/hardware/device_type.hpp>
 
 #include <string>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("converting device_type to string should produce the expected string")
 {

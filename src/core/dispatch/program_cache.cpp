@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/program_cache.hpp>
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 #include <core/logger.hpp>
 
 #include <list>
@@ -11,7 +11,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class program_cache::implementation
@@ -54,8 +54,8 @@ public:
 		std::shared_ptr<void> value
 	)
 	{
-		XMIPP4_ASSERT(key);
-		XMIPP4_ASSERT(value);
+		REXLIB_ASSERT(key);
+		REXLIB_ASSERT(value);
 
 		const std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -72,7 +72,7 @@ public:
 
 		if (m_entries.size() >= m_capacity)
 		{
-			XMIPP4_LOG_DEBUG(
+			REXLIB_LOG_DEBUG(
 				"program_cache::store: at capacity, evicting "
 				"least recently used entry"
 			);
@@ -99,7 +99,7 @@ private:
 			const program_cache_key *key
 		) const noexcept
 		{
-			XMIPP4_ASSERT(key);
+			REXLIB_ASSERT(key);
 			return key->hash();
 		}
 	};
@@ -111,8 +111,8 @@ private:
 			const program_cache_key *rhs
 		) const noexcept
 		{
-			XMIPP4_ASSERT(lhs);
-			XMIPP4_ASSERT(rhs);
+			REXLIB_ASSERT(lhs);
+			REXLIB_ASSERT(rhs);
 			return lhs->equals(*rhs);
 		}
 	};
@@ -135,10 +135,10 @@ private:
 
 	void evict_oldest()
 	{
-		XMIPP4_ASSERT(!m_entries.empty());
+		REXLIB_ASSERT(!m_entries.empty());
 		const auto victim = std::prev(m_entries.end());
 		const auto outer_ite = m_outer_index.find(victim->type);
-		XMIPP4_ASSERT(outer_ite != m_outer_index.end());
+		REXLIB_ASSERT(outer_ite != m_outer_index.end());
 		outer_ite->second.erase(victim->key.get());
 		m_entries.erase(victim);
 
@@ -159,7 +159,7 @@ program_cache::program_cache(
 ) noexcept
 	: m_implementation(std::make_unique<implementation>(capacity))
 {
-	XMIPP4_ASSERT(capacity > 0);
+	REXLIB_ASSERT(capacity > 0);
 }
 
 program_cache::~program_cache() = default;
@@ -200,11 +200,11 @@ void program_cache::store(
 	}
 	else
 	{
-		XMIPP4_LOG_WARN(
+		REXLIB_LOG_WARN(
 			"program_cache::store: dropping entry because the "
 			"cache has no backing implementation"
 		);
 	}
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -59,8 +59,8 @@ jobs:
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
-            XMIPP4_CORE_ENABLE_COVERAGE=ON
-            XMIPP4_CORE_REGISTER_TESTS_PER_BINARY=ON
+            REXLIB_ENABLE_COVERAGE=ON
+            REXLIB_REGISTER_TESTS_PER_BINARY=ON
             ${{ matrix.compiler.cxx == 'cl' && format('CMAKE_TOOLCHAIN_FILE={0}', steps.install-memtool.outputs.toolchain-file-msvc) || '' }}
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}

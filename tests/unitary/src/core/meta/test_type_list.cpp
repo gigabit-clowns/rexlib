@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <type_traits>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 struct test_type {};
 

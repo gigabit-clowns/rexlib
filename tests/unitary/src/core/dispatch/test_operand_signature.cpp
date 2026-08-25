@@ -3,18 +3,18 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 
 #include "../hardware/mock/mock_buffer.hpp"
 
 #include <memory>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("Default constructed operand_signature should have empty descriptor and null memory resource", "[operand_signature]")
 {

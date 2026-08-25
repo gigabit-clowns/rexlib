@@ -2,9 +2,9 @@
 
 #include "roll_program_builder.hpp"
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
@@ -16,7 +16,7 @@
 #include <utility>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -138,4 +138,4 @@ roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_loop_functor(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

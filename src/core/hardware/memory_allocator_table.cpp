@@ -2,13 +2,13 @@
 
 #include "memory_allocator_table.hpp"
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <unordered_map>
 
-namespace xmipp4
+namespace rexlib
 {
 
 memory_allocator_table::memory_allocator_table(const device &dev)
@@ -31,8 +31,8 @@ memory_allocator_table::memory_allocator_table(const device &dev)
 			);
 		}
 
-		XMIPP4_ASSERT(ite != allocators.end());
-		XMIPP4_ASSERT(ite->second != nullptr);
+		REXLIB_ASSERT(ite != allocators.end());
+		REXLIB_ASSERT(ite->second != nullptr);
 		m_allocators[i] = ite->second;
 	}
 }
@@ -55,5 +55,5 @@ memory_allocator_table::get_allocator(
 	return m_allocators[static_cast<std::size_t>(affinity)];
 }
 
-} // namespace xmipp4
+} // namespace rexlib
 

@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"score_host_affinity should return the expected score for each kind",

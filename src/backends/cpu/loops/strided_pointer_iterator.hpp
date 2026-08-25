@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
 #include <iterator>
 #include <type_traits>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -44,7 +44,7 @@ public:
 	/**
 	 * @brief Construct a null iterator.
 	 */
-	XMIPP4_CONSTEXPR strided_pointer_iterator() noexcept;
+	REXLIB_CONSTEXPR strided_pointer_iterator() noexcept;
 
 	/**
 	 * @brief Construct a new strided pointer iterator.
@@ -52,7 +52,7 @@ public:
 	 * @param data Pointer to the first element.
 	 * @param stride Element step performed on each increment.
 	 */
-	XMIPP4_CONSTEXPR strided_pointer_iterator(
+	REXLIB_CONSTEXPR strided_pointer_iterator(
 		pointer data,
 		stride_type stride
 	) noexcept;
@@ -77,7 +77,7 @@ public:
 			std::is_convertible<Stride2, stride_type>::value
 		>::type
 	>
-	XMIPP4_CONSTEXPR strided_pointer_iterator(
+	REXLIB_CONSTEXPR strided_pointer_iterator(
 		const strided_pointer_iterator<U, Stride2> &other
 	) noexcept;
 
@@ -90,17 +90,17 @@ public:
 	strided_pointer_iterator&
 	operator=(strided_pointer_iterator &&other) = default;
 
-	XMIPP4_CONSTEXPR reference operator*() const noexcept;
-	XMIPP4_CONSTEXPR pointer operator->() const noexcept;
-	XMIPP4_CONSTEXPR reference operator[](difference_type n) const noexcept;
+	REXLIB_CONSTEXPR reference operator*() const noexcept;
+	REXLIB_CONSTEXPR pointer operator->() const noexcept;
+	REXLIB_CONSTEXPR reference operator[](difference_type n) const noexcept;
 
-	XMIPP4_CONSTEXPR strided_pointer_iterator& operator++() noexcept;
-	XMIPP4_CONSTEXPR strided_pointer_iterator operator++(int) noexcept;
-	XMIPP4_CONSTEXPR strided_pointer_iterator& operator--() noexcept;
-	XMIPP4_CONSTEXPR strided_pointer_iterator operator--(int) noexcept;
-	XMIPP4_CONSTEXPR strided_pointer_iterator&
+	REXLIB_CONSTEXPR strided_pointer_iterator& operator++() noexcept;
+	REXLIB_CONSTEXPR strided_pointer_iterator operator++(int) noexcept;
+	REXLIB_CONSTEXPR strided_pointer_iterator& operator--() noexcept;
+	REXLIB_CONSTEXPR strided_pointer_iterator operator--(int) noexcept;
+	REXLIB_CONSTEXPR strided_pointer_iterator&
 	operator+=(difference_type n) noexcept;
-	XMIPP4_CONSTEXPR strided_pointer_iterator&
+	REXLIB_CONSTEXPR strided_pointer_iterator&
 	operator-=(difference_type n) noexcept;
 
 	/**
@@ -108,16 +108,16 @@ public:
 	 *
 	 * @return pointer Pointer to the current element.
 	 */
-	XMIPP4_CONSTEXPR pointer data() const noexcept;
+	REXLIB_CONSTEXPR pointer data() const noexcept;
 
 	/**
 	 * @brief Get the element step performed on each increment.
 	 *
 	 * @return stride_type The stride.
 	 */
-	XMIPP4_CONSTEXPR stride_type stride() const noexcept;
+	REXLIB_CONSTEXPR stride_type stride() const noexcept;
 
-	friend XMIPP4_CONSTEXPR strided_pointer_iterator operator+(
+	friend REXLIB_CONSTEXPR strided_pointer_iterator operator+(
 		strided_pointer_iterator it,
 		std::ptrdiff_t n
 	) noexcept
@@ -126,7 +126,7 @@ public:
 		return it;
 	}
 
-	friend XMIPP4_CONSTEXPR strided_pointer_iterator operator+(
+	friend REXLIB_CONSTEXPR strided_pointer_iterator operator+(
 		std::ptrdiff_t n,
 		strided_pointer_iterator it
 	) noexcept
@@ -135,7 +135,7 @@ public:
 		return it;
 	}
 
-	friend XMIPP4_CONSTEXPR strided_pointer_iterator operator-(
+	friend REXLIB_CONSTEXPR strided_pointer_iterator operator-(
 		strided_pointer_iterator it,
 		std::ptrdiff_t n
 	) noexcept
@@ -144,7 +144,7 @@ public:
 		return it;
 	}
 
-	friend XMIPP4_CONSTEXPR bool operator==(
+	friend REXLIB_CONSTEXPR bool operator==(
 		const strided_pointer_iterator &lhs,
 		const strided_pointer_iterator &rhs
 	) noexcept
@@ -152,7 +152,7 @@ public:
 		return lhs.data() == rhs.data();
 	}
 
-	friend XMIPP4_CONSTEXPR bool operator!=(
+	friend REXLIB_CONSTEXPR bool operator!=(
 		const strided_pointer_iterator &lhs,
 		const strided_pointer_iterator &rhs
 	) noexcept
@@ -177,13 +177,13 @@ private:
  * @return strided_pointer_iterator<T, Stride> The newly created iterator.
  */
 template <typename T, typename Stride>
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 strided_pointer_iterator<T, Stride> make_strided_pointer_iterator(
 	T* data,
 	Stride stride
 ) noexcept;
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "strided_pointer_iterator.inl"

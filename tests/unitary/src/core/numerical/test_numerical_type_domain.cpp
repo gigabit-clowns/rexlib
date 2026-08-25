@@ -2,13 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/numerical/numerical_type_domain_tags.hpp>
+#include <rexlib/core/numerical/numerical_type_domain_tags.hpp>
 
 #include <complex>
 #include <cstdint>
 #include <sstream>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
     "a default constructed numerical_type_domain should be empty",

@@ -7,7 +7,7 @@
 #include <tuple>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -81,6 +81,6 @@ std::tuple<Pointers...> step_pointers(
 
 } // namespace detail
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "operand_pointers.inl"

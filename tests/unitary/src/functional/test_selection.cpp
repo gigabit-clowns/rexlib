@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/selection.hpp>
+#include <rexlib/functional/selection.hpp>
 
-#include <xmipp4/ops/selection/clip_operation.hpp>
-#include <xmipp4/ops/selection/maximum_operation.hpp>
-#include <xmipp4/ops/selection/minimum_operation.hpp>
-#include <xmipp4/ops/selection/where_operation.hpp>
+#include <rexlib/ops/selection/clip_operation.hpp>
+#include <rexlib/ops/selection/maximum_operation.hpp>
+#include <rexlib/ops/selection/minimum_operation.hpp>
+#include <rexlib/ops/selection/where_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_operation
@@ -34,4 +34,4 @@ public:
 
 };
 
-} // namespace xmipp4
+} // namespace rexlib

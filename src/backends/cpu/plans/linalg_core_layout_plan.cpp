@@ -2,15 +2,15 @@
 
 #include "linalg_core_layout_plan.hpp"
 
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
 #include <array>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -244,4 +244,4 @@ linalg_core_layout_plan::get_right_core() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -4,8 +4,8 @@
 
 #include <backends/cpu/hardware/event.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE( "event should support host_query, host_wait and device_wait", "[cpu::event]" )
 {

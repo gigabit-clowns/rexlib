@@ -3,14 +3,14 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <xmipp4/ops/fourier/fourier_normalization.hpp>
+#include <rexlib/ops/fourier/fourier_normalization.hpp>
 
 #include <cmath>
 #include <cstddef>
 #include <sstream>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 using Catch::Matchers::WithinRel;
 
 namespace

@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/numeric.hpp>
+#include <rexlib/functional/numeric.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/numeric/copysign_operation.hpp>
-#include <xmipp4/ops/numeric/is_finite_operation.hpp>
-#include <xmipp4/ops/numeric/is_inf_operation.hpp>
-#include <xmipp4/ops/numeric/is_nan_operation.hpp>
-#include <xmipp4/ops/numeric/sign_bit_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/numeric/copysign_operation.hpp>
+#include <rexlib/ops/numeric/is_finite_operation.hpp>
+#include <rexlib/ops/numeric/is_inf_operation.hpp>
+#include <rexlib/ops/numeric/is_nan_operation.hpp>
+#include <rexlib/ops/numeric/sign_bit_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array is_nan(
@@ -58,4 +58,4 @@ array copysign(
 	return execute_binary(ops::copysign_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

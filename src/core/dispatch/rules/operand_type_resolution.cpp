@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/rules/operand_type_resolution.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_resolution.hpp>
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
 
-namespace xmipp4
+namespace rexlib
 {
 
 const char* to_string(type_rule_status status) noexcept
@@ -47,7 +47,7 @@ type_rule_resolution type_rule_resolution::failure(
 	numerical_type type
 ) noexcept
 {
-	XMIPP4_ASSERT(status != type_rule_status::ok);
+	REXLIB_ASSERT(status != type_rule_status::ok);
 
 	type_rule_resolution result;
 	result.m_status = status;
@@ -64,7 +64,7 @@ type_rule_resolution type_rule_resolution::fail(
 	numerical_type type
 ) const noexcept
 {
-	XMIPP4_ASSERT(status != type_rule_status::ok);
+	REXLIB_ASSERT(status != type_rule_status::ok);
 
 	type_rule_resolution result(*this);
 	result.m_status = status;
@@ -93,7 +93,7 @@ numerical_type type_rule_resolution::get_pivot(
 	std::size_t index
 ) const noexcept
 {
-	XMIPP4_ASSERT(index < m_pivot_count);
+	REXLIB_ASSERT(index < m_pivot_count);
 	return m_pivots[index];
 }
 
@@ -102,13 +102,13 @@ void type_rule_resolution::set_pivot(
 	numerical_type type
 ) noexcept
 {
-	XMIPP4_ASSERT(index < max_operand_type_pivot_count);
+	REXLIB_ASSERT(index < max_operand_type_pivot_count);
 	m_pivots[index] = type;
 }
 
 void type_rule_resolution::set_pivot_count(std::size_t count) noexcept
 {
-	XMIPP4_ASSERT(count <= max_operand_type_pivot_count);
+	REXLIB_ASSERT(count <= max_operand_type_pivot_count);
 	m_pivot_count = count;
 }
 
@@ -127,4 +127,4 @@ numerical_type type_rule_resolution::get_offending_type() const noexcept
 	return m_offending_type;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

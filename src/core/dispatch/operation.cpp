@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
 
 #include <sstream>
 
-namespace xmipp4
+namespace rexlib
 {
 
 operation::operation() noexcept = default;
@@ -15,4 +15,4 @@ operation_id operation::get_id() const noexcept
 	return operation_id(typeid(*this));
 }
 
-} // namespace xmipp4
+} // namespace rexlib

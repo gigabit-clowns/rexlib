@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/selection.hpp>
+#include <rexlib/functional/selection.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/selection/clip_operation.hpp>
-#include <xmipp4/ops/selection/maximum_operation.hpp>
-#include <xmipp4/ops/selection/minimum_operation.hpp>
-#include <xmipp4/ops/selection/where_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/selection/clip_operation.hpp>
+#include <rexlib/ops/selection/maximum_operation.hpp>
+#include <rexlib/ops/selection/minimum_operation.hpp>
+#include <rexlib/ops/selection/where_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array where(
@@ -53,4 +53,4 @@ array minimum(
 	return execute_binary(ops::minimum_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

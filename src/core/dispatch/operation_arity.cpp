@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 operation_arity::operation_arity() noexcept
@@ -49,4 +49,4 @@ operation_arity operation_arity::ternary() noexcept
 	return operation_arity(1, 3);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

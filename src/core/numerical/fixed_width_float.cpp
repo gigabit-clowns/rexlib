@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include "float16_conversions.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 
 float16_t::float16_t() noexcept
@@ -27,4 +27,4 @@ std::uint16_t float16_t::get_bits() const noexcept
 	return m_bits;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

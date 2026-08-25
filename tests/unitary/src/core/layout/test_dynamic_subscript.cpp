@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/dynamic_subscript.hpp>
+#include <rexlib/core/layout/dynamic_subscript.hpp>
 
 #include "mock/mock_subscript_callable.hpp"
 
@@ -11,7 +11,7 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("construct dynamic_subscript from ellipsis_tag", "[dynamic_subscript]")
 {

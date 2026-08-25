@@ -2,15 +2,15 @@
 
 #include "plugin_loader.hpp"
 
-#include <xmipp4/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/exceptions/plugin_load_error.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 static const plugin* query_plugin(const dynamic_library& lib)
 {
 	using get_plugin_function_type = const plugin* (*)();
-	const std::string symbol_name = "xmipp4_get_plugin";
+	const std::string symbol_name = "rexlib_get_plugin";
 
 	const auto func = reinterpret_cast<get_plugin_function_type>(
 		lib.get_symbol(symbol_name.c_str())
@@ -64,4 +64,4 @@ void plugin_loader::load(const std::string& path)
 	*this = plugin_loader(path);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/service_catalog.hpp>
+#include <rexlib/core/service_catalog.hpp>
 
 #include "mock/mock_service_manager.hpp"
 
@@ -8,7 +8,7 @@
 
 #include <utility>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

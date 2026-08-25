@@ -2,17 +2,17 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/transfer.hpp>
+#include <rexlib/functional/transfer.hpp>
 
-#include <xmipp4/ops/assignment/copy_operation.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 using trompeloeil::_;
-using xmipp4::test::dispatch_record;
-using xmipp4::test::verb_dispatch_fixture;
+using rexlib::test::dispatch_record;
+using rexlib::test::verb_dispatch_fixture;
 
 
 //

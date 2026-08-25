@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -12,13 +12,13 @@
 #include <backends/cpu/builders/program_builder_registration.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <memory>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -31,7 +31,7 @@ namespace cpu
  * share this builder; @p ShiftPolicy supplies that one difference.
  *
  * @tparam Op The operation type, declared through
- * XMIPP4_DECLARE_PARAMETRIC_OPERATION with an axiswise_operation_shape_policy.
+ * REXLIB_DECLARE_PARAMETRIC_OPERATION with an axiswise_operation_shape_policy.
  * @tparam ShiftPolicy Provides
  * `static std::size_t shift_amount(std::size_t extent) noexcept`, the
  * distance an axis of that extent is cyclically shifted by.
@@ -92,7 +92,7 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU roll program builder.
@@ -101,10 +101,10 @@ public:
  * @param op The operation type.
  * @param shift_policy The shift policy type.
  */
-#define XMIPP4_REGISTER_ROLL_PROGRAM_BUILDER(name, op, shift_policy) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(name, op, shift_policy) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::roll_program_builder<op, shift_policy> \
+		::rexlib::cpu::roll_program_builder<op, shift_policy> \
 	)
 
 #include "roll_program_builder.inl"

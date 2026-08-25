@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/device_backend.hpp>
+#include <rexlib/core/hardware/device_backend.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_device_backend final
@@ -20,4 +20,4 @@ public:
 	MAKE_CONST_MOCK1(create_device, std::shared_ptr<device> (std::size_t), override);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

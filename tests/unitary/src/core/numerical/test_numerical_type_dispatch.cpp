@@ -4,12 +4,12 @@
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/core/numerical/numerical_type_dispatch.hpp>
 
 #include <array>
 #include <typeindex>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("dispatch_numerical_types called with a single argument and default mapping should invoke an appropriately typed function")
 {

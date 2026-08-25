@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
 
 #include <memory>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 execution_context::execution_context() noexcept = default;
@@ -65,4 +65,4 @@ execution_context execution_context::with_dispatcher(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

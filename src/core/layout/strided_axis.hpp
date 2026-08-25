@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/slice.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
-#include <xmipp4/core/platform/attributes.hpp>
+#include <rexlib/core/layout/slice.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/attributes.hpp>
 
 #include <cstddef>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 /**
@@ -25,7 +25,7 @@ public:
 	 * @param extent Number of elements in the axis.
 	 * @param stride Step between consecutive elements. In items.
 	 */
-	XMIPP4_CONSTEXPR strided_axis(
+	REXLIB_CONSTEXPR strided_axis(
 		std::size_t extent, 
 		std::ptrdiff_t stride
 	) noexcept;
@@ -38,19 +38,19 @@ public:
 	strided_axis& operator=(const strided_axis& other) = default;
 	strided_axis& operator=(strided_axis&& other) = default;
 	
-	friend XMIPP4_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator==(const strided_axis& lhs, const strided_axis& rhs) noexcept
 	{
 		return lhs.m_extent == rhs.m_extent && lhs.m_stride == rhs.m_stride;
 	}
 
-	friend XMIPP4_CONSTEXPR
+	friend REXLIB_CONSTEXPR
 	bool operator!=(const strided_axis& lhs, const strided_axis& rhs) noexcept
 	{
 		return !(lhs == rhs);
 	}
 
-	XMIPP4_CONSTEXPR_CPP20 void swap(strided_axis &other) noexcept;
+	REXLIB_CONSTEXPR_CPP20 void swap(strided_axis &other) noexcept;
 
 	/**
 	 * @brief Get the hash value of the axis.
@@ -64,42 +64,42 @@ public:
 	 * 
 	 * @param extent The element count
 	 */
-	XMIPP4_CONSTEXPR void set_extent(std::size_t extent) noexcept;
+	REXLIB_CONSTEXPR void set_extent(std::size_t extent) noexcept;
 
 	/**
 	 * @brief Return the element count
 	 * 
 	 * @return std::size_t Element count
 	 */
-	XMIPP4_CONSTEXPR std::size_t get_extent() const noexcept;
+	REXLIB_CONSTEXPR std::size_t get_extent() const noexcept;
 
 	/**
 	 * @brief Set the stride between consecutive elements
 	 * 
 	 * @param stride Step between consecutive elements. In items
 	 */
-	XMIPP4_CONSTEXPR void set_stride(std::ptrdiff_t stride) noexcept;
+	REXLIB_CONSTEXPR void set_stride(std::ptrdiff_t stride) noexcept;
 
 	/**
 	 * @brief Get the stride between consecutive elements
 	 * 
 	 * @return std::ptrdiff_t Step between consecutive elements. In items
 	 */
-	XMIPP4_CONSTEXPR std::ptrdiff_t get_stride() const noexcept;
+	REXLIB_CONSTEXPR std::ptrdiff_t get_stride() const noexcept;
 
 	/**
 	 * @brief Get the stride magnitude.
 	 * 
 	 * @return std::size_t Step between consecutive elements. In items
 	 */
-	XMIPP4_CONSTEXPR std::size_t get_stride_magnitude() const noexcept;
+	REXLIB_CONSTEXPR std::size_t get_stride_magnitude() const noexcept;
 
 private:
 	std::size_t m_extent; ///< Number of elements
 	std::ptrdiff_t m_stride; ///< Step between adjacent elements. In items
 };
 
-XMIPP4_CONSTEXPR_CPP20 void swap(strided_axis &x, strided_axis &y) noexcept;
+REXLIB_CONSTEXPR_CPP20 void swap(strided_axis &x, strided_axis &y) noexcept;
 
 /**
  * @brief Create a contiguous strided_axis.
@@ -109,7 +109,7 @@ XMIPP4_CONSTEXPR_CPP20 void swap(strided_axis &x, strided_axis &y) noexcept;
  * @param extent Number of elements on the axis.
  * @return strided_axis. The resulting axis
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 strided_axis make_contiguous_axis(std::size_t extent=1) noexcept;
 
 /**
@@ -123,7 +123,7 @@ strided_axis make_contiguous_axis(std::size_t extent=1) noexcept;
  * @param extent Number of elements on the axis.
  * @return strided_axis. The resulting axis
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 strided_axis make_phantom_axis(std::size_t extent=1) noexcept;
 
 /**
@@ -134,7 +134,7 @@ strided_axis make_phantom_axis(std::size_t extent=1) noexcept;
  * @return bool True if left hand side's absolute stride is equal to 
  * right hand side's stride.
  */
-XMIPP4_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool compare_strides_equal(
 	const strided_axis &lhs, 
 	const strided_axis &rhs
@@ -148,7 +148,7 @@ bool compare_strides_equal(
  * @return bool True if left hand side's absolute stride is less than 
  * right hand side's stride.
  */
-XMIPP4_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool compare_strides_less(
 	const strided_axis &lhs, 
 	const strided_axis &rhs
@@ -162,7 +162,7 @@ bool compare_strides_less(
  * @return bool True if left hand side's absolute stride is greater than 
  * right hand side's stride.
  */
-XMIPP4_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool compare_strides_greater(
 	const strided_axis &lhs, 
 	const strided_axis &rhs
@@ -177,7 +177,7 @@ bool compare_strides_greater(
  * @return true if the axis is contiguous.
  * @return false if the axis is not contiguous.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool is_contiguous(const strided_axis &axis) noexcept;
 
 /**
@@ -191,7 +191,7 @@ bool is_contiguous(const strided_axis &axis) noexcept;
  * @return true if the axes are contiguous.
  * @return false if the axes are not contiguous.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool is_contiguous(
 	const strided_axis &major,
 	const strided_axis &minor
@@ -205,7 +205,7 @@ bool is_contiguous(
  * @param axis Axis to be checked.
  * @return bool True if the axis is reversed.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool is_reversed(const strided_axis &axis) noexcept;
 
 /**
@@ -217,7 +217,7 @@ bool is_reversed(const strided_axis &axis) noexcept;
  * @param axis Axis to be checked.
  * @return bool True if the axis is repeating.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool is_repeating(const strided_axis &axis) noexcept;
 
 /**
@@ -229,7 +229,7 @@ bool is_repeating(const strided_axis &axis) noexcept;
  * @return true if the axis is empty
  * @return false if the axis is not empty.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool is_empty(const strided_axis &axis) noexcept;
 
 /**
@@ -241,7 +241,7 @@ bool is_empty(const strided_axis &axis) noexcept;
  * @return true if the axis is significant.
  * @return false if the axis is not significant.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool is_significant(const strided_axis &axis) noexcept;
 
 /**
@@ -253,7 +253,7 @@ bool is_significant(const strided_axis &axis) noexcept;
  * @return true if the axis has non-zero extent and output was written.
  * @return false if the axis has an extent of zero.
  */
-XMIPP4_CONSTEXPR 
+REXLIB_CONSTEXPR 
 bool get_axis_last_offset(
 	const strided_axis &axis, 
 	std::ptrdiff_t &result
@@ -270,7 +270,7 @@ bool get_axis_last_offset(
  * @param axis Axis to be analyzed. 
  * @return std::size_t The offset.
 */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 std::size_t get_axis_pivot_offset(const strided_axis &axis) noexcept;
 
 /**
@@ -288,7 +288,7 @@ std::size_t get_axis_pivot_offset(const strided_axis &axis) noexcept;
  * @return true When successful.
  * @return false when unable to broadcast.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool broadcast(strided_axis &axis1, strided_axis &axis2) noexcept;
 
 /**
@@ -307,7 +307,7 @@ bool broadcast(strided_axis &axis1, strided_axis &axis2) noexcept;
  * @return true When successful.
  * @return false When unable to broadcast.
  */
-XMIPP4_CONSTEXPR
+REXLIB_CONSTEXPR
 bool broadcast_to(strided_axis &axis, std::size_t extent) noexcept;
 
 /**
@@ -347,6 +347,6 @@ void apply_slice(
 	const slice &slice
 );
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "strided_axis.inl"

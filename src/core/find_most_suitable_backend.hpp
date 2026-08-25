@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/backend_priority.hpp>
+#include <rexlib/core/backend_priority.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 /**
@@ -25,6 +25,6 @@ ForwardIte find_most_suitable_backend(
 	const F& suitability_evaluator
 );
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "find_most_suitable_backend.inl"

@@ -7,8 +7,8 @@
 #include <cstddef>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

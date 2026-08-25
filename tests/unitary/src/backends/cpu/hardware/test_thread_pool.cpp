@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/backends/cpu/parallel_for.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/parallel_for.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <algorithm>
 #include <atomic>
@@ -18,8 +18,8 @@
 #include <utility>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
@@ -195,7 +195,7 @@ TEST_CASE(
 	"[thread_pool]"
 )
 {
-	XMIPP4_CONST_CONSTEXPR std::size_t count = 10000;
+	REXLIB_CONST_CONSTEXPR std::size_t count = 10000;
 	thread_pool pool(4);
 
 	std::vector<int> visits(count, 0);

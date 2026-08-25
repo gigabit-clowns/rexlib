@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/linalg.hpp>
+#include <rexlib/functional/linalg.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/layout/index.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/ops/linalg/cross_operation.hpp>
-#include <xmipp4/ops/linalg/matmul_operation.hpp>
-#include <xmipp4/ops/linalg/matvec_operation.hpp>
-#include <xmipp4/ops/linalg/vecdot_operation.hpp>
-#include <xmipp4/ops/linalg/vecmat_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/layout/index.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/ops/linalg/cross_operation.hpp>
+#include <rexlib/ops/linalg/matmul_operation.hpp>
+#include <rexlib/ops/linalg/matvec_operation.hpp>
+#include <rexlib/ops/linalg/vecdot_operation.hpp>
+#include <rexlib/ops/linalg/vecmat_operation.hpp>
 
 #include <algorithm>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace
@@ -131,4 +131,4 @@ array cross(
 	return cross(x, y, -1, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

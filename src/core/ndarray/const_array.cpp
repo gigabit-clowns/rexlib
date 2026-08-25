@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array.hpp>
 
 #include "array_implementation.hpp"
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 const_array::const_array() = default;
@@ -58,4 +58,4 @@ const_array::get_implementation() const noexcept
 	return m_implementation.get();
 }
 
-} // namespace xmipp4
+} // namespace rexlib

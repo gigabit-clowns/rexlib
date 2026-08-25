@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/power/log10_operation.hpp>
+#include <rexlib/ops/power/log10_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
@@ -9,7 +9,7 @@
 #include <cmath>
 #include <complex>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -29,11 +29,11 @@ struct log10_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	log10,
 	ops::log10_operation,
 	default_kernel_factory<log10_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

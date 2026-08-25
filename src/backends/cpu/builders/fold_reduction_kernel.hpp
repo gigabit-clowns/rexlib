@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/builders/reduction_compute_type.hpp>
 #include <backends/cpu/load_store.hpp>
@@ -13,7 +13,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -78,7 +78,7 @@ public:
 	 * reduction along the contiguous axis from being one chain of dependent
 	 * operations.
 	 */
-	static XMIPP4_CONST_CONSTEXPR bool reassociable_fold = true;
+	static REXLIB_CONST_CONSTEXPR bool reassociable_fold = true;
 
 	/**
 	 * @brief A single accumulator, of the output's computation type.
@@ -162,8 +162,8 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS Fold m_fold;
+	REXLIB_NO_UNIQUE_ADDRESS Fold m_fold;
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/ops/assignment/copy_operation.hpp>
-#include <xmipp4/ops/assignment/fill_operation.hpp>
-#include <xmipp4/ops/creation/arange_operation.hpp>
-#include <xmipp4/ops/creation/linspace_operation.hpp>
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/binary/bit.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
+#include <rexlib/ops/assignment/fill_operation.hpp>
+#include <rexlib/ops/creation/arange_operation.hpp>
+#include <rexlib/ops/creation/linspace_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 
@@ -25,7 +25,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace
@@ -45,7 +45,7 @@ std::shared_ptr<buffer> reuse_array_storage(
 
 	if (&storage->get_memory_resource() != &target_resource)
 	{
-		XMIPP4_LOG_WARN(
+		REXLIB_LOG_WARN(
 			"empty: the output array storage lives on a different "
 			"memory resource than the one requested by the affinity; "
 			"reallocating on the requested resource."
@@ -68,7 +68,7 @@ std::shared_ptr<buffer> allocate_array_storage(
 )
 {
 	const auto &session = device_context.get_device_session();
-	XMIPP4_ASSERT(session);
+	REXLIB_ASSERT(session);
 
 	const auto &properties = session->get_properties();
 	const auto &queue = device_context.get_active_queue();
@@ -441,4 +441,4 @@ void fill(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

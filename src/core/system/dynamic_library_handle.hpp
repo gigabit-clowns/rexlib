@@ -3,11 +3,11 @@
 #pragma once
 
 
-#include <xmipp4/core/platform/operating_system.h>
+#include <rexlib/core/platform/operating_system.h>
 
 #include <string>
 
-namespace xmipp4
+namespace rexlib
 {
 
 /**
@@ -43,11 +43,11 @@ void* dynamic_library_get_symbol(void* handle, const char* name) noexcept;
  */
 std::string dynamic_library_symbol_filename_lookup(const void* symbol);
 
-} // namespace xmipp4
+} // namespace rexlib
 
-#if XMIPP4_POSIX
+#if REXLIB_POSIX
 	#include "dynamic_library_handle_posix.inl"
-#elif XMIPP4_WINDOWS
+#elif REXLIB_WINDOWS
 	#include "dynamic_library_handle_windows.inl"
 #else
 	#error "No dynamic library_handle implementation available for this platform"

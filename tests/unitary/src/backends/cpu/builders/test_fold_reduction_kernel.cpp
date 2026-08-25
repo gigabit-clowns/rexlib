@@ -6,15 +6,15 @@
 #include <backends/cpu/load_store.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

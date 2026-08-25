@@ -2,16 +2,16 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
+using namespace rexlib;
+using namespace rexlib::ops;
 
 using shape_type = std::vector<std::size_t>;
 
@@ -20,12 +20,12 @@ namespace
 
 const operation_descriptor& stub_descriptor()
 {
-    static XMIPP4_CONST_CONSTEXPR auto outputs =
+    static REXLIB_CONST_CONSTEXPR auto outputs =
         make_operand_names("result", "second_result");
-    static XMIPP4_CONST_CONSTEXPR auto inputs =
+    static REXLIB_CONST_CONSTEXPR auto inputs =
         make_operand_names("left", "right");
     static const operation_descriptor instance =
-        make_operation_descriptor("xmipp4.test", "probe", outputs, inputs);
+        make_operation_descriptor("rexlib.test", "probe", outputs, inputs);
     return instance;
 }
 

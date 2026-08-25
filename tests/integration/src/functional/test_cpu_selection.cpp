@@ -2,22 +2,22 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/selection.hpp>
+#include <rexlib/functional/selection.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/selection/clip_operation.hpp>
-#include <xmipp4/ops/selection/maximum_operation.hpp>
-#include <xmipp4/ops/selection/minimum_operation.hpp>
-#include <xmipp4/ops/selection/where_operation.hpp>
+#include <rexlib/ops/selection/clip_operation.hpp>
+#include <rexlib/ops/selection/maximum_operation.hpp>
+#include <rexlib/ops/selection/minimum_operation.hpp>
+#include <rexlib/ops/selection/where_operation.hpp>
 
 #include <cmath>
 #include <limits>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 namespace
 {
@@ -38,7 +38,7 @@ TEST_CASE_METHOD(
 	// The condition is boolean whatever is being selected between, so the
 	// driver builds it from the rule rather than from the swept type.
 	check_ternary<where_operation>(
-		xmipp4::where,
+		rexlib::where,
 		element_value(1),
 		element_value(0),
 		element_value(1),
@@ -53,7 +53,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_ternary<where_operation>(
-		xmipp4::where,
+		rexlib::where,
 		element_value(0),
 		element_value(0),
 		element_value(1),
@@ -68,7 +68,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_ternary<clip_operation>(
-		xmipp4::clip,
+		rexlib::clip,
 		element_value(2),
 		element_value(0),
 		element_value(3),
@@ -83,7 +83,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_ternary<clip_operation>(
-		xmipp4::clip,
+		rexlib::clip,
 		element_value(5),
 		element_value(0),
 		element_value(3),
@@ -98,7 +98,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_ternary<clip_operation>(
-		xmipp4::clip,
+		rexlib::clip,
 		element_value(0),
 		element_value(1),
 		element_value(3),
@@ -115,7 +115,7 @@ TEST_CASE_METHOD(
 	// Applying the lower bound first and the upper second, as NumPy does,
 	// rather than reporting the bounds as an error.
 	check_ternary<clip_operation>(
-		xmipp4::clip,
+		rexlib::clip,
 		element_value(5),
 		element_value(3),
 		element_value(1),
@@ -130,7 +130,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<maximum_operation>(
-		xmipp4::maximum,
+		rexlib::maximum,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return 1; }
@@ -144,7 +144,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<minimum_operation>(
-		xmipp4::minimum,
+		rexlib::minimum,
 		element_value(0),
 		element_value(1),
 		[](auto, auto) { return 0; }
@@ -169,13 +169,13 @@ TEST_CASE_METHOD(
 	const const_array_ref unordered_ref = unordered;
 
 	const auto larger_first =
-		xmipp4::maximum(unordered_ref, ordinary_ref, context, nullptr);
+		rexlib::maximum(unordered_ref, ordinary_ref, context, nullptr);
 	const auto larger_second =
-		xmipp4::maximum(ordinary_ref, unordered_ref, context, nullptr);
+		rexlib::maximum(ordinary_ref, unordered_ref, context, nullptr);
 	const auto smaller_first =
-		xmipp4::minimum(unordered_ref, ordinary_ref, context, nullptr);
+		rexlib::minimum(unordered_ref, ordinary_ref, context, nullptr);
 	const auto smaller_second =
-		xmipp4::minimum(ordinary_ref, unordered_ref, context, nullptr);
+		rexlib::minimum(ordinary_ref, unordered_ref, context, nullptr);
 
 	for (const auto value : read_host<float32_t>(larger_first, 6))
 	{
@@ -208,7 +208,7 @@ TEST_CASE_METHOD(
 	const const_array_ref lower_ref = lower;
 	const const_array_ref upper_ref = upper;
 
-	const auto result = xmipp4::clip(
+	const auto result = rexlib::clip(
 		unordered_ref, lower_ref, upper_ref, context, nullptr
 	);
 

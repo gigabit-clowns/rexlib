@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/power/exp2_operation.hpp>
+#include <rexlib/ops/power/exp2_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -28,11 +28,11 @@ struct exp2_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	exp2,
 	ops::exp2_operation,
 	default_kernel_factory<exp2_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

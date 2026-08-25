@@ -2,14 +2,14 @@
 
 #include "strided_layout_implementation.hpp"
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
 #include <numeric>
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 template <typename ForwardIt>
@@ -469,7 +469,7 @@ strided_layout_implementation strided_layout_implementation::matrix_diagonal(
 
 	strided_axis_vector_type axes;
 	axes.reserve(n - 1);
-	XMIPP4_ASSERT(index1 < index2);
+	REXLIB_ASSERT(index1 < index2);
 	std::copy(
 		m_axes.cbegin(),
 		std::next(m_axes.cbegin(), index1),
@@ -485,7 +485,7 @@ strided_layout_implementation strided_layout_implementation::matrix_diagonal(
 		m_axes.cend(),
 		std::back_inserter(axes)
 	);
-	XMIPP4_ASSERT(axes.size() == (n - 2));
+	REXLIB_ASSERT(axes.size() == (n - 2));
 
 	const auto &axis_a = m_axes[index1];
 	const auto &axis_b = m_axes[index2];
@@ -493,7 +493,7 @@ strided_layout_implementation strided_layout_implementation::matrix_diagonal(
 	const auto stride = axis_a.get_stride() + axis_b.get_stride();
 	axes.emplace_back(extent, stride);
 	
-	XMIPP4_ASSERT(axes.size() == (n - 1));
+	REXLIB_ASSERT(axes.size() == (n - 1));
 	return strided_layout_implementation(std::move(axes), m_offset);
 }
 
@@ -543,7 +543,7 @@ strided_layout_implementation strided_layout_implementation::broadcast_to(
 	{
 		auto &axis = axes[i];
 		const auto extent = extents[i];
-		if (!xmipp4::broadcast_to(axis, extent))
+		if (!rexlib::broadcast_to(axis, extent))
 		{
 			std::ostringstream oss;
 			oss << "Cannot broadcast axis of extent " << axis.get_extent()
@@ -555,4 +555,4 @@ strided_layout_implementation strided_layout_implementation::broadcast_to(
 	return strided_layout_implementation(std::move(axes), m_offset);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

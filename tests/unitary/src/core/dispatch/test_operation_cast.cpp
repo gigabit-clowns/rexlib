@@ -3,26 +3,26 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include <xmipp4/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/dispatch/operation_cast.hpp>
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/dispatch/basic_operation.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <stdexcept>
 #include <string>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
 
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	cast_probe,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );
@@ -49,11 +49,11 @@ public:
 	}
 };
 
-XMIPP4_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	other_probe,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

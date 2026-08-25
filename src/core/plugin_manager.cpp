@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/plugin_manager.hpp>
+#include <rexlib/core/plugin_manager.hpp>
 
 #include "plugin_loader.hpp"
 
-#include <xmipp4/core/plugin.hpp>
-#include <xmipp4/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/plugin_load_error.hpp>
 
 #include <core/logger.hpp>
 
@@ -16,10 +16,10 @@
 
 #include <boost/filesystem.hpp>
 
-static const char XMIPP4_PLUGINS_DIRECTORY_NAME[] = "xmipp4-plugins";
-static const char XMIPP4_PLUGINS_ENV_VARIABLE[] = "XMIPP4_PLUGINS_DIRECTORY";
+static const char REXLIB_PLUGINS_DIRECTORY_NAME[] = "rexlib-plugins";
+static const char REXLIB_PLUGINS_ENV_VARIABLE[] = "REXLIB_PLUGINS_DIRECTORY";
 
-namespace xmipp4
+namespace rexlib
 {
 
 static void try_load_plugin(
@@ -33,13 +33,13 @@ static void try_load_plugin(
 	}
 	catch(const plugin_load_error& error)
 	{
-		XMIPP4_LOG_ERROR(
+		REXLIB_LOG_ERROR(
 			"Failed to load plugin from {}: {}", path, error.what()
 		);
 	}
 	catch(const std::system_error& error)
 	{
-		XMIPP4_LOG_ERROR(
+		REXLIB_LOG_ERROR(
 			"Failed to load shared library {}: {}", path, error.what()
 		);
 	}
@@ -152,7 +152,7 @@ std::string get_default_plugin_directory()
 		);
 	}
 
-	path.replace_filename(XMIPP4_PLUGINS_DIRECTORY_NAME);
+	path.replace_filename(REXLIB_PLUGINS_DIRECTORY_NAME);
 	return path.string();
 }
 
@@ -161,7 +161,7 @@ std::string get_plugin_directory()
 	std::string result;
 
 	const char* environment_variable;
-	if((environment_variable = std::getenv(XMIPP4_PLUGINS_ENV_VARIABLE)))
+	if((environment_variable = std::getenv(REXLIB_PLUGINS_ENV_VARIABLE)))
 	{
 		result = environment_variable;
 	}
@@ -182,7 +182,7 @@ void discover_plugins(const std::string& directory, plugin_manager &manager)
 	}
 	catch(const boost::filesystem::filesystem_error& e)
 	{
-		XMIPP4_LOG_DEBUG(
+		REXLIB_LOG_DEBUG(
 			"Failed to open plugin directory {}: {}", 
 			directory, 
 			e.what()
@@ -217,4 +217,4 @@ std::size_t register_all_plugins_at(
 	return count;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/dispatch/basic_operation.hpp>
 
-#include <xmipp4/core/numerical/scalar_value.hpp>
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <array>
 #include <sstream>
@@ -16,17 +16,17 @@
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
 
 // The usual case: the whole declaration of an operation.
-XMIPP4_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	stub_add,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("left", "right"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
 	ops::elementwise_operation_shape_policy,
 	ops::binary_homogeneous_rule<>
 );
@@ -34,11 +34,11 @@ XMIPP4_DECLARE_OPERATION(
 // The escape hatch: an operation carrying a parameter still declares its
 // description with the macro, and only writes by hand what is genuinely its
 // own.
-XMIPP4_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_OPERATION_TRAITS(
 	stub_fill,
 	ops::ops_component,
-	XMIPP4_OPERANDS("destination"),
-	XMIPP4_OPERANDS(),
+	REXLIB_OPERANDS("destination"),
+	REXLIB_OPERANDS(),
 	ops::elementwise_operation_shape_policy,
 	ops::nullary_free_rule<>
 );
@@ -115,7 +115,7 @@ TEST_CASE(
 {
     std::ostringstream oss;
     oss << stub_add_operation::get_static_descriptor();
-    CHECK( oss.str() == "xmipp4.ops.stub_add" );
+    CHECK( oss.str() == "rexlib.ops.stub_add" );
 }
 
 TEST_CASE(

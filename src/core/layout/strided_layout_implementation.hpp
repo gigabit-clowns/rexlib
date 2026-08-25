@@ -2,15 +2,15 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/dynamic_subscript.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/layout/dynamic_subscript.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "strided_axis.hpp"
 #include "../config.hpp"
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 class strided_layout_implementation
@@ -18,7 +18,7 @@ class strided_layout_implementation
 public:
 	using strided_axis_vector_type = boost::container::small_vector<
 		strided_axis, 
-		XMIPP4_SMALL_AXIS_COUNT
+		REXLIB_SMALL_AXIS_COUNT
 	>;
 
 	strided_layout_implementation() noexcept;
@@ -114,6 +114,6 @@ private:
 	std::ptrdiff_t m_offset;
 };
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "strided_layout_implementation.inl"

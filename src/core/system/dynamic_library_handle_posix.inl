@@ -2,18 +2,18 @@
 
 #include "dynamic_library_handle.hpp"
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <dlfcn.h>
 
 #include <system_error>
 
-namespace xmipp4
+namespace rexlib
 {
 
 inline void* dynamic_library_open(const char* filename)
 {
-	XMIPP4_CONST_CONSTEXPR int flags = RTLD_LAZY;
+	REXLIB_CONST_CONSTEXPR int flags = RTLD_LAZY;
 	auto *const result = ::dlopen(filename, flags);
 	if (result == nullptr)
 	{
@@ -45,4 +45,4 @@ inline std::string dynamic_library_symbol_filename_lookup(const void* symbol)
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/typed_program_cache_key.hpp>
+#include <rexlib/core/dispatch/typed_program_cache_key.hpp>
 
 #include <functional>
 #include <string>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"typed_program_cache_key forwards to std::hash",

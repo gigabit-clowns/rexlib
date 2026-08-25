@@ -4,24 +4,24 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/service_catalog.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/dispatch/program_manager.hpp>
-#include <xmipp4/core/dispatch/dispatcher.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/hardware/device_manager.hpp>
-#include <xmipp4/core/hardware/device_index.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/service_catalog.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_index.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class cpu_execution_context_fixture
@@ -30,12 +30,12 @@ public:
 	cpu_execution_context_fixture()
 	{
 		const auto device_manager =
-			catalog.get_service_manager<xmipp4::device_manager>();
+			catalog.get_service_manager<rexlib::device_manager>();
 		const auto session = device_manager->create_device_session(
 			device_index("cpu", 0)
 		);
 		const auto program_manager =
-			catalog.get_service_manager<xmipp4::program_manager>();
+			catalog.get_service_manager<rexlib::program_manager>();
 		context = execution_context(
 			device_context(session),
 			make_eager_dispatcher(program_manager)
@@ -71,4 +71,4 @@ protected:
 	execution_context context;
 };
 
-} // namespace xmipp4
+} // namespace rexlib

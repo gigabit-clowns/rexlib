@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
 
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
 #include "mock/mock_dispatcher.hpp"
 #include "../hardware/mock/mock_device.hpp"
@@ -21,7 +21,7 @@
 #include <utility>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

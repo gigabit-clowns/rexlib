@@ -6,10 +6,10 @@
 
 #include <unordered_map>
 
-namespace xmipp4
+namespace rexlib
 {
 
-XMIPP4_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR 
 const char* to_string(example_flag_bits ex) noexcept
 {
     switch (ex)
@@ -45,4 +45,4 @@ std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, enumeration ex)
     return os << to_string(ex);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

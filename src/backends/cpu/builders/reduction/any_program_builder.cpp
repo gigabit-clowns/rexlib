@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/reduction/any_operation.hpp>
+#include <rexlib/ops/reduction/any_operation.hpp>
 
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/fold_reduction_kernel.hpp>
 #include <backends/cpu/kernels/boolean_cast.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -48,11 +48,11 @@ using any_kernel = fold_reduction_kernel<disjunction_fold, boolean_lift>;
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	any,
 	ops::any_operation,
 	default_kernel_factory<any_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

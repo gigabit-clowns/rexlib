@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/strided_layout.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
 #include "strided_layout_implementation.hpp"
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 strided_layout::strided_layout() noexcept = default;
@@ -52,25 +52,25 @@ void strided_layout::get_strides(std::vector<std::ptrdiff_t> &strides) const
 	return get_implementation().get_strides(strides);
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 std::ptrdiff_t strided_layout::get_offset() const noexcept
 {
 	return get_implementation().get_offset();
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 std::size_t strided_layout::compute_storage_requirement() const noexcept
 {
 	return get_implementation().compute_storage_requirement();
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 std::size_t strided_layout::compute_element_count() const noexcept
 {
 	return get_implementation().compute_element_count();
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 bool strided_layout::extents_equal(
 	span<const std::size_t> extents
 ) const noexcept
@@ -78,7 +78,7 @@ bool strided_layout::extents_equal(
 	return get_implementation().extents_equal(extents);
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout 
 strided_layout::apply_subscripts(span<const dynamic_subscript> subscripts) const
 {
@@ -90,7 +90,7 @@ strided_layout::apply_subscripts(span<const dynamic_subscript> subscripts) const
 	return strided_layout(get_implementation().apply_subscripts(subscripts));
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout strided_layout::transpose() const
 {
 	if (get_rank() <= 1)
@@ -98,18 +98,18 @@ strided_layout strided_layout::transpose() const
 		return *this; // Empty or single axis. Not modified.
 	}
 
-	XMIPP4_ASSERT( m_implementation );
+	REXLIB_ASSERT( m_implementation );
 	const auto &impl = *m_implementation;
 	return strided_layout(impl.transpose());
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout strided_layout::permute(span<const std::size_t> order) const
 {
 	return strided_layout(get_implementation().permute(order));
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout 
 strided_layout::matrix_transpose(
 	std::ptrdiff_t axis1, 
@@ -118,7 +118,7 @@ strided_layout::matrix_transpose(
 	return strided_layout(get_implementation().matrix_transpose(axis1, axis2));
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout 
 strided_layout::matrix_diagonal(
 	std::ptrdiff_t axis1, 
@@ -128,7 +128,7 @@ strided_layout::matrix_diagonal(
 	return strided_layout(get_implementation().matrix_diagonal(axis1, axis2));
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout strided_layout::squeeze() const
 {
 	if (m_implementation)
@@ -142,7 +142,7 @@ strided_layout strided_layout::squeeze() const
 	}
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout 
 strided_layout::broadcast_to(span<const std::size_t> extents) const
 {
@@ -161,7 +161,7 @@ strided_layout::get_implementation() const noexcept
 	return m_implementation ? *m_implementation : empty_implementation;
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout strided_layout::make_contiguous_layout(
 	span<const std::size_t> extents
 )
@@ -192,7 +192,7 @@ strided_layout strided_layout::make_contiguous_layout(
 	return strided_layout(strided_layout_implementation(axes, 0));
 }
 
-XMIPP4_NODISCARD
+REXLIB_NODISCARD
 strided_layout strided_layout::make_custom_layout(
 	span<const std::size_t> extents, 
 	span<const std::ptrdiff_t> strides, 
@@ -229,4 +229,4 @@ bool operator==(const strided_layout &lhs, const strided_layout &rhs) noexcept
 	return lhs.get_implementation() == rhs.get_implementation();
 }
 
-} // namespace xmipp4
+} // namespace rexlib

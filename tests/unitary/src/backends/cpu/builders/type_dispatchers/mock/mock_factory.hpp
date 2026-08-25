@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/program.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
 #include <trompeloeil.hpp>
 
 #include <memory>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 
 /**
@@ -47,4 +47,4 @@ public:
 	}
 };
 
-} // namespace xmipp4
+} // namespace rexlib

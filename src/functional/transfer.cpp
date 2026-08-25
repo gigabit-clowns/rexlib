@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/transfer.hpp>
+#include <rexlib/functional/transfer.hpp>
 
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/ops/assignment/copy_operation.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/functional/creation.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array transfer(
@@ -131,4 +131,4 @@ array to_host_copy(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

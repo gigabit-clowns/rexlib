@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include "joint_layout_implementation.hpp"
 
 #include <sstream>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 joint_layout::joint_layout() = default;
@@ -140,4 +140,4 @@ joint_layout::get_implementation() const noexcept
 	return m_implementation.get();
 }
 
-} // namespace xmipp4
+} // namespace rexlib

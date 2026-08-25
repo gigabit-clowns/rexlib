@@ -3,12 +3,12 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <xmipp4/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/version.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/version.hpp>
 
 #include <algorithm>
 #include <memory>
@@ -20,7 +20,7 @@
 #include "mock/mock_memory_allocator.hpp"
 #include "mock/mock_command_queue.hpp"
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

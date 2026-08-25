@@ -2,19 +2,19 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/numeric.hpp>
+#include <rexlib/functional/numeric.hpp>
 
-#include <xmipp4/ops/numeric/copysign_operation.hpp>
-#include <xmipp4/ops/numeric/is_finite_operation.hpp>
-#include <xmipp4/ops/numeric/is_inf_operation.hpp>
-#include <xmipp4/ops/numeric/is_nan_operation.hpp>
-#include <xmipp4/ops/numeric/sign_bit_operation.hpp>
+#include <rexlib/ops/numeric/copysign_operation.hpp>
+#include <rexlib/ops/numeric/is_finite_operation.hpp>
+#include <rexlib/ops/numeric/is_inf_operation.hpp>
+#include <rexlib/ops/numeric/is_nan_operation.hpp>
+#include <rexlib/ops/numeric/sign_bit_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

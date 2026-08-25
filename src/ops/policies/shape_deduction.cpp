@@ -2,7 +2,7 @@
 
 #include "shape_deduction.hpp"
 
-#include <xmipp4/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
 
 #include <algorithm>
 #include <cstddef>
@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -59,4 +59,4 @@ void assign_output_shapes(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

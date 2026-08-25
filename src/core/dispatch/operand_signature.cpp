@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace
@@ -131,8 +131,8 @@ operand_signature::from_array(const_array_ref a) noexcept
 {
 	return operand_signature(
 		a.get_descriptor(),
-		xmipp4::get_memory_resource(a.get_storage())
+		rexlib::get_memory_resource(a.get_storage())
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

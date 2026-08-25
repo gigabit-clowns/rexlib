@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/version.hpp>
+#include <rexlib/core/version.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "version constructor should produce expected values", "[version]" ) 
 {

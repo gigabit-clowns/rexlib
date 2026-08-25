@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 /**
@@ -28,4 +28,4 @@ private:
 	std::size_t m_size;
 };
 
-} // namespace xmipp4
+} // namespace rexlib

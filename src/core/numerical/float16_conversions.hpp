@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <half.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 /**
@@ -39,6 +39,6 @@ float float16_to_float(float16_t value) noexcept;
  */
 float16_t float_to_float16(float value) noexcept;
 
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "float16_conversions.inl"

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/program.hpp>
+#include <rexlib/core/hardware/program.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 program::program() noexcept = default;
@@ -14,4 +14,4 @@ program::get_scratch_requirements() const
 	return {};
 }
 
-} // namespace xmipp4
+} // namespace rexlib

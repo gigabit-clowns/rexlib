@@ -2,7 +2,7 @@
 
 #include "joint_layout_operand.hpp"
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 inline
@@ -60,4 +60,4 @@ void joint_layout_operand::trim_axes(std::size_t n)
 	m_strides.resize(n);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

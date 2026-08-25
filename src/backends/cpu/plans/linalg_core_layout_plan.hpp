@@ -4,13 +4,13 @@
 
 #include "linalg_operand_core.hpp"
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -123,4 +123,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

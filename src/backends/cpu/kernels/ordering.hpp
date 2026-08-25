@@ -5,7 +5,7 @@
 #include <cmath>
 #include <type_traits>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -198,4 +198,4 @@ bool precedes(bool x, bool y) noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

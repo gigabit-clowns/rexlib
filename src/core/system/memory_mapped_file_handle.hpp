@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/core/system/access_flags.hpp>
-#include <xmipp4/core/platform/operating_system.h>
+#include <rexlib/core/system/access_flags.hpp>
+#include <rexlib/core/platform/operating_system.h>
 
-namespace xmipp4
+namespace rexlib
 {
 
 /**
@@ -35,11 +35,11 @@ void* memory_mapped_file_open(
 void memory_mapped_file_close(void* data, std::size_t size) noexcept;
 
 
-} // namespace xmipp4
+} // namespace rexlib
 
-#if XMIPP4_POSIX
+#if REXLIB_POSIX
 	#include "memory_mapped_file_handle_posix.inl"
-#elif XMIPP4_WINDOWS
+#elif REXLIB_WINDOWS
 	#include "memory_mapped_file_handle_windows.inl"
 #else
 	#error "No memory_mapped_file_handle implementation available for this platform"

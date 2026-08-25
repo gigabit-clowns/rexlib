@@ -2,9 +2,9 @@
 
 #include "dispatched_program_builder.hpp"
 
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_cast.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
@@ -13,7 +13,7 @@
 #include <string>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -50,12 +50,12 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	const operation &operation,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	xmipp4::command_queue &queue
+	rexlib::command_queue &queue
 ) const
 {
-	XMIPP4_CONST_CONSTEXPR auto output_count =
+	REXLIB_CONST_CONSTEXPR auto output_count =
 		Op::output_operand_count;
-	XMIPP4_CONST_CONSTEXPR auto input_count =
+	REXLIB_CONST_CONSTEXPR auto input_count =
 		Op::input_operand_count;
 
 	const auto base = program_builder::get_suitability(
@@ -101,18 +101,18 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 }
 
 template <typename Derived, typename Op, typename TypeDispatcher>
-std::shared_ptr<xmipp4::program>
+std::shared_ptr<rexlib::program>
 dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	const operation &operation,
 	span<const operand_signature> output_signatures,
 	span<const operand_signature> input_signatures,
-	xmipp4::command_queue& /*queue*/,
+	rexlib::command_queue& /*queue*/,
 	program_cache* /*cache*/
 ) const
 {
-	XMIPP4_CONST_CONSTEXPR auto output_count =
+	REXLIB_CONST_CONSTEXPR auto output_count =
 		Op::output_operand_count;
-	XMIPP4_CONST_CONSTEXPR auto input_count =
+	REXLIB_CONST_CONSTEXPR auto input_count =
 		Op::input_operand_count;
 
 	const auto &typed_operation = operation_cast<Op>(operation);
@@ -170,4 +170,4 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

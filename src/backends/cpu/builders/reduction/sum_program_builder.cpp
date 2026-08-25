@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/reduction/sum_operation.hpp>
+#include <rexlib/ops/reduction/sum_operation.hpp>
 
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/fold_reduction_kernel.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -38,11 +38,11 @@ struct sum_fold
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	sum,
 	ops::sum_operation,
 	default_kernel_factory<fold_reduction_kernel<sum_fold>>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

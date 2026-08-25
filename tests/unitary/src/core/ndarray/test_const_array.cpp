@@ -3,10 +3,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
 
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <core/ndarray/array_implementation.hpp>
 
 #include "../hardware/mock/mock_buffer.hpp"
@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("Default constructed const_array should have no storage", "[const_array]")
 {

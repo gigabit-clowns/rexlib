@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "xmipp4/core/hardware/device_type.hpp"
+#include "rexlib/core/hardware/device_type.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 
 const char* to_string(device_type type) noexcept
@@ -17,4 +17,4 @@ const char* to_string(device_type type) noexcept
 	}
 }
 
-} // namespace xmipp4
+} // namespace rexlib

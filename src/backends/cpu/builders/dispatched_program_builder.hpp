@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 
 #include <backends/cpu/builders/operand_data_types.hpp>
 
@@ -13,7 +13,7 @@
 #include <cstddef>
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -71,14 +71,14 @@ public:
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		xmipp4::command_queue &queue
+		rexlib::command_queue &queue
 	) const override;
 
-	std::shared_ptr<xmipp4::program> build(
+	std::shared_ptr<rexlib::program> build(
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		xmipp4::command_queue &queue,
+		rexlib::command_queue &queue,
 		program_cache *cache
 	) const override;
 
@@ -109,6 +109,6 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "dispatched_program_builder.inl"

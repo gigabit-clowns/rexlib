@@ -2,14 +2,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/numerical/numerical_cast.hpp>
+#include <rexlib/core/numerical/numerical_cast.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <type_traits>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"numerical_cast returns the destination type",

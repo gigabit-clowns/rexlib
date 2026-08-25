@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <xmipp4/core/dispatch/rules/operand_type_resolution.hpp>
-#include <xmipp4/core/dispatch/rules/rule_operand_types.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/platform/attributes.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_resolution.hpp>
+#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/platform/attributes.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <cstddef>
@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class program;
@@ -94,13 +94,13 @@ public:
 	 * @param output_types Runtime data type of each output operand.
 	 * @param input_types Runtime data type of each input operand.
 	 * @param operation_pivots Pivot values supplied by the operation.
-	 * @return std::shared_ptr<xmipp4::program> The program built by the
+	 * @return std::shared_ptr<rexlib::program> The program built by the
 	 * factory.
 	 * @throws std::invalid_argument When the operand types do not resolve
 	 * against the rule, or the resolved pivots are rejected by @p Support.
 	 */
 	template <typename F, std::size_t OutputCount, std::size_t InputCount>
-	static std::shared_ptr<xmipp4::program> dispatch(
+	static std::shared_ptr<rexlib::program> dispatch(
 		const operation_descriptor &descriptor,
 		F &&factory,
 		const std::array<numerical_type, OutputCount> &output_types,
@@ -142,7 +142,7 @@ private:
 	) noexcept;
 
 	template <typename F, std::size_t... PivotIndices>
-	static std::shared_ptr<xmipp4::program> dispatch_pivots(
+	static std::shared_ptr<rexlib::program> dispatch_pivots(
 		F &&factory,
 		const type_rule_resolution &resolution,
 		std::index_sequence<PivotIndices...>
@@ -155,15 +155,15 @@ private:
 	);
 
 	template <typename F, typename Pivots>
-	static std::shared_ptr<xmipp4::program> invoke_if(
+	static std::shared_ptr<rexlib::program> invoke_if(
 		std::true_type supported,
 		F &&factory,
 		Pivots pivot_types
 	);
 
 	template <typename F, typename Pivots>
-	XMIPP4_NORETURN
-	static std::shared_ptr<xmipp4::program> invoke_if(
+	REXLIB_NORETURN
+	static std::shared_ptr<rexlib::program> invoke_if(
 		std::false_type supported,
 		F &&factory,
 		Pivots pivot_types
@@ -171,6 +171,6 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "rule_type_dispatcher.inl"

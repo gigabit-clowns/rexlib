@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/trigonometric.hpp>
+#include <rexlib/functional/trigonometric.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/span.hpp>
-#include <xmipp4/ops/trigonometric/acos_operation.hpp>
-#include <xmipp4/ops/trigonometric/acosh_operation.hpp>
-#include <xmipp4/ops/trigonometric/asin_operation.hpp>
-#include <xmipp4/ops/trigonometric/asinh_operation.hpp>
-#include <xmipp4/ops/trigonometric/atan_operation.hpp>
-#include <xmipp4/ops/trigonometric/atan2_operation.hpp>
-#include <xmipp4/ops/trigonometric/atanh_operation.hpp>
-#include <xmipp4/ops/trigonometric/cos_operation.hpp>
-#include <xmipp4/ops/trigonometric/cosh_operation.hpp>
-#include <xmipp4/ops/trigonometric/degrees_operation.hpp>
-#include <xmipp4/ops/trigonometric/hypot_operation.hpp>
-#include <xmipp4/ops/trigonometric/radians_operation.hpp>
-#include <xmipp4/ops/trigonometric/sin_operation.hpp>
-#include <xmipp4/ops/trigonometric/sincos_operation.hpp>
-#include <xmipp4/ops/trigonometric/sinh_operation.hpp>
-#include <xmipp4/ops/trigonometric/tan_operation.hpp>
-#include <xmipp4/ops/trigonometric/tanh_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/ops/trigonometric/acos_operation.hpp>
+#include <rexlib/ops/trigonometric/acosh_operation.hpp>
+#include <rexlib/ops/trigonometric/asin_operation.hpp>
+#include <rexlib/ops/trigonometric/asinh_operation.hpp>
+#include <rexlib/ops/trigonometric/atan_operation.hpp>
+#include <rexlib/ops/trigonometric/atan2_operation.hpp>
+#include <rexlib/ops/trigonometric/atanh_operation.hpp>
+#include <rexlib/ops/trigonometric/cos_operation.hpp>
+#include <rexlib/ops/trigonometric/cosh_operation.hpp>
+#include <rexlib/ops/trigonometric/degrees_operation.hpp>
+#include <rexlib/ops/trigonometric/hypot_operation.hpp>
+#include <rexlib/ops/trigonometric/radians_operation.hpp>
+#include <rexlib/ops/trigonometric/sin_operation.hpp>
+#include <rexlib/ops/trigonometric/sincos_operation.hpp>
+#include <rexlib/ops/trigonometric/sinh_operation.hpp>
+#include <rexlib/ops/trigonometric/tan_operation.hpp>
+#include <rexlib/ops/trigonometric/tanh_operation.hpp>
 
 #include <array>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array sin(
@@ -207,4 +207,4 @@ std::pair<array, array> sincos(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

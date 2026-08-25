@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/index.hpp>
+#include <rexlib/core/layout/index.hpp>
 
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
@@ -34,4 +34,4 @@ std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
 	return static_cast<std::size_t>(result);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

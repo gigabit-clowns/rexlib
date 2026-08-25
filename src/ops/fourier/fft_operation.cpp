@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
 
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -24,4 +24,4 @@ fourier_normalization fft_operation::get_normalization() const noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

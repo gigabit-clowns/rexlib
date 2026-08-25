@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_memory_allocator final
@@ -30,4 +30,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

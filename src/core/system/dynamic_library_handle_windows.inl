@@ -6,7 +6,7 @@
 
 #include <system_error>
 
-namespace xmipp4
+namespace rexlib
 {
 
 inline void* dynamic_library_open(const char* filename)
@@ -44,7 +44,7 @@ inline std::string dynamic_library_symbol_filename_lookup(const void* symbol)
 	std::string result;
 
 	HMODULE module;
-	XMIPP4_CONST_CONSTEXPR DWORD flags = 
+	REXLIB_CONST_CONSTEXPR DWORD flags = 
 		GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
 		GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT ;
 
@@ -61,4 +61,4 @@ inline std::string dynamic_library_symbol_filename_lookup(const void* symbol)
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

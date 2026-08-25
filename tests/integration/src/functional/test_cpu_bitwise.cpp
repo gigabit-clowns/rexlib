@@ -2,21 +2,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/bitwise.hpp>
+#include <rexlib/functional/bitwise.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/bitwise/bitwise_and_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_not_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_or_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_xor_operation.hpp>
-#include <xmipp4/ops/bitwise/left_shift_operation.hpp>
-#include <xmipp4/ops/bitwise/right_shift_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_and_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_not_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_or_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_xor_operation.hpp>
+#include <rexlib/ops/bitwise/left_shift_operation.hpp>
+#include <rexlib/ops/bitwise/right_shift_operation.hpp>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // The combining operations admit booleans and characters as well as the
 // integers, and a boolean holds only the bits zero and one. Cases over the
@@ -31,7 +31,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<bitwise_and_operation>(
-		xmipp4::bitwise_and,
+		rexlib::bitwise_and,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return 0; }
@@ -46,7 +46,7 @@ TEST_CASE_METHOD(
 {
 	// 0b1100 & 0b1010 == 0b1000
 	check_binary<bitwise_and_operation, integral_type_domain>(
-		xmipp4::bitwise_and,
+		rexlib::bitwise_and,
 		element_value(12),
 		element_value(10),
 		[](auto, auto) { return 8; }
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<bitwise_or_operation>(
-		xmipp4::bitwise_or,
+		rexlib::bitwise_or,
 		element_value(1),
 		element_value(0),
 		[](auto, auto) { return 1; }
@@ -75,7 +75,7 @@ TEST_CASE_METHOD(
 {
 	// 0b1100 | 0b1010 == 0b1110
 	check_binary<bitwise_or_operation, integral_type_domain>(
-		xmipp4::bitwise_or,
+		rexlib::bitwise_or,
 		element_value(12),
 		element_value(10),
 		[](auto, auto) { return 14; }
@@ -89,7 +89,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_binary<bitwise_xor_operation>(
-		xmipp4::bitwise_xor,
+		rexlib::bitwise_xor,
 		element_value(1),
 		element_value(1),
 		[](auto, auto) { return 0; }
@@ -104,7 +104,7 @@ TEST_CASE_METHOD(
 {
 	// 0b1100 ^ 0b1010 == 0b0110
 	check_binary<bitwise_xor_operation, integral_type_domain>(
-		xmipp4::bitwise_xor,
+		rexlib::bitwise_xor,
 		element_value(12),
 		element_value(10),
 		[](auto, auto) { return 6; }
@@ -121,7 +121,7 @@ TEST_CASE_METHOD(
 	// one. Restricted to the signed types, the result for an unsigned one
 	// depending on its width.
 	check_unary<bitwise_not_operation, signed_integer_type_domain>(
-		xmipp4::bitwise_not,
+		rexlib::bitwise_not,
 		element_value(12),
 		[](auto) { return -13; }
 	);
@@ -136,7 +136,7 @@ TEST_CASE_METHOD(
 	// Complementing the byte a boolean occupies would give -2, which
 	// converts back to true and would leave the operation doing nothing.
 	check_unary<bitwise_not_operation, boolean_type_domain>(
-		xmipp4::bitwise_not,
+		rexlib::bitwise_not,
 		element_value(1),
 		[](auto) { return false; }
 	);
@@ -150,7 +150,7 @@ TEST_CASE_METHOD(
 {
 	// 0b0011 << 2 == 0b1100
 	check_binary<left_shift_operation>(
-		xmipp4::left_shift,
+		rexlib::left_shift,
 		element_value(3),
 		element_value(2),
 		[](auto, auto) { return 12; }
@@ -165,7 +165,7 @@ TEST_CASE_METHOD(
 {
 	// 0b1100 >> 2 == 0b0011
 	check_binary<right_shift_operation>(
-		xmipp4::right_shift,
+		rexlib::right_shift,
 		element_value(12),
 		element_value(2),
 		[](auto, auto) { return 3; }
@@ -181,7 +181,7 @@ TEST_CASE_METHOD(
 	// An arithmetic shift, which C++20 requires and every earlier
 	// implementation performed anyway.
 	check_binary<right_shift_operation, signed_integer_type_domain>(
-		xmipp4::right_shift,
+		rexlib::right_shift,
 		element_value(-12),
 		element_value(2),
 		[](auto, auto) { return -3; }

@@ -6,12 +6,12 @@
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
 
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"roll_axis_shift stores the axis and shift it is given",

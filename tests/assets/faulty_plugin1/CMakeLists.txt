@@ -5,10 +5,10 @@ add_library(faulty-plugin1 MODULE ${SOURCES})
 set_target_properties(
 	faulty-plugin1
 	PROPERTIES 
-		DEFINE_SYMBOL "XMIPP4_FAULTY_PLUGIN1_EXPORTING"
+		DEFINE_SYMBOL "REXLIB_FAULTY_PLUGIN1_EXPORTING"
 )
 target_link_libraries(
 	faulty-plugin1
 	PRIVATE
-		xmipp4-core
+		rexlib
 )

@@ -2,15 +2,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/system/memory_mapped_file.hpp>
+#include <rexlib/core/system/memory_mapped_file.hpp>
 
-#include <xmipp4/core/system/access_flags.hpp>
+#include <rexlib/core/system/access_flags.hpp>
 
 #include <fstream>
 #include <string>
 #include <cstring>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 static void write_test_pattern1(const std::string &path, std::size_t n)
 {
@@ -55,7 +55,7 @@ static bool check_test_pattern2(const char* data, std::size_t count)
 TEST_CASE( "memory map a file for reading and writing", "[memory_mapped_file]" ) 
 {
 	const std::string path = "memory_mapped_file.txt";
-	XMIPP4_CONST_CONSTEXPR std::size_t n = 1 << 20; // 1 MiB
+	REXLIB_CONST_CONSTEXPR std::size_t n = 1 << 20; // 1 MiB
 	write_test_pattern1(path, n);
 
 	SECTION ("Read first few bytes")

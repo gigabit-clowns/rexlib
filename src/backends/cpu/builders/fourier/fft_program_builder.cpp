@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
 
 #include <backends/cpu/builders/fourier_program_builder.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -13,11 +13,11 @@ namespace cpu
 // output and transformed there, which is what lets one transform serve both
 // and is why the full spectrum is stored: half of it is redundant, but
 // storing only that half is what rfft is for.
-XMIPP4_REGISTER_FOURIER_PROGRAM_BUILDER(
+REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(
 	fft,
 	ops::fft_operation,
 	forward_complex_fourier_transform
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/memory/byte_order.hpp>
+#include <rexlib/core/memory/byte_order.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "reverse_byte_order correctly reverses byte order for integral types", "[byte_order]" ) 
 {

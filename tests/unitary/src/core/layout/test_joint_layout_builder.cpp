@@ -5,18 +5,18 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
 
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/core/layout/broadcast_error.hpp>
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/layout/broadcast_error.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 #include <core/layout/joint_layout_implementation.hpp>
 
 #include <algorithm>
 #include <iostream>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "default constructing a joint_layout_builder should point to a null implementation", "[joint_layout_builder]" )
 {
@@ -30,7 +30,7 @@ TEST_CASE( "setting the iteration extents in joint_layout_builder should initial
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 
 	const auto *impl = builder.get_implementation();
 	REQUIRE( impl );
@@ -43,11 +43,11 @@ TEST_CASE( "setting the iteration extents in joint_layout_builder with an implem
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 
 	REQUIRE_THROWS_MATCHES(
-		builder.set_extents(xmipp4::make_span(extents)),
-		xmipp4::invalid_operation_error,
+		builder.set_extents(rexlib::make_span(extents)),
+		rexlib::invalid_operation_error,
 		Catch::Matchers::Message("Extents can only be set once and before adding any operand")
 	);
 }
@@ -57,7 +57,7 @@ TEST_CASE( "adding the first operand joint_layout_builder should initialize it",
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	auto layout = strided_layout::make_contiguous_layout(xmipp4::make_span(extents));
+	auto layout = strided_layout::make_contiguous_layout(rexlib::make_span(extents));
 
 	builder.add_operand(layout);
 
@@ -72,12 +72,12 @@ TEST_CASE( "Adding a valid operand joint_layout_builder should add it", "[joint_
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	auto layout = strided_layout::make_contiguous_layout(xmipp4::make_span(extents));
+	auto layout = strided_layout::make_contiguous_layout(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides;
 	layout.get_strides(strides);
 	const auto offset = layout.get_offset();
 
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	builder.add_operand(layout);
 
 	const auto *impl = builder.get_implementation();
@@ -96,9 +96,9 @@ TEST_CASE( "Adding an operand with non-broadcastable extents in joint_layout_bui
 
 	std::vector<std::size_t> extents1 = {20, 6, 12, 12};
 	std::vector<std::size_t> extents2 = {20, 4, 12, 12};
-	auto layout = strided_layout::make_contiguous_layout(xmipp4::make_span(extents1));
+	auto layout = strided_layout::make_contiguous_layout(rexlib::make_span(extents1));
 
-	builder.set_extents(xmipp4::make_span(extents2));
+	builder.set_extents(rexlib::make_span(extents2));
 
 	REQUIRE_THROWS_MATCHES(
 		builder.add_operand(layout),
@@ -114,13 +114,13 @@ TEST_CASE( "Adding an operand with a size-1 axis in joint_layout_builder should 
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> iteration_extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(iteration_extents));
+	builder.set_extents(rexlib::make_span(iteration_extents));
 
 	const std::vector<std::size_t> operand_extents = {20, 1, 12, 12};
 	const std::vector<std::ptrdiff_t> operand_strides = { 144, 144, 12, 1 };
 	const auto operand_layout = strided_layout::make_custom_layout(
-		xmipp4::make_span(operand_extents),
-		xmipp4::make_span(operand_strides)
+		rexlib::make_span(operand_extents),
+		rexlib::make_span(operand_strides)
 	);
 	builder.add_operand(operand_layout);
 
@@ -139,13 +139,13 @@ TEST_CASE( "Adding an operand with fewer dimensions in joint_layout_builder shou
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> iteration_extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(iteration_extents));
+	builder.set_extents(rexlib::make_span(iteration_extents));
 
 	const std::vector<std::size_t> operand_extents = {12, 12};
 	const std::vector<std::ptrdiff_t> operand_strides = { 12, 1 };
 	const auto operand_layout = strided_layout::make_custom_layout(
-		xmipp4::make_span(operand_extents),
-		xmipp4::make_span(operand_strides)
+		rexlib::make_span(operand_extents),
+		rexlib::make_span(operand_strides)
 	);
 	builder.add_operand(operand_layout);
 
@@ -164,13 +164,13 @@ TEST_CASE( "Adding an operand with fewer dimensions and a size-1 axis in joint_l
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> iteration_extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(iteration_extents));
+	builder.set_extents(rexlib::make_span(iteration_extents));
 
 	const std::vector<std::size_t> operand_extents = {1, 12};
 	const std::vector<std::ptrdiff_t> operand_strides = { 12, 1 };
 	const auto operand_layout = strided_layout::make_custom_layout(
-		xmipp4::make_span(operand_extents),
-		xmipp4::make_span(operand_strides)
+		rexlib::make_span(operand_extents),
+		rexlib::make_span(operand_strides)
 	);
 	builder.add_operand(operand_layout);
 
@@ -189,14 +189,14 @@ TEST_CASE( "Adding a broadcastable operand via strides and extents in joint_layo
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> iteration_extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(iteration_extents));
+	builder.set_extents(rexlib::make_span(iteration_extents));
 
 	const std::vector<std::size_t> operand_extents = {20, 1, 12, 12};
 	const std::vector<std::ptrdiff_t> operand_strides = { 144, 0, 12, 1 };
 	const std::ptrdiff_t offset = 7;
 	builder.add_operand(
-		xmipp4::make_span(operand_extents),
-		xmipp4::make_span(operand_strides),
+		rexlib::make_span(operand_extents),
+		rexlib::make_span(operand_strides),
 		offset
 	);
 
@@ -216,7 +216,7 @@ TEST_CASE("build on joint_layout_builder should move the implementation", "[join
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	const auto *impl = builder.get_implementation();
 
 	auto layout = builder.build();
@@ -229,12 +229,12 @@ TEST_CASE("build with enable_reordering on joint_layout_builder should re-order 
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides1 = { 864, 144, 12, 1 };
-	const auto operand_layout1 = strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides1));
+	const auto operand_layout1 = strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides1));
 	builder.add_operand(operand_layout1);
 	std::vector<std::ptrdiff_t> strides2 = { 1, 20, 120, 1440 };
-	const auto operand_layout2 = strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides2));
+	const auto operand_layout2 = strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides2));
 	builder.add_operand(operand_layout2);
 
 	auto layout = builder.build(joint_layout_build_flag_bits::enable_reordering);
@@ -255,10 +255,10 @@ TEST_CASE("build with enable_coalescing on joint_layout_builder should coalesce 
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides = { 1, 20, 120, 1440 };
 	const auto operand_layout = 
-			strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides));
+			strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides));
 	builder.add_operand(operand_layout);
 	builder.add_operand(operand_layout);
 
@@ -279,10 +279,10 @@ TEST_CASE("build with enable_coalescing on joint_layout_builder should coalesce 
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 1, 1, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides = { 1, 2, 4, 20 };
 	const auto operand_layout = 
-			strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides));
+			strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides));
 	builder.add_operand(operand_layout);
 	builder.add_operand(operand_layout);
 
@@ -303,13 +303,13 @@ TEST_CASE("build with enable_coalescing on joint_layout_builder should not coale
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides1 = { 1, 40, 240, 2880 }; // Non-contiguous 2nd axis
 	const auto operand_layout1 = 
-		strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides1));
+		strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides1));
 	std::vector<std::ptrdiff_t> strides2 = { 1, 20, 120, 2880 }; // Non-contiguous 4th axis
 	const auto operand_layout2 = 
-		strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides2));
+		strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides2));
 	builder.add_operand(operand_layout1);
 	builder.add_operand(operand_layout2);
 
@@ -331,10 +331,10 @@ TEST_CASE("build on joint_layout_builder without flags should not modify the lay
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides = { 1, 20, 120, 1440 };
 	const auto operand_layout = 
-		strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides));
+		strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides));
 	builder.add_operand(operand_layout);
 	builder.add_operand(operand_layout);
 
@@ -353,9 +353,9 @@ TEST_CASE( "build with default flags on joint_layout should re-order and coalesc
 	joint_layout_builder builder;
 
 	std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 	std::vector<std::ptrdiff_t> strides = { 1728, 288, 12, 1 };
-	const auto operand_layout = strided_layout::make_custom_layout(xmipp4::make_span(extents), xmipp4::make_span(strides));
+	const auto operand_layout = strided_layout::make_custom_layout(rexlib::make_span(extents), rexlib::make_span(strides));
 	builder.add_operand(operand_layout);
 	builder.add_operand(operand_layout);
 
@@ -377,7 +377,7 @@ TEST_CASE( "building a reduce operation in joint_layout_builder should produce e
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 
 	auto result_strides = GENERATE(
 		std::vector<std::ptrdiff_t>{ 12, 0, 1, 0 },
@@ -388,16 +388,16 @@ TEST_CASE( "building a reduce operation in joint_layout_builder should produce e
 	);
 	const auto result_layout = 
 		strided_layout::make_custom_layout(
-			xmipp4::make_span(extents), 
-			xmipp4::make_span(result_strides)
+			rexlib::make_span(extents), 
+			rexlib::make_span(result_strides)
 		);
 	builder.add_operand(result_layout);
 
 	const std::vector<std::ptrdiff_t> input_strides = { 3456, 288, 12, 1 };
 	const auto input_layout = 
 		strided_layout::make_custom_layout(
-			xmipp4::make_span(extents), 
-			xmipp4::make_span(input_strides)
+			rexlib::make_span(extents), 
+			rexlib::make_span(input_strides)
 		);
 	builder.add_operand(input_layout);
 
@@ -418,21 +418,21 @@ TEST_CASE( "building a reduce operation in joint_layout_builder should simplify 
 	joint_layout_builder builder;
 
 	const std::vector<std::size_t> extents = {20, 6, 12, 12};
-	builder.set_extents(xmipp4::make_span(extents));
+	builder.set_extents(rexlib::make_span(extents));
 
 	std::vector<std::ptrdiff_t> result_strides = { 0, 0, 12, 1 };
 	const auto result_layout = 
 		strided_layout::make_custom_layout(
-			xmipp4::make_span(extents), 
-			xmipp4::make_span(result_strides)
+			rexlib::make_span(extents), 
+			rexlib::make_span(result_strides)
 		);
 	builder.add_operand(result_layout);
 
 	const std::vector<std::ptrdiff_t> input_strides = { 864, 144, 12, 1 };
 	const auto input_layout = 
 		strided_layout::make_custom_layout(
-			xmipp4::make_span(extents), 
-			xmipp4::make_span(input_strides)
+			rexlib::make_span(extents), 
+			rexlib::make_span(input_strides)
 		);
 	builder.add_operand(input_layout);
 

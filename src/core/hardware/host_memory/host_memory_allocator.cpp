@@ -2,18 +2,18 @@
 
 #include "host_memory_allocator.hpp"
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/memory/align.hpp>
-#include <xmipp4/core/system/host.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/memory/align.hpp>
+#include <rexlib/core/system/host.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include "host_memory_resource.hpp"
 #include "host_buffer.hpp"
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 
 std::shared_ptr<host_memory_allocator> host_memory_allocator::m_instance;
@@ -51,8 +51,8 @@ const std::shared_ptr<host_memory_allocator>& host_memory_allocator::create()
 		m_instance = std::make_shared<host_memory_allocator>();
 	}
 
-	XMIPP4_ASSERT(m_instance);
+	REXLIB_ASSERT(m_instance);
 	return m_instance;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

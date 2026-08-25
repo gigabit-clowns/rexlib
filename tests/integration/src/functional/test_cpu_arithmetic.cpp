@@ -2,34 +2,34 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/arithmetic.hpp>
+#include <rexlib/functional/arithmetic.hpp>
 
 #include "fixtures/elementwise_verb_fixture.hpp"
 
-#include <xmipp4/ops/arithmetic/abs_operation.hpp>
-#include <xmipp4/ops/arithmetic/add_operation.hpp>
-#include <xmipp4/ops/arithmetic/divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/divmod_operation.hpp>
-#include <xmipp4/ops/arithmetic/floor_divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/modulo_operation.hpp>
-#include <xmipp4/ops/arithmetic/multiply_operation.hpp>
-#include <xmipp4/ops/arithmetic/negate_operation.hpp>
-#include <xmipp4/ops/arithmetic/sign_operation.hpp>
-#include <xmipp4/ops/arithmetic/subtract_operation.hpp>
+#include <rexlib/ops/arithmetic/abs_operation.hpp>
+#include <rexlib/ops/arithmetic/add_operation.hpp>
+#include <rexlib/ops/arithmetic/divide_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/modulo_operation.hpp>
+#include <rexlib/ops/arithmetic/multiply_operation.hpp>
+#include <rexlib/ops/arithmetic/negate_operation.hpp>
+#include <rexlib/ops/arithmetic/sign_operation.hpp>
+#include <rexlib/ops/arithmetic/subtract_operation.hpp>
 
-#include <xmipp4/functional/creation.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rexlib/functional/creation.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <cmath>
 #include <complex>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::comparison_mode;
-using xmipp4::test::element_value;
-using xmipp4::test::elementwise_verb_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::comparison_mode;
+using rexlib::test::element_value;
+using rexlib::test::elementwise_verb_fixture;
 
 // Each case below sweeps every numerical type, running the verb for the
 // types the operation's rule admits and requiring a rejection for the rest.
@@ -275,7 +275,7 @@ TEST_CASE_METHOD(
 	// The parts are a Pythagorean pair, so the magnitude of the complex
 	// case is exact in every precision.
 	check_unary<abs_operation, signed_arithmetic_type_domain>(
-		xmipp4::abs,
+		rexlib::abs,
 		element_value(-3, -4),
 		[](auto x) { using std::abs; return abs(x); }
 	);
@@ -288,7 +288,7 @@ TEST_CASE_METHOD(
 )
 {
 	check_unary<abs_operation, unsigned_integer_type_domain>(
-		xmipp4::abs,
+		rexlib::abs,
 		element_value(3),
 		[](auto x) { return x; }
 	);

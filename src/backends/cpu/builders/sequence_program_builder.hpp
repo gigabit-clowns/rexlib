@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -14,11 +14,11 @@
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/plans/sequence_layout_plan.hpp>
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -130,11 +130,11 @@ private:
 		"takes no input operand."
 	);
 
-	XMIPP4_NO_UNIQUE_ADDRESS kernel_factory_type m_kernel_factory;
+	REXLIB_NO_UNIQUE_ADDRESS kernel_factory_type m_kernel_factory;
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 /**
  * @brief Instantiate and auto-register a CPU sequence program builder.
@@ -146,10 +146,10 @@ private:
  * @param op The operation type.
  * @param kernel_factory Factory producing the generator.
  */
-#define XMIPP4_REGISTER_SEQUENCE_PROGRAM_BUILDER(name, op, kernel_factory) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_SEQUENCE_PROGRAM_BUILDER(name, op, kernel_factory) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::sequence_program_builder<op, kernel_factory> \
+		::rexlib::cpu::sequence_program_builder<op, kernel_factory> \
 	)
 
 /**
@@ -165,12 +165,12 @@ private:
  * @param ... The type dispatcher. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define XMIPP4_REGISTER_SEQUENCE_PROGRAM_BUILDER_EX( \
+#define REXLIB_REGISTER_SEQUENCE_PROGRAM_BUILDER_EX( \
 	name, op, kernel_factory, ... \
 ) \
-	XMIPP4_REGISTER_CPU_PROGRAM_BUILDER( \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::xmipp4::cpu::sequence_program_builder< \
+		::rexlib::cpu::sequence_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/dispatch/operation_cast.hpp>
 
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 
 void throw_unexpected_operation(
@@ -19,4 +19,4 @@ void throw_unexpected_operation(
 	throw std::invalid_argument(oss.str());
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -3,9 +3,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"program_scratch_requirement constructor should store size, alignment, "

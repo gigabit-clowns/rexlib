@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
 
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device.hpp>
 
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 device_context::device_context(std::shared_ptr<const device_session> session)
@@ -78,4 +78,4 @@ device_context::with_allocator(
 	return result;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

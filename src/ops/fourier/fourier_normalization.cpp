@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/fourier/fourier_normalization.hpp>
+#include <rexlib/ops/fourier/fourier_normalization.hpp>
 
 #include <cmath>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -75,4 +75,4 @@ double get_fourier_scale(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

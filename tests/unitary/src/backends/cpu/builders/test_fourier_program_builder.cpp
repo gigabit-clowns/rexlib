@@ -7,20 +7,20 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
-#include <xmipp4/core/hardware/memory_resource_kind.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
-#include <xmipp4/ops/fourier/fft_operation.hpp>
-#include <xmipp4/ops/policies/axis_list.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/policies/axis_list.hpp>
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 
@@ -30,8 +30,8 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
@@ -73,7 +73,7 @@ std::shared_ptr<host_buffer> make_buffer(std::size_t count)
  * @brief Run a program over one input buffer and one output buffer.
  */
 void run(
-	const std::shared_ptr<xmipp4::program> &program,
+	const std::shared_ptr<rexlib::program> &program,
 	const std::shared_ptr<host_buffer> &output,
 	const std::shared_ptr<host_buffer> &input,
 	thread_pool &pool = *get_serial_pool()

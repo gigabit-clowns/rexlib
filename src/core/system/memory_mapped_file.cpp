@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/system/memory_mapped_file.hpp>
+#include <rexlib/core/system/memory_mapped_file.hpp>
 
 #include "memory_mapped_file_handle.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 
 memory_mapped_file::memory_mapped_file() noexcept
@@ -110,4 +110,4 @@ void swap(memory_mapped_file& lhs, memory_mapped_file& rhs) noexcept
 	lhs.swap(rhs);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

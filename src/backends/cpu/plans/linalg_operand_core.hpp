@@ -5,7 +5,7 @@
 #include <array>
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -42,4 +42,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

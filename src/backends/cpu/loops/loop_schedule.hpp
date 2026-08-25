@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -101,6 +101,6 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "loop_schedule.inl"

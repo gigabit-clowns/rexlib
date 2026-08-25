@@ -3,13 +3,13 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/functional/fourier.hpp>
+#include <rexlib/functional/fourier.hpp>
 
 #include "fixtures/fourier_verb_fixture.hpp"
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/ops/fourier/fourier_normalization.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/ops/fourier/fourier_normalization.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <cstddef>
@@ -17,9 +17,9 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using xmipp4::test::element_value;
-using xmipp4::test::fourier_verb_fixture;
+using namespace rexlib;
+using rexlib::test::element_value;
+using rexlib::test::fourier_verb_fixture;
 
 namespace
 {
@@ -49,7 +49,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		{ 4 },
 		ramp_spectrum
 	);
@@ -75,7 +75,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		{ 4 },
 		{ 0, element_value(4.0), 0, 0 }
 	);
@@ -96,7 +96,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		{ 2, 4 },
 		{
 			element_value(10.0),
@@ -127,7 +127,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> transformed_axes = { 0 };
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, make_span(transformed_axes), context, nullptr),
+		rexlib::fft(signal_ref, make_span(transformed_axes), context, nullptr),
 		{ 4, 2 },
 		{
 			element_value(10.0), 0,
@@ -149,7 +149,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> transformed_axes = { -1 };
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, make_span(transformed_axes), context, nullptr),
+		rexlib::fft(signal_ref, make_span(transformed_axes), context, nullptr),
 		{ 4 },
 		ramp_spectrum
 	);
@@ -165,7 +165,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft2(signal_ref, context, nullptr),
+		rexlib::fft2(signal_ref, context, nullptr),
 		{ 2, 2 },
 		{
 			element_value(10.0),
@@ -190,7 +190,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> no_axes;
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, make_span(no_axes), context, nullptr),
+		rexlib::fft(signal_ref, make_span(no_axes), context, nullptr),
 		{ 4 },
 		ramp
 	);
@@ -209,7 +209,7 @@ TEST_CASE_METHOD(
 	const const_array_ref spectrum_ref = spectrum;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::ifft(spectrum_ref, context, nullptr),
+		rexlib::ifft(spectrum_ref, context, nullptr),
 		{ 4 },
 		ramp
 	);
@@ -232,7 +232,7 @@ TEST_CASE_METHOD(
 	const const_array_ref spectrum_ref = spectrum;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::ifft(spectrum_ref, context, nullptr),
+		rexlib::ifft(spectrum_ref, context, nullptr),
 		{ 4 },
 		{ element_value(2.0), 0, 0, 0 }
 	);
@@ -250,7 +250,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::rfft(signal_ref, context, nullptr),
+		rexlib::rfft(signal_ref, context, nullptr),
 		{ 3 },
 		{ ramp_spectrum[0], ramp_spectrum[1], ramp_spectrum[2] }
 	);
@@ -272,7 +272,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::rfft2(signal_ref, context, nullptr),
+		rexlib::rfft2(signal_ref, context, nullptr),
 		{ 2, 3 },
 		{
 			element_value(36.0),
@@ -294,11 +294,11 @@ TEST_CASE_METHOD(
 	auto signal = make_operand<float32_t>({ 4 }, ramp);
 	const const_array_ref signal_ref = signal;
 
-	const auto spectrum = xmipp4::rfft(signal_ref, context, nullptr);
+	const auto spectrum = rexlib::rfft(signal_ref, context, nullptr);
 	const const_array_ref spectrum_ref = spectrum;
 
 	check_values<float32_t>(
-		xmipp4::irfft(spectrum_ref, 4, context, nullptr),
+		rexlib::irfft(spectrum_ref, 4, context, nullptr),
 		{ 4 },
 		ramp
 	);
@@ -318,12 +318,12 @@ TEST_CASE_METHOD(
 	auto signal = make_operand<float32_t>({ 5 }, odd_ramp);
 	const const_array_ref signal_ref = signal;
 
-	const auto spectrum = xmipp4::rfft(signal_ref, context, nullptr);
+	const auto spectrum = rexlib::rfft(signal_ref, context, nullptr);
 	const const_array_ref spectrum_ref = spectrum;
 	CHECK( spectrum.get_descriptor().get_layout().get_rank() == 1 );
 
 	check_values<float32_t>(
-		xmipp4::irfft(spectrum_ref, 5, context, nullptr),
+		rexlib::irfft(spectrum_ref, 5, context, nullptr),
 		{ 5 },
 		odd_ramp
 	);
@@ -339,7 +339,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float64_t>>(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		{ 4 },
 		ramp_spectrum,
 		1e-12
@@ -358,7 +358,7 @@ TEST_CASE_METHOD(
 	auto out = make_operand<std::complex<float32_t>>({ 4 }, { 0, 0, 0, 0 });
 	const auto *out_storage = out.get_storage();
 
-	const auto result = xmipp4::fft(signal_ref, context, &out);
+	const auto result = rexlib::fft(signal_ref, context, &out);
 
 	CHECK( result.get_storage() == out_storage );
 	check_values<std::complex<float32_t>>(result, { 4 }, ramp_spectrum);
@@ -378,7 +378,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	CHECK_THROWS_AS(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		invalid_operation_error
 	);
 }
@@ -393,7 +393,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	CHECK_THROWS_AS(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		std::invalid_argument
 	);
 }
@@ -410,7 +410,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	CHECK_THROWS_AS(
-		xmipp4::rfft(signal_ref, context, nullptr),
+		rexlib::rfft(signal_ref, context, nullptr),
 		std::invalid_argument
 	);
 }
@@ -428,7 +428,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	CHECK_THROWS_AS(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		std::invalid_argument
 	);
 }
@@ -446,7 +446,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, context, nullptr),
+		rexlib::fft(signal_ref, context, nullptr),
 		{ 0, 4 },
 		{}
 	);
@@ -465,7 +465,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> no_axes;
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(signal_ref, make_span(no_axes), context, nullptr),
+		rexlib::fft(signal_ref, make_span(no_axes), context, nullptr),
 		{},
 		{ element_value(3.0) }
 	);
@@ -484,7 +484,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(
+		rexlib::fft(
 			signal_ref,
 			ops::fourier_normalization::ortho,
 			context,
@@ -512,7 +512,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(
+		rexlib::fft(
 			signal_ref,
 			ops::fourier_normalization::forward,
 			context,
@@ -542,7 +542,7 @@ TEST_CASE_METHOD(
 	const const_array_ref spectrum_ref = spectrum;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::ifft(
+		rexlib::ifft(
 			spectrum_ref,
 			ops::fourier_normalization::forward,
 			context,
@@ -573,11 +573,11 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	const auto spectrum =
-		xmipp4::fft(signal_ref, normalization, context, nullptr);
+		rexlib::fft(signal_ref, normalization, context, nullptr);
 	const const_array_ref spectrum_ref = spectrum;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::ifft(spectrum_ref, normalization, context, nullptr),
+		rexlib::ifft(spectrum_ref, normalization, context, nullptr),
 		{ 4 },
 		ramp
 	);
@@ -604,11 +604,11 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	const auto spectrum =
-		xmipp4::rfft(signal_ref, normalization, context, nullptr);
+		rexlib::rfft(signal_ref, normalization, context, nullptr);
 	const const_array_ref spectrum_ref = spectrum;
 
 	check_values<float32_t>(
-		xmipp4::irfft(spectrum_ref, 4, normalization, context, nullptr),
+		rexlib::irfft(spectrum_ref, 4, normalization, context, nullptr),
 		{ 4 },
 		ramp
 	);
@@ -626,7 +626,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::rfft(
+		rexlib::rfft(
 			signal_ref,
 			ops::fourier_normalization::ortho,
 			context,
@@ -653,7 +653,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft2(
+		rexlib::fft2(
 			signal_ref,
 			ops::fourier_normalization::ortho,
 			context,
@@ -681,7 +681,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<std::complex<float32_t>>(
-		xmipp4::fft(
+		rexlib::fft(
 			signal_ref,
 			ops::fourier_normalization::backward,
 			context,
@@ -704,7 +704,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<float32_t>(
-		xmipp4::fftshift(signal_ref, context, nullptr),
+		rexlib::fftshift(signal_ref, context, nullptr),
 		{ 5 },
 		{ 3, 4, 0, 1, 2 }
 	);
@@ -720,7 +720,7 @@ TEST_CASE_METHOD(
 	const const_array_ref shifted_ref = shifted;
 
 	check_values<float32_t>(
-		xmipp4::ifftshift(shifted_ref, context, nullptr),
+		rexlib::ifftshift(shifted_ref, context, nullptr),
 		{ 5 },
 		{ 0, 1, 2, 3, 4 }
 	);
@@ -736,7 +736,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<float32_t>(
-		xmipp4::fftshift(signal_ref, context, nullptr),
+		rexlib::fftshift(signal_ref, context, nullptr),
 		{ 4 },
 		{ 2, 3, 0, 1 }
 	);
@@ -757,7 +757,7 @@ TEST_CASE_METHOD(
 	const const_array_ref signal_ref = signal;
 
 	check_values<float32_t>(
-		xmipp4::fftshift(signal_ref, context, nullptr),
+		rexlib::fftshift(signal_ref, context, nullptr),
 		{ 2, 3 },
 		{ 5, 3, 4, 2, 0, 1 }
 	);
@@ -777,7 +777,7 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 1 };
 	check_values<float32_t>(
-		xmipp4::fftshift(signal_ref, make_span(axes), context, nullptr),
+		rexlib::fftshift(signal_ref, make_span(axes), context, nullptr),
 		{ 2, 3 },
 		{ 2, 0, 1, 5, 3, 4 }
 	);

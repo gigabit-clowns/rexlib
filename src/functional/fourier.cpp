@@ -1,25 +1,25 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/fourier.hpp>
+#include <rexlib/functional/fourier.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/layout/index.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/ops/policies/axis_list.hpp>
-#include <xmipp4/ops/fourier/fft_operation.hpp>
-#include <xmipp4/ops/fourier/fftshift_operation.hpp>
-#include <xmipp4/ops/fourier/ifft_operation.hpp>
-#include <xmipp4/ops/fourier/ifftshift_operation.hpp>
-#include <xmipp4/ops/fourier/irfft_operation.hpp>
-#include <xmipp4/ops/fourier/rfft_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/layout/index.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/ops/policies/axis_list.hpp>
+#include <rexlib/ops/fourier/fft_operation.hpp>
+#include <rexlib/ops/fourier/fftshift_operation.hpp>
+#include <rexlib/ops/fourier/ifft_operation.hpp>
+#include <rexlib/ops/fourier/ifftshift_operation.hpp>
+#include <rexlib/ops/fourier/irfft_operation.hpp>
+#include <rexlib/ops/fourier/rfft_operation.hpp>
 
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace
@@ -654,4 +654,4 @@ array ifftshift(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

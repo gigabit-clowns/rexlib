@@ -2,7 +2,7 @@
 
 #include "linalg_operand_core.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -41,4 +41,4 @@ std::ptrdiff_t linalg_operand_core::get_stride(std::size_t axis) const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

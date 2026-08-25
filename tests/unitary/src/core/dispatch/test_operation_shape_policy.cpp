@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 using shape_type = operation_shape_policy::shape_type;
 
@@ -21,11 +21,11 @@ namespace
 
 const operation_descriptor& stub_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs = make_operand_names("value");
+	static REXLIB_CONST_CONSTEXPR auto inputs = make_operand_names("value");
 	static const operation_descriptor instance =
-		make_operation_descriptor("xmipp4.test", "stub", outputs, inputs);
+		make_operation_descriptor("rexlib.test", "stub", outputs, inputs);
 	return instance;
 }
 
@@ -95,7 +95,7 @@ TEST_CASE(
 		policy.accept(stub_descriptor(), make_span(user), make_span(canonical), {}),
 		std::invalid_argument,
 		Catch::Matchers::Message(
-			"xmipp4.test.stub: output operand 'result' does not have the "
+			"rexlib.test.stub: output operand 'result' does not have the "
 			"shape deduced from the inputs."
 		)
 	);
@@ -116,7 +116,7 @@ TEST_CASE(
 		policy.accept(stub_descriptor(), make_span(user), make_span(canonical), {}),
 		std::invalid_argument,
 		Catch::Matchers::Message(
-			"xmipp4.test.stub: output operand 2 does not have the shape "
+			"rexlib.test.stub: output operand 2 does not have the shape "
 			"deduced from the inputs."
 		)
 	);

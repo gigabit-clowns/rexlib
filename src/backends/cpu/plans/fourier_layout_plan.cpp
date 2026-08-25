@@ -2,15 +2,15 @@
 
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -270,4 +270,4 @@ fourier_layout_plan::get_conversion_layout() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

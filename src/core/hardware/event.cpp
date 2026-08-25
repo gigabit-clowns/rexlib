@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/hardware/event.hpp>
+#include <rexlib/core/hardware/event.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 event::event() noexcept = default;
 event::~event() = default;
 
-} // namespace xmipp4
+} // namespace rexlib
 

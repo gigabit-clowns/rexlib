@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/complex.hpp>
+#include <rexlib/functional/complex.hpp>
 
-#include <xmipp4/ops/complex/angle_operation.hpp>
-#include <xmipp4/ops/complex/conjugate_operation.hpp>
+#include <rexlib/ops/complex/angle_operation.hpp>
+#include <rexlib/ops/complex/conjugate_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
 #include <stdexcept>
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 namespace
 {

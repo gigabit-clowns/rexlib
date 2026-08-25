@@ -2,13 +2,13 @@
 
 #include "memory_mapped_file_handle.hpp"
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <sstream>
 #include <windows.h>
 
-namespace xmipp4
+namespace rexlib
 {
 
 inline DWORD access_flags_to_open_access(
@@ -82,11 +82,11 @@ inline HANDLE open_file(
 )
 {
 	const DWORD desired_access = access_flags_to_open_access(access, copy_on_write);
-	XMIPP4_CONST_CONSTEXPR DWORD share_mode = 0;
-	XMIPP4_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
-	XMIPP4_CONST_CONSTEXPR DWORD create_mode = OPEN_EXISTING;
-	XMIPP4_CONST_CONSTEXPR DWORD flags = FILE_ATTRIBUTE_NORMAL;
-	XMIPP4_CONST_CONSTEXPR HANDLE template_file = 0;
+	REXLIB_CONST_CONSTEXPR DWORD share_mode = 0;
+	REXLIB_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
+	REXLIB_CONST_CONSTEXPR DWORD create_mode = OPEN_EXISTING;
+	REXLIB_CONST_CONSTEXPR DWORD flags = FILE_ATTRIBUTE_NORMAL;
+	REXLIB_CONST_CONSTEXPR HANDLE template_file = 0;
 
 	HANDLE result = CreateFileA(
 		filename,
@@ -115,10 +115,10 @@ inline HANDLE create_file_mapping(
 )
 {
 	const DWORD protect = access_flags_to_memory_map_protect(access, copy_on_write);
-	XMIPP4_CONST_CONSTEXPR DWORD maximum_size_low = 0;
-	XMIPP4_CONST_CONSTEXPR DWORD maximum_size_high = 0;
-	XMIPP4_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
-	XMIPP4_CONST_CONSTEXPR LPCSTR name = 0;
+	REXLIB_CONST_CONSTEXPR DWORD maximum_size_low = 0;
+	REXLIB_CONST_CONSTEXPR DWORD maximum_size_high = 0;
+	REXLIB_CONST_CONSTEXPR LPSECURITY_ATTRIBUTES security_attributes = 0;
+	REXLIB_CONST_CONSTEXPR LPCSTR name = 0;
 
 	HANDLE result = CreateFileMappingA(
 		file, 
@@ -147,8 +147,8 @@ inline HANDLE create_file_mapping_view(
 )
 {
 	const DWORD desired_access = access_flags_to_view_access(access, copy_on_write);
-	XMIPP4_CONST_CONSTEXPR DWORD offset_high = 0;
-	XMIPP4_CONST_CONSTEXPR DWORD offset_low = 0;
+	REXLIB_CONST_CONSTEXPR DWORD offset_high = 0;
+	REXLIB_CONST_CONSTEXPR DWORD offset_low = 0;
 
 	void* result = MapViewOfFile(
 		mapping,
@@ -240,4 +240,4 @@ inline void memory_mapped_file_close(void* data, std::size_t) noexcept
 	UnmapViewOfFile(data);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

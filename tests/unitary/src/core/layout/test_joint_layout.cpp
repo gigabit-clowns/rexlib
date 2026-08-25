@@ -5,7 +5,7 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include <core/layout/joint_layout_implementation.hpp>
 
@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "getting extents on an default constructed joint_layout should return empty ", "[joint_layout]" )
 {

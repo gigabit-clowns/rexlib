@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/vector_matrix_shape_policy.hpp>
+#include <rexlib/ops/policies/vector_matrix_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
-#include <xmipp4/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
 
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -108,4 +108,4 @@ vector_matrix_shape_policy::get() noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
 #include <type_traits>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace test
 {
@@ -38,4 +38,4 @@ struct safe_numerical_type_of<
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rexlib

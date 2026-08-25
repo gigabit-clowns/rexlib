@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/rules/rule_operation_data_type_policy.hpp>
 
-#include <xmipp4/core/dispatch/rules/operand_type_rule_engine.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
 
-namespace xmipp4
+namespace rexlib
 {
 
 rule_operation_data_type_policy::rule_operation_data_type_policy(
@@ -35,7 +35,7 @@ rule_operation_data_type_policy::rule_operation_data_type_policy(
 ) noexcept
 	: rule_operation_data_type_policy(pivots, output_slots, input_slots)
 {
-	XMIPP4_ASSERT(operation_pivots.size() <= max_operand_type_pivot_count);
+	REXLIB_ASSERT(operation_pivots.size() <= max_operand_type_pivot_count);
 
 	m_operation_pivot_count = std::min(
 		operation_pivots.size(),
@@ -179,4 +179,4 @@ void rule_operation_data_type_policy::accept(
 	}
 }
 
-} // namespace xmipp4
+} // namespace rexlib

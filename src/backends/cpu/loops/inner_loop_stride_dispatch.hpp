@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include <type_traits>
 #include <cstddef>
 #include <tuple>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -86,6 +86,6 @@ auto dispatch_inner_loop_strides(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "inner_loop_stride_dispatch.inl"

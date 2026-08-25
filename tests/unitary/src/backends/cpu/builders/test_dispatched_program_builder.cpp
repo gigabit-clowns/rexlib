@@ -4,24 +4,24 @@
 
 #include <backends/cpu/builders/dispatched_program_builder.hpp>
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
 #include "../serial_pool.hpp"
 
-#include <xmipp4/core/dispatch/basic_operation.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/hardware/memory_resource_kind.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
-#include <xmipp4/ops/ops_component.hpp>
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 
@@ -33,18 +33,18 @@
 #include <utility>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
 
 // A self-contained unary operation over the real types.
-XMIPP4_DECLARE_OPERATION(
+REXLIB_DECLARE_OPERATION(
 	probe,
 	ops::ops_component,
-	XMIPP4_OPERANDS("result"),
-	XMIPP4_OPERANDS("value"),
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
 	ops::elementwise_operation_shape_policy,
 	ops::unary_homogeneous_rule<>
 );

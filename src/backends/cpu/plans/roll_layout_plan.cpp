@@ -2,9 +2,9 @@
 
 #include <backends/cpu/plans/roll_layout_plan.hpp>
 
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -92,4 +92,4 @@ std::vector<joint_layout> build_roll_blocks(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

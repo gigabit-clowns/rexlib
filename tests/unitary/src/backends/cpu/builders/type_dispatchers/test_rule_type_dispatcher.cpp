@@ -4,10 +4,10 @@
 
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include "mock/mock_factory.hpp"
 
@@ -19,8 +19,8 @@
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
@@ -40,12 +40,12 @@ struct reject_float16<T>
 // need something for it to name.
 const operation_descriptor& probe_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right");
 	static const operation_descriptor instance = make_operation_descriptor(
-		"xmipp4.test",
+		"rexlib.test",
 		"probe",
 		outputs,
 		inputs

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "xmipp4/core/hardware/device_index.hpp"
+#include "rexlib/core/hardware/device_index.hpp"
 
 #include <algorithm>
 #include <charconv>
 
-namespace xmipp4
+namespace rexlib
 {
 
 device_index::device_index() noexcept = default;
@@ -71,4 +71,4 @@ bool parse_device_index(std::string_view text, device_index &result)
 	return success;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/creation/arange_operation.hpp>
+#include <rexlib/ops/creation/arange_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -34,4 +34,4 @@ std::size_t arange_operation::get_count() const noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

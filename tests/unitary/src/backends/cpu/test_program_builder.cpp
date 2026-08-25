@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
 #include "serial_pool.hpp"
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/dispatch/operation_id.hpp>
-#include <xmipp4/core/hardware/memory_resource_kind.hpp>
-#include <xmipp4/core/backend_priority.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "../../core/dispatch/mock/mock_operation.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"
@@ -22,8 +22,8 @@
 #include <memory>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {
@@ -44,11 +44,11 @@ public:
 		return operation_id::of<test_cpu_program_builder>();
 	}
 
-	std::shared_ptr<xmipp4::program> build(
+	std::shared_ptr<rexlib::program> build(
 		const operation & /*operation*/,
 		span<const operand_signature> /*output_signatures*/,
 		span<const operand_signature> /*input_signatures*/,
-		xmipp4::command_queue & /*queue*/,
+		rexlib::command_queue & /*queue*/,
 		program_cache * /*cache*/
 	) const override
 	{

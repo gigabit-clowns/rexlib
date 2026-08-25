@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <array>
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -145,6 +145,6 @@ struct accumulator_tiles;
 } // namespace detail
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "reduction_kernel_traits.inl"

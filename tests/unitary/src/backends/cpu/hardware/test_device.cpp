@@ -3,20 +3,20 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <xmipp4/backends/cpu/device.hpp>
+#include <rexlib/backends/cpu/device.hpp>
 
 #include <backends/cpu/hardware/command_queue.hpp>
 #include <backends/cpu/hardware/event.hpp>
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/hardware/event.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/event.hpp>
 
 #include "../serial_pool.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"cpu::device should expose a single memory resource",

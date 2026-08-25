@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -252,6 +252,6 @@ void run_elementwise_loop(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "elementwise_loop.inl"

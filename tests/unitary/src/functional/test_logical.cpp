@@ -2,18 +2,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/logical.hpp>
+#include <rexlib/functional/logical.hpp>
 
-#include <xmipp4/ops/logical/logical_and_operation.hpp>
-#include <xmipp4/ops/logical/logical_not_operation.hpp>
-#include <xmipp4/ops/logical/logical_or_operation.hpp>
-#include <xmipp4/ops/logical/logical_xor_operation.hpp>
+#include <rexlib/ops/logical/logical_and_operation.hpp>
+#include <rexlib/ops/logical/logical_not_operation.hpp>
+#include <rexlib/ops/logical/logical_or_operation.hpp>
+#include <rexlib/ops/logical/logical_xor_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

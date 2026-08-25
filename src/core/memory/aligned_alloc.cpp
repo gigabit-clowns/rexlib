@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/memory/aligned_alloc.hpp>
+#include <rexlib/core/memory/aligned_alloc.hpp>
 
-#include <xmipp4/core/platform/operating_system.h>
+#include <rexlib/core/platform/operating_system.h>
 
 #include <algorithm>
 #include <cstdlib>
 
-namespace xmipp4
+namespace rexlib
 {
 
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 {
-	#if XMIPP4_WINDOWS
+	#if REXLIB_WINDOWS
 		return _aligned_malloc(size, alignment);
-	#elif XMIPP4_POSIX
+	#elif REXLIB_POSIX
 		void *result;
 		
 		alignment = std::max(alignment, sizeof(void*));
@@ -31,11 +31,11 @@ void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 
 void aligned_free(void* ptr) noexcept
 {
-	#if XMIPP4_WINDOWS
+	#if REXLIB_WINDOWS
 		_aligned_free(ptr);
 	#else
 		std::free(ptr);
 	#endif
 }
 
-} // namespace xmipp4
+} // namespace rexlib

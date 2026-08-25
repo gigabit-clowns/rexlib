@@ -2,15 +2,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/rules/rule_operand_types.hpp>
+#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
-#include <xmipp4/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <xmipp4/core/dispatch/rules/rule_operation_data_type_policy.hpp>
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
+#include <rexlib/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rexlib/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include "safe_numerical_type_of.hpp"
 
@@ -18,8 +18,8 @@
 #include <type_traits>
 #include <vector>
 
-using namespace xmipp4;
-using xmipp4::test::safe_numerical_type_of;
+using namespace rexlib;
+using rexlib::test::safe_numerical_type_of;
 
 namespace
 {
@@ -34,12 +34,12 @@ using type_vector = std::vector<numerical_type>;
  */
 const operation_descriptor& rule_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result", "second_result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right", "third");
 	static const operation_descriptor instance =
-		make_operation_descriptor("xmipp4.test", "probe", outputs, inputs);
+		make_operation_descriptor("rexlib.test", "probe", outputs, inputs);
 	return instance;
 }
 

@@ -4,17 +4,17 @@
 
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <stdexcept>
 #include <sstream>
 
-namespace xmipp4
+namespace rexlib
 {
 
 operation_shape_policy::operation_shape_policy() noexcept = default;
@@ -21,7 +21,7 @@ void operation_shape_policy::accept(
 	span<const shape_type> /*input_shapes*/
 ) const
 {
-	XMIPP4_ASSERT(user_output_shapes.size() == canonical_output_shapes.size());
+	REXLIB_ASSERT(user_output_shapes.size() == canonical_output_shapes.size());
 
 	for (std::size_t i = 0; i < user_output_shapes.size(); ++i)
 	{
@@ -36,4 +36,4 @@ void operation_shape_policy::accept(
 	}
 }
 
-} // namespace xmipp4
+} // namespace rexlib

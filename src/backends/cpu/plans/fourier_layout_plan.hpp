@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class operand_signature;
@@ -174,4 +174,4 @@ private:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

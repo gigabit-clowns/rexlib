@@ -4,7 +4,7 @@
 
 #include <cstring>
 
-namespace xmipp4
+namespace rexlib
 {
 
 inline half_float::half float16_to_half(float16_t value) noexcept
@@ -47,4 +47,4 @@ inline float16_t float_to_float16(float value) noexcept
 	return half_to_float16(half_float::half(value));
 }
 
-} // namespace xmipp4
+} // namespace rexlib

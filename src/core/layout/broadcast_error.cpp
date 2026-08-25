@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/broadcast_error.hpp>
+#include <rexlib/core/layout/broadcast_error.hpp>
 
 #include <sstream>
 
-namespace xmipp4 
+namespace rexlib 
 {
 		
 static 
@@ -68,4 +68,4 @@ broadcast_error::get_second_extents() const noexcept
 	return m_second_extents;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

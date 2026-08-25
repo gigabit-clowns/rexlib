@@ -6,8 +6,8 @@
 #include "loop_schedule.hpp"
 #include "strided_pointer_iterator.hpp"
 
-#include <xmipp4/core/layout/joint_cursor.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/layout/joint_cursor.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
 #include <initializer_list>
@@ -15,7 +15,7 @@
 #include <utility>
 #include <type_traits>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -72,7 +72,7 @@ void run_elementwise_outer_loop_impl(
 		}
 
 		run = layout.next(ite, count);
-		XMIPP4_ASSERT( run > 0 ); // end was past the end of the layout.
+		REXLIB_ASSERT( run > 0 ); // end was past the end of the layout.
 	}
 }
 
@@ -334,4 +334,4 @@ void run_elementwise_loop(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

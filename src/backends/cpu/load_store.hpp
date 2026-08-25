@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -180,6 +180,6 @@ struct element_compute_type
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "load_store.inl"

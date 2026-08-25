@@ -5,13 +5,13 @@
 
 #include <backends/cpu/load_store.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <type_traits>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 // Values used with exact equality are exactly representable in IEEE half
 // precision, so the float16_t round-trips are lossless.

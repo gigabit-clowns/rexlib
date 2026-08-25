@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
 
 #include "mock/mock_operation.hpp"
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("Operations should return the correct operation_id", "[operation]")
 {

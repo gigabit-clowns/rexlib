@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -31,6 +31,6 @@ void extract_data_types(
 ) noexcept;
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "operand_data_types.inl"

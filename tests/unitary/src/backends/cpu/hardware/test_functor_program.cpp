@@ -4,15 +4,15 @@
 
 #include <backends/cpu/hardware/functor_program.hpp>
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/program_scratch_requirement.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/span.hpp>
 
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 
@@ -24,8 +24,8 @@
 #include <utility>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

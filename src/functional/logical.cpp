@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/logical.hpp>
+#include <rexlib/functional/logical.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/logical/logical_and_operation.hpp>
-#include <xmipp4/ops/logical/logical_not_operation.hpp>
-#include <xmipp4/ops/logical/logical_or_operation.hpp>
-#include <xmipp4/ops/logical/logical_xor_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/logical/logical_and_operation.hpp>
+#include <rexlib/ops/logical/logical_not_operation.hpp>
+#include <rexlib/ops/logical/logical_or_operation.hpp>
+#include <rexlib/ops/logical/logical_xor_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array logical_and(
@@ -50,4 +50,4 @@ array logical_not(
 	return execute_unary(ops::logical_not_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/layout/joint_cursor.hpp>
+#include <rexlib/core/layout/joint_cursor.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "default constructed array iterator should be empty", "[joint_cursor]" )
 {

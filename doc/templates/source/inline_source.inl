@@ -2,7 +2,7 @@
 
 #include "header.hpp"
 
-namespace xmipp4 
+namespace rexlib 
 {
 
-} // namespace xmipp4
+} // namespace rexlib

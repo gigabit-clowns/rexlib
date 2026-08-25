@@ -2,14 +2,14 @@
 
 #include "command_queue.hpp"
 
-#include <xmipp4/backends/cpu/program.hpp>
-#include <xmipp4/backends/cpu/thread_pool.hpp>
-#include <xmipp4/core/hardware/command.hpp>
+#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/hardware/command.hpp>
 
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -64,16 +64,16 @@ void command_queue::wait(const event&)
 }
 
 command_queue*
-command_queue::try_cast(xmipp4::command_queue &queue) noexcept
+command_queue::try_cast(rexlib::command_queue &queue) noexcept
 {
 	return dynamic_cast<command_queue*>(&queue);
 }
 
 const command_queue*
-command_queue::try_cast(const xmipp4::command_queue &queue) noexcept
+command_queue::try_cast(const rexlib::command_queue &queue) noexcept
 {
 	return dynamic_cast<const command_queue*>(&queue);
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

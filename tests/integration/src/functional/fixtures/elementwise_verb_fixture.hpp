@@ -7,18 +7,18 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <cstddef>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace test
 {
@@ -655,4 +655,4 @@ private:
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rexlib

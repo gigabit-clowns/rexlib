@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/kernels/floor_division.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -26,11 +26,11 @@ struct floor_divide_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	floor_divide,
 	ops::floor_divide_operation,
 	default_kernel_factory<floor_divide_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

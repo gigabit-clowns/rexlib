@@ -4,17 +4,17 @@
 
 #include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
 
-#include <xmipp4/core/layout/joint_layout.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <tuple>
 #include <utility>
 #include <vector>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 namespace
 {

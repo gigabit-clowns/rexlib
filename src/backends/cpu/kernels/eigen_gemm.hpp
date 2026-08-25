@@ -4,14 +4,14 @@
 
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
 #include <cstddef>
 #include <type_traits>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -19,7 +19,7 @@ namespace cpu
 /**
  * @brief Predicate excluding the types Eigen cannot be handed as a scalar.
  *
- * xmipp4's own float16_t (and its complex counterpart) is not a type Eigen
+ * rexlib's own float16_t (and its complex counterpart) is not a type Eigen
  * knows how to specialize its numeric traits for; every other type
  * arithmetic_type_domain admits (the fixed-width integers, float, double,
  * and their complex counterparts) is a native Eigen scalar type.
@@ -182,4 +182,4 @@ gemm_fn<T> resolve_vecgemm(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,7 +2,7 @@
 
 #include "event.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -27,4 +27,4 @@ bool event::is_signaled() const
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

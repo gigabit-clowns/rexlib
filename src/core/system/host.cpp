@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/system/host.hpp>
-#include <xmipp4/core/platform/operating_system.h>
+#include <rexlib/core/system/host.hpp>
+#include <rexlib/core/platform/operating_system.h>
 
-#if XMIPP4_LINUX
+#if REXLIB_LINUX
 	#include <unistd.h>
 	#include <sys/sysinfo.h>
-#elif XMIPP4_APPLE
+#elif REXLIB_APPLE
 	#include <unistd.h>
 	#include <sys/types.h>
 	#include <sys/sysctl.h>
 	#include <mach/mach.h>
-#elif XMIPP4_WINDOWS
+#elif REXLIB_WINDOWS
 	#include <windows.h>
 	#include <Winsock.h>
 	#include <WinBase.h>
@@ -20,16 +20,16 @@
 #include <stdexcept>
 #include <array>
 
-namespace xmipp4
+namespace rexlib
 {
 
 std::string get_hostname()
 {
 	std::array<char, 512> hostname = {};
 
-	#if XMIPP4_POSIX
+	#if REXLIB_POSIX
 		gethostname(hostname.data(), hostname.size());
-	#elif XMIPP4_WINDOWS
+	#elif REXLIB_WINDOWS
 		gethostname(hostname.data(), static_cast<int>(hostname.size()));
 	#else
 		#pragma message ("Cannot determine hostname for this platform")
@@ -41,12 +41,12 @@ std::string get_hostname()
 
 std::size_t get_total_system_memory()
 {
-	#if XMIPP4_LINUX
+	#if REXLIB_LINUX
 		struct sysinfo info;
 		sysinfo(&info);
 		return info.totalram * info.mem_unit;
 
-	#elif XMIPP4_APPLE
+	#elif REXLIB_APPLE
 		int mib[2] = { CTL_HW, HW_MEMSIZE };
 		int64_t total_memory;
 		size_t length = sizeof(total_memory);
@@ -58,7 +58,7 @@ std::size_t get_total_system_memory()
 
 		return total_memory;
 
-	#elif XMIPP4_WINDOWS
+	#elif REXLIB_WINDOWS
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(status);
 		GlobalMemoryStatusEx(&status);
@@ -72,12 +72,12 @@ std::size_t get_total_system_memory()
 
 std::size_t get_available_system_memory()
 {
-	#if XMIPP4_LINUX
+	#if REXLIB_LINUX
 		struct sysinfo info;
 		sysinfo(&info);
 		return info.freeram * info.mem_unit;
 
-	#elif XMIPP4_APPLE
+	#elif REXLIB_APPLE
 		// Get free and inactive memory using mach API
 		vm_statistics64_data_t vm_info;
 		mach_msg_type_number_t info_count = HOST_VM_INFO64_COUNT;
@@ -98,7 +98,7 @@ std::size_t get_available_system_memory()
 		const auto inactive_memory = vm_info.inactive_count * page_size;
 		return free_memory + inactive_memory; // Available memory in bytes
 
-	#elif XMIPP4_WINDOWS
+	#elif REXLIB_WINDOWS
 		MEMORYSTATUSEX status;
 		status.dwLength = sizeof(status);
 		GlobalMemoryStatusEx(&status);
@@ -112,9 +112,9 @@ std::size_t get_available_system_memory()
 
 std::size_t get_page_size()
 {
-	#if XMIPP4_POSIX
+	#if REXLIB_POSIX
 		return sysconf(_SC_PAGESIZE);
-	#elif XMIPP4_WINDOWS
+	#elif REXLIB_WINDOWS
 		SYSTEM_INFO si;
 		GetSystemInfo(&si);
 		return si.dwPageSize;
@@ -123,4 +123,4 @@ std::size_t get_page_size()
 	#endif
 }
 
-} // namespace xmipp4
+} // namespace rexlib

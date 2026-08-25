@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/complex.hpp>
+#include <rexlib/functional/complex.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/ops/complex/angle_operation.hpp>
-#include <xmipp4/ops/complex/conjugate_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/ops/complex/angle_operation.hpp>
+#include <rexlib/ops/complex/conjugate_operation.hpp>
 
 #include <cstddef>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace
@@ -115,4 +115,4 @@ array angle(
 	return execute_unary(ops::angle_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

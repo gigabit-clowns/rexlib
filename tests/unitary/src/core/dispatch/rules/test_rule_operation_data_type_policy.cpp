@@ -3,18 +3,18 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include <xmipp4/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/rules/rule_operation_data_type_policy.hpp>
 
-#include <xmipp4/core/dispatch/operation_descriptor.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
-#include <xmipp4/core/dispatch/rules/operand_type_rule_engine.hpp>
-#include <xmipp4/ops/rules/operand_type_rules.hpp>
+#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
@@ -29,12 +29,12 @@ using type_vector = std::vector<numerical_type>;
  */
 const operation_descriptor& rule_descriptor()
 {
-	static XMIPP4_CONST_CONSTEXPR auto outputs =
+	static REXLIB_CONST_CONSTEXPR auto outputs =
 		make_operand_names("result", "second_result");
-	static XMIPP4_CONST_CONSTEXPR auto inputs =
+	static REXLIB_CONST_CONSTEXPR auto inputs =
 		make_operand_names("left", "right", "third");
 	static const operation_descriptor instance =
-		make_operation_descriptor("xmipp4.test", "probe", outputs, inputs);
+		make_operation_descriptor("rexlib.test", "probe", outputs, inputs);
 	return instance;
 }
 
@@ -330,7 +330,7 @@ TEST_CASE(
         using Catch::Matchers::ContainsSubstring;
         // Naming the operand is the whole point of the operand names: an
         // index alone is not much help behind a Python front end.
-        CHECK_THAT( message, ContainsSubstring("xmipp4.test.probe") );
+        CHECK_THAT( message, ContainsSubstring("rexlib.test.probe") );
         CHECK_THAT( message, ContainsSubstring("input operand 'right'") );
         CHECK_THAT( message, ContainsSubstring("float32") );
         CHECK_THAT( message, ContainsSubstring("float64") );

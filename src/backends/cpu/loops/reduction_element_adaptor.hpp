@@ -4,13 +4,13 @@
 
 #include "reduction_kernel_traits.hpp"
 
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <cstddef>
 #include <tuple>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -167,7 +167,7 @@ public:
 private:
 	using lane_folding = typename has_reassociable_fold<Kernel>::type;
 
-	XMIPP4_NO_UNIQUE_ADDRESS Kernel m_kernel;
+	REXLIB_NO_UNIQUE_ADDRESS Kernel m_kernel;
 
 	template <
 		typename... Accumulators,
@@ -266,6 +266,6 @@ reduction_element_adaptor<Kernel>
 make_reduction_element_adaptor(Kernel kernel);
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "reduction_element_adaptor.inl"

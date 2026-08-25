@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
 
 #include "mock/mock_dispatcher.hpp"
 #include "mock/mock_operation.hpp"
@@ -14,7 +14,7 @@
 #include <memory>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

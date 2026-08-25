@@ -5,10 +5,10 @@ add_library(dummy-plugin MODULE ${SOURCES})
 set_target_properties(
 	dummy-plugin
 	PROPERTIES 
-		DEFINE_SYMBOL "XMIPP4_DUMMY_PLUGIN_EXPORTING"
+		DEFINE_SYMBOL "REXLIB_DUMMY_PLUGIN_EXPORTING"
 )
 target_link_libraries(
 	dummy-plugin
 	PRIVATE
-		xmipp4-core
+		rexlib
 )

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/backends/cpu/thread_pool.hpp>
+#include <rexlib/backends/cpu/thread_pool.hpp>
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <core/logger.hpp>
 
@@ -16,12 +16,12 @@
 #include <thread>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
 
-static const char XMIPP4_NUM_THREADS_ENV_VARIABLE[] = "XMIPP4_NUM_THREADS";
+static const char REXLIB_NUM_THREADS_ENV_VARIABLE[] = "REXLIB_NUM_THREADS";
 
 namespace
 {
@@ -426,7 +426,7 @@ std::size_t thread_pool::get_default_worker_count()
 	}
 
 	const char* environment_variable;
-	if ((environment_variable = std::getenv(XMIPP4_NUM_THREADS_ENV_VARIABLE)))
+	if ((environment_variable = std::getenv(REXLIB_NUM_THREADS_ENV_VARIABLE)))
 	{
 		char *end = nullptr;
 		const auto parsed = std::strtoul(environment_variable, &end, 10);
@@ -436,17 +436,17 @@ std::size_t thread_pool::get_default_worker_count()
 		}
 		else
 		{
-			XMIPP4_LOG_WARN(
+			REXLIB_LOG_WARN(
 				"Ignoring {}=\"{}\": expected a positive integer.",
-				XMIPP4_NUM_THREADS_ENV_VARIABLE,
+				REXLIB_NUM_THREADS_ENV_VARIABLE,
 				environment_variable
 			);
 		}
 	}
 
-	XMIPP4_ASSERT( participants > 0 );
+	REXLIB_ASSERT( participants > 0 );
 	return participants - 1;
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

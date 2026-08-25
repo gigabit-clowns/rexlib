@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/reduction/mean_operation.hpp>
+#include <rexlib/ops/reduction/mean_operation.hpp>
 
-#include <xmipp4/core/numerical/numerical_cast.hpp>
+#include <rexlib/core/numerical/numerical_cast.hpp>
 
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
@@ -11,7 +11,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -64,11 +64,11 @@ public:
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER(
 	mean,
 	ops::mean_operation,
 	default_kernel_factory<mean_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/dispatch/operation_arity.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("Default constructed operation_arity should have no outputs and no inputs", "[operation_arity]")
 {

@@ -2,26 +2,26 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/power.hpp>
+#include <rexlib/functional/power.hpp>
 
-#include <xmipp4/ops/power/cbrt_operation.hpp>
-#include <xmipp4/ops/power/exp_operation.hpp>
-#include <xmipp4/ops/power/exp2_operation.hpp>
-#include <xmipp4/ops/power/expm1_operation.hpp>
-#include <xmipp4/ops/power/log_operation.hpp>
-#include <xmipp4/ops/power/log10_operation.hpp>
-#include <xmipp4/ops/power/log1p_operation.hpp>
-#include <xmipp4/ops/power/log2_operation.hpp>
-#include <xmipp4/ops/power/power_operation.hpp>
-#include <xmipp4/ops/power/reciprocal_operation.hpp>
-#include <xmipp4/ops/power/sqrt_operation.hpp>
-#include <xmipp4/ops/power/square_operation.hpp>
+#include <rexlib/ops/power/cbrt_operation.hpp>
+#include <rexlib/ops/power/exp_operation.hpp>
+#include <rexlib/ops/power/exp2_operation.hpp>
+#include <rexlib/ops/power/expm1_operation.hpp>
+#include <rexlib/ops/power/log_operation.hpp>
+#include <rexlib/ops/power/log10_operation.hpp>
+#include <rexlib/ops/power/log1p_operation.hpp>
+#include <rexlib/ops/power/log2_operation.hpp>
+#include <rexlib/ops/power/power_operation.hpp>
+#include <rexlib/ops/power/reciprocal_operation.hpp>
+#include <rexlib/ops/power/sqrt_operation.hpp>
+#include <rexlib/ops/power/square_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

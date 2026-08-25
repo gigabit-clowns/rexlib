@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
-#include <xmipp4/core/layout/broadcast.hpp>
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <sstream>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -39,7 +39,7 @@ void elementwise_operation_shape_policy::accept(
 	span<const shape_type> /*input_shapes*/
 ) const
 {
-	XMIPP4_ASSERT(
+	REXLIB_ASSERT(
 		user_output_shapes.size() == canonical_output_shapes.size()
 	);
 
@@ -85,4 +85,4 @@ elementwise_operation_shape_policy::get() noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

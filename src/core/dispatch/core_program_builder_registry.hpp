@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 /**
@@ -20,4 +20,4 @@ namespace xmipp4
  */
 program_builder_registry& get_core_program_builder_registry() noexcept;
 
-} // namespace xmipp4
+} // namespace rexlib

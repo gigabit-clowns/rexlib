@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/fourier/irfft_operation.hpp>
+#include <rexlib/ops/fourier/irfft_operation.hpp>
 
 #include <backends/cpu/builders/fourier_program_builder.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -12,11 +12,11 @@ namespace cpu
 // The restored extent is not a decision this builder makes: the parity the
 // operation carries is what the shape policy deduced the output from, so the
 // output is already the right size by the time the plan reads it.
-XMIPP4_REGISTER_FOURIER_PROGRAM_BUILDER(
+REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(
 	irfft,
 	ops::irfft_operation,
 	complex_to_real_fourier_transform
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

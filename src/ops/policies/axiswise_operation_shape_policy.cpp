@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/policies/axiswise_operation_shape_policy.hpp>
+#include <rexlib/ops/policies/axiswise_operation_shape_policy.hpp>
 
 #include "shape_deduction.hpp"
 
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -42,4 +42,4 @@ void axiswise_operation_shape_policy::deduce(
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

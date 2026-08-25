@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/plugin_manager.hpp>
+#include <rexlib/core/plugin_manager.hpp>
 
-#include <xmipp4/core/plugin.hpp>
-#include <xmipp4/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/plugin_load_error.hpp>
 
-#include <xmipp4/tests/assets.hpp>
+#include <rexlib/tests/assets.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 
 TEST_CASE( "load good plugin in the plugin manager", "[plugin_manager]" ) 
@@ -43,14 +43,14 @@ TEST_CASE( "load invalid plugin in the plugin manager should throw", "[plugin_ma
 	REQUIRE_THROWS_MATCHES( 
 		manager.load_plugin(get_mock_plugin_path("faulty-plugin1")),
 		plugin_load_error,
-		Catch::Matchers::Message("xmipp4_get_plugin returned NULL.")
+		Catch::Matchers::Message("rexlib_get_plugin returned NULL.")
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
 	REQUIRE_THROWS_MATCHES( 
 		manager.load_plugin(get_mock_plugin_path("faulty-plugin2")),
 		plugin_load_error,
-		Catch::Matchers::Message("xmipp4_get_plugin symbol could not be found in shared object.")
+		Catch::Matchers::Message("rexlib_get_plugin symbol could not be found in shared object.")
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 }

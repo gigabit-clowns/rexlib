@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/creation/arange_operation.hpp>
+#include <rexlib/ops/creation/arange_operation.hpp>
 
 #include <backends/cpu/builders/sequence_program_builder.hpp>
 #include <backends/cpu/load_store.hpp>
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -59,11 +59,11 @@ struct arange_kernel_factory
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_SEQUENCE_PROGRAM_BUILDER(
+REXLIB_REGISTER_SEQUENCE_PROGRAM_BUILDER(
 	arange,
 	ops::arange_operation,
 	arange_kernel_factory
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

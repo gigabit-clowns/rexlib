@@ -2,15 +2,15 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/rules/operand_type_transform.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_transform.hpp>
 
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
 
 #include <complex>
 #include <type_traits>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

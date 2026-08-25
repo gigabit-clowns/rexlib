@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include <xmipp4/core/dispatch/dispatcher.hpp>
+#include <rexlib/core/dispatch/dispatcher.hpp>
 
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_dispatcher final
@@ -31,4 +31,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

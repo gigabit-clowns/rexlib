@@ -4,12 +4,12 @@
 
 #include "reduction_kernel_traits.hpp"
 
-#include <xmipp4/core/layout/joint_layout.hpp>
+#include <rexlib/core/layout/joint_layout.hpp>
 
 #include <cstddef>
 #include <tuple>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -320,6 +320,6 @@ void run_reduction_loop(
 /** @} */
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "reduction_loop.inl"

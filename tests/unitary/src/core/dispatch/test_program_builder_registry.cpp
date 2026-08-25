@@ -2,13 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
-#include <xmipp4/core/dispatch/program_builder.hpp>
-#include <xmipp4/core/dispatch/program_manager.hpp>
-#include <xmipp4/core/dispatch/operation_id.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/dispatch/program_builder.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 
 #include "mock/mock_operation.hpp"
 #include "../hardware/mock/mock_program.hpp"
@@ -17,7 +17,7 @@
 #include <array>
 #include <memory>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

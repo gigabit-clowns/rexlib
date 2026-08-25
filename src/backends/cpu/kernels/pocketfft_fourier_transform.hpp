@@ -7,14 +7,14 @@
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
 
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
-#include <xmipp4/ops/fourier/fourier_normalization.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
+#include <rexlib/ops/fourier/fourier_normalization.hpp>
 
 #include <complex>
 #include <cstddef>
 #include <type_traits>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -381,4 +381,4 @@ using inverse_complex_fourier_transform =
 	complex_fourier_transform<ops::fourier_direction::inverse>;
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

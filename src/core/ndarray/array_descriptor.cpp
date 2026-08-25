@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 
 #include <boost/functional/hash.hpp>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 array_descriptor::array_descriptor() noexcept
@@ -70,4 +70,4 @@ std::size_t compute_storage_requirement(const array_descriptor &descriptor)
 	return layout.compute_storage_requirement() * get_size(data_type);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

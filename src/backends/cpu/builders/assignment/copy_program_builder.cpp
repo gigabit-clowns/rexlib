@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/assignment/copy_operation.hpp>
+#include <rexlib/ops/assignment/copy_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -33,7 +33,7 @@ struct copy_support : std::is_convertible<Q, T> {};
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
 	copy,
 	ops::copy_operation,
 	default_kernel_factory<copy_kernel>,
@@ -41,4 +41,4 @@ XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

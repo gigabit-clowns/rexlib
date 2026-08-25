@@ -4,21 +4,21 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/array_descriptor.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/span.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/hardware/device_context.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/device_session.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
 
 #include "../../core/dispatch/mock/mock_dispatcher.hpp"
 #include "../../core/hardware/mock/mock_buffer.hpp"
@@ -35,7 +35,7 @@
 #include <typeinfo>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace test
 {
@@ -524,4 +524,4 @@ protected:
 };
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rexlib

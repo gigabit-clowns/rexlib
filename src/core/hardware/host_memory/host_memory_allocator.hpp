@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
-namespace xmipp4 
+namespace rexlib 
 {
 
 /**
@@ -35,4 +35,4 @@ private:
 	static std::shared_ptr<host_memory_allocator> m_instance;
 };
 
-} // namespace xmipp4
+} // namespace rexlib

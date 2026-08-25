@@ -2,12 +2,12 @@
 
 #include <backends/cpu/kernels/eigen_gemm_impl.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
 
-XMIPP4_INSTANTIATE_EIGEN_GEMM(float64_t);
+REXLIB_INSTANTIATE_EIGEN_GEMM(float64_t);
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

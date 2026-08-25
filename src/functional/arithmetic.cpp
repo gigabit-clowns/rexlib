@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/arithmetic.hpp>
+#include <rexlib/functional/arithmetic.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/core/span.hpp>
-#include <xmipp4/ops/arithmetic/abs_operation.hpp>
-#include <xmipp4/ops/arithmetic/add_operation.hpp>
-#include <xmipp4/ops/arithmetic/divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/divmod_operation.hpp>
-#include <xmipp4/ops/arithmetic/floor_divide_operation.hpp>
-#include <xmipp4/ops/arithmetic/modulo_operation.hpp>
-#include <xmipp4/ops/arithmetic/multiply_operation.hpp>
-#include <xmipp4/ops/arithmetic/negate_operation.hpp>
-#include <xmipp4/ops/arithmetic/sign_operation.hpp>
-#include <xmipp4/ops/arithmetic/subtract_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/core/span.hpp>
+#include <rexlib/ops/arithmetic/abs_operation.hpp>
+#include <rexlib/ops/arithmetic/add_operation.hpp>
+#include <rexlib/ops/arithmetic/divide_operation.hpp>
+#include <rexlib/ops/arithmetic/divmod_operation.hpp>
+#include <rexlib/ops/arithmetic/floor_divide_operation.hpp>
+#include <rexlib/ops/arithmetic/modulo_operation.hpp>
+#include <rexlib/ops/arithmetic/multiply_operation.hpp>
+#include <rexlib/ops/arithmetic/negate_operation.hpp>
+#include <rexlib/ops/arithmetic/sign_operation.hpp>
+#include <rexlib/ops/arithmetic/subtract_operation.hpp>
 
 #include <array>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array add(
@@ -143,4 +143,4 @@ std::pair<array, array> divmod(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

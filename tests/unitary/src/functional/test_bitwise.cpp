@@ -2,20 +2,20 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/bitwise.hpp>
+#include <rexlib/functional/bitwise.hpp>
 
-#include <xmipp4/ops/bitwise/bitwise_and_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_not_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_or_operation.hpp>
-#include <xmipp4/ops/bitwise/bitwise_xor_operation.hpp>
-#include <xmipp4/ops/bitwise/left_shift_operation.hpp>
-#include <xmipp4/ops/bitwise/right_shift_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_and_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_not_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_or_operation.hpp>
+#include <rexlib/ops/bitwise/bitwise_xor_operation.hpp>
+#include <rexlib/ops/bitwise/left_shift_operation.hpp>
+#include <rexlib/ops/bitwise/right_shift_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

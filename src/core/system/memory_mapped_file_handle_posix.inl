@@ -2,7 +2,7 @@
 
 #include "memory_mapped_file_handle.hpp"
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <stdexcept>
 #include <system_error>
@@ -13,7 +13,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-namespace xmipp4
+namespace rexlib
 {
 
 inline int access_flags_to_open_flags(
@@ -93,7 +93,7 @@ inline void* memory_map_file_descriptor(
 {
 	const int prot = access_flags_to_mmap_prot_flags(access); 
 	const int flags = copy_on_write ? MAP_PRIVATE : MAP_SHARED;
-	XMIPP4_CONST_CONSTEXPR off_t offset = 0;
+	REXLIB_CONST_CONSTEXPR off_t offset = 0;
 
 	auto *const result = mmap(
 		nullptr,
@@ -167,4 +167,4 @@ inline void memory_mapped_file_close(void* data, std::size_t size) noexcept
 	munmap(data, size);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

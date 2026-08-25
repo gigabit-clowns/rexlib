@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/system/dynamic_library.hpp>
+#include <rexlib/core/system/dynamic_library.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class plugin;
@@ -74,4 +74,4 @@ private:
 	const plugin* m_plugin;
 };
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/assignment/fill_operation.hpp>
+#include <rexlib/ops/assignment/fill_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -18,4 +18,4 @@ const scalar_value& fill_operation::get_fill_value() const noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

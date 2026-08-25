@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/assignment/fill_operation.hpp>
+#include <rexlib/ops/assignment/fill_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -46,11 +46,11 @@ struct fill_kernel_factory
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	fill,
 	ops::fill_operation,
 	fill_kernel_factory
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

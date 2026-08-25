@@ -2,14 +2,14 @@
 
 #include "host_buffer.hpp"
 
-#include <xmipp4/core/memory/aligned_alloc.hpp>
-#include <xmipp4/core/memory/align.hpp>
+#include <rexlib/core/memory/aligned_alloc.hpp>
+#include <rexlib/core/memory/align.hpp>
 
 #include "host_memory_resource.hpp"
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 
 host_buffer::host_buffer(
@@ -54,4 +54,4 @@ const memory_resource& host_buffer::get_memory_resource() const noexcept
 	return host_memory_resource::get();
 }
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -8,10 +8,10 @@
 #include "parallel_grain.hpp"
 #include "reduction_element_adaptor.hpp"
 
-#include <xmipp4/core/layout/joint_cursor.hpp>
-#include <xmipp4/core/platform/assert.hpp>
-#include <xmipp4/core/platform/constexpr.hpp>
-#include <xmipp4/core/platform/attributes.hpp>
+#include <rexlib/core/layout/joint_cursor.hpp>
+#include <rexlib/core/platform/assert.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/attributes.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -176,7 +176,7 @@ public:
 		"A reduction kernel must declare at least one accumulator."
 	);
 
-	static XMIPP4_CONST_CONSTEXPR std::size_t capacity =
+	static REXLIB_CONST_CONSTEXPR std::size_t capacity =
 		reduction_tile_size<accumulator_types>::value;
 
 	using partial_buffers =
@@ -358,7 +358,7 @@ private:
 		std::false_type
 	) noexcept
 	{
-		XMIPP4_CONST_CONSTEXPR std::size_t element_footprint =
+		REXLIB_CONST_CONSTEXPR std::size_t element_footprint =
 			accumulator_footprint<type_list<Ins...>>::value;
 
 		const auto span = std::max<std::size_t>(width*element_footprint, 1);
@@ -467,7 +467,7 @@ private:
 		set_identity(width, accumulator_indices());
 	}
 
-	XMIPP4_NORETURN
+	REXLIB_NORETURN
 	void set_identity(std::size_t, std::false_type) const
 	{
 		throw std::invalid_argument(
@@ -704,7 +704,7 @@ public:
 		partial_buffers &buffers
 	)
 	{
-		XMIPP4_ASSERT( begin < end );
+		REXLIB_ASSERT( begin < end );
 		arm_reduced_space(begin);
 
 		const auto base = chunk*kept_count;
@@ -756,8 +756,8 @@ public:
 	}
 
 private:
-	static XMIPP4_CONST_CONSTEXPR std::size_t input_count = sizeof...(Ins);
-	static XMIPP4_CONST_CONSTEXPR std::size_t strip_width =
+	static REXLIB_CONST_CONSTEXPR std::size_t input_count = sizeof...(Ins);
+	static REXLIB_CONST_CONSTEXPR std::size_t strip_width =
 		accumulators_type::capacity;
 
 	using input_indices = std::index_sequence_for<Ins...>;
@@ -835,7 +835,7 @@ private:
 			}
 
 			run = m_kept_layout.next(m_kept_cursor, count);
-			XMIPP4_ASSERT( run > 0 );
+			REXLIB_ASSERT( run > 0 );
 		}
 	}
 
@@ -906,7 +906,7 @@ private:
 		std::size_t end
 	)
 	{
-		XMIPP4_ASSERT( begin < end );
+		REXLIB_ASSERT( begin < end );
 
 		m_reduced_cursor = m_reduced_origin;
 
@@ -934,7 +934,7 @@ private:
 		while (remaining)
 		{
 			run = m_reduced_layout.next(m_reduced_cursor, count);
-			XMIPP4_ASSERT( run > 0 );
+			REXLIB_ASSERT( run > 0 );
 
 			count = std::min(run, remaining);
 			fold_run(
@@ -1284,7 +1284,7 @@ void run_reduction_vector_loop(
 	const loop_schedule &schedule
 )
 {
-	XMIPP4_CONST_CONSTEXPR std::index_sequence_for<Ins...> input_indices {};
+	REXLIB_CONST_CONSTEXPR std::index_sequence_for<Ins...> input_indices {};
 
 	const auto kept_count = kept_layout.compute_element_count();
 	const auto workers = schedule.get_concurrency();
@@ -1380,4 +1380,4 @@ void run_reduction_loop(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

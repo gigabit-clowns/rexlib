@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
 
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -17,7 +17,7 @@ class thread_pool;
  * @brief CPU implementation of @ref command_queue.
  */
 class command_queue final
-	: public xmipp4::command_queue
+	: public rexlib::command_queue
 {
 public:
 	/**
@@ -48,13 +48,13 @@ public:
 	thread_pool& get_thread_pool() const noexcept;
 
 	static
-	command_queue* try_cast(xmipp4::command_queue &queue) noexcept;
+	command_queue* try_cast(rexlib::command_queue &queue) noexcept;
 	static
-	const command_queue* try_cast(const xmipp4::command_queue &queue) noexcept;
+	const command_queue* try_cast(const rexlib::command_queue &queue) noexcept;
 
 private:
 	std::shared_ptr<thread_pool> m_pool;
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

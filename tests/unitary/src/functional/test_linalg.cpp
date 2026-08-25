@@ -2,19 +2,19 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/linalg.hpp>
+#include <rexlib/functional/linalg.hpp>
 
-#include <xmipp4/ops/linalg/cross_operation.hpp>
-#include <xmipp4/ops/linalg/matmul_operation.hpp>
-#include <xmipp4/ops/linalg/matvec_operation.hpp>
-#include <xmipp4/ops/linalg/vecdot_operation.hpp>
-#include <xmipp4/ops/linalg/vecmat_operation.hpp>
+#include <rexlib/ops/linalg/cross_operation.hpp>
+#include <rexlib/ops/linalg/matmul_operation.hpp>
+#include <rexlib/ops/linalg/matvec_operation.hpp>
+#include <rexlib/ops/linalg/vecdot_operation.hpp>
+#include <rexlib/ops/linalg/vecmat_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 #include <cstddef>

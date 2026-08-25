@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_memory_resource final
@@ -21,4 +21,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

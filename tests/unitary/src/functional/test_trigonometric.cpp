@@ -2,31 +2,31 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/functional/trigonometric.hpp>
+#include <rexlib/functional/trigonometric.hpp>
 
-#include <xmipp4/ops/trigonometric/acos_operation.hpp>
-#include <xmipp4/ops/trigonometric/acosh_operation.hpp>
-#include <xmipp4/ops/trigonometric/asin_operation.hpp>
-#include <xmipp4/ops/trigonometric/asinh_operation.hpp>
-#include <xmipp4/ops/trigonometric/atan_operation.hpp>
-#include <xmipp4/ops/trigonometric/atan2_operation.hpp>
-#include <xmipp4/ops/trigonometric/atanh_operation.hpp>
-#include <xmipp4/ops/trigonometric/cos_operation.hpp>
-#include <xmipp4/ops/trigonometric/cosh_operation.hpp>
-#include <xmipp4/ops/trigonometric/degrees_operation.hpp>
-#include <xmipp4/ops/trigonometric/hypot_operation.hpp>
-#include <xmipp4/ops/trigonometric/radians_operation.hpp>
-#include <xmipp4/ops/trigonometric/sin_operation.hpp>
-#include <xmipp4/ops/trigonometric/sincos_operation.hpp>
-#include <xmipp4/ops/trigonometric/sinh_operation.hpp>
-#include <xmipp4/ops/trigonometric/tan_operation.hpp>
-#include <xmipp4/ops/trigonometric/tanh_operation.hpp>
+#include <rexlib/ops/trigonometric/acos_operation.hpp>
+#include <rexlib/ops/trigonometric/acosh_operation.hpp>
+#include <rexlib/ops/trigonometric/asin_operation.hpp>
+#include <rexlib/ops/trigonometric/asinh_operation.hpp>
+#include <rexlib/ops/trigonometric/atan_operation.hpp>
+#include <rexlib/ops/trigonometric/atan2_operation.hpp>
+#include <rexlib/ops/trigonometric/atanh_operation.hpp>
+#include <rexlib/ops/trigonometric/cos_operation.hpp>
+#include <rexlib/ops/trigonometric/cosh_operation.hpp>
+#include <rexlib/ops/trigonometric/degrees_operation.hpp>
+#include <rexlib/ops/trigonometric/hypot_operation.hpp>
+#include <rexlib/ops/trigonometric/radians_operation.hpp>
+#include <rexlib/ops/trigonometric/sin_operation.hpp>
+#include <rexlib/ops/trigonometric/sincos_operation.hpp>
+#include <rexlib/ops/trigonometric/sinh_operation.hpp>
+#include <rexlib/ops/trigonometric/tan_operation.hpp>
+#include <rexlib/ops/trigonometric/tanh_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
 
-using namespace xmipp4;
-using namespace xmipp4::ops;
-using xmipp4::test::verb_dispatch_fixture;
+using namespace rexlib;
+using namespace rexlib::ops;
+using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
 TEST_CASE_METHOD(

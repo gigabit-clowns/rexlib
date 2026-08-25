@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/power.hpp>
+#include <rexlib/functional/power.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/power/cbrt_operation.hpp>
-#include <xmipp4/ops/power/exp_operation.hpp>
-#include <xmipp4/ops/power/exp2_operation.hpp>
-#include <xmipp4/ops/power/expm1_operation.hpp>
-#include <xmipp4/ops/power/log_operation.hpp>
-#include <xmipp4/ops/power/log10_operation.hpp>
-#include <xmipp4/ops/power/log1p_operation.hpp>
-#include <xmipp4/ops/power/log2_operation.hpp>
-#include <xmipp4/ops/power/power_operation.hpp>
-#include <xmipp4/ops/power/reciprocal_operation.hpp>
-#include <xmipp4/ops/power/sqrt_operation.hpp>
-#include <xmipp4/ops/power/square_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/power/cbrt_operation.hpp>
+#include <rexlib/ops/power/exp_operation.hpp>
+#include <rexlib/ops/power/exp2_operation.hpp>
+#include <rexlib/ops/power/expm1_operation.hpp>
+#include <rexlib/ops/power/log_operation.hpp>
+#include <rexlib/ops/power/log10_operation.hpp>
+#include <rexlib/ops/power/log1p_operation.hpp>
+#include <rexlib/ops/power/log2_operation.hpp>
+#include <rexlib/ops/power/power_operation.hpp>
+#include <rexlib/ops/power/reciprocal_operation.hpp>
+#include <rexlib/ops/power/sqrt_operation.hpp>
+#include <rexlib/ops/power/square_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array power(
@@ -128,4 +128,4 @@ array log1p(
 	return execute_unary(ops::log1p_operation(), x, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

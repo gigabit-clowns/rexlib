@@ -9,23 +9,23 @@
 #include <algorithm>
 #include <cstdlib>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
 
-static const char XMIPP4_GRAIN_SIZE_ENV_VARIABLE[] =
-	"XMIPP4_PARALLEL_GRAIN_SIZE";
+static const char REXLIB_GRAIN_SIZE_ENV_VARIABLE[] =
+	"REXLIB_PARALLEL_GRAIN_SIZE";
 
 namespace
 {
 
 std::size_t read_parallel_grain_size()
 {
-	std::size_t result = XMIPP4_PARALLEL_GRAIN_SIZE;
+	std::size_t result = REXLIB_PARALLEL_GRAIN_SIZE;
 
 	const char* environment_variable;
-	if ((environment_variable = std::getenv(XMIPP4_GRAIN_SIZE_ENV_VARIABLE)))
+	if ((environment_variable = std::getenv(REXLIB_GRAIN_SIZE_ENV_VARIABLE)))
 	{
 		char *end = nullptr;
 		const auto parsed = std::strtoul(environment_variable, &end, 10);
@@ -35,9 +35,9 @@ std::size_t read_parallel_grain_size()
 		}
 		else
 		{
-			XMIPP4_LOG_WARN(
+			REXLIB_LOG_WARN(
 				"Ignoring {}=\"{}\": expected a positive integer.",
-				XMIPP4_GRAIN_SIZE_ENV_VARIABLE,
+				REXLIB_GRAIN_SIZE_ENV_VARIABLE,
 				environment_variable
 			);
 		}
@@ -71,4 +71,4 @@ std::size_t grain_for_cost(std::size_t cost_per_iteration) noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

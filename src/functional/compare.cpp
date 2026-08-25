@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/functional/compare.hpp>
+#include <rexlib/functional/compare.hpp>
 
-#include <xmipp4/core/dispatch/execute.hpp>
-#include <xmipp4/ops/compare/equal_operation.hpp>
-#include <xmipp4/ops/compare/greater_operation.hpp>
-#include <xmipp4/ops/compare/greater_equal_operation.hpp>
-#include <xmipp4/ops/compare/less_operation.hpp>
-#include <xmipp4/ops/compare/less_equal_operation.hpp>
-#include <xmipp4/ops/compare/not_equal_operation.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
+#include <rexlib/ops/compare/equal_operation.hpp>
+#include <rexlib/ops/compare/greater_operation.hpp>
+#include <rexlib/ops/compare/greater_equal_operation.hpp>
+#include <rexlib/ops/compare/less_operation.hpp>
+#include <rexlib/ops/compare/less_equal_operation.hpp>
+#include <rexlib/ops/compare/not_equal_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 array equal(
@@ -73,4 +73,4 @@ array greater_equal(
 	return execute_binary(ops::greater_equal_operation(), x, y, context, out);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

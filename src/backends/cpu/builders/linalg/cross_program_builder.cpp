@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/linalg/cross_operation.hpp>
+#include <rexlib/ops/linalg/cross_operation.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/builders/linalg_program_builder.hpp>
@@ -10,12 +10,12 @@
 #include <backends/cpu/kernels/eigen_gemm.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <xmipp4/backends/cpu/program_builder.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_cast.hpp>
-#include <xmipp4/core/dispatch/program_builder_registry.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -108,7 +108,7 @@ public:
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		xmipp4::command_queue &queue
+		rexlib::command_queue &queue
 	) const override
 	{
 		constexpr auto output_count = ops::cross_operation::output_operand_count;
@@ -146,11 +146,11 @@ public:
 		return base;
 	}
 
-	std::shared_ptr<xmipp4::program> build(
+	std::shared_ptr<rexlib::program> build(
 		const operation &operation,
 		span<const operand_signature> output_signatures,
 		span<const operand_signature> input_signatures,
-		xmipp4::command_queue& /*queue*/,
+		rexlib::command_queue& /*queue*/,
 		program_cache* /*cache*/
 	) const override
 	{
@@ -221,4 +221,4 @@ static const program_builder_registration<cross_program_builder>
 cross_program_builder_registration(get_core_program_builder_registry());
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/layout/index.hpp>
+#include <rexlib/core/layout/index.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("sanitize_index with a in-bounds positive index should return the same value", "[index]")
 {

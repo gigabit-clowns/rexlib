@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
 #include "mock/mock_device.hpp"
 #include "mock/mock_memory_resource.hpp"
@@ -17,7 +17,7 @@
 #include <vector>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

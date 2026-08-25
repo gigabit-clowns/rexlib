@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/creation/linspace_operation.hpp>
+#include <rexlib/ops/creation/linspace_operation.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace ops
 {
@@ -41,4 +41,4 @@ bool linspace_operation::get_endpoint() const noexcept
 }
 
 } // namespace ops
-} // namespace xmipp4
+} // namespace rexlib

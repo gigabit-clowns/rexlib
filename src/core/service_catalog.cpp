@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/service_catalog.hpp>
+#include <rexlib/core/service_catalog.hpp>
 
-#include <xmipp4/core/plugin.hpp>
+#include <rexlib/core/plugin.hpp>
 
 #include "plugin_loader.hpp"
 
@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <unordered_map>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class service_catalog::implementation
@@ -84,4 +84,4 @@ void service_catalog::create_service_manager(
 	m_implementation->create_service_manager(key, std::move(value));
 }
 
-} // namespace xmipp4
+} // namespace rexlib

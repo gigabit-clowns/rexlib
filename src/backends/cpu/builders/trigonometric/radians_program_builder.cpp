@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/trigonometric/radians_operation.hpp>
+#include <rexlib/ops/trigonometric/radians_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/load_store.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -33,11 +33,11 @@ struct radians_kernel
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
 	radians,
 	ops::radians_operation,
 	default_kernel_factory<radians_kernel>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

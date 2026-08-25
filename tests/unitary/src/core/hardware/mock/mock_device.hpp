@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_device final
@@ -32,4 +32,4 @@ public:
 	);
 };
 
-} // namespace xmipp4
+} // namespace rexlib

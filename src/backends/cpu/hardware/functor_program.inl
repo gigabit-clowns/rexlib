@@ -2,7 +2,7 @@
 
 #include "functor_program.hpp"
 
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <tuple>
 #include <utility>
@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -237,4 +237,4 @@ inline std::shared_ptr<program> make_functor_program(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

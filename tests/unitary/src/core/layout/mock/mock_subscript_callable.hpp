@@ -2,12 +2,12 @@
 
 #pragma once
 
-#include <xmipp4/core/layout/subscript_tags.hpp>
-#include <xmipp4/core/layout/slice.hpp>
+#include <rexlib/core/layout/subscript_tags.hpp>
+#include <rexlib/core/layout/slice.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class mock_subscript_callable
@@ -25,4 +25,4 @@ public:
 	}
 };
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,9 +2,9 @@
 
 #include "fourier_program_builder.hpp"
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/platform/cpp_attributes.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/parallel_grain.hpp>
@@ -12,7 +12,7 @@
 #include <tuple>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -59,7 +59,7 @@ public:
 	}
 
 private:
-	XMIPP4_NO_UNIQUE_ADDRESS Transform m_transform;
+	REXLIB_NO_UNIQUE_ADDRESS Transform m_transform;
 	fourier_layout_plan m_plan;
 };
 
@@ -102,4 +102,4 @@ fourier_program_builder<Op, Transform, TypeDispatcher>::make_loop_functor(
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/core/dispatch/program_builder.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_id.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/dispatch/program_builder.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
 
 #include <core/find_most_suitable_backend.hpp>
 #include <core/dispatch/core_program_builder_registry.hpp>
@@ -13,7 +13,7 @@
 #include <vector>
 #include <unordered_map>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class program_manager::implementation
@@ -23,7 +23,7 @@ public:
 		std::unique_ptr<program_builder> builder
 	)
 	{
-		XMIPP4_ASSERT(builder);
+		REXLIB_ASSERT(builder);
 		const auto &op_id = builder->get_operation_id();
 		m_builders[op_id].push_back(std::move(builder));
 		return true;
@@ -163,4 +163,4 @@ program_manager::get_implementation() const noexcept
 	return m_implementation ? *m_implementation : empty_implementation;
 }
 
-} // namespace xmipp4
+} // namespace rexlib

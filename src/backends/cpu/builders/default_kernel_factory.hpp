@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_list.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -37,6 +37,6 @@ public:
 };
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib
 
 #include "default_kernel_factory.inl"

@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/dispatch/execute.hpp>
+#include <rexlib/core/dispatch/execute.hpp>
 
-#include <xmipp4/core/binary/bit.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
-#include <xmipp4/core/dispatch/operation.hpp>
-#include <xmipp4/core/dispatch/operation_shape_policy.hpp>
-#include <xmipp4/core/dispatch/operation_data_type_policy.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/dispatch/operation_shape_policy.hpp>
+#include <rexlib/core/dispatch/operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 #include <core/config.hpp>
@@ -24,7 +24,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 void execute(
@@ -174,4 +174,4 @@ array execute_ternary(
 	);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

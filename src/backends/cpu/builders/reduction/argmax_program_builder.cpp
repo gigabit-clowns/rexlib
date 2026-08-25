@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/reduction/argmax_operation.hpp>
+#include <rexlib/ops/reduction/argmax_operation.hpp>
 
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/extremum_locator_kernel.hpp>
 #include <backends/cpu/kernels/ordering.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -33,11 +33,11 @@ struct maximum_order
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
 	argmax,
 	ops::argmax_operation,
 	default_kernel_factory<extremum_locator_kernel<maximum_order>>
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -2,19 +2,19 @@
 
 #include <backends/cpu/plans/reduction_layout_plan.hpp>
 
-#include <xmipp4/core/dispatch/operand_signature.hpp>
-#include <xmipp4/core/layout/broadcast.hpp>
-#include <xmipp4/core/layout/joint_layout_builder.hpp>
-#include <xmipp4/core/layout/strided_layout.hpp>
+#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/layout/broadcast.hpp>
+#include <rexlib/core/layout/joint_layout_builder.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 
-#include <xmipp4/core/platform/constexpr.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -220,7 +220,7 @@ reduction_layout_plan::reduction_layout_plan(
 	// Merging adjacent axes leaves the order of the positions untouched;
 	// sorting them for locality does not, so an ordered traversal keeps only
 	// the former.
-	XMIPP4_CONST_CONSTEXPR joint_layout_build_flags ordered_flags = {
+	REXLIB_CONST_CONSTEXPR joint_layout_build_flags ordered_flags = {
 		joint_layout_build_flag_bits::enable_coalescing
 	};
 
@@ -250,4 +250,4 @@ reduction_layout_plan::get_reduction_count() const noexcept
 }
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

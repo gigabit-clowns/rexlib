@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/device_index.hpp>
+#include <rexlib/core/hardware/device_index.hpp>
 
 #include <sstream>
 
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE( "construct device_index should produce the expected value", "[device_index]" )
 {

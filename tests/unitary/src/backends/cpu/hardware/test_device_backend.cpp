@@ -6,13 +6,13 @@
 
 #include <backends/cpu/hardware/device_backend.hpp>
 
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/core_version.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/library_version.hpp>
 
 #include <stdexcept>
 
-using namespace xmipp4;
-using namespace xmipp4::cpu;
+using namespace rexlib;
+using namespace rexlib::cpu;
 
 TEST_CASE(
 	"cpu::device_backend should be named as cpu",
@@ -29,7 +29,7 @@ TEST_CASE(
 )
 {
 	cpu::device_backend backend;
-	REQUIRE( backend.get_version() == xmipp4::get_core_version() );
+	REQUIRE( backend.get_version() == rexlib::get_library_version() );
 }
 
 TEST_CASE(

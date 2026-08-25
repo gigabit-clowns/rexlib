@@ -2,11 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/dispatch/operation_id.hpp>
+#include <rexlib/core/dispatch/operation_id.hpp>
 
 #include "mock/mock_operation.hpp"
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE("Constructing an operation_id should store its data", "[operation_id]")
 {

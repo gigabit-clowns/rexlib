@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/ops/fourier/ifftshift_operation.hpp>
+#include <rexlib/ops/fourier/ifftshift_operation.hpp>
 
 #include <backends/cpu/builders/roll_program_builder.hpp>
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cpu
 {
@@ -28,11 +28,11 @@ struct ifftshift_shift_policy
 
 } // anonymous namespace
 
-XMIPP4_REGISTER_ROLL_PROGRAM_BUILDER(
+REXLIB_REGISTER_ROLL_PROGRAM_BUILDER(
 	ifftshift,
 	ops::ifftshift_operation,
 	ifftshift_shift_policy
 );
 
 } // namespace cpu
-} // namespace xmipp4
+} // namespace rexlib

@@ -11,19 +11,19 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <xmipp4/functional/creation.hpp>
+#include <rexlib/functional/creation.hpp>
 
-#include <xmipp4/core/dispatch/rules/rule_operand_types.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/meta/type_list.hpp>
-#include <xmipp4/core/meta/type_tag.hpp>
-#include <xmipp4/core/ndarray/const_array_ref.hpp>
-#include <xmipp4/core/numerical/fixed_width_float.hpp>
-#include <xmipp4/core/numerical/numerical_type.hpp>
-#include <xmipp4/core/numerical/numerical_type_dispatch.hpp>
-#include <xmipp4/core/numerical/numerical_type_domain_tags.hpp>
-#include <xmipp4/core/numerical/numerical_type_traits.hpp>
-#include <xmipp4/core/numerical/scalar_value.hpp>
+#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/meta/type_tag.hpp>
+#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/fixed_width_float.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/core/numerical/numerical_type_domain_tags.hpp>
+#include <rexlib/core/numerical/numerical_type_traits.hpp>
+#include <rexlib/core/numerical/scalar_value.hpp>
 
 #include <complex>
 #include <cstddef>
@@ -31,7 +31,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace test
 {
@@ -418,4 +418,4 @@ using reject_case = case_tag<case_kind::reject>;
 } // namespace detail
 
 } // namespace test
-} // namespace xmipp4
+} // namespace rexlib
