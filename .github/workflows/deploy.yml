@@ -59,12 +59,12 @@ jobs:
           os: ubuntu-22.04
           compiler: {c: gcc, cxx: g++}
           archive: tar.gz
-          config: release
+          config: debug
         - platform: macos-arm64
           os: macos-latest
           compiler: {c: clang, cxx: clang++}
           archive: tar.gz
-          config: release
+          config: debug
         - platform: windows-x86_64
           os: windows-latest
           compiler: {c: cl, cxx: cl}
