@@ -34,7 +34,7 @@ include(fetch_eigen)
 
 # Find dependencies
 find_package(Threads REQUIRED)
-fetch_boost(VERSION 1.90.0)
+fetch_boost(VERSION 1.92.0)
 fetch_half(VERSION 2.2.1)
 fetch_spdlog(VERSION 1.17.0)
 fetch_pocketfft(COMMIT c90e55b3d529f8efa40ed01a20de22405f45fc65)
@@ -46,6 +46,10 @@ else()
 	set(REXLIB_PLUGINS_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/rexlib-plugins)
 endif()
 set(REXLIB_PLUGINS_INSTALL_DIR ${REXLIB_PLUGINS_INSTALL_DIR} CACHE PATH "Directory where the rexlib plugins are installed")
+
+# Same helper the installed package config offers, so that a plugin built
+# inside a superbuild installs itself exactly as an out-of-tree one does.
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake)
 
 # Set project-wide compilation options
 set(CMAKE_CXX_STANDARD 17)
