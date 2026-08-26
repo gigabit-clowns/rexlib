@@ -6,16 +6,11 @@ include(FetchContent)
 # public header, so none of it belongs in an install of this project.
 #
 # Its CMakeLists installs its headers unconditionally - there is no option
-# to turn that off - so adding it as a subdirectory would put ~600 headers
-# into <prefix>/include/eigen3. Pointing SOURCE_SUBDIR at a directory that
-# holds no CMakeLists.txt makes FetchContent populate the source without
-# calling add_subdirectory(), which leaves its install rules out of this
-# build entirely.
-#
-# Eigen is header-only, so the target it would have defined is reproduced
-# here: an interface library carrying the include directory and the
-# language level it requires. Only the build interface is needed, since
-# nothing exports it.
+# to turn that off - so adding it as a subdirectory would put (and overwrite) 
+# ~600 headers into <prefix>/include/eigen3. Pointing SOURCE_SUBDIR at a 
+# directory that holds no CMakeLists.txt makes FetchContent populate the 
+# source without calling add_subdirectory(), which leaves its install rules 
+# out of this build entirely.
 function(fetch_eigen)
 	set(options)
 	set(oneValueArgs VERSION)
