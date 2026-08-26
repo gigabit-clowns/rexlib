@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace rexlib
 {
@@ -85,17 +86,20 @@ REXLIB_API
 std::string get_default_plugin_directory();
 
 /**
- * @brief Get the the configured plugin directory.
+ * @brief Get the directories where plugins are searched for.
  * 
- * Returns the value of REXLIB_PLUGINS_DIRECTORY environment variable,
- * if set. Otherwise it returns the default plugin directory
+ * The entries of the REXLIB_PLUGINS_PATH environment variable come
+ * first, in the order they are written, separated by the platform's
+ * path separator. The default plugin directory is always searched
+ * last, so that setting the variable adds locations rather than
+ * hiding the installed plugins. Duplicates are removed.
  * 
- * @return std::string The plugin directory.
+ * @return std::vector<std::string> The plugin search path.
  * @see get_default_plugin_directory
  * 
  */
 REXLIB_API 
-std::string get_plugin_directory();
+std::vector<std::string> get_plugin_search_path();
 
 /**
  * @brief Discover and load all plugins in a directory.
@@ -108,9 +112,10 @@ REXLIB_API
 void discover_plugins(const std::string& directory, plugin_manager &manager);
 
 /**
- * @brief Discover and load all plugins in the default directory.
+ * @brief Discover and load all plugins in the search path.
  * 
  * @param manager Plugin manager where plugins are loaded.
+ * @see get_plugin_search_path
  * 
  */
 REXLIB_API

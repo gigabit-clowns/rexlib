@@ -8,8 +8,10 @@
 #include <rexlib/core/exceptions/plugin_load_error.hpp>
 
 #include <core/logger.hpp>
+#include <rexlib/core/platform/operating_system.h>
 
 #include <vector>
+#include <algorithm>
 #include <functional>
 #include <system_error>
 #include <cstdlib>
@@ -17,7 +19,7 @@
 #include <boost/filesystem.hpp>
 
 static const char REXLIB_PLUGINS_DIRECTORY_NAME[] = "rexlib-plugins";
-static const char REXLIB_PLUGINS_ENV_VARIABLE[] = "REXLIB_PLUGINS_DIRECTORY";
+static const char REXLIB_PLUGINS_ENV_VARIABLE[] = "REXLIB_PLUGINS_PATH";
 
 namespace rexlib
 {
@@ -156,19 +158,61 @@ std::string get_default_plugin_directory()
 	return path.string();
 }
 
-std::string get_plugin_directory()
+#if REXLIB_WINDOWS
+	static const char PATH_SEPARATOR = ';';
+#else
+	static const char PATH_SEPARATOR = ':';
+#endif
+
+static void append_unique(
+	std::vector<std::string> &destination,
+	std::string value
+)
 {
-	std::string result;
+	const auto pos = std::find(destination.cbegin(), destination.cend(), value);
+	if (pos == destination.cend())
+	{
+		destination.push_back(std::move(value));
+	}
+}
+
+static void split_path(
+	const std::string &path,
+	std::vector<std::string> &destination
+)
+{
+	std::string::size_type begin = 0;
+	while (begin <= path.size())
+	{
+		auto end = path.find(PATH_SEPARATOR, begin);
+		if (end == std::string::npos)
+		{
+			end = path.size();
+		}
+
+		// An empty entry carries no directory. Skipping it also means a
+		// trailing or repeated separator is not read as the current
+		// working directory, which is never what was meant.
+		if (end > begin)
+		{
+			append_unique(destination, path.substr(begin, end - begin));
+		}
+
+		begin = end + 1;
+	}
+}
+
+std::vector<std::string> get_plugin_search_path()
+{
+	std::vector<std::string> result;
 
 	const char* environment_variable;
 	if((environment_variable = std::getenv(REXLIB_PLUGINS_ENV_VARIABLE)))
 	{
-		result = environment_variable;
+		split_path(environment_variable, result);
 	}
-	else
-	{
-		result = get_default_plugin_directory();
-	}
+
+	append_unique(result, get_default_plugin_directory());
 
 	return result;
 }
@@ -199,8 +243,10 @@ void discover_plugins(const std::string& directory, plugin_manager &manager)
 
 void discover_plugins(plugin_manager &manager)
 {
-	const auto plugin_directory = get_plugin_directory();
-	discover_plugins(plugin_directory, manager);
+	for (const auto &directory : get_plugin_search_path())
+	{
+		discover_plugins(directory, manager);
+	}
 }
 
 std::size_t register_all_plugins_at(
