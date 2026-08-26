@@ -17,6 +17,7 @@ jobs:
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         os:
         - ubuntu-latest
@@ -111,6 +112,16 @@ jobs:
         uses: gigabit-clowns/.github/.github/composites/run-ctest@main
         with:
           check-memleaks: true
+
+      - name: Show the memory checker output
+        if: failure() && startsWith(matrix.os, 'ubuntu')
+        run: |
+          for f in build/Testing/Temporary/MemoryChecker.*.log; do
+            echo "===== $f ====="
+            head -c 4000 "$f"
+          done
+          echo "===== LastTest.log ====="
+          tail -c 4000 build/Testing/Temporary/LastTest.log || true
 
       - name: Show memory leak logs (if exist)
         if: steps.run-ctest.outputs.exist-memleaks == 'true'
