@@ -78,7 +78,7 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Encoding utf8
 
       - name: Install memcheck tool
-        if: startsWith(matrix.os, 'ubuntu')
+        if: matrix.os == 'ubuntu-latest'
         uses: gigabit-clowns/.github/.github/composites/memcheck/install-memtool@main
 
       - name: Set up compiler cache
@@ -108,20 +108,10 @@ jobs:
 
       - name: Run tests with memory check
         id: run-ctest
-        if: startsWith(matrix.os, 'ubuntu')
+        if: matrix.os == 'ubuntu-latest'
         uses: gigabit-clowns/.github/.github/composites/run-ctest@main
         with:
           check-memleaks: true
-
-      - name: Show the memory checker output
-        if: failure() && startsWith(matrix.os, 'ubuntu')
-        run: |
-          for f in build/Testing/Temporary/MemoryChecker.*.log; do
-            echo "===== $f ====="
-            head -c 4000 "$f"
-          done
-          echo "===== LastTest.log ====="
-          tail -c 4000 build/Testing/Temporary/LastTest.log || true
 
       - name: Show memory leak logs (if exist)
         if: steps.run-ctest.outputs.exist-memleaks == 'true'
@@ -130,7 +120,7 @@ jobs:
           test-numbers: ${{ steps.run-ctest.outputs.memleak-test-numbers }}
 
       - name: Run tests
-        if: ${{ !startsWith(matrix.os, 'ubuntu') }}
+        if: matrix.os != 'ubuntu-latest'
         uses: gigabit-clowns/.github/.github/composites/run-ctest@main
 
       - name: Generate coverage report
