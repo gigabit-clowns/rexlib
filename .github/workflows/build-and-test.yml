@@ -17,7 +17,6 @@ jobs:
     permissions:
       contents: read
     strategy:
-      fail-fast: false
       matrix:
         os:
         - ubuntu-latest
@@ -106,6 +105,10 @@ jobs:
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
+      - name: Run tests
+        if: matrix.os != 'ubuntu-latest'
+        uses: gigabit-clowns/.github/.github/composites/run-ctest@main
+
       - name: Run tests with memory check
         id: run-ctest
         if: matrix.os == 'ubuntu-latest'
@@ -118,10 +121,6 @@ jobs:
         uses: gigabit-clowns/.github/.github/composites/memcheck/show-memleaks@main
         with:
           test-numbers: ${{ steps.run-ctest.outputs.memleak-test-numbers }}
-
-      - name: Run tests
-        if: matrix.os != 'ubuntu-latest'
-        uses: gigabit-clowns/.github/.github/composites/run-ctest@main
 
       - name: Generate coverage report
         if: matrix.compiler.c != 'cl' && matrix.compiler.cxx != 'cl'
