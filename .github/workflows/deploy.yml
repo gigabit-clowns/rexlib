@@ -136,8 +136,7 @@ jobs:
     - name: Install into the staging directory
       run: |
         cmake --install build \
-          --config ${{ matrix.config == 'debug' && 'Debug' || 'Release' }} \
-          ${{ matrix.config == 'release' && '--strip' || '' }}
+          --config ${{ matrix.config == 'debug' && 'Debug' || 'Release' }}
 
     - name: Read the version
       id: version
