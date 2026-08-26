@@ -118,7 +118,6 @@ runtime and whether it is the debug one.
 | Workflow | Does |
 |---|---|
 | `build-and-test.yml` | Builds and tests the matrix, then the SonarQube scan |
-| `test-with-memcheck.yml` | Runs the suites under a memory checker |
 | `deploy.yml` | Builds the documentation, and deploys it on a version tag |
 | `release.yml` | Tags and releases, through the shared workflow of the organisation |
 | `clean-up-caches.yml` | Returns Actions cache space |
@@ -127,6 +126,12 @@ The matrix covers Linux, macOS and Windows, gcc, clang and MSVC, x86_64 and
 Arm. MSVC builds through Ninja rather than the Visual Studio generator, since
 that is the only way a compiler cache can be used, and the environment is set
 up with `vswhere` and `vcvars` beforehand.
+
+Every entry runs the suites, and the `ubuntu-latest` ones run them under a
+memory checker with `REXLIB_REGISTER_TESTS_PER_BINARY`. The rest run them
+plainly: the valgrind of `ubuntu-22.04` predates DWARF 5 and gives up on what
+clang emits there, and macOS and Windows have no checker set up. A leak
+therefore fails the pull request rather than being found afterwards.
 
 Compilation is cached with ccache. The Actions cache is 10 GB for the whole
 repository while access is per branch, so entries pile up faster than they look
