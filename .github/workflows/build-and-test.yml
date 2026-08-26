@@ -105,7 +105,7 @@ jobs:
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
-      - name: Run tests without memcheck
+      - name: Run tests without memory check
         if: matrix.os != 'ubuntu-latest'
         uses: gigabit-clowns/.github/.github/composites/run-ctest@main
 
