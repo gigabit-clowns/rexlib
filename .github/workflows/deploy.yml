@@ -129,6 +129,7 @@ jobs:
           BUILD_TESTING=OFF
           CMAKE_C_COMPILER_LAUNCHER=ccache
           CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          ${{ matrix.compiler.cxx == 'cl' && 'CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
         run-build: true
         build-args: --config ${{ matrix.config == 'debug' && 'Debug' || 'Release' }}
 
