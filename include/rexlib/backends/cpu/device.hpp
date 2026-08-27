@@ -53,6 +53,7 @@ public:
 	const std::shared_ptr<thread_pool>& get_thread_pool() const noexcept;
 
 private:
+	REXLIB_STD_MEMBER_INTERFACE
 	std::shared_ptr<thread_pool> m_pool;
 };
 
