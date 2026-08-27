@@ -76,6 +76,10 @@ jobs:
             ForEach-Object { "$($Matches[1])=$($Matches[2])" } |
             Add-Content -Path $env:GITHUB_ENV -Encoding utf8
 
+      - name: Install memcheck tool
+        if: matrix.os == 'ubuntu-latest'
+        uses: gigabit-clowns/.github/.github/composites/memcheck/install-memtool@main
+
       - name: Set up compiler cache
         uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
@@ -94,14 +98,29 @@ jobs:
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
             REXLIB_ENABLE_COVERAGE=ON
+            REXLIB_REGISTER_TESTS_PER_BINARY=ON
             CMAKE_C_COMPILER_LAUNCHER=ccache
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
             ${{ matrix.compiler.cxx == 'cl' && 'CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 
-      - name: Run tests
+      - name: Run tests without memory check
+        if: matrix.os != 'ubuntu-latest'
         uses: gigabit-clowns/.github/.github/composites/run-ctest@main
+
+      - name: Run tests with memory check
+        id: run-ctest
+        if: matrix.os == 'ubuntu-latest'
+        uses: gigabit-clowns/.github/.github/composites/run-ctest@main
+        with:
+          check-memleaks: true
+
+      - name: Show memory leak logs (if exist)
+        if: steps.run-ctest.outputs.exist-memleaks == 'true'
+        uses: gigabit-clowns/.github/.github/composites/memcheck/show-memleaks@main
+        with:
+          test-numbers: ${{ steps.run-ctest.outputs.memleak-test-numbers }}
 
       - name: Generate coverage report
         if: matrix.compiler.c != 'cl' && matrix.compiler.cxx != 'cl'
