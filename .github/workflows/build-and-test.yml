@@ -157,10 +157,6 @@ jobs:
               mkdir -p "scanner-input/$directory"
               touch "scanner-input/$directory/.keep"
             done
-          echo "::group::what is staged"
-          du -sh scanner-input
-          find scanner-input -name .keep | sort
-          echo "::endgroup::"
 
       - name: Upload what the scanner reads (ubuntu-latest + gcc only)
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
