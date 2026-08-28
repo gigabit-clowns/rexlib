@@ -25,7 +25,7 @@ endif()
 
 # Find dependencies
 find_package(CUDAToolkit 11 REQUIRED)
-fetch_boost(VERSION 1.90.0)
+fetch_boost(VERSION 1.92.0)
 fetch_spdlog(VERSION 1.17.0)
 
 # Set project-wide compilation options
