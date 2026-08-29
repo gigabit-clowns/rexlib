@@ -10,11 +10,6 @@ include(FetchContent)
 # ~600 headers into <prefix>/include/eigen3. Populating the source without
 # calling add_subdirectory() leaves its install rules out of this build
 # entirely.
-#
-# There are two ways to do that, and neither is available across the whole
-# supported range: SOURCE_SUBDIR pointing at a directory that holds no
-# CMakeLists.txt was only honoured by FetchContent from 3.18 on, while the
-# manual populate it replaces is deprecated since 3.30.
 function(fetch_eigen)
 	set(options)
 	set(oneValueArgs VERSION)
