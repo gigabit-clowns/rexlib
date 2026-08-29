@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.12)
 
 include(FetchContent)
 
+# Eigen is a private dependency: it is linked PRIVATE and appears in no
+# public header, so none of it belongs in an install of this project.
+#
+# Its CMakeLists installs its headers unconditionally - there is no option
+# to turn that off - so adding it as a subdirectory would put (and overwrite) 
+# ~600 headers into <prefix>/include/eigen3. Populating the source without
+# calling add_subdirectory() leaves its install rules out of this build
+# entirely.
 function(fetch_eigen)
 	set(options)
 	set(oneValueArgs VERSION)
@@ -10,11 +18,32 @@ function(fetch_eigen)
 		"${options}" "${oneValueArgs}" "${multiValueArgs}"
 	)
 
-	cmake_policy(SET CMP0135 NEW) # To avoid warnings
-	FetchContent_Declare(
-		eigen
-		URL https://gitlab.com/libeigen/eigen/-/archive/${arg_VERSION}/eigen-${arg_VERSION}.tar.gz
-	)
+	if(POLICY CMP0135)
+		cmake_policy(SET CMP0135 NEW) # To avoid warnings
+	endif()
 
-	FetchContent_MakeAvailable(eigen)
+	set(archive "https://gitlab.com/libeigen/eigen/-/archive")
+	set(url "${archive}/${arg_VERSION}/eigen-${arg_VERSION}.tar.gz")
+
+	if(CMAKE_VERSION VERSION_LESS 3.18)
+		FetchContent_Declare(eigen URL "${url}")
+		FetchContent_GetProperties(eigen)
+		if(NOT eigen_POPULATED)
+			FetchContent_Populate(eigen)
+		endif()
+	else()
+		FetchContent_Declare(
+			eigen
+			URL "${url}"
+			SOURCE_SUBDIR do-not-build
+		)
+		FetchContent_MakeAvailable(eigen)
+	endif()
+
+	if(NOT TARGET Eigen3::Eigen)
+		add_library(eigen INTERFACE)
+		add_library(Eigen3::Eigen ALIAS eigen)
+		target_include_directories(eigen SYSTEM INTERFACE "${eigen_SOURCE_DIR}")
+		target_compile_features(eigen INTERFACE cxx_std_14)
+	endif()
 endfunction()
