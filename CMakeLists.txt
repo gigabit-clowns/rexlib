@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.16)
 
 # Without this CMAKE_MSVC_DEBUG_INFORMATION_FORMAT is silently ignored.
 if(POLICY CMP0141)
