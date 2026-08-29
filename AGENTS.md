@@ -138,6 +138,13 @@ repository while access is per branch, so entries pile up faster than they look
 like they should; `clean-up-caches.yml` drops what a newer run replaced, and
 everything belonging to a pull request when it closes.
 
+The scan runs in a job of its own, so the `ubuntu-latest` gcc entry hands it
+what it reads as an artifact. That is `compile_commands.json` and the include
+directories named in it, which are the headers of the fetched dependencies;
+the object files and the test binaries are the bulk of a build folder and the
+scanner opens none of them. The list is derived from the compilation database
+rather than written down, so a new dependency needs no change here.
+
 ### Binary archives
 
 `deploy.yml` publishes an archive per platform, so that the continuous

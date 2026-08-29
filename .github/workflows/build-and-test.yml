@@ -138,12 +138,11 @@ jobs:
           name: coverage-report-${{ matrix.os }}-${{ matrix.compiler.c }}-${{ matrix.compiler.cxx }}
           path: coverage.lcov
 
-      - name: Upload build folder (ubuntu-latest + gcc only)
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      - name: Upload build files for sonar (ubuntu-latest + gcc only)
+        uses: gigabit-clowns/.github/.github/composites/upload-sonar-build-files@main
         if: matrix.os == 'ubuntu-latest' && matrix.compiler.c == 'gcc'
         with:
-          name: build-artifact
-          path: build
+          build-artifact-name: sonar-build-files
 
   sonar-scan:
     name: SonarQube scan
@@ -156,7 +155,7 @@ jobs:
         uses: gigabit-clowns/.github/.github/composites/sonar-scan@main
         with:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
-          build-artifact-name: "build-artifact"
+          build-artifact-name: "sonar-build-files"
           coverage-pattern: "coverage-report-*"
           coverage-path: ${{ github.workspace }}/build
           show-coverage: true
