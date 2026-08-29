@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.12)
 
 include(FetchContent)
 
@@ -7,10 +7,14 @@ include(FetchContent)
 #
 # Its CMakeLists installs its headers unconditionally - there is no option
 # to turn that off - so adding it as a subdirectory would put (and overwrite) 
-# ~600 headers into <prefix>/include/eigen3. Pointing SOURCE_SUBDIR at a 
-# directory that holds no CMakeLists.txt makes FetchContent populate the 
-# source without calling add_subdirectory(), which leaves its install rules 
-# out of this build entirely.
+# ~600 headers into <prefix>/include/eigen3. Populating the source without
+# calling add_subdirectory() leaves its install rules out of this build
+# entirely.
+#
+# There are two ways to do that, and neither is available across the whole
+# supported range: SOURCE_SUBDIR pointing at a directory that holds no
+# CMakeLists.txt was only honoured by FetchContent from 3.18 on, while the
+# manual populate it replaces is deprecated since 3.30.
 function(fetch_eigen)
 	set(options)
 	set(oneValueArgs VERSION)
@@ -19,14 +23,27 @@ function(fetch_eigen)
 		"${options}" "${oneValueArgs}" "${multiValueArgs}"
 	)
 
-	cmake_policy(SET CMP0135 NEW) # To avoid warnings
-	FetchContent_Declare(
-		eigen
-		URL https://gitlab.com/libeigen/eigen/-/archive/${arg_VERSION}/eigen-${arg_VERSION}.tar.gz
-		SOURCE_SUBDIR do-not-build
-	)
+	if(POLICY CMP0135)
+		cmake_policy(SET CMP0135 NEW) # To avoid warnings
+	endif()
 
-	FetchContent_MakeAvailable(eigen)
+	set(archive "https://gitlab.com/libeigen/eigen/-/archive")
+	set(url "${archive}/${arg_VERSION}/eigen-${arg_VERSION}.tar.gz")
+
+	if(CMAKE_VERSION VERSION_LESS 3.18)
+		FetchContent_Declare(eigen URL "${url}")
+		FetchContent_GetProperties(eigen)
+		if(NOT eigen_POPULATED)
+			FetchContent_Populate(eigen)
+		endif()
+	else()
+		FetchContent_Declare(
+			eigen
+			URL "${url}"
+			SOURCE_SUBDIR do-not-build
+		)
+		FetchContent_MakeAvailable(eigen)
+	endif()
 
 	if(NOT TARGET Eigen3::Eigen)
 		add_library(eigen INTERFACE)
