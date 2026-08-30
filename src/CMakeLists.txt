@@ -179,14 +179,6 @@ if(NOT REXLIB_INSTALL)
 endif()
 
 # Install library's binary files and headers.
-#
-# The namelink - the unversioned librexlib.so pointing at the real file - is
-# a build-time convenience, and its own component so that a consumer which
-# cannot represent symlinks can leave it out. A wheel is one: it would store
-# the link as a second full copy of the library.
-# Every artifact kind is named: an unnamed one still installs, but under
-# the default component, where a per-component install would miss it. On
-# Windows that is the DLL itself.
 install(
 	TARGETS rexlib
 	EXPORT rexlib-targets
