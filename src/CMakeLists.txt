@@ -174,15 +174,37 @@ target_link_libraries(
 # Create the alias
 add_library(rexlib::rexlib ALIAS rexlib)
 
-# Install library's binary files and headers
+if(NOT REXLIB_INSTALL)
+	return()
+endif()
+
+# Install library's binary files and headers.
+#
+# The namelink - the unversioned librexlib.so pointing at the real file - is
+# a build-time convenience, and its own component so that a consumer which
+# cannot represent symlinks can leave it out. A wheel is one: it would store
+# the link as a second full copy of the library.
+# Every artifact kind is named: an unnamed one still installs, but under
+# the default component, where a per-component install would miss it. On
+# Windows that is the DLL itself.
 install(
 	TARGETS rexlib
 	EXPORT rexlib-targets
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME
+		DESTINATION ${CMAKE_INSTALL_BINDIR}
+		COMPONENT rexlib_runtime
+	LIBRARY
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		COMPONENT rexlib_runtime
+		NAMELINK_COMPONENT rexlib_namelink
+	ARCHIVE
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		COMPONENT rexlib_development
 )
 install(
 	DIRECTORY ${PROJECT_SOURCE_DIR}/include/
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	COMPONENT rexlib_development
 	FILES_MATCHING
 		PATTERN "*.h"
 		PATTERN "*.hpp"
@@ -204,6 +226,7 @@ install(
 	FILE rexlib-targets.cmake
 	NAMESPACE rexlib::
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
+	COMPONENT rexlib_development
 )
 install(
 	FILES
@@ -211,4 +234,5 @@ install(
 	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config-version.cmake
 	${PROJECT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
+	COMPONENT rexlib_development
 )
