@@ -15,14 +15,7 @@ project(
 )
 
 # Declare configuration options
-if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	set(REXLIB_INSTALL_DEFAULT ON)
-else()
-	set(REXLIB_INSTALL_DEFAULT OFF)
-endif()
-option(REXLIB_INSTALL "Generate rexlib's install rules" ${REXLIB_INSTALL_DEFAULT})
-unset(REXLIB_INSTALL_DEFAULT)
-
+option(REXLIB_INSTALL "Generate rexlib's install rules" ON)
 option(REXLIB_BUILD_DOC "Build documentation" OFF)
 option(REXLIB_ENABLE_COVERAGE "Enable code coverage" OFF)
 option(REXLIB_REGISTER_TESTS_PER_BINARY "Register one test per test executable instead of one per Catch2 case" OFF)
