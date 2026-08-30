@@ -174,15 +174,29 @@ target_link_libraries(
 # Create the alias
 add_library(rexlib::rexlib ALIAS rexlib)
 
-# Install library's binary files and headers
+if(NOT REXLIB_INSTALL)
+	return()
+endif()
+
+# Install library's binary files and headers.
 install(
 	TARGETS rexlib
 	EXPORT rexlib-targets
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME
+		DESTINATION ${CMAKE_INSTALL_BINDIR}
+		COMPONENT rexlib_runtime
+	LIBRARY
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		COMPONENT rexlib_runtime
+		NAMELINK_COMPONENT rexlib_namelink
+	ARCHIVE
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		COMPONENT rexlib_development
 )
 install(
 	DIRECTORY ${PROJECT_SOURCE_DIR}/include/
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	COMPONENT rexlib_development
 	FILES_MATCHING
 		PATTERN "*.h"
 		PATTERN "*.hpp"
@@ -204,6 +218,7 @@ install(
 	FILE rexlib-targets.cmake
 	NAMESPACE rexlib::
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
+	COMPONENT rexlib_development
 )
 install(
 	FILES
@@ -211,4 +226,5 @@ install(
 	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config-version.cmake
 	${PROJECT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
+	COMPONENT rexlib_development
 )

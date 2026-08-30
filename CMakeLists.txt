@@ -15,6 +15,7 @@ project(
 )
 
 # Declare configuration options
+option(REXLIB_INSTALL "Generate rexlib's install rules" ON)
 option(REXLIB_BUILD_DOC "Build documentation" OFF)
 option(REXLIB_ENABLE_COVERAGE "Enable code coverage" OFF)
 option(REXLIB_REGISTER_TESTS_PER_BINARY "Register one test per test executable instead of one per Catch2 case" OFF)
