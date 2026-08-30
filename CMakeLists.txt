@@ -15,10 +15,6 @@ project(
 )
 
 # Declare configuration options
-# Installing is for whoever owns the install prefix. A superbuild that pulls
-# rexlib in as a subproject owns its own, and would otherwise get rexlib's
-# files mixed into it. (PROJECT_IS_TOP_LEVEL says this in one word, but it
-# needs CMake 3.21.)
 if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 	set(REXLIB_INSTALL_DEFAULT ON)
 else()
