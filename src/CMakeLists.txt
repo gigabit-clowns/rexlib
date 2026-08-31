@@ -124,6 +124,16 @@ rexlib_add_component(rexlib-cpu-obj backends/cpu)
 # NOTE: register src/em as rexlib-em-obj once it has sources (an empty
 # GLOB would make add_library fail).
 
+# The one file the ARM parameter passing note fires from. Not library-wide:
+# the note reports a real ABI break, and this library ships binaries.
+if(NOT MSVC)
+	set_source_files_properties(
+		${CMAKE_CURRENT_SOURCE_DIR}/backends/cpu/builders/linalg/cross_program_builder.cpp
+		PROPERTIES
+			COMPILE_OPTIONS -Wno-psabi
+	)
+endif()
+
 # Assemble the single shared library from the component objects
 add_library(
 	rexlib
