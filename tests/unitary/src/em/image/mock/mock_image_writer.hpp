@@ -6,7 +6,7 @@
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
-#include <rexlib/em/image/image_region_list.hpp>
+#include <rexlib/em/image/image_region_batch.hpp>
 
 #include <trompeloeil.hpp>
 
@@ -29,7 +29,7 @@ public:
 
 	MAKE_MOCK2(
 		write,
-		void(const_array_ref source, const image_region_list &regions),
+		void(const_array_ref source, const image_region_batch &regions),
 		override
 	);
 

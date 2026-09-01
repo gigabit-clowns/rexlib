@@ -73,7 +73,7 @@ std::int16_t fake_image_reader::get_element(std::size_t index) const
 
 void fake_image_reader::read(
 	array_ref destination,
-	const image_region_list &regions
+	const image_region_batch &regions
 ) const
 {
 	const auto rank = m_extents.size();

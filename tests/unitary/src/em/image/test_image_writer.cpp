@@ -60,13 +60,13 @@ array make_source(
 	return result;
 }
 
-image_region_list make_regions(
+image_region_batch make_regions(
 	span<const std::size_t> extents,
 	span<const std::size_t> dataset_offset,
 	span<const std::size_t> array_offset
 )
 {
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(extents, dataset_extents.size());
 	regions.add(dataset_offset, array_offset);
 	return regions;
@@ -122,14 +122,14 @@ TEST_CASE( "a write places one region of the dataset", "[image_writer]" )
 		REQUIRE( writer.get_element(59) == 0 );
 	}
 
-	SECTION( "an empty list writes nothing and succeeds" )
+	SECTION( "an empty batch writes nothing and succeeds" )
 	{
 		auto source = make_source(
 			make_span(extents),
 			numerical_type::int16,
 			1.0f
 		);
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 
 		REQUIRE_NOTHROW( writer.write(const_array_ref(source), regions) );
@@ -151,7 +151,7 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 	);
 
 	const std::vector<std::size_t> element_extents = {1, 3, 5};
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(make_span(element_extents), 3);
 	regions.reserve(3);
 
@@ -234,7 +234,7 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 	);
 
 	const std::vector<std::size_t> element_extents = {1, 3, 5};
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(make_span(element_extents), 3);
 	const std::size_t dataset_offset[3] = {0, 0, 0};
 	const std::size_t array_offset[3] = {0, 0, 5};
@@ -362,11 +362,11 @@ TEST_CASE( "image_writer is mockable", "[image_writer]" )
 	mock_image_writer writer;
 
 	REQUIRE_CALL(writer, write(ANY(const_array_ref),
-		ANY(const image_region_list&)));
+		ANY(const image_region_batch&)));
 	REQUIRE_CALL(writer, flush());
 
 	image_writer &interface = writer;
-	const image_region_list regions;
+	const image_region_batch regions;
 	interface.write(const_array_ref(), regions);
 	interface.flush();
 }

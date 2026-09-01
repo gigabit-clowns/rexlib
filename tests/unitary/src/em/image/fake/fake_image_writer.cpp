@@ -62,7 +62,7 @@ void fake_image_writer::flush()
 
 void fake_image_writer::write(
 	const_array_ref source,
-	const image_region_list &regions
+	const image_region_batch &regions
 )
 {
 	const auto rank = m_extents.size();

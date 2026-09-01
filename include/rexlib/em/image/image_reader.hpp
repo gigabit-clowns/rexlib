@@ -3,7 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/em/image/image_region_list.hpp>
+#include <rexlib/em/image/image_region_batch.hpp>
 
 #include <cstddef>
 
@@ -87,7 +87,7 @@ public:
 	 *
 	 * Every region of @p regions names where it starts in the dataset and
 	 * where it lands in @p destination, and all of them share the extents
-	 * the list carries. Passing the whole batch in one call is what lets a
+	 * the batch carries. Passing every region in one call is what lets a
 	 * reader sort the regions by their position on the storage and merge
 	 * neighbouring ones into a single larger read, which one call per region
 	 * can not express; it also pays for the destination's geometry once
@@ -96,7 +96,7 @@ public:
 	 * @p destination is the array as the caller holds it, not a view of one
 	 * slot, and it may be strided. Axes are never added or dropped
 	 * implicitly, since a rank that is quietly adjusted turns a mistaken
-	 * shape into plausible wrong data: the extents of the list must have the
+	 * shape into plausible wrong data: the extents of the batch must have the
 	 * rank of @p destination and the dataset offsets the rank of the
 	 * dataset.
 	 *
@@ -115,7 +115,7 @@ public:
 	 * @ref image_access_flag_bits::concurrent_read clear, so a caller that
 	 * ignores the flag loses throughput and never correctness.
 	 *
-	 * An empty list reads nothing and succeeds.
+	 * An empty batch reads nothing and succeeds.
 	 *
 	 * @param destination Where the regions are written. Must be initialized
 	 * and host accessible.
@@ -134,7 +134,7 @@ public:
 	 */
 	virtual void read(
 		array_ref destination,
-		const image_region_list &regions
+		const image_region_batch &regions
 	) const = 0;
 };
 

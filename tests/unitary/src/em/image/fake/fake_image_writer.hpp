@@ -5,7 +5,7 @@
 #include <rexlib/em/image/image_writer.hpp>
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/em/image/image_region_list.hpp>
+#include <rexlib/em/image/image_region_batch.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -34,7 +34,7 @@ public:
 
 	void write(
 		const_array_ref source,
-		const image_region_list &regions
+		const image_region_batch &regions
 	) override;
 
 	void flush() override;

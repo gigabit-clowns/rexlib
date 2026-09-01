@@ -77,14 +77,14 @@ const float* float_data(const array &target)
 	return static_cast<const float*>(target.get_storage()->get_host_ptr());
 }
 
-// Build a list of whole stack elements: dataset element sources[i] lands in
+// Build a batch of whole stack elements: dataset element sources[i] lands in
 // slot i of the destination.
-image_region_list make_element_list(
+image_region_batch make_element_batch(
 	span<const std::size_t> extents,
 	const std::vector<std::size_t> &sources
 )
 {
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(extents, dataset_extents.size());
 	regions.reserve(sources.size());
 
@@ -115,7 +115,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t dataset_offset[3] = {2, 0, 0};
 		const std::size_t array_offset[3] = {0, 0, 0};
@@ -137,7 +137,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t dataset_offset[3] = {1, 1, 3};
 		const std::size_t array_offset[3] = {0, 0, 0};
@@ -160,7 +160,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(dataset_extents), 3);
 		const std::size_t origin[3] = {0, 0, 0};
 		regions.add(make_span(origin, 3), make_span(origin, 3));
@@ -174,7 +174,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 		}
 	}
 
-	SECTION( "an empty list reads nothing and succeeds" )
+	SECTION( "an empty batch reads nothing and succeeds" )
 	{
 		const std::vector<std::size_t> extents = {1, 3, 5};
 		auto destination = make_destination(
@@ -182,7 +182,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 
 		REQUIRE_NOTHROW( reader->read(array_ref(destination), regions) );
@@ -206,7 +206,7 @@ TEST_CASE( "one read fills a whole batch", "[image_reader]" )
 		// that sorted the regions and forgot to keep the slots with them
 		// would be caught.
 		const std::vector<std::size_t> sources = {3, 0, 2};
-		const auto regions = make_element_list(
+		const auto regions = make_element_batch(
 			make_span(element_extents),
 			sources
 		);
@@ -227,7 +227,7 @@ TEST_CASE( "one read fills a whole batch", "[image_reader]" )
 		);
 
 		const std::vector<std::size_t> sources = {1, 1, 1};
-		const auto regions = make_element_list(
+		const auto regions = make_element_batch(
 			make_span(element_extents),
 			sources
 		);
@@ -248,7 +248,7 @@ TEST_CASE( "a read converts to the destination data type", "[image_reader]" )
 
 	const auto make_regions = [&] ()
 	{
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t dataset_offset[3] = {0, 1, 0};
 		const std::size_t array_offset[3] = {0, 0, 0};
@@ -311,7 +311,7 @@ TEST_CASE( "a read fills a strided destination", "[image_reader]" )
 		);
 
 		const std::vector<std::size_t> element_extents = {1, 3, 5};
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(element_extents), 3);
 		const std::size_t first_dataset[3] = {0, 0, 0};
 		const std::size_t first_array[3] = {0, 0, 0};
@@ -343,7 +343,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t dataset_offset[3] = {4, 0, 0};
 		const std::size_t array_offset[3] = {0, 0, 0};
@@ -362,7 +362,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t dataset_offset[3] = {0, 0, 0};
 		const std::size_t array_offset[3] = {1, 0, 0};
@@ -374,14 +374,14 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 		);
 	}
 
-	SECTION( "a list of the wrong dataset rank is refused" )
+	SECTION( "a batch of the wrong dataset rank is refused" )
 	{
 		auto destination = make_destination(
 			make_span(extents),
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 2);
 		const std::size_t dataset_offset[2] = {0, 0};
 		const std::size_t array_offset[3] = {0, 0, 0};
@@ -401,7 +401,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t origin[3] = {0, 0, 0};
 		regions.add(make_span(origin, 3), make_span(origin, 3));
@@ -414,7 +414,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 
 	SECTION( "an uninitialized destination is refused" )
 	{
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 3);
 		const std::size_t origin[3] = {0, 0, 0};
 		regions.add(make_span(origin, 3), make_span(origin, 3));
@@ -463,7 +463,7 @@ TEST_CASE( "image_reader is mockable", "[image_reader]" )
 
 	ALLOW_CALL(reader, get_descriptor()).RETURN(descriptor);
 	REQUIRE_CALL(reader, read(ANY(array_ref),
-		ANY(const image_region_list&)));
+		ANY(const image_region_batch&)));
 
 	const image_reader &interface = reader;
 	std::vector<std::size_t> extents;
@@ -471,6 +471,6 @@ TEST_CASE( "image_reader is mockable", "[image_reader]" )
 
 	REQUIRE( extents == dataset_extents );
 
-	const image_region_list regions;
+	const image_region_batch regions;
 	interface.read(array_ref(), regions);
 }

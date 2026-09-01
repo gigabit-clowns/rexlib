@@ -3,7 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/em/image/image_region_list.hpp>
+#include <rexlib/em/image/image_region_batch.hpp>
 
 #include <cstddef>
 
@@ -20,7 +20,7 @@ namespace em
  * @brief Abstract writable view of a single rectangular ND image dataset.
  *
  * The mirror of @ref image_reader: the same regions, described by the same
- * @ref image_region_list, the same conversion rule, the opposite direction.
+ * @ref image_region_batch, the same conversion rule, the opposite direction.
  * A writer is opened over a complete descriptor, so the extents of the
  * dataset are settled before anything is written; the file can be laid out
  * once up front and a region can be written wherever it belongs, in any
@@ -54,10 +54,10 @@ public:
 	/**
 	 * @brief Write a set of hyperrectangles of the dataset from one array.
 	 *
-	 * The mirror of @ref image_reader::read, sharing its list: every region
+	 * The mirror of @ref image_reader::read, sharing its batch: every region
 	 * names where it lands in the dataset and where it is taken from in
-	 * @p source, and all of them share the extents the list carries. Passing
-	 * the whole batch in one call lets a writer order and merge the accesses
+	 * @p source, and all of them share the extents the batch carries. Passing
+	 * every region in one call lets a writer order and merge the accesses
 	 * it is about to make, and pays for the source's geometry once.
 	 *
 	 * @p source is the array as the caller holds it and may be strided. As in
@@ -69,7 +69,7 @@ public:
 	 * same elements of the dataset, which one prevails is unspecified.
 	 *
 	 * A region that is never written keeps whatever the format leaves in a
-	 * dataset it has laid out but not filled. An empty list writes nothing
+	 * dataset it has laid out but not filled. An empty batch writes nothing
 	 * and succeeds.
 	 *
 	 * @param source The values to write. Must be initialized and host
@@ -87,7 +87,7 @@ public:
 	 */
 	virtual void write(
 		const_array_ref source,
-		const image_region_list &regions
+		const image_region_batch &regions
 	) = 0;
 
 	/**

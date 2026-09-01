@@ -17,8 +17,8 @@ namespace em
  * @brief The regions transferred between a dataset and an array in one call.
  *
  * Every region pairs an offset into the dataset with an offset into the
- * array, and every region in a list shares one set of extents. Which side is
- * read and which is written is decided by the call the list is handed to:
+ * array, and every region in a batch shares one set of extents. Which side is
+ * read and which is written is decided by the call the batch is handed to:
  * @ref image_reader::read fills the array from the dataset and
  * @ref image_writer::write does the reverse. There is one class rather than
  * two because a transfer is described by the same numbers in both
@@ -26,9 +26,9 @@ namespace em
  *
  * The offsets are held in two flat vectors instead of one allocation per
  * region, so a batch of any size costs a bounded number of allocations, and
- * @ref clear keeps the capacity: a caller that reuses one list across
- * batches allocates nothing after the first. That is the point of the class.
- * Reusing it is the expected way to use it.
+ * @ref clear keeps the capacity: one instance reused from one call to the
+ * next allocates nothing after the first. That is the point of the class,
+ * and reusing it is the expected way to use it.
  *
  * The extents are stated in the rank of the array. The dataset may have a
  * lower rank, in which case its region is the last @ref get_dataset_rank
@@ -36,32 +36,32 @@ namespace em
  * batch of two dimensional patches be cut out of a two dimensional
  * micrograph into a three dimensional destination without a special case.
  */
-class image_region_list
+class image_region_batch
 {
 public:
 	/**
-	 * @brief Construct an empty list holding no region and no extents.
+	 * @brief Construct an empty batch holding no region and no extents.
 	 */
 	REXLIB_API
-	image_region_list() noexcept;
+	image_region_batch() noexcept;
 
 	REXLIB_API
-	image_region_list(const image_region_list &other);
+	image_region_batch(const image_region_batch &other);
 	REXLIB_API
-	image_region_list(image_region_list &&other) noexcept;
+	image_region_batch(image_region_batch &&other) noexcept;
 	REXLIB_API
-	~image_region_list();
+	~image_region_batch();
 
 	REXLIB_API
-	image_region_list& operator=(const image_region_list &other);
+	image_region_batch& operator=(const image_region_batch &other);
 	REXLIB_API
-	image_region_list& operator=(image_region_list &&other) noexcept;
+	image_region_batch& operator=(image_region_batch &&other) noexcept;
 
 	/**
 	 * @brief Set the shape shared by the regions and drop the ones held.
 	 *
-	 * Keeps the capacity already reserved, so configuring a reused list for
-	 * the next batch allocates nothing.
+	 * Keeps the capacity already reserved, so configuring a reused batch for
+	 * the next call allocates nothing.
 	 *
 	 * @param extents Extents of one region, in the rank of the array.
 	 * @param dataset_rank Rank of the dataset the regions address.
@@ -138,7 +138,7 @@ public:
 	 *
 	 * @param index Index of the region. Must be below @ref get_size.
 	 * @return span<const std::size_t> The offset, of rank
-	 * @ref get_dataset_rank. It refers to storage owned by this list.
+	 * @ref get_dataset_rank. It refers to storage owned by this batch.
 	 */
 	REXLIB_API
 	span<const std::size_t>
@@ -149,7 +149,7 @@ public:
 	 *
 	 * @param index Index of the region. Must be below @ref get_size.
 	 * @return span<const std::size_t> The offset, of rank
-	 * @ref get_array_rank. It refers to storage owned by this list.
+	 * @ref get_array_rank. It refers to storage owned by this batch.
 	 */
 	REXLIB_API
 	span<const std::size_t>

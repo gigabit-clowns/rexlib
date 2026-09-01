@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/image_region_list.hpp>
+#include <rexlib/em/image/image_region_batch.hpp>
 
 #include <cstddef>
 #include <stdexcept>
@@ -21,9 +21,9 @@ std::vector<std::size_t> to_vector(span<const std::size_t> values)
 
 } // namespace
 
-TEST_CASE( "an image_region_list starts empty", "[image_region_list]" )
+TEST_CASE( "an image_region_batch starts empty", "[image_region_batch]" )
 {
-	const image_region_list regions;
+	const image_region_batch regions;
 
 	REQUIRE( regions.get_size() == 0 );
 	REQUIRE( regions.get_dataset_rank() == 0 );
@@ -31,11 +31,11 @@ TEST_CASE( "an image_region_list starts empty", "[image_region_list]" )
 	REQUIRE( regions.get_extents().empty() );
 }
 
-TEST_CASE( "an image_region_list carries offsets on both sides",
-	"[image_region_list]" )
+TEST_CASE( "an image_region_batch carries offsets on both sides",
+	"[image_region_batch]" )
 {
 	const std::vector<std::size_t> extents = {1, 3, 5};
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(make_span(extents), 3);
 
 	SECTION( "reset states the shape shared by every region" )
@@ -90,13 +90,13 @@ TEST_CASE( "an image_region_list carries offsets on both sides",
 	}
 }
 
-TEST_CASE( "an image_region_list allows a dataset of lower rank",
-	"[image_region_list]" )
+TEST_CASE( "an image_region_batch allows a dataset of lower rank",
+	"[image_region_batch]" )
 {
 	SECTION( "a batch of patches cut from a two dimensional micrograph" )
 	{
 		const std::vector<std::size_t> extents = {1, 4, 4};
-		image_region_list regions;
+		image_region_batch regions;
 		regions.reset(make_span(extents), 2);
 
 		const std::size_t dataset_offset[2] = {10, 20};
@@ -112,7 +112,7 @@ TEST_CASE( "an image_region_list allows a dataset of lower rank",
 	SECTION( "the extents the dataset does not span must be one" )
 	{
 		const std::vector<std::size_t> extents = {2, 4, 4};
-		image_region_list regions;
+		image_region_batch regions;
 
 		REQUIRE_THROWS_AS(
 			regions.reset(make_span(extents), 2),
@@ -123,7 +123,7 @@ TEST_CASE( "an image_region_list allows a dataset of lower rank",
 	SECTION( "a dataset rank above the rank of the extents is refused" )
 	{
 		const std::vector<std::size_t> extents = {4, 4};
-		image_region_list regions;
+		image_region_batch regions;
 
 		REQUIRE_THROWS_AS(
 			regions.reset(make_span(extents), 3),
@@ -132,11 +132,11 @@ TEST_CASE( "an image_region_list allows a dataset of lower rank",
 	}
 }
 
-TEST_CASE( "an image_region_list refuses an offset of the wrong rank",
-	"[image_region_list]" )
+TEST_CASE( "an image_region_batch refuses an offset of the wrong rank",
+	"[image_region_batch]" )
 {
 	const std::vector<std::size_t> extents = {1, 3, 5};
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(make_span(extents), 3);
 
 	const std::size_t two[2] = {0, 0};
@@ -168,16 +168,16 @@ TEST_CASE( "an image_region_list refuses an offset of the wrong rank",
 	}
 }
 
-TEST_CASE( "an image_region_list reused across batches stops allocating",
-	"[image_region_list]" )
+TEST_CASE( "an image_region_batch reused across batches stops allocating",
+	"[image_region_batch]" )
 {
 	// This is the reason the regions are aggregated rather than passed one
-	// by one: after the first batch has sized the list, filling the next
-	// one touches the heap not at all.
+	// by one: once the first fill has sized it, filling it again touches
+	// the heap not at all.
 	const std::vector<std::size_t> extents = {1, 3, 5};
 	const std::size_t batch = 64;
 
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(make_span(extents), 3);
 	regions.reserve(batch);
 
@@ -219,10 +219,10 @@ TEST_CASE( "an image_region_list reused across batches stops allocating",
 	}
 }
 
-TEST_CASE( "an image_region_list has value semantics", "[image_region_list]" )
+TEST_CASE( "an image_region_batch has value semantics", "[image_region_batch]" )
 {
 	const std::vector<std::size_t> extents = {1, 3, 5};
-	image_region_list regions;
+	image_region_batch regions;
 	regions.reset(make_span(extents), 3);
 	const std::size_t dataset_offset[3] = {2, 0, 0};
 	const std::size_t array_offset[3] = {1, 0, 0};
@@ -230,7 +230,7 @@ TEST_CASE( "an image_region_list has value semantics", "[image_region_list]" )
 
 	SECTION( "a copy holds the same regions" )
 	{
-		const image_region_list copy(regions);
+		const image_region_batch copy(regions);
 
 		REQUIRE( copy.get_size() == 1 );
 		REQUIRE( to_vector(copy.get_extents()) == extents );
@@ -240,7 +240,7 @@ TEST_CASE( "an image_region_list has value semantics", "[image_region_list]" )
 
 	SECTION( "a copy does not share storage with its source" )
 	{
-		image_region_list copy(regions);
+		image_region_batch copy(regions);
 		copy.clear();
 
 		REQUIRE( copy.get_size() == 0 );

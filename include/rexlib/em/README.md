@@ -78,10 +78,10 @@ There is one read verb, not one per access pattern. Random versus sequential
 is a property of a sequence of requests, so it belongs to tier two and to the
 access hint given when the file is opened.
 
-A read takes a whole batch of regions in one `image_region_list` rather than
+A read takes a whole batch of regions in one `image_region_batch` rather than
 one region per call. That is the only shape in which a reader can see enough
 to sort the accesses by their position on the storage and merge neighbouring
-ones, and it keeps the per region cost to arithmetic: the list holds its
+ones, and it keeps the per region cost to arithmetic: the batch holds its
 offsets in flat vectors, so reusing one across batches allocates nothing
 after the first. Measured on a batch of 256, a call per region cost 110 to
 150 ns and four allocations each; building and walking the batched form
