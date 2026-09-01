@@ -5,6 +5,7 @@
 #include <rexlib/em/image/image_writer.hpp>
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/em/image/image_region_list.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -31,9 +32,9 @@ public:
 
 	const array_descriptor& get_descriptor() const noexcept override;
 
-	void write_region(
-		span<const std::size_t> offset,
-		const_array_ref source
+	void write(
+		const_array_ref source,
+		const image_region_list &regions
 	) override;
 
 	void flush() override;

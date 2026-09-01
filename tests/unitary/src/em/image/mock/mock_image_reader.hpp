@@ -8,6 +8,7 @@
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/em/image/image_access_traits.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
+#include <rexlib/em/image/image_region_list.hpp>
 
 #include <trompeloeil.hpp>
 
@@ -41,8 +42,8 @@ public:
 	);
 
 	MAKE_CONST_MOCK2(
-		read_region,
-		void(span<const std::size_t> offset, array_ref destination),
+		read,
+		void(array_ref destination, const image_region_list &regions),
 		override
 	);
 };

@@ -3,7 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
+#include <rexlib/em/image/image_region_list.hpp>
 
 #include <cstddef>
 
@@ -23,14 +23,19 @@ class image_metadata;
  * @brief Abstract read-only view of a single rectangular ND image dataset.
  *
  * A reader is opened over one dataset and exposes it as one ND array. Every
- * read is a hyperrectangle of that array, which is the only access pattern
- * there is: element @c i of an @c (N,H,W) stack is the region at offset
- * @c (i,0,0) with extents @c (1,H,W), a patch of an @c (H,W) micrograph is
- * the region at @c (y,x) with extents @c (h,w), and a whole volume is the
- * region covering everything. Reading in a random or in a sequential order
- * is a property of a sequence of calls rather than of one, so it is stated
- * through @ref image_open_options when the dataset is opened and is nothing
- * a reader distinguishes.
+ * read is a set of hyperrectangles of that array, which is the only access
+ * pattern there is: element @c i of an @c (N,H,W) stack is the region at
+ * offset @c (i,0,0) with extents @c (1,H,W), a patch of an @c (H,W)
+ * micrograph is the region at @c (y,x) with extents @c (h,w), and a whole
+ * volume is the region covering everything. Reading in a random or in a
+ * sequential order is a property of a sequence of calls rather than of one,
+ * so it is stated through @ref image_open_options when the dataset is opened
+ * and is nothing a reader distinguishes.
+ *
+ * A read takes a whole batch of regions rather than one at a time. That is
+ * the only shape in which a reader can see enough to order and merge the
+ * accesses it is about to make, and it keeps the per region cost to
+ * arithmetic.
  *
  * A file holding several datasets of different shapes is opened once per
  * dataset, selected through @ref image_open_options::get_dataset_index.
@@ -78,16 +83,25 @@ public:
 	get_access_traits() const noexcept = 0;
 
 	/**
-	 * @brief Read one hyperrectangle of the dataset.
+	 * @brief Read a set of hyperrectangles of the dataset into one array.
 	 *
-	 * The region starts at @p offset and its extents are those of
-	 * @p destination, whose rank must equal the rank of the dataset. Axes
-	 * are never added or dropped implicitly, since a rank that is quietly
-	 * adjusted turns a mistaken shape into plausible wrong data.
+	 * Every region of @p regions names where it starts in the dataset and
+	 * where it lands in @p destination, and all of them share the extents
+	 * the list carries. Passing the whole batch in one call is what lets a
+	 * reader sort the regions by their position on the storage and merge
+	 * neighbouring ones into a single larger read, which one call per region
+	 * can not express; it also pays for the destination's geometry once
+	 * rather than once per region.
 	 *
-	 * @p destination may be strided, and normally is: a batch is one array
-	 * whose slots are filled from many datasets, so what reaches a reader is
-	 * a view of one slot rather than a contiguous buffer.
+	 * @p destination is the array as the caller holds it, not a view of one
+	 * slot, and it may be strided. Axes are never added or dropped
+	 * implicitly, since a rank that is quietly adjusted turns a mistaken
+	 * shape into plausible wrong data: the extents of the list must have the
+	 * rank of @p destination and the dataset offsets the rank of the
+	 * dataset.
+	 *
+	 * Regions may be read in any order. Where two of them land on the same
+	 * elements of @p destination, which one prevails is unspecified.
 	 *
 	 * Values are converted to the data type of @p destination with
 	 * @ref numerical_cast semantics, which preserve the numeric value.
@@ -101,24 +115,26 @@ public:
 	 * @ref image_access_flag_bits::concurrent_read clear, so a caller that
 	 * ignores the flag loses throughput and never correctness.
 	 *
-	 * @param offset Index of the first element of the region along each
-	 * axis. Its size must equal the rank of the dataset.
-	 * @param destination Where the region is written. Must be initialized
+	 * An empty list reads nothing and succeeds.
+	 *
+	 * @param destination Where the regions are written. Must be initialized
 	 * and host accessible.
-	 * @throws std::invalid_argument If the rank of @p offset or of
-	 * @p destination does not match the rank of the dataset, or if
-	 * @p destination is not initialized.
-	 * @throws std::out_of_range If the region is not contained in the
-	 * dataset.
+	 * @param regions The regions to read and where each one lands.
+	 * @throws std::invalid_argument If the rank of the extents does not
+	 * match the rank of @p destination, if the rank of the dataset offsets
+	 * does not match the rank of the dataset, or if @p destination is not
+	 * initialized.
+	 * @throws std::out_of_range If a region is not contained in the dataset,
+	 * or does not fit in @p destination where it is placed.
 	 * @throws invalid_operation_error If the data type of @p destination can
 	 * not be produced from the one of the dataset, or if @p destination is
 	 * not host accessible.
 	 * @throws image_format_error If the dataset turns out to be malformed
-	 * or truncated where the region is read.
+	 * or truncated where a region is read.
 	 */
-	virtual void read_region(
-		span<const std::size_t> offset,
-		array_ref destination
+	virtual void read(
+		array_ref destination,
+		const image_region_list &regions
 	) const = 0;
 };
 

@@ -7,6 +7,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/em/image/image_access_traits.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
+#include <rexlib/em/image/image_region_list.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -40,9 +41,9 @@ public:
 	const image_metadata& get_metadata() const noexcept override;
 	const image_access_traits& get_access_traits() const noexcept override;
 
-	void read_region(
-		span<const std::size_t> offset,
-		array_ref destination
+	void read(
+		array_ref destination,
+		const image_region_list &regions
 	) const override;
 
 	/**

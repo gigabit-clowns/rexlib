@@ -8,10 +8,8 @@
 #include "mock/mock_image_writer.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/core/layout/subscript_tags.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/functional/view.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
@@ -62,22 +60,42 @@ array make_source(
 	return result;
 }
 
+image_region_list make_regions(
+	span<const std::size_t> extents,
+	span<const std::size_t> dataset_offset,
+	span<const std::size_t> array_offset
+)
+{
+	image_region_list regions;
+	regions.reset(extents, dataset_extents.size());
+	regions.add(dataset_offset, array_offset);
+	return regions;
+}
+
 } // namespace
 
 TEST_CASE( "a write places one region of the dataset", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(dataset_extents));
+	const std::vector<std::size_t> extents = {1, 3, 5};
+	const std::size_t origin[3] = {0, 0, 0};
 
 	SECTION( "an element of a stack lands where it belongs" )
 	{
-		const std::vector<std::size_t> extents = {1, 3, 5};
 		auto source = make_source(
 			make_span(extents),
 			numerical_type::int16,
 			100.0f
 		);
-		const std::vector<std::size_t> offset = {2, 0, 0};
-		writer.write_region(make_span(offset), const_array_ref(source));
+		const std::size_t dataset_offset[3] = {2, 0, 0};
+		writer.write(
+			const_array_ref(source),
+			make_regions(
+				make_span(extents),
+				make_span(dataset_offset, 3),
+				make_span(origin, 3)
+			)
+		);
 
 		REQUIRE( writer.get_element(30) == 100 );
 		REQUIRE( writer.get_element(44) == 114 );
@@ -86,45 +104,80 @@ TEST_CASE( "a write places one region of the dataset", "[image_writer]" )
 
 	SECTION( "a region that is never written keeps the laid out value" )
 	{
-		const std::vector<std::size_t> extents = {1, 3, 5};
 		auto source = make_source(
 			make_span(extents),
 			numerical_type::int16,
 			1.0f
 		);
-		const std::vector<std::size_t> offset = {0, 0, 0};
-		writer.write_region(make_span(offset), const_array_ref(source));
+		writer.write(
+			const_array_ref(source),
+			make_regions(
+				make_span(extents),
+				make_span(origin, 3),
+				make_span(origin, 3)
+			)
+		);
 
 		REQUIRE( writer.get_element(15) == 0 );
 		REQUIRE( writer.get_element(59) == 0 );
 	}
 
-	SECTION( "regions may be written in any order" )
+	SECTION( "an empty list writes nothing and succeeds" )
 	{
-		const std::vector<std::size_t> extents = {1, 3, 5};
-		const std::vector<std::size_t> order = {3, 0, 2};
-		for (const auto plane : order)
-		{
-			auto source = make_source(
-				make_span(extents),
-				numerical_type::int16,
-				static_cast<float>(plane * 100)
-			);
-			const std::vector<std::size_t> offset = {plane, 0, 0};
-			writer.write_region(make_span(offset), const_array_ref(source));
-		}
+		auto source = make_source(
+			make_span(extents),
+			numerical_type::int16,
+			1.0f
+		);
+		image_region_list regions;
+		regions.reset(make_span(extents), 3);
 
+		REQUIRE_NOTHROW( writer.write(const_array_ref(source), regions) );
 		REQUIRE( writer.get_element(0) == 0 );
-		REQUIRE( writer.get_element(30) == 200 );
-		REQUIRE( writer.get_element(45) == 300 );
 	}
+}
+
+TEST_CASE( "one write drains a whole batch", "[image_writer]" )
+{
+	fake_image_writer writer(make_span(dataset_extents));
+
+	// A batch of three elements written out in one call, deliberately not in
+	// increasing dataset order.
+	const std::vector<std::size_t> batch_extents = {3, 3, 5};
+	auto batch = make_source(
+		make_span(batch_extents),
+		numerical_type::int16,
+		0.0f
+	);
+
+	const std::vector<std::size_t> element_extents = {1, 3, 5};
+	image_region_list regions;
+	regions.reset(make_span(element_extents), 3);
+	regions.reserve(3);
+
+	const std::vector<std::size_t> targets = {3, 0, 2};
+	for (std::size_t slot = 0; slot < targets.size(); ++slot)
+	{
+		const std::size_t dataset_offset[3] = {targets[slot], 0, 0};
+		const std::size_t array_offset[3] = {slot, 0, 0};
+		regions.add(make_span(dataset_offset, 3), make_span(array_offset, 3));
+	}
+
+	writer.write(const_array_ref(batch), regions);
+
+	// Slot 0 holds 0..14 and goes to element 3, slot 1 holds 15..29 and goes
+	// to element 0, slot 2 holds 30..44 and goes to element 2.
+	REQUIRE( writer.get_element(45) == 0 );
+	REQUIRE( writer.get_element(0) == 15 );
+	REQUIRE( writer.get_element(30) == 30 );
+	REQUIRE( writer.get_element(15) == 0 );
 }
 
 TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(dataset_extents));
 	const std::vector<std::size_t> extents = {1, 1, 4};
-	const std::vector<std::size_t> offset = {0, 0, 0};
+	const std::size_t origin[3] = {0, 0, 0};
 
 	SECTION( "a float source is converted preserving the value" )
 	{
@@ -133,7 +186,14 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 			numerical_type::float32,
 			7.0f
 		);
-		writer.write_region(make_span(offset), const_array_ref(source));
+		writer.write(
+			const_array_ref(source),
+			make_regions(
+				make_span(extents),
+				make_span(origin, 3),
+				make_span(origin, 3)
+			)
+		);
 
 		REQUIRE( writer.get_element(0) == 7 );
 		REQUIRE( writer.get_element(3) == 10 );
@@ -148,7 +208,14 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 		);
 
 		REQUIRE_THROWS_AS(
-			writer.write_region(make_span(offset), const_array_ref(source)),
+			writer.write(
+				const_array_ref(source),
+				make_regions(
+					make_span(extents),
+					make_span(origin, 3),
+					make_span(origin, 3)
+				)
+			),
 			invalid_operation_error
 		);
 	}
@@ -158,75 +225,113 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(dataset_extents));
 
-	const std::vector<std::size_t> batch_extents = {2, 1, 3, 5};
+	// The batch is wider than the elements taken out of it.
+	const std::vector<std::size_t> batch_extents = {2, 3, 10};
 	auto batch = make_source(
 		make_span(batch_extents),
 		numerical_type::int16,
 		0.0f
 	);
 
-	for (std::size_t slot = 0; slot < 2; ++slot)
-	{
-		const std::vector<dynamic_subscript> subscripts = {
-			static_cast<std::ptrdiff_t>(slot), ellipsis()
-		};
-		const auto view = subarray(
-			const_array_ref(batch),
-			make_span(subscripts)
-		);
+	const std::vector<std::size_t> element_extents = {1, 3, 5};
+	image_region_list regions;
+	regions.reset(make_span(element_extents), 3);
+	const std::size_t dataset_offset[3] = {0, 0, 0};
+	const std::size_t array_offset[3] = {0, 0, 5};
+	regions.add(make_span(dataset_offset, 3), make_span(array_offset, 3));
 
-		const std::vector<std::size_t> offset = {slot, 0, 0};
-		writer.write_region(make_span(offset), const_array_ref(view));
-	}
+	writer.write(const_array_ref(batch), regions);
 
-	REQUIRE( writer.get_element(0) == 0 );
-	REQUIRE( writer.get_element(14) == 14 );
-	REQUIRE( writer.get_element(15) == 15 );
-	REQUIRE( writer.get_element(29) == 29 );
+	// Column 5 of row 0 of the batch is value 5, and the next row starts at
+	// 15, so the strided source is followed rather than a flat run copied.
+	REQUIRE( writer.get_element(0) == 5 );
+	REQUIRE( writer.get_element(4) == 9 );
+	REQUIRE( writer.get_element(5) == 15 );
 }
 
 TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(dataset_extents));
+	const std::vector<std::size_t> extents = {1, 3, 5};
+	const std::size_t origin[3] = {0, 0, 0};
 
 	SECTION( "a region reaching past the dataset is out of range" )
 	{
-		const std::vector<std::size_t> extents = {1, 3, 5};
 		auto source = make_source(
 			make_span(extents),
 			numerical_type::int16,
 			0.0f
 		);
-		const std::vector<std::size_t> offset = {4, 0, 0};
+		const std::size_t dataset_offset[3] = {4, 0, 0};
 
 		REQUIRE_THROWS_AS(
-			writer.write_region(make_span(offset), const_array_ref(source)),
+			writer.write(
+				const_array_ref(source),
+				make_regions(
+					make_span(extents),
+					make_span(dataset_offset, 3),
+					make_span(origin, 3)
+				)
+			),
 			std::out_of_range
 		);
 	}
 
-	SECTION( "a source of the wrong rank is refused, never adjusted" )
+	SECTION( "a region reaching past the source is out of range" )
 	{
-		const std::vector<std::size_t> extents = {3, 5};
 		auto source = make_source(
 			make_span(extents),
 			numerical_type::int16,
 			0.0f
 		);
-		const std::vector<std::size_t> offset = {0, 0, 0};
+		const std::size_t array_offset[3] = {1, 0, 0};
 
 		REQUIRE_THROWS_AS(
-			writer.write_region(make_span(offset), const_array_ref(source)),
+			writer.write(
+				const_array_ref(source),
+				make_regions(
+					make_span(extents),
+					make_span(origin, 3),
+					make_span(array_offset, 3)
+				)
+			),
+			std::out_of_range
+		);
+	}
+
+	SECTION( "extents of the wrong rank are refused, never adjusted" )
+	{
+		const std::vector<std::size_t> flat_extents = {3, 5};
+		auto source = make_source(
+			make_span(flat_extents),
+			numerical_type::int16,
+			0.0f
+		);
+
+		REQUIRE_THROWS_AS(
+			writer.write(
+				const_array_ref(source),
+				make_regions(
+					make_span(extents),
+					make_span(origin, 3),
+					make_span(origin, 3)
+				)
+			),
 			std::invalid_argument
 		);
 	}
 
 	SECTION( "an uninitialized source is refused" )
 	{
-		const std::vector<std::size_t> offset = {0, 0, 0};
-
 		REQUIRE_THROWS_AS(
-			writer.write_region(make_span(offset), const_array_ref()),
+			writer.write(
+				const_array_ref(),
+				make_regions(
+					make_span(extents),
+					make_span(origin, 3),
+					make_span(origin, 3)
+				)
+			),
 			std::invalid_argument
 		);
 	}
@@ -256,12 +361,12 @@ TEST_CASE( "image_writer is mockable", "[image_writer]" )
 {
 	mock_image_writer writer;
 
-	REQUIRE_CALL(writer, write_region(ANY(span<const std::size_t>),
-		ANY(const_array_ref)));
+	REQUIRE_CALL(writer, write(ANY(const_array_ref),
+		ANY(const image_region_list&)));
 	REQUIRE_CALL(writer, flush());
 
 	image_writer &interface = writer;
-	const std::vector<std::size_t> offset = {0, 0, 0};
-	interface.write_region(make_span(offset), const_array_ref());
+	const image_region_list regions;
+	interface.write(const_array_ref(), regions);
 	interface.flush();
 }

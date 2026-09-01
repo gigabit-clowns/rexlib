@@ -17,6 +17,16 @@ namespace rexlib
 namespace em
 {
 
+static std::size_t compute_element_count(span<const std::size_t> extents)
+{
+	return std::accumulate(
+		extents.begin(),
+		extents.end(),
+		std::size_t(1),
+		[] (std::size_t lhs, std::size_t rhs) { return lhs * rhs; }
+	);
+}
+
 fake_image_reader::fake_image_reader(
 	span<const std::size_t> extents,
 	image_access_traits traits,
@@ -30,13 +40,7 @@ fake_image_reader::fake_image_reader(
 	, m_traits(std::move(traits))
 	, m_metadata(std::move(metadata))
 {
-	const auto count = std::accumulate(
-		m_extents.begin(),
-		m_extents.end(),
-		std::size_t(1),
-		[] (std::size_t lhs, std::size_t rhs) { return lhs * rhs; }
-	);
-
+	const auto count = compute_element_count(extents);
 	m_data.reserve(count);
 	for (std::size_t i = 0; i < count; ++i)
 	{
@@ -67,17 +71,17 @@ std::int16_t fake_image_reader::get_element(std::size_t index) const
 	return m_data.at(index);
 }
 
-void fake_image_reader::read_region(
-	span<const std::size_t> offset,
-	array_ref destination
+void fake_image_reader::read(
+	array_ref destination,
+	const image_region_list &regions
 ) const
 {
 	const auto rank = m_extents.size();
-	if (offset.size() != rank)
+	if (regions.get_dataset_rank() != rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_reader::read_region: The offset rank does not match "
-			"the rank of the dataset."
+			"fake_image_reader::read: The dataset offsets do not have the "
+			"rank of the dataset."
 		);
 	}
 
@@ -85,35 +89,25 @@ void fake_image_reader::read_region(
 	if (!storage)
 	{
 		throw std::invalid_argument(
-			"fake_image_reader::read_region: The destination is not "
-			"initialized."
+			"fake_image_reader::read: The destination is not initialized."
 		);
 	}
 
+	// Everything below this point is read once for the whole batch. That is
+	// the reason the regions arrive together.
 	const auto &layout = destination.get_descriptor().get_layout();
-	if (layout.get_rank() != rank)
+	if (regions.get_array_rank() != layout.get_rank())
 	{
 		throw std::invalid_argument(
-			"fake_image_reader::read_region: The destination rank does not "
-			"match the rank of the dataset."
+			"fake_image_reader::read: The extents do not have the rank of "
+			"the destination."
 		);
 	}
 
-	std::vector<std::size_t> extents;
+	std::vector<std::size_t> destination_extents;
 	std::vector<std::ptrdiff_t> strides;
-	layout.get_extents(extents);
+	layout.get_extents(destination_extents);
 	layout.get_strides(strides);
-
-	for (std::size_t i = 0; i < rank; ++i)
-	{
-		if (offset[i] + extents[i] > m_extents[i])
-		{
-			throw std::out_of_range(
-				"fake_image_reader::read_region: The region is not contained "
-				"in the dataset."
-			);
-		}
-	}
 
 	const auto data_type = destination.get_descriptor().get_data_type();
 	if (
@@ -121,8 +115,8 @@ void fake_image_reader::read_region(
 		data_type != numerical_type::float32
 	) {
 		throw invalid_operation_error(
-			"fake_image_reader::read_region: The destination data type can "
-			"not be produced from the dataset."
+			"fake_image_reader::read: The destination data type can not be "
+			"produced from the dataset."
 		);
 	}
 
@@ -130,51 +124,84 @@ void fake_image_reader::read_region(
 	if (!base)
 	{
 		throw invalid_operation_error(
-			"fake_image_reader::read_region: The destination is not host "
-			"accessible."
+			"fake_image_reader::read: The destination is not host accessible."
 		);
 	}
 
+	const auto extents = regions.get_extents();
+	const auto array_rank = regions.get_array_rank();
+	const auto leading = array_rank - rank;
 	const auto element_size = get_size(data_type);
-	std::vector<std::size_t> coordinates(rank, 0);
-	auto remaining = std::accumulate(
-		extents.begin(),
-		extents.end(),
-		std::size_t(1),
-		[] (std::size_t lhs, std::size_t rhs) { return lhs * rhs; }
-	);
+	const auto count = compute_element_count(extents);
 
-	while (remaining-- > 0)
+	std::vector<std::size_t> coordinates(array_rank, 0);
+
+	for (std::size_t region = 0; region < regions.get_size(); ++region)
 	{
-		std::size_t source = 0;
-		auto position = layout.get_offset();
+		const auto dataset_offset = regions.get_dataset_offset(region);
+		const auto array_offset = regions.get_array_offset(region);
+
 		for (std::size_t i = 0; i < rank; ++i)
 		{
-			source = (source * m_extents[i]) + offset[i] + coordinates[i];
-			position += static_cast<std::ptrdiff_t>(coordinates[i]) *
-				strides[i];
-		}
-
-		const auto value = m_data[source];
-		auto *target = base + (position * static_cast<std::ptrdiff_t>(
-			element_size
-		));
-		if (data_type == numerical_type::int16)
-		{
-			*reinterpret_cast<std::int16_t*>(target) = value;
-		}
-		else
-		{
-			*reinterpret_cast<float*>(target) = static_cast<float>(value);
-		}
-
-		for (auto i = rank; i-- > 0; )
-		{
-			if (++coordinates[i] < extents[i])
+			if (dataset_offset[i] + extents[leading + i] > m_extents[i])
 			{
-				break;
+				throw std::out_of_range(
+					"fake_image_reader::read: The region is not contained in "
+					"the dataset."
+				);
 			}
-			coordinates[i] = 0;
+		}
+
+		for (std::size_t i = 0; i < array_rank; ++i)
+		{
+			if (array_offset[i] + extents[i] > destination_extents[i])
+			{
+				throw std::out_of_range(
+					"fake_image_reader::read: The region does not fit in the "
+					"destination."
+				);
+			}
+		}
+
+		std::fill(coordinates.begin(), coordinates.end(), std::size_t(0));
+		auto remaining = count;
+		while (remaining-- > 0)
+		{
+			std::size_t source = 0;
+			auto position = layout.get_offset();
+			for (std::size_t i = 0; i < array_rank; ++i)
+			{
+				position += static_cast<std::ptrdiff_t>(
+					array_offset[i] + coordinates[i]
+				) * strides[i];
+			}
+			for (std::size_t i = 0; i < rank; ++i)
+			{
+				source = (source * m_extents[i]) +
+					dataset_offset[i] + coordinates[leading + i];
+			}
+
+			const auto value = m_data[source];
+			auto *target = base + (position * static_cast<std::ptrdiff_t>(
+				element_size
+			));
+			if (data_type == numerical_type::int16)
+			{
+				*reinterpret_cast<std::int16_t*>(target) = value;
+			}
+			else
+			{
+				*reinterpret_cast<float*>(target) = static_cast<float>(value);
+			}
+
+			for (auto i = array_rank; i-- > 0; )
+			{
+				if (++coordinates[i] < extents[i])
+				{
+					break;
+				}
+				coordinates[i] = 0;
+			}
 		}
 	}
 }
