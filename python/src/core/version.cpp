@@ -2,13 +2,14 @@
 
 #include "version.hpp"
 
-#include <xmipp4/core/version.hpp>
+#include <rexlib/core/version.hpp>
+#include <rexlib/core/library_version.hpp>
 
 #include <sstream>
 
 #include <pybind11/operators.h>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace py = pybind11;
@@ -29,12 +30,21 @@ static std::string to_repr(const version &v)
 	return oss.str();
 }
 
+static version get_binding_version() noexcept
+{
+	return version(
+		REXLIB_PYTHON_VERSION_MAJOR,
+		REXLIB_PYTHON_VERSION_MINOR,
+		REXLIB_PYTHON_VERSION_PATCH
+	);
+}
+
 version_class declare_version(pybind11::module_ &m)
 {
 	return version_class(m, "Version");
 }
 
-void define_version(version_class &c)
+void define_version(version_class &c, pybind11::module_ &m)
 {
 	c
 		.def(
@@ -61,7 +71,7 @@ void define_version(version_class &c)
 					v.get_patch()
 				);
 			},
-			[](py::tuple t) -> version  // __setstate__
+			[](py::tuple t)  // __setstate__
 			{
 				return version(
 					t[0].cast<int>(),
@@ -70,6 +80,9 @@ void define_version(version_class &c)
 				);
 			}
 		));
+
+	m.attr("rexlib_version") = get_library_version();
+	m.attr("rexlib_binding_version") = get_binding_version();
 }
 
-} // namespace xmipp4
+} // namespace rexlib

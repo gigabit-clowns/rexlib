@@ -10,6 +10,10 @@
     "description": "Not a poetry project, but supersedes default pep manager if left enabled.",
     "enabled": false
   },
+  "git-submodules": {
+    "description": "Bump the pinned rexlib commit through a PR, so CI vets it.",
+    "enabled": true
+  },
   "customManagers": [
     {
       "description": "Track pybind11, fetched by CMake FetchContent",
@@ -37,6 +41,11 @@
     {
       "description": "Security advisories bypass the 14-day delay",
       "matchUpdateTypes": ["security"],
+      "minimumReleaseAge": "0 days"
+    },
+    {
+      "description": "rexlib is first-party and every job here builds it from source, so a commit need not settle before being bumped.",
+      "matchManagers": ["git-submodules"],
       "minimumReleaseAge": "0 days"
     }
   ]

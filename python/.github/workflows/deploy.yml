@@ -23,25 +23,32 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: true
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
         with:
           python-version: '3.13'
 
-      - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download development -R gigabit-clowns/xmipp4-core -D local_deps/xmipp4-core/dist -p '*.whl' --clobber
+      - name: Set up compiler cache
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        with:
+          key: stubs-ubuntu-latest
+          max-size: 1G
 
+      # Nothing points at a rexlib, so this builds the one in
+      # external/rexlib, the same way a wheel does.
       - name: Install with pip
-        run: pip install . -v --find-links=local_deps/xmipp4-core/dist
+        run: |
+          pip install . -v \
+            -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
+            -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - name: Collect the generated stubs
         run: |
           mkdir -p stubs
-          cp "$(python -c 'import xmipp4, pathlib; print(pathlib.Path(xmipp4.__file__).parent)')"/_core_binding/*.pyi stubs/
+          cp "$(python -c 'import rexlib, pathlib; print(pathlib.Path(rexlib.__file__).parent)')"/_binding/*.pyi stubs/
           ls -l stubs
 
       - name: Upload stubs
@@ -60,27 +67,25 @@ jobs:
             architectures: "x86_64"
           - os: ubuntu-24.04-arm
             architectures: "aarch64"
+          # 10.13 is the oldest a C++17 build supports; arm64 did not
+          # exist before 11.0.
           - os: macos-latest
             architectures: "x86_64"
+            deployment-target: "10.13"
           - os: macos-latest
             architectures: "arm64"
-          - os: macos-latest
-            architectures: "universal2"
+            deployment-target: "11.0"
           - os: windows-latest
             architectures: "AMD64"
-          - os: windows-latest
+          - os: windows-11-arm
             architectures: "ARM64"
 
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download development -R gigabit-clowns/xmipp4-core -D local_deps/xmipp4-core/dist -p '*.whl' --clobber
+        with:
+          submodules: true
 
       - name: Download the type stubs
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
@@ -88,54 +93,83 @@ jobs:
           name: type-stubs
           path: stubs
 
-      - name: Locate MSVC ARM64 redistributable (for delvewheel)
-        # delvewheel resolves DLL dependencies via PATH, which never contains
-        # the arm64 CRT when cross-compiling from an x64 host, so
-        # msvcp140.dll etc. are "not found" for the arm64 wheel unless we
-        # point it there explicitly. See
-        # https://github.com/adang1345/delvewheel/issues/44
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $crt = Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio\*\*\VC\Redist\MSVC\*\arm64\Microsoft.VC*.CRT" -Directory -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-          if (-not $crt) { $crt = $env:RUNNER_TEMP }
-          Add-Content -Path $env:GITHUB_ENV -Value "ARM64_CRT_DIR=$crt"
-
-      - name: Stage xmipp4-core for CMake (Windows)
-        # Bypasses pip: it refuses to install a wheel tagged for a different
-        # platform than the host (blocks ARM64 cross-compilation), and
-        # scikit-build-core's own CMAKE_PREFIX_PATH auto-detection doesn't
-        # account for xmipp4-core's wheel.install-dir = "/data" layout.
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $dest = python scripts/stage-xmipp4-core-windows.py local_deps/xmipp4-core/dist xmipp4-core-prefix "${{ matrix.architectures }}"
-          Add-Content -Path $env:GITHUB_ENV -Value "CMAKE_PREFIX_PATH=$dest"
+      # These two build on the runner itself, so ccache is installed here.
+      # Linux builds happen inside a container, which installs its own.
+      # A Release build carries no debug information, which is the thing
+      # that stops ccache working with MSVC.
+      - name: Set up compiler cache
+        if: runner.os != 'Linux'
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        with:
+          key: wheels-${{ matrix.os }}-${{ matrix.architectures }}
+          max-size: 2G
+          variant: ccache
 
       - name: Build wheels
         uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074 # v4.2.0
         env:
           CIBW_ARCHS: "${{ matrix.architectures }}"
+          # No rexlib is pointed at, so each wheel builds the one in
+          # external/rexlib. That is the point: it is compiled by
+          # cibuildwheel, with whatever architecture, deployment target and
+          # SDK cibuildwheel chose for that wheel, rather than by a step
+          # outside it that has to be told each of those separately.
+          #
+          # ccache is what makes it affordable. The container lives for the
+          # whole job, so the first interpreter compiles rexlib and the rest
+          # read it back.
+          CIBW_BEFORE_ALL_LINUX: >
+            command -v ccache ||
+            dnf install -y ccache ||
+            yum install -y ccache
+          # A platform-specific value replaces the general one rather than
+          # adding to it, so the shared part is repeated.
+          #
+          # ccache hashes the compiler's working directory and absolute
+          # paths by default; every wheel builds in a fresh temporary
+          # directory, so without these nothing would ever hit.
           CIBW_ENVIRONMENT: >-
-            PIP_FIND_LINKS=local_deps/xmipp4-core/dist
-            SKBUILD_CMAKE_DEFINE="XMIPP4_STUBS_DIR=stubs"
-          # Windows skips build isolation entirely (CMAKE_PREFIX_PATH above
-          # already points at xmipp4-core), it only needs the build backend.
-          CIBW_BUILD_FRONTEND_WINDOWS: "build; args: --no-isolation"
-          CIBW_BEFORE_BUILD_WINDOWS: pip install scikit-build-core==1.0.3
-          CIBW_TEST_SKIP: "*-win_arm64" # Windows on ARM cannot be tested, raises warning
-          CIBW_SKIP: "cp3??t-win*" # Skip Python free-threaded builds on Windows
+            SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            CCACHE_DIR=/tmp/ccache
+            CCACHE_BASEDIR=/
+            CCACHE_NOHASHDIR=1
+            CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
+            CCACHE_MAXSIZE=2G
+          CIBW_ENVIRONMENT_MACOS: >-
+            SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}
+            CCACHE_BASEDIR=/
+            CCACHE_NOHASHDIR=1
+            CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
+          CIBW_ENVIRONMENT_WINDOWS: >-
+            SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            CCACHE_BASEDIR=C:/
+            CCACHE_NOHASHDIR=1
+            CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
+          # No musllinux: NVIDIA ships no CUDA for musl, so rexlib-cuda is
+          # manylinux only and an Alpine install could never reach the GPU
+          # backend. torch and cupy skip it for the same reason. Alpine can
+          # still build from the source distribution.
+          CIBW_SKIP: >-
+            cp3??t-win*
+            *-musllinux_*
+          # librexlib now ships inside the wheel, put there by this
+          # project's install rules. auditwheel would otherwise re-vendor
+          # it under a hash-mangled SONAME, which breaks find_package for
+          # plugin authors and the sibling plugin directory lookup.
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             auditwheel repair -w {dest_dir} {wheel}
-            --exclude "libxmipp4-core.so*"
+            --exclude "librexlib.so*"
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: >
             delocate-wheel --require-archs {delocate_archs}
             -w {dest_dir} -v {wheel}
             --ignore-missing-dependencies
+          # rexlib.dll is placed beside the extension by this project's
+          # own install rules; letting delvewheel vendor it would mangle
+          # the name the plugin directory is resolved from.
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
             delvewheel repair -w {dest_dir} -v {wheel}
-            --exclude xmipp4-core.dll
-            --add-path "${{ env.ARM64_CRT_DIR }}"
+            --exclude rexlib.dll
 
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -148,30 +182,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: Download xmipp4-core binaries # TODO: Remove when xmipp4-core is in Pypi
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release download development -R gigabit-clowns/xmipp4-core -D "${{ github.workspace }}/../xmipp4-core/dist" -p '*.whl' --clobber
-
-      - name: Install build tool # TODO: Remove when xmipp4-core is in Pypi
-        run: pip install build
+        with:
+          submodules: true
 
       - name: Build sdist
-        env: # TODO: Remove when xmipp4-core is in Pypi
-          PIP_FIND_LINKS: "${{ github.workspace }}/../xmipp4-core/dist"
-        run: python -m build --sdist # TODO: Remove when xmipp4-core is in Pypi
-        # run: pipx run build --sdist # TODO: Enable when xmipp4-core is in Pypi
+        run: pipx run build --sdist
 
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
 
+  test_sdist:
+    name: Verify the source distribution
+    needs: build_sdist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: cibw-sdist
+          path: dist
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: 3.13
+
+      - name: Install
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: 4
+        run: pip install --verbose dist/*.tar.gz
+
+      - name: Test import
+        run: |
+          cd "$RUNNER_TEMP"
+          python -c "import rexlib; print(rexlib.__version__, rexlib.rexlib_version)"
+          python -c "import rexlib; rexlib.PluginManager().discover_plugins()"
+
   upload_pypi:
     name: Upload to PyPI
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_sdist, test_sdist]
     if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
@@ -190,7 +239,7 @@ jobs:
 
   create_developer_release:
     name: Create development release
-    needs: [build_wheels, build_sdist]
+    needs: [build_wheels, build_sdist, test_sdist]
     runs-on: ubuntu-latest
     permissions:
       contents: write

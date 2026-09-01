@@ -2,54 +2,52 @@
 
 #include "arithmetic.hpp"
 
-#include <xmipp4/functional/arithmetic.hpp>
-#include <xmipp4/core/ndarray/array.hpp>
-#include <xmipp4/core/dispatch/execution_context.hpp>
+#include <rexlib/functional/arithmetic.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/dispatch/execution_context.hpp>
 
 #include <pybind11/stl.h>
 
 #include <optional>
 
-namespace xmipp4
-{
-namespace functional
+namespace rexlib
 {
 
 namespace py = pybind11;
 
-static array py_add(array &x, array &y, const execution_context &context, std::optional<array*> out)
+static array py_add(const array &x, const array &y, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::add(x, y, context, out.value_or(nullptr));
+	return rexlib::add(x, y, context, out.value_or(nullptr));
 }
 
-static array py_subtract(array &x, array &y, const execution_context &context, std::optional<array*> out)
+static array py_subtract(const array &x, const array &y, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::subtract(x, y, context, out.value_or(nullptr));
+	return rexlib::subtract(x, y, context, out.value_or(nullptr));
 }
 
-static array py_negate(array &x, const execution_context &context, std::optional<array*> out)
+static array py_negate(const array &x, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::negate(x, context, out.value_or(nullptr));
+	return rexlib::negate(x, context, out.value_or(nullptr));
 }
 
-static array py_abs(array &x, const execution_context &context, std::optional<array*> out)
+static array py_abs(const array &x, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::abs(x, context, out.value_or(nullptr));
+	return rexlib::abs(x, context, out.value_or(nullptr));
 }
 
-static array py_multiply(array &x, array &y, const execution_context &context, std::optional<array*> out)
+static array py_multiply(const array &x, const array &y, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::multiply(x, y, context, out.value_or(nullptr));
+	return rexlib::multiply(x, y, context, out.value_or(nullptr));
 }
 
-static array py_divide(array &x, array &y, const execution_context &context, std::optional<array*> out)
+static array py_divide(const array &x, const array &y, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::divide(x, y, context, out.value_or(nullptr));
+	return rexlib::divide(x, y, context, out.value_or(nullptr));
 }
 
-static array py_modulo(array &x, array &y, const execution_context &context, std::optional<array*> out)
+static array py_modulo(const array &x, const array &y, const execution_context &context, std::optional<array*> out)
 {
-	return xmipp4::modulo(x, y, context, out.value_or(nullptr));
+	return rexlib::modulo(x, y, context, out.value_or(nullptr));
 }
 
 void bind_arithmetic(pybind11::module_ &m)
@@ -84,5 +82,4 @@ void bind_arithmetic(pybind11::module_ &m)
 	);
 }
 
-} // namespace functional
-} // namespace xmipp4
+} // namespace rexlib

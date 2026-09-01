@@ -2,11 +2,11 @@
 
 #include "plugin.hpp"
 
-#include <xmipp4/core/plugin.hpp>
+#include <rexlib/core/plugin.hpp>
 
 #include <sstream>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace py = pybind11;
@@ -33,4 +33,4 @@ void define_plugin(plugin_class &c)
 
 	}
 }
- // namespace xmipp4
+ // namespace rexlib

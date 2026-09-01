@@ -4,14 +4,14 @@
 
 #include <pybind11/pybind11.h>
 
-#include <xmipp4/core/version.hpp>
+#include <rexlib/core/version.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 using version_class = pybind11::class_<version>;
 
 version_class declare_version(pybind11::module_ &m);
-void define_version(version_class &c);
+void define_version(version_class &c, pybind11::module_ &m);
 
-} // namespace xmipp4
+} // namespace rexlib

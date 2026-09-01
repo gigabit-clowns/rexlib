@@ -43,4 +43,7 @@ tests/__pycache__
 .ruff_cache
 
 # Type stubs, generated when the bindings are built
-python/xmipp4/_core_binding
+python/rexlib/_binding
+
+# CCache
+ccache*

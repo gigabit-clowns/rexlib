@@ -67,8 +67,8 @@ def main() -> None:
 	with tempfile.TemporaryDirectory() as staging:
 		run_stubgen(arguments.module, arguments.search_path, staging)
 
-		# pybind11-stubgen mirrors the module path, so xmipp4._core_binding
-		# lands in xmipp4/_core_binding.
+		# pybind11-stubgen mirrors the module path, so rexlib._binding
+		# lands in rexlib/_binding.
 		generated = pathlib.Path(staging).joinpath(
 			*arguments.module.split(".")
 		)

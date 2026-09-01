@@ -2,11 +2,11 @@
 
 #include "service_catalog.hpp"
 
-#include <xmipp4/core/service_catalog.hpp>
+#include <rexlib/core/service_catalog.hpp>
 
-#include <xmipp4/core/plugin_manager.hpp>
+#include <rexlib/core/plugin_manager.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 namespace py = pybind11;
@@ -30,4 +30,4 @@ void define_service_catalog(service_catalog_class &c)
 		);
 }
 
-} // namespace xmipp4
+} // namespace rexlib

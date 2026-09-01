@@ -7,9 +7,7 @@
 #include "creation.hpp"
 #include "transfer.hpp"
 
-namespace xmipp4
-{
-namespace functional
+namespace rexlib
 {
 
 void bind_functional(pybind11::module_ &m)
@@ -20,5 +18,4 @@ void bind_functional(pybind11::module_ &m)
 	bind_transfer(m);
 }
 
-} // namespace functional
-} // namespace xmipp4
+} // namespace rexlib

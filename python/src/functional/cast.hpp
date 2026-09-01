@@ -4,12 +4,9 @@
 
 #include <pybind11/pybind11.h>
 
-namespace xmipp4
-{
-namespace functional
+namespace rexlib
 {
 
 void bind_cast(pybind11::module_ &m);
 
-} // namespace functional
-} // namespace xmipp4
+} // namespace rexlib

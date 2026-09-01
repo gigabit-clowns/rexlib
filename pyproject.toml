@@ -1,19 +1,18 @@
 [build-system]
 requires = [
 	"scikit-build-core==1.0.3",
-	"xmipp4-core==0.1.*",
 	"pybind11-stubgen==2.5.5"
 ]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "xmipp4-python"
+name = "rexlib"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
     { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
 ]
-description = "Python binding for the xmipp4 framework"
+description = "Python binding for the rexlib framework"
 classifiers = [
 	"Topic :: Scientific/Engineering :: Image Processing",
 	"Intended Audience :: Science/Research",
@@ -35,9 +34,7 @@ readme = {file = "README.md", content-type = "text/markdown"}
 license = "GPL-3.0-only"
 
 requires-python = ">=3.9"
-dependencies = [
-    "xmipp4-core==0.1.*"
-] 
+dependencies = []
 
 [project.optional-dependencies]
 test = [
@@ -47,19 +44,36 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/gigabit-clowns/xmipp4-python"
-Issues = "https://github.com/gigabit-clowns/xmipp4-python/issues"
+Homepage = "https://github.com/gigabit-clowns/rexlib-python"
+Issues = "https://github.com/gigabit-clowns/rexlib-python/issues"
 
 [tool.scikit-build]
-experimental=true # For wheel.install-dir
-wheel.install-dir="/data"
+# git ls-files does not report a submodule's contents, so the rexlib source
+# has to be named explicitly or the sdist would carry an empty directory and
+# fail to build.
+sdist.include = ["external/rexlib/**"]
+
+# The wheel's install prefix is the package directory, so anything installed
+# relative to it - a rexlib built from this source distribution - lands beside
+# the extension under the ordinary lib/ and include/.
+wheel.install-dir = "rexlib"
+
+# Everything except rexlib's namelink, the unversioned librexlib.so. A wheel
+# cannot hold a symlink, so it would be stored as a second full copy of a
+# 50 MB library. "Unspecified" is this project's own rules, which name no
+# component; the other two are absent unless rexlib is built from source here.
+#
+# In this order: they are installed one at a time, and generating the type
+# stubs imports the extension, which does not load until rexlib is in place.
+install.components = ["rexlib_runtime", "rexlib_development", "Unspecified"]
+
 cmake.version = ">=3.18"
 cmake.args = []
 build.verbose = false
 cmake.build-type = "Release"
 
 [tool.scikit-build.cmake.define]
-BUILD_TESTING = "OFF"
+REXLIB_PYTHON_BUILD_TESTING = "OFF"
 
 [tool.scikit-build.metadata.version]
 provider = "scikit_build_core.metadata.regex"
@@ -67,5 +81,11 @@ input = "VERSION"
 regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
 
 [tool.cibuildwheel]
-#test-command = "{project}/scripts/run_test.sh" # TODO add when xmipp4-core is in PyPI
+# Run from a temporary directory, so this imports the installed wheel rather
+# than the source tree beside it. It is the one check that the library the
+# wheel carries is found at run time, which no amount of building proves.
+test-command = "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\""
+
+# The full suite is not run here; build-and-test already does that per
+# platform, and this has to stay cheap enough for every wheel.
 #test-extras = ["test"]

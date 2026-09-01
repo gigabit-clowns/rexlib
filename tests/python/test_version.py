@@ -1,13 +1,14 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 import pickle
+from importlib import metadata
 
 import pytest
 
-import xmipp4
+import rexlib
 
 def test_constructor():
-  v = xmipp4.Version(1234, 567, 890)
+  v = rexlib.Version(1234, 567, 890)
   assert (
     (
       v.major, v.minor, v.patch
@@ -24,8 +25,8 @@ def test_constructor():
   ],
 )
 def test_versions_are_equal(major, minor, patch, is_equal):
-  v1 = xmipp4.Version(major, minor, patch)
-  v2 = xmipp4.Version(1, 2, 3)
+  v1 = rexlib.Version(major, minor, patch)
+  v2 = rexlib.Version(1, 2, 3)
   assert (v1 == v2) == is_equal
 
 @pytest.mark.parametrize(
@@ -38,8 +39,8 @@ def test_versions_are_equal(major, minor, patch, is_equal):
   ],
 )
 def test_versions_are_not_equal(major, minor, patch, is_not_equal):
-  v1 = xmipp4.Version(major, minor, patch)
-  v2 = xmipp4.Version(1, 2, 3)
+  v1 = rexlib.Version(major, minor, patch)
+  v2 = rexlib.Version(1, 2, 3)
   assert (v1 != v2) == is_not_equal
 
 @pytest.mark.parametrize(
@@ -55,8 +56,8 @@ def test_versions_are_not_equal(major, minor, patch, is_not_equal):
   ],
 )
 def test_version_is_less(major, minor, patch, is_less):
-  v1 = xmipp4.Version(major, minor, patch)
-  v2 = xmipp4.Version(1, 2, 3)
+  v1 = rexlib.Version(major, minor, patch)
+  v2 = rexlib.Version(1, 2, 3)
   assert (v1 < v2) == is_less
 
 @pytest.mark.parametrize(
@@ -72,8 +73,8 @@ def test_version_is_less(major, minor, patch, is_less):
   ],
 )
 def test_version_is_less_or_equal(major, minor, patch, is_less_or_equal):
-  v1 = xmipp4.Version(major, minor, patch)
-  v2 = xmipp4.Version(1, 2, 3)
+  v1 = rexlib.Version(major, minor, patch)
+  v2 = rexlib.Version(1, 2, 3)
   assert (v1 <= v2) == is_less_or_equal
 
 @pytest.mark.parametrize(
@@ -89,8 +90,8 @@ def test_version_is_less_or_equal(major, minor, patch, is_less_or_equal):
   ],
 )
 def test_version_is_greater(major, minor, patch, is_greater):
-  v1 = xmipp4.Version(major, minor, patch)
-  v2 = xmipp4.Version(1, 2, 3)
+  v1 = rexlib.Version(major, minor, patch)
+  v2 = rexlib.Version(1, 2, 3)
   assert (v1 > v2) == is_greater
 
 @pytest.mark.parametrize(
@@ -106,16 +107,33 @@ def test_version_is_greater(major, minor, patch, is_greater):
   ],
 )
 def test_version_is_greater_or_equal(major, minor, patch, is_greater_or_equal):
-  v1 = xmipp4.Version(major, minor, patch)
-  v2 = xmipp4.Version(1, 2, 3)
+  v1 = rexlib.Version(major, minor, patch)
+  v2 = rexlib.Version(1, 2, 3)
   assert (v1 >= v2) == is_greater_or_equal
 
 def test_version_to_string():
-  v = xmipp4.Version(1234, 567, 890)
+  v = rexlib.Version(1234, 567, 890)
   assert str(v) == "1234.567.890"
 
 def test_pickle():
-  v = xmipp4.Version(1234, 567, 890)
+  v = rexlib.Version(1234, 567, 890)
   pickled = pickle.dumps(v)
   unpickled = pickle.loads(pickled)
   assert v == unpickled
+
+def test_binding_version_is_the_distribution_version():
+  # Not the C++ library's: the two are versioned independently.
+  assert isinstance(rexlib.__version__, str)
+
+  try:
+    installed = metadata.version("rexlib")
+  except metadata.PackageNotFoundError:
+    pytest.skip("rexlib is on the path but not installed")
+  assert rexlib.__version__ == installed
+
+def test_reports_the_rexlib_version():
+  # The C++ library's, versioned independently of this binding.
+  v = rexlib.rexlib_version
+  assert isinstance(v, rexlib.Version)
+  assert (v.major, v.minor, v.patch) >= (0, 1, 0)
+  assert str(v) == f"{v.major}.{v.minor}.{v.patch}"

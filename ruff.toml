@@ -32,9 +32,8 @@ ignore = [
   "PLR0917", # Too many positional arguments
   "PLR2004"  # Asserting against literal values is the point of a test
 ]
-"python/xmipp4/__init__.py" = [
+"python/rexlib/__init__.py" = [
   "D104", # __doc__ is re-exported from the compiled extension, not written here
-  "E402", # imports must follow load_core() preloading xmipp4-core.dll
 ]
 
 [lint.pydocstyle]

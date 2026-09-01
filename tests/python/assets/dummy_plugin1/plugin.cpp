@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <xmipp4/core/plugin.hpp>
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/plugin.hpp>
+#include <rexlib/core/platform/dynamic_shared_object.h>
 
-#if defined(XMIPP4_DUMMY_PLUGIN1_EXPORTING)
-    #define XMIPP4_DUMMY_PLUGIN1_API XMIPP4_EXPORT
+#if defined(REXLIB_DUMMY_PLUGIN1_EXPORTING)
+    #define REXLIB_DUMMY_PLUGIN1_API REXLIB_EXPORT
 #else
-    #define XMIPP4_DUMMY_PLUGIN1_API XMIPP4_IMPORT
+    #define REXLIB_DUMMY_PLUGIN1_API REXLIB_IMPORT
 #endif
 
-namespace xmipp4
+namespace rexlib
 {
 
 static const std::string name = "dummy-plugin1";
 
 class dummy_plugin1 final
-    : public xmipp4::plugin
+    : public rexlib::plugin
 {
     const std::string& get_name() const noexcept final
     {
@@ -33,13 +33,13 @@ class dummy_plugin1 final
     }
 };
 
-} // namespace xmipp4
+} // namespace rexlib
 
-static const xmipp4::dummy_plugin1 instance;
+static const rexlib::dummy_plugin1 instance;
 
 extern "C"
 {
-XMIPP4_DUMMY_PLUGIN1_API const xmipp4::plugin* xmipp4_get_plugin() 
+REXLIB_DUMMY_PLUGIN1_API const rexlib::plugin* rexlib_get_plugin() 
 {
     return &instance;
 }
