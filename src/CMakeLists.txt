@@ -121,8 +121,7 @@ rexlib_add_component(rexlib-core-obj core)
 rexlib_add_component(rexlib-ops-obj ops)
 rexlib_add_component(rexlib-functional-obj functional)
 rexlib_add_component(rexlib-cpu-obj backends/cpu)
-# NOTE: register src/em as rexlib-em-obj once it has sources (an empty
-# GLOB would make add_library fail).
+rexlib_add_component(rexlib-em-obj em)
 
 # Assemble the single shared library from the component objects
 add_library(
@@ -132,6 +131,7 @@ add_library(
 		$<TARGET_OBJECTS:rexlib-ops-obj>
 		$<TARGET_OBJECTS:rexlib-functional-obj>
 		$<TARGET_OBJECTS:rexlib-cpu-obj>
+		$<TARGET_OBJECTS:rexlib-em-obj>
 )
 set_target_properties(
 	rexlib

@@ -14,11 +14,12 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `include/rexlib/` | The public headers, 234 `.hpp` and 26 `.inl` |
+| `include/rexlib/` | The public headers, 237 `.hpp` and 26 `.inl` |
 | `src/` | The implementation, plus headers that are not public |
 | `src/backends/cpu/` | The CPU backend: builders, kernels, loops, plans |
 | `src/core/` | Dispatch, layouts, hardware abstraction, plugin loading |
 | `src/ops/`, `src/functional/`, `src/em/` | Operation declarations and the functions that reach them |
+| `src/em/image/` | The image I/O subsystem, one directory per file format |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
 | `cmake/modules/` | One `fetch_*.cmake` per dependency |
 | `cmake/config/` | The template for the installed CMake package config |

@@ -1,8 +1,8 @@
-# em — CryoEM domain component (placeholder)
+# em — CryoEM domain component
 
-This directory reserves the layout for the CryoEM-specific operation set.
-It follows the same conventions as the generic components and must be kept
-in sync with them.
+This directory holds the CryoEM-specific operation set and the image I/O
+subsystem. It follows the same conventions as the generic components and
+must be kept in sync with them.
 
 ## Layout
 
@@ -10,23 +10,27 @@ in sync with them.
 include/rexlib/em/
 ├── ops/<category>/     CryoEM operation definitions
 │                       (e.g. ops/projection/project_3d_operation.hpp)
-└── functional/         user-facing verbs (e.g. project_3d(...))
+├── functional/         user-facing verbs (e.g. project_3d(...))
+└── image/              image I/O interfaces and value types
 src/em/
 ├── ops/<category>/     operation implementations
-└── functional/         verb implementations
+├── functional/         verb implementations
+└── image/              I/O implementations, formats/<fmt>/ per file format
 ```
 
 ## Namespace
 
 Everything in this component lives in `rexlib::em` (one namespace per
-component). Operations and verbs share it: `em::project_3d_operation`,
-`em::project_3d(...)`.
+component). Operations, verbs and image I/O share it, and the directories
+group without nesting the namespace: `em::project_3d_operation`,
+`em::project_3d(...)`, `em::image_reader`.
 
 ## Dependencies
 
-`em` may depend on `core`, `ops` and `functional`. Nothing outside `em/`
-may include `rexlib/em/` headers, and `core` must never learn about this
-component. Keep the arrows pointing downwards.
+`em` may depend on `core`, `ops` and `functional`. `core`, `ops` and
+`functional` must never include `rexlib/em/` headers; backends and plugins
+may, since that is how they implement em builders and formats. Keep the
+arrows pointing downwards.
 
 ## Backend builders
 
@@ -62,6 +66,32 @@ The in-tree CPU builders are the reference tier: every em operation must
 have a (possibly naive) CPU builder before it is merged. Accelerator
 backends are best effort; optimized plugins may override the reference
 builders by reporting a higher `backend_priority`.
+
+## Image I/O
+
+`image/` is a two-tier subsystem. Tier one is synchronous and per file: an
+`image_reader` or `image_writer` exposes exactly **one rectangular ND
+dataset**, and every access is one hyperrectangle of it. Element `i` of an
+`(N,H,W)` stack is the box at offset `(i,0,0)` with extents `(1,H,W)`; a
+patch of an `(H,W)` micrograph is the box at `(y,x)` with extents `(h,w)`.
+There is one read verb, not one per access pattern. Random versus sequential
+is a property of a sequence of requests, so it belongs to tier two and to the
+access hint given when the file is opened.
+
+A reader always produces correct data for any in-bounds box; what varies
+between formats is the price, which `image_access_traits` advertises. Thread
+safety follows the same rule: `read_region` is always safe to call
+concurrently, and the `concurrent_read` flag says whether doing so buys
+throughput, never whether it is allowed.
+
+Formats are registered per action. `image_read_format` and
+`image_write_format` are separate interfaces with separate registries and
+separate `service_manager`s, so a consumer that only reads never constructs
+the write side. Each format `.cpp` ends in a `REXLIB_REGISTER_IMAGE_*_FORMAT`
+macro; there is no registrar list to add to.
+
+Tier two — asynchronous batching, scheduling and the scratch cache — is not
+implemented yet.
 
 ## Adding an operation (checklist)
 

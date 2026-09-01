@@ -16,6 +16,7 @@ add_executable(
 	$<TARGET_OBJECTS:rexlib-ops-obj>
 	$<TARGET_OBJECTS:rexlib-functional-obj>
 	$<TARGET_OBJECTS:rexlib-cpu-obj>
+	$<TARGET_OBJECTS:rexlib-em-obj>
 )
 target_compile_definitions(
 	rexlib-unitary-tests
