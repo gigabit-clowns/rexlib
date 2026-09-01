@@ -16,10 +16,10 @@ namespace em
 {
 
 /**
- * @brief Address of one element inside an image dataset.
+ * @brief Address of one element inside an image file.
  *
- * The pair of a path to a dataset and a zero based index along the slowest
- * axis of that dataset. The index @ref no_position addresses the dataset as a
+ * The pair of a path to a file and a zero based index along the slowest
+ * axis of that file. The index @ref no_position addresses the file as a
  * whole rather than one of its elements, which is how a file holding a single
  * image or volume is named.
  *
@@ -32,7 +32,7 @@ class image_location
 {
 public:
 	/**
-	 * @brief Index addressing the dataset rather than one of its elements.
+	 * @brief Index addressing the file rather than one of its elements.
 	 */
 	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t no_position =
 		std::numeric_limits<std::size_t>::max();
@@ -40,9 +40,9 @@ public:
 	/**
 	 * @brief Construct a location from its components.
 	 *
-	 * @param path Path to the dataset holding the element.
+	 * @param path Path to the file holding the element.
 	 * @param position Zero based index of the element along the slowest axis
-	 * of the dataset, or @ref no_position to address the whole dataset.
+	 * of the file, or @ref no_position to address the whole file.
 	 */
 	REXLIB_API
 	explicit image_location(
@@ -76,7 +76,7 @@ public:
 	std::size_t hash() const noexcept;
 
 	/**
-	 * @brief Get the path to the dataset.
+	 * @brief Get the path to the file.
 	 *
 	 * @return const std::string& Reference to the stored path. The reference
 	 * is valid for the lifetime of this @ref image_location and is
@@ -86,10 +86,10 @@ public:
 	const std::string& get_path() const noexcept;
 
 	/**
-	 * @brief Get the index of the element within the dataset.
+	 * @brief Get the index of the element within the file.
 	 *
 	 * @return std::size_t The zero based index along the slowest axis of the
-	 * dataset, or @ref no_position when the location addresses the dataset
+	 * file, or @ref no_position when the location addresses the file
 	 * as a whole.
 	 */
 	REXLIB_API
@@ -160,8 +160,8 @@ private:
  * @brief Parse an image location from its string representation.
  *
  * The representation is expected to be:
- * <index>@<path> (a one based index into the dataset)
- * <path> (addresses the dataset as a whole)
+ * <index>@<path> (a one based index into the file)
+ * <path> (addresses the file as a whole)
  *
  * The index is one based to match the convention used by the star files of
  * the field, while @ref image_location::get_position_in_stack is zero based;
@@ -182,7 +182,7 @@ bool parse_image_location(const std::string &text, image_location &result);
  * @brief Write an image location as its string representation.
  *
  * The exact inverse of @ref parse_image_location: a location addressing the
- * whole dataset is written as a bare path, and any other location is prefixed
+ * whole file is written as a bare path, and any other location is prefixed
  * with its one based index.
  *
  * @param location The location to be written.

@@ -18,7 +18,7 @@ namespace em
 /**
  * @brief An image_writer backed by a vector instead of by a file.
  *
- * The mirror of @ref fake_image_reader: it lays out a dataset of sixteen bit
+ * The mirror of @ref fake_image_reader: it lays out a file of sixteen bit
  * integers when it is constructed and takes regions of int16 or float32
  * into it.
  */
@@ -40,7 +40,7 @@ public:
 	void flush() override;
 
 	/**
-	 * @brief Get the value the dataset holds at a linear position.
+	 * @brief Get the value the file holds at a linear position.
 	 */
 	std::int16_t get_element(std::size_t index) const;
 

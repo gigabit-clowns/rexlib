@@ -61,14 +61,14 @@ public:
 	get_suitability(const image_probe &probe) const = 0;
 
 	/**
-	 * @brief Create a dataset and open it for writing.
+	 * @brief Create a file and open it for writing.
 	 *
 	 * The descriptor is complete, so the file may be laid out in full before
 	 * anything is written. Any file already at that path is replaced.
 	 *
 	 * @param probe The file to create.
-	 * @param options How the dataset will be walked.
-	 * @param descriptor The extents and the data type of the dataset to
+	 * @param options How the file will be walked.
+	 * @param descriptor The extents and the data type of the file to
 	 * create.
 	 * @param metadata How its samples map onto physical space. A format
 	 * writes what of it it can carry and ignores the rest.

@@ -28,7 +28,7 @@ TEST_CASE(
 			image_location::no_position );
 	}
 
-	SECTION( "a location without a position addresses the whole dataset" )
+	SECTION( "a location without a position addresses the whole file" )
 	{
 		const image_location location("stack.mrcs");
 
@@ -126,7 +126,7 @@ TEST_CASE( "image_location orders by path before position", "[image_location]" )
 		REQUIRE( first >= second );
 	}
 
-	SECTION( "sorting groups every element of a dataset together" )
+	SECTION( "sorting groups every element of a file together" )
 	{
 		std::vector<image_location> locations = {
 			image_location("b.mrcs", 1),
@@ -191,7 +191,7 @@ TEST_CASE( "image_location parses its string form", "[image_location]" )
 		REQUIRE( location.get_position_in_stack() == 0 );
 	}
 
-	SECTION( "a bare path addresses the whole dataset" )
+	SECTION( "a bare path addresses the whole file" )
 	{
 		REQUIRE( parse_image_location("stack.mrcs", location) );
 		REQUIRE( location.get_path() == "stack.mrcs" );
@@ -253,7 +253,7 @@ TEST_CASE( "image_location writes its string form", "[image_location]" )
 			"3@stack.mrcs" );
 	}
 
-	SECTION( "a whole dataset is written as a bare path" )
+	SECTION( "a whole file is written as a bare path" )
 	{
 		REQUIRE( to_string(image_location("stack.mrcs")) == "stack.mrcs" );
 	}

@@ -21,7 +21,7 @@ namespace em
  * @brief An image_reader backed by a vector instead of by a file.
  *
  * Stands in for a format so that the interface can be exercised before one
- * exists. It holds a contiguous dataset of sixteen bit integers, which is
+ * exists. It holds a contiguous file of sixteen bit integers, which is
  * the encoding the conversion rule matters most for, and serves regions of
  * it into destinations of int16 or float32.
  */
@@ -47,7 +47,7 @@ public:
 	) const override;
 
 	/**
-	 * @brief Get the value the dataset holds at a linear position.
+	 * @brief Get the value the file holds at a linear position.
 	 */
 	std::int16_t get_element(std::size_t index) const;
 

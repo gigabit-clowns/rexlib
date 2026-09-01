@@ -42,7 +42,7 @@ public:
 	 *
 	 * @param granularity Extents of the smallest region the reader can read
 	 * for the price of one element. Its size must equal the rank of the
-	 * dataset.
+	 * file.
 	 * @param flags The advertised properties.
 	 * @param preferred_data_type The data type a read produces without
 	 * converting.

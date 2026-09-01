@@ -24,12 +24,12 @@ using namespace rexlib::em;
 namespace
 {
 
-const std::vector<std::size_t> dataset_extents = {2, 3, 4};
+const std::vector<std::size_t> file_extents = {2, 3, 4};
 
 array_descriptor make_descriptor()
 {
 	return array_descriptor(
-		strided_layout::make_contiguous_layout(make_span(dataset_extents)),
+		strided_layout::make_contiguous_layout(make_span(file_extents)),
 		numerical_type::int16
 	);
 }
@@ -154,7 +154,7 @@ TEST_CASE( "the write manager picks the most suitable format",
 
 		std::vector<std::size_t> extents;
 		writer->get_descriptor().get_layout().get_extents(extents);
-		REQUIRE( extents == dataset_extents );
+		REQUIRE( extents == file_extents );
 	}
 }
 

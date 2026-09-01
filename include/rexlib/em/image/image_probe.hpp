@@ -25,7 +25,7 @@ namespace em
  *
  * It is filled when it is constructed and never changes afterwards, which is
  * what lets it be shared. A file that does not exist yields a probe with no
- * leading bytes rather than an error, since opening a dataset for writing
+ * leading bytes rather than an error, since opening a file for writing
  * names a file that is not there yet and the decision then rests on the
  * extension alone.
  */

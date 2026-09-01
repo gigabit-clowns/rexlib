@@ -8,19 +8,19 @@ namespace em
 {
 
 image_open_options::image_open_options() noexcept
-	: m_dataset_index(0)
+	: m_image_index(0)
 	, m_access_hint(image_access_hint::none)
 {
 }
 
-void image_open_options::set_dataset_index(std::size_t index) noexcept
+void image_open_options::set_image_index(std::size_t index) noexcept
 {
-	m_dataset_index = index;
+	m_image_index = index;
 }
 
-std::size_t image_open_options::get_dataset_index() const noexcept
+std::size_t image_open_options::get_image_index() const noexcept
 {
-	return m_dataset_index;
+	return m_image_index;
 }
 
 void image_open_options::set_access_hint(image_access_hint hint) noexcept

@@ -26,7 +26,7 @@ TEST_CASE( "an image_region_batch starts empty", "[image_region_batch]" )
 	const image_region_batch regions;
 
 	REQUIRE( regions.get_size() == 0 );
-	REQUIRE( regions.get_dataset_rank() == 0 );
+	REQUIRE( regions.get_file_rank() == 0 );
 	REQUIRE( regions.get_array_rank() == 0 );
 	REQUIRE( regions.get_extents().empty() );
 }
@@ -42,25 +42,25 @@ TEST_CASE( "an image_region_batch carries offsets on both sides",
 	{
 		REQUIRE( to_vector(regions.get_extents()) == extents );
 		REQUIRE( regions.get_array_rank() == 3 );
-		REQUIRE( regions.get_dataset_rank() == 3 );
+		REQUIRE( regions.get_file_rank() == 3 );
 		REQUIRE( regions.get_size() == 0 );
 	}
 
 	SECTION( "added regions are read back in order" )
 	{
-		const std::size_t first_dataset[3] = {2, 0, 0};
+		const std::size_t first_file[3] = {2, 0, 0};
 		const std::size_t first_array[3] = {0, 0, 0};
-		const std::size_t second_dataset[3] = {1, 0, 0};
+		const std::size_t second_file[3] = {1, 0, 0};
 		const std::size_t second_array[3] = {1, 0, 0};
-		regions.add(make_span(first_dataset, 3), make_span(first_array, 3));
-		regions.add(make_span(second_dataset, 3), make_span(second_array, 3));
+		regions.add(make_span(first_file, 3), make_span(first_array, 3));
+		regions.add(make_span(second_file, 3), make_span(second_array, 3));
 
 		REQUIRE( regions.get_size() == 2 );
-		REQUIRE( to_vector(regions.get_dataset_offset(0)) ==
+		REQUIRE( to_vector(regions.get_file_offset(0)) ==
 			std::vector<std::size_t>{2, 0, 0} );
 		REQUIRE( to_vector(regions.get_array_offset(0)) ==
 			std::vector<std::size_t>{0, 0, 0} );
-		REQUIRE( to_vector(regions.get_dataset_offset(1)) ==
+		REQUIRE( to_vector(regions.get_file_offset(1)) ==
 			std::vector<std::size_t>{1, 0, 0} );
 		REQUIRE( to_vector(regions.get_array_offset(1)) ==
 			std::vector<std::size_t>{1, 0, 0} );
@@ -74,7 +74,7 @@ TEST_CASE( "an image_region_batch carries offsets on both sides",
 
 		REQUIRE( regions.get_size() == 0 );
 		REQUIRE( to_vector(regions.get_extents()) == extents );
-		REQUIRE( regions.get_dataset_rank() == 3 );
+		REQUIRE( regions.get_file_rank() == 3 );
 	}
 
 	SECTION( "resetting again drops the regions" )
@@ -90,7 +90,7 @@ TEST_CASE( "an image_region_batch carries offsets on both sides",
 	}
 }
 
-TEST_CASE( "an image_region_batch allows a dataset of lower rank",
+TEST_CASE( "an image_region_batch allows a file of lower rank",
 	"[image_region_batch]" )
 {
 	SECTION( "a batch of patches cut from a two dimensional micrograph" )
@@ -99,17 +99,17 @@ TEST_CASE( "an image_region_batch allows a dataset of lower rank",
 		image_region_batch regions;
 		regions.reset(make_span(extents), 2);
 
-		const std::size_t dataset_offset[2] = {10, 20};
+		const std::size_t file_offset[2] = {10, 20};
 		const std::size_t array_offset[3] = {0, 0, 0};
-		regions.add(make_span(dataset_offset, 2), make_span(array_offset, 3));
+		regions.add(make_span(file_offset, 2), make_span(array_offset, 3));
 
-		REQUIRE( regions.get_dataset_rank() == 2 );
+		REQUIRE( regions.get_file_rank() == 2 );
 		REQUIRE( regions.get_array_rank() == 3 );
-		REQUIRE( to_vector(regions.get_dataset_offset(0)) ==
+		REQUIRE( to_vector(regions.get_file_offset(0)) ==
 			std::vector<std::size_t>{10, 20} );
 	}
 
-	SECTION( "the extents the dataset does not span must be one" )
+	SECTION( "the extents the file does not span must be one" )
 	{
 		const std::vector<std::size_t> extents = {2, 4, 4};
 		image_region_batch regions;
@@ -120,7 +120,7 @@ TEST_CASE( "an image_region_batch allows a dataset of lower rank",
 		);
 	}
 
-	SECTION( "a dataset rank above the rank of the extents is refused" )
+	SECTION( "a file rank above the rank of the extents is refused" )
 	{
 		const std::vector<std::size_t> extents = {4, 4};
 		image_region_batch regions;
@@ -142,7 +142,7 @@ TEST_CASE( "an image_region_batch refuses an offset of the wrong rank",
 	const std::size_t two[2] = {0, 0};
 	const std::size_t three[3] = {0, 0, 0};
 
-	SECTION( "the dataset offset must have the dataset rank" )
+	SECTION( "the file offset must have the file rank" )
 	{
 		REQUIRE_THROWS_AS(
 			regions.add(make_span(two, 2), make_span(three, 3)),
@@ -186,17 +186,17 @@ TEST_CASE( "an image_region_batch reused across batches stops allocating",
 		regions.clear();
 		for (std::size_t i = 0; i < batch; ++i)
 		{
-			const std::size_t dataset_offset[3] = {i % 4, 0, 0};
+			const std::size_t file_offset[3] = {i % 4, 0, 0};
 			const std::size_t array_offset[3] = {i, 0, 0};
 			regions.add(
-				make_span(dataset_offset, 3),
+				make_span(file_offset, 3),
 				make_span(array_offset, 3)
 			);
 		}
 	};
 
 	fill();
-	const auto *dataset_data = regions.get_dataset_offset(0).data();
+	const auto *file_data = regions.get_file_offset(0).data();
 	const auto *array_data = regions.get_array_offset(0).data();
 
 	SECTION( "refilling keeps every region" )
@@ -213,7 +213,7 @@ TEST_CASE( "an image_region_batch reused across batches stops allocating",
 		for (std::size_t repeat = 0; repeat < 8; ++repeat)
 		{
 			fill();
-			REQUIRE( regions.get_dataset_offset(0).data() == dataset_data );
+			REQUIRE( regions.get_file_offset(0).data() == file_data );
 			REQUIRE( regions.get_array_offset(0).data() == array_data );
 		}
 	}
@@ -224,9 +224,9 @@ TEST_CASE( "an image_region_batch has value semantics", "[image_region_batch]" )
 	const std::vector<std::size_t> extents = {1, 3, 5};
 	image_region_batch regions;
 	regions.reset(make_span(extents), 3);
-	const std::size_t dataset_offset[3] = {2, 0, 0};
+	const std::size_t file_offset[3] = {2, 0, 0};
 	const std::size_t array_offset[3] = {1, 0, 0};
-	regions.add(make_span(dataset_offset, 3), make_span(array_offset, 3));
+	regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
 
 	SECTION( "a copy holds the same regions" )
 	{
@@ -234,7 +234,7 @@ TEST_CASE( "an image_region_batch has value semantics", "[image_region_batch]" )
 
 		REQUIRE( copy.get_size() == 1 );
 		REQUIRE( to_vector(copy.get_extents()) == extents );
-		REQUIRE( to_vector(copy.get_dataset_offset(0)) ==
+		REQUIRE( to_vector(copy.get_file_offset(0)) ==
 			std::vector<std::size_t>{2, 0, 0} );
 	}
 

@@ -57,14 +57,14 @@ public:
 	bool register_format(std::unique_ptr<image_write_format> format);
 
 	/**
-	 * @brief Create a dataset with the most suitable format.
+	 * @brief Create a file with the most suitable format.
 	 *
 	 * The file named by @p path usually does not exist yet, so the choice
 	 * normally rests on its extension. Any file already there is replaced.
 	 *
 	 * @param path Path to the file to create.
-	 * @param options How the dataset will be walked.
-	 * @param descriptor The extents and the data type of the dataset.
+	 * @param options How the file will be walked.
+	 * @param descriptor The extents and the data type of the file.
 	 * @param metadata How its samples map onto physical space.
 	 * @return std::unique_ptr<image_writer> The opened writer, never null.
 	 * @throws invalid_operation_error If no registered format recognizes the

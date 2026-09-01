@@ -12,23 +12,23 @@
 using namespace rexlib;
 using namespace rexlib::em;
 
-TEST_CASE( "image_open_options defaults to the first dataset",
+TEST_CASE( "image_open_options defaults to the first image",
 	"[image_open_options]" )
 {
-	SECTION( "a default instance selects dataset zero with no hint" )
+	SECTION( "a default instance selects image zero with no hint" )
 	{
 		const image_open_options options;
 
-		REQUIRE( options.get_dataset_index() == 0 );
+		REQUIRE( options.get_image_index() == 0 );
 		REQUIRE( options.get_access_hint() == image_access_hint::none );
 	}
 
-	SECTION( "the dataset index is settable" )
+	SECTION( "the image index is settable" )
 	{
 		image_open_options options;
-		options.set_dataset_index(4);
+		options.set_image_index(4);
 
-		REQUIRE( options.get_dataset_index() == 4 );
+		REQUIRE( options.get_image_index() == 4 );
 	}
 
 	SECTION( "the access hint is settable" )
@@ -42,12 +42,12 @@ TEST_CASE( "image_open_options defaults to the first dataset",
 	SECTION( "options copy as values" )
 	{
 		image_open_options options;
-		options.set_dataset_index(2);
+		options.set_image_index(2);
 		options.set_access_hint(image_access_hint::sequential);
 
 		const image_open_options copy(options);
 
-		REQUIRE( copy.get_dataset_index() == 2 );
+		REQUIRE( copy.get_image_index() == 2 );
 		REQUIRE( copy.get_access_hint() == image_access_hint::sequential );
 	}
 

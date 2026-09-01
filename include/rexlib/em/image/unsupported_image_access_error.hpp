@@ -15,7 +15,7 @@ namespace em
  * @brief Exception indicating that an access is outside what a format offers.
  *
  * Thrown when the request itself is well formed but the format can not serve
- * it, such as opening a dataset for writing in a format that only reads.
+ * it, such as opening a file for writing in a format that only reads.
  * A request that is malformed for any format reports @c std::invalid_argument
  * instead.
  */

@@ -24,7 +24,7 @@ using namespace rexlib::em;
 namespace
 {
 
-const std::vector<std::size_t> dataset_extents = {4, 3, 5};
+const std::vector<std::size_t> file_extents = {4, 3, 5};
 
 array make_source(
 	span<const std::size_t> extents,
@@ -62,21 +62,21 @@ array make_source(
 
 image_region_batch make_regions(
 	span<const std::size_t> extents,
-	span<const std::size_t> dataset_offset,
+	span<const std::size_t> file_offset,
 	span<const std::size_t> array_offset
 )
 {
 	image_region_batch regions;
-	regions.reset(extents, dataset_extents.size());
-	regions.add(dataset_offset, array_offset);
+	regions.reset(extents, file_extents.size());
+	regions.add(file_offset, array_offset);
 	return regions;
 }
 
 } // namespace
 
-TEST_CASE( "a write places one region of the dataset", "[image_writer]" )
+TEST_CASE( "a write places one region of the file", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(dataset_extents));
+	fake_image_writer writer(make_span(file_extents));
 	const std::vector<std::size_t> extents = {1, 3, 5};
 	const std::size_t origin[3] = {0, 0, 0};
 
@@ -87,12 +87,12 @@ TEST_CASE( "a write places one region of the dataset", "[image_writer]" )
 			numerical_type::int16,
 			100.0f
 		);
-		const std::size_t dataset_offset[3] = {2, 0, 0};
+		const std::size_t file_offset[3] = {2, 0, 0};
 		writer.write(
 			const_array_ref(source),
 			make_regions(
 				make_span(extents),
-				make_span(dataset_offset, 3),
+				make_span(file_offset, 3),
 				make_span(origin, 3)
 			)
 		);
@@ -139,10 +139,10 @@ TEST_CASE( "a write places one region of the dataset", "[image_writer]" )
 
 TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(dataset_extents));
+	fake_image_writer writer(make_span(file_extents));
 
 	// A batch of three elements written out in one call, deliberately not in
-	// increasing dataset order.
+	// increasing file order.
 	const std::vector<std::size_t> batch_extents = {3, 3, 5};
 	auto batch = make_source(
 		make_span(batch_extents),
@@ -158,9 +158,9 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 	const std::vector<std::size_t> targets = {3, 0, 2};
 	for (std::size_t slot = 0; slot < targets.size(); ++slot)
 	{
-		const std::size_t dataset_offset[3] = {targets[slot], 0, 0};
+		const std::size_t file_offset[3] = {targets[slot], 0, 0};
 		const std::size_t array_offset[3] = {slot, 0, 0};
-		regions.add(make_span(dataset_offset, 3), make_span(array_offset, 3));
+		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
 	}
 
 	writer.write(const_array_ref(batch), regions);
@@ -175,7 +175,7 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 
 TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(dataset_extents));
+	fake_image_writer writer(make_span(file_extents));
 	const std::vector<std::size_t> extents = {1, 1, 4};
 	const std::size_t origin[3] = {0, 0, 0};
 
@@ -223,7 +223,7 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 
 TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(dataset_extents));
+	fake_image_writer writer(make_span(file_extents));
 
 	// The batch is wider than the elements taken out of it.
 	const std::vector<std::size_t> batch_extents = {2, 3, 10};
@@ -236,9 +236,9 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 	const std::vector<std::size_t> element_extents = {1, 3, 5};
 	image_region_batch regions;
 	regions.reset(make_span(element_extents), 3);
-	const std::size_t dataset_offset[3] = {0, 0, 0};
+	const std::size_t file_offset[3] = {0, 0, 0};
 	const std::size_t array_offset[3] = {0, 0, 5};
-	regions.add(make_span(dataset_offset, 3), make_span(array_offset, 3));
+	regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
 
 	writer.write(const_array_ref(batch), regions);
 
@@ -251,25 +251,25 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 
 TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(dataset_extents));
+	fake_image_writer writer(make_span(file_extents));
 	const std::vector<std::size_t> extents = {1, 3, 5};
 	const std::size_t origin[3] = {0, 0, 0};
 
-	SECTION( "a region reaching past the dataset is out of range" )
+	SECTION( "a region reaching past the file is out of range" )
 	{
 		auto source = make_source(
 			make_span(extents),
 			numerical_type::int16,
 			0.0f
 		);
-		const std::size_t dataset_offset[3] = {4, 0, 0};
+		const std::size_t file_offset[3] = {4, 0, 0};
 
 		REQUIRE_THROWS_AS(
 			writer.write(
 				const_array_ref(source),
 				make_regions(
 					make_span(extents),
-					make_span(dataset_offset, 3),
+					make_span(file_offset, 3),
 					make_span(origin, 3)
 				)
 			),
@@ -339,14 +339,14 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 
 TEST_CASE( "a writer is opened over a complete descriptor", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(dataset_extents));
+	fake_image_writer writer(make_span(file_extents));
 
 	SECTION( "the descriptor bounds what may be written" )
 	{
 		std::vector<std::size_t> extents;
 		writer.get_descriptor().get_layout().get_extents(extents);
 
-		REQUIRE( extents == dataset_extents );
+		REQUIRE( extents == file_extents );
 	}
 
 	SECTION( "flushing is explicit so that a failure can be reported" )

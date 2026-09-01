@@ -20,13 +20,13 @@ class image_probe;
 /**
  * @brief The ability of one file format to be read.
  *
- * A format contributes one of these to be able to open datasets for reading,
+ * A format contributes one of these to be able to open files for reading,
  * and one @ref image_write_format to be able to create them. A format that
  * only reads registers only this one and never has to say that it can not
  * write.
  *
  * Formats are collected by an @ref image_read_format_manager, which shows
- * every one of them the same @ref image_probe and opens the dataset with
+ * every one of them the same @ref image_probe and opens the file with
  * whichever reports the highest @ref backend_priority.
  */
 class REXLIB_API image_read_format
@@ -69,17 +69,17 @@ public:
 	get_suitability(const image_probe &probe) const = 0;
 
 	/**
-	 * @brief Open a dataset for reading.
+	 * @brief Open a file for reading.
 	 *
 	 * Only called when @ref get_suitability reported something other than
 	 * @ref backend_priority::unsupported for @p probe.
 	 *
 	 * @param probe The file to open.
-	 * @param options Which dataset of the file to open and how it will be
+	 * @param options Which image of the file to open and how it will be
 	 * walked.
 	 * @return std::unique_ptr<image_reader> The opened reader, never null.
 	 * @throws image_format_error If the file is malformed or truncated.
-	 * @throws std::out_of_range If the file holds no dataset at the
+	 * @throws std::out_of_range If the file holds no file at the
 	 * requested index.
 	 */
 	virtual std::unique_ptr<image_reader> open(

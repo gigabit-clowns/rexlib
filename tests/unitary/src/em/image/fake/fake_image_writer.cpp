@@ -66,11 +66,11 @@ void fake_image_writer::write(
 )
 {
 	const auto rank = m_extents.size();
-	if (regions.get_dataset_rank() != rank)
+	if (regions.get_file_rank() != rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_writer::write: The dataset offsets do not have the "
-			"rank of the dataset."
+			"fake_image_writer::write: The file offsets do not have the "
+			"rank of the file."
 		);
 	}
 
@@ -102,7 +102,7 @@ void fake_image_writer::write(
 		data_type != numerical_type::float32
 	) {
 		throw invalid_operation_error(
-			"fake_image_writer::write: The dataset can not be written from "
+			"fake_image_writer::write: The file can not be written from "
 			"the source data type."
 		);
 	}
@@ -125,16 +125,16 @@ void fake_image_writer::write(
 
 	for (std::size_t region = 0; region < regions.get_size(); ++region)
 	{
-		const auto dataset_offset = regions.get_dataset_offset(region);
+		const auto file_offset = regions.get_file_offset(region);
 		const auto array_offset = regions.get_array_offset(region);
 
 		for (std::size_t i = 0; i < rank; ++i)
 		{
-			if (dataset_offset[i] + extents[leading + i] > m_extents[i])
+			if (file_offset[i] + extents[leading + i] > m_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_writer::write: The region is not contained "
-					"in the dataset."
+					"in the file."
 				);
 			}
 		}
@@ -165,7 +165,7 @@ void fake_image_writer::write(
 			for (std::size_t i = 0; i < rank; ++i)
 			{
 				target = (target * m_extents[i]) +
-					dataset_offset[i] + coordinates[leading + i];
+					file_offset[i] + coordinates[leading + i];
 			}
 
 			const auto *element = base + (position * static_cast<std::ptrdiff_t>(

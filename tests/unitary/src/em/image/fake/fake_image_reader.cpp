@@ -77,11 +77,11 @@ void fake_image_reader::read(
 ) const
 {
 	const auto rank = m_extents.size();
-	if (regions.get_dataset_rank() != rank)
+	if (regions.get_file_rank() != rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_reader::read: The dataset offsets do not have the "
-			"rank of the dataset."
+			"fake_image_reader::read: The file offsets do not have the "
+			"rank of the file."
 		);
 	}
 
@@ -116,7 +116,7 @@ void fake_image_reader::read(
 	) {
 		throw invalid_operation_error(
 			"fake_image_reader::read: The destination data type can not be "
-			"produced from the dataset."
+			"produced from the file."
 		);
 	}
 
@@ -138,16 +138,16 @@ void fake_image_reader::read(
 
 	for (std::size_t region = 0; region < regions.get_size(); ++region)
 	{
-		const auto dataset_offset = regions.get_dataset_offset(region);
+		const auto file_offset = regions.get_file_offset(region);
 		const auto array_offset = regions.get_array_offset(region);
 
 		for (std::size_t i = 0; i < rank; ++i)
 		{
-			if (dataset_offset[i] + extents[leading + i] > m_extents[i])
+			if (file_offset[i] + extents[leading + i] > m_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_reader::read: The region is not contained in "
-					"the dataset."
+					"the file."
 				);
 			}
 		}
@@ -178,7 +178,7 @@ void fake_image_reader::read(
 			for (std::size_t i = 0; i < rank; ++i)
 			{
 				source = (source * m_extents[i]) +
-					dataset_offset[i] + coordinates[leading + i];
+					file_offset[i] + coordinates[leading + i];
 			}
 
 			const auto value = m_data[source];

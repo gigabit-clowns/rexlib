@@ -14,7 +14,7 @@ namespace em
 {
 
 /**
- * @brief How a dataset is going to be walked, stated when it is opened.
+ * @brief How an image is going to be walked, stated when it is opened.
  *
  * The hint reaches the operating system as an access advice, which is set on
  * the open file rather than on each read. It is a hint in the strict sense:
@@ -40,16 +40,17 @@ std::basic_ostream<T>&
 operator<<(std::basic_ostream<T>& os, image_access_hint v);
 
 /**
- * @brief Everything that qualifies the opening of a dataset.
+ * @brief Everything that qualifies the opening of a file.
  *
- * A default constructed instance opens the first dataset of the file with no
- * hint, which is what a caller holding one image or one stack per file wants.
+ * A default constructed instance opens the first image of the file with no
+ * hint, which is what a caller holding one image or one stack per file
+ * wants.
  */
 class image_open_options
 {
 public:
 	/**
-	 * @brief Construct options selecting the first dataset with no hint.
+	 * @brief Construct options selecting the first image with no hint.
 	 */
 	REXLIB_API
 	image_open_options() noexcept;
@@ -64,27 +65,27 @@ public:
 	operator=(image_open_options &&other) noexcept = default;
 
 	/**
-	 * @brief Set which dataset of the file is opened.
+	 * @brief Set which image of the file is opened.
 	 *
-	 * @param index Zero based index of the dataset.
+	 * @param index Zero based index of the image.
 	 */
 	REXLIB_API
-	void set_dataset_index(std::size_t index) noexcept;
+	void set_image_index(std::size_t index) noexcept;
 
 	/**
-	 * @brief Get which dataset of the file is opened.
+	 * @brief Get which image of the file is opened.
 	 *
-	 * A reader exposes exactly one rectangular dataset, so a file holding
-	 * several of them is opened once per dataset. A format holding only ever
-	 * one rejects any index but zero.
+	 * A reader exposes one rectangular ND array, so a file holding several
+	 * images of different shapes is opened once per image. A format whose
+	 * files only ever hold one rejects any index but zero.
 	 *
-	 * @return std::size_t The zero based index of the dataset.
+	 * @return std::size_t The zero based index of the image.
 	 */
 	REXLIB_API
-	std::size_t get_dataset_index() const noexcept;
+	std::size_t get_image_index() const noexcept;
 
 	/**
-	 * @brief Set how the dataset is going to be walked.
+	 * @brief Set how the image is going to be walked.
 	 *
 	 * @param hint The access hint.
 	 */
@@ -92,7 +93,7 @@ public:
 	void set_access_hint(image_access_hint hint) noexcept;
 
 	/**
-	 * @brief Get how the dataset is going to be walked.
+	 * @brief Get how the image is going to be walked.
 	 *
 	 * @return image_access_hint The access hint.
 	 */
@@ -100,7 +101,7 @@ public:
 	image_access_hint get_access_hint() const noexcept;
 
 private:
-	std::size_t m_dataset_index;
+	std::size_t m_image_index;
 	image_access_hint m_access_hint;
 };
 

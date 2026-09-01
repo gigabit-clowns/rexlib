@@ -56,14 +56,14 @@ public:
 	bool register_format(std::unique_ptr<image_read_format> format);
 
 	/**
-	 * @brief Open a dataset for reading with the most suitable format.
+	 * @brief Open a file for reading with the most suitable format.
 	 *
 	 * Reads the head of the file once and shows it to every registered
-	 * format, then opens the dataset with whichever reported the highest
+	 * format, then opens the file with whichever reported the highest
 	 * suitability.
 	 *
-	 * @param path Path to the file holding the dataset.
-	 * @param options Which dataset of the file to open and how it will be
+	 * @param path Path to the file holding the file.
+	 * @param options Which image of the file to open and how it will be
 	 * walked.
 	 * @return std::unique_ptr<image_reader> The opened reader, never null.
 	 * @throws invalid_operation_error If no registered format recognizes the

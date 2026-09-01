@@ -42,7 +42,7 @@ enum class image_access_flag_bits {
 	concurrent_read = bit(1),
 
 	/**
-	 * @brief The dataset is already resident in the address space.
+	 * @brief The file is already resident in the address space.
 	 *
 	 * Set by a reader backed by a mapping rather than by positioned reads,
 	 * for which a read is a copy out of memory and no system call is paid.

@@ -14,11 +14,11 @@ namespace em
 {
 
 /**
- * @brief How the samples of a dataset map onto physical space.
+ * @brief How the samples of a file map onto physical space.
  *
  * Holds the two quantities every electron microscopy format carries and
  * every geometric operation needs. Both are given per axis, ordered as the
- * axes of the dataset descriptor are, so the slowest axis comes first.
+ * axes of the file descriptor are, so the slowest axis comes first.
  *
  * A quantity that the file does not state is left empty rather than
  * defaulted, so that a caller can tell an unstated sampling from a sampling
@@ -64,7 +64,7 @@ public:
 	 * @brief Get the distance between consecutive samples on each axis.
 	 *
 	 * @param[out] sampling Output parameter receiving the distances, in
-	 * angstrom, ordered as the axes of the dataset. Cleared before being
+	 * angstrom, ordered as the axes of the file. Cleared before being
 	 * populated, and left empty when the file does not state a sampling.
 	 */
 	REXLIB_API
@@ -74,7 +74,7 @@ public:
 	 * @brief Get the position of the first sample on each axis.
 	 *
 	 * @param[out] origin Output parameter receiving the positions, in
-	 * angstrom, ordered as the axes of the dataset. Cleared before being
+	 * angstrom, ordered as the axes of the file. Cleared before being
 	 * populated, and left empty when the file does not state an origin.
 	 */
 	REXLIB_API
