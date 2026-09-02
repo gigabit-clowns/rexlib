@@ -55,8 +55,11 @@ jobs:
     strategy:
       matrix:
         include:
+        # In manylinux so the result loads on the older distributions too:
+        # it needs glibc 2.28 against the 2.35 an ubuntu-22.04 build asks for.
         - platform: linux-x86_64
           os: ubuntu-22.04
+          container: quay.io/pypa/manylinux_2_28_x86_64@sha256:0bf9db09181f36be8cf0628332abb5d31855b7d0f372faa776f492ccd9d3100d
           compiler: {c: gcc, cxx: g++}
           archive: tar.gz
           config: debug
@@ -87,6 +90,7 @@ jobs:
           config: debug
 
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     defaults:
       run:
         shell: bash -el {0}
@@ -114,7 +118,7 @@ jobs:
         generator: ${{ matrix.compiler.cxx == 'cl' && 'Ninja' || '' }}
         options: |
           CMAKE_BUILD_TYPE=${{ matrix.config == 'debug' && 'Debug' || 'Release' }}
-          CMAKE_INSTALL_PREFIX=${{ github.workspace }}/stage
+          CMAKE_INSTALL_LIBDIR=lib
           BUILD_TESTING=OFF
           CMAKE_C_COMPILER_LAUNCHER=ccache
           CMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -122,9 +126,11 @@ jobs:
         run-build: true
         build-args: --config ${{ matrix.config == 'debug' && 'Debug' || 'Release' }}
 
+    # Relative, and set here: cmake-action rewrites its own paths for the
+    # container but passes options through, and github.workspace is the host's.
     - name: Install into the staging directory
       run: |
-        cmake --install build \
+        cmake --install build --prefix stage \
           --config ${{ matrix.config == 'debug' && 'Debug' || 'Release' }}
 
     - name: Read the version
