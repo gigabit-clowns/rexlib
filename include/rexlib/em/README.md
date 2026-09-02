@@ -79,14 +79,24 @@ There is one read verb, not one per access pattern. Random versus sequential
 is a property of a sequence of requests, so it belongs to tier two and to the
 access hint given when the file is opened.
 
-A read takes a whole batch of regions in one `image_region_batch` rather than
+A read takes a whole batch of regions in one `image_transfer_plan` rather than
 one region per call. That is the only shape in which a reader can see enough
 to sort the accesses by their position on the storage and merge neighbouring
-ones, and it keeps the per region cost to arithmetic: the batch holds its
-offsets in flat vectors, so reusing one across batches allocates nothing
-after the first. Measured on a batch of 256, a call per region cost 110 to
-150 ns and four allocations each; building and walking the batched form
-costs about 8 ns per region and two allocations for the whole batch.
+ones, and it keeps the per region cost to arithmetic: the plan holds its
+offsets in flat vectors, so reusing one from one call to the next allocates
+nothing after the first. Measured on a batch of 256, a call per region cost
+110 to 150 ns and four allocations each; building and walking the batched
+form costs about 8 ns per region and two allocations for the whole batch.
+
+The plan describes a transfer between a source and a destination, and says
+nothing about which of them is the file: a reader takes the file as its
+source, a writer as its destination. Its extents are the shape of one region
+and carry the rank of the region alone, so a side of higher rank spans a
+single position along the axes they do not reach. A batch of two dimensional
+patches cut from a micrograph into a three dimensional destination therefore
+has extents of rank two, and neither side pads them; ranks may differ in
+either direction, so a plane of a stack reads equally into an array that
+does not carry the axis it was stacked along.
 
 A reader always produces correct data for any in-bounds box; what varies
 between formats is the price, which `image_access_traits` advertises. Thread

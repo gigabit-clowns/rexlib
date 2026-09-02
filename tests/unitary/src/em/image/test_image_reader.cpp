@@ -29,6 +29,9 @@ namespace
 // holding the values 0, 1, 2, ... in storage order.
 const std::vector<std::size_t> file_extents = {4, 3, 5};
 
+// One plane of it, which is what most of the reads below ask for.
+const std::vector<std::size_t> plane_extents = {3, 5};
+
 std::unique_ptr<fake_image_reader> make_reader()
 {
 	const std::vector<std::size_t> granularity = {1, 1, 1};
@@ -77,24 +80,21 @@ const float* float_data(const array &target)
 	return static_cast<const float*>(target.get_storage()->get_host_ptr());
 }
 
-// Build a batch of whole stack elements: file element sources[i] lands in
-// slot i of the destination.
-image_region_batch make_element_batch(
-	span<const std::size_t> extents,
-	const std::vector<std::size_t> &sources
-)
+// Build a batch of whole planes: plane sources[i] lands in slot i of a
+// three dimensional destination.
+image_transfer_plan make_plane_batch(const std::vector<std::size_t> &sources)
 {
-	image_region_batch regions;
-	regions.reset(extents, file_extents.size());
+	image_transfer_plan regions;
+	regions.reset(make_span(plane_extents), 3, 3);
 	regions.reserve(sources.size());
 
 	for (std::size_t slot = 0; slot < sources.size(); ++slot)
 	{
-		const std::size_t file_offset[3] = {sources[slot], 0, 0};
-		const std::size_t array_offset[3] = {slot, 0, 0};
+		const std::size_t source_offset[3] = {sources[slot], 0, 0};
+		const std::size_t destination_offset[3] = {slot, 0, 0};
 		regions.add(
-			make_span(file_offset, 3),
-			make_span(array_offset, 3)
+			make_span(source_offset, 3),
+			make_span(destination_offset, 3)
 		);
 	}
 
@@ -107,19 +107,23 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 {
 	const auto reader = make_reader();
 
-	SECTION( "an element of a stack is a region with a leading extent of 1" )
+	SECTION( "an element of a stack is a plane of the file" )
 	{
-		const std::vector<std::size_t> extents = {1, 3, 5};
+		// The destination does not carry the axis the file stacks along,
+		// which the extents no longer being tied to a side allows.
 		auto destination = make_destination(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t file_offset[3] = {2, 0, 0};
-		const std::size_t array_offset[3] = {0, 0, 0};
-		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 2);
+		const std::size_t source_offset[3] = {2, 0, 0};
+		const std::size_t destination_offset[2] = {0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 2)
+		);
 
 		reader->read(array_ref(destination), regions);
 
@@ -131,17 +135,20 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 
 	SECTION( "a patch is a region that starts inside a plane" )
 	{
-		const std::vector<std::size_t> extents = {1, 2, 2};
+		const std::vector<std::size_t> extents = {2, 2};
 		auto destination = make_destination(
 			make_span(extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t file_offset[3] = {1, 1, 3};
-		const std::size_t array_offset[3] = {0, 0, 0};
-		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(extents), 3, 2);
+		const std::size_t source_offset[3] = {1, 1, 3};
+		const std::size_t destination_offset[2] = {0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 2)
+		);
 
 		reader->read(array_ref(destination), regions);
 
@@ -160,8 +167,8 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(file_extents), 3);
+		image_transfer_plan regions;
+		regions.reset(make_span(file_extents), 3, 3);
 		const std::size_t origin[3] = {0, 0, 0};
 		regions.add(make_span(origin, 3), make_span(origin, 3));
 
@@ -174,16 +181,15 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 		}
 	}
 
-	SECTION( "an empty batch reads nothing and succeeds" )
+	SECTION( "an empty plan reads nothing and succeeds" )
 	{
-		const std::vector<std::size_t> extents = {1, 3, 5};
 		auto destination = make_destination(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 2);
 
 		REQUIRE_NOTHROW( reader->read(array_ref(destination), regions) );
 	}
@@ -193,7 +199,6 @@ TEST_CASE( "one read fills a whole batch", "[image_reader]" )
 {
 	const auto reader = make_reader();
 	const std::vector<std::size_t> batch_extents = {3, 3, 5};
-	const std::vector<std::size_t> element_extents = {1, 3, 5};
 
 	SECTION( "slot i receives request i, in whatever order they are read" )
 	{
@@ -202,14 +207,10 @@ TEST_CASE( "one read fills a whole batch", "[image_reader]" )
 			numerical_type::float32
 		);
 
-		// Deliberately not in increasing file order, so that a reader
-		// that sorted the regions and forgot to keep the slots with them
-		// would be caught.
-		const std::vector<std::size_t> sources = {3, 0, 2};
-		const auto regions = make_element_batch(
-			make_span(element_extents),
-			sources
-		);
+		// Deliberately not in increasing file order, so that a reader that
+		// sorted the regions and forgot to keep the slots with them would
+		// be caught.
+		const auto regions = make_plane_batch({3, 0, 2});
 
 		reader->read(array_ref(batch), regions);
 
@@ -219,18 +220,14 @@ TEST_CASE( "one read fills a whole batch", "[image_reader]" )
 		REQUIRE( values[30] == 30.0f );
 	}
 
-	SECTION( "the same element may be requested into several slots" )
+	SECTION( "the same plane may be requested into several slots" )
 	{
 		auto batch = make_destination(
 			make_span(batch_extents),
 			numerical_type::int16
 		);
 
-		const std::vector<std::size_t> sources = {1, 1, 1};
-		const auto regions = make_element_batch(
-			make_span(element_extents),
-			sources
-		);
+		const auto regions = make_plane_batch({1, 1, 1});
 
 		reader->read(array_ref(batch), regions);
 
@@ -244,15 +241,18 @@ TEST_CASE( "one read fills a whole batch", "[image_reader]" )
 TEST_CASE( "a read converts to the destination data type", "[image_reader]" )
 {
 	const auto reader = make_reader();
-	const std::vector<std::size_t> extents = {1, 1, 4};
+	const std::vector<std::size_t> extents = {1, 4};
 
 	const auto make_regions = [&] ()
 	{
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t file_offset[3] = {0, 1, 0};
-		const std::size_t array_offset[3] = {0, 0, 0};
-		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(extents), 3, 2);
+		const std::size_t source_offset[3] = {0, 1, 0};
+		const std::size_t destination_offset[2] = {0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 2)
+		);
 		return regions;
 	};
 
@@ -302,23 +302,28 @@ TEST_CASE( "a read fills a strided destination", "[image_reader]" )
 
 	SECTION( "slots of a batch are reached through the destination strides" )
 	{
-		// The batch is wider than the elements written into it, so the
-		// regions land on a strided part of it rather than contiguously.
+		// The batch is wider than the planes written into it, so the regions
+		// land on a strided part of it rather than contiguously.
 		const std::vector<std::size_t> batch_extents = {2, 3, 10};
 		auto batch = make_destination(
 			make_span(batch_extents),
 			numerical_type::int16
 		);
 
-		const std::vector<std::size_t> element_extents = {1, 3, 5};
-		image_region_batch regions;
-		regions.reset(make_span(element_extents), 3);
-		const std::size_t first_file[3] = {0, 0, 0};
-		const std::size_t first_array[3] = {0, 0, 0};
-		const std::size_t second_file[3] = {1, 0, 0};
-		const std::size_t second_array[3] = {1, 0, 5};
-		regions.add(make_span(first_file, 3), make_span(first_array, 3));
-		regions.add(make_span(second_file, 3), make_span(second_array, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 3);
+		const std::size_t first_source[3] = {0, 0, 0};
+		const std::size_t first_destination[3] = {0, 0, 0};
+		const std::size_t second_source[3] = {1, 0, 0};
+		const std::size_t second_destination[3] = {1, 0, 5};
+		regions.add(
+			make_span(first_source, 3),
+			make_span(first_destination, 3)
+		);
+		regions.add(
+			make_span(second_source, 3),
+			make_span(second_destination, 3)
+		);
 
 		reader->read(array_ref(batch), regions);
 
@@ -334,20 +339,22 @@ TEST_CASE( "a read fills a strided destination", "[image_reader]" )
 TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 {
 	const auto reader = make_reader();
-	const std::vector<std::size_t> extents = {1, 3, 5};
 
 	SECTION( "a region reaching past the file is out of range" )
 	{
 		auto destination = make_destination(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t file_offset[3] = {4, 0, 0};
-		const std::size_t array_offset[3] = {0, 0, 0};
-		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 2);
+		const std::size_t source_offset[3] = {4, 0, 0};
+		const std::size_t destination_offset[2] = {0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 2)
+		);
 
 		REQUIRE_THROWS_AS(
 			reader->read(array_ref(destination), regions),
@@ -357,16 +364,20 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 
 	SECTION( "a region overhanging the destination is out of range" )
 	{
+		const std::vector<std::size_t> batch_extents = {1, 3, 5};
 		auto destination = make_destination(
-			make_span(extents),
+			make_span(batch_extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t file_offset[3] = {0, 0, 0};
-		const std::size_t array_offset[3] = {1, 0, 0};
-		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 3);
+		const std::size_t source_offset[3] = {0, 0, 0};
+		const std::size_t destination_offset[3] = {1, 0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 3)
+		);
 
 		REQUIRE_THROWS_AS(
 			reader->read(array_ref(destination), regions),
@@ -374,18 +385,17 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 		);
 	}
 
-	SECTION( "a batch of the wrong file rank is refused" )
+	SECTION( "a plan of the wrong source rank is refused" )
 	{
 		auto destination = make_destination(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 2);
-		const std::size_t file_offset[2] = {0, 0};
-		const std::size_t array_offset[3] = {0, 0, 0};
-		regions.add(make_span(file_offset, 2), make_span(array_offset, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 2, 2);
+		const std::size_t offset[2] = {0, 0};
+		regions.add(make_span(offset, 2), make_span(offset, 2));
 
 		REQUIRE_THROWS_AS(
 			reader->read(array_ref(destination), regions),
@@ -393,18 +403,17 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 		);
 	}
 
-	SECTION( "extents of the wrong rank are refused, never adjusted" )
+	SECTION( "a plan of the wrong destination rank is refused" )
 	{
-		const std::vector<std::size_t> flat_extents = {3, 5};
 		auto destination = make_destination(
-			make_span(flat_extents),
+			make_span(plane_extents),
 			numerical_type::int16
 		);
 
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t origin[3] = {0, 0, 0};
-		regions.add(make_span(origin, 3), make_span(origin, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 3);
+		const std::size_t offset[3] = {0, 0, 0};
+		regions.add(make_span(offset, 3), make_span(offset, 3));
 
 		REQUIRE_THROWS_AS(
 			reader->read(array_ref(destination), regions),
@@ -414,10 +423,14 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 
 	SECTION( "an uninitialized destination is refused" )
 	{
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
-		const std::size_t origin[3] = {0, 0, 0};
-		regions.add(make_span(origin, 3), make_span(origin, 3));
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 3, 2);
+		const std::size_t source_offset[3] = {0, 0, 0};
+		const std::size_t destination_offset[2] = {0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 2)
+		);
 
 		REQUIRE_THROWS_AS(
 			reader->read(array_ref(), regions),
@@ -463,7 +476,7 @@ TEST_CASE( "image_reader is mockable", "[image_reader]" )
 
 	ALLOW_CALL(reader, get_descriptor()).RETURN(descriptor);
 	REQUIRE_CALL(reader, read(ANY(array_ref),
-		ANY(const image_region_batch&)));
+		ANY(const image_transfer_plan&)));
 
 	const image_reader &interface = reader;
 	std::vector<std::size_t> extents;
@@ -471,6 +484,6 @@ TEST_CASE( "image_reader is mockable", "[image_reader]" )
 
 	REQUIRE( extents == file_extents );
 
-	const image_region_batch regions;
+	const image_transfer_plan regions;
 	interface.read(array_ref(), regions);
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/em/image/image_region_batch.hpp>
+#include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <cstddef>
 
@@ -86,20 +86,20 @@ public:
 	/**
 	 * @brief Read a set of hyperrectangles of the file into one array.
 	 *
-	 * Every region of @p regions names where it starts in the file and
-	 * where it lands in @p destination, and all of them share the extents
-	 * the batch carries. Passing every region in one call is what lets a
+	 * The file is the source of the plan and @p destination its
+	 * destination: every region names where it starts in the file and where
+	 * it lands in @p destination, and all of them share the extents the
+	 * plan carries. Passing every region in one call is what lets a
 	 * reader sort the regions by their position on the storage and merge
 	 * neighbouring ones into a single larger read, which one call per region
 	 * can not express; it also pays for the destination's geometry once
 	 * rather than once per region.
 	 *
 	 * @p destination is the array as the caller holds it, not a view of one
-	 * slot, and it may be strided. Axes are never added or dropped
-	 * implicitly, since a rank that is quietly adjusted turns a mistaken
-	 * shape into plausible wrong data: the extents of the batch must have the
-	 * rank of @p destination and the file offsets the rank of the
-	 * file.
+	 * slot, and it may be strided. The source offsets of the plan must have
+	 * the rank of the file and its destination offsets the rank of
+	 * @p destination; a side whose rank exceeds that of the extents spans a
+	 * single position along the axes they do not reach.
 	 *
 	 * Regions may be read in any order. Where two of them land on the same
 	 * elements of @p destination, which one prevails is unspecified.
@@ -116,15 +116,14 @@ public:
 	 * @ref image_access_flag_bits::concurrent_read clear, so a caller that
 	 * ignores the flag loses throughput and never correctness.
 	 *
-	 * An empty batch reads nothing and succeeds.
+	 * An empty plan reads nothing and succeeds.
 	 *
 	 * @param destination Where the regions are written. Must be initialized
 	 * and host accessible.
 	 * @param regions The regions to read and where each one lands.
-	 * @throws std::invalid_argument If the rank of the extents does not
-	 * match the rank of @p destination, if the rank of the file offsets
-	 * does not match the rank of the file, or if @p destination is not
-	 * initialized.
+	 * @throws std::invalid_argument If the source offsets do not have the
+	 * rank of the file, if the destination offsets do not have the rank of
+	 * @p destination, or if @p destination is not initialized.
 	 * @throws std::out_of_range If a region is not contained in the file,
 	 * or does not fit in @p destination where it is placed.
 	 * @throws invalid_operation_error If the data type of @p destination can
@@ -135,7 +134,7 @@ public:
 	 */
 	virtual void read(
 		array_ref destination,
-		const image_region_batch &regions
+		const image_transfer_plan &regions
 	) const = 0;
 };
 

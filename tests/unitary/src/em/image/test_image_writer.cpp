@@ -25,6 +25,7 @@ namespace
 {
 
 const std::vector<std::size_t> file_extents = {4, 3, 5};
+const std::vector<std::size_t> plane_extents = {3, 5};
 
 array make_source(
 	span<const std::size_t> extents,
@@ -60,15 +61,21 @@ array make_source(
 	return result;
 }
 
-image_region_batch make_regions(
+// A writer takes the array as its source and the file as its destination,
+// which is the opposite assignment to a read.
+image_transfer_plan make_regions(
 	span<const std::size_t> extents,
-	span<const std::size_t> file_offset,
-	span<const std::size_t> array_offset
+	span<const std::size_t> source_offset,
+	span<const std::size_t> destination_offset
 )
 {
-	image_region_batch regions;
-	regions.reset(extents, file_extents.size());
-	regions.add(file_offset, array_offset);
+	image_transfer_plan regions;
+	regions.reset(
+		extents,
+		source_offset.size(),
+		destination_offset.size()
+	);
+	regions.add(source_offset, destination_offset);
 	return regions;
 }
 
@@ -77,13 +84,12 @@ image_region_batch make_regions(
 TEST_CASE( "a write places one region of the file", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(file_extents));
-	const std::vector<std::size_t> extents = {1, 3, 5};
-	const std::size_t origin[3] = {0, 0, 0};
+	const std::size_t array_origin[2] = {0, 0};
 
-	SECTION( "an element of a stack lands where it belongs" )
+	SECTION( "a plane lands where it belongs" )
 	{
 		auto source = make_source(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16,
 			100.0f
 		);
@@ -91,9 +97,9 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 		writer.write(
 			const_array_ref(source),
 			make_regions(
-				make_span(extents),
-				make_span(file_offset, 3),
-				make_span(origin, 3)
+				make_span(plane_extents),
+				make_span(array_origin, 2),
+				make_span(file_offset, 3)
 			)
 		);
 
@@ -105,16 +111,17 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 	SECTION( "a region that is never written keeps the laid out value" )
 	{
 		auto source = make_source(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16,
 			1.0f
 		);
+		const std::size_t file_offset[3] = {0, 0, 0};
 		writer.write(
 			const_array_ref(source),
 			make_regions(
-				make_span(extents),
-				make_span(origin, 3),
-				make_span(origin, 3)
+				make_span(plane_extents),
+				make_span(array_origin, 2),
+				make_span(file_offset, 3)
 			)
 		);
 
@@ -122,15 +129,15 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 		REQUIRE( writer.get_element(59) == 0 );
 	}
 
-	SECTION( "an empty batch writes nothing and succeeds" )
+	SECTION( "an empty plan writes nothing and succeeds" )
 	{
 		auto source = make_source(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16,
 			1.0f
 		);
-		image_region_batch regions;
-		regions.reset(make_span(extents), 3);
+		image_transfer_plan regions;
+		regions.reset(make_span(plane_extents), 2, 3);
 
 		REQUIRE_NOTHROW( writer.write(const_array_ref(source), regions) );
 		REQUIRE( writer.get_element(0) == 0 );
@@ -141,7 +148,7 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(file_extents));
 
-	// A batch of three elements written out in one call, deliberately not in
+	// A batch of three planes written out in one call, deliberately not in
 	// increasing file order.
 	const std::vector<std::size_t> batch_extents = {3, 3, 5};
 	auto batch = make_source(
@@ -150,23 +157,25 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 		0.0f
 	);
 
-	const std::vector<std::size_t> element_extents = {1, 3, 5};
-	image_region_batch regions;
-	regions.reset(make_span(element_extents), 3);
+	image_transfer_plan regions;
+	regions.reset(make_span(plane_extents), 3, 3);
 	regions.reserve(3);
 
 	const std::vector<std::size_t> targets = {3, 0, 2};
 	for (std::size_t slot = 0; slot < targets.size(); ++slot)
 	{
-		const std::size_t file_offset[3] = {targets[slot], 0, 0};
-		const std::size_t array_offset[3] = {slot, 0, 0};
-		regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		const std::size_t source_offset[3] = {slot, 0, 0};
+		const std::size_t destination_offset[3] = {targets[slot], 0, 0};
+		regions.add(
+			make_span(source_offset, 3),
+			make_span(destination_offset, 3)
+		);
 	}
 
 	writer.write(const_array_ref(batch), regions);
 
-	// Slot 0 holds 0..14 and goes to element 3, slot 1 holds 15..29 and goes
-	// to element 0, slot 2 holds 30..44 and goes to element 2.
+	// Slot 0 holds 0..14 and goes to plane 3, slot 1 holds 15..29 and goes
+	// to plane 0, slot 2 holds 30..44 and goes to plane 2.
 	REQUIRE( writer.get_element(45) == 0 );
 	REQUIRE( writer.get_element(0) == 15 );
 	REQUIRE( writer.get_element(30) == 30 );
@@ -176,8 +185,9 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(file_extents));
-	const std::vector<std::size_t> extents = {1, 1, 4};
-	const std::size_t origin[3] = {0, 0, 0};
+	const std::vector<std::size_t> extents = {1, 4};
+	const std::size_t array_origin[2] = {0, 0};
+	const std::size_t file_offset[3] = {0, 0, 0};
 
 	SECTION( "a float source is converted preserving the value" )
 	{
@@ -190,8 +200,8 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 			const_array_ref(source),
 			make_regions(
 				make_span(extents),
-				make_span(origin, 3),
-				make_span(origin, 3)
+				make_span(array_origin, 2),
+				make_span(file_offset, 3)
 			)
 		);
 
@@ -212,8 +222,8 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 				const_array_ref(source),
 				make_regions(
 					make_span(extents),
-					make_span(origin, 3),
-					make_span(origin, 3)
+					make_span(array_origin, 2),
+					make_span(file_offset, 3)
 				)
 			),
 			invalid_operation_error
@@ -225,7 +235,7 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(file_extents));
 
-	// The batch is wider than the elements taken out of it.
+	// The batch is wider than the planes taken out of it.
 	const std::vector<std::size_t> batch_extents = {2, 3, 10};
 	auto batch = make_source(
 		make_span(batch_extents),
@@ -233,12 +243,14 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 		0.0f
 	);
 
-	const std::vector<std::size_t> element_extents = {1, 3, 5};
-	image_region_batch regions;
-	regions.reset(make_span(element_extents), 3);
-	const std::size_t file_offset[3] = {0, 0, 0};
-	const std::size_t array_offset[3] = {0, 0, 5};
-	regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+	image_transfer_plan regions;
+	regions.reset(make_span(plane_extents), 3, 3);
+	const std::size_t source_offset[3] = {0, 0, 5};
+	const std::size_t destination_offset[3] = {0, 0, 0};
+	regions.add(
+		make_span(source_offset, 3),
+		make_span(destination_offset, 3)
+	);
 
 	writer.write(const_array_ref(batch), regions);
 
@@ -252,13 +264,12 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(file_extents));
-	const std::vector<std::size_t> extents = {1, 3, 5};
-	const std::size_t origin[3] = {0, 0, 0};
+	const std::size_t array_origin[2] = {0, 0};
 
 	SECTION( "a region reaching past the file is out of range" )
 	{
 		auto source = make_source(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16,
 			0.0f
 		);
@@ -268,9 +279,9 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 			writer.write(
 				const_array_ref(source),
 				make_regions(
-					make_span(extents),
-					make_span(file_offset, 3),
-					make_span(origin, 3)
+					make_span(plane_extents),
+					make_span(array_origin, 2),
+					make_span(file_offset, 3)
 				)
 			),
 			std::out_of_range
@@ -280,41 +291,42 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 	SECTION( "a region reaching past the source is out of range" )
 	{
 		auto source = make_source(
-			make_span(extents),
+			make_span(plane_extents),
 			numerical_type::int16,
 			0.0f
 		);
-		const std::size_t array_offset[3] = {1, 0, 0};
+		const std::size_t array_offset[2] = {1, 0};
+		const std::size_t file_offset[3] = {0, 0, 0};
 
 		REQUIRE_THROWS_AS(
 			writer.write(
 				const_array_ref(source),
 				make_regions(
-					make_span(extents),
-					make_span(origin, 3),
-					make_span(array_offset, 3)
+					make_span(plane_extents),
+					make_span(array_offset, 2),
+					make_span(file_offset, 3)
 				)
 			),
 			std::out_of_range
 		);
 	}
 
-	SECTION( "extents of the wrong rank are refused, never adjusted" )
+	SECTION( "a plan of the wrong source rank is refused" )
 	{
-		const std::vector<std::size_t> flat_extents = {3, 5};
 		auto source = make_source(
-			make_span(flat_extents),
+			make_span(plane_extents),
 			numerical_type::int16,
 			0.0f
 		);
+		const std::size_t file_offset[3] = {0, 0, 0};
 
 		REQUIRE_THROWS_AS(
 			writer.write(
 				const_array_ref(source),
 				make_regions(
-					make_span(extents),
-					make_span(origin, 3),
-					make_span(origin, 3)
+					make_span(plane_extents),
+					make_span(file_offset, 3),
+					make_span(file_offset, 3)
 				)
 			),
 			std::invalid_argument
@@ -323,13 +335,15 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 
 	SECTION( "an uninitialized source is refused" )
 	{
+		const std::size_t file_offset[3] = {0, 0, 0};
+
 		REQUIRE_THROWS_AS(
 			writer.write(
 				const_array_ref(),
 				make_regions(
-					make_span(extents),
-					make_span(origin, 3),
-					make_span(origin, 3)
+					make_span(plane_extents),
+					make_span(array_origin, 2),
+					make_span(file_offset, 3)
 				)
 			),
 			std::invalid_argument
@@ -362,11 +376,11 @@ TEST_CASE( "image_writer is mockable", "[image_writer]" )
 	mock_image_writer writer;
 
 	REQUIRE_CALL(writer, write(ANY(const_array_ref),
-		ANY(const image_region_batch&)));
+		ANY(const image_transfer_plan&)));
 	REQUIRE_CALL(writer, flush());
 
 	image_writer &interface = writer;
-	const image_region_batch regions;
+	const image_transfer_plan regions;
 	interface.write(const_array_ref(), regions);
 	interface.flush();
 }

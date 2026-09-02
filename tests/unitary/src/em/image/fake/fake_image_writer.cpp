@@ -62,15 +62,15 @@ void fake_image_writer::flush()
 
 void fake_image_writer::write(
 	const_array_ref source,
-	const image_region_batch &regions
+	const image_transfer_plan &regions
 )
 {
-	const auto rank = m_extents.size();
-	if (regions.get_file_rank() != rank)
+	const auto file_rank = m_extents.size();
+	if (regions.get_destination_rank() != file_rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_writer::write: The file offsets do not have the "
-			"rank of the file."
+			"fake_image_writer::write: The destination offsets do not have "
+			"the rank of the file."
 		);
 	}
 
@@ -83,11 +83,12 @@ void fake_image_writer::write(
 	}
 
 	const auto &layout = source.get_descriptor().get_layout();
-	if (regions.get_array_rank() != layout.get_rank())
+	const auto source_rank = layout.get_rank();
+	if (regions.get_source_rank() != source_rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_writer::write: The extents do not have the rank of "
-			"the source."
+			"fake_image_writer::write: The source offsets do not have the "
+			"rank of the source."
 		);
 	}
 
@@ -102,8 +103,8 @@ void fake_image_writer::write(
 		data_type != numerical_type::float32
 	) {
 		throw invalid_operation_error(
-			"fake_image_writer::write: The file can not be written from "
-			"the source data type."
+			"fake_image_writer::write: The file can not be written from the "
+			"source data type."
 		);
 	}
 
@@ -116,21 +117,24 @@ void fake_image_writer::write(
 	}
 
 	const auto extents = regions.get_extents();
-	const auto array_rank = regions.get_array_rank();
-	const auto leading = array_rank - rank;
+	const auto rank = regions.get_rank();
+	const auto source_leading = source_rank - rank;
+	const auto destination_leading = file_rank - rank;
 	const auto element_size = get_size(data_type);
 	const auto count = compute_element_count(extents);
 
-	std::vector<std::size_t> coordinates(array_rank, 0);
+	std::vector<std::size_t> coordinates(rank, 0);
 
 	for (std::size_t region = 0; region < regions.get_size(); ++region)
 	{
-		const auto file_offset = regions.get_file_offset(region);
-		const auto array_offset = regions.get_array_offset(region);
+		const auto source_offset = regions.get_source_offset(region);
+		const auto destination_offset =
+			regions.get_destination_offset(region);
 
-		for (std::size_t i = 0; i < rank; ++i)
+		for (std::size_t i = 0; i < file_rank; ++i)
 		{
-			if (file_offset[i] + extents[leading + i] > m_extents[i])
+			const auto extent = get_region_extent(regions, file_rank, i);
+			if (destination_offset[i] + extent > m_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_writer::write: The region is not contained "
@@ -139,9 +143,10 @@ void fake_image_writer::write(
 			}
 		}
 
-		for (std::size_t i = 0; i < array_rank; ++i)
+		for (std::size_t i = 0; i < source_rank; ++i)
 		{
-			if (array_offset[i] + extents[i] > source_extents[i])
+			const auto extent = get_region_extent(regions, source_rank, i);
+			if (source_offset[i] + extent > source_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_writer::write: The region is not contained "
@@ -155,22 +160,27 @@ void fake_image_writer::write(
 		while (remaining-- > 0)
 		{
 			std::size_t target = 0;
-			auto position = layout.get_offset();
-			for (std::size_t i = 0; i < array_rank; ++i)
+			for (std::size_t i = 0; i < file_rank; ++i)
 			{
-				position += static_cast<std::ptrdiff_t>(
-					array_offset[i] + coordinates[i]
-				) * strides[i];
-			}
-			for (std::size_t i = 0; i < rank; ++i)
-			{
-				target = (target * m_extents[i]) +
-					file_offset[i] + coordinates[leading + i];
+				const auto c = i < destination_leading
+					? std::size_t(0)
+					: coordinates[i - destination_leading];
+				target = (target * m_extents[i]) + destination_offset[i] + c;
 			}
 
-			const auto *element = base + (position * static_cast<std::ptrdiff_t>(
-				element_size
-			));
+			auto position = layout.get_offset();
+			for (std::size_t i = 0; i < source_rank; ++i)
+			{
+				const auto c = i < source_leading
+					? std::size_t(0)
+					: coordinates[i - source_leading];
+				position += static_cast<std::ptrdiff_t>(
+					source_offset[i] + c
+				) * strides[i];
+			}
+
+			const auto *element = base +
+				(position * static_cast<std::ptrdiff_t>(element_size));
 			if (data_type == numerical_type::int16)
 			{
 				m_data[target] = *reinterpret_cast<const std::int16_t*>(
@@ -184,7 +194,7 @@ void fake_image_writer::write(
 				);
 			}
 
-			for (auto i = array_rank; i-- > 0; )
+			for (auto i = rank; i-- > 0; )
 			{
 				if (++coordinates[i] < extents[i])
 				{
