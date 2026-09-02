@@ -25,13 +25,18 @@ class fake_image_writer final
 	: public image_writer
 {
 public:
-	explicit fake_image_writer(span<const std::size_t> extents);
+	fake_image_writer(
+		span<const std::size_t> extents,
+		std::size_t core_rank
+	);
 
 	~fake_image_writer() override;
 
 	span<const std::size_t> get_extents() const noexcept override;
 
 	numerical_type get_data_type() const noexcept override;
+
+	std::size_t get_core_rank() const noexcept override;
 
 	void write(
 		const_array_ref source,
@@ -52,6 +57,7 @@ public:
 
 private:
 	std::vector<std::size_t> m_extents;
+	std::size_t m_core_rank;
 	std::vector<std::int16_t> m_data;
 	std::size_t m_flush_count;
 };

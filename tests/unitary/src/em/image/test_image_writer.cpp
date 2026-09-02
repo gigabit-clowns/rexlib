@@ -83,7 +83,7 @@ image_transfer_plan make_regions(
 
 TEST_CASE( "a write places one region of the file", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(file_extents));
+	fake_image_writer writer(make_span(file_extents), 2);
 	const std::size_t array_origin[2] = {0, 0};
 
 	SECTION( "a plane lands where it belongs" )
@@ -146,7 +146,7 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 
 TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(file_extents));
+	fake_image_writer writer(make_span(file_extents), 2);
 
 	// A batch of three planes written out in one call, deliberately not in
 	// increasing file order.
@@ -184,7 +184,7 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 
 TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(file_extents));
+	fake_image_writer writer(make_span(file_extents), 2);
 	const std::vector<std::size_t> extents = {1, 4};
 	const std::size_t array_origin[2] = {0, 0};
 	const std::size_t file_offset[3] = {0, 0, 0};
@@ -233,7 +233,7 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 
 TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(file_extents));
+	fake_image_writer writer(make_span(file_extents), 2);
 
 	// The batch is wider than the planes taken out of it.
 	const std::vector<std::size_t> batch_extents = {2, 3, 10};
@@ -263,7 +263,7 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 
 TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(file_extents));
+	fake_image_writer writer(make_span(file_extents), 2);
 	const std::size_t array_origin[2] = {0, 0};
 
 	SECTION( "a region reaching past the file is out of range" )
@@ -353,7 +353,7 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 
 TEST_CASE( "a writer is opened over complete extents", "[image_writer]" )
 {
-	fake_image_writer writer(make_span(file_extents));
+	fake_image_writer writer(make_span(file_extents), 2);
 
 	SECTION( "the extents bound what may be written" )
 	{
@@ -362,6 +362,7 @@ TEST_CASE( "a writer is opened over complete extents", "[image_writer]" )
 		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
 			file_extents );
 		REQUIRE( writer.get_data_type() == numerical_type::int16 );
+		REQUIRE( writer.get_core_rank() == 2 );
 	}
 
 	SECTION( "flushing is explicit so that a failure can be reported" )

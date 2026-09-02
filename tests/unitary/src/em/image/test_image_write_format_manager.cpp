@@ -47,12 +47,13 @@ public:
 	std::unique_ptr<image_writer> open(
 		const image_probe &,
 		span<const std::size_t> extents,
+		std::size_t core_rank,
 		numerical_type,
 		const image_metadata &
 	) const override
 	{
 		return std::unique_ptr<image_writer>(
-			new fake_image_writer(extents)
+			new fake_image_writer(extents, core_rank)
 		);
 	}
 
@@ -90,6 +91,7 @@ TEST_CASE( "an empty write manager recognizes nothing",
 			manager.open(
 				"absent.mrc",
 				make_span(file_extents),
+				2,
 				numerical_type::int16,
 				image_metadata()
 			),
@@ -134,6 +136,7 @@ TEST_CASE( "the write manager picks the most suitable format",
 		const auto writer = manager.open(
 			"absent.mrc",
 			make_span(file_extents),
+			2,
 			numerical_type::int16,
 			image_metadata()
 		);

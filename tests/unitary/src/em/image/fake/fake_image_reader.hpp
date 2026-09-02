@@ -29,6 +29,7 @@ class fake_image_reader final
 public:
 	fake_image_reader(
 		span<const std::size_t> extents,
+		std::size_t core_rank,
 		image_metadata metadata
 	);
 
@@ -37,6 +38,8 @@ public:
 	span<const std::size_t> get_extents() const noexcept override;
 
 	numerical_type get_data_type() const noexcept override;
+
+	std::size_t get_core_rank() const noexcept override;
 	const image_metadata& get_metadata() const noexcept override;
 
 	void read(
@@ -51,6 +54,7 @@ public:
 
 private:
 	std::vector<std::size_t> m_extents;
+	std::size_t m_core_rank;
 	std::vector<std::int16_t> m_data;
 	image_metadata m_metadata;
 };

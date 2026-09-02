@@ -53,6 +53,7 @@ public:
 	std::unique_ptr<image_writer> open(
 		const image_probe &probe,
 		span<const std::size_t> extents,
+		std::size_t core_rank,
 		numerical_type data_type,
 		const image_metadata &metadata
 	) const
@@ -66,7 +67,13 @@ public:
 			);
 		}
 
-		return format->open(probe, extents, data_type, metadata);
+		return format->open(
+			probe,
+			extents,
+			core_rank,
+			data_type,
+			metadata
+		);
 	}
 
 private:
@@ -97,6 +104,7 @@ bool image_write_format_manager::register_format(
 std::unique_ptr<image_writer> image_write_format_manager::open(
 	const std::string &path,
 	span<const std::size_t> extents,
+	std::size_t core_rank,
 	numerical_type data_type,
 	const image_metadata &metadata
 ) const
@@ -104,6 +112,7 @@ std::unique_ptr<image_writer> image_write_format_manager::open(
 	return get_implementation().open(
 		image_probe(path),
 		extents,
+		core_rank,
 		data_type,
 		metadata
 	);

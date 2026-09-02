@@ -70,14 +70,24 @@ public:
 	 * the format's own decision: strides and an offset would be stated by
 	 * the caller and then ignored.
 	 *
+	 * The extents alone do not say what is being created, since a file of
+	 * @c (N,H,W) may be a stack of @c N images or one volume of @c N
+	 * planes. Only the caller knows which, so it says so through
+	 * @p core_rank.
+	 *
 	 * @param probe The file to create.
 	 * @param extents Extents of the file to create, slowest axis first.
+	 * @param core_rank How many trailing extents are one image or volume,
+	 * the leading ones being the axes the file stacks along. Two for a
+	 * stack of images, three for one volume.
 	 * @param data_type Data type of its elements. A format converts to
 	 * whatever it encodes, so this is what the file holds rather than what
 	 * a write will supply.
 	 * @param metadata How its samples map onto physical space. A format
 	 * writes what of it it can carry and ignores the rest.
 	 * @return std::unique_ptr<image_writer> The opened writer, never null.
+	 * @throws std::invalid_argument If @p core_rank is zero or exceeds the
+	 * rank of @p extents.
 	 * @throws invalid_operation_error If this format can not represent the
 	 * requested file, such as a rank or a data type it has no encoding for.
 	 * @throws image_format_error If the file could not be created.
@@ -85,6 +95,7 @@ public:
 	virtual std::unique_ptr<image_writer> open(
 		const image_probe &probe,
 		span<const std::size_t> extents,
+		std::size_t core_rank,
 		numerical_type data_type,
 		const image_metadata &metadata
 	) const = 0;

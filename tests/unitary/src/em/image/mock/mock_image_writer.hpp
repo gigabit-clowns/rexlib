@@ -26,6 +26,8 @@ public:
 		noexcept override
 	);
 
+	MAKE_CONST_MOCK0(get_core_rank, std::size_t(), noexcept override);
+
 	MAKE_CONST_MOCK0(get_data_type, numerical_type(), noexcept override);
 
 	MAKE_MOCK2(

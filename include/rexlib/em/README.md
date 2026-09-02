@@ -98,6 +98,16 @@ has extents of rank two, and neither side pads them; ranks may differ in
 either direction, so a plane of a stack reads equally into an array that
 does not carry the axis it was stacked along.
 
+The extents alone do not say what a file holds: `(N,H,W)` is a stack of `N`
+images or one volume of `N` planes, and the two are written differently. A
+reader and a writer therefore carry a **core rank** beside their extents,
+counting the trailing axes that make up one image or volume. It is the
+dimensionality of what the file holds, two for images and three for
+volumes, so the distinction is a rank rather than a flag, and the axes it
+leaves over at the front are the ones the file stacks along. A format
+records the difference in its own way, MRC through its space group and its
+grid size.
+
 A reader always produces correct data for any in-bounds box, and `read` is
 always safe to call concurrently: a format that cannot decode in parallel
 serialises the calls itself, so a caller never loses correctness by issuing

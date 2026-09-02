@@ -32,6 +32,7 @@ fake_registered_format::open(const image_probe &) const
 	const std::vector<std::size_t> extents = {2, 2};
 	return std::unique_ptr<image_reader>(new fake_image_reader(
 		make_span(extents),
+		2,
 		image_metadata()
 	));
 }

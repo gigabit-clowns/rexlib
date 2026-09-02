@@ -28,8 +28,12 @@ static std::size_t compute_element_count(span<const std::size_t> extents)
 	);
 }
 
-fake_image_writer::fake_image_writer(span<const std::size_t> extents)
+fake_image_writer::fake_image_writer(
+	span<const std::size_t> extents,
+	std::size_t core_rank
+)
 	: m_extents(extents.begin(), extents.end())
+	, m_core_rank(core_rank)
 	, m_data(compute_element_count(extents), 0)
 	, m_flush_count(0)
 {
@@ -45,6 +49,11 @@ span<const std::size_t> fake_image_writer::get_extents() const noexcept
 numerical_type fake_image_writer::get_data_type() const noexcept
 {
 	return numerical_type::int16;
+}
+
+std::size_t fake_image_writer::get_core_rank() const noexcept
+{
+	return m_core_rank;
 }
 
 std::int16_t fake_image_writer::get_element(std::size_t index) const

@@ -54,6 +54,25 @@ public:
 	virtual span<const std::size_t> get_extents() const noexcept = 0;
 
 	/**
+	 * @brief Get how many of the extents describe one image or volume.
+	 *
+	 * That many trailing extents are one image or one volume, and the
+	 * leading ones are the axes the file stacks along. It is therefore the
+	 * dimensionality of what the file holds, two for an image and three for
+	 * a volume, and it is what tells a stack of @c N images from one volume
+	 * of @c N planes: their extents are identical and only this differs.
+	 * Each format records the difference in its own way, as MRC does
+	 * through its space group and its grid size.
+	 *
+	 * Equal to the rank of @ref get_extents for a file holding a single
+	 * image or volume.
+	 *
+	 * @return std::size_t The rank of one image or volume. Never zero, and
+	 * never above the rank of @ref get_extents.
+	 */
+	virtual std::size_t get_core_rank() const noexcept = 0;
+
+	/**
 	 * @brief Get the data type of the elements of the file.
 	 *
 	 * The one the writer was created over. A write converts to it from

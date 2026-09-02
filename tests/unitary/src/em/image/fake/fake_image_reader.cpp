@@ -31,9 +31,11 @@ static std::size_t compute_element_count(span<const std::size_t> extents)
 
 fake_image_reader::fake_image_reader(
 	span<const std::size_t> extents,
+	std::size_t core_rank,
 	image_metadata metadata
 )
 	: m_extents(extents.begin(), extents.end())
+	, m_core_rank(core_rank)
 	, m_metadata(std::move(metadata))
 {
 	const auto count = compute_element_count(extents);
@@ -54,6 +56,11 @@ span<const std::size_t> fake_image_reader::get_extents() const noexcept
 numerical_type fake_image_reader::get_data_type() const noexcept
 {
 	return numerical_type::int16;
+}
+
+std::size_t fake_image_reader::get_core_rank() const noexcept
+{
+	return m_core_rank;
 }
 
 const image_metadata& fake_image_reader::get_metadata() const noexcept

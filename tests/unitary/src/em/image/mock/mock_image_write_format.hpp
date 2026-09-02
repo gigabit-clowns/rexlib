@@ -29,11 +29,12 @@ public:
 		override
 	);
 
-	MAKE_CONST_MOCK4(
+	MAKE_CONST_MOCK5(
 		open,
 		std::unique_ptr<image_writer>(
 			const image_probe &probe,
 			span<const std::size_t> extents,
+			std::size_t core_rank,
 			numerical_type data_type,
 			const image_metadata &metadata
 		),

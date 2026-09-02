@@ -36,6 +36,7 @@ std::unique_ptr<fake_image_reader> make_reader()
 {
 	return std::unique_ptr<fake_image_reader>(new fake_image_reader(
 		make_span(file_extents),
+		2,
 		image_metadata()
 	));
 }
@@ -441,6 +442,15 @@ TEST_CASE( "a reader reports what it was opened with", "[image_reader]" )
 		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
 			file_extents );
 		REQUIRE( reader->get_data_type() == numerical_type::int16 );
+	}
+
+	SECTION( "the core rank tells a stack of images from a volume" )
+	{
+		// The same extents with a core rank of three would be one volume
+		// of four planes rather than four images.
+		REQUIRE( reader->get_core_rank() == 2 );
+		REQUIRE( reader->get_extents().size() - reader->get_core_rank()
+			== 1 );
 	}
 }
 

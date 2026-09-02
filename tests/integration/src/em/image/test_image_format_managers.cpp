@@ -91,6 +91,7 @@ TEST_CASE( "the bundled library registers no image format yet",
 			manager->open(
 				"absent.mrc",
 				make_span(extents),
+				2,
 				numerical_type::float32,
 				image_metadata()
 			),

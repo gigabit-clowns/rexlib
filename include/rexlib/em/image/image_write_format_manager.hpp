@@ -63,6 +63,8 @@ public:
 	 *
 	 * @param path Path to the file to create.
 	 * @param extents Extents of the file to create, slowest axis first.
+	 * @param core_rank How many trailing extents are one image or volume,
+	 * which is what tells a stack of images from a volume.
 	 * @param data_type Data type of its elements.
 	 * @param metadata How its samples map onto physical space.
 	 * @return std::unique_ptr<image_writer> The opened writer, never null.
@@ -73,6 +75,7 @@ public:
 	std::unique_ptr<image_writer> open(
 		const std::string &path,
 		span<const std::size_t> extents,
+		std::size_t core_rank,
 		numerical_type data_type,
 		const image_metadata &metadata
 	) const;
