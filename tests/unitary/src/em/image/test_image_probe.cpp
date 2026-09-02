@@ -57,36 +57,37 @@ private:
 
 TEST_CASE( "image_probe reads the leading bytes once", "[image_probe]" )
 {
-	SECTION( "a file longer than the header yields a full header" )
+	SECTION( "a file longer than the limit yields the whole of it" )
 	{
 		const scoped_file file(
 			"test_image_probe_long.bin",
-			image_probe::header_size * 2
+			image_probe::max_leading_bytes * 2
 		);
 		const image_probe probe(file.get_path());
 
 		REQUIRE( probe.exists() );
-		REQUIRE( probe.get_header().size() == image_probe::header_size );
-		REQUIRE( probe.get_header()[0] == as_byte(0) );
-		REQUIRE( probe.get_header()[255] == as_byte(255) );
+		REQUIRE( probe.get_leading_bytes().size() ==
+			image_probe::max_leading_bytes );
+		REQUIRE( probe.get_leading_bytes()[0] == as_byte(0) );
+		REQUIRE( probe.get_leading_bytes()[255] == as_byte(255) );
 	}
 
-	SECTION( "a file shorter than the header yields what there is" )
+	SECTION( "a file shorter than the limit yields what there is" )
 	{
 		const scoped_file file("test_image_probe_short.bin", 16);
 		const image_probe probe(file.get_path());
 
 		REQUIRE( probe.exists() );
-		REQUIRE( probe.get_header().size() == 16 );
+		REQUIRE( probe.get_leading_bytes().size() == 16 );
 	}
 
-	SECTION( "an empty file yields an empty header" )
+	SECTION( "an empty file yields no leading bytes" )
 	{
 		const scoped_file file("test_image_probe_empty.bin", 0);
 		const image_probe probe(file.get_path());
 
 		REQUIRE( probe.exists() );
-		REQUIRE( probe.get_header().empty() );
+		REQUIRE( probe.get_leading_bytes().empty() );
 	}
 }
 
@@ -101,7 +102,7 @@ TEST_CASE( "image_probe tolerates a file that is not there", "[image_probe]" )
 
 	SECTION( "it exposes no bytes to decide on" )
 	{
-		REQUIRE( probe.get_header().empty() );
+		REQUIRE( probe.get_leading_bytes().empty() );
 	}
 
 	SECTION( "it still exposes the path and the extension" )

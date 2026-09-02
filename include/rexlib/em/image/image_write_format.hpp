@@ -52,7 +52,7 @@ public:
 	 * The file named by @p probe usually does not exist yet, in which case
 	 * the probe carries no leading bytes and the decision rests on the
 	 * extension alone. Check @ref image_probe::exists rather than assuming
-	 * there is a header to read.
+	 * there are leading bytes to read.
 	 *
 	 * @param probe The file under consideration.
 	 * @return backend_priority How well this format fits @p probe.

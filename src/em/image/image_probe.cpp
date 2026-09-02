@@ -42,7 +42,10 @@ static std::string get_lowercase_extension(const std::string &path)
 	return extension;
 }
 
-static bool read_header(const std::string &path, std::vector<byte> &header)
+static bool read_leading_bytes(
+	const std::string &path,
+	std::vector<byte> &bytes
+)
 {
 	std::ifstream input(path.c_str(), std::ios::in | std::ios::binary);
 	if (!input.is_open())
@@ -50,12 +53,12 @@ static bool read_header(const std::string &path, std::vector<byte> &header)
 		return false;
 	}
 
-	header.resize(image_probe::header_size);
+	bytes.resize(image_probe::max_leading_bytes);
 	input.read(
-		reinterpret_cast<char*>(header.data()),
-		static_cast<std::streamsize>(header.size())
+		reinterpret_cast<char*>(bytes.data()),
+		static_cast<std::streamsize>(bytes.size())
 	);
-	header.resize(static_cast<std::size_t>(input.gcount()));
+	bytes.resize(static_cast<std::size_t>(input.gcount()));
 
 	return true;
 }
@@ -65,7 +68,7 @@ image_probe::image_probe(std::string path)
 	, m_extension(get_lowercase_extension(m_path))
 	, m_exists(false)
 {
-	m_exists = read_header(m_path, m_header);
+	m_exists = read_leading_bytes(m_path, m_leading_bytes);
 }
 
 image_probe::image_probe(const image_probe &other) = default;
@@ -85,9 +88,9 @@ const std::string& image_probe::get_extension() const noexcept
 	return m_extension;
 }
 
-span<const byte> image_probe::get_header() const noexcept
+span<const byte> image_probe::get_leading_bytes() const noexcept
 {
-	return span<const byte>(m_header.data(), m_header.size());
+	return span<const byte>(m_leading_bytes.data(), m_leading_bytes.size());
 }
 
 bool image_probe::exists() const noexcept
