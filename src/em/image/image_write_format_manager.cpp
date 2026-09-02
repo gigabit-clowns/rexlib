@@ -3,7 +3,6 @@
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/platform/assert.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_open_options.hpp>
@@ -55,7 +54,8 @@ public:
 	std::unique_ptr<image_writer> open(
 		const image_probe &probe,
 		const image_open_options &options,
-		const array_descriptor &descriptor,
+		span<const std::size_t> extents,
+		numerical_type data_type,
 		const image_metadata &metadata
 	) const
 	{
@@ -68,7 +68,7 @@ public:
 			);
 		}
 
-		return format->open(probe, options, descriptor, metadata);
+		return format->open(probe, options, extents, data_type, metadata);
 	}
 
 private:
@@ -99,14 +99,16 @@ bool image_write_format_manager::register_format(
 std::unique_ptr<image_writer> image_write_format_manager::open(
 	const std::string &path,
 	const image_open_options &options,
-	const array_descriptor &descriptor,
+	span<const std::size_t> extents,
+	numerical_type data_type,
 	const image_metadata &metadata
 ) const
 {
 	return get_implementation().open(
 		image_probe(path),
 		options,
-		descriptor,
+		extents,
+		data_type,
 		metadata
 	);
 }

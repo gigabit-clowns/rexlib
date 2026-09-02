@@ -21,10 +21,9 @@ namespace em
  *
  * The mirror of @ref image_reader: the same regions, described by the same
  * @ref image_transfer_plan, the same conversion rule, the opposite direction.
- * A writer is opened over a complete descriptor, so the extents of the
- * file are settled before anything is written; the file can be laid out
- * once up front and a region can be written wherever it belongs, in any
- * order.
+ * A writer is opened over complete extents, so the shape of the file is
+ * settled before anything is written; the file can be laid out once up
+ * front and a region can be written wherever it belongs, in any order.
  *
  * Growing a file whose length is not known until the data runs out is a
  * different contract, needing a cursor and a count patched as it goes, and
@@ -44,8 +43,11 @@ public:
 	/**
 	 * @brief Get the descriptor of the whole file.
 	 *
-	 * The one the writer was opened with, which is what bounds every region
-	 * that may be written.
+	 * The extents and the data type the writer was created over, which is
+	 * what bounds every region that may be written. Its strides are those of
+	 * a contiguous array, so that a caller may allocate a matching one from
+	 * it; how the file lays its elements out is the format's own business
+	 * and is not reported here.
 	 *
 	 * @return const array_descriptor& The descriptor.
 	 */

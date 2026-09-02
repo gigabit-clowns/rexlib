@@ -3,17 +3,17 @@
 #pragma once
 
 #include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 
+#include <cstddef>
 #include <memory>
 #include <string>
 
 namespace rexlib
 {
-
-class array_descriptor;
-
 namespace em
 {
 
@@ -63,24 +63,32 @@ public:
 	/**
 	 * @brief Create a file and open it for writing.
 	 *
-	 * The descriptor is complete, so the file may be laid out in full before
+	 * The extents are complete, so the file may be laid out in full before
 	 * anything is written. Any file already at that path is replaced.
+	 *
+	 * The shape is given as extents and a data type rather than as an
+	 * @ref array_descriptor because how the file lays its elements out is
+	 * the format's own decision: strides and an offset would be stated by
+	 * the caller and then ignored.
 	 *
 	 * @param probe The file to create.
 	 * @param options How the file will be walked.
-	 * @param descriptor The extents and the data type of the file to
-	 * create.
+	 * @param extents Extents of the file to create, slowest axis first.
+	 * @param data_type Data type of its elements. A format converts to
+	 * whatever it encodes, so this is what the file holds rather than what
+	 * a write will supply.
 	 * @param metadata How its samples map onto physical space. A format
 	 * writes what of it it can carry and ignores the rest.
 	 * @return std::unique_ptr<image_writer> The opened writer, never null.
-	 * @throws invalid_operation_error If this format can not represent
-	 * @p descriptor, such as a rank or a data type it has no encoding for.
+	 * @throws invalid_operation_error If this format can not represent the
+	 * requested file, such as a rank or a data type it has no encoding for.
 	 * @throws image_format_error If the file could not be created.
 	 */
 	virtual std::unique_ptr<image_writer> open(
 		const image_probe &probe,
 		const image_open_options &options,
-		const array_descriptor &descriptor,
+		span<const std::size_t> extents,
+		numerical_type data_type,
 		const image_metadata &metadata
 	) const = 0;
 };

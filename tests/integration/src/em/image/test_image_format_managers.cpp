@@ -6,7 +6,7 @@
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/service_catalog.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_open_options.hpp>
@@ -86,17 +86,14 @@ TEST_CASE( "the bundled library registers no image format yet",
 		const auto manager =
 			catalog.get_service_manager<image_write_format_manager>();
 		const std::vector<std::size_t> extents = {2, 2};
-		const array_descriptor descriptor(
-			strided_layout::make_contiguous_layout(make_span(extents)),
-			numerical_type::float32
-		);
 
 		REQUIRE( manager->get_most_suitable_format(probe) == nullptr );
 		REQUIRE_THROWS_AS(
 			manager->open(
 				"absent.mrc",
 				image_open_options(),
-				descriptor,
+				make_span(extents),
+				numerical_type::float32,
 				image_metadata()
 			),
 			invalid_operation_error

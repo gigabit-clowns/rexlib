@@ -8,7 +8,6 @@
 #include "mock/mock_image_write_format.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/em/image/image_format_registry.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_open_options.hpp>
@@ -25,14 +24,6 @@ namespace
 {
 
 const std::vector<std::size_t> file_extents = {2, 3, 4};
-
-array_descriptor make_descriptor()
-{
-	return array_descriptor(
-		strided_layout::make_contiguous_layout(make_span(file_extents)),
-		numerical_type::int16
-	);
-}
 
 class staged_format final
 	: public image_write_format
@@ -57,14 +48,13 @@ public:
 	std::unique_ptr<image_writer> open(
 		const image_probe &,
 		const image_open_options &,
-		const array_descriptor &descriptor,
+		span<const std::size_t> extents,
+		numerical_type,
 		const image_metadata &
 	) const override
 	{
-		std::vector<std::size_t> extents;
-		descriptor.get_layout().get_extents(extents);
 		return std::unique_ptr<image_writer>(
-			new fake_image_writer(make_span(extents))
+			new fake_image_writer(extents)
 		);
 	}
 
@@ -102,7 +92,8 @@ TEST_CASE( "an empty write manager recognizes nothing",
 			manager.open(
 				"absent.mrc",
 				image_open_options(),
-				make_descriptor(),
+				make_span(file_extents),
+				numerical_type::int16,
 				image_metadata()
 			),
 			invalid_operation_error
@@ -146,7 +137,8 @@ TEST_CASE( "the write manager picks the most suitable format",
 		const auto writer = manager.open(
 			"absent.mrc",
 			image_open_options(),
-			make_descriptor(),
+			make_span(file_extents),
+			numerical_type::int16,
 			image_metadata()
 		);
 
