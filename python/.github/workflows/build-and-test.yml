@@ -138,13 +138,31 @@ jobs:
         if: matrix.os == 'ubuntu-22.04'
         run: python -m pip install --upgrade pip packaging
 
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: gigabit-clowns/.github/.github/composites/setup-msvc@main
+
+      # One key per platform, not per interpreter: rexlib names no Python, so
+      # its objects are the same for all of them and only the binding differs.
+      - name: Set up compiler cache
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        with:
+          key: pip-${{ matrix.os }}
+          max-size: 500M
+
       - name: Install rexlib
+        env:
+          WANT_NINJA: ${{ runner.os == 'Windows' && '1' || '' }}
         run: |
+          # Set or absent, never empty: setdefault would keep an empty value.
+          if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
-            -DBUILD_TESTING=OFF
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           cmake --build "${{ runner.temp }}/rexlib-build" \
             --config Release --parallel 4
           # Everything except the namelink, which a wheel cannot hold.
@@ -156,8 +174,12 @@ jobs:
       - name: Install with pip
         env:
           rexlib_ROOT: ${{ runner.temp }}/rexlib
+          WANT_NINJA: ${{ runner.os == 'Windows' && '1' || '' }}
         run: |
+          if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           pip install .[test] -v \
+            -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
+            -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON \
             -Ccmake.define.REXLIB_PYTHON_STAGE_PREFIX="${{ runner.temp }}/rexlib"
 
