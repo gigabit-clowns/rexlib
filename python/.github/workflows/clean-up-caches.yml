@@ -21,7 +21,7 @@ on:
         type: choice
         options:
           - superseded
-          - every
+          - all
         default: superseded
       ref:
         description: Ref or branch to clean. The one this runs from when empty.
@@ -42,7 +42,7 @@ jobs:
       github.event.pull_request.head.repo.full_name == github.repository
     uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
     with:
-      scope: every
+      scope: all
       ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
   # Every ref: a superseded entry is dead wherever it sits, since the newest
@@ -59,7 +59,7 @@ jobs:
   on_request:
     permissions:
       actions: write
-    name: Delete caches from scope '${{ inputs.scope }}'
+    name: Delete ${{ inputs.scope }} caches
     if: github.event_name == 'workflow_dispatch'
     uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
     with:
