@@ -3,9 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
 
-#include <cstddef>
 #include <vector>
 
 namespace rexlib
@@ -44,8 +42,8 @@ public:
 	 */
 	REXLIB_API
 	image_metadata(
-		span<const double> sampling,
-		span<const double> origin
+		std::vector<double> sampling,
+		std::vector<double> origin
 	);
 
 	REXLIB_API

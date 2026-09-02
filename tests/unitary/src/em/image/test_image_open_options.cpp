@@ -87,10 +87,7 @@ TEST_CASE( "image_metadata distinguishes unstated from zero",
 	SECTION( "a stated sampling is returned per axis" )
 	{
 		const std::vector<double> expected = {1.0, 1.34, 1.34};
-		const image_metadata metadata(
-			make_span(expected),
-			span<const double>()
-		);
+		const image_metadata metadata(expected, {});
 
 		std::vector<double> sampling;
 		std::vector<double> origin;
@@ -104,7 +101,7 @@ TEST_CASE( "image_metadata distinguishes unstated from zero",
 	SECTION( "a sampling of one is not the same as an unstated sampling" )
 	{
 		const std::vector<double> ones = {1.0, 1.0};
-		const image_metadata stated(make_span(ones), span<const double>());
+		const image_metadata stated(ones, {});
 		const image_metadata unstated;
 
 		std::vector<double> from_stated;
@@ -119,10 +116,7 @@ TEST_CASE( "image_metadata distinguishes unstated from zero",
 	SECTION( "the output parameters are cleared before being populated" )
 	{
 		const std::vector<double> expected = {2.0};
-		const image_metadata metadata(
-			make_span(expected),
-			make_span(expected)
-		);
+		const image_metadata metadata(expected, expected);
 
 		std::vector<double> sampling = {7.0, 7.0, 7.0};
 		std::vector<double> origin = {7.0, 7.0, 7.0};

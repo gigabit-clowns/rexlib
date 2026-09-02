@@ -2,6 +2,8 @@
 
 #include <rexlib/em/image/image_metadata.hpp>
 
+#include <utility>
+
 namespace rexlib
 {
 namespace em
@@ -10,11 +12,11 @@ namespace em
 image_metadata::image_metadata() noexcept = default;
 
 image_metadata::image_metadata(
-	span<const double> sampling,
-	span<const double> origin
+	std::vector<double> sampling,
+	std::vector<double> origin
 )
-	: m_sampling(sampling.begin(), sampling.end())
-	, m_origin(origin.begin(), origin.end())
+	: m_sampling(std::move(sampling))
+	, m_origin(std::move(origin))
 {
 }
 
