@@ -9,58 +9,53 @@ on:
   workflow_run:
     workflows:
       - Build and Test
+      - Deploy release
     types:
       - completed
 
   workflow_dispatch:
     inputs:
-      branch:
-        description: Branch whose caches are all deleted
+      scope:
+        description: Which caches go
         required: true
+        type: choice
+        options:
+          - superseded
+          - every
+        default: superseded
+      ref:
+        description: Ref or branch to clean. The one this runs from when empty.
+        required: false
         type: string
 
 jobs:
-  delete_every_cache_of_a_ref:
-    name: Delete every cache of a ref
+  # A closed pull request's caches are reachable from its own ref alone, so
+  # none of them can ever be restored again.
+  after_a_pull_request:
+    name: Delete every cache of the closed pull request
     # A fork's token is read only, so the deletion would fail rather than
     # leave anything behind. Those caches expire on their own after 7 days.
     if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository)
-    permissions:
-      contents: read
-      actions: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: every
+      ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
-      # A closed pull request's caches are reachable from its own ref
-      # alone, so none of them can ever be restored again.
-      - name: Clean up caches
-        uses: ./.github/actions/clean-up-caches
-        with:
-          scope: every
-          ref: >-
-            ${{ github.event_name == 'pull_request'
-                && format('refs/pull/{0}/merge', github.event.pull_request.number)
-                || format('refs/heads/{0}', inputs.branch) }}
-          token: ${{ github.token }}
-
-  delete_superseded_caches:
+  # Every ref: a superseded entry is dead wherever it sits, since the newest
+  # of its prefix is the only one that will ever be restored.
+  after_a_build:
     name: Delete the caches a newer run has replaced
     if: github.event_name == 'workflow_run'
-    permissions:
-      contents: read
-      actions: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: superseded
 
-      - name: Clean up caches
-        uses: ./.github/actions/clean-up-caches
-        with:
-          scope: superseded
-          token: ${{ github.token }}
+  on_request:
+    name: Delete the ${{ inputs.scope }} caches
+    if: github.event_name == 'workflow_dispatch'
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: ${{ inputs.scope }}
+      ref: ${{ inputs.ref != '' && inputs.ref || github.ref_name }}
