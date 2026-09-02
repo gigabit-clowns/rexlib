@@ -105,6 +105,12 @@ jobs:
           max-size: 2G
           variant: ccache
 
+      # Ninja does not locate MSVC on its own the way the Visual Studio
+      # generator does; without this the configure step finds no cl.exe.
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: gigabit-clowns/.github/.github/composites/setup-msvc@main
+
       - name: Build wheels
         uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074 # v4.2.0
         env:
@@ -141,8 +147,11 @@ jobs:
             CCACHE_BASEDIR=/
             CCACHE_NOHASHDIR=1
             CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
+          # Only Ninja and the Makefile generators honour COMPILER_LAUNCHER;
+          # the Visual Studio one ignores it, so ccache never ran here.
           CIBW_ENVIRONMENT_WINDOWS: >-
             SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            CMAKE_GENERATOR=Ninja
             CCACHE_BASEDIR=C:/
             CCACHE_NOHASHDIR=1
             CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale

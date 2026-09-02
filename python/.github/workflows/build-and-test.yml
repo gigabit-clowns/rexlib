@@ -36,6 +36,12 @@ jobs:
         with:
           submodules: true
 
+      # Ninja does not locate MSVC on its own the way the Visual Studio
+      # generator does; without this the configure step finds no cl.exe.
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: gigabit-clowns/.github/.github/composites/setup-msvc@main
+
       # Most of the wall clock here is rexlib itself, which is built once
       # and then found by the project. Caching makes every run after the
       # first a link.
@@ -46,6 +52,8 @@ jobs:
           max-size: 1G
 
       - name: Install rexlib
+        env:
+          CMAKE_GENERATOR: Ninja
         run: |
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
@@ -69,6 +77,7 @@ jobs:
           build-dir: "${{ github.workspace }}/build"
           c-compiler: ${{ matrix.compiler.cc }}
           cxx-compiler: ${{ matrix.compiler.cxx }}
+          generator: "Ninja"
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             rexlib_ROOT=${{ runner.temp }}/rexlib
