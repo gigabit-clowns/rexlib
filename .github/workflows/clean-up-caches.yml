@@ -9,7 +9,6 @@ on:
   workflow_run:
     workflows:
       - Build and Test
-      - Deploy release
     types:
       - completed
 
