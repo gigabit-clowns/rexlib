@@ -160,8 +160,8 @@ private:
  * @brief Parse an image location from its string representation.
  *
  * The representation is expected to be:
- * <index>@<path> (a one based index into the file)
- * <path> (addresses the file as a whole)
+ * `<index>@<path>` (a one based index into the file)
+ * `<path>` (addresses the file as a whole)
  *
  * The index is one based to match the convention used by the star files of
  * the field, while @ref image_location::get_position_in_stack is zero based;
