@@ -59,7 +59,7 @@ jobs:
   on_request:
     permissions:
       actions: write
-    name: Delete the ${{ inputs.scope }} caches
+    name: Delete ${{ inputs.scope }} caches
     if: github.event_name == 'workflow_dispatch'
     uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
     with:
