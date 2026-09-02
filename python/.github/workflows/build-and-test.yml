@@ -36,6 +36,10 @@ jobs:
         with:
           submodules: true
 
+      # Temporary: drop this and re-enable renovate once rexlib tags releases.
+      - name: Move the submodule to rexlib's main
+        run: git submodule update --remote external/rexlib
+
       # Ninja does not locate MSVC on its own the way the Visual Studio
       # generator does; without this the configure step finds no cl.exe.
       - name: Set up MSVC environment
@@ -120,6 +124,10 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           submodules: true
+
+      # Temporary: drop this and re-enable renovate once rexlib tags releases.
+      - name: Move the submodule to rexlib's main
+        run: git submodule update --remote external/rexlib
       
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
