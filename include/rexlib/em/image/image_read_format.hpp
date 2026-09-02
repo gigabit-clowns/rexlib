@@ -14,7 +14,6 @@ namespace rexlib
 namespace em
 {
 
-class image_open_options;
 class image_probe;
 
 /**
@@ -75,16 +74,11 @@ public:
 	 * @ref backend_priority::unsupported for @p probe.
 	 *
 	 * @param probe The file to open.
-	 * @param options Which image of the file to open and how it will be
-	 * walked.
 	 * @return std::unique_ptr<image_reader> The opened reader, never null.
 	 * @throws image_format_error If the file is malformed or truncated.
-	 * @throws std::out_of_range If the file holds no file at the
-	 * requested index.
 	 */
 	virtual std::unique_ptr<image_reader> open(
-		const image_probe &probe,
-		const image_open_options &options
+		const image_probe &probe
 	) const = 0;
 };
 

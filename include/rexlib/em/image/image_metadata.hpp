@@ -3,6 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/span.hpp>
 
 #include <vector>
 
@@ -14,14 +15,14 @@ namespace em
 /**
  * @brief How the samples of a file map onto physical space.
  *
- * Holds the two quantities every electron microscopy format carries and
- * every geometric operation needs. Both are given per axis, ordered as the
- * axes of the file descriptor are, so the slowest axis comes first.
+ * Holds the sampling, which is what turns an index into a distance and so
+ * what every geometric operation needs. It is given per axis, ordered as
+ * the axes of the file descriptor are, so the slowest axis comes first.
  *
- * A quantity that the file does not state is left empty rather than
- * defaulted, so that a caller can tell an unstated sampling from a sampling
- * of one. Format specific header fields are not modelled here; a reader that
- * needs to expose them does so on its own.
+ * A file that does not state it leaves it empty rather than defaulted, so
+ * that a caller can tell an unstated sampling from a sampling of one.
+ * Format specific header fields are not modelled here; a reader that needs
+ * to expose them does so on its own.
  */
 class image_metadata
 {
@@ -33,18 +34,13 @@ public:
 	image_metadata() noexcept;
 
 	/**
-	 * @brief Construct metadata from its components.
+	 * @brief Construct metadata stating a sampling.
 	 *
 	 * @param sampling Distance between consecutive samples along each axis,
 	 * in angstrom. Empty when the file does not state it.
-	 * @param origin Position of the first sample along each axis, in
-	 * angstrom. Empty when the file does not state it.
 	 */
 	REXLIB_API
-	image_metadata(
-		std::vector<double> sampling,
-		std::vector<double> origin
-	);
+	explicit image_metadata(std::vector<double> sampling);
 
 	REXLIB_API
 	image_metadata(const image_metadata &other);
@@ -61,28 +57,16 @@ public:
 	/**
 	 * @brief Get the distance between consecutive samples on each axis.
 	 *
-	 * @param[out] sampling Output parameter receiving the distances, in
-	 * angstrom, ordered as the axes of the file. Cleared before being
-	 * populated, and left empty when the file does not state a sampling.
+	 * @return span<const double> The distances, in angstrom, ordered as the
+	 * axes of the file. Empty when the file does not state a sampling. It
+	 * refers to storage owned by this object, which assignment to or
+	 * destruction of it invalidates.
 	 */
 	REXLIB_API
-	void get_sampling(std::vector<double> &sampling) const;
-
-	/**
-	 * @brief Get the position of the first sample on each axis.
-	 *
-	 * @param[out] origin Output parameter receiving the positions, in
-	 * angstrom, ordered as the axes of the file. Cleared before being
-	 * populated, and left empty when the file does not state an origin.
-	 */
-	REXLIB_API
-	void get_origin(std::vector<double> &origin) const;
+	span<const double> get_sampling() const noexcept;
 
 private:
-	REXLIB_STD_MEMBER_INTERFACE
 	std::vector<double> m_sampling;
-	REXLIB_STD_MEMBER_INTERFACE
-	std::vector<double> m_origin;
 };
 
 } // namespace em

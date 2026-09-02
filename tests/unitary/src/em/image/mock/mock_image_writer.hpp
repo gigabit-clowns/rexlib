@@ -4,7 +4,6 @@
 
 #include <rexlib/em/image/image_writer.hpp>
 
-#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
@@ -22,10 +21,12 @@ public:
 	mock_image_writer() = default;
 
 	MAKE_CONST_MOCK0(
-		get_descriptor,
-		const array_descriptor&(),
+		get_extents,
+		span<const std::size_t>(),
 		noexcept override
 	);
+
+	MAKE_CONST_MOCK0(get_data_type, numerical_type(), noexcept override);
 
 	MAKE_MOCK2(
 		write,

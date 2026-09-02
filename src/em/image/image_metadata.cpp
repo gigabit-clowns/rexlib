@@ -11,12 +11,8 @@ namespace em
 
 image_metadata::image_metadata() noexcept = default;
 
-image_metadata::image_metadata(
-	std::vector<double> sampling,
-	std::vector<double> origin
-)
+image_metadata::image_metadata(std::vector<double> sampling)
 	: m_sampling(std::move(sampling))
-	, m_origin(std::move(origin))
 {
 }
 
@@ -29,14 +25,9 @@ image_metadata::operator=(const image_metadata &other) = default;
 image_metadata&
 image_metadata::operator=(image_metadata &&other) noexcept = default;
 
-void image_metadata::get_sampling(std::vector<double> &sampling) const
+span<const double> image_metadata::get_sampling() const noexcept
 {
-	sampling = m_sampling;
-}
-
-void image_metadata::get_origin(std::vector<double> &origin) const
-{
-	origin = m_origin;
+	return make_span(m_sampling.data(), m_sampling.size());
 }
 
 } // namespace em

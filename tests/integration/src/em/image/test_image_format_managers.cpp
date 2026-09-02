@@ -9,7 +9,6 @@
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/service_catalog.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <cstddef>
@@ -76,7 +75,7 @@ TEST_CASE( "the bundled library registers no image format yet",
 
 		REQUIRE( manager->get_most_suitable_format(probe) == nullptr );
 		REQUIRE_THROWS_AS(
-			manager->open("absent.mrc", image_open_options()),
+			manager->open("absent.mrc"),
 			invalid_operation_error
 		);
 	}
@@ -91,7 +90,6 @@ TEST_CASE( "the bundled library registers no image format yet",
 		REQUIRE_THROWS_AS(
 			manager->open(
 				"absent.mrc",
-				image_open_options(),
 				make_span(extents),
 				numerical_type::float32,
 				image_metadata()

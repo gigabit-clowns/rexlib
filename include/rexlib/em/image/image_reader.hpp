@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <cstddef>
@@ -10,7 +12,6 @@
 namespace rexlib
 {
 
-class array_descriptor;
 class array_ref;
 
 namespace em
@@ -28,17 +29,12 @@ class image_metadata;
  * a patch of an @c (H,W) micrograph is the region of extents @c (h,w) at
  * offset @c (y,x), and a whole volume is the region covering everything.
  * Reading in a random or in a sequential order is a property of a sequence
- * of calls rather than of one, so it is stated through
- * @ref image_open_options when the file is opened and is nothing a reader
- * distinguishes.
+ * of calls rather than of one, so it is nothing a reader distinguishes.
  *
  * A read takes a whole batch of regions rather than one at a time. That is
  * the only shape in which a reader can see enough to order and merge the
  * accesses it is about to make, and it keeps the per region cost to
  * arithmetic.
- *
- * A file holding several images of different shapes is opened once per
- * image, selected through @ref image_open_options::get_image_index.
  *
  * Everything a reader reports is fixed when it is opened, and reading does
  * not change it.
@@ -55,15 +51,26 @@ public:
 	image_reader& operator=(image_reader &&other) = delete;
 
 	/**
-	 * @brief Get the descriptor of the whole file.
+	 * @brief Get the extents of the file.
 	 *
-	 * The extents are those of the file in the order it stores its axes,
-	 * slowest first, and the data type is the one a read produces without
-	 * converting.
+	 * Those of the file in the order it stores its axes, slowest first. How
+	 * it lays its elements out within them is the format's own business and
+	 * is not reported.
 	 *
-	 * @return const array_descriptor& The descriptor.
+	 * @return span<const std::size_t> The extents. It refers to storage
+	 * owned by this reader.
 	 */
-	virtual const array_descriptor& get_descriptor() const noexcept = 0;
+	virtual span<const std::size_t> get_extents() const noexcept = 0;
+
+	/**
+	 * @brief Get the data type of the elements of the file.
+	 *
+	 * The one a read produces without converting, which is therefore the
+	 * cheapest type to ask a destination for.
+	 *
+	 * @return numerical_type The data type.
+	 */
+	virtual numerical_type get_data_type() const noexcept = 0;
 
 	/**
 	 * @brief Get how the samples of the file map onto physical space.
@@ -97,8 +104,8 @@ public:
 	 * Values are converted to the data type of @p destination with
 	 * @ref numerical_cast semantics, which preserve the numeric value.
 	 * Nothing is scaled, normalised or clipped, whatever statistics the file
-	 * may carry in its header; asking for the data type of
-	 * @ref get_descriptor converts nothing at all.
+	 * may carry in its header; asking for @ref get_data_type converts
+	 * nothing at all.
 	 *
 	 * This method may be called concurrently on one reader. A reader that
 	 * can not decode in parallel serialises the calls itself, so a caller

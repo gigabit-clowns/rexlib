@@ -5,6 +5,7 @@
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 
@@ -33,10 +34,6 @@ fake_image_reader::fake_image_reader(
 	image_metadata metadata
 )
 	: m_extents(extents.begin(), extents.end())
-	, m_descriptor(
-		strided_layout::make_contiguous_layout(extents),
-		numerical_type::int16
-	)
 	, m_metadata(std::move(metadata))
 {
 	const auto count = compute_element_count(extents);
@@ -49,9 +46,14 @@ fake_image_reader::fake_image_reader(
 
 fake_image_reader::~fake_image_reader() = default;
 
-const array_descriptor& fake_image_reader::get_descriptor() const noexcept
+span<const std::size_t> fake_image_reader::get_extents() const noexcept
 {
-	return m_descriptor;
+	return make_span(m_extents.data(), m_extents.size());
+}
+
+numerical_type fake_image_reader::get_data_type() const noexcept
+{
+	return numerical_type::int16;
 }
 
 const image_metadata& fake_image_reader::get_metadata() const noexcept

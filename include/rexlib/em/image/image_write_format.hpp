@@ -18,7 +18,6 @@ namespace em
 {
 
 class image_metadata;
-class image_open_options;
 class image_probe;
 
 /**
@@ -72,7 +71,6 @@ public:
 	 * the caller and then ignored.
 	 *
 	 * @param probe The file to create.
-	 * @param options How the file will be walked.
 	 * @param extents Extents of the file to create, slowest axis first.
 	 * @param data_type Data type of its elements. A format converts to
 	 * whatever it encodes, so this is what the file holds rather than what
@@ -86,7 +84,6 @@ public:
 	 */
 	virtual std::unique_ptr<image_writer> open(
 		const image_probe &probe,
-		const image_open_options &options,
 		span<const std::size_t> extents,
 		numerical_type data_type,
 		const image_metadata &metadata

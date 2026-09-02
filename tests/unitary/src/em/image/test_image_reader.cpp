@@ -434,34 +434,29 @@ TEST_CASE( "a reader reports what it was opened with", "[image_reader]" )
 {
 	const auto reader = make_reader();
 
-	SECTION( "the descriptor names the file" )
+	SECTION( "the extents and the data type name the file" )
 	{
-		std::vector<std::size_t> extents;
-		reader->get_descriptor().get_layout().get_extents(extents);
+		const auto extents = reader->get_extents();
 
-		REQUIRE( extents == file_extents );
-		REQUIRE( reader->get_descriptor().get_data_type() ==
-			numerical_type::int16 );
+		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
+			file_extents );
+		REQUIRE( reader->get_data_type() == numerical_type::int16 );
 	}
 }
 
 TEST_CASE( "image_reader is mockable", "[image_reader]" )
 {
 	mock_image_reader reader;
-	const array_descriptor descriptor(
-		strided_layout::make_contiguous_layout(make_span(file_extents)),
-		numerical_type::float32
-	);
 
-	ALLOW_CALL(reader, get_descriptor()).RETURN(descriptor);
+	ALLOW_CALL(reader, get_extents()).RETURN(make_span(file_extents));
 	REQUIRE_CALL(reader, read(ANY(array_ref),
 		ANY(const image_transfer_plan&)));
 
 	const image_reader &interface = reader;
-	std::vector<std::size_t> extents;
-	interface.get_descriptor().get_layout().get_extents(extents);
+	const auto extents = interface.get_extents();
 
-	REQUIRE( extents == file_extents );
+	REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
+		file_extents );
 
 	const image_transfer_plan regions;
 	interface.read(array_ref(), regions);

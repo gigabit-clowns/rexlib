@@ -2,7 +2,9 @@
 
 #pragma once
 
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <cstddef>
@@ -10,7 +12,6 @@
 namespace rexlib
 {
 
-class array_descriptor;
 class const_array_ref;
 
 namespace em
@@ -41,17 +42,26 @@ public:
 	image_writer& operator=(image_writer &&other) = delete;
 
 	/**
-	 * @brief Get the descriptor of the whole file.
+	 * @brief Get the extents of the file.
 	 *
-	 * The extents and the data type the writer was created over, which is
-	 * what bounds every region that may be written. Its strides are those of
-	 * a contiguous array, so that a caller may allocate a matching one from
-	 * it; how the file lays its elements out is the format's own business
-	 * and is not reported here.
+	 * The ones the writer was created over, which is what bounds every
+	 * region that may be written. How the file lays its elements out within
+	 * them is the format's own business and is not reported.
 	 *
-	 * @return const array_descriptor& The descriptor.
+	 * @return span<const std::size_t> The extents, slowest axis first. It
+	 * refers to storage owned by this writer.
 	 */
-	virtual const array_descriptor& get_descriptor() const noexcept = 0;
+	virtual span<const std::size_t> get_extents() const noexcept = 0;
+
+	/**
+	 * @brief Get the data type of the elements of the file.
+	 *
+	 * The one the writer was created over. A write converts to it from
+	 * whatever it is given.
+	 *
+	 * @return numerical_type The data type.
+	 */
+	virtual numerical_type get_data_type() const noexcept = 0;
 
 	/**
 	 * @brief Write a set of hyperrectangles of the file from one array.

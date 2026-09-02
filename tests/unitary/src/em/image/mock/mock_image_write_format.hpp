@@ -5,7 +5,6 @@
 #include <rexlib/em/image/image_write_format.hpp>
 
 #include <rexlib/em/image/image_metadata.hpp>
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 
@@ -30,11 +29,10 @@ public:
 		override
 	);
 
-	MAKE_CONST_MOCK5(
+	MAKE_CONST_MOCK4(
 		open,
 		std::unique_ptr<image_writer>(
 			const image_probe &probe,
-			const image_open_options &options,
 			span<const std::size_t> extents,
 			numerical_type data_type,
 			const image_metadata &metadata

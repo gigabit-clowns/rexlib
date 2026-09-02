@@ -4,7 +4,6 @@
 
 #include <rexlib/em/image/image_writer.hpp>
 
-#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <cstdint>
@@ -30,7 +29,9 @@ public:
 
 	~fake_image_writer() override;
 
-	const array_descriptor& get_descriptor() const noexcept override;
+	span<const std::size_t> get_extents() const noexcept override;
+
+	numerical_type get_data_type() const noexcept override;
 
 	void write(
 		const_array_ref source,
@@ -52,7 +53,6 @@ public:
 private:
 	std::vector<std::size_t> m_extents;
 	std::vector<std::int16_t> m_data;
-	array_descriptor m_descriptor;
 	std::size_t m_flush_count;
 };
 

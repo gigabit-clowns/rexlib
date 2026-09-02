@@ -4,7 +4,6 @@
 
 #include <rexlib/em/image/image_read_format.hpp>
 
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 
@@ -29,12 +28,9 @@ public:
 		override
 	);
 
-	MAKE_CONST_MOCK2(
+	MAKE_CONST_MOCK1(
 		open,
-		std::unique_ptr<image_reader>(
-			const image_probe &probe,
-			const image_open_options &options
-		),
+		std::unique_ptr<image_reader>(const image_probe &probe),
 		override
 	);
 };

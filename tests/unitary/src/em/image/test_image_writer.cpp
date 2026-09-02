@@ -351,16 +351,17 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 	}
 }
 
-TEST_CASE( "a writer is opened over a complete descriptor", "[image_writer]" )
+TEST_CASE( "a writer is opened over complete extents", "[image_writer]" )
 {
 	fake_image_writer writer(make_span(file_extents));
 
-	SECTION( "the descriptor bounds what may be written" )
+	SECTION( "the extents bound what may be written" )
 	{
-		std::vector<std::size_t> extents;
-		writer.get_descriptor().get_layout().get_extents(extents);
+		const auto extents = writer.get_extents();
 
-		REQUIRE( extents == file_extents );
+		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
+			file_extents );
+		REQUIRE( writer.get_data_type() == numerical_type::int16 );
 	}
 
 	SECTION( "flushing is explicit so that a failure can be reported" )

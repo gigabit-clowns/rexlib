@@ -38,8 +38,7 @@ public:
 	get_suitability(const image_probe &probe) const override;
 
 	std::unique_ptr<image_reader> open(
-		const image_probe &probe,
-		const image_open_options &options
+		const image_probe &probe
 	) const override;
 };
 

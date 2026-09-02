@@ -4,7 +4,6 @@
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/platform/assert.hpp>
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format.hpp>
 #include <rexlib/em/image/image_reader.hpp>
@@ -50,10 +49,7 @@ public:
 		return ite->get();
 	}
 
-	std::unique_ptr<image_reader> open(
-		const image_probe &probe,
-		const image_open_options &options
-	) const
+	std::unique_ptr<image_reader> open(const image_probe &probe) const
 	{
 		const auto *format = get_most_suitable_format(probe);
 		if (!format)
@@ -64,7 +60,7 @@ public:
 			);
 		}
 
-		return format->open(probe, options);
+		return format->open(probe);
 	}
 
 private:
@@ -92,12 +88,10 @@ bool image_read_format_manager::register_format(
 	return create_if_null().register_format(std::move(format));
 }
 
-std::unique_ptr<image_reader> image_read_format_manager::open(
-	const std::string &path,
-	const image_open_options &options
-) const
+std::unique_ptr<image_reader>
+image_read_format_manager::open(const std::string &path) const
 {
-	return get_implementation().open(image_probe(path), options);
+	return get_implementation().open(image_probe(path));
 }
 
 const image_read_format*

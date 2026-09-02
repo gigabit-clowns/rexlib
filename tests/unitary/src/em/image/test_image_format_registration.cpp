@@ -6,7 +6,6 @@
 
 #include "fake/fake_registered_format.hpp"
 
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <string>
@@ -48,13 +47,9 @@ TEST_CASE( "a format registers itself at static initialization",
 	{
 		manager.register_builtin_backends();
 
-		const auto reader = manager.open(
-			"absent.fake",
-			image_open_options()
-		);
+		const auto reader = manager.open("absent.fake");
 
 		REQUIRE( reader != nullptr );
-		REQUIRE( reader->get_descriptor().get_data_type() ==
-			numerical_type::int16 );
+		REQUIRE( reader->get_data_type() == numerical_type::int16 );
 	}
 }

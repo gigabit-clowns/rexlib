@@ -9,7 +9,6 @@
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_format_registry.hpp>
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <memory>
@@ -52,8 +51,7 @@ public:
 	}
 
 	std::unique_ptr<image_reader> open(
-		const image_probe &,
-		const image_open_options &
+		const image_probe &
 	) const override
 	{
 		return make_fake_reader();
@@ -90,7 +88,7 @@ TEST_CASE( "an empty read manager recognizes nothing",
 	SECTION( "opening reports that nothing is suitable" )
 	{
 		REQUIRE_THROWS_AS(
-			manager.open("absent.mrc", image_open_options()),
+			manager.open("absent.mrc"),
 			invalid_operation_error
 		);
 	}
@@ -152,7 +150,7 @@ TEST_CASE( "the read manager picks the most suitable format",
 		REQUIRE( manager.get_most_suitable_format(
 			image_probe("absent.mrc")) == nullptr );
 		REQUIRE_THROWS_AS(
-			manager.open("absent.mrc", image_open_options()),
+			manager.open("absent.mrc"),
 			invalid_operation_error
 		);
 	}
@@ -161,14 +159,10 @@ TEST_CASE( "the read manager picks the most suitable format",
 	{
 		manager.register_format(make_staged("only", backend_priority::normal));
 
-		const auto reader = manager.open(
-			"absent.mrc",
-			image_open_options()
-		);
+		const auto reader = manager.open("absent.mrc");
 
 		REQUIRE( reader != nullptr );
-		REQUIRE( reader->get_descriptor().get_data_type() ==
-			numerical_type::int16 );
+		REQUIRE( reader->get_data_type() == numerical_type::int16 );
 	}
 }
 

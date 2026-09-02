@@ -74,10 +74,10 @@ builders by reporting a higher `backend_priority`.
 as one rectangular ND array, and every access is a set of hyperrectangles of
 it. Element `i` of an `(N,H,W)` stack is the region of extents `(H,W)` at
 offset `(i,0,0)`; a patch of an `(H,W)` micrograph is the region of extents
-`(h,w)` at offset `(y,x)`.
-There is one read verb, not one per access pattern. Random versus sequential
-is a property of a sequence of requests, so it belongs to tier two and to the
-access hint given when the file is opened.
+`(h,w)` at offset `(y,x)`. There is one read verb, not one per access
+pattern. Random versus sequential is a property of a sequence of requests
+rather than of one, so it belongs to tier two and is nothing a reader
+distinguishes.
 
 A read takes a whole batch of regions in one `image_transfer_plan` rather than
 one region per call. That is the only shape in which a reader can see enough

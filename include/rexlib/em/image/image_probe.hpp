@@ -107,11 +107,8 @@ public:
 	bool exists() const noexcept;
 
 private:
-	REXLIB_STD_MEMBER_INTERFACE
 	std::string m_path;
-	REXLIB_STD_MEMBER_INTERFACE
 	std::string m_extension;
-	REXLIB_STD_MEMBER_INTERFACE
 	std::vector<byte> m_leading_bytes;
 	bool m_exists;
 };

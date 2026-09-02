@@ -14,7 +14,6 @@ namespace rexlib
 namespace em
 {
 
-class image_open_options;
 class image_probe;
 class image_read_format;
 
@@ -62,18 +61,13 @@ public:
 	 * format, then opens the file with whichever reported the highest
 	 * suitability.
 	 *
-	 * @param path Path to the file holding the file.
-	 * @param options Which image of the file to open and how it will be
-	 * walked.
+	 * @param path Path to the file to open.
 	 * @return std::unique_ptr<image_reader> The opened reader, never null.
 	 * @throws invalid_operation_error If no registered format recognizes the
 	 * file.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
-	std::unique_ptr<image_reader> open(
-		const std::string &path,
-		const image_open_options &options
-	) const;
+	std::unique_ptr<image_reader> open(const std::string &path) const;
 
 	/**
 	 * @brief Get the format that would open a file, without opening it.

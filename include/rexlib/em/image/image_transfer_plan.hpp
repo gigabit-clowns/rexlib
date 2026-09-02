@@ -175,11 +175,8 @@ public:
 	get_destination_offset(std::size_t index) const noexcept;
 
 private:
-	REXLIB_STD_MEMBER_INTERFACE
 	std::vector<std::size_t> m_extents;
-	REXLIB_STD_MEMBER_INTERFACE
 	std::vector<std::size_t> m_source_offsets;
-	REXLIB_STD_MEMBER_INTERFACE
 	std::vector<std::size_t> m_destination_offsets;
 	std::size_t m_source_rank;
 	std::size_t m_destination_rank;

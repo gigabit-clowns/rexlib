@@ -4,7 +4,6 @@
 
 #include <rexlib/em/image/image_reader.hpp>
 
-#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
@@ -35,7 +34,9 @@ public:
 
 	~fake_image_reader() override;
 
-	const array_descriptor& get_descriptor() const noexcept override;
+	span<const std::size_t> get_extents() const noexcept override;
+
+	numerical_type get_data_type() const noexcept override;
 	const image_metadata& get_metadata() const noexcept override;
 
 	void read(
@@ -51,7 +52,6 @@ public:
 private:
 	std::vector<std::size_t> m_extents;
 	std::vector<std::int16_t> m_data;
-	array_descriptor m_descriptor;
 	image_metadata m_metadata;
 };
 

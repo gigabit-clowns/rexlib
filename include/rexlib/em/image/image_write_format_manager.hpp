@@ -18,7 +18,6 @@ namespace em
 {
 
 class image_metadata;
-class image_open_options;
 class image_probe;
 class image_write_format;
 
@@ -63,7 +62,6 @@ public:
 	 * normally rests on its extension. Any file already there is replaced.
 	 *
 	 * @param path Path to the file to create.
-	 * @param options How the file will be walked.
 	 * @param extents Extents of the file to create, slowest axis first.
 	 * @param data_type Data type of its elements.
 	 * @param metadata How its samples map onto physical space.
@@ -74,7 +72,6 @@ public:
 	 */
 	std::unique_ptr<image_writer> open(
 		const std::string &path,
-		const image_open_options &options,
 		span<const std::size_t> extents,
 		numerical_type data_type,
 		const image_metadata &metadata

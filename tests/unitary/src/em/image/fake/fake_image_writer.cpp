@@ -5,6 +5,7 @@
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 
@@ -30,19 +31,20 @@ static std::size_t compute_element_count(span<const std::size_t> extents)
 fake_image_writer::fake_image_writer(span<const std::size_t> extents)
 	: m_extents(extents.begin(), extents.end())
 	, m_data(compute_element_count(extents), 0)
-	, m_descriptor(
-		strided_layout::make_contiguous_layout(extents),
-		numerical_type::int16
-	)
 	, m_flush_count(0)
 {
 }
 
 fake_image_writer::~fake_image_writer() = default;
 
-const array_descriptor& fake_image_writer::get_descriptor() const noexcept
+span<const std::size_t> fake_image_writer::get_extents() const noexcept
 {
-	return m_descriptor;
+	return make_span(m_extents.data(), m_extents.size());
+}
+
+numerical_type fake_image_writer::get_data_type() const noexcept
+{
+	return numerical_type::int16;
 }
 
 std::int16_t fake_image_writer::get_element(std::size_t index) const

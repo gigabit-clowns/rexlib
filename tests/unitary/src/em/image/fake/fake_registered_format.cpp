@@ -2,7 +2,6 @@
 
 #include "fake_registered_format.hpp"
 
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <em/image/formats/image_format_registration.hpp>
@@ -27,10 +26,8 @@ fake_registered_format::get_suitability(const image_probe &probe) const
 		: backend_priority::unsupported;
 }
 
-std::unique_ptr<image_reader> fake_registered_format::open(
-	const image_probe &,
-	const image_open_options &
-) const
+std::unique_ptr<image_reader>
+fake_registered_format::open(const image_probe &) const
 {
 	const std::vector<std::size_t> extents = {2, 2};
 	return std::unique_ptr<image_reader>(new fake_image_reader(

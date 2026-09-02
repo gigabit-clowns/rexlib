@@ -10,7 +10,6 @@
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_format_registry.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
-#include <rexlib/em/image/image_open_options.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <memory>
@@ -47,7 +46,6 @@ public:
 
 	std::unique_ptr<image_writer> open(
 		const image_probe &,
-		const image_open_options &,
 		span<const std::size_t> extents,
 		numerical_type,
 		const image_metadata &
@@ -91,7 +89,6 @@ TEST_CASE( "an empty write manager recognizes nothing",
 		REQUIRE_THROWS_AS(
 			manager.open(
 				"absent.mrc",
-				image_open_options(),
 				make_span(file_extents),
 				numerical_type::int16,
 				image_metadata()
@@ -136,7 +133,6 @@ TEST_CASE( "the write manager picks the most suitable format",
 
 		const auto writer = manager.open(
 			"absent.mrc",
-			image_open_options(),
 			make_span(file_extents),
 			numerical_type::int16,
 			image_metadata()
@@ -144,9 +140,9 @@ TEST_CASE( "the write manager picks the most suitable format",
 
 		REQUIRE( writer != nullptr );
 
-		std::vector<std::size_t> extents;
-		writer->get_descriptor().get_layout().get_extents(extents);
-		REQUIRE( extents == file_extents );
+		const auto extents = writer->get_extents();
+		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
+			file_extents );
 	}
 }
 
