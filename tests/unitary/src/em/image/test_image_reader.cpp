@@ -34,17 +34,8 @@ const std::vector<std::size_t> plane_extents = {3, 5};
 
 std::unique_ptr<fake_image_reader> make_reader()
 {
-	const std::vector<std::size_t> granularity = {1, 1, 1};
 	return std::unique_ptr<fake_image_reader>(new fake_image_reader(
 		make_span(file_extents),
-		image_access_traits(
-			make_span(granularity),
-			image_access_flags({
-				image_access_flag_bits::ordered_offsets,
-				image_access_flag_bits::concurrent_read
-			}),
-			numerical_type::int16
-		),
 		image_metadata()
 	));
 }
@@ -450,18 +441,6 @@ TEST_CASE( "a reader reports what it was opened with", "[image_reader]" )
 
 		REQUIRE( extents == file_extents );
 		REQUIRE( reader->get_descriptor().get_data_type() ==
-			numerical_type::int16 );
-	}
-
-	SECTION( "the traits state what a read costs" )
-	{
-		std::vector<std::size_t> granularity;
-		reader->get_access_traits().get_granularity(granularity);
-
-		REQUIRE( granularity == std::vector<std::size_t>{1, 1, 1} );
-		REQUIRE( reader->get_access_traits().get_flags().contains(
-			image_access_flag_bits::concurrent_read) );
-		REQUIRE( reader->get_access_traits().get_preferred_data_type() ==
 			numerical_type::int16 );
 	}
 }

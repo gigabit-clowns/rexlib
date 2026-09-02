@@ -33,14 +33,8 @@ std::unique_ptr<image_reader> fake_registered_format::open(
 ) const
 {
 	const std::vector<std::size_t> extents = {2, 2};
-	const std::vector<std::size_t> granularity = {1, 1};
 	return std::unique_ptr<image_reader>(new fake_image_reader(
 		make_span(extents),
-		image_access_traits(
-			make_span(granularity),
-			image_access_flags(),
-			numerical_type::int16
-		),
 		image_metadata()
 	));
 }

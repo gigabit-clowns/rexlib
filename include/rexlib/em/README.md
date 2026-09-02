@@ -72,9 +72,9 @@ builders by reporting a higher `backend_priority`.
 `image/` is a two-tier subsystem. Tier one is synchronous and per file: an
 `image_reader` or `image_writer` exposes the contents of **one image file**
 as one rectangular ND array, and every access is a set of hyperrectangles of
-it. Element `i` of an `(N,H,W)` stack is the box at offset `(i,0,0)` with
-extents `(1,H,W)`; a patch of an `(H,W)` micrograph is the box at `(y,x)`
-with extents `(h,w)`.
+it. Element `i` of an `(N,H,W)` stack is the region of extents `(H,W)` at
+offset `(i,0,0)`; a patch of an `(H,W)` micrograph is the region of extents
+`(h,w)` at offset `(y,x)`.
 There is one read verb, not one per access pattern. Random versus sequential
 is a property of a sequence of requests, so it belongs to tier two and to the
 access hint given when the file is opened.
@@ -98,11 +98,12 @@ has extents of rank two, and neither side pads them; ranks may differ in
 either direction, so a plane of a stack reads equally into an array that
 does not carry the axis it was stacked along.
 
-A reader always produces correct data for any in-bounds box; what varies
-between formats is the price, which `image_access_traits` advertises. Thread
-safety follows the same rule: `read` is always safe to call concurrently,
-and the `concurrent_read` flag says whether doing so buys throughput, never
-whether it is allowed.
+A reader always produces correct data for any in-bounds box, and `read` is
+always safe to call concurrently: a format that cannot decode in parallel
+serialises the calls itself, so a caller never loses correctness by issuing
+them at once. Nothing advertises what a read costs, because with the whole
+batch in hand the reader orders and merges its own accesses and such a hint
+was left without a consumer.
 
 Formats are registered per action. `image_read_format` and
 `image_write_format` are separate interfaces with separate registries and

@@ -16,22 +16,21 @@ class array_ref;
 namespace em
 {
 
-class image_access_traits;
 class image_metadata;
 
 /**
  * @brief Abstract read-only view of one image file.
  *
  * A reader is opened over one image file and exposes its contents as one
- * rectangular ND array. Every
- * read is a set of hyperrectangles of that array, which is the only access
- * pattern there is: element @c i of an @c (N,H,W) stack is the region at
- * offset @c (i,0,0) with extents @c (1,H,W), a patch of an @c (H,W)
- * micrograph is the region at @c (y,x) with extents @c (h,w), and a whole
- * volume is the region covering everything. Reading in a random or in a
- * sequential order is a property of a sequence of calls rather than of one,
- * so it is stated through @ref image_open_options when the file is opened
- * and is nothing a reader distinguishes.
+ * rectangular ND array. Every read is a set of hyperrectangles of that
+ * array, which is the only access pattern there is: element @c i of an
+ * @c (N,H,W) stack is the region of extents @c (H,W) at offset @c (i,0,0),
+ * a patch of an @c (H,W) micrograph is the region of extents @c (h,w) at
+ * offset @c (y,x), and a whole volume is the region covering everything.
+ * Reading in a random or in a sequential order is a property of a sequence
+ * of calls rather than of one, so it is stated through
+ * @ref image_open_options when the file is opened and is nothing a reader
+ * distinguishes.
  *
  * A read takes a whole batch of regions rather than one at a time. That is
  * the only shape in which a reader can see enough to order and merge the
@@ -42,8 +41,7 @@ class image_metadata;
  * image, selected through @ref image_open_options::get_image_index.
  *
  * Everything a reader reports is fixed when it is opened, and reading does
- * not change it. What varies between formats is what a read costs, which
- * @ref get_access_traits states.
+ * not change it.
  */
 class REXLIB_API image_reader
 {
@@ -76,14 +74,6 @@ public:
 	virtual const image_metadata& get_metadata() const noexcept = 0;
 
 	/**
-	 * @brief Get what a read from this reader costs.
-	 *
-	 * @return const image_access_traits& The traits.
-	 */
-	virtual const image_access_traits&
-	get_access_traits() const noexcept = 0;
-
-	/**
 	 * @brief Read a set of hyperrectangles of the file into one array.
 	 *
 	 * The file is the source of the plan and @p destination its
@@ -107,14 +97,12 @@ public:
 	 * Values are converted to the data type of @p destination with
 	 * @ref numerical_cast semantics, which preserve the numeric value.
 	 * Nothing is scaled, normalised or clipped, whatever statistics the file
-	 * may carry in its header; asking for
-	 * @ref image_access_traits::get_preferred_data_type converts nothing at
-	 * all.
+	 * may carry in its header; asking for the data type of
+	 * @ref get_descriptor converts nothing at all.
 	 *
 	 * This method may be called concurrently on one reader. A reader that
-	 * can not decode in parallel serialises the calls itself and leaves
-	 * @ref image_access_flag_bits::concurrent_read clear, so a caller that
-	 * ignores the flag loses throughput and never correctness.
+	 * can not decode in parallel serialises the calls itself, so a caller
+	 * never loses correctness by issuing them at once.
 	 *
 	 * An empty plan reads nothing and succeeds.
 	 *

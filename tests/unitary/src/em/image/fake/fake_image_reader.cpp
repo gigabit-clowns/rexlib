@@ -30,7 +30,6 @@ static std::size_t compute_element_count(span<const std::size_t> extents)
 
 fake_image_reader::fake_image_reader(
 	span<const std::size_t> extents,
-	image_access_traits traits,
 	image_metadata metadata
 )
 	: m_extents(extents.begin(), extents.end())
@@ -38,7 +37,6 @@ fake_image_reader::fake_image_reader(
 		strided_layout::make_contiguous_layout(extents),
 		numerical_type::int16
 	)
-	, m_traits(std::move(traits))
 	, m_metadata(std::move(metadata))
 {
 	const auto count = compute_element_count(extents);
@@ -59,12 +57,6 @@ const array_descriptor& fake_image_reader::get_descriptor() const noexcept
 const image_metadata& fake_image_reader::get_metadata() const noexcept
 {
 	return m_metadata;
-}
-
-const image_access_traits&
-fake_image_reader::get_access_traits() const noexcept
-{
-	return m_traits;
 }
 
 std::int16_t fake_image_reader::get_element(std::size_t index) const

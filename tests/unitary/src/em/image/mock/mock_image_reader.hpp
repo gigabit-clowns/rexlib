@@ -6,7 +6,6 @@
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
-#include <rexlib/em/image/image_access_traits.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
@@ -32,12 +31,6 @@ public:
 	MAKE_CONST_MOCK0(
 		get_metadata,
 		const image_metadata&(),
-		noexcept override
-	);
-
-	MAKE_CONST_MOCK0(
-		get_access_traits,
-		const image_access_traits&(),
 		noexcept override
 	);
 
