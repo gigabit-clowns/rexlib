@@ -96,18 +96,7 @@ jobs:
 
     - name: Set up MSVC environment
       if: matrix.compiler.cxx == 'cl'
-      shell: pwsh
-      run: |
-        $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
-        $install = & $vswhere -latest -products * `
-          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
-          -property installationPath
-        if (-not $install) { throw 'No Visual Studio installation with the C++ tools' }
-        $vcvars = Join-Path $install 'VC\Auxiliary\Build\vcvars64.bat'
-        cmd /c "`"$vcvars`" && set" |
-          Where-Object { $_ -match '^([^=]+)=(.*)$' } |
-          ForEach-Object { "$($Matches[1])=$($Matches[2])" } |
-          Add-Content -Path $env:GITHUB_ENV -Encoding utf8
+      uses: gigabit-clowns/.github/.github/composites/setup-msvc@main
 
     - name: Set up compiler cache
       uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
