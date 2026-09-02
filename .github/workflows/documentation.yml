@@ -1,0 +1,67 @@
+name: Deploy documentation
+permissions: {}
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/documentation.yml'
+
+  workflow_dispatch:
+
+jobs:
+  build_doxygen:
+    name: Build Doxygen documentation
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+    - name: Setup Pages
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y doxygen
+
+    - name: Configure and build with CMake
+      uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2
+      with:
+        source-dir: ${{ github.workspace }}
+        build-dir: "${{ github.workspace }}/build"
+        options: |
+          REXLIB_BUILD_DOC=ON
+          BUILD_TESTING=OFF
+        run-build: true
+        build-args: --target doxygen
+
+    - name: Upload artifact
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
+      with:
+        path: ${{ github.workspace }}/build/doc/doxygen/html
+
+  deploy_doxygen_to_gh_pages:
+    name: Deploy Doxygen documentation to GitHub Pages
+    needs: [build_doxygen]
+    permissions:
+      pages: write
+      id-token: write
+    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5
