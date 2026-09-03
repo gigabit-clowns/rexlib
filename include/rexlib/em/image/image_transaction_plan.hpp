@@ -39,6 +39,11 @@ namespace em
  * position along the axes the extents do not reach, which are its leading
  * ones.
  *
+ * The shape — the extents and the two ranks — is stated when a plan is
+ * constructed and never changes. A plan is therefore always one whole thing
+ * rather than something to be configured before it can be used, and only the
+ * files and the regions come and go.
+ *
  * Every file has the same rank, since a transaction over files of differing
  * rank has no consumer and would cost the flat layout that makes this type
  * worth having: the offsets live in @ref index_table and the paths in an
@@ -54,10 +59,24 @@ class image_transaction_plan
 {
 public:
 	/**
-	 * @brief Construct an empty plan holding no region and no extents.
+	 * @brief Construct an empty plan of a given shape.
+	 *
+	 * The shape is what every region of the plan shares and is fixed for
+	 * the life of it; only the files and the regions are added and dropped.
+	 *
+	 * @param extents Extents of one region. Their rank is the rank of the
+	 * region, which may be lower than that of either side.
+	 * @param file_rank Rank of every file the regions address.
+	 * @param array_rank Rank of the array the regions address.
+	 * @throws std::invalid_argument If the rank of @p extents exceeds
+	 * @p file_rank or @p array_rank.
 	 */
 	REXLIB_API
-	image_transaction_plan() noexcept;
+	image_transaction_plan(
+		span<const std::size_t> extents,
+		std::size_t file_rank,
+		std::size_t array_rank
+	);
 
 	REXLIB_API
 	image_transaction_plan(const image_transaction_plan &other);
@@ -71,26 +90,6 @@ public:
 	REXLIB_API
 	image_transaction_plan&
 	operator=(image_transaction_plan &&other) noexcept;
-
-	/**
-	 * @brief Set the shape shared by the regions and drop everything held.
-	 *
-	 * Keeps the capacity already reserved, so configuring a reused plan for
-	 * the next transaction allocates nothing.
-	 *
-	 * @param extents Extents of one region. Their rank is the rank of the
-	 * region, which may be lower than that of either side.
-	 * @param file_rank Rank of every file the regions address.
-	 * @param array_rank Rank of the array the regions address.
-	 * @throws std::invalid_argument If the rank of @p extents exceeds
-	 * @p file_rank or @p array_rank.
-	 */
-	REXLIB_API
-	void reset(
-		span<const std::size_t> extents,
-		std::size_t file_rank,
-		std::size_t array_rank
-	);
 
 	/**
 	 * @brief Name a file the regions may address.

@@ -76,8 +76,7 @@ const float* float_data(const array &target)
 // of a three dimensional destination.
 image_transfer_plan make_plane_batch(const std::vector<std::size_t> &planes)
 {
-	image_transfer_plan regions;
-	regions.reset(make_span(plane_extents), 3, 3);
+	image_transfer_plan regions(make_span(plane_extents), 3, 3);
 	regions.reserve(planes.size());
 
 	for (std::size_t slot = 0; slot < planes.size(); ++slot)
@@ -108,8 +107,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 2);
+		image_transfer_plan regions(make_span(plane_extents), 3, 2);
 		const std::size_t file_offset[3] = {2, 0, 0};
 		const std::size_t array_offset[2] = {0, 0};
 		regions.add(
@@ -133,8 +131,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(extents), 3, 2);
+		image_transfer_plan regions(make_span(extents), 3, 2);
 		const std::size_t file_offset[3] = {1, 1, 3};
 		const std::size_t array_offset[2] = {0, 0};
 		regions.add(
@@ -159,8 +156,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(file_extents), 3, 3);
+		image_transfer_plan regions(make_span(file_extents), 3, 3);
 		const std::size_t origin[3] = {0, 0, 0};
 		regions.add(make_span(origin, 3), make_span(origin, 3));
 
@@ -180,8 +176,7 @@ TEST_CASE( "every read pattern is one region", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 2);
+		image_transfer_plan regions(make_span(plane_extents), 3, 2);
 
 		REQUIRE_NOTHROW( reader->read(array_ref(destination), regions) );
 	}
@@ -237,8 +232,7 @@ TEST_CASE( "a read converts to the destination data type", "[image_reader]" )
 
 	const auto make_regions = [&] ()
 	{
-		image_transfer_plan regions;
-		regions.reset(make_span(extents), 3, 2);
+		image_transfer_plan regions(make_span(extents), 3, 2);
 		const std::size_t file_offset[3] = {0, 1, 0};
 		const std::size_t array_offset[2] = {0, 0};
 		regions.add(
@@ -302,8 +296,7 @@ TEST_CASE( "a read fills a strided destination", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 3);
+		image_transfer_plan regions(make_span(plane_extents), 3, 3);
 		const std::size_t first_source[3] = {0, 0, 0};
 		const std::size_t first_destination[3] = {0, 0, 0};
 		const std::size_t second_source[3] = {1, 0, 0};
@@ -339,8 +332,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 2);
+		image_transfer_plan regions(make_span(plane_extents), 3, 2);
 		const std::size_t file_offset[3] = {4, 0, 0};
 		const std::size_t array_offset[2] = {0, 0};
 		regions.add(
@@ -362,8 +354,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 3);
+		image_transfer_plan regions(make_span(plane_extents), 3, 3);
 		const std::size_t file_offset[3] = {0, 0, 0};
 		const std::size_t array_offset[3] = {1, 0, 0};
 		regions.add(
@@ -384,8 +375,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 2, 2);
+		image_transfer_plan regions(make_span(plane_extents), 2, 2);
 		const std::size_t offset[2] = {0, 0};
 		regions.add(make_span(offset, 2), make_span(offset, 2));
 
@@ -402,8 +392,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 			numerical_type::int16
 		);
 
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 3);
+		image_transfer_plan regions(make_span(plane_extents), 3, 3);
 		const std::size_t offset[3] = {0, 0, 0};
 		regions.add(make_span(offset, 3), make_span(offset, 3));
 
@@ -415,8 +404,7 @@ TEST_CASE( "a read refuses a region it can not serve", "[image_reader]" )
 
 	SECTION( "an uninitialized destination is refused" )
 	{
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 2);
+		image_transfer_plan regions(make_span(plane_extents), 3, 2);
 		const std::size_t file_offset[3] = {0, 0, 0};
 		const std::size_t array_offset[2] = {0, 0};
 		regions.add(
@@ -468,6 +456,6 @@ TEST_CASE( "image_reader is mockable", "[image_reader]" )
 	REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
 		file_extents );
 
-	const image_transfer_plan regions;
+	const image_transfer_plan regions(make_span(plane_extents), 3, 3);
 	interface.read(array_ref(), regions);
 }

@@ -12,7 +12,46 @@ namespace rexlib
 namespace em
 {
 
-image_transaction_plan::image_transaction_plan() noexcept = default;
+namespace
+{
+
+std::vector<std::size_t> checked_extents(
+	span<const std::size_t> extents,
+	std::size_t file_rank,
+	std::size_t array_rank
+)
+{
+	if (extents.size() > file_rank)
+	{
+		throw std::invalid_argument(
+			"image_transaction_plan: The regions do not fit in the rank of "
+			"the files."
+		);
+	}
+
+	if (extents.size() > array_rank)
+	{
+		throw std::invalid_argument(
+			"image_transaction_plan: The regions do not fit in the rank of "
+			"the array."
+		);
+	}
+
+	return std::vector<std::size_t>(extents.begin(), extents.end());
+}
+
+} // namespace
+
+image_transaction_plan::image_transaction_plan(
+	span<const std::size_t> extents,
+	std::size_t file_rank,
+	std::size_t array_rank
+)
+	: m_extents(checked_extents(extents, file_rank, array_rank))
+	, m_file_offsets(file_rank)
+	, m_array_offsets(array_rank)
+{
+}
 
 image_transaction_plan::image_transaction_plan(
 	const image_transaction_plan &other
@@ -28,34 +67,6 @@ image_transaction_plan& image_transaction_plan::operator=(
 image_transaction_plan& image_transaction_plan::operator=(
 	image_transaction_plan &&other
 ) noexcept = default;
-
-void image_transaction_plan::reset(
-	span<const std::size_t> extents,
-	std::size_t file_rank,
-	std::size_t array_rank
-)
-{
-	if (extents.size() > file_rank)
-	{
-		throw std::invalid_argument(
-			"image_transaction_plan::reset: The regions do not fit in the "
-			"rank of the files."
-		);
-	}
-
-	if (extents.size() > array_rank)
-	{
-		throw std::invalid_argument(
-			"image_transaction_plan::reset: The regions do not fit in the "
-			"rank of the array."
-		);
-	}
-
-	m_extents.assign(extents.begin(), extents.end());
-	m_file_offsets.reset(file_rank);
-	m_array_offsets.reset(array_rank);
-	m_files.clear();
-}
 
 std::size_t image_transaction_plan::add_file(std::string path)
 {

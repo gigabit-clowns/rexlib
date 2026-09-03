@@ -69,8 +69,11 @@ image_transfer_plan make_regions(
 	span<const std::size_t> array_offset
 )
 {
-	image_transfer_plan regions;
-	regions.reset(extents, file_offset.size(), array_offset.size());
+	image_transfer_plan regions(
+		extents,
+		file_offset.size(),
+		array_offset.size()
+	);
 	regions.add(file_offset, array_offset);
 	return regions;
 }
@@ -132,8 +135,7 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 			numerical_type::int16,
 			1.0f
 		);
-		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 3, 2);
+		image_transfer_plan regions(make_span(plane_extents), 3, 2);
 
 		REQUIRE_NOTHROW( writer.write(const_array_ref(source), regions) );
 		REQUIRE( writer.get_element(0) == 0 );
@@ -153,8 +155,7 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 		0.0f
 	);
 
-	image_transfer_plan regions;
-	regions.reset(make_span(plane_extents), 3, 3);
+	image_transfer_plan regions(make_span(plane_extents), 3, 3);
 	regions.reserve(3);
 
 	const std::vector<std::size_t> targets = {3, 0, 2};
@@ -239,8 +240,7 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 		0.0f
 	);
 
-	image_transfer_plan regions;
-	regions.reset(make_span(plane_extents), 3, 3);
+	image_transfer_plan regions(make_span(plane_extents), 3, 3);
 	const std::size_t file_offset[3] = {0, 0, 0};
 	const std::size_t array_offset[3] = {0, 0, 5};
 	regions.add(
@@ -378,7 +378,7 @@ TEST_CASE( "image_writer is mockable", "[image_writer]" )
 	REQUIRE_CALL(writer, flush());
 
 	image_writer &interface = writer;
-	const image_transfer_plan regions;
+	const image_transfer_plan regions(make_span(plane_extents), 3, 3);
 	interface.write(const_array_ref(), regions);
 	interface.flush();
 }

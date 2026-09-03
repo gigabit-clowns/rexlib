@@ -67,16 +67,6 @@ TEST_CASE( "an index_table reads back what it was given", "[index_table]" )
 		REQUIRE( table.get_size() == 0 );
 		REQUIRE( table.get_rank() == 3 );
 	}
-
-	SECTION( "reset states a new rank and drops the indices" )
-	{
-		const std::size_t index[3] = {0, 0, 0};
-		table.add(make_span(index, 3));
-		table.reset(2);
-
-		REQUIRE( table.get_size() == 0 );
-		REQUIRE( table.get_rank() == 2 );
-	}
 }
 
 TEST_CASE( "an index_table refuses an index of the wrong rank",

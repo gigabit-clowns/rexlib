@@ -30,12 +30,6 @@ index_table::~index_table() = default;
 index_table& index_table::operator=(const index_table &other) = default;
 index_table& index_table::operator=(index_table &&other) noexcept = default;
 
-void index_table::reset(std::size_t rank)
-{
-	m_rank = rank;
-	clear();
-}
-
 void index_table::add(span<const std::size_t> index)
 {
 	if (index.size() != m_rank)

@@ -36,9 +36,14 @@ namespace em
  * direction, so a plane of a stack may equally be read into an array that
  * does not carry the axis it was stacked along.
  *
+ * The shape — the extents and the two ranks — is stated when a plan is
+ * constructed and never changes. A plan is therefore always one whole thing
+ * rather than something to be configured before it can be used, and only the
+ * regions come and go.
+ *
  * The offsets are held in two @ref index_table instead of one allocation per
  * region, so a batch of any size costs a bounded number of allocations, and
- * @ref clear keeps the capacity: one instance reused from one call to the
+ * @ref clear keeps the capacity: one instance refilled from one call to the
  * next allocates nothing after the first. That is the point of the class,
  * and reusing it is the expected way to use it.
  *
@@ -49,10 +54,24 @@ class image_transfer_plan
 {
 public:
 	/**
-	 * @brief Construct an empty plan holding no region and no extents.
+	 * @brief Construct an empty plan of a given shape.
+	 *
+	 * The shape is what every region of the plan shares and is fixed for
+	 * the life of it; only the regions are added and dropped.
+	 *
+	 * @param extents Extents of one region. Their rank is the rank of the
+	 * region, which may be lower than that of either side.
+	 * @param file_rank Rank of the file the regions address.
+	 * @param array_rank Rank of the array the regions address.
+	 * @throws std::invalid_argument If the rank of @p extents exceeds
+	 * @p file_rank or @p array_rank.
 	 */
 	REXLIB_API
-	image_transfer_plan() noexcept;
+	image_transfer_plan(
+		span<const std::size_t> extents,
+		std::size_t file_rank,
+		std::size_t array_rank
+	);
 
 	REXLIB_API
 	image_transfer_plan(const image_transfer_plan &other);
@@ -65,26 +84,6 @@ public:
 	image_transfer_plan& operator=(const image_transfer_plan &other);
 	REXLIB_API
 	image_transfer_plan& operator=(image_transfer_plan &&other) noexcept;
-
-	/**
-	 * @brief Set the shape shared by the regions and drop the ones held.
-	 *
-	 * Keeps the capacity already reserved, so configuring a reused plan for
-	 * the next call allocates nothing.
-	 *
-	 * @param extents Extents of one region. Their rank is the rank of the
-	 * region, which may be lower than that of either side.
-	 * @param file_rank Rank of the file the regions address.
-	 * @param array_rank Rank of the array the regions address.
-	 * @throws std::invalid_argument If the rank of @p extents exceeds
-	 * @p file_rank or @p array_rank.
-	 */
-	REXLIB_API
-	void reset(
-		span<const std::size_t> extents,
-		std::size_t file_rank,
-		std::size_t array_rank
-	);
 
 	/**
 	 * @brief Append one region.

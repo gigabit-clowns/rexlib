@@ -38,27 +38,25 @@ void add_element(
 
 } // namespace
 
-TEST_CASE( "an image_transaction_plan starts empty",
+TEST_CASE( "an image_transaction_plan starts empty of files and regions",
 	"[image_transaction_plan]" )
 {
-	const image_transaction_plan plan;
+	const image_transaction_plan plan(make_span(plane_extents), 3, 3);
 
 	REQUIRE( plan.get_size() == 0 );
-	REQUIRE( plan.get_rank() == 0 );
-	REQUIRE( plan.get_file_rank() == 0 );
-	REQUIRE( plan.get_array_rank() == 0 );
 	REQUIRE( plan.get_file_count() == 0 );
-	REQUIRE( plan.get_extents().empty() );
+	REQUIRE( to_vector(plan.get_extents()) == plane_extents );
+	REQUIRE( plan.get_rank() == 2 );
+	REQUIRE( plan.get_file_rank() == 3 );
+	REQUIRE( plan.get_array_rank() == 3 );
 }
 
 TEST_CASE( "an image_transaction_plan states the shape of its regions",
 	"[image_transaction_plan]" )
 {
-	image_transaction_plan plan;
-
-	SECTION( "reset states the shape shared by every region" )
+	SECTION( "the shape is stated when the plan is constructed" )
 	{
-		plan.reset(make_span(plane_extents), 3, 3);
+		const image_transaction_plan plan(make_span(plane_extents), 3, 3);
 
 		REQUIRE( to_vector(plan.get_extents()) == plane_extents );
 		REQUIRE( plan.get_rank() == 2 );
@@ -72,7 +70,7 @@ TEST_CASE( "an image_transaction_plan states the shape of its regions",
 		// Patches cut out of two dimensional micrographs into a three
 		// dimensional array.
 		const std::vector<std::size_t> extents = {4, 4};
-		plan.reset(make_span(extents), 2, 3);
+		const image_transaction_plan plan(make_span(extents), 2, 3);
 
 		REQUIRE( plan.get_file_rank() == 2 );
 		REQUIRE( plan.get_array_rank() == 3 );
@@ -83,7 +81,7 @@ TEST_CASE( "an image_transaction_plan states the shape of its regions",
 		const std::vector<std::size_t> extents = {1, 4, 4};
 
 		REQUIRE_THROWS_AS(
-			plan.reset(make_span(extents), 2, 3),
+			image_transaction_plan(make_span(extents), 2, 3),
 			std::invalid_argument
 		);
 	}
@@ -93,7 +91,7 @@ TEST_CASE( "an image_transaction_plan states the shape of its regions",
 		const std::vector<std::size_t> extents = {1, 4, 4};
 
 		REQUIRE_THROWS_AS(
-			plan.reset(make_span(extents), 3, 2),
+			image_transaction_plan(make_span(extents), 3, 2),
 			std::invalid_argument
 		);
 	}
@@ -102,8 +100,7 @@ TEST_CASE( "an image_transaction_plan states the shape of its regions",
 TEST_CASE( "an image_transaction_plan names each file once",
 	"[image_transaction_plan]" )
 {
-	image_transaction_plan plan;
-	plan.reset(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
 
 	SECTION( "a path named twice keeps the index it was first given" )
 	{
@@ -128,8 +125,7 @@ TEST_CASE( "an image_transaction_plan names each file once",
 TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 	"[image_transaction_plan]" )
 {
-	image_transaction_plan plan;
-	plan.reset(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
 	const auto file = plan.add_file("stack_0.mrcs");
 
 	const std::size_t two[2] = {0, 0};
@@ -176,8 +172,7 @@ TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 TEST_CASE( "clearing an image_transaction_plan keeps the shape",
 	"[image_transaction_plan]" )
 {
-	image_transaction_plan plan;
-	plan.reset(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
 	const auto file = plan.add_file("stack_0.mrcs");
 	add_element(plan, file, 0, 0);
 	plan.clear();
@@ -194,8 +189,7 @@ TEST_CASE( "an image_transaction_plan reused across calls stops allocating",
 {
 	const std::size_t count = 64;
 
-	image_transaction_plan plan;
-	plan.reset(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
 	plan.reserve(2, count);
 
 	const auto fill = [&] ()
@@ -225,8 +219,7 @@ TEST_CASE( "an image_transaction_plan reused across calls stops allocating",
 TEST_CASE( "an image_transaction_plan has value semantics",
 	"[image_transaction_plan]" )
 {
-	image_transaction_plan plan;
-	plan.reset(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
 	const auto file = plan.add_file("stack_0.mrcs");
 	add_element(plan, file, 2, 0);
 

@@ -24,10 +24,9 @@ namespace em
  * instance reused from one call to the next allocates nothing after the
  * first.
  *
- * The rank is stated once, by @ref reset or by the constructor, and every
- * index added afterwards carries it. A table of rank zero holds indices that
- * address a single position, which is what a plan over a rank zero side
- * needs.
+ * The rank is stated when a table is constructed and never changes, so every
+ * index it holds carries it. A table of rank zero holds indices that address
+ * a single position, which is what a plan over a rank zero side needs.
  */
 class index_table
 {
@@ -57,16 +56,6 @@ public:
 	index_table& operator=(const index_table &other);
 	REXLIB_API
 	index_table& operator=(index_table &&other) noexcept;
-
-	/**
-	 * @brief Set the rank of the indices and drop the ones held.
-	 *
-	 * Keeps the capacity already reserved.
-	 *
-	 * @param rank Number of coordinates each index carries.
-	 */
-	REXLIB_API
-	void reset(std::size_t rank);
 
 	/**
 	 * @brief Append one index.
