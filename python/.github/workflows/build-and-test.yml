@@ -201,10 +201,10 @@ jobs:
         run: |
           chmod +x ./scripts/run-tests.sh
           ./scripts/run-tests.sh ${{ matrix.os == 'ubuntu-latest'
-            && matrix.python-version == '3.13' && '--coverage' || '' }}
+            && matrix.python-version == '3.14' && '--coverage' || '' }}
 
       - name: Upload coverage report
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.13'
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: python-coverage
