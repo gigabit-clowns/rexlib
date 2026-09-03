@@ -102,9 +102,9 @@ public:
 	/**
 	 * @brief Read a set of hyperrectangles of the file into one array.
 	 *
-	 * The file is the source of the plan and @p destination its
-	 * destination: every region names where it starts in the file and where
-	 * it lands in @p destination, and all of them share the extents the
+	 * The file is the file side of the plan and @p destination its array
+	 * side: every region names where it starts in the file and where it
+	 * lands in @p destination, and all of them share the extents the
 	 * plan carries. Passing every region in one call is what lets a
 	 * reader sort the regions by their position on the storage and merge
 	 * neighbouring ones into a single larger read, which one call per region
@@ -112,8 +112,8 @@ public:
 	 * rather than once per region.
 	 *
 	 * @p destination is the array as the caller holds it, not a view of one
-	 * slot, and it may be strided. The source offsets of the plan must have
-	 * the rank of the file and its destination offsets the rank of
+	 * slot, and it may be strided. The file offsets of the plan must have
+	 * the rank of the file and its array offsets the rank of
 	 * @p destination; a side whose rank exceeds that of the extents spans a
 	 * single position along the axes they do not reach.
 	 *
@@ -135,8 +135,8 @@ public:
 	 * @param destination Where the regions are written. Must be initialized
 	 * and host accessible.
 	 * @param regions The regions to read and where each one lands.
-	 * @throws std::invalid_argument If the source offsets do not have the
-	 * rank of the file, if the destination offsets do not have the rank of
+	 * @throws std::invalid_argument If the file offsets do not have the
+	 * rank of the file, if the array offsets do not have the rank of
 	 * @p destination, or if @p destination is not initialized.
 	 * @throws std::out_of_range If a region is not contained in the file,
 	 * or does not fit in @p destination where it is placed.

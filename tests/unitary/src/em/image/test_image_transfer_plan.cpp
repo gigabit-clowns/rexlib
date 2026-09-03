@@ -27,8 +27,8 @@ TEST_CASE( "an image_transfer_plan starts empty", "[image_transfer_plan]" )
 
 	REQUIRE( regions.get_size() == 0 );
 	REQUIRE( regions.get_rank() == 0 );
-	REQUIRE( regions.get_source_rank() == 0 );
-	REQUIRE( regions.get_destination_rank() == 0 );
+	REQUIRE( regions.get_file_rank() == 0 );
+	REQUIRE( regions.get_array_rank() == 0 );
 	REQUIRE( regions.get_extents().empty() );
 }
 
@@ -43,34 +43,34 @@ TEST_CASE( "an image_transfer_plan carries offsets on both sides",
 	{
 		REQUIRE( to_vector(regions.get_extents()) == extents );
 		REQUIRE( regions.get_rank() == 2 );
-		REQUIRE( regions.get_source_rank() == 3 );
-		REQUIRE( regions.get_destination_rank() == 3 );
+		REQUIRE( regions.get_file_rank() == 3 );
+		REQUIRE( regions.get_array_rank() == 3 );
 		REQUIRE( regions.get_size() == 0 );
 	}
 
 	SECTION( "added regions are read back in order" )
 	{
-		const std::size_t first_source[3] = {2, 0, 0};
-		const std::size_t first_destination[3] = {0, 0, 0};
-		const std::size_t second_source[3] = {1, 0, 0};
-		const std::size_t second_destination[3] = {1, 0, 0};
+		const std::size_t first_file[3] = {2, 0, 0};
+		const std::size_t first_array[3] = {0, 0, 0};
+		const std::size_t second_file[3] = {1, 0, 0};
+		const std::size_t second_array[3] = {1, 0, 0};
 		regions.add(
-			make_span(first_source, 3),
-			make_span(first_destination, 3)
+			make_span(first_file, 3),
+			make_span(first_array, 3)
 		);
 		regions.add(
-			make_span(second_source, 3),
-			make_span(second_destination, 3)
+			make_span(second_file, 3),
+			make_span(second_array, 3)
 		);
 
 		REQUIRE( regions.get_size() == 2 );
-		REQUIRE( to_vector(regions.get_source_offset(0)) ==
+		REQUIRE( to_vector(regions.get_file_offset(0)) ==
 			std::vector<std::size_t>{2, 0, 0} );
-		REQUIRE( to_vector(regions.get_destination_offset(0)) ==
+		REQUIRE( to_vector(regions.get_array_offset(0)) ==
 			std::vector<std::size_t>{0, 0, 0} );
-		REQUIRE( to_vector(regions.get_source_offset(1)) ==
+		REQUIRE( to_vector(regions.get_file_offset(1)) ==
 			std::vector<std::size_t>{1, 0, 0} );
-		REQUIRE( to_vector(regions.get_destination_offset(1)) ==
+		REQUIRE( to_vector(regions.get_array_offset(1)) ==
 			std::vector<std::size_t>{1, 0, 0} );
 	}
 
@@ -82,8 +82,8 @@ TEST_CASE( "an image_transfer_plan carries offsets on both sides",
 
 		REQUIRE( regions.get_size() == 0 );
 		REQUIRE( to_vector(regions.get_extents()) == extents );
-		REQUIRE( regions.get_source_rank() == 3 );
-		REQUIRE( regions.get_destination_rank() == 3 );
+		REQUIRE( regions.get_file_rank() == 3 );
+		REQUIRE( regions.get_array_rank() == 3 );
 	}
 
 	SECTION( "resetting again drops the regions" )
@@ -108,17 +108,17 @@ TEST_CASE( "an image_transfer_plan lets the two sides differ in rank",
 		image_transfer_plan regions;
 		regions.reset(make_span(extents), 2, 3);
 
-		const std::size_t source_offset[2] = {10, 20};
-		const std::size_t destination_offset[3] = {0, 0, 0};
+		const std::size_t file_offset[2] = {10, 20};
+		const std::size_t array_offset[3] = {0, 0, 0};
 		regions.add(
-			make_span(source_offset, 2),
-			make_span(destination_offset, 3)
+			make_span(file_offset, 2),
+			make_span(array_offset, 3)
 		);
 
 		REQUIRE( regions.get_rank() == 2 );
-		REQUIRE( regions.get_source_rank() == 2 );
-		REQUIRE( regions.get_destination_rank() == 3 );
-		REQUIRE( to_vector(regions.get_source_offset(0)) ==
+		REQUIRE( regions.get_file_rank() == 2 );
+		REQUIRE( regions.get_array_rank() == 3 );
+		REQUIRE( to_vector(regions.get_file_offset(0)) ==
 			std::vector<std::size_t>{10, 20} );
 	}
 
@@ -130,15 +130,15 @@ TEST_CASE( "an image_transfer_plan lets the two sides differ in rank",
 		image_transfer_plan regions;
 		regions.reset(make_span(extents), 3, 2);
 
-		const std::size_t source_offset[3] = {2, 0, 0};
-		const std::size_t destination_offset[2] = {0, 0};
+		const std::size_t file_offset[3] = {2, 0, 0};
+		const std::size_t array_offset[2] = {0, 0};
 		regions.add(
-			make_span(source_offset, 3),
-			make_span(destination_offset, 2)
+			make_span(file_offset, 3),
+			make_span(array_offset, 2)
 		);
 
-		REQUIRE( regions.get_source_rank() == 3 );
-		REQUIRE( regions.get_destination_rank() == 2 );
+		REQUIRE( regions.get_file_rank() == 3 );
+		REQUIRE( regions.get_array_rank() == 2 );
 	}
 
 	SECTION( "extents may match both ranks exactly" )
@@ -150,7 +150,7 @@ TEST_CASE( "an image_transfer_plan lets the two sides differ in rank",
 		REQUIRE( regions.get_rank() == 3 );
 	}
 
-	SECTION( "a region that does not fit the source rank is refused" )
+	SECTION( "a region that does not fit the file rank is refused" )
 	{
 		const std::vector<std::size_t> extents = {1, 4, 4};
 		image_transfer_plan regions;
@@ -161,7 +161,7 @@ TEST_CASE( "an image_transfer_plan lets the two sides differ in rank",
 		);
 	}
 
-	SECTION( "a region that does not fit the destination rank is refused" )
+	SECTION( "a region that does not fit the array rank is refused" )
 	{
 		const std::vector<std::size_t> extents = {1, 4, 4};
 		image_transfer_plan regions;
@@ -205,7 +205,7 @@ TEST_CASE( "an image_transfer_plan refuses an offset of the wrong rank",
 	const std::size_t two[2] = {0, 0};
 	const std::size_t three[3] = {0, 0, 0};
 
-	SECTION( "the source offset must have the source rank" )
+	SECTION( "the file offset must have the file rank" )
 	{
 		REQUIRE_THROWS_AS(
 			regions.add(make_span(two, 2), make_span(three, 3)),
@@ -213,7 +213,7 @@ TEST_CASE( "an image_transfer_plan refuses an offset of the wrong rank",
 		);
 	}
 
-	SECTION( "the destination offset must have the destination rank" )
+	SECTION( "the array offset must have the array rank" )
 	{
 		REQUIRE_THROWS_AS(
 			regions.add(make_span(three, 3), make_span(two, 2)),
@@ -249,25 +249,25 @@ TEST_CASE( "an image_transfer_plan reused across calls stops allocating",
 		regions.clear();
 		for (std::size_t i = 0; i < count; ++i)
 		{
-			const std::size_t source_offset[3] = {i % 4, 0, 0};
-			const std::size_t destination_offset[3] = {i, 0, 0};
+			const std::size_t file_offset[3] = {i % 4, 0, 0};
+			const std::size_t array_offset[3] = {i, 0, 0};
 			regions.add(
-				make_span(source_offset, 3),
-				make_span(destination_offset, 3)
+				make_span(file_offset, 3),
+				make_span(array_offset, 3)
 			);
 		}
 	};
 
 	fill();
-	const auto *source_data = regions.get_source_offset(0).data();
-	const auto *destination_data = regions.get_destination_offset(0).data();
+	const auto *file_data = regions.get_file_offset(0).data();
+	const auto *array_data = regions.get_array_offset(0).data();
 
 	SECTION( "refilling keeps every region" )
 	{
 		fill();
 
 		REQUIRE( regions.get_size() == count );
-		REQUIRE( to_vector(regions.get_destination_offset(count - 1)) ==
+		REQUIRE( to_vector(regions.get_array_offset(count - 1)) ==
 			std::vector<std::size_t>{count - 1, 0, 0} );
 	}
 
@@ -276,9 +276,9 @@ TEST_CASE( "an image_transfer_plan reused across calls stops allocating",
 		for (std::size_t repeat = 0; repeat < 8; ++repeat)
 		{
 			fill();
-			REQUIRE( regions.get_source_offset(0).data() == source_data );
-			REQUIRE( regions.get_destination_offset(0).data() ==
-				destination_data );
+			REQUIRE( regions.get_file_offset(0).data() == file_data );
+			REQUIRE( regions.get_array_offset(0).data() ==
+				array_data );
 		}
 	}
 }
@@ -289,11 +289,11 @@ TEST_CASE( "an image_transfer_plan has value semantics",
 	const std::vector<std::size_t> extents = {3, 5};
 	image_transfer_plan regions;
 	regions.reset(make_span(extents), 3, 3);
-	const std::size_t source_offset[3] = {2, 0, 0};
-	const std::size_t destination_offset[3] = {1, 0, 0};
+	const std::size_t file_offset[3] = {2, 0, 0};
+	const std::size_t array_offset[3] = {1, 0, 0};
 	regions.add(
-		make_span(source_offset, 3),
-		make_span(destination_offset, 3)
+		make_span(file_offset, 3),
+		make_span(array_offset, 3)
 	);
 
 	SECTION( "a copy holds the same regions" )
@@ -302,11 +302,11 @@ TEST_CASE( "an image_transfer_plan has value semantics",
 
 		REQUIRE( copy.get_size() == 1 );
 		REQUIRE( to_vector(copy.get_extents()) == extents );
-		REQUIRE( to_vector(copy.get_source_offset(0)) ==
+		REQUIRE( to_vector(copy.get_file_offset(0)) ==
 			std::vector<std::size_t>{2, 0, 0} );
 	}
 
-	SECTION( "a copy does not share storage with its source" )
+	SECTION( "a copy does not share storage with the plan it copies" )
 	{
 		image_transfer_plan copy(regions);
 		copy.clear();

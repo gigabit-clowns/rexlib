@@ -11,12 +11,7 @@ namespace rexlib
 namespace em
 {
 
-image_transfer_plan::image_transfer_plan() noexcept
-	: m_source_rank(0)
-	, m_destination_rank(0)
-	, m_size(0)
-{
-}
+image_transfer_plan::image_transfer_plan() noexcept = default;
 
 image_transfer_plan::image_transfer_plan(
 	const image_transfer_plan &other
@@ -33,82 +28,71 @@ image_transfer_plan::operator=(image_transfer_plan &&other) noexcept = default;
 
 void image_transfer_plan::reset(
 	span<const std::size_t> extents,
-	std::size_t source_rank,
-	std::size_t destination_rank
+	std::size_t file_rank,
+	std::size_t array_rank
 )
 {
-	if (extents.size() > source_rank)
+	if (extents.size() > file_rank)
 	{
 		throw std::invalid_argument(
 			"image_transfer_plan::reset: The regions do not fit in the rank "
-			"of the source."
+			"of the file."
 		);
 	}
 
-	if (extents.size() > destination_rank)
+	if (extents.size() > array_rank)
 	{
 		throw std::invalid_argument(
 			"image_transfer_plan::reset: The regions do not fit in the rank "
-			"of the destination."
+			"of the array."
 		);
 	}
 
 	m_extents.assign(extents.begin(), extents.end());
-	m_source_rank = source_rank;
-	m_destination_rank = destination_rank;
-	clear();
+	m_file_offsets.reset(file_rank);
+	m_array_offsets.reset(array_rank);
 }
 
 void image_transfer_plan::add(
-	span<const std::size_t> source_offset,
-	span<const std::size_t> destination_offset
+	span<const std::size_t> file_offset,
+	span<const std::size_t> array_offset
 )
 {
-	if (source_offset.size() != m_source_rank)
+	if (file_offset.size() != m_file_offsets.get_rank())
 	{
 		throw std::invalid_argument(
-			"image_transfer_plan::add: The source offset does not have the "
-			"rank of the source."
+			"image_transfer_plan::add: The file offset does not have the "
+			"rank of the file."
 		);
 	}
 
-	if (destination_offset.size() != m_destination_rank)
+	if (array_offset.size() != m_array_offsets.get_rank())
 	{
 		throw std::invalid_argument(
-			"image_transfer_plan::add: The destination offset does not have "
-			"the rank of the destination."
+			"image_transfer_plan::add: The array offset does not have the "
+			"rank of the array."
 		);
 	}
 
-	m_source_offsets.insert(
-		m_source_offsets.end(),
-		source_offset.begin(),
-		source_offset.end()
-	);
-	m_destination_offsets.insert(
-		m_destination_offsets.end(),
-		destination_offset.begin(),
-		destination_offset.end()
-	);
-	++m_size;
+	m_file_offsets.add(file_offset);
+	m_array_offsets.add(array_offset);
 }
 
 void image_transfer_plan::clear() noexcept
 {
-	m_source_offsets.clear();
-	m_destination_offsets.clear();
-	m_size = 0;
+	m_file_offsets.clear();
+	m_array_offsets.clear();
 }
 
 void image_transfer_plan::reserve(std::size_t count)
 {
-	m_source_offsets.reserve(count * m_source_rank);
-	m_destination_offsets.reserve(count * m_destination_rank);
+	m_file_offsets.reserve(count);
+	m_array_offsets.reserve(count);
 }
 
 std::size_t image_transfer_plan::get_size() const noexcept
 {
-	return m_size;
+	return m_file_offsets.get_size();
 }
 
 std::size_t image_transfer_plan::get_rank() const noexcept
@@ -116,14 +100,14 @@ std::size_t image_transfer_plan::get_rank() const noexcept
 	return m_extents.size();
 }
 
-std::size_t image_transfer_plan::get_source_rank() const noexcept
+std::size_t image_transfer_plan::get_file_rank() const noexcept
 {
-	return m_source_rank;
+	return m_file_offsets.get_rank();
 }
 
-std::size_t image_transfer_plan::get_destination_rank() const noexcept
+std::size_t image_transfer_plan::get_array_rank() const noexcept
 {
-	return m_destination_rank;
+	return m_array_offsets.get_rank();
 }
 
 span<const std::size_t> image_transfer_plan::get_extents() const noexcept
@@ -132,23 +116,15 @@ span<const std::size_t> image_transfer_plan::get_extents() const noexcept
 }
 
 span<const std::size_t>
-image_transfer_plan::get_source_offset(std::size_t index) const noexcept
+image_transfer_plan::get_file_offset(std::size_t index) const noexcept
 {
-	REXLIB_ASSERT(index < m_size);
-	return make_span(
-		m_source_offsets.data() + (index * m_source_rank),
-		m_source_rank
-	);
+	return m_file_offsets.get(index);
 }
 
 span<const std::size_t>
-image_transfer_plan::get_destination_offset(std::size_t index) const noexcept
+image_transfer_plan::get_array_offset(std::size_t index) const noexcept
 {
-	REXLIB_ASSERT(index < m_size);
-	return make_span(
-		m_destination_offsets.data() + (index * m_destination_rank),
-		m_destination_rank
-	);
+	return m_array_offsets.get(index);
 }
 
 std::size_t get_region_extent(

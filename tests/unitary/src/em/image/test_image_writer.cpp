@@ -61,21 +61,17 @@ array make_source(
 	return result;
 }
 
-// A writer takes the array as its source and the file as its destination,
-// which is the opposite assignment to a read.
+// A plan is built the same way for a write as for a read: the file side is
+// the file and the array side is the array, whichever way the data moves.
 image_transfer_plan make_regions(
 	span<const std::size_t> extents,
-	span<const std::size_t> source_offset,
-	span<const std::size_t> destination_offset
+	span<const std::size_t> file_offset,
+	span<const std::size_t> array_offset
 )
 {
 	image_transfer_plan regions;
-	regions.reset(
-		extents,
-		source_offset.size(),
-		destination_offset.size()
-	);
-	regions.add(source_offset, destination_offset);
+	regions.reset(extents, file_offset.size(), array_offset.size());
+	regions.add(file_offset, array_offset);
 	return regions;
 }
 
@@ -98,8 +94,8 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 			const_array_ref(source),
 			make_regions(
 				make_span(plane_extents),
-				make_span(array_origin, 2),
-				make_span(file_offset, 3)
+				make_span(file_offset, 3),
+				make_span(array_origin, 2)
 			)
 		);
 
@@ -120,8 +116,8 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 			const_array_ref(source),
 			make_regions(
 				make_span(plane_extents),
-				make_span(array_origin, 2),
-				make_span(file_offset, 3)
+				make_span(file_offset, 3),
+				make_span(array_origin, 2)
 			)
 		);
 
@@ -137,7 +133,7 @@ TEST_CASE( "a write places one region of the file", "[image_writer]" )
 			1.0f
 		);
 		image_transfer_plan regions;
-		regions.reset(make_span(plane_extents), 2, 3);
+		regions.reset(make_span(plane_extents), 3, 2);
 
 		REQUIRE_NOTHROW( writer.write(const_array_ref(source), regions) );
 		REQUIRE( writer.get_element(0) == 0 );
@@ -164,11 +160,11 @@ TEST_CASE( "one write drains a whole batch", "[image_writer]" )
 	const std::vector<std::size_t> targets = {3, 0, 2};
 	for (std::size_t slot = 0; slot < targets.size(); ++slot)
 	{
-		const std::size_t source_offset[3] = {slot, 0, 0};
-		const std::size_t destination_offset[3] = {targets[slot], 0, 0};
+		const std::size_t file_offset[3] = {targets[slot], 0, 0};
+		const std::size_t array_offset[3] = {slot, 0, 0};
 		regions.add(
-			make_span(source_offset, 3),
-			make_span(destination_offset, 3)
+			make_span(file_offset, 3),
+			make_span(array_offset, 3)
 		);
 	}
 
@@ -200,8 +196,8 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 			const_array_ref(source),
 			make_regions(
 				make_span(extents),
-				make_span(array_origin, 2),
-				make_span(file_offset, 3)
+				make_span(file_offset, 3),
+				make_span(array_origin, 2)
 			)
 		);
 
@@ -222,8 +218,8 @@ TEST_CASE( "a write converts from the source data type", "[image_writer]" )
 				const_array_ref(source),
 				make_regions(
 					make_span(extents),
-					make_span(array_origin, 2),
-					make_span(file_offset, 3)
+					make_span(file_offset, 3),
+					make_span(array_origin, 2)
 				)
 			),
 			invalid_operation_error
@@ -245,11 +241,11 @@ TEST_CASE( "a write reads through a strided source", "[image_writer]" )
 
 	image_transfer_plan regions;
 	regions.reset(make_span(plane_extents), 3, 3);
-	const std::size_t source_offset[3] = {0, 0, 5};
-	const std::size_t destination_offset[3] = {0, 0, 0};
+	const std::size_t file_offset[3] = {0, 0, 0};
+	const std::size_t array_offset[3] = {0, 0, 5};
 	regions.add(
-		make_span(source_offset, 3),
-		make_span(destination_offset, 3)
+		make_span(file_offset, 3),
+		make_span(array_offset, 3)
 	);
 
 	writer.write(const_array_ref(batch), regions);
@@ -280,8 +276,8 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 				const_array_ref(source),
 				make_regions(
 					make_span(plane_extents),
-					make_span(array_origin, 2),
-					make_span(file_offset, 3)
+					make_span(file_offset, 3),
+					make_span(array_origin, 2)
 				)
 			),
 			std::out_of_range
@@ -303,15 +299,15 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 				const_array_ref(source),
 				make_regions(
 					make_span(plane_extents),
-					make_span(array_offset, 2),
-					make_span(file_offset, 3)
+					make_span(file_offset, 3),
+					make_span(array_offset, 2)
 				)
 			),
 			std::out_of_range
 		);
 	}
 
-	SECTION( "a plan of the wrong source rank is refused" )
+	SECTION( "a plan of the wrong array rank is refused" )
 	{
 		auto source = make_source(
 			make_span(plane_extents),
@@ -342,8 +338,8 @@ TEST_CASE( "a write refuses a region it can not place", "[image_writer]" )
 				const_array_ref(),
 				make_regions(
 					make_span(plane_extents),
-					make_span(array_origin, 2),
-					make_span(file_offset, 3)
+					make_span(file_offset, 3),
+					make_span(array_origin, 2)
 				)
 			),
 			std::invalid_argument

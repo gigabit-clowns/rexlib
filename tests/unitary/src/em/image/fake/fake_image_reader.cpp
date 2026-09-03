@@ -79,10 +79,10 @@ void fake_image_reader::read(
 ) const
 {
 	const auto file_rank = m_extents.size();
-	if (regions.get_source_rank() != file_rank)
+	if (regions.get_file_rank() != file_rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_reader::read: The source offsets do not have the "
+			"fake_image_reader::read: The file offsets do not have the "
 			"rank of the file."
 		);
 	}
@@ -99,10 +99,10 @@ void fake_image_reader::read(
 	// the reason the regions arrive together.
 	const auto &layout = destination.get_descriptor().get_layout();
 	const auto destination_rank = layout.get_rank();
-	if (regions.get_destination_rank() != destination_rank)
+	if (regions.get_array_rank() != destination_rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_reader::read: The destination offsets do not have "
+			"fake_image_reader::read: The array offsets do not have "
 			"the rank of the destination."
 		);
 	}
@@ -133,8 +133,8 @@ void fake_image_reader::read(
 
 	const auto extents = regions.get_extents();
 	const auto rank = regions.get_rank();
-	const auto source_leading = file_rank - rank;
-	const auto destination_leading = destination_rank - rank;
+	const auto file_leading = file_rank - rank;
+	const auto array_leading = destination_rank - rank;
 	const auto element_size = get_size(data_type);
 	const auto count = compute_element_count(extents);
 
@@ -142,14 +142,13 @@ void fake_image_reader::read(
 
 	for (std::size_t region = 0; region < regions.get_size(); ++region)
 	{
-		const auto source_offset = regions.get_source_offset(region);
-		const auto destination_offset =
-			regions.get_destination_offset(region);
+		const auto file_offset = regions.get_file_offset(region);
+		const auto array_offset = regions.get_array_offset(region);
 
 		for (std::size_t i = 0; i < file_rank; ++i)
 		{
 			const auto extent = get_region_extent(regions, file_rank, i);
-			if (source_offset[i] + extent > m_extents[i])
+			if (file_offset[i] + extent > m_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_reader::read: The region is not contained in "
@@ -162,7 +161,7 @@ void fake_image_reader::read(
 		{
 			const auto extent =
 				get_region_extent(regions, destination_rank, i);
-			if (destination_offset[i] + extent > destination_extents[i])
+			if (array_offset[i] + extent > destination_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_reader::read: The region does not fit in the "
@@ -178,20 +177,20 @@ void fake_image_reader::read(
 			std::size_t source = 0;
 			for (std::size_t i = 0; i < file_rank; ++i)
 			{
-				const auto c = i < source_leading
+				const auto c = i < file_leading
 					? std::size_t(0)
-					: coordinates[i - source_leading];
-				source = (source * m_extents[i]) + source_offset[i] + c;
+					: coordinates[i - file_leading];
+				source = (source * m_extents[i]) + file_offset[i] + c;
 			}
 
 			auto position = layout.get_offset();
 			for (std::size_t i = 0; i < destination_rank; ++i)
 			{
-				const auto c = i < destination_leading
+				const auto c = i < array_leading
 					? std::size_t(0)
-					: coordinates[i - destination_leading];
+					: coordinates[i - array_leading];
 				position += static_cast<std::ptrdiff_t>(
-					destination_offset[i] + c
+					array_offset[i] + c
 				) * strides[i];
 			}
 

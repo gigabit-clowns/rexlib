@@ -88,15 +88,23 @@ nothing after the first. Measured on a batch of 256, a call per region cost
 110 to 150 ns and four allocations each; building and walking the batched
 form costs about 8 ns per region and two allocations for the whole batch.
 
-The plan describes a transfer between a source and a destination, and says
-nothing about which of them is the file: a reader takes the file as its
-source, a writer as its destination. Its extents are the shape of one region
-and carry the rank of the region alone, so a side of higher rank spans a
-single position along the axes they do not reach. A batch of two dimensional
-patches cut from a micrograph into a three dimensional destination therefore
-has extents of rank two, and neither side pads them; ranks may differ in
-either direction, so a plane of a stack reads equally into an array that
-does not carry the axis it was stacked along.
+The plan names its two sides for what they are rather than for which way the
+data moves: one is **the file** and the other **the array**. A plan is
+therefore built the same way for a read as for a write, and the direction
+belongs to the call. Its extents are the shape of one region and carry the
+rank of the region alone, so a side of higher rank spans a single position
+along the axes they do not reach. A batch of two dimensional patches cut from
+a micrograph into a three dimensional array therefore has extents of rank
+two, and neither side pads them; ranks may differ in either direction, so a
+plane of a stack reads equally into an array that does not carry the axis it
+was stacked along.
+
+The offsets live in `index_table`, a flat table of same-rank indices, so a
+batch of any size costs a bounded number of allocations and `clear()` keeps
+the capacity: one plan reused from one call to the next allocates nothing
+after the first. `interned_path_list` is its counterpart for paths, holding
+equal paths once and referring to them by index, which is what a transaction
+over many files needs when the same stack is named by region after region.
 
 The extents alone do not say what a file holds: `(N,H,W)` is a stack of `N`
 images or one volume of `N` planes, and the two are written differently. A
@@ -121,8 +129,19 @@ separate `service_manager`s, so a consumer that only reads never constructs
 the write side. Each format `.cpp` ends in a `REXLIB_REGISTER_IMAGE_*_FORMAT`
 macro; there is no registrar list to add to.
 
-Tier two — asynchronous batching, scheduling and the scratch cache — is not
-implemented yet.
+Tier two spans **many files per transfer**, which is the one thing tier one
+does not do. Its unit is a **transaction**: one array, one set of files,
+completing as a whole. `image_transaction_plan` describes one, and is the peer
+of `image_transfer_plan` rather than a composite of it — the same regions, the
+same two sides, with a file named per region.
+
+A plan holds its regions in the order they were added and in no other.
+Walking them one file at a time, so that each file is opened and read once,
+is `region_grouping`: it names regions rather than moving them, and it is a
+type of its own rather than a phase of the plan, because it is what a
+consumer wants of a transaction and not something the transaction is. The
+rest of the tier — the handle policy, the sources and sinks, the executor and
+the scratch cache — is not implemented yet.
 
 ## Adding an operation (checklist)
 

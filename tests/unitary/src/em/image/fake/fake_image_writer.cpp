@@ -77,10 +77,10 @@ void fake_image_writer::write(
 )
 {
 	const auto file_rank = m_extents.size();
-	if (regions.get_destination_rank() != file_rank)
+	if (regions.get_file_rank() != file_rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_writer::write: The destination offsets do not have "
+			"fake_image_writer::write: The file offsets do not have "
 			"the rank of the file."
 		);
 	}
@@ -95,10 +95,10 @@ void fake_image_writer::write(
 
 	const auto &layout = source.get_descriptor().get_layout();
 	const auto source_rank = layout.get_rank();
-	if (regions.get_source_rank() != source_rank)
+	if (regions.get_array_rank() != source_rank)
 	{
 		throw std::invalid_argument(
-			"fake_image_writer::write: The source offsets do not have the "
+			"fake_image_writer::write: The array offsets do not have the "
 			"rank of the source."
 		);
 	}
@@ -129,8 +129,8 @@ void fake_image_writer::write(
 
 	const auto extents = regions.get_extents();
 	const auto rank = regions.get_rank();
-	const auto source_leading = source_rank - rank;
-	const auto destination_leading = file_rank - rank;
+	const auto array_leading = source_rank - rank;
+	const auto file_leading = file_rank - rank;
 	const auto element_size = get_size(data_type);
 	const auto count = compute_element_count(extents);
 
@@ -138,14 +138,13 @@ void fake_image_writer::write(
 
 	for (std::size_t region = 0; region < regions.get_size(); ++region)
 	{
-		const auto source_offset = regions.get_source_offset(region);
-		const auto destination_offset =
-			regions.get_destination_offset(region);
+		const auto array_offset = regions.get_array_offset(region);
+		const auto file_offset = regions.get_file_offset(region);
 
 		for (std::size_t i = 0; i < file_rank; ++i)
 		{
 			const auto extent = get_region_extent(regions, file_rank, i);
-			if (destination_offset[i] + extent > m_extents[i])
+			if (file_offset[i] + extent > m_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_writer::write: The region is not contained "
@@ -157,7 +156,7 @@ void fake_image_writer::write(
 		for (std::size_t i = 0; i < source_rank; ++i)
 		{
 			const auto extent = get_region_extent(regions, source_rank, i);
-			if (source_offset[i] + extent > source_extents[i])
+			if (array_offset[i] + extent > source_extents[i])
 			{
 				throw std::out_of_range(
 					"fake_image_writer::write: The region is not contained "
@@ -173,20 +172,20 @@ void fake_image_writer::write(
 			std::size_t target = 0;
 			for (std::size_t i = 0; i < file_rank; ++i)
 			{
-				const auto c = i < destination_leading
+				const auto c = i < file_leading
 					? std::size_t(0)
-					: coordinates[i - destination_leading];
-				target = (target * m_extents[i]) + destination_offset[i] + c;
+					: coordinates[i - file_leading];
+				target = (target * m_extents[i]) + file_offset[i] + c;
 			}
 
 			auto position = layout.get_offset();
 			for (std::size_t i = 0; i < source_rank; ++i)
 			{
-				const auto c = i < source_leading
+				const auto c = i < array_leading
 					? std::size_t(0)
-					: coordinates[i - source_leading];
+					: coordinates[i - array_leading];
 				position += static_cast<std::ptrdiff_t>(
-					source_offset[i] + c
+					array_offset[i] + c
 				) * strides[i];
 			}
 

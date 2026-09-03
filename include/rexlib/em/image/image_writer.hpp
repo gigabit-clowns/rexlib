@@ -85,18 +85,19 @@ public:
 	/**
 	 * @brief Write a set of hyperrectangles of the file from one array.
 	 *
-	 * The mirror of @ref image_reader::read, sharing its plan with the two
-	 * sides the other way round: @p source is the source of the plan and
-	 * the file its destination, so every region names where it is taken from
-	 * in @p source and where it lands in the file, and all of them share the
-	 * extents the plan carries. Passing
-	 * every region in one call lets a writer order and merge the accesses
-	 * it is about to make, and pays for the source's geometry once.
+	 * The mirror of @ref image_reader::read, sharing its plan and naming its
+	 * sides the same way: the file is the file side and @p source the array
+	 * side, so every region names where it is taken from in @p source and
+	 * where it lands in the file, and all of them share the extents the plan
+	 * carries. The plan is therefore built the same way for a write as for a
+	 * read. Passing every region in one call lets a writer order and merge
+	 * the accesses it is about to make, and pays for the source's geometry
+	 * once.
 	 *
 	 * @p source is the array as the caller holds it and may be strided. Its
-	 * rank must be the source rank of the plan and the file's the
-	 * destination rank, and values are converted with @ref numerical_cast
-	 * semantics without scaling or normalising.
+	 * rank must be the array rank of the plan and the file's the file rank,
+	 * and values are converted with @ref numerical_cast semantics without
+	 * scaling or normalising.
 	 *
 	 * Regions that do not overlap may be written by concurrent calls.
 	 * Overlapping ones may not, and where two regions of one call land on the
@@ -109,8 +110,8 @@ public:
 	 * @param source The values to write. Must be initialized and host
 	 * accessible.
 	 * @param regions The regions to write and where each one comes from.
-	 * @throws std::invalid_argument If the source offsets do not have the
-	 * rank of @p source, if the destination offsets do not have the rank of
+	 * @throws std::invalid_argument If the array offsets do not have the
+	 * rank of @p source, if the file offsets do not have the rank of
 	 * the file, or if @p source is not initialized.
 	 * @throws std::out_of_range If a region is not contained in the file,
 	 * or is not contained in @p source where it is taken from.

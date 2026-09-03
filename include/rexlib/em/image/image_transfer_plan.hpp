@@ -4,6 +4,7 @@
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/index_table.hpp>
 
 #include <cstddef>
 #include <vector>
@@ -16,28 +17,33 @@ namespace em
 /**
  * @brief The regions transferred in one call.
  *
- * Every region pairs an offset into the source with an offset into the
- * destination, and every region in a plan shares one set of extents. The
- * two sides are described alike and neither is privileged; which of them is
- * the file is decided by the call the plan is handed to, since
- * @ref image_reader::read takes the file as its source and
- * @ref image_writer::write takes it as its destination.
+ * Every region pairs an offset into the file with an offset into the array,
+ * and every region in a plan shares one set of extents. The two sides are
+ * named for what they are rather than for which way the data moves, so
+ * there is nothing to remember when a plan is built: the file side is the
+ * file whether it is being read or written, and the direction belongs to
+ * the call the plan is handed to, since @ref image_reader::read takes the
+ * file as its source and @ref image_writer::write takes it as its
+ * destination.
  *
  * The extents are the shape of one region and nothing else, so they carry
  * the rank of the region rather than the rank of either side. A side of
  * higher rank spans a single position along the axes the extents do not
  * reach, which are its leading ones: a batch of two dimensional patches is
- * cut out of a two dimensional micrograph into a three dimensional
- * destination with extents of rank two, a source offset of rank two and a
- * destination offset of rank three, and neither side pads the extents.
- * Ranks may differ in either direction, so a plane of a stack may equally be
- * read into an array that does not carry the axis it was stacked along.
+ * cut out of a two dimensional micrograph into a three dimensional array
+ * with extents of rank two, a file offset of rank two and an array offset of
+ * rank three, and neither side pads the extents. Ranks may differ in either
+ * direction, so a plane of a stack may equally be read into an array that
+ * does not carry the axis it was stacked along.
  *
- * The offsets are held in two flat vectors instead of one allocation per
+ * The offsets are held in two @ref index_table instead of one allocation per
  * region, so a batch of any size costs a bounded number of allocations, and
  * @ref clear keeps the capacity: one instance reused from one call to the
  * next allocates nothing after the first. That is the point of the class,
  * and reusing it is the expected way to use it.
+ *
+ * @ref image_transaction_plan is its peer over several files. Neither holds
+ * the other.
  */
 class image_transfer_plan
 {
@@ -68,31 +74,31 @@ public:
 	 *
 	 * @param extents Extents of one region. Their rank is the rank of the
 	 * region, which may be lower than that of either side.
-	 * @param source_rank Rank of the array the regions are read from.
-	 * @param destination_rank Rank of the array the regions are written to.
+	 * @param file_rank Rank of the file the regions address.
+	 * @param array_rank Rank of the array the regions address.
 	 * @throws std::invalid_argument If the rank of @p extents exceeds
-	 * @p source_rank or @p destination_rank.
+	 * @p file_rank or @p array_rank.
 	 */
 	REXLIB_API
 	void reset(
 		span<const std::size_t> extents,
-		std::size_t source_rank,
-		std::size_t destination_rank
+		std::size_t file_rank,
+		std::size_t array_rank
 	);
 
 	/**
 	 * @brief Append one region.
 	 *
-	 * @param source_offset Index of the first element of the region in the
-	 * source. Its size must equal @ref get_source_rank.
-	 * @param destination_offset Index of the first element of the region in
-	 * the destination. Its size must equal @ref get_destination_rank.
+	 * @param file_offset Index of the first element of the region in the
+	 * file. Its size must equal @ref get_file_rank.
+	 * @param array_offset Index of the first element of the region in the
+	 * array. Its size must equal @ref get_array_rank.
 	 * @throws std::invalid_argument If either offset has the wrong rank.
 	 */
 	REXLIB_API
 	void add(
-		span<const std::size_t> source_offset,
-		span<const std::size_t> destination_offset
+		span<const std::size_t> file_offset,
+		span<const std::size_t> array_offset
 	);
 
 	/**
@@ -129,20 +135,20 @@ public:
 	std::size_t get_rank() const noexcept;
 
 	/**
-	 * @brief Get the rank of the array the regions are read from.
+	 * @brief Get the rank of the file the regions address.
 	 *
 	 * @return std::size_t The rank.
 	 */
 	REXLIB_API
-	std::size_t get_source_rank() const noexcept;
+	std::size_t get_file_rank() const noexcept;
 
 	/**
-	 * @brief Get the rank of the array the regions are written to.
+	 * @brief Get the rank of the array the regions address.
 	 *
 	 * @return std::size_t The rank.
 	 */
 	REXLIB_API
-	std::size_t get_destination_rank() const noexcept;
+	std::size_t get_array_rank() const noexcept;
 
 	/**
 	 * @brief Get the extents shared by every region.
@@ -153,34 +159,31 @@ public:
 	span<const std::size_t> get_extents() const noexcept;
 
 	/**
-	 * @brief Get where a region starts in the source.
+	 * @brief Get where a region starts in the file.
 	 *
 	 * @param index Index of the region. Must be below @ref get_size.
 	 * @return span<const std::size_t> The offset, of rank
-	 * @ref get_source_rank. It refers to storage owned by this plan.
+	 * @ref get_file_rank. It refers to storage owned by this plan.
 	 */
 	REXLIB_API
 	span<const std::size_t>
-	get_source_offset(std::size_t index) const noexcept;
+	get_file_offset(std::size_t index) const noexcept;
 
 	/**
-	 * @brief Get where a region starts in the destination.
+	 * @brief Get where a region starts in the array.
 	 *
 	 * @param index Index of the region. Must be below @ref get_size.
 	 * @return span<const std::size_t> The offset, of rank
-	 * @ref get_destination_rank. It refers to storage owned by this plan.
+	 * @ref get_array_rank. It refers to storage owned by this plan.
 	 */
 	REXLIB_API
 	span<const std::size_t>
-	get_destination_offset(std::size_t index) const noexcept;
+	get_array_offset(std::size_t index) const noexcept;
 
 private:
 	std::vector<std::size_t> m_extents;
-	std::vector<std::size_t> m_source_offsets;
-	std::vector<std::size_t> m_destination_offsets;
-	std::size_t m_source_rank;
-	std::size_t m_destination_rank;
-	std::size_t m_size;
+	index_table m_file_offsets;
+	index_table m_array_offsets;
 };
 
 /**
@@ -193,8 +196,8 @@ private:
  *
  * @param regions The plan the region belongs to.
  * @param rank Rank of the side being walked, one of
- * @ref image_transfer_plan::get_source_rank or
- * @ref image_transfer_plan::get_destination_rank.
+ * @ref image_transfer_plan::get_file_rank or
+ * @ref image_transfer_plan::get_array_rank.
  * @param axis Index of the axis, below @p rank.
  * @return std::size_t The extent along @p axis.
  */
