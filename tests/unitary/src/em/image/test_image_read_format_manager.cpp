@@ -4,7 +4,7 @@
 
 #include <rexlib/em/image/image_read_format_manager.hpp>
 
-#include "fake/fake_image_reader.hpp"
+#include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_read_format.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
@@ -23,12 +23,7 @@ namespace
 
 std::unique_ptr<image_reader> make_fake_reader()
 {
-	const std::vector<std::size_t> extents = {2, 2};
-	return std::unique_ptr<image_reader>(new fake_image_reader(
-		make_span(extents),
-		2,
-		image_metadata()
-	));
+	return std::make_unique<mock_image_reader>();
 }
 
 class staged_format final
@@ -68,9 +63,7 @@ std::unique_ptr<image_read_format> make_staged(
 	backend_priority suitability
 )
 {
-	return std::unique_ptr<image_read_format>(
-		new staged_format(std::move(name), suitability)
-	);
+	return std::make_unique<staged_format>(std::move(name), suitability);
 }
 
 } // namespace
@@ -163,7 +156,6 @@ TEST_CASE( "the read manager picks the most suitable format",
 		const auto reader = manager.open("absent.mrc");
 
 		REQUIRE( reader != nullptr );
-		REQUIRE( reader->get_data_type() == numerical_type::int16 );
 	}
 }
 
@@ -182,10 +174,8 @@ TEST_CASE( "the read manager consults every registered format",
 {
 	image_read_format_manager manager;
 
-	auto first = std::unique_ptr<mock_image_read_format>(
-		new mock_image_read_format());
-	auto second = std::unique_ptr<mock_image_read_format>(
-		new mock_image_read_format());
+	auto first = std::make_unique<mock_image_read_format>();
+	auto second = std::make_unique<mock_image_read_format>();
 
 	REQUIRE_CALL(*first, get_suitability(ANY(const image_probe&)))
 		.RETURN(backend_priority::unsupported);

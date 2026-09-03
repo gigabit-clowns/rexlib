@@ -4,7 +4,7 @@
 
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
-#include "fake/fake_image_writer.hpp"
+#include "mock/mock_image_writer.hpp"
 #include "mock/mock_image_write_format.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
@@ -24,13 +24,26 @@ namespace
 
 const std::vector<std::size_t> file_extents = {2, 3, 4};
 
+// What one call to open was handed, so that a test can say the manager
+// forwarded what it was given rather than ask a test double what it stored.
+struct open_record
+{
+	std::vector<std::size_t> extents;
+	std::size_t core_rank = 0;
+};
+
 class staged_format final
 	: public image_write_format
 {
 public:
-	staged_format(std::string name, backend_priority suitability)
+	staged_format(
+		std::string name,
+		backend_priority suitability,
+		std::shared_ptr<open_record> record = nullptr
+	)
 		: m_name(std::move(name))
 		, m_suitability(suitability)
+		, m_record(std::move(record))
 	{
 	}
 
@@ -52,23 +65,30 @@ public:
 		const image_metadata &
 	) const override
 	{
-		return std::unique_ptr<image_writer>(
-			new fake_image_writer(extents, core_rank)
-		);
+		if (m_record)
+		{
+			m_record->extents.assign(extents.begin(), extents.end());
+			m_record->core_rank = core_rank;
+		}
+		return std::make_unique<mock_image_writer>();
 	}
 
 private:
 	std::string m_name;
 	backend_priority m_suitability;
+	std::shared_ptr<open_record> m_record;
 };
 
 std::unique_ptr<image_write_format> make_staged(
 	std::string name,
-	backend_priority suitability
+	backend_priority suitability,
+	std::shared_ptr<open_record> record = nullptr
 )
 {
-	return std::unique_ptr<image_write_format>(
-		new staged_format(std::move(name), suitability)
+	return std::make_unique<staged_format>(
+		std::move(name),
+		suitability,
+		std::move(record)
 	);
 }
 
@@ -129,9 +149,12 @@ TEST_CASE( "the write manager picks the most suitable format",
 		REQUIRE( manager.get_most_suitable_format(probe) != nullptr );
 	}
 
-	SECTION( "the chosen format creates the writer over the descriptor" )
+	SECTION( "the chosen format is handed what the file is to be" )
 	{
-		manager.register_format(make_staged("only", backend_priority::normal));
+		const auto record = std::make_shared<open_record>();
+		manager.register_format(
+			make_staged("only", backend_priority::normal, record)
+		);
 
 		const auto writer = manager.open(
 			"absent.mrc",
@@ -142,10 +165,8 @@ TEST_CASE( "the write manager picks the most suitable format",
 		);
 
 		REQUIRE( writer != nullptr );
-
-		const auto extents = writer->get_extents();
-		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
-			file_extents );
+		REQUIRE( record->extents == file_extents );
+		REQUIRE( record->core_rank == 2 );
 	}
 }
 
