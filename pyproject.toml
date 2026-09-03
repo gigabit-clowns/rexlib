@@ -1,7 +1,7 @@
 [build-system]
 requires = [
-	"scikit-build-core==1.0.3",
-	"pybind11-stubgen==2.5.5"
+    "scikit-build-core==1.0.3",
+    "pybind11-stubgen==2.5.5"
 ]
 build-backend = "scikit_build_core.build"
 
@@ -9,25 +9,25 @@ build-backend = "scikit_build_core.build"
 name = "rexlib"
 dynamic = ["version"]
 authors = [
-    { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
-    { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
+        { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
+        { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
 ]
 description = "Python binding for the rexlib framework"
 classifiers = [
-	"Topic :: Scientific/Engineering :: Image Processing",
-	"Intended Audience :: Science/Research",
-	"Intended Audience :: Developers",
-	"Operating System :: OS Independent",
-	"Programming Language :: Python",
-	"Programming Language :: Python :: 3",
-	"Programming Language :: Python :: 3 :: Only",
-	"Programming Language :: Python :: 3.9",
-	"Programming Language :: Python :: 3.10",
-	"Programming Language :: Python :: 3.11",
-	"Programming Language :: Python :: 3.12",
-	"Programming Language :: Python :: 3.13",
-	"Programming Language :: Python :: 3.14",
-	"Typing :: Typed",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
 ]
 
 readme = {file = "README.md", content-type = "text/markdown"}
@@ -38,10 +38,10 @@ dependencies = []
 
 [project.optional-dependencies]
 test = [
-	"pytest==8.4.2; python_version < '3.10'",
-	"pytest==9.1.1; python_version >= '3.10'",
-	"pytest-cov==7.0.0",
-    "ruff==0.16.4",
+    "pytest==8.4.2; python_version < '3.10'",
+    "pytest==9.1.1; python_version >= '3.10'",
+    "pytest-cov==7.0.0",
+        "ruff==0.16.4",
 ]
 
 [project.urls]
