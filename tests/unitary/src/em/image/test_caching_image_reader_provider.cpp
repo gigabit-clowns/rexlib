@@ -4,7 +4,7 @@
 
 #include <rexlib/em/image/caching_image_reader_provider.hpp>
 
-#include "fake/fake_image_reader.hpp"
+#include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_reader_provider.hpp"
 
 #include <cstddef>
@@ -19,15 +19,9 @@ using namespace rexlib::em;
 namespace
 {
 
-const std::vector<std::size_t> file_extents = {2, 2};
-
 std::shared_ptr<const image_reader> make_reader()
 {
-	return std::make_shared<fake_image_reader>(
-		make_span(file_extents),
-		2,
-		image_metadata()
-	);
+	return std::make_shared<mock_image_reader>();
 }
 
 } // namespace

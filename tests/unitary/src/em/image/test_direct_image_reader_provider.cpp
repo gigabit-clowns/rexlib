@@ -4,7 +4,7 @@
 
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
 
-#include "fake/fake_image_reader.hpp"
+#include "mock/mock_image_reader.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_probe.hpp>
@@ -22,8 +22,6 @@ using namespace rexlib::em;
 
 namespace
 {
-
-const std::vector<std::size_t> file_extents = {2, 2};
 
 // A format that claims every file and counts how often it is asked to open
 // one. The manager is final, so counting opens means counting them here.
@@ -49,11 +47,7 @@ public:
 	std::unique_ptr<image_reader> open(const image_probe &) const override
 	{
 		++(*m_count);
-		return std::unique_ptr<image_reader>(new fake_image_reader(
-			make_span(file_extents),
-			2,
-			image_metadata()
-		));
+		return std::unique_ptr<image_reader>(new mock_image_reader());
 	}
 
 private:

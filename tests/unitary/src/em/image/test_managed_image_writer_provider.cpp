@@ -4,7 +4,7 @@
 
 #include <rexlib/em/image/managed_image_writer_provider.hpp>
 
-#include "fake/fake_image_writer.hpp"
+#include "mock/mock_image_writer.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
@@ -26,13 +26,26 @@ namespace
 
 const std::vector<std::size_t> stack_extents = {4, 3, 5};
 
-// Records every file it is asked to create, so that a test can say how many
-// times each was created. The manager is final, so counting happens here.
+// What one call to open was asked for, and the writer it handed back. The
+// writer is owned by the provider; this only names it, so that a test can
+// set an expectation on the very writer a declared file was given.
+struct open_record
+{
+	std::string path;
+	std::vector<std::size_t> extents;
+	std::size_t core_rank;
+	mock_image_writer *writer;
+};
+
+using open_log = std::vector<open_record>;
+
+// Records every file it is asked to create. The manager is final, so what
+// the provider asked for is recorded here rather than mocked.
 class counting_format final
 	: public image_write_format
 {
 public:
-	explicit counting_format(std::shared_ptr<std::vector<std::string>> log)
+	explicit counting_format(std::shared_ptr<open_log> log)
 		: m_log(std::move(log))
 	{
 	}
@@ -55,18 +68,22 @@ public:
 		const image_metadata &
 	) const override
 	{
-		m_log->push_back(probe.get_path());
-		return std::unique_ptr<image_writer>(
-			new fake_image_writer(extents, core_rank)
-		);
+		std::unique_ptr<mock_image_writer> writer(new mock_image_writer());
+		m_log->push_back(open_record{
+			probe.get_path(),
+			std::vector<std::size_t>(extents.begin(), extents.end()),
+			core_rank,
+			writer.get()
+		});
+		return std::unique_ptr<image_writer>(writer.release());
 	}
 
 private:
-	std::shared_ptr<std::vector<std::string>> m_log;
+	std::shared_ptr<open_log> m_log;
 };
 
 std::shared_ptr<const image_write_format_manager> make_manager(
-	const std::shared_ptr<std::vector<std::string>> &log
+	const std::shared_ptr<open_log> &log
 )
 {
 	auto manager = std::make_shared<image_write_format_manager>();
@@ -90,15 +107,12 @@ void declare_stack(
 	);
 }
 
-std::size_t count(
-	const std::vector<std::string> &log,
-	const std::string &path
-)
+std::size_t count(const open_log &log, const std::string &path)
 {
 	std::size_t result = 0;
 	for (const auto &entry : log)
 	{
-		if (entry == path)
+		if (entry.path == path)
 		{
 			++result;
 		}
@@ -120,7 +134,7 @@ TEST_CASE( "a managed writer provider needs a format manager",
 TEST_CASE( "a managed writer provider serves only what was declared",
 	"[managed_image_writer_provider]" )
 {
-	const auto log = std::make_shared<std::vector<std::string>>();
+	const auto log = std::make_shared<open_log>();
 	managed_image_writer_provider provider(make_manager(log));
 
 	SECTION( "it starts serving nothing" )
@@ -159,7 +173,7 @@ TEST_CASE( "a managed writer provider refuses a core rank it can not mean",
 {
 	// Refused where it was written down rather than at whatever later point
 	// the file is first acquired.
-	const auto log = std::make_shared<std::vector<std::string>>();
+	const auto log = std::make_shared<open_log>();
 	managed_image_writer_provider provider(make_manager(log));
 
 	SECTION( "a core rank of zero names no image or volume" )
@@ -202,14 +216,17 @@ TEST_CASE( "a managed writer provider refuses a core rank it can not mean",
 			image_metadata()
 		);
 
-		REQUIRE( provider.acquire("volume.mrc")->get_core_rank() == 3 );
+		provider.acquire("volume.mrc");
+
+		REQUIRE( log->size() == 1 );
+		REQUIRE( log->front().core_rank == 3 );
 	}
 }
 
 TEST_CASE( "a managed writer provider creates a file once",
 	"[managed_image_writer_provider]" )
 {
-	const auto log = std::make_shared<std::vector<std::string>>();
+	const auto log = std::make_shared<open_log>();
 	managed_image_writer_provider provider(make_manager(log));
 	declare_stack(provider, "stack_0.mrcs");
 
@@ -233,18 +250,17 @@ TEST_CASE( "a managed writer provider creates a file once",
 
 	SECTION( "it creates it with what was declared" )
 	{
-		const auto writer = provider.acquire("stack_0.mrcs");
-		const auto extents = writer->get_extents();
+		provider.acquire("stack_0.mrcs");
 
-		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
-			stack_extents );
-		REQUIRE( writer->get_core_rank() == 2 );
+		REQUIRE( log->size() == 1 );
+		REQUIRE( log->front().extents == stack_extents );
+		REQUIRE( log->front().core_rank == 2 );
 	}
 }
 
 TEST_CASE( "closing a file finishes it", "[managed_image_writer_provider]" )
 {
-	const auto log = std::make_shared<std::vector<std::string>>();
+	const auto log = std::make_shared<open_log>();
 	managed_image_writer_provider provider(make_manager(log));
 	declare_stack(provider, "stack_0.mrcs");
 
@@ -255,22 +271,21 @@ TEST_CASE( "closing a file finishes it", "[managed_image_writer_provider]" )
 
 	SECTION( "close flushes the writer it drops" )
 	{
+		// Held here so the writer outlives the expectation, since close
+		// drops the provider's own reference to it.
 		const auto writer = provider.acquire("stack_0.mrcs");
-		const auto *fake = static_cast<const fake_image_writer*>(
-			writer.get()
-		);
-		REQUIRE( fake->get_flush_count() == 0 );
+		REQUIRE_CALL(*log->front().writer, flush()).TIMES(1);
 
 		provider.close("stack_0.mrcs");
-
-		REQUIRE( fake->get_flush_count() == 1 );
 	}
 
 	SECTION( "closing forgets the declaration, not just the handle" )
 	{
 		// A handle-only close would let the next acquire replace the file
 		// and strand everything already written to it.
-		provider.acquire("stack_0.mrcs");
+		const auto writer = provider.acquire("stack_0.mrcs");
+		ALLOW_CALL(*log->front().writer, flush());
+
 		provider.close("stack_0.mrcs");
 
 		REQUIRE( provider.get_size() == 0 );
@@ -290,7 +305,9 @@ TEST_CASE( "closing a file finishes it", "[managed_image_writer_provider]" )
 
 	SECTION( "declaring again after a close creates the file afresh" )
 	{
-		provider.acquire("stack_0.mrcs");
+		const auto writer = provider.acquire("stack_0.mrcs");
+		ALLOW_CALL(*log->front().writer, flush());
+
 		provider.close("stack_0.mrcs");
 		declare_stack(provider, "stack_0.mrcs");
 		provider.acquire("stack_0.mrcs");
@@ -302,31 +319,33 @@ TEST_CASE( "closing a file finishes it", "[managed_image_writer_provider]" )
 TEST_CASE( "a managed writer provider flushes what it opened and no more",
 	"[managed_image_writer_provider]" )
 {
-	const auto log = std::make_shared<std::vector<std::string>>();
+	const auto log = std::make_shared<open_log>();
 	managed_image_writer_provider provider(make_manager(log));
 	declare_stack(provider, "stack_0.mrcs");
 	declare_stack(provider, "stack_1.mrcs");
 	declare_stack(provider, "stack_2.mrcs");
 
+	// Held so the writers outlive the expectations set on them below.
 	const auto zero = provider.acquire("stack_0.mrcs");
 	const auto one = provider.acquire("stack_1.mrcs");
 
-	provider.flush();
-
 	SECTION( "every writer it created is flushed" )
 	{
-		REQUIRE(
-			static_cast<const fake_image_writer*>(zero.get())
-				->get_flush_count() == 1
-		);
-		REQUIRE(
-			static_cast<const fake_image_writer*>(one.get())
-				->get_flush_count() == 1
-		);
+		REQUIRE( log->size() == 2 );
+		REQUIRE_CALL(*(*log)[0].writer, flush()).TIMES(1);
+		REQUIRE_CALL(*(*log)[1].writer, flush()).TIMES(1);
+
+		provider.flush();
 	}
 
 	SECTION( "a declared file that was never acquired is not created" )
 	{
+		// Not even by a flush, which reaches only what it opened.
+		ALLOW_CALL(*(*log)[0].writer, flush());
+		ALLOW_CALL(*(*log)[1].writer, flush());
+
+		provider.flush();
+
 		REQUIRE( count(*log, "stack_2.mrcs") == 0 );
 		REQUIRE( provider.get_size() == 3 );
 	}
