@@ -14,7 +14,7 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `include/rexlib/` | The public headers, 252 `.hpp` and 26 `.inl` |
+| `include/rexlib/` | The public headers, 257 `.hpp` and 26 `.inl` |
 | `src/` | The implementation, plus headers that are not public |
 | `src/backends/cpu/` | The CPU backend: builders, kernels, loops, plans |
 | `src/core/` | Dispatch, layouts, hardware abstraction, plugin loading |

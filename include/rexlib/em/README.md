@@ -139,9 +139,29 @@ A plan holds its regions in the order they were added and in no other.
 Walking them one file at a time, so that each file is opened and read once,
 is `region_grouping`: it names regions rather than moving them, and it is a
 type of its own rather than a phase of the plan, because it is what a
-consumer wants of a transaction and not something the transaction is. The
-rest of the tier — the handle policy, the sources and sinks, the executor and
-the scratch cache — is not implemented yet.
+consumer wants of a transaction and not something the transaction is.
+
+A path becomes an open handle through an `image_reader_provider` or an
+`image_writer_provider`, which do that and nothing else: they transfer
+nothing, and they say nothing about where a handle comes from, so a provider
+serving readers from a plugin or a shared memory segment fits the same
+interface with no format manager in it. On the reading side
+`direct_image_reader_provider` opens through the format manager and
+`caching_image_reader_provider` is a bounded LRU **decorating another
+provider**, so the code that turns a path into a reader lives in one place.
+
+The writing side can not evict, because creating a file replaces it and a
+writer dropped and reopened would truncate everything already written. Its
+files are therefore said outright: `managed_image_writer_provider::declare`
+takes exactly what `image_write_format::open` takes, since that is what it
+will eventually be handed, and the file is created when it is first
+acquired. `close` flushes it, drops the writer and forgets the declaration
+together, so acquiring it afterwards fails rather than replacing the file.
+Nothing serialises writes; tier one allows concurrent ones only for regions
+that do not overlap, and that is passed up rather than papered over.
+
+The rest of the tier — the sources and sinks, the executor and the scratch
+cache — is not implemented yet.
 
 ## Adding an operation (checklist)
 
