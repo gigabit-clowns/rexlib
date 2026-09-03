@@ -140,11 +140,16 @@ jobs:
     needs: build_and_test_with_cmake
     runs-on: ubuntu-latest
     steps:
+      - name: Merge the coverage reports
+        uses: gigabit-clowns/.github/.github/composites/merge-cpp-coverage-reports@main
+        with:
+          coverage-pattern: "coverage-report-*"
+          coverage-path: ${{ github.workspace }}/build
+          report-path: ${{ github.workspace }}/build/coverage.xml
+          show-coverage: true
+
       - name: SonarQube Scan
         uses: gigabit-clowns/.github/.github/composites/sonar-scan@main
         with:
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           build-artifact-name: "sonar-build-files"
-          coverage-pattern: "coverage-report-*"
-          coverage-path: ${{ github.workspace }}/build
-          show-coverage: true
