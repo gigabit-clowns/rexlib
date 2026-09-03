@@ -160,6 +160,15 @@ together, so acquiring it afterwards fails rather than replacing the file.
 Nothing serialises writes; tier one allows concurrent ones only for regions
 that do not overlap, and that is passed up rather than papered over.
 
+The stacks of a dataset need not be the same size, and nothing here requires
+it. A plan constrains the rank of its files and records the extents of none
+of them, so each handle bounds-checks what it is given against its own file,
+which is the only place those extents are known. What every region of one
+transaction does share is its shape, since a plan carries one set of extents
+— which for whole elements means they share a core shape, not because that
+is imposed here but because a batch of them lands in one array whose slots
+are one shape.
+
 The rest of the tier — the sources and sinks, the executor and the scratch
 cache — is not implemented yet.
 

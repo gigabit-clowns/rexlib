@@ -122,6 +122,29 @@ TEST_CASE( "an image_transaction_plan names each file once",
 	}
 }
 
+TEST_CASE( "an image_transaction_plan does not care how big its files are",
+	"[image_transaction_plan]" )
+{
+	// The stacks of a dataset are not the same size, and nothing here may
+	// require otherwise: a plan constrains the rank of its files and records
+	// the extents of none of them. Element 999 of one stack and element 12
+	// of another belong to one transaction like any other, and only the
+	// reader of each file is in a position to say whether they exist.
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	const auto small = plan.add_file("small.mrcs");
+	const auto large = plan.add_file("large.mrcs");
+
+	add_element(plan, large, 1199, 0);
+	add_element(plan, small, 12, 1);
+	add_element(plan, large, 999, 2);
+
+	REQUIRE( plan.get_size() == 3 );
+	REQUIRE( to_vector(plan.get_file_offset(0)) ==
+		std::vector<std::size_t>{1199, 0, 0} );
+	REQUIRE( to_vector(plan.get_file_offset(1)) ==
+		std::vector<std::size_t>{12, 0, 0} );
+}
+
 TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 	"[image_transaction_plan]" )
 {

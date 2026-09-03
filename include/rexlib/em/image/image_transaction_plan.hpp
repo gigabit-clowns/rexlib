@@ -50,6 +50,20 @@ namespace em
  * @ref interned_path_list, so a transaction of any size costs a bounded
  * number of allocations and @ref clear keeps the capacity.
  *
+ * The same rank, and nothing more. **The files may be of any size**, which
+ * is the ordinary case: a dataset of twelve thousand particles spread over
+ * stacks of one thousand, seven hundred and fifty, and twelve hundred is one
+ * transaction like any other. A plan records the extents of no file, only
+ * offsets into them, and each reader or writer bounds-checks what it is
+ * given against its own file, which is the only place a file's extents are
+ * known and the only place they are needed.
+ *
+ * What every region does share is its shape, since a plan carries one set of
+ * extents. Reading whole elements therefore means those elements share a
+ * core shape — which is not a restriction imposed here but what a batch is,
+ * since they land in one array whose slots are one shape. Elements of
+ * differing core shape are two transactions, and would be two arrays anyway.
+ *
  * The regions are held in the order they were added and in no other. Walking
  * them one file at a time is what a consumer reading them wants, and
  * @ref region_grouping is that ordering, kept outside this class so that a
