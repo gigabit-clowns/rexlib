@@ -168,7 +168,7 @@ managed_image_writer_provider::managed_image_writer_provider(
 		);
 	}
 
-	m_implementation.reset(new implementation(std::move(formats)));
+	m_implementation = std::make_unique<implementation>(std::move(formats));
 }
 
 managed_image_writer_provider::~managed_image_writer_provider() = default;

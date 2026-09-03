@@ -47,7 +47,7 @@ public:
 	std::unique_ptr<image_reader> open(const image_probe &) const override
 	{
 		++(*m_count);
-		return std::unique_ptr<image_reader>(new mock_image_reader());
+		return std::make_unique<mock_image_reader>();
 	}
 
 private:
@@ -60,7 +60,7 @@ std::shared_ptr<const image_read_format_manager> make_manager(
 {
 	auto manager = std::make_shared<image_read_format_manager>();
 	manager->register_format(
-		std::unique_ptr<image_read_format>(new counting_format(count))
+		std::make_unique<counting_format>(count)
 	);
 	return manager;
 }

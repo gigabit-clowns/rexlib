@@ -68,7 +68,7 @@ public:
 		const image_metadata &
 	) const override
 	{
-		std::unique_ptr<mock_image_writer> writer(new mock_image_writer());
+		auto writer = std::make_unique<mock_image_writer>();
 		m_log->push_back(open_record{
 			probe.get_path(),
 			std::vector<std::size_t>(extents.begin(), extents.end()),
@@ -88,7 +88,7 @@ std::shared_ptr<const image_write_format_manager> make_manager(
 {
 	auto manager = std::make_shared<image_write_format_manager>();
 	manager->register_format(
-		std::unique_ptr<image_write_format>(new counting_format(log))
+		std::make_unique<counting_format>(log)
 	);
 	return manager;
 }

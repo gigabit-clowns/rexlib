@@ -136,8 +136,9 @@ caching_image_reader_provider::caching_image_reader_provider(
 		);
 	}
 
-	m_implementation.reset(
-		new implementation(std::move(backing), capacity)
+	m_implementation = std::make_unique<implementation>(
+		std::move(backing),
+		capacity
 	);
 }
 
