@@ -16,6 +16,10 @@ on:
 
   workflow_dispatch:
 
+concurrency:
+  group: deploy-release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   generate_stubs:
     name: Generate type stubs
@@ -101,10 +105,6 @@ jobs:
           name: type-stubs
           path: stubs
 
-      # These two build on the runner itself, so ccache is installed here.
-      # Linux builds happen inside a container, which installs its own.
-      # A Release build carries no debug information, which is the thing
-      # that stops ccache working with MSVC.
       - name: Set up compiler cache
         if: runner.os != 'Linux'
         uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
@@ -112,6 +112,15 @@ jobs:
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}
           max-size: 2G
           variant: ccache
+
+      # The container's CCACHE_DIR, seen from the runner.
+      - name: Cache the container's compiler cache
+        if: runner.os == 'Linux'
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /tmp/ccache
+          key: wheels-${{ matrix.os }}-${{ matrix.architectures }}-${{ github.run_id }}
+          restore-keys: wheels-${{ matrix.os }}-${{ matrix.architectures }}-
 
       # Ninja does not locate MSVC on its own the way the Visual Studio
       # generator does; without this the configure step finds no cl.exe.
@@ -128,10 +137,6 @@ jobs:
           # cibuildwheel, with whatever architecture, deployment target and
           # SDK cibuildwheel chose for that wheel, rather than by a step
           # outside it that has to be told each of those separately.
-          #
-          # ccache is what makes it affordable. The container lives for the
-          # whole job, so the first interpreter compiles rexlib and the rest
-          # read it back.
           CIBW_BEFORE_ALL_LINUX: >
             command -v ccache ||
             dnf install -y ccache ||
@@ -144,7 +149,7 @@ jobs:
           # directory, so without these nothing would ever hit.
           CIBW_ENVIRONMENT: >-
             SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
-            CCACHE_DIR=/tmp/ccache
+            CCACHE_DIR=/host/tmp/ccache
             CCACHE_BASEDIR=/
             CCACHE_NOHASHDIR=1
             CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
@@ -228,9 +233,17 @@ jobs:
         with:
           python-version: 3.13
 
+      - name: Set up compiler cache
+        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        with:
+          key: sdist-ubuntu-latest
+          max-size: 1G
+          variant: ccache
+
       - name: Install
         env:
           CMAKE_BUILD_PARALLEL_LEVEL: 4
+          SKBUILD_CMAKE_DEFINE: CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
         run: pip install --verbose dist/*.tar.gz
 
       - name: Test import

@@ -74,6 +74,7 @@ build.verbose = false
 cmake.build-type = "Release"
 
 [tool.scikit-build.cmake.define]
+BUILD_TESTING = "OFF"
 REXLIB_PYTHON_BUILD_TESTING = "OFF"
 
 [tool.scikit-build.metadata.version]
