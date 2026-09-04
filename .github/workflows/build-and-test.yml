@@ -78,6 +78,7 @@ jobs:
         with:
           key: ${{ matrix.os }}-${{ matrix.compiler.cxx }}
           max-size: 1G
+          evict-old-files: 7d
 
       - name: Configure and build with CMake
         uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2
