@@ -11,6 +11,10 @@ on:
 
   workflow_dispatch:
 
+concurrency:
+  group: build-and-test-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_and_test_with_cmake:
     name: CMake

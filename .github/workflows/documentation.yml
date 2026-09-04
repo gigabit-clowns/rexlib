@@ -16,6 +16,10 @@ on:
 
   workflow_dispatch:
 
+concurrency:
+  group: deploy-documentation-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build_doxygen:
     name: Build Doxygen documentation
