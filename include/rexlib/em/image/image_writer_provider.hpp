@@ -23,14 +23,8 @@ class image_writer;
  * it is finished — is lifecycle the owner of the provider drives, so it
  * belongs to the implementation rather than here.
  *
- * @ref flush has no counterpart on the reading side because tier one's
- * @ref image_reader has nothing to flush. It is here rather than on the
- * consumer because the provider owns the writers and is the only thing that
- * knows all of them.
- *
  * A provider may be asked for writers concurrently. It does not follow that
- * the writers may be written concurrently: tier one allows that only for
- * regions that do not overlap, and nothing here changes it.
+ * the writers may be written concurrently.
  */
 class REXLIB_API image_writer_provider
 {
