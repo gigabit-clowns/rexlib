@@ -208,6 +208,15 @@ jobs:
           path: /tmp/ccache
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}-${{ github.run_id }}
 
+      # ccache reuses rexlib's objects between interpreters. Sound because
+      # rexlib names no Python, and checked here rather than assumed.
+      - name: Check every wheel carries the same rexlib
+        shell: bash
+        run: |
+          # macOS runners ship python3 alone.
+          command -v python3 > /dev/null && py=python3 || py=python
+          "$py" scripts/check_wheels_agree.py wheelhouse
+
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
