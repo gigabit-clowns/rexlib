@@ -136,6 +136,10 @@ jobs:
     defaults:
       run:
         shell: bash -el {0}
+    env:
+      CCACHE_BASEDIR: /
+      CCACHE_NOHASHDIR: 1
+      CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
