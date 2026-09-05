@@ -24,6 +24,10 @@ jobs:
   generate_stubs:
     name: Generate type stubs
     runs-on: ubuntu-latest
+    env:
+      CCACHE_BASEDIR: /
+      CCACHE_NOHASHDIR: 1
+      CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -44,6 +48,8 @@ jobs:
         with:
           key: stubs-ubuntu-latest
           max-size: 1G
+          evict-old-files: 7d
+          save: ${{ github.ref == 'refs/heads/main' }}
 
       # Nothing points at a rexlib, so this builds the one in
       # external/rexlib, the same way a wheel does.
@@ -111,12 +117,14 @@ jobs:
         with:
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}
           max-size: 2G
+          evict-old-files: 7d
+          save: ${{ github.ref == 'refs/heads/main' }}
           variant: ccache
 
       # The container's CCACHE_DIR, seen from the runner.
       - name: Cache the container's compiler cache
         if: runner.os == 'Linux'
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: /tmp/ccache
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}-${{ github.run_id }}
@@ -193,6 +201,13 @@ jobs:
             delvewheel repair -w {dest_dir} -v {wheel}
             --exclude rexlib.dll
 
+      - name: Save the container's compiler cache
+        if: runner.os == 'Linux' && github.ref == 'refs/heads/main'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /tmp/ccache
+          key: wheels-${{ matrix.os }}-${{ matrix.architectures }}-${{ github.run_id }}
+
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -223,6 +238,10 @@ jobs:
     name: Verify the source distribution
     needs: build_sdist
     runs-on: ubuntu-latest
+    env:
+      CCACHE_BASEDIR: /
+      CCACHE_NOHASHDIR: 1
+      CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
     steps:
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -238,6 +257,8 @@ jobs:
         with:
           key: sdist-ubuntu-latest
           max-size: 1G
+          evict-old-files: 7d
+          save: ${{ github.ref == 'refs/heads/main' }}
           variant: ccache
 
       - name: Install
