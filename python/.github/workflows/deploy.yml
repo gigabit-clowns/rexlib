@@ -54,6 +54,7 @@ jobs:
       - name: Install with pip
         run: |
           pip install . -v \
+            -Ccmake.define.FETCHCONTENT_BASE_DIR=/tmp/fetched \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache
 
@@ -157,14 +158,14 @@ jobs:
           # paths by default; every wheel builds in a fresh temporary
           # directory, so without these nothing would ever hit.
           CIBW_ENVIRONMENT: >-
-            SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=/tmp/fetched;REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
             CCACHE_DIR=/host/tmp/ccache
             CCACHE_BASEDIR=/
             CCACHE_NOHASHDIR=1
             CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
             CCACHE_MAXSIZE=2G
           CIBW_ENVIRONMENT_MACOS: >-
-            SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=/tmp/fetched;REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
             MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}
             CCACHE_BASEDIR=/
             CCACHE_NOHASHDIR=1
@@ -172,7 +173,7 @@ jobs:
           # Only Ninja and the Makefile generators honour COMPILER_LAUNCHER;
           # the Visual Studio one ignores it, so ccache never ran here.
           CIBW_ENVIRONMENT_WINDOWS: >-
-            SKBUILD_CMAKE_DEFINE="REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=C:/fetched;REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
             CMAKE_GENERATOR=Ninja
             CCACHE_BASEDIR=C:/
             CCACHE_NOHASHDIR=1
@@ -277,7 +278,7 @@ jobs:
       - name: Install
         env:
           CMAKE_BUILD_PARALLEL_LEVEL: 4
-          SKBUILD_CMAKE_DEFINE: CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          SKBUILD_CMAKE_DEFINE: FETCHCONTENT_BASE_DIR=/tmp/fetched;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
         run: pip install --verbose dist/*.tar.gz
 
       - name: Save the compiler cache

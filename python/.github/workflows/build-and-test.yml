@@ -69,6 +69,7 @@ jobs:
         run: |
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
+            -DFETCHCONTENT_BASE_DIR="${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }}" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
             -DBUILD_TESTING=OFF \
@@ -183,6 +184,7 @@ jobs:
           if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
+            -DFETCHCONTENT_BASE_DIR="${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }}" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
             -DBUILD_TESTING=OFF \
@@ -203,6 +205,7 @@ jobs:
         run: |
           if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           pip install .[test] -v \
+            -Ccmake.define.FETCHCONTENT_BASE_DIR=${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }} \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON \
