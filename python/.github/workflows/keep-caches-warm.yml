@@ -1,0 +1,43 @@
+name: Keep caches warm
+
+permissions: {}
+
+on:
+  schedule:
+    - cron: '17 5 * * *'
+
+  pull_request:
+    paths:
+      - '.github/workflows/keep-caches-warm.yml'
+
+  workflow_dispatch:
+
+concurrency:
+  group: keep-caches-warm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sweep:
+    uses: gigabit-clowns/.github/.github/workflows/keep-caches-warm.yml@main
+    with:
+      entries: >-
+        [
+          {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-g++"},
+          {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-clang++"},
+          {"os": "ubuntu-latest", "prefix": "ccache-pip-ubuntu-latest"},
+          {"os": "ubuntu-latest", "prefix": "ccache-stubs-ubuntu-latest"},
+          {"os": "ubuntu-latest", "prefix": "ccache-sdist-ubuntu-latest"},
+          {"os": "ubuntu-22.04", "prefix": "ccache-pip-ubuntu-22.04"},
+          {"os": "macos-latest", "prefix": "ccache-macos-latest-clang++"},
+          {"os": "macos-latest", "prefix": "ccache-pip-macos-latest"},
+          {"os": "macos-latest", "prefix": "ccache-wheels-macos-latest-arm64"},
+          {"os": "macos-latest", "prefix": "ccache-wheels-macos-latest-x86_64"},
+          {"os": "windows-latest", "prefix": "ccache-windows-latest-cl"},
+          {"os": "windows-latest", "prefix": "ccache-pip-windows-latest"},
+          {"os": "windows-latest", "prefix": "ccache-wheels-windows-latest-AMD64"},
+          {"os": "windows-11-arm", "prefix": "ccache-windows-11-arm-cl"},
+          {"os": "windows-11-arm", "prefix": "ccache-pip-windows-11-arm"},
+          {"os": "windows-11-arm", "prefix": "ccache-wheels-windows-11-arm-ARM64"},
+          {"os": "ubuntu-latest", "prefix": "wheels-ubuntu-latest-x86_64", "path": "/tmp/ccache"},
+          {"os": "ubuntu-latest", "prefix": "wheels-ubuntu-24.04-arm-aarch64", "path": "/tmp/ccache"}
+        ]
