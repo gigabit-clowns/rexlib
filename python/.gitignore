@@ -46,4 +46,4 @@ tests/__pycache__
 python/rexlib/_binding
 
 # CCache
-ccache*
+*ccache/
