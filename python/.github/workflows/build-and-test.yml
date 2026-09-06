@@ -137,7 +137,7 @@ jobs:
       run:
         shell: bash -el {0}
     env:
-      CCACHE_BASEDIR: /
+      CCACHE_BASEDIR: ${{ startsWith(matrix.os, 'windows') && github.workspace || '/' }}
       CCACHE_NOHASHDIR: 1
       CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
     steps:
