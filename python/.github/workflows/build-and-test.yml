@@ -169,7 +169,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
         with:
           key: pip-${{ matrix.os }}
-          max-size: 500M
+          max-size: 1G
           evict-old-files: 7d
           save: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.14' }}
 
