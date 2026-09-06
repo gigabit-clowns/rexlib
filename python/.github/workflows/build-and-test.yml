@@ -58,12 +58,10 @@ jobs:
       # and then found by the project. Caching makes every run after the
       # first a link.
       - name: Set up compiler cache
-        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        uses: gigabit-clowns/.github/.github/composites/restore-ccache@main
         with:
           key: ${{ matrix.os }}-${{ matrix.compiler.cxx }}
           max-size: 1G
-          evict-old-files: 7d
-          save: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Install rexlib
         env:
@@ -100,6 +98,12 @@ jobs:
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
+
+      - name: Save the compiler cache
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-ccache@main
+        with:
+          key: ${{ matrix.os }}-${{ matrix.compiler.cxx }}
 
       - name: Upload build files for sonar
         if: matrix.os == 'ubuntu-latest' && matrix.compiler.cc == 'gcc'
@@ -166,12 +170,10 @@ jobs:
       # One key per platform, not per interpreter: rexlib names no Python, so
       # its objects are the same for all of them and only the binding differs.
       - name: Set up compiler cache
-        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        uses: gigabit-clowns/.github/.github/composites/restore-ccache@main
         with:
           key: pip-${{ matrix.os }}
           max-size: 1G
-          evict-old-files: 7d
-          save: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.14' }}
 
       - name: Install rexlib
         env:
@@ -214,6 +216,12 @@ jobs:
           chmod +x ./scripts/run-tests.sh
           ./scripts/run-tests.sh ${{ matrix.os == 'ubuntu-latest'
             && matrix.python-version == '3.14' && '--coverage' || '' }}
+
+      - name: Save the compiler cache
+        if: github.ref == 'refs/heads/main' && matrix.python-version == '3.14'
+        uses: gigabit-clowns/.github/.github/composites/save-ccache@main
+        with:
+          key: pip-${{ matrix.os }}
 
       - name: Upload coverage report
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'

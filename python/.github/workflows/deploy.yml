@@ -44,12 +44,10 @@ jobs:
           python-version: '3.13'
 
       - name: Set up compiler cache
-        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        uses: gigabit-clowns/.github/.github/composites/restore-ccache@main
         with:
           key: stubs-ubuntu-latest
           max-size: 1G
-          evict-old-files: 7d
-          save: ${{ github.ref == 'refs/heads/main' }}
 
       # Nothing points at a rexlib, so this builds the one in
       # external/rexlib, the same way a wheel does.
@@ -58,6 +56,12 @@ jobs:
           pip install . -v \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Save the compiler cache
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-ccache@main
+        with:
+          key: stubs-ubuntu-latest
 
       - name: Collect the generated stubs
         run: |
@@ -113,13 +117,10 @@ jobs:
 
       - name: Set up compiler cache
         if: runner.os != 'Linux'
-        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        uses: gigabit-clowns/.github/.github/composites/restore-ccache@main
         with:
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}
           max-size: 2G
-          evict-old-files: 7d
-          save: ${{ github.ref == 'refs/heads/main' }}
-          variant: ccache
 
       # The container's CCACHE_DIR, seen from the runner.
       - name: Cache the container's compiler cache
@@ -201,6 +202,12 @@ jobs:
             delvewheel repair -w {dest_dir} -v {wheel}
             --exclude rexlib.dll
 
+      - name: Save the compiler cache
+        if: runner.os != 'Linux' && github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-ccache@main
+        with:
+          key: wheels-${{ matrix.os }}-${{ matrix.architectures }}
+
       - name: Save the container's compiler cache
         if: runner.os == 'Linux' && github.ref == 'refs/heads/main'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -262,19 +269,22 @@ jobs:
           python-version: 3.13
 
       - name: Set up compiler cache
-        uses: hendrikmuhs/ccache-action@d62db5f07c26379fc4b4e0916f098a92573c3b03 # v1.2.23
+        uses: gigabit-clowns/.github/.github/composites/restore-ccache@main
         with:
           key: sdist-ubuntu-latest
           max-size: 1G
-          evict-old-files: 7d
-          save: ${{ github.ref == 'refs/heads/main' }}
-          variant: ccache
 
       - name: Install
         env:
           CMAKE_BUILD_PARALLEL_LEVEL: 4
           SKBUILD_CMAKE_DEFINE: CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
         run: pip install --verbose dist/*.tar.gz
+
+      - name: Save the compiler cache
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-ccache@main
+        with:
+          key: sdist-ubuntu-latest
 
       - name: Test import
         run: |
