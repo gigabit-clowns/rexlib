@@ -63,13 +63,19 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.compiler.cxx }}
           max-size: 1G
 
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+
       - name: Install rexlib
         env:
           CMAKE_GENERATOR: Ninja
         run: |
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
-            -DFETCHCONTENT_BASE_DIR="${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }}" \
+            -DFETCHCONTENT_BASE_DIR="${{ steps.fetched.outputs.dir }}" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
             -DBUILD_TESTING=OFF \
@@ -95,10 +101,15 @@ jobs:
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
             rexlib_ROOT=${{ runner.temp }}/rexlib
+            FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }}
             CMAKE_C_COMPILER_LAUNCHER=ccache
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Save the compiler cache
         if: github.ref == 'refs/heads/main'
@@ -176,6 +187,12 @@ jobs:
           key: pip-${{ matrix.os }}
           max-size: 1G
 
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+
       - name: Install rexlib
         env:
           WANT_NINJA: ${{ runner.os == 'Windows' && '1' || '' }}
@@ -184,7 +201,7 @@ jobs:
           if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
-            -DFETCHCONTENT_BASE_DIR="${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }}" \
+            -DFETCHCONTENT_BASE_DIR="${{ steps.fetched.outputs.dir }}" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
             -DBUILD_TESTING=OFF \
@@ -205,7 +222,7 @@ jobs:
         run: |
           if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           pip install .[test] -v \
-            -Ccmake.define.FETCHCONTENT_BASE_DIR=${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }} \
+            -Ccmake.define.FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }} \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON \
@@ -219,6 +236,10 @@ jobs:
           chmod +x ./scripts/run-tests.sh
           ./scripts/run-tests.sh ${{ matrix.os == 'ubuntu-latest'
             && matrix.python-version == '3.14' && '--coverage' || '' }}
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main' && matrix.python-version == '3.14'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Save the compiler cache
         if: github.ref == 'refs/heads/main' && matrix.python-version == '3.14'

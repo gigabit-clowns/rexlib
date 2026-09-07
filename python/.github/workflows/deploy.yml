@@ -49,14 +49,24 @@ jobs:
           key: stubs-ubuntu-latest
           max-size: 1G
 
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+
       # Nothing points at a rexlib, so this builds the one in
       # external/rexlib, the same way a wheel does.
       - name: Install with pip
         run: |
           pip install . -v \
-            -Ccmake.define.FETCHCONTENT_BASE_DIR=/tmp/fetched \
+            -Ccmake.define.FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }} \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Save the compiler cache
         if: github.ref == 'refs/heads/main'
@@ -137,6 +147,14 @@ jobs:
         shell: bash
         run: echo "CCACHE_RESTORED_AT=$(date -u +%s)" >> "$GITHUB_ENV"
 
+      # A container reads them from /host, and the sub-build stamps record
+      # the path they were populated at, so it gets an entry of its own.
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: ${{ runner.os == 'Linux' && 'host-' || '' }}${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+
       # Ninja does not locate MSVC on its own the way the Visual Studio
       # generator does; without this the configure step finds no cl.exe.
       - name: Set up MSVC environment
@@ -163,14 +181,14 @@ jobs:
           # paths by default; every wheel builds in a fresh temporary
           # directory, so without these nothing would ever hit.
           CIBW_ENVIRONMENT: >-
-            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=/tmp/fetched;REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=/host${{ steps.fetched.outputs.dir }};REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
             CCACHE_DIR=/host/tmp/ccache
             CCACHE_BASEDIR=/
             CCACHE_NOHASHDIR=1
             CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
             CCACHE_MAXSIZE=2G
           CIBW_ENVIRONMENT_MACOS: >-
-            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=/tmp/fetched;REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }};REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
             MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}
             CCACHE_BASEDIR=/
             CCACHE_NOHASHDIR=1
@@ -178,7 +196,7 @@ jobs:
           # Only Ninja and the Makefile generators honour COMPILER_LAUNCHER;
           # the Visual Studio one ignores it, so ccache never ran here.
           CIBW_ENVIRONMENT_WINDOWS: >-
-            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=C:/fetched;REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
+            SKBUILD_CMAKE_DEFINE="FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }};REXLIB_PYTHON_STUBS_DIR=stubs;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
             CMAKE_GENERATOR=Ninja
             CCACHE_BASEDIR=C:/
             CCACHE_NOHASHDIR=1
@@ -207,6 +225,10 @@ jobs:
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: >
             delvewheel repair -w {dest_dir} -v {wheel}
             --exclude rexlib.dll
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Save the compiler cache
         if: runner.os != 'Linux' && github.ref == 'refs/heads/main'
@@ -249,6 +271,10 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+    # What the distribution will download, for the job that installs it
+    # without a checkout to hash.
+    outputs:
+      fetched-key: ${{ steps.fetched-key.outputs.value }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -257,6 +283,10 @@ jobs:
       # Temporary: drop this and re-enable renovate once rexlib tags releases.
       - name: Move the submodule to rexlib's main
         run: git submodule update --remote external/rexlib
+
+      - name: Note what its downloads depend on
+        id: fetched-key
+        run: echo "value=${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}" >> "$GITHUB_OUTPUT"
 
       - name: Build sdist
         run: pipx run build --sdist
@@ -290,11 +320,21 @@ jobs:
           key: sdist-ubuntu-latest
           max-size: 1G
 
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: ${{ needs.build_sdist.outputs.fetched-key }}
+
       - name: Install
         env:
           CMAKE_BUILD_PARALLEL_LEVEL: 4
-          SKBUILD_CMAKE_DEFINE: FETCHCONTENT_BASE_DIR=/tmp/fetched;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
+          SKBUILD_CMAKE_DEFINE: FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }};CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
         run: pip install --verbose dist/*.tar.gz
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Save the compiler cache
         if: github.ref == 'refs/heads/main'
