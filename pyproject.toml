@@ -48,6 +48,9 @@ test = [
 Homepage = "https://github.com/gigabit-clowns/rexlib-python"
 Issues = "https://github.com/gigabit-clowns/rexlib-python/issues"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.scikit-build]
 # git ls-files does not report a submodule's contents, so the rexlib source
 # has to be named explicitly or the sdist would carry an empty directory and
