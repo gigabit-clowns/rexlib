@@ -132,6 +132,11 @@ jobs:
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}-${{ github.run_id }}
           restore-keys: wheels-${{ matrix.os }}-${{ matrix.architectures }}-
 
+      - name: Note when the container's cache was restored
+        if: runner.os == 'Linux'
+        shell: bash
+        run: echo "CCACHE_RESTORED_AT=$(date -u +%s)" >> "$GITHUB_ENV"
+
       # Ninja does not locate MSVC on its own the way the Visual Studio
       # generator does; without this the configure step finds no cl.exe.
       - name: Set up MSVC environment
@@ -208,6 +213,16 @@ jobs:
         uses: gigabit-clowns/.github/.github/composites/save-ccache@main
         with:
           key: wheels-${{ matrix.os }}-${{ matrix.architectures }}
+
+      # ccache ran in the container, so the eviction needs one out here.
+      - name: Drop what this job did not use
+        if: runner.os == 'Linux' && github.ref == 'refs/heads/main'
+        shell: bash
+        env:
+          CCACHE_DIR: /tmp/ccache
+        run: |
+          command -v ccache > /dev/null || sudo apt-get install -y -qq ccache
+          ccache --evict-older-than "$(( $(date -u +%s) - CCACHE_RESTORED_AT ))s"
 
       - name: Save the container's compiler cache
         if: runner.os == 'Linux' && github.ref == 'refs/heads/main'
