@@ -195,10 +195,8 @@ jobs:
 
       - name: Install rexlib
         env:
-          WANT_NINJA: ${{ runner.os == 'Windows' && '1' || '' }}
+          CMAKE_GENERATOR: Ninja
         run: |
-          # Set or absent, never empty: setdefault would keep an empty value.
-          if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
             -DFETCHCONTENT_BASE_DIR="${{ steps.fetched.outputs.dir }}" \
@@ -218,9 +216,8 @@ jobs:
       - name: Install with pip
         env:
           rexlib_ROOT: ${{ runner.temp }}/rexlib
-          WANT_NINJA: ${{ runner.os == 'Windows' && '1' || '' }}
+          CMAKE_GENERATOR: Ninja
         run: |
-          if [ -n "$WANT_NINJA" ]; then export CMAKE_GENERATOR=Ninja; fi
           pip install .[test] -v \
             -Ccmake.define.FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }} \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
