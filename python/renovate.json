@@ -4,6 +4,10 @@
     "config:recommended",
     "helpers:pinGitHubActionDigests"
   ],
+  "timezone": "Europe/Madrid",
+  "addLabels": [
+    "dependencies"
+  ],
   "minimumReleaseAge": "14 days",
   "internalChecksFilter": "strict",
   "poetry": {
