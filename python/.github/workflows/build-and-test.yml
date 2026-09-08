@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - .github/workflows/clean-up-caches.yml
+      - .github/workflows/deploy.yml
+      - .github/workflows/keep-caches-warm.yml
+      - .github/workflows/release.yml
+      - .gitattributes
+      - .gitignore
+      - .vscode/**
+      - LICENSE
+      - renovate.json
 
   pull_request:
 

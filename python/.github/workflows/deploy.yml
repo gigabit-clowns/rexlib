@@ -6,6 +6,21 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - .github/workflows/build-and-test.yml
+      - .github/workflows/clean-up-caches.yml
+      - .github/workflows/keep-caches-warm.yml
+      - .github/workflows/release.yml
+      - .gitattributes
+      - .gitignore
+      - .vscode/**
+      - LICENSE
+      - conf/**
+      - renovate.json
+      - ruff.toml
+      - sonar-project.properties
+      - tests/**
 
   pull_request:
     branches:
