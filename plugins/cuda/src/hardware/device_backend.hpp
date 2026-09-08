@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/device_backend.hpp>
+#include <rexlib/core/hardware/device_backend.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class device_manager;
@@ -13,11 +13,11 @@ namespace cuda
 {
 
 /**
- * @brief Implementation of the @ref xmipp4::device_backend interface to
+ * @brief Implementation of the @ref rexlib::device_backend interface to
  * retrieve the CUDA capable devices.
  */
 class device_backend final
-	: public xmipp4::device_backend
+	: public rexlib::device_backend
 {
 public:
 	std::string get_name() const override;
@@ -30,10 +30,10 @@ public:
 		device_properties &desc
 	) const override;
 
-	std::shared_ptr<xmipp4::device> create_device(std::size_t id) const override;
+	std::shared_ptr<rexlib::device> create_device(std::size_t id) const override;
 
-	static bool register_at(xmipp4::device_manager &manager);
+	static bool register_at(rexlib::device_manager &manager);
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

@@ -4,11 +4,11 @@
 
 #include "memory_source.hpp"
 
-#include <xmipp4/core/memory/align.hpp>
+#include <rexlib/core/memory/align.hpp>
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -57,4 +57,4 @@ std::size_t memory_heap::get_size() const noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

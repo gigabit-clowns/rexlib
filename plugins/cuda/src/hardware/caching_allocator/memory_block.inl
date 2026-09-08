@@ -4,9 +4,9 @@
 
 #include "memory_heap.hpp"
 
-#include <xmipp4/core/memory/align.hpp>
+#include <rexlib/core/memory/align.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -80,4 +80,4 @@ bool memory_block::is_free() const noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

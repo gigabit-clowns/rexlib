@@ -7,7 +7,7 @@
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -19,7 +19,7 @@ event::event(int ordinal)
 	// Timing is never read from these events, and a blocking host wait
 	// yields the CPU instead of spinning.
 	const device_guard guard(ordinal);
-	XMIPP4_CUDA_CHECK(
+	REXLIB_CUDA_CHECK(
 		cudaEventCreateWithFlags(
 			&m_event,
 			cudaEventDisableTiming | cudaEventBlockingSync
@@ -31,7 +31,7 @@ event::~event()
 {
 	// Acts on the device that owns the event, so the current one is
 	// irrelevant here.
-	XMIPP4_CUDA_CHECK_NO_THROW( cudaEventDestroy(m_event) );
+	REXLIB_CUDA_CHECK_NO_THROW( cudaEventDestroy(m_event) );
 }
 
 event::handle event::get_handle() const noexcept
@@ -56,7 +56,7 @@ event_usage_flags event::get_supported_usage() const noexcept
 
 void event::wait() const
 {
-	XMIPP4_CUDA_CHECK( cudaEventSynchronize(m_event) );
+	REXLIB_CUDA_CHECK( cudaEventSynchronize(m_event) );
 }
 
 bool event::is_signaled() const
@@ -75,14 +75,14 @@ bool event::is_signaled() const
 		break;
 
 	default:
-		XMIPP4_CUDA_CHECK(code);
+		REXLIB_CUDA_CHECK(code);
 		result = false; // To avoid warnings. The above line should throw.
 		break;
 	}
 	return result;
 }
 
-event& event::cast(xmipp4::event &ev)
+event& event::cast(rexlib::event &ev)
 {
 	auto *result = dynamic_cast<event*>(&ev);
 	if (!result)
@@ -95,7 +95,7 @@ event& event::cast(xmipp4::event &ev)
 	return *result;
 }
 
-const event& event::cast(const xmipp4::event &ev)
+const event& event::cast(const rexlib::event &ev)
 {
 	const auto *result = dynamic_cast<const event*>(&ev);
 	if (!result)
@@ -109,4 +109,4 @@ const event& event::cast(const xmipp4::event &ev)
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

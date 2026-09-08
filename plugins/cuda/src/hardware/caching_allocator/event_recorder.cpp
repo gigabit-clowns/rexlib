@@ -2,7 +2,7 @@
 
 #include "event_recorder.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -10,4 +10,4 @@ namespace cuda
 event_recorder::~event_recorder() = default;
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

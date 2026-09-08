@@ -2,7 +2,7 @@
 
 #include "test_event_recorder_reference.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -46,4 +46,4 @@ void event_recorder_reference::enqueue_wait(
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

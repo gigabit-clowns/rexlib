@@ -6,6 +6,7 @@ file(
 	SOURCES
 		${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/*.c
+		${CMAKE_CURRENT_SOURCE_DIR}/*.cu
 )
 
 # $<TARGET_OBJECTS:> carries only the objects, so what is built from them
@@ -15,7 +16,7 @@ add_library(${DEPS_NAME} INTERFACE)
 target_link_libraries(
 	${DEPS_NAME}
 	INTERFACE
-		xmipp4-core
+		rexlib::rexlib
 		CUDA::cudart
 		Boost::container
 		Boost::intrusive
@@ -46,15 +47,19 @@ set_target_properties(
 	PROPERTIES
 		CXX_STANDARD 20
 		POSITION_INDEPENDENT_CODE ON
+		# Device code compiled here is linked into the module below, not
+		# into each object, so a kernel may be called across translation
+		# units.
+		CUDA_SEPARABLE_COMPILATION ON
 )
 target_compile_definitions(
 	${OBJECTS_NAME}
 	PRIVATE
-		VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
-		VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
-		VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
+		REXLIB_CUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
+		REXLIB_CUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
+		REXLIB_CUDA_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
 		# CMake only defines this automatically for SHARED and MODULE targets.
-		XMIPP4_CUDA_EXPORTING
+		REXLIB_CUDA_EXPORTING
 )
 target_link_libraries(
 	${OBJECTS_NAME}
@@ -77,6 +82,9 @@ set_target_properties(
 	${TARGET_NAME}
 	PROPERTIES
 		CXX_STANDARD 20
+		# The device link step for the separately compiled objects above.
+		# Without it their device symbols are silently left unresolved.
+		CUDA_RESOLVE_DEVICE_SYMBOLS ON
 )
 target_link_libraries(
 	${TARGET_NAME}
@@ -84,10 +92,16 @@ target_link_libraries(
 		${DEPS_NAME}
 )
 
-# Install the plugin binary. No headers and no exported config: the plugin has
-# no public interface.
-install(
-	TARGETS ${TARGET_NAME}
-	LIBRARY DESTINATION ${XMIPP4_PLUGIN_INSTALL_DIR}
-	RUNTIME DESTINATION ${XMIPP4_PLUGIN_INSTALL_DIR}
-)
+if(REXLIB_CUDA_RUNTIME_RPATH)
+	set_property(
+		TARGET ${TARGET_NAME}
+		APPEND PROPERTY INSTALL_RPATH "${REXLIB_CUDA_RUNTIME_RPATH}"
+	)
+endif()
+
+# No headers and no exported config: the plugin has no public interface.
+# rexlib owns where a plugin goes and how it reaches the library, so the
+# destination and the RPATH back to it come from its exported helper.
+if(REXLIB_CUDA_INSTALL)
+	rexlib_install_plugin(${TARGET_NAME})
+endif()

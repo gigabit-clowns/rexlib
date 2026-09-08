@@ -4,7 +4,7 @@
 
 #include <cstdint>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -18,4 +18,4 @@ queue_handle make_test_queue(unsigned index, int ordinal) noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

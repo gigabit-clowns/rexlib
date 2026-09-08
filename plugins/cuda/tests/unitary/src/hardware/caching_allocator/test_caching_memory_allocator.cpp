@@ -12,23 +12,23 @@
 
 #include <config.hpp>
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/memory/align.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/memory/align.hpp>
 
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
 
 constexpr std::size_t alignment =
-	XMIPP4_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
+	REXLIB_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
 constexpr std::size_t min_heap =
-	XMIPP4_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
+	REXLIB_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
 
 } // namespace
 
@@ -88,12 +88,12 @@ TEST_CASE(
 
 	SECTION( "and refusing a queue this backend did not make" )
 	{
-		class foreign_queue final : public xmipp4::command_queue
+		class foreign_queue final : public rexlib::command_queue
 		{
 		public:
-			void submit(const xmipp4::command&) override {}
-			void signal(xmipp4::event&) override {}
-			void wait(const xmipp4::event&) override {}
+			void submit(const rexlib::command&) override {}
+			void signal(rexlib::event&) override {}
+			void wait(const rexlib::event&) override {}
 		};
 
 		// There is no stream behind it, so there is nothing to order the

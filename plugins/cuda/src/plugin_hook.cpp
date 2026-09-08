@@ -2,19 +2,19 @@
 
 #include "plugin.hpp"
 
-#include <xmipp4/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/platform/dynamic_shared_object.h>
 
-#if defined(XMIPP4_CUDA_EXPORTING)
-	#define XMIPP4_CUDA_API XMIPP4_EXPORT
+#if defined(REXLIB_CUDA_EXPORTING)
+	#define REXLIB_CUDA_API REXLIB_EXPORT
 #else
-	#define XMIPP4_CUDA_API XMIPP4_IMPORT
+	#define REXLIB_CUDA_API REXLIB_IMPORT
 #endif
 
-static const xmipp4::cuda_plugin instance;
+static const rexlib::cuda_plugin instance;
 
 extern "C"
 {
-XMIPP4_CUDA_API const xmipp4::plugin* xmipp4_get_plugin()
+REXLIB_CUDA_API const rexlib::plugin* rexlib_get_plugin()
 {
 	return &instance;
 }

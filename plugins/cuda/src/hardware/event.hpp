@@ -2,22 +2,22 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/event.hpp>
+#include <rexlib/core/hardware/event.hpp>
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
 
 /**
- * @brief CUDA implementation of @ref xmipp4::event, backed by a cudaEvent_t.
+ * @brief CUDA implementation of @ref rexlib::event, backed by a cudaEvent_t.
  *
  * Supports every @ref event_usage_flag_bits value.
  */
 class event final
-	: public xmipp4::event
+	: public rexlib::event
 {
 public:
 	using handle = cudaEvent_t;
@@ -47,7 +47,7 @@ public:
 	 * @throws std::invalid_argument If the event was not created by this
 	 * backend.
 	 */
-	static event& cast(xmipp4::event &ev);
+	static event& cast(rexlib::event &ev);
 
 	/**
 	 * @brief Downcast an event to this backend's implementation.
@@ -58,7 +58,7 @@ public:
 	 * @throws std::invalid_argument If the event was not created by this
 	 * backend.
 	 */
-	static const event& cast(const xmipp4::event &ev);
+	static const event& cast(const rexlib::event &ev);
 
 private:
 	handle m_event;
@@ -66,4 +66,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

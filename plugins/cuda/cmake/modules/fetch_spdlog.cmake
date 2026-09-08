@@ -13,7 +13,9 @@ function(fetch_spdlog)
 	set(SPDLOG_INSTALL OFF)
 	set(SPDLOG_BUILD_SHARED OFF)
 	set(SPDLOG_BUILD_PIC ON)
-	cmake_policy(SET CMP0135 NEW) # To avoid warnings
+	if(POLICY CMP0135)
+		cmake_policy(SET CMP0135 NEW) # To avoid warnings
+	endif()
 	FetchContent_Declare(
 		spdlog
 		URL https://github.com/gabime/spdlog/archive/refs/tags/v${arg_VERSION}.tar.gz

@@ -4,9 +4,9 @@
 
 #include <hardware/pinned_memory_resource.hpp>
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"the pinned_memory_resource should be the one of the whole process",

@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -26,7 +26,7 @@ namespace cuda
  *
  * Each allocator asked for is one of its own, holding a cache of its own.
  * Sharing a cache means sharing the allocator, which is what a
- * @ref xmipp4::device_context is for; asking for another one here is asking
+ * @ref rexlib::device_context is for; asking for another one here is asking
  * for another cache.
  */
 class pinned_memory_resource final
@@ -64,4 +64,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

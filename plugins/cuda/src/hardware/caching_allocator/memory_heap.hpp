@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -73,4 +73,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

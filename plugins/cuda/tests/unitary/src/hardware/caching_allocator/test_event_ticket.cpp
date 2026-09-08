@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <utility>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"a default constructed event_ticket should stand for a point already "

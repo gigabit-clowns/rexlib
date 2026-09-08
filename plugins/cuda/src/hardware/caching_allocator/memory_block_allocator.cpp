@@ -11,8 +11,8 @@
 #include "../../config.hpp"
 #include "../../logger.hpp"
 
-#include <xmipp4/core/binary/bit.hpp>
-#include <xmipp4/core/memory/align.hpp>
+#include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/memory/align.hpp>
 
 #include <algorithm>
 #include <new>
@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -62,7 +62,7 @@ memory_block_allocator::~memory_block_allocator()
 	{
 		// Can not throw from a destructor. The blocks stay out of the pool,
 		// which then reports them as never released.
-		XMIPP4_CUDA_LOG_ERROR(
+		REXLIB_CUDA_LOG_ERROR(
 			"An exception occurred waiting for the queues still using memory "
 			"in ~memory_block_allocator()."
 		);
@@ -71,7 +71,7 @@ memory_block_allocator::~memory_block_allocator()
 
 std::size_t memory_block_allocator::get_max_alignment() const noexcept
 {
-	return XMIPP4_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
+	return REXLIB_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
 }
 
 bool memory_block_allocator::is_host_accessible() const noexcept
@@ -138,7 +138,7 @@ void memory_block_allocator::recycle(
 		// Called from a destructor, so there is nowhere to report this to. The
 		// block stays out of the pool, which is a leak, but handing out memory
 		// a queue may still be reading from would be worse.
-		XMIPP4_CUDA_LOG_ERROR(
+		REXLIB_CUDA_LOG_ERROR(
 			"Could not hold a block back for the queues that used it. The "
 			"block is lost."
 		);
@@ -171,7 +171,7 @@ memory_block& memory_block_allocator::acquire_block(
 		}
 		catch (const std::bad_alloc&)
 		{
-			XMIPP4_CUDA_LOG_WARN(
+			REXLIB_CUDA_LOG_WARN(
 				"Could not take more memory from the device. Retrying after "
 				"giving back what is not being used."
 			);
@@ -273,7 +273,7 @@ memory_block_allocator::get_heap_size(std::size_t size) const noexcept
 {
 	// A request this big would spend most of a shared heap on itself, and is
 	// worth giving back to the driver on its own once it is done with.
-	if (size >= XMIPP4_CUDA_CACHING_ALLOCATOR_LARGE_ALLOCATION_BYTES)
+	if (size >= REXLIB_CUDA_CACHING_ALLOCATOR_LARGE_ALLOCATION_BYTES)
 	{
 		return size;
 	}
@@ -283,11 +283,11 @@ memory_block_allocator::get_heap_size(std::size_t size) const noexcept
 	auto result = std::max<std::size_t>(m_pool.get_size(), size);
 	result = std::max<std::size_t>(
 		result,
-		XMIPP4_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES
+		REXLIB_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES
 	);
 	result = std::min<std::size_t>(
 		result,
-		XMIPP4_CUDA_CACHING_ALLOCATOR_MAX_HEAP_BYTES
+		REXLIB_CUDA_CACHING_ALLOCATOR_MAX_HEAP_BYTES
 	);
 	result = align_ceil(result, get_max_alignment());
 
@@ -319,4 +319,4 @@ std::size_t memory_block_allocator::trim_locked()
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

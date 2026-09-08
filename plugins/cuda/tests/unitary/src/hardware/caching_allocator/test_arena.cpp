@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <new>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -79,4 +79,4 @@ void test_arena::release(void *data) noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

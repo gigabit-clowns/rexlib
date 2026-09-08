@@ -13,7 +13,7 @@
 #include <boost/intrusive/set.hpp>
 #include <boost/unordered/unordered_flat_map.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -233,4 +233,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

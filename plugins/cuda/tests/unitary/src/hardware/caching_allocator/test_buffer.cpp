@@ -17,20 +17,20 @@
 #include <memory>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
 
 constexpr std::size_t alignment =
-	XMIPP4_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
+	REXLIB_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
 constexpr std::size_t min_heap =
-	XMIPP4_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
+	REXLIB_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
 
 cuda::buffer& allocate_buffer(
 	cuda::caching_allocator_fixture &fixture,
 	const cuda::queue_handle &queue,
-	std::shared_ptr<xmipp4::buffer> &owner
+	std::shared_ptr<rexlib::buffer> &owner
 )
 {
 	owner = fixture.get().allocate(1024, alignment, queue);
@@ -45,7 +45,7 @@ TEST_CASE(
 )
 {
 	cuda::caching_allocator_fixture fixture;
-	std::shared_ptr<xmipp4::buffer> owner;
+	std::shared_ptr<rexlib::buffer> owner;
 	auto &buf = allocate_buffer(fixture, cuda::make_test_queue(0), owner);
 
 	CHECK( buf.get_recorded_queues().empty() );
@@ -61,7 +61,7 @@ TEST_CASE(
 	const auto first = cuda::make_test_queue(1);
 	const auto second = cuda::make_test_queue(2);
 
-	std::shared_ptr<xmipp4::buffer> owner;
+	std::shared_ptr<rexlib::buffer> owner;
 	auto &buf = allocate_buffer(fixture, own, owner);
 
 	SECTION( "one entry per queue" )
@@ -150,7 +150,7 @@ TEST_CASE(
 
 	void *first_data = nullptr;
 	{
-		std::shared_ptr<xmipp4::buffer> owner;
+		std::shared_ptr<rexlib::buffer> owner;
 		auto &buf = allocate_buffer(fixture, own, owner);
 		first_data = buf.get_device_ptr();
 		buf.record_use(own);
@@ -166,7 +166,7 @@ TEST_CASE(
 )
 {
 	cuda::caching_allocator_fixture fixture;
-	std::shared_ptr<xmipp4::buffer> owner;
+	std::shared_ptr<rexlib::buffer> owner;
 	auto &buf = allocate_buffer(fixture, cuda::make_test_queue(0), owner);
 
 	CHECK( &cuda::buffer::cast(*owner) == &buf );

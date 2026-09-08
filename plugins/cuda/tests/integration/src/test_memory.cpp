@@ -2,17 +2,17 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_backend.hpp>
-#include <xmipp4/core/hardware/device_manager.hpp>
-#include <xmipp4/core/hardware/memory_allocator.hpp>
-#include <xmipp4/core/hardware/memory_resource.hpp>
-#include <xmipp4/core/hardware/memory_resource_affinity.hpp>
-#include <xmipp4/core/hardware/memory_resource_kind.hpp>
-#include <xmipp4/core/platform/operating_system.h>
-#include <xmipp4/core/plugin_manager.hpp>
-#include <xmipp4/core/service_catalog.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_backend.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
+#include <rexlib/core/platform/operating_system.h>
+#include <rexlib/core/plugin_manager.hpp>
+#include <rexlib/core/service_catalog.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -22,19 +22,19 @@
 
 #include <cuda_runtime.h>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
 
 std::string get_cuda_plugin_path()
 {
-	#if XMIPP4_WINDOWS
-		return "xmipp4-cuda.dll";
-	#elif XMIPP4_LINUX
-		return "./libxmipp4-cuda.so";
-	#elif XMIPP4_APPLE
-		return "./libxmipp4-cuda.dylib";
+	#if REXLIB_WINDOWS
+		return "rexlib-cuda.dll";
+	#elif REXLIB_LINUX
+		return "./librexlib-cuda.so";
+	#elif REXLIB_APPLE
+		return "./librexlib-cuda.dylib";
 	#else
 		#error "Unknown platform"
 	#endif
@@ -53,7 +53,7 @@ public:
 		register_all_plugins_at(m_manager, m_catalog);
 
 		const auto device_manager =
-			m_catalog.get_service_manager<xmipp4::device_manager>();
+			m_catalog.get_service_manager<rexlib::device_manager>();
 		auto *backend = device_manager->get_backend("cuda");
 		if (!backend)
 		{
@@ -75,7 +75,7 @@ public:
 		return m_device != nullptr;
 	}
 
-	xmipp4::device& get_device() const noexcept
+	rexlib::device& get_device() const noexcept
 	{
 		return *m_device;
 	}
@@ -90,7 +90,7 @@ public:
 private:
 	plugin_manager m_manager;
 	service_catalog m_catalog;
-	std::shared_ptr<xmipp4::device> m_device;
+	std::shared_ptr<rexlib::device> m_device;
 };
 
 /// Ask the driver what it thinks a pointer is.

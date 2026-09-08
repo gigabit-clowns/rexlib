@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/memory_resource.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -24,4 +24,4 @@ public:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

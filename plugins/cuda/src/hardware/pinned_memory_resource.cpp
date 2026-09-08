@@ -9,7 +9,7 @@
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -85,4 +85,4 @@ const pinned_memory_resource& pinned_memory_resource::get()
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

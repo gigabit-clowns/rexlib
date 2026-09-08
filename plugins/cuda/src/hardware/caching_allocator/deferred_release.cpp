@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -25,7 +25,7 @@ deferred_release::~deferred_release()
 	{
 		// Only reachable if the owner let this go without draining it, which
 		// it has to do while it still has the pool to give the blocks back to.
-		XMIPP4_CUDA_LOG_ERROR(
+		REXLIB_CUDA_LOG_ERROR(
 			"A deferred_release was destroyed while still holding blocks. "
 			"They are lost."
 		);
@@ -147,4 +147,4 @@ void deferred_release::drop_reached_points(pending_release &item)
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

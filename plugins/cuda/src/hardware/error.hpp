@@ -6,7 +6,7 @@
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -83,23 +83,23 @@ void check_no_throw(
  * @brief Calls check filling the call name, filename and line number.
  *
  */
-#define XMIPP4_CUDA_CHECK(val) \
-	::xmipp4::cuda::check((val), #val, __FILE__, __LINE__)
+#define REXLIB_CUDA_CHECK(val) \
+	::rexlib::cuda::check((val), #val, __FILE__, __LINE__)
 
 /**
  * @brief Calls check_allocation filling the call name, filename and line
  * number.
  *
  */
-#define XMIPP4_CUDA_CHECK_ALLOCATION(val) \
-	::xmipp4::cuda::check_allocation((val), #val, __FILE__, __LINE__)
+#define REXLIB_CUDA_CHECK_ALLOCATION(val) \
+	::rexlib::cuda::check_allocation((val), #val, __FILE__, __LINE__)
 
 /**
  * @brief Calls check_no_throw filling the call name, filename and line number.
  *
  */
-#define XMIPP4_CUDA_CHECK_NO_THROW(val) \
-	::xmipp4::cuda::check_no_throw((val), #val, __FILE__, __LINE__)
+#define REXLIB_CUDA_CHECK_NO_THROW(val) \
+	::rexlib::cuda::check_no_throw((val), #val, __FILE__, __LINE__)
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

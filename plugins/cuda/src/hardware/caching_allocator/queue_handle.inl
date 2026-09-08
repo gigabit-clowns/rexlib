@@ -4,7 +4,7 @@
 
 #include "../command_queue.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -49,4 +49,4 @@ queue_handle::operator bool() const noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

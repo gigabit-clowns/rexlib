@@ -8,7 +8,7 @@
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -37,14 +37,14 @@ void* pinned_memory_source::allocate(std::size_t size)
 	}
 
 	void *result = nullptr;
-	XMIPP4_CUDA_CHECK_ALLOCATION( cudaHostAlloc(&result, size, flags) );
+	REXLIB_CUDA_CHECK_ALLOCATION( cudaHostAlloc(&result, size, flags) );
 
 	return result;
 }
 
 void pinned_memory_source::deallocate(void *data) noexcept
 {
-	XMIPP4_CUDA_CHECK_NO_THROW( cudaFreeHost(data) );
+	REXLIB_CUDA_CHECK_NO_THROW( cudaFreeHost(data) );
 }
 
 bool pinned_memory_source::is_host_accessible() const noexcept
@@ -57,8 +57,8 @@ std::size_t pinned_memory_source::get_base_alignment() const noexcept
 {
 	// Page-locked memory is page-aligned in practice, but only the same amount
 	// that every other CUDA allocation guarantees is documented.
-	return XMIPP4_CUDA_ALLOCATION_ALIGN_BYTES;
+	return REXLIB_CUDA_ALLOCATION_ALIGN_BYTES;
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

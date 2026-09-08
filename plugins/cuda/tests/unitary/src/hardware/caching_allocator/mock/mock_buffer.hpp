@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
 
 #include <trompeloeil.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
 
 class mock_buffer final
-	: public xmipp4::buffer
+	: public rexlib::buffer
 {
 public:
 	MAKE_MOCK0(get_host_ptr, void*(), noexcept override);
@@ -26,4 +26,4 @@ public:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

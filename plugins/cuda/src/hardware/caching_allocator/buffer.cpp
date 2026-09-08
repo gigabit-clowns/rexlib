@@ -10,7 +10,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -70,7 +70,7 @@ const void* buffer::get_device_ptr() const noexcept
 	return m_block->get_data();
 }
 
-void buffer::record_use(const xmipp4::command_queue &queue)
+void buffer::record_use(const rexlib::command_queue &queue)
 {
 	record_use(queue_handle(command_queue::cast(queue)));
 }
@@ -96,7 +96,7 @@ span<const queue_handle> buffer::get_recorded_queues() const noexcept
 	return make_span(&(*m_queues.begin()), m_queues.size());
 }
 
-buffer& buffer::cast(xmipp4::buffer &buf)
+buffer& buffer::cast(rexlib::buffer &buf)
 {
 	auto *result = dynamic_cast<buffer*>(&buf);
 	if (!result)
@@ -109,7 +109,7 @@ buffer& buffer::cast(xmipp4::buffer &buf)
 	return *result;
 }
 
-const buffer& buffer::cast(const xmipp4::buffer &buf)
+const buffer& buffer::cast(const rexlib::buffer &buf)
 {
 	const auto *result = dynamic_cast<const buffer*>(&buf);
 	if (!result)
@@ -123,4 +123,4 @@ const buffer& buffer::cast(const xmipp4::buffer &buf)
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

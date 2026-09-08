@@ -3,39 +3,39 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <xmipp4/core/hardware/command.hpp>
-#include <xmipp4/core/hardware/command_queue.hpp>
-#include <xmipp4/core/hardware/device.hpp>
-#include <xmipp4/core/hardware/device_backend.hpp>
-#include <xmipp4/core/hardware/device_manager.hpp>
-#include <xmipp4/core/hardware/device_properties.hpp>
-#include <xmipp4/core/hardware/device_type.hpp>
-#include <xmipp4/core/hardware/event.hpp>
-#include <xmipp4/core/platform/operating_system.h>
-#include <xmipp4/core/plugin.hpp>
-#include <xmipp4/core/plugin_manager.hpp>
-#include <xmipp4/core/service_catalog.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_backend.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_type.hpp>
+#include <rexlib/core/hardware/event.hpp>
+#include <rexlib/core/platform/operating_system.h>
+#include <rexlib/core/plugin.hpp>
+#include <rexlib/core/plugin_manager.hpp>
+#include <rexlib/core/service_catalog.hpp>
 
 #include <algorithm>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 
 static std::string get_cuda_plugin_path()
 {
-	#if XMIPP4_WINDOWS
-		return "xmipp4-cuda.dll";
-	#elif XMIPP4_LINUX
-		return "./libxmipp4-cuda.so";
-	#elif XMIPP4_APPLE
-		return "./libxmipp4-cuda.dylib";
+	#if REXLIB_WINDOWS
+		return "rexlib-cuda.dll";
+	#elif REXLIB_LINUX
+		return "./librexlib-cuda.so";
+	#elif REXLIB_APPLE
+		return "./librexlib-cuda.dylib";
 	#else
 		#error "Unknown platform"
 	#endif
 }
 
-TEST_CASE( "load and register xmipp4-cuda plugin", "[cuda]" )
+TEST_CASE( "load and register rexlib-cuda plugin", "[cuda]" )
 {
 	plugin_manager manager;
 
@@ -43,7 +43,7 @@ TEST_CASE( "load and register xmipp4-cuda plugin", "[cuda]" )
 		manager.load_plugin(get_cuda_plugin_path());
 
 	REQUIRE( cuda_plugin != nullptr );
-	REQUIRE( cuda_plugin->get_name() == "xmipp4-cuda" );
+	REQUIRE( cuda_plugin->get_name() == "rexlib-cuda" );
 }
 
 TEST_CASE( "register the CUDA device backend", "[cuda]" )
@@ -54,7 +54,7 @@ TEST_CASE( "register the CUDA device backend", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager = catalog.get_service_manager<xmipp4::device_manager>();
+	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
 	REQUIRE( device_manager != nullptr );
 
 	std::vector<std::string> names;
@@ -76,7 +76,7 @@ TEST_CASE( "enumerate the CUDA devices", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager = catalog.get_service_manager<xmipp4::device_manager>();
+	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
 	auto *backend = device_manager->get_backend("cuda");
 	REQUIRE( backend != nullptr );
 
@@ -112,7 +112,7 @@ TEST_CASE( "synchronize a CUDA queue through an event", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager = catalog.get_service_manager<xmipp4::device_manager>();
+	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
 	auto *backend = device_manager->get_backend("cuda");
 	REQUIRE( backend != nullptr );
 
@@ -144,7 +144,7 @@ TEST_CASE( "synchronize a CUDA queue through an event", "[cuda]" )
 	REQUIRE_NOTHROW( queue->wait(*ev) );
 
 	// Queues reject events that this backend did not create.
-	class foreign_event final : public xmipp4::event
+	class foreign_event final : public rexlib::event
 	{
 	public:
 		event_usage_flags get_supported_usage() const noexcept override
@@ -167,7 +167,7 @@ TEST_CASE( "the CUDA backend reports what it does not implement yet", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager = catalog.get_service_manager<xmipp4::device_manager>();
+	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
 	auto *backend = device_manager->get_backend("cuda");
 	REQUIRE( backend != nullptr );
 

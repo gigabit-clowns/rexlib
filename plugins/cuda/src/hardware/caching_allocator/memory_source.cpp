@@ -2,7 +2,7 @@
 
 #include "memory_source.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -10,4 +10,4 @@ namespace cuda
 memory_source::~memory_source() = default;
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

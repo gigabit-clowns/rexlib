@@ -12,7 +12,7 @@
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -35,7 +35,7 @@ pooled_event_recorder::record(const queue_handle &queue)
 	const auto result = acquire(queue.get_ordinal());
 	try
 	{
-		XMIPP4_CUDA_CHECK(
+		REXLIB_CUDA_CHECK(
 			cudaEventRecord(get_event(result).get_handle(), queue.get_stream())
 		);
 	}
@@ -83,7 +83,7 @@ void pooled_event_recorder::enqueue_wait(
 		);
 	}
 
-	XMIPP4_CUDA_CHECK(
+	REXLIB_CUDA_CHECK(
 		cudaStreamWaitEvent(
 			queue.get_stream(),
 			get_event(ticket).get_handle(),
@@ -140,4 +140,4 @@ event_recorder::ticket pooled_event_recorder::create(int ordinal)
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

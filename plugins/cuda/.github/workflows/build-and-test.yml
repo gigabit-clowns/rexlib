@@ -32,9 +32,7 @@ jobs:
         - os: windows-latest
           compiler: {cc: cl, cxx: cl}
           cuda: 13.3.1
-          # Debug here would pair this plugin's /MDd with the /MD of the
-          # prebuilt core wheel, which is always built Release.
-          build_type: Release
+          build_type: Debug
   
     runs-on: ${{ matrix.os }}
     env:
@@ -45,6 +43,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          submodules: true
 
       - uses: Jimver/cuda-toolkit@b8bf9c6c28f8a92fbb04dcfcaee872e60c57462d # v0.2.36
         id: cuda-toolkit
@@ -54,13 +54,16 @@ jobs:
           sub-packages: ${{ runner.os=='Linux' && '["nvcc", "cudart-dev"]' || '[]' }} # Fake ternary operator
           log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
-      - name: Install xmipp4-core
-        working-directory: ${{ github.workspace }}/../
+      - name: Install rexlib
         run: |
-          git clone https://github.com/gigabit-clowns/xmipp4-core.git
-          cd xmipp4-core
-          git checkout tags/development
-          pip install --only-binary :all: --no-index --find-links=dist xmipp4-core
+          python -m pip install "cmake>=3.18" ninja
+          cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
+            -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
+            -DCMAKE_INSTALL_LIBDIR=lib \
+            -DBUILD_TESTING=OFF
+          cmake --build "${{ runner.temp }}/rexlib-build" \
+            --config ${{ env.BUILD_TYPE }} --target install --parallel 4
 
       - name: Configure and build with CMake
         uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2
@@ -72,6 +75,7 @@ jobs:
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
+            rexlib_ROOT=${{ runner.temp }}/rexlib
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
 

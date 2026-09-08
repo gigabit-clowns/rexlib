@@ -9,7 +9,7 @@
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -31,7 +31,7 @@ void* device_memory_source::allocate(std::size_t size)
 	void *result = nullptr;
 
 	const device_guard guard(m_ordinal);
-	XMIPP4_CUDA_CHECK_ALLOCATION( cudaMalloc(&result, size) );
+	REXLIB_CUDA_CHECK_ALLOCATION( cudaMalloc(&result, size) );
 
 	return result;
 }
@@ -40,7 +40,7 @@ void device_memory_source::deallocate(void *data) noexcept
 {
 	// Acts on the device that owns the memory, so the current one is
 	// irrelevant here.
-	XMIPP4_CUDA_CHECK_NO_THROW( cudaFree(data) );
+	REXLIB_CUDA_CHECK_NO_THROW( cudaFree(data) );
 }
 
 bool device_memory_source::is_host_accessible() const noexcept
@@ -50,8 +50,8 @@ bool device_memory_source::is_host_accessible() const noexcept
 
 std::size_t device_memory_source::get_base_alignment() const noexcept
 {
-	return XMIPP4_CUDA_ALLOCATION_ALIGN_BYTES;
+	return REXLIB_CUDA_ALLOCATION_ALIGN_BYTES;
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

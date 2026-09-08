@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -45,10 +45,10 @@ std::size_t caching_memory_allocator::get_max_alignment() const noexcept
 	return m_allocator->get_max_alignment();
 }
 
-std::shared_ptr<xmipp4::buffer> caching_memory_allocator::allocate(
+std::shared_ptr<rexlib::buffer> caching_memory_allocator::allocate(
 	std::size_t size,
 	std::size_t alignment,
-	xmipp4::command_queue *queue_hint
+	rexlib::command_queue *queue_hint
 )
 {
 	queue_handle queue;
@@ -64,7 +64,7 @@ std::shared_ptr<xmipp4::buffer> caching_memory_allocator::allocate(
 	);
 }
 
-std::shared_ptr<xmipp4::buffer> caching_memory_allocator::allocate(
+std::shared_ptr<rexlib::buffer> caching_memory_allocator::allocate(
 	std::size_t size,
 	std::size_t alignment,
 	const queue_handle &queue
@@ -96,4 +96,4 @@ std::size_t caching_memory_allocator::trim()
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

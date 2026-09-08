@@ -4,7 +4,7 @@
 
 #include <hardware/caching_allocator/queue_handle.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -23,4 +23,4 @@ namespace cuda
 queue_handle make_test_queue(unsigned index, int ordinal = 0) noexcept;
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

@@ -13,7 +13,7 @@
 #include <exception>
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -193,4 +193,4 @@ void block_allocator_fixture::give_back(event_recorder::ticket ticket)
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

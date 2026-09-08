@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <xmipp4/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device.hpp>
 
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -14,14 +14,14 @@ namespace cuda
 class device_memory_resource;
 
 /**
- * @brief CUDA implementation of @ref xmipp4::device.
+ * @brief CUDA implementation of @ref rexlib::device.
  *
  * The handle is a thin wrapper around a device ordinal: it owns no driver
  * resource of its own, so several handles may refer to the same physical
  * device without interfering with each other.
  */
 class device final
-	: public xmipp4::device
+	: public rexlib::device
 {
 public:
 	/**
@@ -45,9 +45,9 @@ public:
 	const memory_resource&
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
-	std::shared_ptr<xmipp4::command_queue> create_command_queue() const override;
+	std::shared_ptr<rexlib::command_queue> create_command_queue() const override;
 
-	std::shared_ptr<xmipp4::event>
+	std::shared_ptr<rexlib::event>
 	create_event(event_usage_flags usage) const override;
 
 private:
@@ -59,4 +59,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

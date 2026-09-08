@@ -6,13 +6,13 @@
 
 #include "mock/mock_memory_source.hpp"
 
-#include <xmipp4/core/memory/align.hpp>
+#include <rexlib/core/memory/align.hpp>
 
 #include <cstddef>
 #include <new>
 #include <stdexcept>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

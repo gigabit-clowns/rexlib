@@ -39,3 +39,6 @@ build
 
 # CTest
 Testing/Temporary
+
+# Python bytecode from the helper scripts
+__pycache__/

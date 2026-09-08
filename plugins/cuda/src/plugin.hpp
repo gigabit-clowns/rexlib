@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <xmipp4/core/plugin.hpp>
+#include <rexlib/core/plugin.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class cuda_plugin final
@@ -28,4 +28,4 @@ private:
 
 };
 
-} // namespace xmipp4
+} // namespace rexlib

@@ -10,7 +10,7 @@
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -60,16 +60,16 @@ device::get_memory_resource(memory_resource_affinity affinity) const
 	}
 }
 
-std::shared_ptr<xmipp4::command_queue> device::create_command_queue() const
+std::shared_ptr<rexlib::command_queue> device::create_command_queue() const
 {
 	return std::make_shared<command_queue>(m_ordinal);
 }
 
-std::shared_ptr<xmipp4::event>
+std::shared_ptr<rexlib::event>
 device::create_event(event_usage_flags /*usage*/) const
 {
 	return std::make_shared<event>(m_ordinal);
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

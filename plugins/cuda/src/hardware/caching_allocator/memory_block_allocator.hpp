@@ -6,13 +6,13 @@
 #include "memory_block_pool.hpp"
 #include "queue_handle.hpp"
 
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <memory>
 #include <mutex>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -158,4 +158,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

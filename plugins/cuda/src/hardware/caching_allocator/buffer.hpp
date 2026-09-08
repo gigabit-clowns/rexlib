@@ -6,15 +6,15 @@
 
 #include "../../config.hpp"
 
-#include <xmipp4/core/hardware/buffer.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <memory>
 
 #include <boost/container/flat_set.hpp>
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 
 class command_queue;
@@ -26,7 +26,7 @@ class memory_block;
 class memory_block_allocator;
 
 /**
- * @brief CUDA implementation of @ref xmipp4::buffer.
+ * @brief CUDA implementation of @ref rexlib::buffer.
  *
  * Owns a block of a @ref memory_block_allocator for as long as it lives, and
  * gives it back when it dies. Holding the block allocator rather than the
@@ -35,7 +35,7 @@ class memory_block_allocator;
  * one it was allocated for have been given work referencing it, since that is
  * what the allocator has to wait for before the block can be handed out again.
  *
- * The device pointer is not part of the @ref xmipp4::buffer interface, so
+ * The device pointer is not part of the @ref rexlib::buffer interface, so
  * reaching it means downcasting through @ref cast.
  *
  * @note Recording a use is not synchronized against other uses of the same
@@ -44,7 +44,7 @@ class memory_block_allocator;
  * shared at all.
  */
 class buffer final
-	: public xmipp4::buffer
+	: public rexlib::buffer
 {
 public:
 	/**
@@ -107,7 +107,7 @@ public:
 	 * @throws std::invalid_argument If the queue was not created by the CUDA
 	 * backend.
 	 */
-	void record_use(const xmipp4::command_queue &queue);
+	void record_use(const rexlib::command_queue &queue);
 
 	/**
 	 * @brief Record that a queue that is already resolved has been given work
@@ -139,7 +139,7 @@ public:
 	 * @throws std::invalid_argument If the buffer was not created by this
 	 * backend.
 	 */
-	static buffer& cast(xmipp4::buffer &buf);
+	static buffer& cast(rexlib::buffer &buf);
 
 	/**
 	 * @brief Downcast a buffer to this backend's implementation.
@@ -150,7 +150,7 @@ public:
 	 * @throws std::invalid_argument If the buffer was not created by this
 	 * backend.
 	 */
-	static const buffer& cast(const xmipp4::buffer &buf);
+	static const buffer& cast(const rexlib::buffer &buf);
 
 private:
 	/// Sorted and deduplicated, and inline for as many queues as a buffer is
@@ -160,7 +160,7 @@ private:
 		std::less<queue_handle>,
 		boost::container::small_vector<
 			queue_handle,
-			XMIPP4_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
+			REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
 		>
 	>;
 
@@ -172,4 +172,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

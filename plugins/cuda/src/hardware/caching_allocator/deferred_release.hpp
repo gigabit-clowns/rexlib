@@ -7,14 +7,14 @@
 
 #include "../../config.hpp"
 
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <vector>
 
 #include <boost/container/small_vector.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -108,7 +108,7 @@ private:
 	/// many queues touched a single buffer, which is a handful.
 	using reached_point_flags = boost::container::small_vector<
 		bool,
-		XMIPP4_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
+		REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
 	>;
 
 	std::vector<pending_release> m_pending;
@@ -128,4 +128,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

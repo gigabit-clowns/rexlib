@@ -26,7 +26,7 @@ set_target_properties(
 target_link_libraries(
 	${TESTS_NAME} 
 	PRIVATE 
-		xmipp4-core
+		rexlib::rexlib
 		Catch2::Catch2WithMain
 		# To check that what the plugin hands out really is what it says it is,
 		# which only the driver can answer.
@@ -38,8 +38,8 @@ add_dependencies(${TESTS_NAME} ${PROJECT_NAME})
 if(WIN32)
 	add_custom_command(TARGET ${TESTS_NAME}
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:xmipp4-core> "${CMAKE_CURRENT_BINARY_DIR}"
-		COMMENT "Copy xmipp4-core DLL file to ${CMAKE_CURRENT_BINARY_DIR} directory" VERBATIM
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rexlib::rexlib> "${CMAKE_CURRENT_BINARY_DIR}"
+		COMMENT "Copy rexlib DLL file to ${CMAKE_CURRENT_BINARY_DIR} directory" VERBATIM
 	)
 endif()
 

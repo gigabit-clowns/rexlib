@@ -15,7 +15,7 @@
 #include <cstdint>
 #include <memory>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {

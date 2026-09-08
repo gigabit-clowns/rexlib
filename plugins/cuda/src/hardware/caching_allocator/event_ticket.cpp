@@ -4,7 +4,7 @@
 
 #include <utility>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -86,4 +86,4 @@ void event_ticket::enqueue_wait(const queue_handle &queue) const
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

@@ -7,7 +7,7 @@
 
 #include "../config.hpp"
 
-#include <xmipp4/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_manager.hpp>
 
 #include <cstdlib>
 #include <iomanip>
@@ -17,7 +17,7 @@
 
 #include <cuda_runtime.h>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -100,7 +100,7 @@ bool device_backend::get_device_properties(
 	if (result)
 	{
 		cudaDeviceProp prop;
-		XMIPP4_CUDA_CHECK( cudaGetDeviceProperties(&prop, ordinal) );
+		REXLIB_CUDA_CHECK( cudaGetDeviceProperties(&prop, ordinal) );
 
 		const auto type =
 			prop.integrated ? device_type::integrated_gpu : device_type::gpu;
@@ -114,13 +114,13 @@ bool device_backend::get_device_properties(
 		desc.set_physical_location(std::move(location));
 		desc.set_type(type);
 		desc.set_total_memory_bytes(prop.totalGlobalMem);
-		desc.set_optimal_data_alignment(XMIPP4_CUDA_COALESCE_ALIGN_BYTES);
+		desc.set_optimal_data_alignment(REXLIB_CUDA_COALESCE_ALIGN_BYTES);
 	}
 
 	return result;
 }
 
-std::shared_ptr<xmipp4::device>
+std::shared_ptr<rexlib::device>
 device_backend::create_device(std::size_t id) const
 {
 	int count;
@@ -138,10 +138,10 @@ device_backend::create_device(std::size_t id) const
 	return std::make_shared<device>(ordinal);
 }
 
-bool device_backend::register_at(xmipp4::device_manager &manager)
+bool device_backend::register_at(rexlib::device_manager &manager)
 {
 	return manager.register_backend(std::make_unique<device_backend>());
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

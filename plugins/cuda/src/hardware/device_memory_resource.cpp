@@ -7,7 +7,7 @@
 #include "caching_allocator/device_memory_source.hpp"
 #include "caching_allocator/pooled_event_recorder.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -42,4 +42,4 @@ device_memory_resource::create_allocator() const
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

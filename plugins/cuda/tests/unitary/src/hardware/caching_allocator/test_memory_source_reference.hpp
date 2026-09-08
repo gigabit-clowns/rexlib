@@ -4,7 +4,7 @@
 
 #include <hardware/caching_allocator/memory_source.hpp>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -37,4 +37,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

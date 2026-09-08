@@ -4,9 +4,9 @@
 
 #include <hardware/device_memory_resource.hpp>
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"a device_memory_resource should describe the memory local to a device",

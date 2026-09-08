@@ -6,12 +6,12 @@
 #include "error.hpp"
 #include "event.hpp"
 
-#include <xmipp4/core/exceptions/invalid_operation_error.hpp>
-#include <xmipp4/core/hardware/command.hpp>
+#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/hardware/command.hpp>
 
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -23,7 +23,7 @@ command_queue::command_queue(int ordinal)
 	// Non-blocking, so that queues are only ever ordered against each other
 	// through events and never implicitly through the legacy default stream.
 	const device_guard guard(ordinal);
-	XMIPP4_CUDA_CHECK(
+	REXLIB_CUDA_CHECK(
 		cudaStreamCreateWithFlags(&m_stream, cudaStreamNonBlocking)
 	);
 }
@@ -32,7 +32,7 @@ command_queue::~command_queue()
 {
 	// Acts on the device that owns the stream, so the current one is
 	// irrelevant here.
-	XMIPP4_CUDA_CHECK_NO_THROW( cudaStreamDestroy(m_stream) );
+	REXLIB_CUDA_CHECK_NO_THROW( cudaStreamDestroy(m_stream) );
 }
 
 command_queue::handle command_queue::get_handle() const noexcept
@@ -47,7 +47,7 @@ int command_queue::get_ordinal() const noexcept
 
 void command_queue::synchronize() const
 {
-	XMIPP4_CUDA_CHECK( cudaStreamSynchronize(m_stream) );
+	REXLIB_CUDA_CHECK( cudaStreamSynchronize(m_stream) );
 }
 
 void command_queue::submit(const command &cmd)
@@ -65,18 +65,18 @@ void command_queue::submit(const command &cmd)
 	);
 }
 
-void command_queue::signal(xmipp4::event &ev)
+void command_queue::signal(rexlib::event &ev)
 {
 	auto &cuda_event = event::cast(ev);
-	XMIPP4_CUDA_CHECK(
+	REXLIB_CUDA_CHECK(
 		cudaEventRecord(cuda_event.get_handle(), m_stream)
 	);
 }
 
-void command_queue::wait(const xmipp4::event &ev)
+void command_queue::wait(const rexlib::event &ev)
 {
 	const auto &cuda_event = event::cast(ev);
-	XMIPP4_CUDA_CHECK(
+	REXLIB_CUDA_CHECK(
 		cudaStreamWaitEvent(
 			m_stream,
 			cuda_event.get_handle(),
@@ -85,7 +85,7 @@ void command_queue::wait(const xmipp4::event &ev)
 	);
 }
 
-command_queue& command_queue::cast(xmipp4::command_queue &queue)
+command_queue& command_queue::cast(rexlib::command_queue &queue)
 {
 	auto *result = dynamic_cast<command_queue*>(&queue);
 	if (!result)
@@ -98,7 +98,7 @@ command_queue& command_queue::cast(xmipp4::command_queue &queue)
 	return *result;
 }
 
-const command_queue& command_queue::cast(const xmipp4::command_queue &queue)
+const command_queue& command_queue::cast(const rexlib::command_queue &queue)
 {
 	const auto *result = dynamic_cast<const command_queue*>(&queue);
 	if (!result)
@@ -112,4 +112,4 @@ const command_queue& command_queue::cast(const xmipp4::command_queue &queue)
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

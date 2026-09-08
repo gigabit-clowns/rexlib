@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <set>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"a default constructed queue_handle should refer to no queue",

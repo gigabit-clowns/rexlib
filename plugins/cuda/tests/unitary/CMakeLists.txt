@@ -30,14 +30,14 @@ target_link_libraries(
 		trompeloeil::trompeloeil
 )
 
-# The embedded objects import xmipp4-core, whose DLL is not on the loader's
+# The embedded objects import rexlib, whose DLL is not on the loader's
 # search path, so it has to sit next to the executable that needs it.
 if(WIN32)
 	add_custom_command(TARGET ${TESTS_NAME}
 		POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy
-			$<TARGET_FILE:xmipp4-core> $<TARGET_FILE_DIR:${TESTS_NAME}>
-		COMMENT "Copy xmipp4-core DLL next to ${TESTS_NAME}" VERBATIM
+			$<TARGET_FILE:rexlib::rexlib> $<TARGET_FILE_DIR:${TESTS_NAME}>
+		COMMENT "Copy rexlib DLL next to ${TESTS_NAME}" VERBATIM
 	)
 endif()
 

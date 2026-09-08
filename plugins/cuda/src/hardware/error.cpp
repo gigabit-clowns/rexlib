@@ -8,7 +8,7 @@
 #include <new>
 #include <sstream>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -84,4 +84,4 @@ void check_no_throw(
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

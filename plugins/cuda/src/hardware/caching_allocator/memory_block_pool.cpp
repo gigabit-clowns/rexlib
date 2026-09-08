@@ -6,12 +6,12 @@
 
 #include "../../logger.hpp"
 
-#include <xmipp4/core/platform/assert.hpp>
+#include <rexlib/core/platform/assert.hpp>
 
 #include <limits>
 #include <stdexcept>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -43,7 +43,7 @@ memory_block_pool::~memory_block_pool()
 {
 	if (m_blocks.size() != m_free_blocks.size())
 	{
-		XMIPP4_CUDA_LOG_ERROR(
+		REXLIB_CUDA_LOG_ERROR(
 			"Some blocks belonging to a memory_block_pool were not released "
 			"before its destruction."
 		);
@@ -115,14 +115,14 @@ void memory_block_pool::acquire(
 	const queue_handle &queue
 ) noexcept
 {
-	XMIPP4_ASSERT( block.is_free() );
+	REXLIB_ASSERT( block.is_free() );
 	m_free_blocks.erase(m_free_blocks.iterator_to(block));
 	block.set_queue(queue);
 }
 
 void memory_block_pool::release(memory_block &block) noexcept
 {
-	XMIPP4_ASSERT( !block.is_free() );
+	REXLIB_ASSERT( !block.is_free() );
 
 	// Merging before the block joins the set keeps the set from having to be
 	// searched for a block that is about to grow anyway.
@@ -137,8 +137,8 @@ memory_block_pool::partition_block(
 	std::size_t second_size
 )
 {
-	XMIPP4_ASSERT( block.is_free() );
-	XMIPP4_ASSERT( first_size + second_size == block.get_size() );
+	REXLIB_ASSERT( block.is_free() );
+	REXLIB_ASSERT( first_size + second_size == block.get_size() );
 
 	auto first = std::make_unique<memory_block>(
 		block.get_queue(),
@@ -322,7 +322,7 @@ memory_block* memory_block_pool::find_in_queue(
 		return nullptr;
 	}
 
-	XMIPP4_ASSERT( ite->get_size() >= size );
+	REXLIB_ASSERT( ite->get_size() >= size );
 	return &(*ite);
 }
 
@@ -407,4 +407,4 @@ bool memory_block_pool::is_partition(const memory_block &block) const noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

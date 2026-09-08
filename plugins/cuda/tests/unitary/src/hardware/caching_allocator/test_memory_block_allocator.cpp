@@ -15,8 +15,8 @@
 
 #include <config.hpp>
 
-#include <xmipp4/core/memory/align.hpp>
-#include <xmipp4/core/span.hpp>
+#include <rexlib/core/memory/align.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -25,15 +25,15 @@
 #include <stdexcept>
 #include <vector>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 namespace
 {
 
 constexpr std::size_t alignment =
-	XMIPP4_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
+	REXLIB_CUDA_CACHING_ALLOCATOR_MAX_ALIGNMENT_BYTES;
 constexpr std::size_t min_heap =
-	XMIPP4_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
+	REXLIB_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
 
 /// Blocks a test holds on to, given back together at the end.
 class held_blocks
@@ -335,7 +335,7 @@ TEST_CASE(
 	cuda::block_allocator_fixture fixture;
 	const auto queue = cuda::make_test_queue(0);
 	const std::size_t size =
-		XMIPP4_CUDA_CACHING_ALLOCATOR_LARGE_ALLOCATION_BYTES;
+		REXLIB_CUDA_CACHING_ALLOCATOR_LARGE_ALLOCATION_BYTES;
 
 	// Sized to the request rather than rounded up, since a heap this big would
 	// otherwise sit there holding memory nothing else is small enough to use.

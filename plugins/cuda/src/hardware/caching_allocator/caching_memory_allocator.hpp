@@ -4,12 +4,12 @@
 
 #include "queue_handle.hpp"
 
-#include <xmipp4/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 
 #include <cstddef>
 #include <memory>
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -17,7 +17,7 @@ namespace cuda
 class memory_block_allocator;
 
 /**
- * @brief CUDA implementation of @ref xmipp4::memory_allocator.
+ * @brief CUDA implementation of @ref rexlib::memory_allocator.
  *
  * Turns the blocks a @ref memory_block_allocator hands out into buffers, and
  * is what the rest of the framework sees. All the caching, and the knowledge
@@ -59,10 +59,10 @@ public:
 
 	std::size_t get_max_alignment() const noexcept override;
 
-	std::shared_ptr<xmipp4::buffer> allocate(
+	std::shared_ptr<rexlib::buffer> allocate(
 		std::size_t size,
 		std::size_t alignment,
-		xmipp4::command_queue *queue_hint = nullptr
+		rexlib::command_queue *queue_hint = nullptr
 	) override;
 
 	/**
@@ -77,13 +77,13 @@ public:
 	 * and not greater than @ref get_max_alignment.
 	 * @param queue The queue the buffer is expected to be used on. May stand
 	 * for no queue, in which case the buffer can be used on any of them.
-	 * @return std::shared_ptr<xmipp4::buffer> The buffer. Never null.
+	 * @return std::shared_ptr<rexlib::buffer> The buffer. Never null.
 	 *
 	 * @throws std::bad_alloc If the device had no memory left.
 	 * @throws std::invalid_argument If @p alignment is not a valid power of
 	 * two within @ref get_max_alignment.
 	 */
-	std::shared_ptr<xmipp4::buffer> allocate(
+	std::shared_ptr<rexlib::buffer> allocate(
 		std::size_t size,
 		std::size_t alignment,
 		const queue_handle &queue
@@ -104,4 +104,4 @@ private:
 };
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

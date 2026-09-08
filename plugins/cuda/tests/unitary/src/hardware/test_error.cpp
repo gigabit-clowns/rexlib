@@ -7,16 +7,16 @@
 #include <new>
 #include <string>
 
-using namespace xmipp4;
+using namespace rexlib;
 
 TEST_CASE(
 	"checking a CUDA return code should only throw on failure",
 	"[error]"
 )
 {
-	CHECK_NOTHROW( XMIPP4_CUDA_CHECK(cudaSuccess) );
+	CHECK_NOTHROW( REXLIB_CUDA_CHECK(cudaSuccess) );
 	CHECK_THROWS_AS(
-		XMIPP4_CUDA_CHECK(cudaErrorInvalidValue),
+		REXLIB_CUDA_CHECK(cudaErrorInvalidValue),
 		cuda::error
 	);
 }
@@ -28,7 +28,7 @@ TEST_CASE(
 {
 	try
 	{
-		XMIPP4_CUDA_CHECK(cudaErrorInvalidValue);
+		REXLIB_CUDA_CHECK(cudaErrorInvalidValue);
 		FAIL( "The check should have thrown." );
 	}
 	catch (const cuda::error &e)
@@ -48,25 +48,25 @@ TEST_CASE(
 	"[error]"
 )
 {
-	CHECK_NOTHROW( XMIPP4_CUDA_CHECK_ALLOCATION(cudaSuccess) );
+	CHECK_NOTHROW( REXLIB_CUDA_CHECK_ALLOCATION(cudaSuccess) );
 
 	// The allocators answer "no memory left" by asking for less, and tell it
 	// from every other failure by its type alone.
 	CHECK_THROWS_AS(
-		XMIPP4_CUDA_CHECK_ALLOCATION(cudaErrorMemoryAllocation),
+		REXLIB_CUDA_CHECK_ALLOCATION(cudaErrorMemoryAllocation),
 		std::bad_alloc
 	);
 
 	SECTION( "and anything else as an ordinary error" )
 	{
 		CHECK_THROWS_AS(
-			XMIPP4_CUDA_CHECK_ALLOCATION(cudaErrorInvalidValue),
+			REXLIB_CUDA_CHECK_ALLOCATION(cudaErrorInvalidValue),
 			cuda::error
 		);
 
 		// Which is not a bad_alloc, so it is not answered by retrying smaller.
 		CHECK_THROWS_AS(
-			XMIPP4_CUDA_CHECK_ALLOCATION(cudaErrorInvalidValue),
+			REXLIB_CUDA_CHECK_ALLOCATION(cudaErrorInvalidValue),
 			std::runtime_error
 		);
 	}
@@ -79,9 +79,9 @@ TEST_CASE(
 {
 	// Meant for destructors, where there is nowhere left to report a failure
 	// to and throwing would end the process.
-	CHECK_NOTHROW( XMIPP4_CUDA_CHECK_NO_THROW(cudaSuccess) );
-	CHECK_NOTHROW( XMIPP4_CUDA_CHECK_NO_THROW(cudaErrorInvalidValue) );
-	CHECK_NOTHROW( XMIPP4_CUDA_CHECK_NO_THROW(cudaErrorMemoryAllocation) );
+	CHECK_NOTHROW( REXLIB_CUDA_CHECK_NO_THROW(cudaSuccess) );
+	CHECK_NOTHROW( REXLIB_CUDA_CHECK_NO_THROW(cudaErrorInvalidValue) );
+	CHECK_NOTHROW( REXLIB_CUDA_CHECK_NO_THROW(cudaErrorMemoryAllocation) );
 }
 
 TEST_CASE(
@@ -95,7 +95,7 @@ TEST_CASE(
 
 	try
 	{
-		XMIPP4_CUDA_CHECK(unrecognized);
+		REXLIB_CUDA_CHECK(unrecognized);
 		FAIL( "The check should have thrown." );
 	}
 	catch (const cuda::error &e)
@@ -107,5 +107,5 @@ TEST_CASE(
 		CHECK( message.find(__FILE__) != std::string::npos );
 	}
 
-	CHECK_NOTHROW( XMIPP4_CUDA_CHECK_NO_THROW(unrecognized) );
+	CHECK_NOTHROW( REXLIB_CUDA_CHECK_NO_THROW(unrecognized) );
 }

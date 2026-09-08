@@ -2,7 +2,7 @@
 
 #include "test_memory_source_reference.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -37,4 +37,4 @@ std::size_t memory_source_reference::get_base_alignment() const noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib

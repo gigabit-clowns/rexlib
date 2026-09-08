@@ -4,7 +4,7 @@
 
 #include "test_arena.hpp"
 
-namespace xmipp4
+namespace rexlib
 {
 namespace cuda
 {
@@ -34,4 +34,4 @@ caching_allocator_fixture::get_resource() const noexcept
 }
 
 } // namespace cuda
-} // namespace xmipp4
+} // namespace rexlib
