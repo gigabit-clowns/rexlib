@@ -73,7 +73,6 @@ jobs:
         env:
           CMAKE_GENERATOR: Ninja
         run: |
-          python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
             -DFETCHCONTENT_BASE_DIR="${{ steps.fetched.outputs.dir }}" \
             -DCMAKE_BUILD_TYPE=Release \
@@ -197,7 +196,6 @@ jobs:
         env:
           CMAKE_GENERATOR: Ninja
         run: |
-          python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
             -DFETCHCONTENT_BASE_DIR="${{ steps.fetched.outputs.dir }}" \
             -DCMAKE_BUILD_TYPE=Release \
