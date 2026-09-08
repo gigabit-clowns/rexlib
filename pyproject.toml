@@ -56,6 +56,12 @@ testpaths = ["tests"]
 # has to be named explicitly or the sdist would carry an empty directory and
 # fail to build.
 sdist.include = ["external/rexlib/**"]
+sdist.exclude = [
+    ".github/**",
+    ".vscode/**",
+    "renovate.json",
+    "sonar-project.properties",
+]
 
 # The wheel's install prefix is the package directory, so anything installed
 # relative to it - a rexlib built from this source distribution - lands beside
