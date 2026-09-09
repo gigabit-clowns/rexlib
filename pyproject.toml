@@ -77,8 +77,7 @@ wheel.install-dir = "rexlib"
 # stubs imports the extension, which does not load until rexlib is in place.
 install.components = ["rexlib_runtime", "rexlib_development", "Unspecified"]
 
-# The versioned names. rexlib carries a soname beside them, and a wheel holds
-# no symlink, so both would be stored as full copies of a 50 MB library.
+# The versioned names, beside which rexlib installs a soname.
 wheel.exclude = [
     "librexlib.so.*.*.*",
     "librexlib.*.*.*.dylib",
