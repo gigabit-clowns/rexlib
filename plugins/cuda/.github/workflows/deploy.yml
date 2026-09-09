@@ -2,10 +2,21 @@ name: Deploy release
 
 on:
   push:
+    # A tag never has its paths evaluated, so a release still deploys whatever
+    # it points at.
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - .github/workflows/build-and-test.yml
+      - .github/workflows/release.yml
+      - .gitignore
+      - .vscode/**
+      - LICENSE
+      - renovate.json
+      - sonar-project.properties
 
   pull_request:
     branches:
@@ -15,6 +26,10 @@ on:
       - 'pyproject.toml'
 
   workflow_dispatch:
+
+concurrency:
+  group: deploy-release-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_wheel_manylinux:
@@ -52,6 +67,22 @@ jobs:
           --input pyproject.toml
           --cuda-major ${{ matrix.cuda-major.version }}
 
+      - name: Cache the container's compiler cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /tmp/ccache
+          key: wheels-${{ matrix.platform.architecture }}-${{ github.run_id }}
+          restore-keys: wheels-${{ matrix.platform.architecture }}-
+
+      - name: Note when the container's cache was restored
+        run: echo "CCACHE_RESTORED_AT=$(date -u +%s)" >> "$GITHUB_ENV"
+
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: host-${{ hashFiles('CMakeLists.txt', 'cmake/modules/fetch_*.cmake', 'tests/CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+
       - name: Build wheels
         uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074 # v4.2.0
         env:
@@ -61,13 +92,21 @@ jobs:
           # Based on: https://stackoverflow.com/a/77212119
           CIBW_BEFORE_ALL: |
             yum install -y wget
+            command -v ccache || dnf install -y ccache || yum install -y ccache
             wget ${{ env.RHEL8_NVIDIA_REPO }} -O /etc/yum.repos.d/cuda.repo
             yum clean all
             yum -y install cuda-toolkit-${{ matrix.cuda-major.package }}
             python -m pip install "cmake>=3.23" ninja
+            export CMAKE_GENERATOR=Ninja
+            export CCACHE_DIR=/host/tmp/ccache CCACHE_BASEDIR=/ \
+              CCACHE_NOHASHDIR=1 CCACHE_MAXSIZE=2G \
+              CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
             cmake -S {project}/external/rexlib -B /tmp/rexlib-build \
               -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/tmp/rexlib \
-              -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF
+              -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF \
+              -DFETCHCONTENT_BASE_DIR=/host/tmp/fetched \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
             cmake --build /tmp/rexlib-build --config Release \
               --target install --parallel 4
           # The plugin sits at rexlib/lib/rexlib-plugins inside the wheel,
@@ -76,11 +115,35 @@ jobs:
             CUDAHOSTCXX=/usr/bin/g++
             CUDACXX=${{ matrix.cuda-major.home }}/bin/nvcc
             rexlib_ROOT=/tmp/rexlib
-            SKBUILD_CMAKE_DEFINE="REXLIB_CUDA_RUNTIME_RPATH=$ORIGIN/../../../nvidia/${{ matrix.cuda-major.runtime-dir }}/lib"
+            CCACHE_DIR=/host/tmp/ccache
+            CCACHE_BASEDIR=/
+            CCACHE_NOHASHDIR=1
+            CCACHE_MAXSIZE=2G
+            CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
+            SKBUILD_CMAKE_DEFINE="REXLIB_CUDA_RUNTIME_RPATH=$ORIGIN/../../../nvidia/${{ matrix.cuda-major.runtime-dir }}/lib;FETCHCONTENT_BASE_DIR=/host/tmp/fetched;CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache"
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: >
             auditwheel repair -w {dest_dir} {wheel}
             --exclude "librexlib.so*"
             --exclude "libcudart.so*"
+
+      - name: Drop what this job did not use
+        if: github.ref == 'refs/heads/main'
+        env:
+          CCACHE_DIR: /tmp/ccache
+        run: |
+          command -v ccache > /dev/null || sudo apt-get install -y -qq ccache
+          ccache --evict-older-than "$(( $(date -u +%s) - CCACHE_RESTORED_AT ))s"
+
+      - name: Save the container's compiler cache
+        if: github.ref == 'refs/heads/main'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: /tmp/ccache
+          key: wheels-${{ matrix.platform.architecture }}-${{ github.run_id }}
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Upload wheels
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

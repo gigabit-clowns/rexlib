@@ -1,9 +1,27 @@
 name: Build and Test
 
 on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - .github/workflows/deploy.yml
+      - .github/workflows/release.yml
+      - .gitignore
+      - .vscode/**
+      - LICENSE
+      - pyproject.toml
+      - renovate.json
+      - scripts/**
+
   pull_request:
-  
+
   workflow_dispatch:
+
+concurrency:
+  group: build-and-test-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_and_test_with_cmake:
@@ -54,14 +72,36 @@ jobs:
           sub-packages: ${{ runner.os=='Linux' && '["nvcc", "cudart-dev"]' || '[]' }} # Fake ternary operator
           log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
+      - name: Set up MSVC environment
+        if: runner.os == 'Windows'
+        uses: gigabit-clowns/.github/.github/composites/setup-msvc@main
+
+      - name: Set up compiler cache
+        uses: gigabit-clowns/.github/.github/composites/restore-ccache@main
+        with:
+          key: ${{ matrix.os }}-${{ matrix.compiler.cxx }}-${{ matrix.cuda }}
+          max-size: 1G
+
+      - name: Restore the fetched sources
+        id: fetched
+        uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
+        with:
+          key: ${{ hashFiles('CMakeLists.txt', 'cmake/modules/fetch_*.cmake', 'tests/CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+
       - name: Install rexlib
+        env:
+          CMAKE_GENERATOR: Ninja
+          MSVC_DEBUG_FORMAT: ${{ matrix.compiler.cxx == 'cl' && '-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
         run: |
-          python -m pip install "cmake>=3.18" ninja
           cmake -S external/rexlib -B "${{ runner.temp }}/rexlib-build" \
             -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} \
             -DCMAKE_INSTALL_PREFIX="${{ runner.temp }}/rexlib" \
             -DCMAKE_INSTALL_LIBDIR=lib \
-            -DBUILD_TESTING=OFF
+            -DBUILD_TESTING=OFF \
+            -DFETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            $MSVC_DEBUG_FORMAT
           cmake --build "${{ runner.temp }}/rexlib-build" \
             --config ${{ env.BUILD_TYPE }} --target install --parallel 4
 
@@ -72,12 +112,27 @@ jobs:
           build-dir: "${{ github.workspace }}/build"
           c-compiler: ${{ matrix.compiler.cc }}
           cxx-compiler: ${{ matrix.compiler.cxx }}
+          generator: Ninja
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
             rexlib_ROOT=${{ runner.temp }}/rexlib
+            FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }}
+            CMAKE_C_COMPILER_LAUNCHER=ccache
+            CMAKE_CXX_COMPILER_LAUNCHER=ccache
+            ${{ matrix.compiler.cxx == 'cl' && 'CMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
           run-build: true
           build-args: --config ${{ env.BUILD_TYPE }}
+
+      - name: Save the fetched sources
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-fetched@main
+
+      - name: Save the compiler cache
+        if: github.ref == 'refs/heads/main'
+        uses: gigabit-clowns/.github/.github/composites/save-ccache@main
+        with:
+          key: ${{ matrix.os }}-${{ matrix.compiler.cxx }}-${{ matrix.cuda }}
 
       - name: Run tests
         working-directory: "${{ github.workspace }}/build"

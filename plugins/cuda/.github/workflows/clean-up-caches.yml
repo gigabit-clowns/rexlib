@@ -1,0 +1,47 @@
+name: Clean up caches
+
+permissions: {}
+
+on:
+  workflow_run:
+    workflows:
+      - Build and Test
+    types:
+      - completed
+
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Which caches go
+        required: true
+        type: choice
+        options:
+          - superseded
+          - all
+        default: superseded
+      ref:
+        description: Ref or branch to clean. The one this runs from when empty.
+        required: false
+        type: string
+
+jobs:
+  # Every ref: a superseded entry is dead wherever it sits, since the newest
+  # of its prefix is the only one that will ever be restored.
+  after_a_build:
+    permissions:
+      actions: write
+    name: Delete the caches a newer run has replaced
+    if: github.event_name == 'workflow_run'
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: superseded
+
+  on_request:
+    permissions:
+      actions: write
+    name: Delete ${{ inputs.scope }} caches
+    if: github.event_name == 'workflow_dispatch'
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: ${{ inputs.scope }}
+      ref: ${{ inputs.ref != '' && inputs.ref || github.ref_name }}

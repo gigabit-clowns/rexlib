@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
 
+# Without this CMAKE_MSVC_DEBUG_INFORMATION_FORMAT is silently ignored.
+if(POLICY CMP0141)
+	cmake_policy(SET CMP0141 NEW)
+endif()
+
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
 project(
