@@ -9,7 +9,7 @@ if(POLICY CMP0135)
 endif()
 FetchContent_Declare(
 	Catch2
-	URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.11.0.tar.gz
+	URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.16.0.tar.gz
 )
 FetchContent_Declare(
 	Trompeloeil
