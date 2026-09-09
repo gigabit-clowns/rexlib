@@ -39,5 +39,9 @@ jobs:
           {"os": "windows-11-arm", "prefix": "ccache-pip-windows-11-arm"},
           {"os": "windows-11-arm", "prefix": "ccache-wheels-windows-11-arm-ARM64"},
           {"os": "ubuntu-latest", "prefix": "wheels-ubuntu-latest-x86_64", "path": "/tmp/ccache"},
-          {"os": "ubuntu-latest", "prefix": "wheels-ubuntu-24.04-arm-aarch64", "path": "/tmp/ccache"}
+          {"os": "ubuntu-latest", "prefix": "wheels-ubuntu-24.04-arm-aarch64", "path": "/tmp/ccache"},
+          {"os": "ubuntu-latest", "prefix": "fetched-Linux-host", "path": "/tmp/fetched"},
+          {"os": "ubuntu-latest", "prefix": "fetched-Linux", "path": "/tmp/fetched"},
+          {"os": "macos-latest", "prefix": "fetched-macOS", "path": "/tmp/fetched"},
+          {"os": "windows-latest", "prefix": "fetched-Windows", "path": "C:/fetched"}
         ]
