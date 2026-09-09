@@ -71,7 +71,7 @@ jobs:
         with:
           cuda: ${{ matrix.cuda }}
           method: 'network'
-          sub-packages: ${{ runner.os=='Linux' && '["nvcc", "cudart-dev"]' || '[]' }} # Fake ternary operator
+          sub-packages: ${{ runner.os=='Linux' && '["nvcc", "cudart-dev"]' || '["nvcc", "nvvm", "crt", "cudart", "visual_studio_integration"]' }} # Fake ternary operator
           log-file-suffix: '${{matrix.os}}-${{matrix.compiler.cc}}-${{matrix.cuda}}.txt'
 
       - name: Set up MSVC environment
