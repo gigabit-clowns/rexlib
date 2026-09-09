@@ -48,6 +48,26 @@
       "packageNameTemplate": "gabime/spdlog",
       "datasourceTemplate": "github-tags",
       "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "Declared with a bare URL rather than a fetch_ helper",
+      "customType": "regex",
+      "managerFilePatterns": ["**/CMakeLists.txt"],
+      "matchStrings": ["https://github\\.com/catchorg/Catch2/archive/refs/tags/v(?<currentValue>[^\\s\"]+)\\.tar\\.gz"],
+      "depNameTemplate": "catch2",
+      "packageNameTemplate": "catchorg/Catch2",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "Declared with a bare URL rather than a fetch_ helper",
+      "customType": "regex",
+      "managerFilePatterns": ["**/CMakeLists.txt"],
+      "matchStrings": ["https://github\\.com/rollbear/trompeloeil/archive/refs/tags/v(?<currentValue>[^\\s\"]+)\\.tar\\.gz"],
+      "depNameTemplate": "trompeloeil",
+      "packageNameTemplate": "rollbear/trompeloeil",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.*)$"
     }
   ]
 }
