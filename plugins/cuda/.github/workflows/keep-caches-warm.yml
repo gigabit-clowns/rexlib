@@ -28,7 +28,7 @@ jobs:
           {"os": "windows-latest", "prefix": "ccache-windows-latest-cl-13.3.1"},
           {"os": "ubuntu-latest", "prefix": "wheels-x86_64", "path": "/tmp/ccache"},
           {"os": "ubuntu-latest", "prefix": "wheels-aarch64", "path": "/tmp/ccache"},
-          {"os": "ubuntu-latest", "prefix": "fetched-Linux-host", "path": "/tmp/fetched\n!/tmp/fetched/*-build"},
+          {"os": "ubuntu-latest", "prefix": "fetched-host-Linux", "path": "/tmp/fetched\n!/tmp/fetched/*-build"},
           {"os": "ubuntu-latest", "prefix": "fetched-Linux", "path": "/tmp/fetched\n!/tmp/fetched/*-build"},
           {"os": "windows-latest", "prefix": "fetched-Windows", "path": "C:/fetched\n!C:/fetched/*-build"}
         ]

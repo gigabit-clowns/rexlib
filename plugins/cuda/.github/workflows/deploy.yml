@@ -83,7 +83,8 @@ jobs:
         id: fetched
         uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
         with:
-          key: host-${{ hashFiles('CMakeLists.txt', 'cmake/modules/fetch_*.cmake', 'tests/CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+          key: ${{ hashFiles('CMakeLists.txt', 'cmake/modules/fetch_*.cmake', 'tests/CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+          variant: host
 
       - name: Build wheels
         uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074 # v4.2.0
