@@ -1,0 +1,34 @@
+name: Keep caches warm
+
+permissions: {}
+
+on:
+  schedule:
+    - cron: '57 5 * * *'
+
+  pull_request:
+    paths:
+      - '.github/workflows/keep-caches-warm.yml'
+
+  workflow_dispatch:
+
+concurrency:
+  group: keep-caches-warm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sweep:
+    uses: gigabit-clowns/.github/.github/workflows/keep-caches-warm.yml@main
+    with:
+      entries: >-
+        [
+          {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-g++-12.8.1"},
+          {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-clang++-12.8.1"},
+          {"os": "ubuntu-22.04", "prefix": "ccache-ubuntu-22.04-g++-11.8.0"},
+          {"os": "windows-latest", "prefix": "ccache-windows-latest-cl-13.3.1"},
+          {"os": "ubuntu-latest", "prefix": "wheels-x86_64", "path": "/tmp/ccache"},
+          {"os": "ubuntu-latest", "prefix": "wheels-aarch64", "path": "/tmp/ccache"},
+          {"os": "ubuntu-latest", "prefix": "fetched-Linux-host", "path": "/tmp/fetched"},
+          {"os": "ubuntu-latest", "prefix": "fetched-Linux", "path": "/tmp/fetched"},
+          {"os": "windows-latest", "prefix": "fetched-Windows", "path": "C:/fetched"}
+        ]

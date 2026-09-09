@@ -11,6 +11,8 @@ on:
     paths-ignore:
       - '**.md'
       - .github/workflows/build-and-test.yml
+      - .github/workflows/clean-up-caches.yml
+      - .github/workflows/keep-caches-warm.yml
       - .github/workflows/release.yml
       - .gitignore
       - .vscode/**
