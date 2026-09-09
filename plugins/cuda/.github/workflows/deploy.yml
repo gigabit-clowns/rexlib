@@ -132,6 +132,7 @@ jobs:
           CCACHE_DIR: /tmp/ccache
         run: |
           command -v ccache > /dev/null || sudo apt-get install -y -qq ccache
+          sudo chown -R "$(id -u):$(id -g)" "$CCACHE_DIR"
           ccache --evict-older-than "$(( $(date -u +%s) - CCACHE_RESTORED_AT ))s"
 
       - name: Save the container's compiler cache
