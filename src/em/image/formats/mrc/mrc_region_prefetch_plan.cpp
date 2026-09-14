@@ -99,17 +99,6 @@ memory_range locate_region(
 	return memory_range(first, last - first);
 }
 
-bool joins(
-	const memory_range &previous,
-	const memory_range &next,
-	std::size_t gap_tolerance
-) noexcept
-{
-	const auto end = previous.get_offset() + previous.get_size();
-
-	return next.get_offset() <= end + gap_tolerance;
-}
-
 memory_range merge(
 	const memory_range &previous,
 	const memory_range &next
@@ -121,6 +110,28 @@ memory_range merge(
 	);
 
 	return memory_range(previous.get_offset(), end - previous.get_offset());
+}
+
+// Whether a stretch is asked for together with the one before it: it starts
+// within the tolerance of where that one ends, and taking it in does not grow
+// that one past the budget of a step. One already past the budget, a single
+// region wider than it, still takes in what lies within it.
+bool joins(
+	const memory_range &previous,
+	const memory_range &next,
+	const mrc_prefetch_policy &policy
+) noexcept
+{
+	const auto end = previous.get_offset() + previous.get_size();
+	if (next.get_offset() > end + policy.get_gap_tolerance())
+	{
+		return false;
+	}
+
+	const auto merged_size = merge(previous, next).get_size();
+
+	return merged_size <=
+		std::max(policy.get_byte_budget(), previous.get_size());
 }
 
 } // anonymous namespace
@@ -190,8 +201,7 @@ std::vector<std::size_t> mrc_region_prefetch_plan::gather_ranges(
 			start, region_span, mapped_size, policy.get_page_size()
 		);
 
-		if (!m_ranges.empty() &&
-			joins(m_ranges.back(), stretch, policy.get_gap_tolerance()))
+		if (!m_ranges.empty() && joins(m_ranges.back(), stretch, policy))
 		{
 			m_ranges.back() = merge(m_ranges.back(), stretch);
 			++regions_per_range.back();

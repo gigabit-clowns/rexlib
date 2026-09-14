@@ -385,6 +385,72 @@ TEST_CASE( "the stretches of a batch are grouped into steps",
 	}
 }
 
+TEST_CASE( "merging never grows a stretch past the budget of a step",
+	"[mrc_region_prefetch_plan]" )
+{
+	const auto geometry = make_stack_geometry();
+	const auto mapped = whole_file(geometry);
+
+	SECTION( "a long run of consecutive regions is split into steps" )
+	{
+		image_transfer_plan regions(make_span(plane), 3, 3);
+		for (std::size_t section = 0; section < 5; ++section)
+		{
+			add_plane(regions, section);
+		}
+
+		const mrc_region_prefetch_plan advice(
+			regions, geometry, make_span(plane_offsets({0, 1, 2, 3, 4})),
+			mapped, make_policy(0, 2 * plane_bytes)
+		);
+
+		REQUIRE( advice.get_ranges().size() == 3 );
+		CHECK( advice.get_ranges()[0].get_size() == 2 * plane_bytes );
+		CHECK( advice.get_ranges()[1].get_size() == 2 * plane_bytes );
+		CHECK( advice.get_ranges()[2].get_size() == plane_bytes );
+
+		REQUIRE( advice.get_step_count() == 3 );
+		CHECK( advice.get_step_first_region(0) == 0 );
+		CHECK( advice.get_step_region_count(0) == 2 );
+		CHECK( advice.get_step_first_region(1) == 2 );
+		CHECK( advice.get_step_region_count(1) == 2 );
+		CHECK( advice.get_step_first_region(2) == 4 );
+		CHECK( advice.get_step_region_count(2) == 1 );
+	}
+
+	SECTION( "a region wider than the budget takes in no neighbour" )
+	{
+		image_transfer_plan regions(make_span(plane), 3, 3);
+		add_plane(regions, 1);
+		add_plane(regions, 2);
+
+		const mrc_region_prefetch_plan advice(
+			regions, geometry, make_span(plane_offsets({1, 2})), mapped,
+			make_policy(0, 1)
+		);
+
+		CHECK( advice.get_ranges().size() == 2 );
+		CHECK( advice.get_step_count() == 2 );
+	}
+
+	SECTION( "a region stated twice is advised once whatever the budget" )
+	{
+		image_transfer_plan regions(make_span(plane), 3, 3);
+		add_plane(regions, 3);
+		add_plane(regions, 3);
+
+		const mrc_region_prefetch_plan advice(
+			regions, geometry, make_span(plane_offsets({3, 3})), mapped,
+			make_policy(0, 1)
+		);
+
+		REQUIRE( advice.get_ranges().size() == 1 );
+		CHECK( advice.get_ranges()[0].get_size() == plane_bytes );
+		REQUIRE( advice.get_step_count() == 1 );
+		CHECK( advice.get_step_region_count(0) == 2 );
+	}
+}
+
 TEST_CASE( "the default policy scales its tolerance with the region",
 	"[mrc_region_prefetch_plan]" )
 {

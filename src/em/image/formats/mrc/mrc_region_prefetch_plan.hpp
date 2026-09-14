@@ -136,7 +136,9 @@ std::size_t compute_region_span(
  * random out of a large file asks for what it reads and not for the file.
  * Stretches that overlap or that lie within the tolerance of each other are
  * merged, which collapses a batch reading consecutive regions back into the
- * single stretch it is.
+ * few stretches it is. Merging stops where a stretch would grow past the
+ * budget of a step, so that a long run of consecutive regions is advised a
+ * step at a time like any other batch rather than all at once.
  *
  * Every stretch is made to start on a page boundary and to end within the
  * mapping here, once, so that what @ref prefetch_pages is handed is already
