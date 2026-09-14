@@ -127,6 +127,23 @@ public:
 
 private:
 	template <typename Accumulator>
+	bool less(
+		const Accumulator &best,
+		const std::int64_t &where,
+		const Accumulator &candidate,
+		const std::int64_t &candidate_where
+	) const noexcept
+	{
+		// m_order(best, candidate) and m_order(candidate, best) are likely 
+		// to be decisive comparisons: They are the ones evaluated first.
+		// Only when best and candidate tie, candidate_where < where is 
+		// evaluated, saving memory bandwidth.
+		return
+			!m_order(best, candidate) &&
+			(m_order(candidate, best) || candidate_where < where);
+	}
+
+	template <typename Accumulator>
 	void displace(
 		Accumulator &best,
 		std::int64_t &where,
@@ -134,17 +151,10 @@ private:
 		std::int64_t candidate_where
 	) const noexcept
 	{
-		// Almost every candidate loses outright, so that is asked first, and
-		// the index is only read for one that does not.
-		if (
-			!m_order(best, candidate) && 
-			(m_order(candidate, best) || candidate_where < where)
-		)
-		{ 
-			{
-				best = candidate;
-				where = candidate_where;
-			}
+		if (less(best, where, candidate, candidate_where))
+		{
+			best = candidate;
+			where = candidate_where;
 		}
 	}
 
