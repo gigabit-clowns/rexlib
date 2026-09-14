@@ -73,18 +73,23 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 	m_step_first_range.push_back(0);
 	m_step_first_region.push_back(0);
 
-	const auto region_span = compute_region_span(regions, geometry);
-	if (file_offsets.empty() || region_span == 0)
+	if (file_offsets.empty())
 	{
 		return;
 	}
 
+	const auto region_span = compute_region_span(regions, geometry);
 	const auto element_size = get_size(geometry.get_data_type());
 	const auto data_offset = geometry.get_data_offset();
 
 	std::vector<std::size_t> regions_per_range;
 	for (const auto offset : file_offsets)
 	{
+		if (region_span == 0)
+		{
+			break;
+		}
+
 		REXLIB_ASSERT(offset >= 0);
 		const auto start = data_offset +
 			static_cast<std::size_t>(offset) * element_size;
@@ -116,8 +121,12 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 		regions_per_range.push_back(1);
 	}
 
+	// The steps tile the batch whether or not there is anything to advise,
+	// so that walking them walks every region exactly once.
 	if (m_ranges.empty())
 	{
+		m_step_first_range.push_back(0);
+		m_step_first_region.push_back(file_offsets.size());
 		return;
 	}
 
@@ -138,8 +147,10 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 		regions_seen += regions_per_range[i];
 	}
 
+	// The last step takes whatever regions were left out of the stretches,
+	// which are the ones there was nothing to ask for.
 	m_step_first_range.push_back(m_ranges.size());
-	m_step_first_region.push_back(regions_seen);
+	m_step_first_region.push_back(file_offsets.size());
 }
 
 std::size_t mrc_region_prefetch_plan::get_step_count() const noexcept

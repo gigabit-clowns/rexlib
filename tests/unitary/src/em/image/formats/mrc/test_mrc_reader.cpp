@@ -285,6 +285,59 @@ TEST_CASE( "the values of an MRC file are read into an array",
 			std::vector<float>(values.begin() + 12, values.end()) );
 	}
 
+	SECTION( "regions stated out of order all arrive where they belong" )
+	{
+		// The reader orders the regions by their place in the file before it
+		// walks them, so this is what guards that each one keeps the slot of
+		// the array it was stated with.
+		const auto values = counting(36);
+		write_file(path.get(), make_file(4, 3, 3, 0, 2, values));
+
+		const mrc_reader reader(path.get());
+
+		const std::vector<std::size_t> shape = {3, 3, 4};
+		auto destination = make_host_array(shape);
+
+		const std::vector<std::size_t> region = {3, 4};
+		image_transfer_plan regions(make_span(region), 3, 3);
+
+		const std::size_t sections[3] = {2, 0, 1};
+		for (std::size_t i = 0; i < 3; ++i)
+		{
+			regions.add(
+				make_span(std::vector<std::size_t>{sections[i], 0, 0}),
+				make_span(std::vector<std::size_t>{i, 0, 0})
+			);
+		}
+
+		reader.read(array_ref(destination), regions);
+
+		std::vector<float> expected;
+		for (const auto section : sections)
+		{
+			expected.insert(
+				expected.end(),
+				values.begin() + static_cast<std::ptrdiff_t>(section * 12),
+				values.begin() + static_cast<std::ptrdiff_t>(section * 12 + 12)
+			);
+		}
+
+		REQUIRE( values_of(destination, shape) == expected );
+	}
+
+	SECTION( "an empty plan reads nothing and succeeds" )
+	{
+		write_file(path.get(), make_file(4, 3, 2, 0, 2, counting(24)));
+
+		const mrc_reader reader(path.get());
+
+		const std::vector<std::size_t> region = {3, 4};
+		auto destination = make_host_array(region);
+		const image_transfer_plan regions(make_span(region), 3, 2);
+
+		REQUIRE_NOTHROW( reader.read(array_ref(destination), regions) );
+	}
+
 	SECTION( "an uninitialized destination is refused" )
 	{
 		write_file(path.get(), make_file(4, 3, 1, 0, 2, counting(12)));

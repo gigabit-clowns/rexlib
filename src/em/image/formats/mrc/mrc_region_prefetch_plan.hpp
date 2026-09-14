@@ -111,6 +111,11 @@ std::size_t compute_region_span(
  * holds at least one region, so a region wider than the budget is advised
  * whole.
  *
+ * The steps tile the batch: every region belongs to exactly one of them, so
+ * walking the steps walks the batch. A region there is nothing to ask for,
+ * one that starts past what is mapped, still belongs to a step, since advice
+ * is what this decides and moving the values is not.
+ *
  * The file offsets this is built from must be ascending, which is how
  * @ref mrc_region_offsets holds them.
  */
@@ -150,8 +155,7 @@ public:
 	/**
 	 * @brief Get how many steps the batch is walked in.
 	 *
-	 * @return std::size_t The number of steps, zero for a batch that reaches
-	 * nothing.
+	 * @return std::size_t The number of steps, zero for a batch of no region.
 	 */
 	std::size_t get_step_count() const noexcept;
 
@@ -167,7 +171,8 @@ public:
 	 * @brief Get the stretches one step advises.
 	 *
 	 * @param step Index of the step, below @ref get_step_count.
-	 * @return span<const memory_range> The stretches of that step.
+	 * @return span<const memory_range> The stretches of that step, empty
+	 * where there is nothing to ask for.
 	 */
 	span<const memory_range> get_step_ranges(std::size_t step) const noexcept;
 

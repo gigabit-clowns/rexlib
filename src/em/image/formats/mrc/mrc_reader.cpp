@@ -109,16 +109,35 @@ void mrc_reader::read(
 		m_mapping.get_size(),
 		make_prefetch_policy(compute_region_span(regions, m_geometry))
 	);
-	m_mapping.prefetch(advice.get_ranges());
+	const auto *file_data =
+		m_mapping.get_data() + m_geometry.get_data_offset();
+	const auto step_count = advice.get_step_count();
 
-	read_regions(
-		plan,
-		array_data,
-		descriptor.get_data_type(),
-		m_mapping.get_data() + m_geometry.get_data_offset(),
-		m_geometry.get_data_type(),
-		m_header.get_byte_order()
-	);
+	if (step_count > 0)
+	{
+		m_mapping.prefetch(advice.get_step_ranges(0));
+	}
+
+	for (std::size_t step = 0; step < step_count; ++step)
+	{
+		// The step after this one is asked for before this one is walked, so
+		// that it is on its way while these values are being moved.
+		if (step + 1 < step_count)
+		{
+			m_mapping.prefetch(advice.get_step_ranges(step + 1));
+		}
+
+		read_regions(
+			plan,
+			advice.get_step_first_region(step),
+			advice.get_step_region_count(step),
+			array_data,
+			descriptor.get_data_type(),
+			file_data,
+			m_geometry.get_data_type(),
+			m_header.get_byte_order()
+		);
+	}
 }
 
 } // namespace mrc

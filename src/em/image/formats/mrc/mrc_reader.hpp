@@ -28,8 +28,9 @@ namespace mrc
  * builds per call are the only state a read touches, and neither is shared
  * across calls.
  *
- * See @ref mrc_file_mapping::prefetch, which advises kernel to fetch a whole
- * stretch of the file.
+ * A read asks for the stretches it is about to touch before it touches them,
+ * a step ahead of the one it is walking. See @ref mrc_region_prefetch_plan,
+ * which works out what those stretches and steps are.
  */
 class mrc_reader final
 	: public image_reader

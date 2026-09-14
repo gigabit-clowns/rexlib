@@ -233,8 +233,12 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 			make_policy(0, default_prefetch_budget)
 		);
 
-		CHECK( advice.get_step_count() == 0 );
 		CHECK( advice.get_ranges().empty() );
+
+		// Nothing to ask for, but the region is still one a read moves.
+		REQUIRE( advice.get_step_count() == 1 );
+		CHECK( advice.get_step_ranges(0).empty() );
+		CHECK( advice.get_step_region_count(0) == 1 );
 	}
 }
 
@@ -275,7 +279,7 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 			advice.get_ranges()[0].get_size() == mapped );
 	}
 
-	SECTION( "a region starting past the mapping is left out" )
+	SECTION( "a region starting past the mapping is asked for nothing" )
 	{
 		const mrc_region_prefetch_plan advice(
 			regions, geometry, make_span(plane_offsets({1})), values,
@@ -283,7 +287,33 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 		);
 
 		CHECK( advice.get_ranges().empty() );
-		CHECK( advice.get_step_count() == 0 );
+
+		// It is left out of the stretches but not out of the steps: what is
+		// advised is a hint, what is moved is not.
+		REQUIRE( advice.get_step_count() == 1 );
+		CHECK( advice.get_step_region_count(0) == 1 );
+	}
+
+	SECTION( "a region past the mapping still belongs to the last step" )
+	{
+		image_transfer_plan both(make_span(plane), 3, 3);
+		add_plane(both, 0);
+		add_plane(both, 1);
+
+		// Only the first plane is mapped, so the second is asked for
+		// nothing yet still has to be moved.
+		const mrc_region_prefetch_plan advice(
+			both, geometry, make_span(plane_offsets({0, 1})),
+			values + plane_bytes, make_policy(0, default_prefetch_budget)
+		);
+
+		std::size_t covered = 0;
+		for (std::size_t step = 0; step < advice.get_step_count(); ++step)
+		{
+			covered += advice.get_step_region_count(step);
+		}
+
+		CHECK( covered == 2 );
 	}
 }
 
