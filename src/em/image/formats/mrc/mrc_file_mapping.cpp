@@ -84,13 +84,6 @@ std::size_t mrc_file_mapping::get_size() const noexcept
 	return m_region->get_size();
 }
 
-void mrc_file_mapping::prefetch(
-	span<const memory_range> ranges
-) const noexcept
-{
-	prefetch_pages(get_data(), ranges);
-}
-
 void mrc_file_mapping::flush()
 {
 	if (!m_region->flush())

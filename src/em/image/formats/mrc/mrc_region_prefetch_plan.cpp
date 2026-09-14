@@ -10,6 +10,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <algorithm>
+#include <cstdint>
 
 namespace rexlib
 {
@@ -84,19 +85,34 @@ std::size_t compute_region_span(
 namespace
 {
 
-// The stretch one region occupies: grown back to the page its start falls in,
-// and cut short where the mapping ends.
+std::uintptr_t begin_of(const memory_range &range) noexcept
+{
+	return reinterpret_cast<std::uintptr_t>(range.get_address());
+}
+
+std::uintptr_t end_of(const memory_range &range) noexcept
+{
+	return begin_of(range) + range.get_size();
+}
+
+memory_range make_range(std::uintptr_t begin, std::uintptr_t end) noexcept
+{
+	return memory_range(reinterpret_cast<void*>(begin), end - begin);
+}
+
+// The stretch one region occupies: grown back to the page its first byte
+// falls in, and cut short where the mapping ends.
 memory_range locate_region(
-	std::size_t start,
+	std::uintptr_t begin,
 	std::size_t region_span,
-	std::size_t mapped_size,
+	std::uintptr_t mapping_end,
 	std::size_t page_size
 ) noexcept
 {
-	const auto first = start - (start % page_size);
-	const auto last = std::min(start + region_span, mapped_size);
-
-	return memory_range(first, last - first);
+	return make_range(
+		begin - (begin % page_size),
+		std::min(begin + region_span, mapping_end)
+	);
 }
 
 memory_range merge(
@@ -104,12 +120,10 @@ memory_range merge(
 	const memory_range &next
 ) noexcept
 {
-	const auto end = std::max(
-		previous.get_offset() + previous.get_size(),
-		next.get_offset() + next.get_size()
+	return make_range(
+		begin_of(previous),
+		std::max(end_of(previous), end_of(next))
 	);
-
-	return memory_range(previous.get_offset(), end - previous.get_offset());
 }
 
 // Whether a stretch is asked for together with the one before it: it starts
@@ -122,8 +136,7 @@ bool joins(
 	const mrc_prefetch_policy &policy
 ) noexcept
 {
-	const auto end = previous.get_offset() + previous.get_size();
-	if (next.get_offset() > end + policy.get_gap_tolerance())
+	if (begin_of(next) > end_of(previous) + policy.get_gap_tolerance())
 	{
 		return false;
 	}
@@ -140,7 +153,7 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 	const image_transfer_plan &regions,
 	const mrc_geometry &geometry,
 	span<const std::ptrdiff_t> file_offsets,
-	std::size_t mapped_size,
+	span<byte> mapping,
 	const mrc_prefetch_policy &policy
 )
 {
@@ -158,7 +171,7 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 	}
 
 	const auto regions_per_range = gather_ranges(
-		regions, geometry, file_offsets, mapped_size, policy
+		regions, geometry, file_offsets, mapping, policy
 	);
 
 	gather_steps(
@@ -172,7 +185,7 @@ std::vector<std::size_t> mrc_region_prefetch_plan::gather_ranges(
 	const image_transfer_plan &regions,
 	const mrc_geometry &geometry,
 	span<const std::ptrdiff_t> file_offsets,
-	std::size_t mapped_size,
+	span<byte> mapping,
 	const mrc_prefetch_policy &policy
 )
 {
@@ -185,20 +198,22 @@ std::vector<std::size_t> mrc_region_prefetch_plan::gather_ranges(
 	}
 
 	const auto element_size = get_size(geometry.get_data_type());
-	const auto data_offset = geometry.get_data_offset();
+	const auto mapping_begin = reinterpret_cast<std::uintptr_t>(mapping.data());
+	const auto mapping_end = mapping_begin + mapping.size();
+	const auto values = mapping_begin + geometry.get_data_offset();
 
 	for (const auto offset : file_offsets)
 	{
 		REXLIB_ASSERT(offset >= 0);
-		const auto start = data_offset +
-			static_cast<std::size_t>(offset) * element_size;
-		if (start >= mapped_size)
+		const auto begin =
+			values + static_cast<std::size_t>(offset) * element_size;
+		if (begin >= mapping_end)
 		{
 			continue;
 		}
 
 		const auto stretch = locate_region(
-			start, region_span, mapped_size, policy.get_page_size()
+			begin, region_span, mapping_end, policy.get_page_size()
 		);
 
 		if (!m_ranges.empty() && joins(m_ranges.back(), stretch, policy))

@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 
@@ -12,19 +11,18 @@ namespace rexlib
 {
 
 /**
- * @brief A stretch of a mapping, in bytes from its first byte.
+ * @brief A stretch of memory: where it starts and how many bytes it covers.
  */
 class REXLIB_API memory_range
 {
 public:
 	/**
-	 * @brief Construct a stretch from its bounds.
+	 * @brief Construct a stretch from its first byte and its size.
 	 *
-	 * @param offset Where it starts, in bytes from the first byte of the
-	 * mapping.
+	 * @param address First byte of the stretch.
 	 * @param size How many bytes it covers.
 	 */
-	memory_range(std::size_t offset, std::size_t size) noexcept;
+	memory_range(void *address, std::size_t size) noexcept;
 
 	memory_range(const memory_range &other) = default;
 	memory_range(memory_range &&other) noexcept = default;
@@ -34,12 +32,11 @@ public:
 	memory_range& operator=(memory_range &&other) noexcept = default;
 
 	/**
-	 * @brief Get where the stretch starts.
+	 * @brief Get the first byte of the stretch.
 	 *
-	 * @return std::size_t The offset, in bytes from the first byte of the
-	 * mapping.
+	 * @return void* Its address.
 	 */
-	std::size_t get_offset() const noexcept;
+	void* get_address() const noexcept;
 
 	/**
 	 * @brief Get how many bytes the stretch covers.
@@ -49,33 +46,31 @@ public:
 	std::size_t get_size() const noexcept;
 
 private:
-	std::size_t m_offset;
+	void *m_address;
 	std::size_t m_size;
 };
 
 /**
- * @brief Ask for stretches of a mapping to be brought into memory.
+ * @brief Ask for stretches of mapped memory to be paged in.
  *
  * Advice and nothing more: it never fails, and a stretch that was advised may
  * still have to be faulted in when it is read.
  *
- * Every stretch must start on a page boundary and must lie within the
- * mapping. Advice is taken in whole pages, so a stretch starting inside one
- * would reach the bytes before it whether or not it said so; stating the
- * boundary as part of the contract is what lets a caller work its stretches
- * out once, where they are built, rather than have every call walk them again
- * to find out. @ref get_page_size is what the boundary is measured in.
+ * Every stretch must start at the first byte of a page and lie within memory
+ * that is mapped. Advice is taken in whole pages, so a stretch starting
+ * inside one would reach the bytes before it whether or not it said so;
+ * stating the boundary as part of the contract is what lets a caller work its
+ * stretches out once, where they are built, rather than have every call walk
+ * them again to find out. @ref get_page_size is what the boundary is measured
+ * in.
  *
  * Whole batches are taken at once because that is the shape the Windows call
- * wants, where one call serves every stretch.
+ * wants, where one call serves every stretch. The stretches of one batch need
+ * not belong to the same mapping.
  *
- * @param base First byte of the mapping.
- * @param ranges The stretches, as byte offsets from @p base.
+ * @param ranges The stretches to advise.
  */
 REXLIB_API
-void prefetch_pages(
-	byte *base,
-	span<const memory_range> ranges
-) noexcept;
+void prefetch_pages(span<const memory_range> ranges) noexcept;
 
 } // namespace rexlib

@@ -47,10 +47,7 @@ prefetch_virtual_memory_function get_prefetch_virtual_memory() noexcept
 
 } // anonymous namespace
 
-void prefetch_pages(
-	byte *base,
-	span<const memory_range> ranges
-) noexcept
+void prefetch_pages(span<const memory_range> ranges) noexcept
 {
 	const auto prefetch = get_prefetch_virtual_memory();
 	if (prefetch == nullptr)
@@ -66,8 +63,7 @@ void prefetch_pages(
 
 	for (const auto &range : ranges)
 	{
-		entries[count].address =
-			static_cast<void*>(base + range.get_offset());
+		entries[count].address = range.get_address();
 		entries[count].size = static_cast<SIZE_T>(range.get_size());
 		++count;
 

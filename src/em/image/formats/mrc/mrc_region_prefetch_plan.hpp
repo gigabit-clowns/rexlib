@@ -3,6 +3,7 @@
 #pragma once
 
 #include <em/config.hpp>
+#include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/core/span.hpp>
 #include <rexlib/core/system/page_prefetch.hpp>
@@ -170,15 +171,15 @@ public:
 	 * @param geometry The shape of the file they address.
 	 * @param file_offsets Where each region starts in the file, in elements,
 	 * ascending.
-	 * @param mapped_size How many bytes of the file are mapped, which no
-	 * stretch reaches past.
+	 * @param mapping The bytes the file is mapped at, from its first one,
+	 * which no stretch reaches past.
 	 * @param policy What the batch is advised with.
 	 */
 	mrc_region_prefetch_plan(
 		const image_transfer_plan &regions,
 		const mrc_geometry &geometry,
 		span<const std::ptrdiff_t> file_offsets,
-		std::size_t mapped_size,
+		span<byte> mapping,
 		const mrc_prefetch_policy &policy
 	);
 
@@ -203,8 +204,7 @@ public:
 	/**
 	 * @brief Get every stretch the batch reaches.
 	 *
-	 * @return span<const memory_range> The stretches, ascending and disjoint,
-	 * as byte offsets from the start of the mapping.
+	 * @return span<const memory_range> The stretches, ascending and disjoint.
 	 */
 	span<const memory_range> get_ranges() const noexcept;
 
@@ -244,7 +244,7 @@ private:
 		const image_transfer_plan &regions,
 		const mrc_geometry &geometry,
 		span<const std::ptrdiff_t> file_offsets,
-		std::size_t mapped_size,
+		span<byte> mapping,
 		const mrc_prefetch_policy &policy
 	);
 

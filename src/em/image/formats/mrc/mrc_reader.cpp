@@ -9,6 +9,7 @@
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
+#include <rexlib/core/system/page_prefetch.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
@@ -106,7 +107,7 @@ void mrc_reader::read(
 		regions,
 		m_geometry,
 		plan.get_offsets().get_file(),
-		m_mapping.get_size(),
+		make_span(m_mapping.get_data(), m_mapping.get_size()),
 		make_prefetch_policy(compute_region_span(regions, m_geometry))
 	);
 	const auto *file_data =
@@ -115,7 +116,7 @@ void mrc_reader::read(
 
 	if (step_count > 0)
 	{
-		m_mapping.prefetch(advice.get_step_ranges(0));
+		prefetch_pages(advice.get_step_ranges(0));
 	}
 
 	for (std::size_t step = 0; step < step_count; ++step)
@@ -124,7 +125,7 @@ void mrc_reader::read(
 		// that it is on its way while these values are being moved.
 		if (step + 1 < step_count)
 		{
-			m_mapping.prefetch(advice.get_step_ranges(step + 1));
+			prefetch_pages(advice.get_step_ranges(step + 1));
 		}
 
 		read_regions(

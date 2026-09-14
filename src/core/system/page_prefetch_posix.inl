@@ -38,17 +38,11 @@ namespace
 
 } // anonymous namespace
 
-void prefetch_pages(
-	byte *base,
-	span<const memory_range> ranges
-) noexcept
+void prefetch_pages(span<const memory_range> ranges) noexcept
 {
 	for (const auto &range : ranges)
 	{
-		advise_will_need(
-			static_cast<void*>(base + range.get_offset()),
-			range.get_size()
-		);
+		advise_will_need(range.get_address(), range.get_size());
 	}
 }
 

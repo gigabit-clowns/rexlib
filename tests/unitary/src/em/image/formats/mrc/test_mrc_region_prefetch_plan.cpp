@@ -8,10 +8,14 @@
 #include <em/image/formats/mrc/mrc_header.hpp>
 #include <em/image/formats/mrc/mrc_mode.hpp>
 
+#include <core/hardware/host_memory/host_buffer.hpp>
+#include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/system/host.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 using namespace rexlib;
@@ -27,6 +31,10 @@ REXLIB_CONST_CONSTEXPR std::size_t plane_bytes = 3 * 4 * sizeof(float);
 // Small enough that the planes of the fixture do not all land in one page,
 // which the page of a machine would make them do.
 REXLIB_CONST_CONSTEXPR std::size_t test_page = 16;
+
+// Where the file of the fixture is mapped is a multiple of every page the
+// cases use, as a mapping is at a multiple of the page of the machine.
+REXLIB_CONST_CONSTEXPR std::size_t mapping_alignment = 64;
 
 mrc_geometry make_stack_geometry()
 {
@@ -81,6 +89,26 @@ std::size_t whole_file(const mrc_geometry &geometry)
 	return geometry.get_data_offset() + geometry.get_data_size();
 }
 
+std::unique_ptr<host_buffer> map_file(const mrc_geometry &geometry)
+{
+	return std::make_unique<host_buffer>(
+		whole_file(geometry),
+		mapping_alignment
+	);
+}
+
+// The first bytes of a mapping, which is how a case makes one end early.
+span<byte> first_bytes(host_buffer &file, std::size_t size)
+{
+	return make_span(static_cast<byte*>(file.get_host_ptr()), size);
+}
+
+std::size_t offset_in(const memory_range &range, const host_buffer &file)
+{
+	return reinterpret_cast<std::uintptr_t>(range.get_address()) -
+		reinterpret_cast<std::uintptr_t>(file.get_host_ptr());
+}
+
 } // anonymous namespace
 
 TEST_CASE( "what one region of a batch spans is its bounding stretch",
@@ -120,7 +148,8 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 {
 	const auto geometry = make_stack_geometry();
 	const auto values = geometry.get_data_offset();
-	const auto mapped = whole_file(geometry);
+	const auto file = map_file(geometry);
+	const auto mapped = first_bytes(*file, whole_file(geometry));
 
 	SECTION( "a batch of no region is advised nothing" )
 	{
@@ -145,7 +174,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		CHECK( advice.get_ranges()[0].get_offset() ==
+		CHECK( offset_in(advice.get_ranges()[0], *file) ==
 			values + 2 * plane_bytes );
 		CHECK( advice.get_ranges()[0].get_size() == plane_bytes );
 	}
@@ -163,7 +192,8 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		CHECK( advice.get_ranges()[0].get_offset() == values + plane_bytes );
+		CHECK( offset_in(advice.get_ranges()[0], *file) ==
+			values + plane_bytes );
 		CHECK( advice.get_ranges()[0].get_size() == 3 * plane_bytes );
 	}
 
@@ -179,9 +209,10 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 		);
 
 		REQUIRE( advice.get_ranges().size() == 2 );
-		CHECK( advice.get_ranges()[0].get_offset() == values + plane_bytes );
+		CHECK( offset_in(advice.get_ranges()[0], *file) ==
+			values + plane_bytes );
 		CHECK( advice.get_ranges()[0].get_size() == plane_bytes );
-		CHECK( advice.get_ranges()[1].get_offset() ==
+		CHECK( offset_in(advice.get_ranges()[1], *file) ==
 			values + 4 * plane_bytes );
 		CHECK( advice.get_ranges()[1].get_size() == plane_bytes );
 	}
@@ -198,7 +229,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		CHECK( advice.get_ranges()[0].get_offset() == values );
+		CHECK( offset_in(advice.get_ranges()[0], *file) == values );
 		CHECK( advice.get_ranges()[0].get_size() == 3 * plane_bytes );
 	}
 
@@ -243,6 +274,7 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 {
 	const auto geometry = make_stack_geometry();
 	const auto values = geometry.get_data_offset();
+	const auto file = map_file(geometry);
 
 	image_transfer_plan regions(make_span(plane), 3, 3);
 	add_plane(regions, 1);
@@ -253,33 +285,35 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 		// page of 32.
 		const mrc_region_prefetch_plan advice(
 			regions, geometry, make_span(plane_offsets({1})),
-			whole_file(geometry), make_policy(0, default_prefetch_budget, 32)
+			first_bytes(*file, whole_file(geometry)),
+			make_policy(0, default_prefetch_budget, 32)
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		CHECK( advice.get_ranges()[0].get_offset() ==
-			values + plane_bytes - 16 );
-		CHECK( advice.get_ranges()[0].get_offset() % 32 == 0 );
+		const auto &range = advice.get_ranges()[0];
+		CHECK( reinterpret_cast<std::uintptr_t>(range.get_address()) % 32 ==
+			0 );
+		CHECK( offset_in(range, *file) == values + plane_bytes - 16 );
 	}
 
 	SECTION( "a stretch is cut short where the mapping ends" )
 	{
-		const auto mapped = values + plane_bytes + 16;
+		const auto end = values + plane_bytes + 16;
 		const mrc_region_prefetch_plan advice(
-			regions, geometry, make_span(plane_offsets({1})), mapped,
-			make_policy(0, default_prefetch_budget)
+			regions, geometry, make_span(plane_offsets({1})),
+			first_bytes(*file, end), make_policy(0, default_prefetch_budget)
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		CHECK( advice.get_ranges()[0].get_offset() +
-			advice.get_ranges()[0].get_size() == mapped );
+		const auto &range = advice.get_ranges()[0];
+		CHECK( offset_in(range, *file) + range.get_size() == end );
 	}
 
 	SECTION( "a region starting past the mapping is asked for nothing" )
 	{
 		const mrc_region_prefetch_plan advice(
-			regions, geometry, make_span(plane_offsets({1})), values,
-			make_policy(0, default_prefetch_budget)
+			regions, geometry, make_span(plane_offsets({1})),
+			first_bytes(*file, values), make_policy(0, default_prefetch_budget)
 		);
 
 		CHECK( advice.get_ranges().empty() );
@@ -300,7 +334,8 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 		// nothing yet still has to be moved.
 		const mrc_region_prefetch_plan advice(
 			both, geometry, make_span(plane_offsets({0, 1})),
-			values + plane_bytes, make_policy(0, default_prefetch_budget)
+			first_bytes(*file, values + plane_bytes),
+			make_policy(0, default_prefetch_budget)
 		);
 
 		std::size_t covered = 0;
@@ -317,7 +352,8 @@ TEST_CASE( "the stretches of a batch are grouped into steps",
 	"[mrc_region_prefetch_plan]" )
 {
 	const auto geometry = make_stack_geometry();
-	const auto mapped = whole_file(geometry);
+	const auto file = map_file(geometry);
+	const auto mapped = first_bytes(*file, whole_file(geometry));
 
 	image_transfer_plan regions(make_span(plane), 3, 3);
 	add_plane(regions, 0);
@@ -389,7 +425,8 @@ TEST_CASE( "merging never grows a stretch past the budget of a step",
 	"[mrc_region_prefetch_plan]" )
 {
 	const auto geometry = make_stack_geometry();
-	const auto mapped = whole_file(geometry);
+	const auto file = map_file(geometry);
+	const auto mapped = first_bytes(*file, whole_file(geometry));
 
 	SECTION( "a long run of consecutive regions is split into steps" )
 	{

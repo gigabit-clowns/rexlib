@@ -3,9 +3,7 @@
 #pragma once
 
 #include <rexlib/core/memory/byte.hpp>
-#include <rexlib/core/span.hpp>
 #include <rexlib/core/system/access_flags.hpp>
-#include <rexlib/core/system/page_prefetch.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -78,19 +76,6 @@ public:
 	 * @return std::size_t The size of the file.
 	 */
 	std::size_t get_size() const noexcept;
-
-	/**
-	 * @brief Ask for stretches of the mapping to be brought into memory.
-	 *
-	 * Advice and nothing more: a stretch that was advised may still have to
-	 * be faulted in when it is read. A whole batch is taken at once so that
-	 * the scattered stretches one read reaches are asked for together.
-	 *
-	 * @param ranges The stretches, as byte offsets from the start of the
-	 * mapping. Each must start on a page boundary and lie within it, as
-	 * @ref prefetch_pages states.
-	 */
-	void prefetch(span<const memory_range> ranges) const noexcept;
 
 	/**
 	 * @brief Make everything written through the mapping reach the storage.

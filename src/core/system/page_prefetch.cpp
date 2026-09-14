@@ -7,15 +7,15 @@
 namespace rexlib
 {
 
-memory_range::memory_range(std::size_t offset, std::size_t size) noexcept
-	: m_offset(offset)
+memory_range::memory_range(void *address, std::size_t size) noexcept
+	: m_address(address)
 	, m_size(size)
 {
 }
 
-std::size_t memory_range::get_offset() const noexcept
+void* memory_range::get_address() const noexcept
 {
-	return m_offset;
+	return m_address;
 }
 
 std::size_t memory_range::get_size() const noexcept
@@ -36,10 +36,7 @@ std::size_t memory_range::get_size() const noexcept
 namespace rexlib
 {
 
-void prefetch_pages(
-	byte */*base*/,
-	span<const memory_range> /*ranges*/
-) noexcept
+void prefetch_pages(span<const memory_range> /*ranges*/) noexcept
 {
 }
 

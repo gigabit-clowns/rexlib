@@ -3,4 +3,5 @@ target_sources(
 	PRIVATE
 		test_access_flags.cpp
 		test_dynamic_library.cpp
+		test_page_prefetch.cpp
 )
