@@ -12,7 +12,7 @@ target_sources(
 		test_mrc_region_layout.cpp
 		test_mrc_region_offsets.cpp
 		test_mrc_region_plans.cpp
+		test_mrc_region_prefetch_plan.cpp
 		test_mrc_region_transfer.cpp
-		test_mrc_region_window.cpp
 		test_mrc_writer.cpp
 )

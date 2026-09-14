@@ -3,4 +3,5 @@ target_sources(
 	PRIVATE
 		dynamic_library.cpp
 		host.cpp
+		page_prefetch.cpp
 )

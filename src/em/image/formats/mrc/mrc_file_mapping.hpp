@@ -2,11 +2,10 @@
 
 #pragma once
 
-#include "mrc_byte_range.hpp"
-
 #include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/span.hpp>
 #include <rexlib/core/system/access_flags.hpp>
+#include <rexlib/core/system/page_prefetch.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -88,9 +87,10 @@ public:
 	 * the scattered stretches one read reaches are asked for together.
 	 *
 	 * @param ranges The stretches, as byte offsets from the start of the
-	 * mapping. Each is clamped to what is mapped and grown to whole pages.
+	 * mapping. Each must start on a page boundary and lie within it, as
+	 * @ref prefetch_pages states.
 	 */
-	void prefetch(span<const mrc_byte_range> ranges) const noexcept;
+	void prefetch(span<const memory_range> ranges) const noexcept;
 
 	/**
 	 * @brief Make everything written through the mapping reach the storage.

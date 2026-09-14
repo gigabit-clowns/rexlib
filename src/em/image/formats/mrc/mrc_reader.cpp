@@ -2,11 +2,10 @@
 
 #include "mrc_reader.hpp"
 
-#include "mrc_byte_range.hpp"
 #include "mrc_host_access.hpp"
+#include "mrc_region_prefetch_plan.hpp"
 #include "mrc_region_read_plan.hpp"
 #include "mrc_region_transfer.hpp"
-#include "mrc_region_window.hpp"
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
@@ -103,12 +102,14 @@ void mrc_reader::read(
 		layout.get_offset()
 	);
 
-	const auto window = make_region_window(regions, m_geometry);
-	const mrc_byte_range stretch = {
-		m_geometry.get_data_offset() + window.get_byte_offset(),
-		window.get_byte_size()
-	};
-	m_mapping.prefetch(make_span(&stretch, 1));
+	const mrc_region_prefetch_plan advice(
+		regions,
+		m_geometry,
+		plan.get_offsets().get_file(),
+		m_mapping.get_size(),
+		make_prefetch_policy(compute_region_span(regions, m_geometry))
+	);
+	m_mapping.prefetch(advice.get_ranges());
 
 	read_regions(
 		plan,

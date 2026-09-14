@@ -11,6 +11,7 @@ target_sources(
 		mrc_reader.cpp
 		mrc_region_layout.cpp
 		mrc_region_offsets.cpp
+		mrc_region_prefetch_plan.cpp
 		mrc_region_read_plan.cpp
 		mrc_region_transfer.cpp
 		mrc_region_transfer_complex_float32.cpp
@@ -20,7 +21,6 @@ target_sources(
 		mrc_region_transfer_int8.cpp
 		mrc_region_transfer_uint16.cpp
 		mrc_region_transfer_uint8.cpp
-		mrc_region_window.cpp
 		mrc_region_write_plan.cpp
 		mrc_write_format.cpp
 		mrc_writer.cpp

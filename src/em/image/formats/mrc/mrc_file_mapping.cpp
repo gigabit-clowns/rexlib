@@ -2,8 +2,6 @@
 
 #include "mrc_file_mapping.hpp"
 
-#include "mrc_page_prefetch.hpp"
-
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 
 #include <boost/filesystem/operations.hpp>
@@ -87,10 +85,10 @@ std::size_t mrc_file_mapping::get_size() const noexcept
 }
 
 void mrc_file_mapping::prefetch(
-	span<const mrc_byte_range> ranges
+	span<const memory_range> ranges
 ) const noexcept
 {
-	prefetch_pages(get_data(), get_size(), ranges);
+	prefetch_pages(get_data(), ranges);
 }
 
 void mrc_file_mapping::flush()

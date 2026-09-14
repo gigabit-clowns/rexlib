@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "mrc_page_prefetch.hpp"
+#include <rexlib/core/system/page_prefetch.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 
@@ -10,12 +10,8 @@
 
 namespace rexlib
 {
-namespace em
-{
-namespace mrc
-{
 
-namespace detail
+namespace
 {
 
 // The layout of WIN32_MEMORY_RANGE_ENTRY, stated here rather than taken from
@@ -36,8 +32,7 @@ using prefetch_virtual_memory_function = BOOL (WINAPI *)(
 // PrefetchVirtualMemory arrived in Windows 8, so it is resolved at run time:
 // where it is missing the mapping is read as it always was, one fault at a
 // time. kernel32 is loaded into every process, so the handle is never taken.
-inline prefetch_virtual_memory_function
-get_prefetch_virtual_memory() noexcept
+prefetch_virtual_memory_function get_prefetch_virtual_memory() noexcept
 {
 	static const auto function =
 		reinterpret_cast<prefetch_virtual_memory_function>(
@@ -50,25 +45,15 @@ get_prefetch_virtual_memory() noexcept
 	return function;
 }
 
-} // namespace detail
+} // anonymous namespace
 
-inline void prefetch_pages(
+void prefetch_pages(
 	byte *base,
-	std::size_t mapped_size,
-	span<const mrc_byte_range> ranges
+	span<const memory_range> ranges
 ) noexcept
 {
-	const auto prefetch = detail::get_prefetch_virtual_memory();
+	const auto prefetch = get_prefetch_virtual_memory();
 	if (prefetch == nullptr)
-	{
-		return;
-	}
-
-	SYSTEM_INFO information;
-	::GetSystemInfo(&information);
-
-	const auto page_size = static_cast<std::size_t>(information.dwPageSize);
-	if (page_size == 0)
 	{
 		return;
 	}
@@ -76,20 +61,14 @@ inline void prefetch_pages(
 	// Gathered a fixed batch at a time rather than into one allocation, so
 	// that advising cannot throw where it is only a hint.
 	REXLIB_CONST_CONSTEXPR std::size_t batch_size = 64;
-	std::array<detail::memory_range_entry, batch_size> entries;
+	std::array<memory_range_entry, batch_size> entries;
 	std::size_t count = 0;
 
 	for (const auto &range : ranges)
 	{
-		auto stretch = range;
-		if (!clamp_to_pages(stretch, mapped_size, page_size))
-		{
-			continue;
-		}
-
 		entries[count].address =
-			static_cast<void*>(base + stretch.byte_offset);
-		entries[count].size = static_cast<SIZE_T>(stretch.byte_size);
+			static_cast<void*>(base + range.get_offset());
+		entries[count].size = static_cast<SIZE_T>(range.get_size());
 		++count;
 
 		if (count == batch_size)
@@ -105,6 +84,4 @@ inline void prefetch_pages(
 	}
 }
 
-} // namespace mrc
-} // namespace em
 } // namespace rexlib
