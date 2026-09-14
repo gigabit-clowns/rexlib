@@ -136,9 +136,11 @@ private:
 	{
 		// Almost every candidate loses outright, so that is asked first, and
 		// the index is only read for one that does not.
-		if (!m_order(best, candidate))
-		{
-			if (m_order(candidate, best) || candidate_where < where)
+		if (
+			!m_order(best, candidate) && 
+			(m_order(candidate, best) || candidate_where < where)
+		)
+		{ 
 			{
 				best = candidate;
 				where = candidate_where;

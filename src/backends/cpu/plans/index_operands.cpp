@@ -17,6 +17,7 @@ void add_index_operands(
 	no_index_tag
 ) noexcept
 {
+	// No index to be added.
 }
 
 void add_index_operands(
