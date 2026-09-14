@@ -98,9 +98,9 @@ std::unique_ptr<host_buffer> map_file(const mrc_geometry &geometry)
 }
 
 // The first bytes of a mapping, which is how a case makes one end early.
-span<byte> first_bytes(host_buffer &file, std::size_t size)
+span<rexlib::byte> first_bytes(host_buffer &file, std::size_t size)
 {
-	return make_span(static_cast<byte*>(file.get_host_ptr()), size);
+	return make_span(static_cast<rexlib::byte*>(file.get_host_ptr()), size);
 }
 
 std::size_t offset_in(const memory_range &range, const host_buffer &file)
