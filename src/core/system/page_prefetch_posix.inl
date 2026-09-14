@@ -29,7 +29,7 @@ namespace
 
 #else
 
-	#warning "POSIX prefetch implementation selected, but no MADV_WILLNEED variant is available."
+	#warning "No MADV_WILLNEED variant on this platform"
 	void advise_will_need(void *, std::size_t) noexcept
 	{
 	}

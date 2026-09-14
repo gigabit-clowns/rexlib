@@ -32,11 +32,17 @@ std::size_t memory_range::get_size() const noexcept
 #else
 
 	#warning "No page prefetch implementation available for this platform"
-	void prefetch_pages(
-		byte */*base*/,
-		span<const memory_range> /*ranges*/
-	) noexcept
-	{
-	}
+
+namespace rexlib
+{
+
+void prefetch_pages(
+	byte */*base*/,
+	span<const memory_range> /*ranges*/
+) noexcept
+{
+}
+
+} // namespace rexlib
 
 #endif
