@@ -30,5 +30,13 @@ std::size_t memory_range::get_size() const noexcept
 #elif REXLIB_WINDOWS
 	#include "page_prefetch_windows.inl"
 #else
-	#error "No page prefetch implementation available for this platform"
+
+	#warning "No page prefetch implementation available for this platform"
+	void prefetch_pages(
+		byte */*base*/,
+		span<const memory_range> /*ranges*/
+	) noexcept
+	{
+	}
+
 #endif

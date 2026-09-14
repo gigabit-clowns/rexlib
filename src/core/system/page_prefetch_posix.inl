@@ -15,23 +15,24 @@ namespace
 // that offers. Where neither is there, a read faults its pages in as it goes.
 #if defined(POSIX_MADV_WILLNEED)
 
-void advise_will_need(void *address, std::size_t size) noexcept
-{
-	::posix_madvise(address, size, POSIX_MADV_WILLNEED);
-}
+	void advise_will_need(void *address, std::size_t size) noexcept
+	{
+		::posix_madvise(address, size, POSIX_MADV_WILLNEED);
+	}
 
 #elif defined(MADV_WILLNEED)
 
-void advise_will_need(void *address, std::size_t size) noexcept
-{
-	::madvise(address, size, MADV_WILLNEED);
-}
+	void advise_will_need(void *address, std::size_t size) noexcept
+	{
+		::madvise(address, size, MADV_WILLNEED);
+	}
 
 #else
 
-void advise_will_need(void *, std::size_t) noexcept
-{
-}
+	#warning "POSIX prefetch implementation selected, but no MADV_WILLNEED variant is available."
+	void advise_will_need(void *, std::size_t) noexcept
+	{
+	}
 
 #endif
 
