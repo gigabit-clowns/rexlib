@@ -2,7 +2,10 @@
 
 #pragma once
 
+#include "mrc_byte_range.hpp"
+
 #include <rexlib/core/memory/byte.hpp>
+#include <rexlib/core/span.hpp>
 #include <rexlib/core/system/access_flags.hpp>
 
 #include <cstddef>
@@ -78,15 +81,16 @@ public:
 	std::size_t get_size() const noexcept;
 
 	/**
-	 * @brief Ask for a stretch of the mapping to be brought into memory.
+	 * @brief Ask for stretches of the mapping to be brought into memory.
 	 *
-	 * Hints the kernel to bring the whole stretch of a file at once.
+	 * Advice and nothing more: a stretch that was advised may still have to
+	 * be faulted in when it is read. A whole batch is taken at once so that
+	 * the scattered stretches one read reaches are asked for together.
 	 *
-	 * @param offset Where the stretch starts, in bytes from the start of the
-	 * mapping.
-	 * @param size How many bytes it covers. Clamped to what is mapped.
+	 * @param ranges The stretches, as byte offsets from the start of the
+	 * mapping. Each is clamped to what is mapped and grown to whole pages.
 	 */
-	void prefetch(std::size_t offset, std::size_t size) const noexcept;
+	void prefetch(span<const mrc_byte_range> ranges) const noexcept;
 
 	/**
 	 * @brief Make everything written through the mapping reach the storage.

@@ -2,23 +2,14 @@
 
 #include "mrc_file_mapping.hpp"
 
-#include <rexlib/em/image/exceptions/image_format_error.hpp>
+#include "mrc_page_prefetch.hpp"
 
-#include <rexlib/core/platform/operating_system.h>
+#include <rexlib/em/image/exceptions/image_format_error.hpp>
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/interprocess/file_mapping.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
-#if defined(REXLIB_POSIX)
-	#include <sys/mman.h>
-	#include <unistd.h>
-	#if defined(MADV_WILLNEED)
-		#define REXLIB_HAS_MADVISE
-	#endif
-#endif
-
-#include <algorithm>
 #include <cstddef>
 #include <fstream>
 
@@ -96,36 +87,10 @@ std::size_t mrc_file_mapping::get_size() const noexcept
 }
 
 void mrc_file_mapping::prefetch(
-	std::size_t offset,
-	std::size_t size
+	span<const mrc_byte_range> ranges
 ) const noexcept
 {
-#if defined(REXLIB_HAS_MADVISE)
-	const auto mapped = get_size();
-	if (offset >= mapped || size == 0)
-	{
-		return;
-	}
-
-	static const auto page =
-		static_cast<std::size_t>(::sysconf(_SC_PAGESIZE));
-	const auto last = offset + std::min(size, mapped - offset);
-
-	// madvise takes whole pages, so the stretch grows to the ones its ends
-	// fall in rather than shrinking away from them.
-	const auto first_page = offset - (offset % page);
-
-	::madvise(
-		static_cast<void*>(get_data() + first_page),
-		last - first_page,
-		MADV_WILLNEED
-	);
-#else
-	// Windows advises through PrefetchVirtualMemory, which is not wired up
-	// here: the mapping is read as it always was, one fault at a time.
-	std::ignore = offset;
-	std::ignore = size;
-#endif
+	prefetch_pages(get_data(), get_size(), ranges);
 }
 
 void mrc_file_mapping::flush()

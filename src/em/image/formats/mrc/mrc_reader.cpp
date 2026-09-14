@@ -2,6 +2,7 @@
 
 #include "mrc_reader.hpp"
 
+#include "mrc_byte_range.hpp"
 #include "mrc_host_access.hpp"
 #include "mrc_region_read_plan.hpp"
 #include "mrc_region_transfer.hpp"
@@ -103,10 +104,11 @@ void mrc_reader::read(
 	);
 
 	const auto window = make_region_window(regions, m_geometry);
-	m_mapping.prefetch(
+	const mrc_byte_range stretch = {
 		m_geometry.get_data_offset() + window.get_byte_offset(),
 		window.get_byte_size()
-	);
+	};
+	m_mapping.prefetch(make_span(&stretch, 1));
 
 	read_regions(
 		plan,

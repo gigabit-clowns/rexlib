@@ -4,6 +4,8 @@
 
 #include <em/image/formats/mrc/mrc_file_mapping.hpp>
 
+#include <em/image/formats/mrc/mrc_byte_range.hpp>
+
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/tests/assets.hpp>
 
@@ -176,6 +178,62 @@ TEST_CASE( "an MRC file is written through its mapping",
 		const mrc_file_mapping reader(path.get(), read_only);
 
 		REQUIRE( as_uint8(reader.get_data()[0]) == 0x42 );
+	}
+}
+
+TEST_CASE( "stretches of a mapping are advised before they are read",
+	"[mrc_file_mapping]" )
+{
+	const scoped_path path("mapping_prefetch.tmp");
+	write_file(path.get(), std::vector<char>(64, 'a'));
+
+	const mrc_file_mapping mapping(path.get(), read_only);
+
+	// Advice leaves nothing a test can observe: what is asserted is that a
+	// mapping survives being advised anything, a stretch reaching past what
+	// is mapped included.
+	SECTION( "a batch of no stretch is advised" )
+	{
+		const std::vector<mrc_byte_range> ranges;
+
+		REQUIRE_NOTHROW( mapping.prefetch(make_span(ranges)) );
+	}
+
+	SECTION( "a stretch within the mapping is advised" )
+	{
+		const std::vector<mrc_byte_range> ranges = {{0, 64}};
+
+		REQUIRE_NOTHROW( mapping.prefetch(make_span(ranges)) );
+	}
+
+	SECTION( "a stretch reaching past the mapping is advised" )
+	{
+		const std::vector<mrc_byte_range> ranges = {{32, 4096}};
+
+		REQUIRE_NOTHROW( mapping.prefetch(make_span(ranges)) );
+	}
+
+	SECTION( "a stretch starting past the mapping is advised" )
+	{
+		const std::vector<mrc_byte_range> ranges = {{4096, 16}};
+
+		REQUIRE_NOTHROW( mapping.prefetch(make_span(ranges)) );
+	}
+
+	SECTION( "a stretch of no bytes is advised" )
+	{
+		const std::vector<mrc_byte_range> ranges = {{8, 0}};
+
+		REQUIRE_NOTHROW( mapping.prefetch(make_span(ranges)) );
+	}
+
+	SECTION( "several stretches are advised at once" )
+	{
+		const std::vector<mrc_byte_range> ranges = {
+			{0, 8}, {16, 8}, {48, 16}
+		};
+
+		REQUIRE_NOTHROW( mapping.prefetch(make_span(ranges)) );
 	}
 }
 
