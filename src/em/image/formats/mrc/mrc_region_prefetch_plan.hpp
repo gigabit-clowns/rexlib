@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <em/config.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/core/span.hpp>
 #include <rexlib/core/system/page_prefetch.hpp>
@@ -24,40 +25,78 @@ class mrc_geometry;
 /**
  * @brief Widest gap that merging bridges, whatever one region spans.
  *
- * The readahead a kernel does of its own accord is about this wide, so a gap
- * wider than it is left for the fault that reaches it.
+ * See em/config.hpp, which is where the number comes from and where it may be
+ * overridden.
  */
 REXLIB_INLINE_CONST_CONSTEXPR std::size_t default_prefetch_gap_cap =
-	128 * 1024;
+	REXLIB_PREFETCH_GAP_CAP;
 
 /**
  * @brief Bytes a step advises before the regions of the previous one are
  * walked.
+ *
+ * See em/config.hpp, which is where the number comes from and where it may be
+ * overridden.
  */
 REXLIB_INLINE_CONST_CONSTEXPR std::size_t default_prefetch_budget =
-	64 * 1024 * 1024;
+	REXLIB_PREFETCH_BYTE_BUDGET;
 
 /**
  * @brief What a batch is advised with.
  */
-struct mrc_prefetch_policy
+class mrc_prefetch_policy
 {
+public:
 	/**
-	 * @brief Widest gap between two stretches that still merges them.
+	 * @brief Construct a policy from what it settles.
+	 *
+	 * @param gap_tolerance Widest gap between two stretches that still merges
+	 * them.
+	 * @param byte_budget Most bytes one step advises, which it exceeds only
+	 * where a single region is wider than it.
+	 * @param page_size Boundary every stretch is made to start on, which must
+	 * not be zero.
 	 */
-	std::size_t gap_tolerance;
+	mrc_prefetch_policy(
+		std::size_t gap_tolerance,
+		std::size_t byte_budget,
+		std::size_t page_size
+	) noexcept;
+
+	mrc_prefetch_policy(const mrc_prefetch_policy &other) = default;
+	mrc_prefetch_policy(mrc_prefetch_policy &&other) noexcept = default;
+	~mrc_prefetch_policy() = default;
+
+	mrc_prefetch_policy&
+	operator=(const mrc_prefetch_policy &other) = default;
+	mrc_prefetch_policy&
+	operator=(mrc_prefetch_policy &&other) noexcept = default;
 
 	/**
-	 * @brief Most bytes one step advises, which it exceeds only where a
-	 * single region is wider than it.
+	 * @brief Get the widest gap that still merges two stretches.
+	 *
+	 * @return std::size_t The gap, in bytes.
 	 */
-	std::size_t byte_budget;
+	std::size_t get_gap_tolerance() const noexcept;
 
 	/**
-	 * @brief Boundary every stretch is made to start on, which must not be
-	 * zero.
+	 * @brief Get the most bytes one step advises.
+	 *
+	 * @return std::size_t The budget, in bytes.
 	 */
-	std::size_t page_size;
+	std::size_t get_byte_budget() const noexcept;
+
+	/**
+	 * @brief Get the boundary every stretch is made to start on.
+	 *
+	 * @return std::size_t The page size, in bytes.
+	 */
+	std::size_t get_page_size() const noexcept;
+
+private:
+	std::size_t m_gap_tolerance;
+	std::size_t m_byte_budget;
+	std::size_t m_page_size;
 };
 
 /**
@@ -194,6 +233,33 @@ public:
 	std::size_t get_step_region_count(std::size_t step) const noexcept;
 
 private:
+	/**
+	 * @brief Work out the stretches of the batch, merging as they are found.
+	 *
+	 * @return std::vector<std::size_t> How many regions each stretch covers.
+	 */
+	std::vector<std::size_t> gather_ranges(
+		const image_transfer_plan &regions,
+		const mrc_geometry &geometry,
+		span<const std::ptrdiff_t> file_offsets,
+		std::size_t mapped_size,
+		const mrc_prefetch_policy &policy
+	);
+
+	/**
+	 * @brief Group the stretches into steps of a bounded number of bytes.
+	 *
+	 * @param regions_per_range How many regions each stretch covers.
+	 * @param region_count How many regions the batch holds, which the last
+	 * step reaches whether or not every one of them was asked for.
+	 * @param byte_budget Most bytes one step advises.
+	 */
+	void gather_steps(
+		span<const std::size_t> regions_per_range,
+		std::size_t region_count,
+		std::size_t byte_budget
+	);
+
 	std::vector<memory_range> m_ranges;
 	std::vector<std::size_t> m_step_first_range;
 	std::vector<std::size_t> m_step_first_region;

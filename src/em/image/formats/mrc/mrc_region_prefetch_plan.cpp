@@ -18,18 +18,42 @@ namespace em
 namespace mrc
 {
 
+mrc_prefetch_policy::mrc_prefetch_policy(
+	std::size_t gap_tolerance,
+	std::size_t byte_budget,
+	std::size_t page_size
+) noexcept
+	: m_gap_tolerance(gap_tolerance)
+	, m_byte_budget(byte_budget)
+	, m_page_size(page_size)
+{
+}
+
+std::size_t mrc_prefetch_policy::get_gap_tolerance() const noexcept
+{
+	return m_gap_tolerance;
+}
+
+std::size_t mrc_prefetch_policy::get_byte_budget() const noexcept
+{
+	return m_byte_budget;
+}
+
+std::size_t mrc_prefetch_policy::get_page_size() const noexcept
+{
+	return m_page_size;
+}
+
 mrc_prefetch_policy make_prefetch_policy(std::size_t region_span) noexcept
 {
 	const auto page_size = get_page_size();
 	const auto floor = std::max(region_span, page_size);
 
-	const mrc_prefetch_policy policy = {
+	return mrc_prefetch_policy(
 		std::min(floor, default_prefetch_gap_cap),
 		default_prefetch_budget,
 		page_size
-	};
-
-	return policy;
+	);
 }
 
 std::size_t compute_region_span(
@@ -57,6 +81,50 @@ std::size_t compute_region_span(
 	return elements * get_size(geometry.get_data_type());
 }
 
+namespace
+{
+
+// The stretch one region occupies: grown back to the page its start falls in,
+// and cut short where the mapping ends.
+memory_range locate_region(
+	std::size_t start,
+	std::size_t region_span,
+	std::size_t mapped_size,
+	std::size_t page_size
+) noexcept
+{
+	const auto first = start - (start % page_size);
+	const auto last = std::min(start + region_span, mapped_size);
+
+	return memory_range(first, last - first);
+}
+
+bool joins(
+	const memory_range &previous,
+	const memory_range &next,
+	std::size_t gap_tolerance
+) noexcept
+{
+	const auto end = previous.get_offset() + previous.get_size();
+
+	return next.get_offset() <= end + gap_tolerance;
+}
+
+memory_range merge(
+	const memory_range &previous,
+	const memory_range &next
+) noexcept
+{
+	const auto end = std::max(
+		previous.get_offset() + previous.get_size(),
+		next.get_offset() + next.get_size()
+	);
+
+	return memory_range(previous.get_offset(), end - previous.get_offset());
+}
+
+} // anonymous namespace
+
 mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 	const image_transfer_plan &regions,
 	const mrc_geometry &geometry,
@@ -65,7 +133,7 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 	const mrc_prefetch_policy &policy
 )
 {
-	REXLIB_ASSERT(policy.page_size > 0);
+	REXLIB_ASSERT(policy.get_page_size() > 0);
 	REXLIB_ASSERT(
 		std::is_sorted(file_offsets.begin(), file_offsets.end())
 	);
@@ -78,18 +146,38 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 		return;
 	}
 
+	const auto regions_per_range = gather_ranges(
+		regions, geometry, file_offsets, mapped_size, policy
+	);
+
+	gather_steps(
+		make_span(regions_per_range),
+		file_offsets.size(),
+		policy.get_byte_budget()
+	);
+}
+
+std::vector<std::size_t> mrc_region_prefetch_plan::gather_ranges(
+	const image_transfer_plan &regions,
+	const mrc_geometry &geometry,
+	span<const std::ptrdiff_t> file_offsets,
+	std::size_t mapped_size,
+	const mrc_prefetch_policy &policy
+)
+{
+	std::vector<std::size_t> regions_per_range;
+
 	const auto region_span = compute_region_span(regions, geometry);
+	if (region_span == 0)
+	{
+		return regions_per_range;
+	}
+
 	const auto element_size = get_size(geometry.get_data_type());
 	const auto data_offset = geometry.get_data_offset();
 
-	std::vector<std::size_t> regions_per_range;
 	for (const auto offset : file_offsets)
 	{
-		if (region_span == 0)
-		{
-			break;
-		}
-
 		REXLIB_ASSERT(offset >= 0);
 		const auto start = data_offset +
 			static_cast<std::size_t>(offset) * element_size;
@@ -98,45 +186,39 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 			continue;
 		}
 
-		const auto first = start - (start % policy.page_size);
-		const auto last = std::min(start + region_span, mapped_size);
+		const auto stretch = locate_region(
+			start, region_span, mapped_size, policy.get_page_size()
+		);
 
-		if (!m_ranges.empty())
+		if (!m_ranges.empty() &&
+			joins(m_ranges.back(), stretch, policy.get_gap_tolerance()))
 		{
-			auto &previous = m_ranges.back();
-			const auto end = previous.get_offset() + previous.get_size();
-			if (first <= end + policy.gap_tolerance)
-			{
-				previous = memory_range(
-					previous.get_offset(),
-					std::max(end, last) - previous.get_offset()
-				);
-				++regions_per_range.back();
-				continue;
-			}
+			m_ranges.back() = merge(m_ranges.back(), stretch);
+			++regions_per_range.back();
 		}
-
-		const memory_range range(first, last - first);
-		m_ranges.push_back(range);
-		regions_per_range.push_back(1);
+		else
+		{
+			m_ranges.push_back(stretch);
+			regions_per_range.push_back(1);
+		}
 	}
 
-	// The steps tile the batch whether or not there is anything to advise,
-	// so that walking them walks every region exactly once.
-	if (m_ranges.empty())
-	{
-		m_step_first_range.push_back(0);
-		m_step_first_region.push_back(file_offsets.size());
-		return;
-	}
+	return regions_per_range;
+}
 
+void mrc_region_prefetch_plan::gather_steps(
+	span<const std::size_t> regions_per_range,
+	std::size_t region_count,
+	std::size_t byte_budget
+)
+{
 	std::size_t step_bytes = 0;
 	std::size_t regions_seen = 0;
 	for (std::size_t i = 0; i < m_ranges.size(); ++i)
 	{
 		const auto size = m_ranges[i].get_size();
 		const auto opens_step = i == m_step_first_range.back();
-		if (!opens_step && step_bytes + size > policy.byte_budget)
+		if (!opens_step && step_bytes + size > byte_budget)
 		{
 			m_step_first_range.push_back(i);
 			m_step_first_region.push_back(regions_seen);
@@ -147,10 +229,10 @@ mrc_region_prefetch_plan::mrc_region_prefetch_plan(
 		regions_seen += regions_per_range[i];
 	}
 
-	// The last step takes whatever regions were left out of the stretches,
-	// which are the ones there was nothing to ask for.
+	// The last step takes every region the stretches left out, which is what
+	// makes the steps tile the batch however little there was to ask for.
 	m_step_first_range.push_back(m_ranges.size());
-	m_step_first_region.push_back(file_offsets.size());
+	m_step_first_region.push_back(region_count);
 }
 
 std::size_t mrc_region_prefetch_plan::get_step_count() const noexcept

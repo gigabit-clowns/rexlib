@@ -71,11 +71,7 @@ mrc_prefetch_policy make_policy(
 	std::size_t page_size = test_page
 )
 {
-	const mrc_prefetch_policy policy = {
-		gap_tolerance, byte_budget, page_size
-	};
-
-	return policy;
+	return mrc_prefetch_policy(gap_tolerance, byte_budget, page_size);
 }
 
 // Past the last plane of the fixture, so nothing is clamped unless a case
@@ -397,7 +393,7 @@ TEST_CASE( "the default policy scales its tolerance with the region",
 		const auto policy =
 			make_prefetch_policy(4 * default_prefetch_gap_cap);
 
-		CHECK( policy.gap_tolerance == default_prefetch_gap_cap );
+		CHECK( policy.get_gap_tolerance() == default_prefetch_gap_cap );
 	}
 
 	SECTION( "a region narrower than the cap sets the tolerance" )
@@ -407,15 +403,15 @@ TEST_CASE( "the default policy scales its tolerance with the region",
 		const std::size_t span = default_prefetch_gap_cap / 2;
 		const auto policy = make_prefetch_policy(span);
 
-		CHECK( policy.gap_tolerance <= default_prefetch_gap_cap );
-		CHECK( policy.gap_tolerance >= span );
+		CHECK( policy.get_gap_tolerance() <= default_prefetch_gap_cap );
+		CHECK( policy.get_gap_tolerance() >= span );
 	}
 
 	SECTION( "it takes the page size of the machine" )
 	{
 		const auto policy = make_prefetch_policy(plane_bytes);
 
-		CHECK( policy.page_size == get_page_size() );
-		CHECK( policy.byte_budget == default_prefetch_budget );
+		CHECK( policy.get_page_size() == get_page_size() );
+		CHECK( policy.get_byte_budget() == default_prefetch_budget );
 	}
 }
