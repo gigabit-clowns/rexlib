@@ -14,7 +14,7 @@
 // a gap wider than the data on either side of it is never bridged: a flat cap
 // would have two small regions far apart ask for many times what they hold.
 #ifndef REXLIB_PREFETCH_GAP_CAP
-	#define REXLIB_PREFETCH_GAP_CAP 131072UL
+	#define REXLIB_PREFETCH_GAP_CAP (2UL<<16)
 #endif
 
 // Bytes one step of a read asks for before the regions of the step before it
@@ -29,5 +29,5 @@
 //
 // This is per read, so several reads at once hold several of these.
 #ifndef REXLIB_PREFETCH_BYTE_BUDGET
-	#define REXLIB_PREFETCH_BYTE_BUDGET 67108864UL
+	#define REXLIB_PREFETCH_BYTE_BUDGET (4UL<<24)
 #endif
