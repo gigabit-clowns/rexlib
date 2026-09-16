@@ -26,12 +26,12 @@ the same pull request that causes it.
 There are two sides, and which one a change belongs to is the first question
 to ask.
 
-`src/` mirrors rexlib's own structure one directory per namespace, and the
-module it produces mirrors the C++ API: same names, same argument order, same
-required arguments. It does not decide anything. `python/rexlib/` is where the
-API becomes Python: default arguments, implicit context, operators,
-process-wide state. Everything in it is private — a leading underscore on
-every module — and `__init__.py` is the whole public surface.
+`src/` mirrors rexlib's own directory structure, and the module it produces
+mirrors the C++ API: same names, same argument order, same required arguments.
+It does not decide anything. `python/rexlib/` is where the API becomes Python:
+default arguments, implicit context, operators, process-wide state. Everything
+in it is private — a leading underscore on every module — and `__init__.py` is
+the whole public surface.
 
 The rule that follows: if a change could be expressed in either place, it goes
 in `python/rexlib/`. C++ is the expensive side to change and the one that has
@@ -39,8 +39,20 @@ to keep matching rexlib.
 
 ### The binding's modules
 
-`_binding` carries at its top level what rexlib declares in its own namespace
-root, and one submodule per rexlib namespace:
+The submodules follow rexlib's directories, not its namespaces. rexlib has
+four namespaces — `rexlib`, `ops`, `em` and `backends::cpu` — and none of
+`hardware`, `dispatch`, `ndarray`, `numerical` or `functional` is one of
+them: everything under those directories is flat in `namespace rexlib`,
+`rexlib::device` and `rexlib::array` and `rexlib::add` alike. The paths are
+the only place rexlib separates these areas, so the paths are what the
+submodule names come from.
+
+Nothing under `em/` is bound yet. When it is, the same rule decides its module
+path: `em/image/` sits inside `namespace em` the way `core/hardware/` sits
+inside `namespace rexlib`, and the path is what will separate it from the
+areas that come after it. See #143.
+
+`_binding` carries at its top level what the directories below it sit in:
 
 | Module | From | Holds |
 |---|---|---|
