@@ -2,14 +2,13 @@
 
 #include <backends/cpu/plans/reduction_layout_plan.hpp>
 
+#include <backends/cpu/plans/index_operands.hpp>
+
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/layout/broadcast.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 
-#include <rexlib/core/platform/constexpr.hpp>
-
-#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -115,9 +114,63 @@ reduction_layout_plan::reduction_layout_plan(
 	span<const operand_signature> input_signatures,
 	span<const std::size_t> axes,
 	bool keep_dimensions,
-	bool ordered
+	no_index_tag indexing
 )
 	: m_reduction_count(0)
+{
+	plan(output_signatures, input_signatures, axes, keep_dimensions, indexing);
+}
+
+reduction_layout_plan::reduction_layout_plan(
+	span<const operand_signature> output_signatures,
+	span<const operand_signature> input_signatures,
+	span<const std::size_t> axes,
+	bool keep_dimensions,
+	linear_index_tag indexing
+)
+	: m_reduction_count(0)
+{
+	plan(output_signatures, input_signatures, axes, keep_dimensions, indexing);
+}
+
+reduction_layout_plan::reduction_layout_plan(
+	span<const operand_signature> output_signatures,
+	span<const operand_signature> input_signatures,
+	span<const std::size_t> axes,
+	bool keep_dimensions,
+	multidimensional_index_tag indexing
+)
+	: m_reduction_count(0)
+{
+	plan(output_signatures, input_signatures, axes, keep_dimensions, indexing);
+}
+
+const joint_layout&
+reduction_layout_plan::get_kept_layout() const noexcept
+{
+	return m_kept_layout;
+}
+
+const joint_layout&
+reduction_layout_plan::get_reduced_layout() const noexcept
+{
+	return m_reduced_layout;
+}
+
+std::size_t
+reduction_layout_plan::get_reduction_count() const noexcept
+{
+	return m_reduction_count;
+}
+
+template <typename Indexing>
+void reduction_layout_plan::plan(
+	span<const operand_signature> output_signatures,
+	span<const operand_signature> input_signatures,
+	span<const std::size_t> axes,
+	bool keep_dimensions,
+	Indexing indexing
+)
 {
 	if (input_signatures.empty())
 	{
@@ -157,14 +210,6 @@ reduction_layout_plan::reduction_layout_plan(
 		}
 	}
 
-	// A layout varies its first axis fastest, so counting positions the way
-	// an index into the reduced space counts them means listing the reduced
-	// axes last one first.
-	if (ordered)
-	{
-		std::reverse(reduced_axes.begin(), reduced_axes.end());
-	}
-
 	const auto kept_extents = select_axes(extents, kept_axes);
 	const auto reduced_extents = select_axes(extents, reduced_axes);
 
@@ -199,6 +244,7 @@ reduction_layout_plan::reduction_layout_plan(
 			0
 		);
 	}
+	add_index_operands(reduced_builder, make_span(reduced_extents), indexing);
 
 	for (const auto &signature : output_signatures)
 	{
@@ -217,36 +263,9 @@ reduction_layout_plan::reduction_layout_plan(
 		);
 	}
 
-	// Merging adjacent axes leaves the order of the positions untouched;
-	// sorting them for locality does not, so an ordered traversal keeps only
-	// the former.
-	REXLIB_CONST_CONSTEXPR joint_layout_build_flags ordered_flags = {
-		joint_layout_build_flag_bits::enable_coalescing
-	};
-
 	m_kept_layout = kept_builder.build();
-	m_reduced_layout = ordered
-		? reduced_builder.build(ordered_flags)
-		: reduced_builder.build();
+	m_reduced_layout = reduced_builder.build();
 	m_reduction_count = element_count(reduced_extents);
-}
-
-const joint_layout&
-reduction_layout_plan::get_kept_layout() const noexcept
-{
-	return m_kept_layout;
-}
-
-const joint_layout&
-reduction_layout_plan::get_reduced_layout() const noexcept
-{
-	return m_reduced_layout;
-}
-
-std::size_t
-reduction_layout_plan::get_reduction_count() const noexcept
-{
-	return m_reduction_count;
 }
 
 } // namespace cpu

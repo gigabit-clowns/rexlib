@@ -50,6 +50,10 @@ namespace cpu
  * single accumulator arrives at, element by element, in order. See
  * @ref has_reassociable_fold for what saying so commits to.
  *
+ * The bulk members come with and without a trailing index run. Handed one,
+ * they hand the kernel the index of every element they fold; handed none,
+ * they hand it nothing.
+ *
  * @tparam Kernel The element reduction kernel to adapt. Held by value, as
  * every other holder of one does: a reduction kernel is an empty object
  * carrying a rule rather than any state, so owning it costs nothing and
@@ -98,15 +102,41 @@ public:
 	 * @param inputs Pointer to each input at the first element of the run.
 	 * @param strides How far one step along the run moves each input.
 	 * @param count How many elements the run holds.
-	 * @param position Where the run starts in the reduced space.
 	 */
 	template <typename... Accumulators, typename... Ins, typename... Strides>
 	void combine_run(
 		const std::tuple<Accumulators*...> &accumulators,
 		const std::tuple<const Ins*...> &inputs,
 		const std::tuple<Strides...> &strides,
+		std::size_t count
+	) const;
+
+	/**
+	 * @brief Fold a run of consecutive elements into one accumulator set,
+	 * handing the kernel the index of every element.
+	 *
+	 * @tparam Accumulators Accumulator types, one per accumulator.
+	 * @tparam Ins Input element types, one per input.
+	 * @tparam Strides Resolved inner strides of the reduced layout.
+	 * @tparam IndexRun Type of the index run.
+	 * @param accumulators Pointer to each accumulator being folded into.
+	 * @param inputs Pointer to each input at the first element of the run.
+	 * @param strides How far one step along the run moves each input.
+	 * @param count How many elements the run holds.
+	 * @param index_run The index run placed at the first element of the run.
+	 */
+	template <
+		typename... Accumulators,
+		typename... Ins,
+		typename... Strides,
+		typename IndexRun
+	>
+	void combine_run(
+		const std::tuple<Accumulators*...> &accumulators,
+		const std::tuple<const Ins*...> &inputs,
+		const std::tuple<Strides...> &strides,
 		std::size_t count,
-		std::size_t position
+		const IndexRun &index_run
 	) const;
 
 	/**
@@ -123,7 +153,6 @@ public:
 	 * @param reduced_strides How far one step along the run moves each input.
 	 * @param width How many outputs the strip covers.
 	 * @param count How many elements of the reduced space the run holds.
-	 * @param position Where the run starts in the reduced space.
 	 */
 	template <
 		typename... Accumulators,
@@ -137,8 +166,41 @@ public:
 		const std::tuple<KeptStrides...> &kept_strides,
 		const std::tuple<ReducedStrides...> &reduced_strides,
 		std::size_t width,
+		std::size_t count
+	) const;
+
+	/**
+	 * @brief Fold a run of the reduced space into every accumulator of a
+	 * strip, handing the kernel the index of every element.
+	 *
+	 * @tparam Accumulators Accumulator types, one per accumulator.
+	 * @tparam Ins Input element types, one per input.
+	 * @tparam KeptStrides Resolved inner strides of the kept layout.
+	 * @tparam ReducedStrides Resolved inner strides of the reduced layout.
+	 * @tparam IndexRun Type of the index run.
+	 * @param accumulators Pointer to the first accumulator of each strip.
+	 * @param inputs Pointer to each input at the first element of the run.
+	 * @param kept_strides How far one step along the strip moves each input.
+	 * @param reduced_strides How far one step along the run moves each input.
+	 * @param width How many outputs the strip covers.
+	 * @param count How many elements of the reduced space the run holds.
+	 * @param index_run The index run placed at the first element of the run.
+	 */
+	template <
+		typename... Accumulators,
+		typename... Ins,
+		typename... KeptStrides,
+		typename... ReducedStrides,
+		typename IndexRun
+	>
+	void combine_strip(
+		const std::tuple<Accumulators*...> &accumulators,
+		const std::tuple<const Ins*...> &inputs,
+		const std::tuple<KeptStrides...> &kept_strides,
+		const std::tuple<ReducedStrides...> &reduced_strides,
+		std::size_t width,
 		std::size_t count,
-		std::size_t position
+		const IndexRun &index_run
 	) const;
 
 	/**
@@ -169,10 +231,17 @@ private:
 
 	REXLIB_NO_UNIQUE_ADDRESS Kernel m_kernel;
 
+	template <typename Index, typename... Arguments>
+	void seed_element(const Index &index, Arguments &&...arguments) const;
+
+	template <typename Index, typename... Arguments>
+	void combine_element(const Index &index, Arguments &&...arguments) const;
+
 	template <
 		typename... Accumulators,
 		typename... Ins,
 		typename... Strides,
+		typename IndexRun,
 		std::size_t... As,
 		std::size_t... Is
 	>
@@ -181,7 +250,7 @@ private:
 		const std::tuple<const Ins*...> &inputs,
 		const std::tuple<Strides...> &strides,
 		std::size_t count,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::false_type,
 		std::index_sequence<As...>,
 		std::index_sequence<Is...>
@@ -191,6 +260,7 @@ private:
 		typename... Accumulators,
 		typename... Ins,
 		typename... Strides,
+		typename IndexRun,
 		std::size_t... As,
 		std::size_t... Is
 	>
@@ -199,7 +269,7 @@ private:
 		const std::tuple<const Ins*...> &inputs,
 		const std::tuple<Strides...> &strides,
 		std::size_t count,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::true_type,
 		std::index_sequence<As...>,
 		std::index_sequence<Is...>
@@ -214,6 +284,7 @@ private:
 		typename... Ins,
 		typename... KeptStrides,
 		typename... ReducedStrides,
+		typename IndexRun,
 		std::size_t... As,
 		std::size_t... Is
 	>
@@ -224,7 +295,7 @@ private:
 		const std::tuple<ReducedStrides...> &reduced_strides,
 		std::size_t first,
 		std::size_t count,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::integral_constant<std::size_t, Block>,
 		std::index_sequence<As...>,
 		std::index_sequence<Is...>
@@ -237,6 +308,7 @@ private:
 		typename... Ins,
 		typename... KeptStrides,
 		typename... ReducedStrides,
+		typename IndexRun,
 		std::size_t... As,
 		std::size_t... Is
 	>
@@ -248,7 +320,7 @@ private:
 		std::size_t first,
 		std::size_t width,
 		std::size_t count,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::index_sequence<As...>,
 		std::index_sequence<Is...>
 	) const;

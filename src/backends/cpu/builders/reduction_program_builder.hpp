@@ -12,6 +12,7 @@
 #include <backends/cpu/builders/dispatched_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/loops/element_index_tags.hpp>
 #include <backends/cpu/plans/reduction_layout_plan.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
@@ -42,28 +43,28 @@ namespace cpu
  * factory(operation, output_types, input_types), where operation is the
  * concrete @p Op and the type arguments are type_list-s of the resolved
  * element types. The returned kernel describes the fold through the members
- * @ref run_reduction_loop documents. Use default_kernel_factory for stateless
- * kernels, and fold_reduction_kernel for an operation that is no more than a
- * binary fold with a neutral element.
+ * @ref run_indexed_reduction_loop documents. Use default_kernel_factory for
+ * stateless kernels, and fold_reduction_kernel for an operation that is no
+ * more than a binary fold with a neutral element.
  * @tparam TypeDispatcher The type dispatch policy. It resolves the runtime
  * operand data types into compile-time element types. It defaults to
  * interpreting the operation's own typing rule, so a builder only names one
  * when this backend supports a narrower set of element types than the
  * operation itself allows.
- * @tparam Ordered Whether the reduced space must be traversed in the order an
- * index into it counts, which an operation reporting where it found something
- * needs and which costs it the reordering for locality. See
- * @ref reduction_layout_plan.
+ * @tparam Indexing The index the kernel is handed within the reduced space:
+ * nothing for @ref no_index_tag, the linear index of the element for
+ * @ref linear_index_tag, and its coordinates for
+ * @ref multidimensional_index_tag.
  */
 template <
 	typename Op,
 	typename KernelFactory,
 	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>,
-	bool Ordered = false
+	typename Indexing = no_index_tag
 >
 class reduction_program_builder final
 	: public dispatched_program_builder<
-		reduction_program_builder<Op, KernelFactory, TypeDispatcher, Ordered>,
+		reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>,
 		Op,
 		TypeDispatcher
 	>
@@ -114,21 +115,38 @@ private:
 };
 
 /**
- * @brief A reduction builder reporting where it found something.
+ * @brief A reduction builder handing its kernel the linear index of every
+ * element within the reduced space.
  *
- * Names the traversal requirement so that a registration does not have to
- * respell the default type dispatcher merely to reach past it.
+ * Names the index so that a registration does not have to respell the
+ * default type dispatcher merely to reach past it.
  *
  * @tparam Op The operation type this builder targets.
  * @tparam KernelFactory Factory producing the reduction kernel.
  */
 template <typename Op, typename KernelFactory>
-using indexed_reduction_program_builder =
+using linear_indexed_reduction_program_builder =
 	reduction_program_builder<
 		Op,
 		KernelFactory,
 		rule_type_dispatcher<typename Op::type_rule>,
-		true
+		linear_index_tag
+	>;
+
+/**
+ * @brief A reduction builder handing its kernel the coordinates of every
+ * element within the reduced space.
+ *
+ * @tparam Op The operation type this builder targets.
+ * @tparam KernelFactory Factory producing the reduction kernel.
+ */
+template <typename Op, typename KernelFactory>
+using multidimensional_indexed_reduction_program_builder =
+	reduction_program_builder<
+		Op,
+		KernelFactory,
+		rule_type_dispatcher<typename Op::type_rule>,
+		multidimensional_index_tag
 	>;
 
 } // namespace cpu
@@ -151,23 +169,39 @@ using indexed_reduction_program_builder =
 	)
 
 /**
- * @brief Instantiate and auto-register a CPU reduction builder that reports
- * where in the reduced space it found something.
- *
- * Traverses the reduced space in the order an index into it counts, giving up
- * the reordering for locality so that the position the kernel is handed means
- * the same thing whatever the operand's layout.
+ * @brief Instantiate and auto-register a CPU reduction builder whose kernel
+ * is handed the linear index of every element within the reduced space.
  *
  * @param name Identifier of the registration object.
  * @param op The operation type.
  * @param kernel_factory Factory producing the reduction kernel.
  */
-#define REXLIB_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER( \
+#define REXLIB_REGISTER_LINEAR_INDEXED_REDUCTION_PROGRAM_BUILDER( \
 	name, op, kernel_factory \
 ) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rexlib::cpu::indexed_reduction_program_builder<op, kernel_factory> \
+		::rexlib::cpu::linear_indexed_reduction_program_builder< \
+			op, kernel_factory \
+		> \
+	)
+
+/**
+ * @brief Instantiate and auto-register a CPU reduction builder whose kernel
+ * is handed the coordinates of every element within the reduced space.
+ *
+ * @param name Identifier of the registration object.
+ * @param op The operation type.
+ * @param kernel_factory Factory producing the reduction kernel.
+ */
+#define REXLIB_REGISTER_MULTIDIMENSIONAL_INDEXED_REDUCTION_PROGRAM_BUILDER( \
+	name, op, kernel_factory \
+) \
+	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
+		name, \
+		::rexlib::cpu::multidimensional_indexed_reduction_program_builder< \
+			op, kernel_factory \
+		> \
 	)
 
 /**

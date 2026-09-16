@@ -2,7 +2,7 @@
 
 #include <rexlib/ops/creation/arange_operation.hpp>
 
-#include <backends/cpu/builders/sequence_program_builder.hpp>
+#include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/load_store.hpp>
 
 #include <cstddef>
@@ -59,7 +59,7 @@ struct arange_kernel_factory
 
 } // anonymous namespace
 
-REXLIB_REGISTER_SEQUENCE_PROGRAM_BUILDER(
+REXLIB_REGISTER_LINEAR_INDEXED_ELEMENTWISE_PROGRAM_BUILDER(
 	arange,
 	ops::arange_operation,
 	arange_kernel_factory

@@ -132,7 +132,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"extremum_locator_kernel keeps the first place of a tie",
+	"extremum_locator_kernel resolves a tie to the smallest index",
 	"[extremum_locator_kernel]"
 )
 {
@@ -140,6 +140,28 @@ TEST_CASE(
 
 	CHECK( locate(maximum_locator(), values) == 1 );
 	CHECK( locate(minimum_locator(), values) == 0 );
+}
+
+TEST_CASE(
+	"extremum_locator_kernel resolves a tie to the smallest index whatever "
+	"order the elements arrive in",
+	"[extremum_locator_kernel]"
+)
+{
+	// A reduced space walked for locality visits its elements out of index
+	// order, so the smaller index may well arrive last.
+	const auto kernel = maximum_locator();
+	const float seven = 7.0F;
+
+	float best = 0.0F;
+	std::int64_t where = -1;
+	kernel.seed(best, where, &seven, std::size_t(3));
+
+	kernel.combine(best, where, &seven, std::size_t(1));
+	CHECK( where == 1 );
+
+	kernel.combine(best, where, &seven, std::size_t(2));
+	CHECK( where == 1 );
 }
 
 TEST_CASE(
@@ -151,6 +173,23 @@ TEST_CASE(
 
 	CHECK( locate(maximum_locator(), values) == 1 );
 	CHECK( locate(minimum_locator(), values) == 1 );
+}
+
+TEST_CASE(
+	"extremum_locator_kernel resolves a tie between not-a-numbers to the "
+	"smallest index",
+	"[extremum_locator_kernel]"
+)
+{
+	// Neither displaces the other, so they tie like any two equal elements.
+	const auto kernel = minimum_locator();
+
+	float best = 0.0F;
+	std::int64_t where = -1;
+	kernel.seed(best, where, &not_a_number, std::size_t(4));
+	kernel.combine(best, where, &not_a_number, std::size_t(2));
+
+	CHECK( where == 2 );
 }
 
 TEST_CASE(
@@ -182,6 +221,23 @@ TEST_CASE(
 	// A loser leaves both accumulators untouched.
 	kernel.merge(best, where, 1.0F, std::int64_t(5));
 	CHECK( best == 9.0F );
+	CHECK( where == 2 );
+}
+
+TEST_CASE(
+	"extremum_locator_kernel merges a tie into the smallest index whichever "
+	"side holds it",
+	"[extremum_locator_kernel]"
+)
+{
+	const auto kernel = maximum_locator();
+
+	float best = 9.0F;
+	std::int64_t where = 7;
+	kernel.merge(best, where, 9.0F, std::int64_t(2));
+	CHECK( where == 2 );
+
+	kernel.merge(best, where, 9.0F, std::int64_t(5));
 	CHECK( where == 2 );
 }
 

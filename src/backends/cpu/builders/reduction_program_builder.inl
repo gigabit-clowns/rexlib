@@ -22,13 +22,18 @@ namespace cpu
  * @brief Adapts a reduction kernel to the functor_program interface.
  *
  * Stores the kernel and the planned iteration, and on invocation drives
- * run_reduction_loop with them.
+ * run_indexed_reduction_loop with them and the index @p Indexing asks for.
  */
-template <typename F, typename Outputs, typename Inputs>
+template <typename F, typename Indexing, typename Outputs, typename Inputs>
 class reduction_loop_functor;
 
-template <typename F, typename... Outs, typename... Ins>
-class reduction_loop_functor<F, type_list<Outs...>, type_list<Ins...>>
+template <typename F, typename Indexing, typename... Outs, typename... Ins>
+class reduction_loop_functor<
+	F,
+	Indexing,
+	type_list<Outs...>,
+	type_list<Ins...>
+>
 {
 public:
 	reduction_loop_functor(F functor, reduction_layout_plan plan)
@@ -46,13 +51,14 @@ public:
 	{
 		// The grain is settled inside the loop, which is the only place that
 		// knows how deep the fold behind each output is.
-		run_reduction_loop(
+		run_indexed_reduction_loop(
 			m_functor,
 			m_plan.get_kept_layout(),
 			m_plan.get_reduced_layout(),
 			m_plan.get_reduction_count(),
 			outputs,
 			inputs,
+			Indexing(),
 			loop_schedule(pool, 1)
 		);
 	}
@@ -66,10 +72,10 @@ template <
 	typename Op,
 	typename KernelFactory,
 	typename TypeDispatcher,
-	bool Ordered
+	typename Indexing
 >
 reduction_layout_plan
-reduction_program_builder<Op, KernelFactory, TypeDispatcher, Ordered>
+reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 ::make_plan(
 	const Op &operation,
 	span<const operand_signature> output_signatures,
@@ -82,7 +88,7 @@ reduction_program_builder<Op, KernelFactory, TypeDispatcher, Ordered>
 		input_signatures,
 		shape_policy.get_axes(),
 		shape_policy.get_keep_dimensions(),
-		Ordered
+		Indexing()
 	);
 }
 
@@ -90,11 +96,11 @@ template <
 	typename Op,
 	typename KernelFactory,
 	typename TypeDispatcher,
-	bool Ordered
+	typename Indexing
 >
 template <typename... Outs, typename... Ins>
 auto
-reduction_program_builder<Op, KernelFactory, TypeDispatcher, Ordered>
+reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 ::make_loop_functor(
 	const Op &operation,
 	reduction_layout_plan &plan,
@@ -110,6 +116,7 @@ reduction_program_builder<Op, KernelFactory, TypeDispatcher, Ordered>
 
 	return reduction_loop_functor<
 		decltype(kernel),
+		Indexing,
 		type_list<Outs...>,
 		type_list<Ins...>
 	>(std::move(kernel), std::move(plan));

@@ -2,6 +2,7 @@
 
 #include "reduction_element_adaptor.hpp"
 
+#include "element_index.hpp"
 #include "operand_pointers.hpp"
 
 #include <rexlib/core/platform/constexpr.hpp>
@@ -62,8 +63,26 @@ void reduction_element_adaptor<Kernel>::combine_run(
 	const std::tuple<Accumulators*...> &accumulators,
 	const std::tuple<const Ins*...> &inputs,
 	const std::tuple<Strides...> &strides,
+	std::size_t count
+) const
+{
+	combine_run(accumulators, inputs, strides, count, no_index_tag());
+}
+
+template <typename Kernel>
+template <
+	typename... Accumulators,
+	typename... Ins,
+	typename... Strides,
+	typename IndexRun
+>
+inline
+void reduction_element_adaptor<Kernel>::combine_run(
+	const std::tuple<Accumulators*...> &accumulators,
+	const std::tuple<const Ins*...> &inputs,
+	const std::tuple<Strides...> &strides,
 	std::size_t count,
-	std::size_t position
+	const IndexRun &index_run
 ) const
 {
 	combine_run(
@@ -71,10 +90,46 @@ void reduction_element_adaptor<Kernel>::combine_run(
 		inputs,
 		strides,
 		count,
-		position,
+		index_run,
 		lane_folding(),
 		std::index_sequence_for<Accumulators...>(),
 		std::index_sequence_for<Ins...>()
+	);
+}
+
+template <typename Kernel>
+template <typename Index, typename... Arguments>
+inline
+void reduction_element_adaptor<Kernel>::seed_element(
+	const Index &index,
+	Arguments &&...arguments
+) const
+{
+	detail::invoke_with_index(
+		[this] (auto &&...forwarded)
+		{
+			m_kernel.seed(std::forward<decltype(forwarded)>(forwarded)...);
+		},
+		index,
+		std::forward<Arguments>(arguments)...
+	);
+}
+
+template <typename Kernel>
+template <typename Index, typename... Arguments>
+inline
+void reduction_element_adaptor<Kernel>::combine_element(
+	const Index &index,
+	Arguments &&...arguments
+) const
+{
+	detail::invoke_with_index(
+		[this] (auto &&...forwarded)
+		{
+			m_kernel.combine(std::forward<decltype(forwarded)>(forwarded)...);
+		},
+		index,
+		std::forward<Arguments>(arguments)...
 	);
 }
 
@@ -83,6 +138,7 @@ template <
 	typename... Accumulators,
 	typename... Ins,
 	typename... Strides,
+	typename IndexRun,
 	std::size_t... As,
 	std::size_t... Is
 >
@@ -92,7 +148,7 @@ void reduction_element_adaptor<Kernel>::combine_run(
 	const std::tuple<const Ins*...> &inputs,
 	const std::tuple<Strides...> &strides,
 	std::size_t count,
-	std::size_t position,
+	const IndexRun &index_run,
 	std::false_type,
 	std::index_sequence<As...>,
 	std::index_sequence<Is...> input_indices
@@ -103,10 +159,10 @@ void reduction_element_adaptor<Kernel>::combine_run(
 		const auto element =
 			detail::step_pointers(inputs, e, strides, input_indices);
 
-		m_kernel.combine(
+		combine_element(
+			detail::get_kernel_index(detail::advance_index_run(index_run, e)),
 			*std::get<As>(accumulators)...,
-			std::get<Is>(element)...,
-			position + e
+			std::get<Is>(element)...
 		);
 	}
 }
@@ -116,6 +172,7 @@ template <
 	typename... Accumulators,
 	typename... Ins,
 	typename... Strides,
+	typename IndexRun,
 	std::size_t... As,
 	std::size_t... Is
 >
@@ -125,7 +182,7 @@ void reduction_element_adaptor<Kernel>::combine_run(
 	const std::tuple<const Ins*...> &inputs,
 	const std::tuple<Strides...> &strides,
 	std::size_t count,
-	std::size_t position,
+	const IndexRun &index_run,
 	std::true_type,
 	std::index_sequence<As...> accumulator_indices,
 	std::index_sequence<Is...> input_indices
@@ -144,7 +201,7 @@ void reduction_element_adaptor<Kernel>::combine_run(
 			inputs,
 			strides,
 			count,
-			position,
+			index_run,
 			std::false_type(),
 			accumulator_indices,
 			input_indices
@@ -164,10 +221,12 @@ void reduction_element_adaptor<Kernel>::combine_run(
 		const auto element =
 			detail::step_pointers(inputs, lane, strides, input_indices);
 
-		m_kernel.seed(
+		seed_element(
+			detail::get_kernel_index(
+				detail::advance_index_run(index_run, lane)
+			),
 			std::get<As>(parts)[lane]...,
-			std::get<Is>(element)...,
-			position + lane
+			std::get<Is>(element)...
 		);
 	}
 
@@ -185,10 +244,12 @@ void reduction_element_adaptor<Kernel>::combine_run(
 				input_indices
 			);
 
-			m_kernel.combine(
+			combine_element(
+				detail::get_kernel_index(
+					detail::advance_index_run(index_run, e + lane)
+				),
 				std::get<As>(parts)[lane]...,
-				std::get<Is>(element)...,
-				position + e + lane
+				std::get<Is>(element)...
 			);
 		}
 	}
@@ -200,10 +261,10 @@ void reduction_element_adaptor<Kernel>::combine_run(
 		const auto element =
 			detail::step_pointers(inputs, e, strides, input_indices);
 
-		m_kernel.combine(
+		combine_element(
+			detail::get_kernel_index(detail::advance_index_run(index_run, e)),
 			std::get<As>(parts)[0]...,
-			std::get<Is>(element)...,
-			position + e
+			std::get<Is>(element)...
 		);
 	}
 
@@ -235,8 +296,37 @@ void reduction_element_adaptor<Kernel>::combine_strip(
 	const std::tuple<KeptStrides...> &kept_strides,
 	const std::tuple<ReducedStrides...> &reduced_strides,
 	std::size_t width,
+	std::size_t count
+) const
+{
+	combine_strip(
+		accumulators,
+		inputs,
+		kept_strides,
+		reduced_strides,
+		width,
+		count,
+		no_index_tag()
+	);
+}
+
+template <typename Kernel>
+template <
+	typename... Accumulators,
+	typename... Ins,
+	typename... KeptStrides,
+	typename... ReducedStrides,
+	typename IndexRun
+>
+inline
+void reduction_element_adaptor<Kernel>::combine_strip(
+	const std::tuple<Accumulators*...> &accumulators,
+	const std::tuple<const Ins*...> &inputs,
+	const std::tuple<KeptStrides...> &kept_strides,
+	const std::tuple<ReducedStrides...> &reduced_strides,
+	std::size_t width,
 	std::size_t count,
-	std::size_t position
+	const IndexRun &index_run
 ) const
 {
 	REXLIB_CONST_CONSTEXPR std::size_t block =
@@ -259,7 +349,7 @@ void reduction_element_adaptor<Kernel>::combine_strip(
 			0,
 			width,
 			count,
-			position,
+			index_run,
 			as,
 			is
 		);
@@ -276,7 +366,7 @@ void reduction_element_adaptor<Kernel>::combine_strip(
 			reduced_strides,
 			first,
 			count,
-			position,
+			index_run,
 			tag,
 			as,
 			is
@@ -293,7 +383,7 @@ void reduction_element_adaptor<Kernel>::combine_strip(
 			first,
 			width - first,
 			count,
-			position,
+			index_run,
 			as,
 			is
 		);
@@ -307,6 +397,7 @@ template <
 	typename... Ins,
 	typename... KeptStrides,
 	typename... ReducedStrides,
+	typename IndexRun,
 	std::size_t... As,
 	std::size_t... Is
 >
@@ -318,7 +409,7 @@ void reduction_element_adaptor<Kernel>::fold_strip_block(
 	const std::tuple<ReducedStrides...> &reduced_strides,
 	std::size_t first,
 	std::size_t count,
-	std::size_t position,
+	const IndexRun &index_run,
 	std::integral_constant<std::size_t, Block>,
 	std::index_sequence<As...>,
 	std::index_sequence<Is...> input_indices
@@ -349,6 +440,8 @@ void reduction_element_adaptor<Kernel>::fold_strip_block(
 			detail::step_pointers(inputs, e, reduced_strides, input_indices);
 		const auto column =
 			detail::step_pointers(row, first, kept_strides, input_indices);
+		const auto index =
+			detail::get_kernel_index(detail::advance_index_run(index_run, e));
 
 		for (std::size_t b = 0; b < Block; ++b)
 		{
@@ -359,10 +452,10 @@ void reduction_element_adaptor<Kernel>::fold_strip_block(
 				input_indices
 			);
 
-			m_kernel.combine(
+			combine_element(
+				index,
 				std::get<As>(held)[b]...,
-				std::get<Is>(element)...,
-				position + e
+				std::get<Is>(element)...
 			);
 		}
 	}
@@ -385,6 +478,7 @@ template <
 	typename... Ins,
 	typename... KeptStrides,
 	typename... ReducedStrides,
+	typename IndexRun,
 	std::size_t... As,
 	std::size_t... Is
 >
@@ -397,7 +491,7 @@ void reduction_element_adaptor<Kernel>::fold_strip_columns(
 	std::size_t first,
 	std::size_t width,
 	std::size_t count,
-	std::size_t position,
+	const IndexRun &index_run,
 	std::index_sequence<As...>,
 	std::index_sequence<Is...> input_indices
 ) const
@@ -408,6 +502,8 @@ void reduction_element_adaptor<Kernel>::fold_strip_columns(
 			detail::step_pointers(inputs, e, reduced_strides, input_indices);
 		const auto column =
 			detail::step_pointers(row, first, kept_strides, input_indices);
+		const auto index =
+			detail::get_kernel_index(detail::advance_index_run(index_run, e));
 
 		for (std::size_t j = 0; j < width; ++j)
 		{
@@ -418,10 +514,10 @@ void reduction_element_adaptor<Kernel>::fold_strip_columns(
 				input_indices
 			);
 
-			m_kernel.combine(
+			combine_element(
+				index,
 				std::get<As>(accumulators)[first + j]...,
-				std::get<Is>(element)...,
-				position + e
+				std::get<Is>(element)...
 			);
 		}
 	}

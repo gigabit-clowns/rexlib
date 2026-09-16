@@ -5,6 +5,5 @@ target_sources(
 		test_inner_loop_stride_dispatch.cpp
 		test_reduction_element_adaptor.cpp
 		test_reduction_loop.cpp
-		test_sequence_loop.cpp
 		test_strided_pointer_iterator.cpp
 )

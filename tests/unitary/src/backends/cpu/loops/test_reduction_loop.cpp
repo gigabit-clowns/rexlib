@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include <backends/cpu/config.hpp>
+#include <backends/cpu/loops/element_index_tags.hpp>
+#include <backends/cpu/loops/linear_index_run.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
+#include <backends/cpu/loops/multidimensional_index.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
+#include <backends/cpu/plans/index_operands.hpp>
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
@@ -15,12 +20,15 @@
 #include <rexlib/core/span.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <numeric>
 #include <stdexcept>
 #include <tuple>
+#include <type_traits>
 #include <vector>
 
 using namespace rexlib;
@@ -51,6 +59,31 @@ joint_layout make_layout(
 }
 
 /**
+ * @brief Build a layout from extents and one stride vector per operand,
+ * followed by the index operands over those extents.
+ */
+template <typename Indexing>
+joint_layout make_indexed_layout(
+	const std::vector<std::size_t> &extents,
+	const std::vector<std::vector<std::ptrdiff_t>> &strides,
+	Indexing indexing
+)
+{
+	joint_layout_builder builder;
+	builder.set_extents(make_span(extents));
+	for (const auto &operand : strides)
+	{
+		builder.add_operand(
+			make_span(extents),
+			make_span(operand),
+			0
+		);
+	}
+	add_index_operands(builder, make_span(extents), indexing);
+	return builder.build();
+}
+
+/**
  * @brief Tally of the calls a kernel received.
  */
 struct call_log
@@ -60,7 +93,6 @@ struct call_log
 	std::size_t finalizes = 0;
 	std::size_t identities = 0;
 	std::vector<std::size_t> reported_counts;
-	std::vector<std::size_t> positions;
 };
 
 /**
@@ -83,21 +115,15 @@ public:
 		using type = type_list<int>;
 	};
 
-	void seed(int &accumulator, const int *value, std::size_t position) const
+	void seed(int &accumulator, const int *value) const
 	{
 		++m_log->seeds;
-		m_log->positions.push_back(position);
 		accumulator = *value;
 	}
 
-	void combine(
-		int &accumulator,
-		const int *value,
-		std::size_t position
-	) const
+	void combine(int &accumulator, const int *value) const
 	{
 		++m_log->combines;
-		m_log->positions.push_back(position);
 		accumulator += *value;
 	}
 
@@ -139,12 +165,12 @@ struct seeded_only_kernel
 		using type = type_list<int>;
 	};
 
-	void seed(int &accumulator, const int *value, std::size_t) const
+	void seed(int &accumulator, const int *value) const
 	{
 		accumulator = *value;
 	}
 
-	void combine(int &accumulator, const int *value, std::size_t) const
+	void combine(int &accumulator, const int *value) const
 	{
 		accumulator += *value;
 	}
@@ -179,8 +205,7 @@ struct masked_mean_kernel
 		double &total,
 		std::size_t &count,
 		const double *value,
-		const bool *mask,
-		std::size_t
+		const bool *mask
 	) const
 	{
 		total = *mask ? *value : 0.0;
@@ -191,8 +216,7 @@ struct masked_mean_kernel
 		double &total,
 		std::size_t &count,
 		const double *value,
-		const bool *mask,
-		std::size_t
+		const bool *mask
 	) const
 	{
 		if (*mask)
@@ -235,23 +259,13 @@ struct minmax_kernel
 		using type = type_list<int, int>;
 	};
 
-	void seed(
-		int &lowest,
-		int &highest,
-		const int *value,
-		std::size_t
-	) const
+	void seed(int &lowest, int &highest, const int *value) const
 	{
 		lowest = *value;
 		highest = *value;
 	}
 
-	void combine(
-		int &lowest,
-		int &highest,
-		const int *value,
-		std::size_t
-	) const
+	void combine(int &lowest, int &highest, const int *value) const
 	{
 		lowest = std::min(lowest, *value);
 		highest = std::max(highest, *value);
@@ -655,7 +669,7 @@ namespace
  * @brief Sum the inputs, and report where the largest of them sat.
  *
  * Two accumulators of different kinds on purpose: the sum is what floating
- * point reassociation would disturb, and the position is what a tie-break
+ * point reassociation would disturb, and the index is what a tie-break
  * would. Both have to survive the surviving space being shared out.
  */
 struct sum_and_argmax_kernel
@@ -674,12 +688,12 @@ struct sum_and_argmax_kernel
 		std::int64_t &where,
 		double &best,
 		const double *value,
-		std::size_t position
+		std::size_t index
 	) const noexcept
 	{
 		total = *value;
 		best = *value;
-		where = static_cast<std::int64_t>(position);
+		where = static_cast<std::int64_t>(index);
 	}
 
 	void combine(
@@ -687,14 +701,14 @@ struct sum_and_argmax_kernel
 		std::int64_t &where,
 		double &best,
 		const double *value,
-		std::size_t position
+		std::size_t index
 	) const noexcept
 	{
 		total += *value;
 		if (*value > best)
 		{
 			best = *value;
-			where = static_cast<std::int64_t>(position);
+			where = static_cast<std::int64_t>(index);
 		}
 	}
 
@@ -710,7 +724,7 @@ struct sum_and_argmax_kernel
 		total += other_total;
 
 		// Strict, so a tie keeps the incumbent. Merging in ascending slice
-		// order then keeps the earliest position, which is what the serial
+		// order then keeps the earliest index, which is what the serial
 		// fold would have reported.
 		if (other_best > best)
 		{
@@ -760,7 +774,8 @@ TEST_CASE(
 		{ kept },
 		{ { static_cast<std::ptrdiff_t>(reduced) }, { 1 }, { 1 } }
 	);
-	const auto reduced_layout = make_layout({ reduced }, { { 1 } });
+	const auto reduced_layout =
+		make_indexed_layout({ reduced }, { { 1 } }, linear_index_tag());
 
 	const auto fold =
 		[&] (const loop_schedule &schedule,
@@ -769,7 +784,7 @@ TEST_CASE(
 		{
 			totals.assign(kept, 0.0);
 			wheres.assign(kept, -1);
-			run_reduction_loop(
+			run_indexed_reduction_loop(
 				sum_and_argmax_kernel(),
 				kept_layout,
 				reduced_layout,
@@ -778,6 +793,7 @@ TEST_CASE(
 				std::make_tuple(
 					static_cast<const double*>(input.data())
 				),
+				linear_index_tag(),
 				schedule
 			);
 		};
@@ -828,7 +844,7 @@ TEST_CASE(
 	// Both are past the first third of the range, so neither falls in the
 	// first slice however few slices there are, and they fall in different
 	// slices however many. That is what makes the merge order observable:
-	// the two are equal, so which position survives is decided by which
+	// the two are equal, so which index survives is decided by which
 	// partial the merge sees first, and only merging them in the order the
 	// slices sit in keeps the earlier one.
 	std::vector<double> input(reduced, 0.0);
@@ -836,14 +852,15 @@ TEST_CASE(
 	input[reduced - 1] = 1.0;
 
 	const auto kept_layout = make_layout({}, { {}, {}, {} });
-	const auto reduced_layout = make_layout({ reduced }, { { 1 } });
+	const auto reduced_layout =
+		make_indexed_layout({ reduced }, { { 1 } }, linear_index_tag());
 
 	const auto fold =
 		[&] (const loop_schedule &schedule, double &total, std::int64_t &where)
 		{
 			total = 0.0;
 			where = -1;
-			run_reduction_loop(
+			run_indexed_reduction_loop(
 				sum_and_argmax_kernel(),
 				kept_layout,
 				reduced_layout,
@@ -852,6 +869,7 @@ TEST_CASE(
 				std::make_tuple(
 					static_cast<const double*>(input.data())
 				),
+				linear_index_tag(),
 				schedule
 			);
 		};
@@ -877,9 +895,211 @@ TEST_CASE(
 
 		// The first of the equal maxima, which only survives if the partials
 		// are merged in the order the slices sit in rather than the order the
-		// threads happened to finish, and if every slice numbered its
-		// positions from the whole space rather than from itself.
+		// threads happened to finish, and if every slice read its indices off
+		// the whole space rather than off itself.
 		CHECK( where == serial_where );
+	}
+}
+
+TEST_CASE(
+	"run_indexed_reduction_loop should count the linear index row-major "
+	"under a split fold over a space walked column by column",
+	"[reduction_loop]"
+)
+{
+	// A reduced space of two rows stored column by column, so the traversal
+	// walks down each column while the index counts along each row, and deep
+	// enough for the fold to be split. The single maximum has to be reported
+	// where it sits in the rows whatever slice finds it.
+	REXLIB_CONST_CONSTEXPR std::size_t columns = 2*REXLIB_PARALLEL_GRAIN_SIZE;
+	REXLIB_CONST_CONSTEXPR std::size_t row = 1;
+	REXLIB_CONST_CONSTEXPR std::size_t column = columns/2 + 3;
+
+	std::vector<double> input(2*columns, 0.0);
+	input[row + 2*column] = 1.0;
+
+	const auto kept_layout = make_layout({}, { {}, {}, {} });
+	const auto reduced_layout = make_indexed_layout(
+		{ 2, columns },
+		{ { 1, 2 } },
+		linear_index_tag()
+	);
+
+	for (std::size_t workers : { std::size_t(0), std::size_t(3),
+	                             std::size_t(8) })
+	{
+		thread_pool pool(workers);
+
+		double total = 0.0;
+		std::int64_t where = -1;
+		run_indexed_reduction_loop(
+			sum_and_argmax_kernel(),
+			kept_layout,
+			reduced_layout,
+			2*columns,
+			std::make_tuple(&total, &where),
+			std::make_tuple(static_cast<const double*>(input.data())),
+			linear_index_tag(),
+			loop_schedule(pool, 1)
+		);
+
+		INFO( "workers " << workers );
+		CHECK( total == 1.0 );
+		CHECK( where == static_cast<std::int64_t>(row*columns + column) );
+	}
+}
+
+namespace
+{
+
+/**
+ * @brief Counts the elements whose value does not match the index they are
+ * handed.
+ *
+ * Every element holds its index within the reduced space in its two lowest
+ * decimal digits, so any mismatch means the index is wrong.
+ */
+template <typename Index>
+struct index_check_kernel
+{
+	template <typename Outputs, typename Inputs>
+	struct accumulators
+	{
+		using type = type_list<int>;
+	};
+
+	void seed(int &mismatches, const int *value, const Index &index) const
+	{
+		mismatches = mismatch(*value, index);
+	}
+
+	void combine(int &mismatches, const int *value, const Index &index) const
+	{
+		mismatches += mismatch(*value, index);
+	}
+
+	void merge(int &mismatches, const int &other) const
+	{
+		mismatches += other;
+	}
+
+	void finalize(int *result, const int &mismatches, std::size_t) const
+	{
+		*result = mismatches;
+	}
+
+	static int mismatch(int value, std::size_t index)
+	{
+		return value % 100 == static_cast<int>(index) ? 0 : 1;
+	}
+
+	static int mismatch(int value, const multidimensional_index &index)
+	{
+		const auto expected =
+			index.get_rank() == 2
+			? static_cast<int>(10*index[0] + index[1])
+			: -1;
+		return value % 100 == expected ? 0 : 1;
+	}
+};
+
+/**
+ * @brief A 2x3x4 array reduced along its first and last axes, stored with
+ * the strides given, and holding at every element 100 times its kept
+ * coordinate plus a code of its reduced coordinates.
+ */
+template <typename Code>
+std::vector<int> make_reduction_input(
+	const std::array<std::ptrdiff_t, 3> &strides,
+	const Code &code
+)
+{
+	std::vector<int> result(24, -1);
+	for (std::size_t i = 0; i < 2; ++i)
+	{
+		for (std::size_t j = 0; j < 3; ++j)
+		{
+			for (std::size_t k = 0; k < 4; ++k)
+			{
+				const auto offset =
+					static_cast<std::ptrdiff_t>(i)*strides[0] +
+					static_cast<std::ptrdiff_t>(j)*strides[1] +
+					static_cast<std::ptrdiff_t>(k)*strides[2];
+				result[offset] = static_cast<int>(100*j) + code(i, k);
+			}
+		}
+	}
+	return result;
+}
+
+} // anonymous namespace
+
+TEST_CASE(
+	"run_indexed_reduction_loop should hand every element its index within "
+	"the reduced space whatever order that space is walked in",
+	"[reduction_loop]"
+)
+{
+	// Stored row by row, then column by column.
+	const auto strides = GENERATE(
+		std::array<std::ptrdiff_t, 3>{ 12, 4, 1 },
+		std::array<std::ptrdiff_t, 3>{ 1, 2, 6 }
+	);
+
+	const auto kept_layout = make_layout({ 3 }, { { strides[1] }, { 1 } });
+	std::vector<int> output(3, -1);
+
+	SECTION( "the linear index" )
+	{
+		const auto input = make_reduction_input(
+			strides,
+			[] (std::size_t i, std::size_t k)
+			{
+				return static_cast<int>(4*i + k);
+			}
+		);
+
+		run_indexed_reduction_loop(
+			index_check_kernel<std::size_t>(),
+			kept_layout,
+			make_indexed_layout(
+				{ 2, 4 },
+				{ { strides[0], strides[2] } },
+				linear_index_tag()
+			),
+			8,
+			std::make_tuple(output.data()),
+			std::make_tuple(static_cast<const int*>(input.data())),
+			linear_index_tag()
+		);
+
+		CHECK( output == std::vector<int>({ 0, 0, 0 }) );
+	}
+	SECTION( "the coordinates" )
+	{
+		const auto input = make_reduction_input(
+			strides,
+			[] (std::size_t i, std::size_t k)
+			{
+				return static_cast<int>(10*i + k);
+			}
+		);
+
+		run_indexed_reduction_loop(
+			index_check_kernel<multidimensional_index>(),
+			kept_layout,
+			make_indexed_layout(
+				{ 2, 4 },
+				{ { strides[0], strides[2] } },
+				multidimensional_index_tag()
+			),
+			8,
+			std::make_tuple(output.data()),
+			std::make_tuple(static_cast<const int*>(input.data())),
+			multidimensional_index_tag()
+		);
+
+		CHECK( output == std::vector<int>({ 0, 0, 0 }) );
 	}
 }
 
@@ -894,16 +1114,19 @@ struct bulk_call
 	const int *input;
 	std::ptrdiff_t stride;
 	std::size_t extent;
-	std::size_t position;
-	std::ptrdiff_t reduced_stride = 0;
-	std::size_t count = 0;
+	std::ptrdiff_t reduced_stride;
+	std::size_t count;
+	bool indexed;
+	std::size_t first_index;
+	bool contiguous_index;
 };
 
 /**
  * @brief Summing vector kernel that records the bulk calls it receives.
  *
  * Which of `combine_run` and `combine_strip` carries the fold is decided by
- * the layouts, so a kernel that records both is what tells them apart.
+ * the layouts, so a kernel that records both is what tells them apart. Takes
+ * a linear index run or none.
  */
 class recording_vector_kernel
 {
@@ -920,6 +1143,11 @@ public:
 		using type = type_list<int>;
 	};
 
+	void seed(int &accumulator, const int *value) const
+	{
+		accumulator = *value;
+	}
+
 	void seed(int &accumulator, const int *value, std::size_t) const
 	{
 		accumulator = *value;
@@ -930,19 +1158,30 @@ public:
 		const std::tuple<int*> &accumulators,
 		const std::tuple<const int*> &inputs,
 		const std::tuple<Strides...> &strides,
-		std::size_t count,
-		std::size_t position
+		std::size_t count
 	) const
 	{
-		const auto stride = read_stride(strides);
-		const auto *input = std::get<0>(inputs);
-		m_runs->push_back(bulk_call{ input, stride, count, position });
+		fold_run(accumulators, inputs, strides, count, false, 0, false);
+	}
 
-		auto &accumulator = *std::get<0>(accumulators);
-		for (std::size_t e = 0; e < count; ++e)
-		{
-			accumulator += input[static_cast<std::ptrdiff_t>(e)*stride];
-		}
+	template <typename... Strides, typename Stride>
+	void combine_run(
+		const std::tuple<int*> &accumulators,
+		const std::tuple<const int*> &inputs,
+		const std::tuple<Strides...> &strides,
+		std::size_t count,
+		const linear_index_run<Stride> &index_run
+	) const
+	{
+		fold_run(
+			accumulators,
+			inputs,
+			strides,
+			count,
+			true,
+			index_run.get_index(),
+			std::is_same<Stride, contiguous_stride_tag>::value
+		);
 	}
 
 	template <typename... KeptStrides, typename... ReducedStrides>
@@ -952,26 +1191,48 @@ public:
 		const std::tuple<KeptStrides...> &kept_strides,
 		const std::tuple<ReducedStrides...> &reduced_strides,
 		std::size_t width,
-		std::size_t count,
-		std::size_t position
+		std::size_t count
 	) const
 	{
-		const auto kept = read_stride(kept_strides);
-		const auto reduced = read_stride(reduced_strides);
-		const auto *input = std::get<0>(inputs);
-		m_strips->push_back(
-			bulk_call{ input, kept, width, position, reduced, count });
+		fold_strip(
+			accumulators,
+			inputs,
+			kept_strides,
+			reduced_strides,
+			width,
+			count,
+			false,
+			0,
+			false
+		);
+	}
 
-		auto *accumulators_begin = std::get<0>(accumulators);
-		for (std::size_t e = 0; e < count; ++e)
-		{
-			const auto *row = input + static_cast<std::ptrdiff_t>(e)*reduced;
-			for (std::size_t j = 0; j < width; ++j)
-			{
-				accumulators_begin[j] +=
-					row[static_cast<std::ptrdiff_t>(j)*kept];
-			}
-		}
+	template <
+		typename... KeptStrides,
+		typename... ReducedStrides,
+		typename Stride
+	>
+	void combine_strip(
+		const std::tuple<int*> &accumulators,
+		const std::tuple<const int*> &inputs,
+		const std::tuple<KeptStrides...> &kept_strides,
+		const std::tuple<ReducedStrides...> &reduced_strides,
+		std::size_t width,
+		std::size_t count,
+		const linear_index_run<Stride> &index_run
+	) const
+	{
+		fold_strip(
+			accumulators,
+			inputs,
+			kept_strides,
+			reduced_strides,
+			width,
+			count,
+			true,
+			index_run.get_index(),
+			std::is_same<Stride, contiguous_stride_tag>::value
+		);
 	}
 
 	void merge(int &accumulator, const int &other) const
@@ -1002,6 +1263,80 @@ private:
 	static std::ptrdiff_t read_stride(const std::tuple<Strides...> &strides)
 	{
 		return static_cast<std::ptrdiff_t>(std::get<0>(strides));
+	}
+
+	template <typename... Strides>
+	void fold_run(
+		const std::tuple<int*> &accumulators,
+		const std::tuple<const int*> &inputs,
+		const std::tuple<Strides...> &strides,
+		std::size_t count,
+		bool indexed,
+		std::size_t first_index,
+		bool contiguous_index
+	) const
+	{
+		const auto stride = read_stride(strides);
+		const auto *input = std::get<0>(inputs);
+		m_runs->push_back(
+			bulk_call {
+				input,
+				stride,
+				count,
+				0,
+				0,
+				indexed,
+				first_index,
+				contiguous_index
+			}
+		);
+
+		auto &accumulator = *std::get<0>(accumulators);
+		for (std::size_t e = 0; e < count; ++e)
+		{
+			accumulator += input[static_cast<std::ptrdiff_t>(e)*stride];
+		}
+	}
+
+	template <typename... KeptStrides, typename... ReducedStrides>
+	void fold_strip(
+		const std::tuple<int*> &accumulators,
+		const std::tuple<const int*> &inputs,
+		const std::tuple<KeptStrides...> &kept_strides,
+		const std::tuple<ReducedStrides...> &reduced_strides,
+		std::size_t width,
+		std::size_t count,
+		bool indexed,
+		std::size_t first_index,
+		bool contiguous_index
+	) const
+	{
+		const auto kept = read_stride(kept_strides);
+		const auto reduced = read_stride(reduced_strides);
+		const auto *input = std::get<0>(inputs);
+		m_strips->push_back(
+			bulk_call {
+				input,
+				kept,
+				width,
+				reduced,
+				count,
+				indexed,
+				first_index,
+				contiguous_index
+			}
+		);
+
+		auto *accumulators_begin = std::get<0>(accumulators);
+		for (std::size_t e = 0; e < count; ++e)
+		{
+			const auto *row = input + static_cast<std::ptrdiff_t>(e)*reduced;
+			for (std::size_t j = 0; j < width; ++j)
+			{
+				accumulators_begin[j] +=
+					row[static_cast<std::ptrdiff_t>(j)*kept];
+			}
+		}
 	}
 };
 
@@ -1041,7 +1376,7 @@ TEST_CASE(
 		CHECK( kernel.runs()[j].input == input.data() + 3*j + 1 );
 		CHECK( kernel.runs()[j].stride == 1 );
 		CHECK( kernel.runs()[j].extent == 2 );
-		CHECK( kernel.runs()[j].position == 1 );
+		CHECK_FALSE( kernel.runs()[j].indexed );
 	}
 
 	CHECK( output == std::vector<int>({3, 12, 21, 30}) );
@@ -1080,7 +1415,7 @@ TEST_CASE(
 	CHECK( kernel.strips()[0].extent == 3 );
 	CHECK( kernel.strips()[0].reduced_stride == 3 );
 	CHECK( kernel.strips()[0].count == 3 );
-	CHECK( kernel.strips()[0].position == 1 );
+	CHECK_FALSE( kernel.strips()[0].indexed );
 
 	CHECK( output == std::vector<int>({18, 22, 26}) );
 }
@@ -1122,6 +1457,59 @@ TEST_CASE(
 	CHECK( kernel.strips()[0].count == 2 );
 
 	CHECK( output == std::vector<int>({0 + 2 + 4, 6 + 8 + 10}) );
+}
+
+TEST_CASE(
+	"run_indexed_reduction_vector_loop should place the index run at the "
+	"element after the seed",
+	"[reduction_loop]"
+)
+{
+	const auto input = iota_vector(12);
+
+	SECTION( "folding a run" )
+	{
+		std::vector<int> output(4, -1);
+		const recording_vector_kernel kernel;
+		run_indexed_reduction_vector_loop(
+			kernel,
+			make_layout({4}, {{3}, {1}}),
+			make_indexed_layout({3}, {{1}}, linear_index_tag()),
+			3,
+			std::make_tuple(output.data()),
+			std::make_tuple(static_cast<const int*>(input.data())),
+			linear_index_tag()
+		);
+
+		REQUIRE( kernel.runs().size() == 4 );
+		for (const auto &call : kernel.runs())
+		{
+			CHECK( call.indexed );
+			CHECK( call.first_index == 1 );
+			CHECK( call.contiguous_index );
+		}
+		CHECK( output == std::vector<int>({3, 12, 21, 30}) );
+	}
+	SECTION( "folding a strip" )
+	{
+		std::vector<int> output(3, -1);
+		const recording_vector_kernel kernel;
+		run_indexed_reduction_vector_loop(
+			kernel,
+			make_layout({3}, {{1}, {1}}),
+			make_indexed_layout({4}, {{3}}, linear_index_tag()),
+			4,
+			std::make_tuple(output.data()),
+			std::make_tuple(static_cast<const int*>(input.data())),
+			linear_index_tag()
+		);
+
+		REQUIRE( kernel.strips().size() == 1 );
+		CHECK( kernel.strips()[0].indexed );
+		CHECK( kernel.strips()[0].first_index == 1 );
+		CHECK( kernel.strips()[0].contiguous_index );
+		CHECK( output == std::vector<int>({18, 22, 26}) );
+	}
 }
 
 TEST_CASE(

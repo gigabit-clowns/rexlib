@@ -737,3 +737,48 @@ TEST_CASE_METHOD(
 		{ 0, 5 }
 	);
 }
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"argmax and argmin resolve a tie to the smallest index when the reduced "
+	"space is walked out of index order",
+	"[array_reduction][cpu]"
+)
+{
+	// A transposed 3x4x5 array is walked with its first axis innermost, while
+	// its index counts with the last one fastest. Element (a, b, c) of the
+	// view sits at a + 5b + 20c in memory and has the index 12a + 3b + c.
+	std::vector<element_value> values(60, element_value(0));
+
+	// Equal maxima at (1, 0, 0), index 12 and walked second, and at (0, 0, 1),
+	// index 1 and walked twentieth.
+	values[1] = element_value(9);
+	values[20] = element_value(9);
+
+	// Equal minima at (2, 0, 0), index 24 and walked third, and at (0, 1, 0),
+	// index 3 and walked sixth.
+	values[2] = element_value(-9);
+	values[5] = element_value(-9);
+
+	auto operand = make_sequence_operand<float32_t>({ 3, 4, 5 }, values);
+	const array transposed(
+		operand.share_storage(),
+		array_descriptor(
+			operand.get_descriptor().get_layout().transpose(),
+			operand.get_descriptor().get_data_type()
+		)
+	);
+	const const_array_ref operand_ref = transposed;
+
+	const std::vector<std::ptrdiff_t> axes = { 0, 1, 2 };
+	check_values<int64_t>(
+		rexlib::argmax(operand_ref, make_span(axes), false, context, nullptr),
+		{},
+		{ 1 }
+	);
+	check_values<int64_t>(
+		rexlib::argmin(operand_ref, make_span(axes), false, context, nullptr),
+		{},
+		{ 3 }
+	);
+}

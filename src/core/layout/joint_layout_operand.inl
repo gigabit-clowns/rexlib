@@ -2,6 +2,8 @@
 
 #include "joint_layout_operand.hpp"
 
+#include <cstdlib>
+
 namespace rexlib 
 {
 
@@ -42,7 +44,17 @@ int joint_layout_operand::compare_strides(
 		return 0;
 	}
 	
-	return static_cast<int>(stride_i - stride_j);
+	const auto magnitude_i = std::abs(stride_i);
+	const auto magnitude_j = std::abs(stride_j);
+	if (magnitude_i < magnitude_j)
+	{
+		return -1;
+	}
+	if (magnitude_i > magnitude_j)
+	{
+		return 1;
+	}
+	return 0;
 }
 
 inline

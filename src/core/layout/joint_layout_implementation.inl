@@ -69,21 +69,21 @@ void joint_layout_implementation::insert_largest_stride(
 	std::size_t i
 )
 {
-	const auto index1 = i;
-	for (std::size_t j = 1; j <= i; ++j)
+	// An axis the inserted one cannot be compared with is stepped over.
+	auto inserted = i;
+	for (auto candidate = i; candidate > 0; --candidate)
 	{
-		const auto index0 = i - j;
 		const auto comparison = compare_strides(
-			permutation[index0], 
-			permutation[index1]
+			permutation[candidate - 1],
+			permutation[inserted]
 		);
 
 		if (comparison > 0)
 		{
-			std::swap(permutation[index0], permutation[index1]);
-			j = 0;
-		} 
-		else if (comparison < 0) 
+			std::swap(permutation[candidate - 1], permutation[inserted]);
+			inserted = candidate - 1;
+		}
+		else if (comparison < 0)
 		{
 			break;
 		}
@@ -358,12 +358,20 @@ int joint_layout_implementation::compare_strides(
 	}
 
 	// Untie with extents
-	return static_cast<int>(m_extents[i]) - static_cast<int>(m_extents[j]); 
+	if (m_extents[i] < m_extents[j])
+	{
+		return -1;
+	}
+	if (m_extents[i] > m_extents[j])
+	{
+		return 1;
+	}
+	return 0;
 }
 
 inline
 void joint_layout_implementation::swap_axes(
-	std::size_t i, 
+	std::size_t i,
 	std::size_t j
 ) noexcept
 {
@@ -379,13 +387,20 @@ void joint_layout_implementation::permute_axes(
 	span<std::size_t> permutation
 )
 {
-	// Permute the extents using cycle decomposition
+	// permutation[k] names the axis that ends up at position k. Each cycle is
+	// walked once, every position it settles being marked as its own source.
 	const auto n = permutation.size();
-	for (size_t i = 0; i < n; ++i) {
-		while (permutation[i] != i) {
-			swap_axes(i, permutation[i]);
-			std::swap(permutation[i], permutation[permutation[i]]);
+	for (std::size_t first = 0; first < n; ++first)
+	{
+		auto position = first;
+		while (permutation[position] != first)
+		{
+			const auto source = permutation[position];
+			swap_axes(position, source);
+			permutation[position] = position;
+			position = source;
 		}
+		permutation[position] = position;
 	}
 }
 

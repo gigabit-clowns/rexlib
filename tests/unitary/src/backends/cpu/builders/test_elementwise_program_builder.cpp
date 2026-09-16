@@ -6,6 +6,7 @@
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/load_store.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
+#include <backends/cpu/loops/multidimensional_index.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
@@ -256,4 +257,97 @@ TEST_CASE(
 		),
 		std::invalid_argument
 	);
+}
+
+namespace
+{
+
+// An operation writing its output from nothing but where each element sits.
+REXLIB_DECLARE_OPERATION(
+	test_coordinates,
+	ops::ops_component,
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS(),
+	ops::elementwise_operation_shape_policy,
+	ops::nullary_free_rule<real_arithmetic_type_domain>
+);
+
+// Writes the coordinates of an element as the digits of a base ten number.
+struct coordinate_kernel
+{
+	template <typename T>
+	void operator()(
+		T *result,
+		const multidimensional_index &index
+	) const noexcept
+	{
+		*result = static_cast<T>(10*index[0] + index[1]);
+	}
+};
+
+using coordinate_builder = multidimensional_indexed_elementwise_program_builder<
+	test_coordinates_operation,
+	default_kernel_factory<coordinate_kernel>
+>;
+
+} // namespace
+
+TEST_CASE(
+	"elementwise_program_builder hands the kernel the coordinates of every "
+	"element of an output stored column by column",
+	"[elementwise_program_builder]"
+)
+{
+	const coordinate_builder builder;
+	const test_coordinates_operation operation;
+	cpu::command_queue queue(get_serial_pool());
+
+	// Element (i, j) of a 2x3 output stored column by column sits at i + 2j.
+	const std::array<std::size_t, 2> extents { 2, 3 };
+	const std::array<std::ptrdiff_t, 2> strides { 1, 2 };
+	const std::vector<operand_signature> outputs {
+		operand_signature(
+			strided_layout::make_custom_layout(
+				make_span(extents),
+				make_span(strides)
+			),
+			numerical_type::float32,
+			nullptr
+		)
+	};
+	const std::vector<operand_signature> inputs;
+
+	const auto program = builder.build(
+		operation,
+		make_span(outputs),
+		make_span(inputs),
+		queue,
+		nullptr
+	);
+	REQUIRE( program != nullptr );
+
+	const auto result_buffer = make_float32_buffer(6);
+	const std::vector<std::shared_ptr<buffer>> output_operands {
+		result_buffer
+	};
+	const std::vector<std::shared_ptr<const buffer>> input_operands;
+	const std::vector<std::shared_ptr<buffer>> scratch_operands;
+
+	auto &executable = dynamic_cast<cpu::program&>(*program);
+	executable.execute(
+		make_span(output_operands),
+		make_span(input_operands),
+		make_span(scratch_operands),
+		*get_serial_pool()
+	);
+
+	const auto *result_ptr =
+		static_cast<const float*>(result_buffer->get_host_ptr());
+	for (std::size_t i = 0; i < 2; ++i)
+	{
+		for (std::size_t j = 0; j < 3; ++j)
+		{
+			CHECK( result_ptr[i + 2*j] == static_cast<float>(10*i + j) );
+		}
+	}
 }

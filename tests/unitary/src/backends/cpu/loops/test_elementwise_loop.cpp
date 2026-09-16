@@ -3,8 +3,14 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
+#include <backends/cpu/loops/element_index_tags.hpp>
 #include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
+#include <backends/cpu/loops/linear_index_run.hpp>
+#include <backends/cpu/loops/loop_schedule.hpp>
+#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/plans/index_operands.hpp>
 
+#include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/span.hpp>
@@ -13,6 +19,7 @@
 #include <cstddef>
 #include <memory>
 #include <tuple>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -1003,4 +1010,483 @@ TEST_CASE(
 
 	CHECK( visit_range(layout, 0, 1, 1) ==
 	       std::vector<std::ptrdiff_t>{ 5 } );
+}
+
+namespace
+{
+
+/**
+ * @brief Build a layout over array operands, followed by the index operands
+ * over the axes of those arrays.
+ *
+ * The axes are listed as an array lists them, and the builder is left free to
+ * reorder and coalesce them.
+ */
+template <typename Indexing>
+joint_layout make_indexed_layout(
+	const std::vector<std::size_t> &extents,
+	const std::vector<operand_spec> &operands,
+	Indexing indexing
+)
+{
+	joint_layout_builder builder;
+	builder.set_extents(make_span(extents));
+	for (const auto &operand : operands)
+	{
+		builder.add_operand(
+			make_span(extents),
+			make_span(operand.strides),
+			operand.offset
+		);
+	}
+	add_index_operands(builder, make_span(extents), indexing);
+	return builder.build();
+}
+
+struct linear_index_writer
+{
+	void operator()(std::ptrdiff_t *destination, std::size_t index) const
+	{
+		*destination = static_cast<std::ptrdiff_t>(index);
+	}
+};
+
+/**
+ * @brief Writes the coordinates of an element as the digits of a base 100
+ * number, the first axis being the most significant.
+ */
+struct coordinate_writer
+{
+	void operator()(
+		std::ptrdiff_t *destination,
+		const multidimensional_index &index
+	) const
+	{
+		std::ptrdiff_t value = 0;
+		for (std::size_t axis = 0; axis < index.get_rank(); ++axis)
+		{
+			value = value*100 + static_cast<std::ptrdiff_t>(index[axis]);
+		}
+		*destination = value;
+	}
+};
+
+struct linear_vector_call
+{
+	std::size_t count;
+	std::size_t first_index;
+	std::size_t second_index;
+	bool contiguous_stride;
+
+	bool operator==(const linear_vector_call &other) const noexcept
+	{
+		return
+			count == other.count &&
+			first_index == other.first_index &&
+			second_index == other.second_index &&
+			contiguous_stride == other.contiguous_stride;
+	}
+};
+
+/**
+ * @brief Vector kernel recording where the linear index run of every vector
+ * starts, where it is one element later, and how its stride was resolved.
+ */
+class linear_vector_recorder
+{
+public:
+	explicit linear_vector_recorder(std::vector<linear_vector_call> &calls)
+		: m_calls(&calls)
+	{
+	}
+
+	template <typename Pointers, typename Strides, typename Stride>
+	void operator()(
+		const Pointers& /*pointers*/,
+		const Strides& /*strides*/,
+		std::size_t count,
+		const linear_index_run<Stride> &index_run
+	) const
+	{
+		m_calls->push_back(
+			linear_vector_call {
+				count,
+				index_run.get_index(),
+				index_run.advanced(1).get_index(),
+				std::is_same<Stride, contiguous_stride_tag>::value
+			}
+		);
+	}
+
+private:
+	std::vector<linear_vector_call> *m_calls;
+};
+
+} // anonymous namespace
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand every element of a contiguous "
+	"operand its linear index",
+	"[indexed_elementwise_loop]"
+)
+{
+	std::vector<std::ptrdiff_t> destination(5, -1);
+
+	run_indexed_elementwise_loop(
+		linear_index_writer(),
+		make_indexed_layout({ 5 }, { { { 1 }, 0 } }, linear_index_tag()),
+		linear_index_tag(),
+		destination.data()
+	);
+
+	CHECK( destination == std::vector<std::ptrdiff_t>{ 0, 1, 2, 3, 4 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should count the linear index from the "
+	"first element whatever the stride",
+	"[indexed_elementwise_loop]"
+)
+{
+	// Every third element is written, and the ones in between are left alone.
+	std::vector<std::ptrdiff_t> destination(7, -1);
+
+	run_indexed_elementwise_loop(
+		linear_index_writer(),
+		make_indexed_layout({ 3 }, { { { 3 }, 0 } }, linear_index_tag()),
+		linear_index_tag(),
+		destination.data()
+	);
+
+	CHECK( destination ==
+	       std::vector<std::ptrdiff_t>{ 0, -1, -1, 1, -1, -1, 2 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should count the linear index backwards "
+	"through memory on a negative stride",
+	"[indexed_elementwise_loop]"
+)
+{
+	std::vector<std::ptrdiff_t> destination(4, -1);
+
+	run_indexed_elementwise_loop(
+		linear_index_writer(),
+		make_indexed_layout({ 4 }, { { { -1 }, 3 } }, linear_index_tag()),
+		linear_index_tag(),
+		destination.data()
+	);
+
+	CHECK( destination == std::vector<std::ptrdiff_t>{ 3, 2, 1, 0 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should write nothing to an empty operand",
+	"[indexed_elementwise_loop]"
+)
+{
+	std::vector<std::ptrdiff_t> destination(3, -1);
+
+	run_indexed_elementwise_loop(
+		linear_index_writer(),
+		make_indexed_layout({ 0 }, { { { 1 }, 0 } }, linear_index_tag()),
+		linear_index_tag(),
+		destination.data()
+	);
+
+	CHECK( destination == std::vector<std::ptrdiff_t>{ -1, -1, -1 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand out every linear index exactly "
+	"once",
+	"[indexed_elementwise_loop]"
+)
+{
+	std::vector<std::size_t> visits;
+	const auto recorder =
+		[&visits] (std::ptrdiff_t *destination, std::size_t index)
+		{
+			visits.push_back(index);
+			*destination = 0;
+		};
+
+	std::vector<std::ptrdiff_t> destination(4, -1);
+	run_indexed_elementwise_loop(
+		recorder,
+		make_indexed_layout({ 4 }, { { { 1 }, 0 } }, linear_index_tag()),
+		linear_index_tag(),
+		destination.data()
+	);
+
+	CHECK( visits == std::vector<std::size_t>{ 0, 1, 2, 3 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should count the linear index in row-major "
+	"order over a column-major operand",
+	"[indexed_elementwise_loop]"
+)
+{
+	// Element (i, j) of a 2x3 array stored column by column sits at i + 2j,
+	// and its linear index is 3i + j.
+	std::vector<std::ptrdiff_t> destination(6, -1);
+
+	run_indexed_elementwise_loop(
+		linear_index_writer(),
+		make_indexed_layout({ 2, 3 }, { { { 1, 2 }, 0 } }, linear_index_tag()),
+		linear_index_tag(),
+		destination.data()
+	);
+
+	CHECK( destination == std::vector<std::ptrdiff_t>{ 0, 3, 1, 4, 2, 5 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand the index after the pointer of "
+	"every operand",
+	"[indexed_elementwise_loop]"
+)
+{
+	std::vector<std::ptrdiff_t> destination(6, -1);
+	const std::vector<std::ptrdiff_t> row = { 10, 20, 30 };
+
+	run_indexed_elementwise_loop(
+		[] (
+			std::ptrdiff_t *result,
+			const std::ptrdiff_t *value,
+			std::size_t index
+		)
+		{
+			*result = *value + static_cast<std::ptrdiff_t>(index);
+		},
+		make_indexed_layout(
+			{ 2, 3 },
+			{ { { 3, 1 }, 0 }, { { 0, 1 }, 0 } },
+			linear_index_tag()
+		),
+		linear_index_tag(),
+		destination.data(),
+		row.data()
+	);
+
+	CHECK( destination ==
+	       std::vector<std::ptrdiff_t>{ 10, 21, 32, 13, 24, 35 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand every element of a column-major "
+	"operand its coordinates",
+	"[indexed_elementwise_loop]"
+)
+{
+	// Element (i, j, k) of a 2x3x4 array stored column by column sits at
+	// i + 2j + 6k.
+	std::vector<std::ptrdiff_t> destination(24, -1);
+
+	run_indexed_elementwise_loop(
+		coordinate_writer(),
+		make_indexed_layout(
+			{ 2, 3, 4 },
+			{ { { 1, 2, 6 }, 0 } },
+			multidimensional_index_tag()
+		),
+		multidimensional_index_tag(),
+		destination.data()
+	);
+
+	for (std::size_t i = 0; i < 2; ++i)
+	{
+		for (std::size_t j = 0; j < 3; ++j)
+		{
+			for (std::size_t k = 0; k < 4; ++k)
+			{
+				CHECK(
+					destination[i + 2*j + 6*k] ==
+					static_cast<std::ptrdiff_t>(10000*i + 100*j + k)
+				);
+			}
+		}
+	}
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand a coordinate of zero along an "
+	"axis of extent one",
+	"[indexed_elementwise_loop]"
+)
+{
+	// Element (i, 0, k) of a 3x1x2 row-major array sits at 2i + k.
+	std::vector<std::ptrdiff_t> destination(6, -1);
+
+	run_indexed_elementwise_loop(
+		coordinate_writer(),
+		make_indexed_layout(
+			{ 3, 1, 2 },
+			{ { { 2, 2, 1 }, 0 } },
+			multidimensional_index_tag()
+		),
+		multidimensional_index_tag(),
+		destination.data()
+	);
+
+	CHECK( destination ==
+	       std::vector<std::ptrdiff_t>{ 0, 1, 10000, 10001, 20000, 20001 } );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand the element of a rank zero "
+	"operand coordinates of rank zero",
+	"[indexed_elementwise_loop]"
+)
+{
+	std::size_t rank = 1;
+	std::ptrdiff_t destination = -1;
+
+	run_indexed_elementwise_loop(
+		[&rank] (std::ptrdiff_t *result, const multidimensional_index &index)
+		{
+			rank = index.get_rank();
+			*result = 7;
+		},
+		make_indexed_layout({}, { { {}, 0 } }, multidimensional_index_tag()),
+		multidimensional_index_tag(),
+		&destination
+	);
+
+	CHECK( rank == 0 );
+	CHECK( destination == 7 );
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_loop should hand out the same indices however "
+	"many threads run it",
+	"[indexed_elementwise_loop]"
+)
+{
+	// Column-major, so that the traversal does not visit the elements in the
+	// order of their linear index.
+	const std::vector<std::size_t> extents = { 17, 13 };
+	const std::vector<operand_spec> operands = { { { 1, 17 }, 0 } };
+	const std::size_t count = 17 * 13;
+
+	thread_pool pool(4);
+	const loop_schedule schedule(pool, 1);
+
+	std::vector<std::ptrdiff_t> linear(count, -1);
+	std::vector<std::ptrdiff_t> coordinates(count, -1);
+	run_indexed_elementwise_loop(
+		linear_index_writer(),
+		make_indexed_layout(extents, operands, linear_index_tag()),
+		linear_index_tag(),
+		schedule,
+		linear.data()
+	);
+	run_indexed_elementwise_loop(
+		coordinate_writer(),
+		make_indexed_layout(extents, operands, multidimensional_index_tag()),
+		multidimensional_index_tag(),
+		schedule,
+		coordinates.data()
+	);
+
+	for (std::size_t i = 0; i < 17; ++i)
+	{
+		for (std::size_t j = 0; j < 13; ++j)
+		{
+			const auto element = i + 17*j;
+			CHECK( linear[element] == static_cast<std::ptrdiff_t>(13*i + j) );
+			CHECK(
+				coordinates[element] ==
+				static_cast<std::ptrdiff_t>(100*i + j)
+			);
+		}
+	}
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_vector_loop should place the linear index at the "
+	"first element of every vector",
+	"[indexed_elementwise_vector_loop]"
+)
+{
+	auto buffer = make_buffer();
+	std::vector<linear_vector_call> calls;
+
+	SECTION( "a row-major operand, walked as a single vector" )
+	{
+		run_indexed_elementwise_vector_loop(
+			linear_vector_recorder(calls),
+			make_indexed_layout(
+				{ 2, 3 },
+				{ { { 3, 1 }, 0 } },
+				linear_index_tag()
+			),
+			linear_index_tag(),
+			buffer.data()
+		);
+
+		const std::vector<linear_vector_call> expected = {
+			{ 6, 0, 1, true }
+		};
+		CHECK( calls == expected );
+	}
+	SECTION( "a column-major operand, walked column by column" )
+	{
+		run_indexed_elementwise_vector_loop(
+			linear_vector_recorder(calls),
+			make_indexed_layout(
+				{ 2, 3 },
+				{ { { 1, 2 }, 0 } },
+				linear_index_tag()
+			),
+			linear_index_tag(),
+			buffer.data()
+		);
+
+		const std::vector<linear_vector_call> expected = {
+			{ 2, 0, 3, false },
+			{ 2, 1, 4, false },
+			{ 2, 2, 5, false }
+		};
+		CHECK( calls == expected );
+	}
+}
+
+TEST_CASE(
+	"run_indexed_elementwise_vector_loop should place the coordinates at the "
+	"first element of every vector",
+	"[indexed_elementwise_vector_loop]"
+)
+{
+	// The vectors of a column-major 2x3 array are its columns.
+	auto buffer = make_buffer();
+	std::vector<std::vector<std::size_t>> calls;
+
+	run_indexed_elementwise_vector_loop(
+		[&calls] (
+			const auto& /*pointers*/,
+			const auto& /*strides*/,
+			std::size_t count,
+			const multidimensional_index &index
+		)
+		{
+			const auto last = index.advanced(count - 1);
+			calls.push_back({ count, index[0], index[1], last[0], last[1] });
+		},
+		make_indexed_layout(
+			{ 2, 3 },
+			{ { { 1, 2 }, 0 } },
+			multidimensional_index_tag()
+		),
+		multidimensional_index_tag(),
+		buffer.data()
+	);
+
+	const std::vector<std::vector<std::size_t>> expected = {
+		{ 2, 0, 0, 1, 0 },
+		{ 2, 0, 1, 1, 1 },
+		{ 2, 0, 2, 1, 2 }
+	};
+	CHECK( calls == expected );
 }

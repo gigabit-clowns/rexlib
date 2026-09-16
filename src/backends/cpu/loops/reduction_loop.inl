@@ -2,6 +2,7 @@
 
 #include "reduction_loop.hpp"
 
+#include "element_index.hpp"
 #include "inner_loop_stride_dispatch.hpp"
 #include "loop_schedule.hpp"
 #include "operand_pointers.hpp"
@@ -130,7 +131,8 @@ std::ptrdiff_t get_inner_stride(
  * Everything a kernel does to accumulators lives here: seeding them, folding
  * elements into them, merging another thread's into them, and finishing them
  * into outputs. It knows nothing of how either space is traversed; it is
- * handed pointers already placed and told how many elements follow.
+ * handed pointers and an index run already placed and told how many elements
+ * follow.
  *
  * A strip is at most @ref capacity outputs wide, which is what keeps the
  * accumulators in cache while the elements feeding them stream past.
@@ -202,14 +204,25 @@ public:
 	 *
 	 * Seeding from an element, rather than from an identity, is what lets a
 	 * fold with no neutral element be expressed the same way as one that has.
+	 *
+	 * @param inputs Operand pointers at the element.
+	 * @param width How many outputs the strip covers.
+	 * @param index_run The index run placed at the element.
 	 */
+	template <typename IndexRun>
 	void seed(
 		const input_pointers &inputs,
 		std::size_t width,
-		std::size_t position
+		const IndexRun &index_run
 	)
 	{
-		seed(inputs, width, position, accumulator_indices(), input_indices());
+		seed(
+			inputs,
+			width,
+			index_run,
+			accumulator_indices(),
+			input_indices()
+		);
 	}
 
 	/**
@@ -218,20 +231,21 @@ public:
 	 * @param inputs Operand pointers at the first element of the run.
 	 * @param width How many outputs the strip covers.
 	 * @param count How many elements the run holds.
-	 * @param position Where the run starts in the reduced space.
+	 * @param index_run The index run placed at the first element of the run.
 	 */
+	template <typename IndexRun>
 	void combine(
 		const input_pointers &inputs,
 		std::size_t width,
 		std::size_t count,
-		std::size_t position
+		const IndexRun &index_run
 	)
 	{
 		combine(
 			inputs,
 			width,
 			count,
-			position,
+			index_run,
 			strip_outermost(),
 			accumulator_indices()
 		);
@@ -293,8 +307,8 @@ public:
 	 * @brief Fold every chunk's partials for this strip into it.
 	 *
 	 * Ascending in the chunk index, never in the order the chunks happened to
-	 * finish: merge keeps the earlier of two equally good answers, so the
-	 * order it sees is what decides which one that is.
+	 * finish, so that a merge keeping the earlier of two equally good answers
+	 * keeps the one a single thread would have kept.
 	 *
 	 * @param buffers The partials every chunk left.
 	 * @param slot Where this strip sits within one chunk's partials.
@@ -368,15 +382,16 @@ private:
 		);
 	}
 
-	template <std::size_t... As, std::size_t... Is>
+	template <typename IndexRun, std::size_t... As, std::size_t... Is>
 	void seed(
 		const input_pointers &inputs,
 		std::size_t width,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::index_sequence<As...>,
 		std::index_sequence<Is...>
 	)
 	{
+		const auto index = get_kernel_index(index_run);
 		for (std::size_t j = 0; j < width; ++j)
 		{
 			const auto element = step_pointers(
@@ -386,10 +401,16 @@ private:
 				input_indices()
 			);
 
-			m_kernel.seed(
+			invoke_with_index(
+				[this] (auto &&...arguments)
+				{
+					m_kernel.seed(
+						std::forward<decltype(arguments)>(arguments)...
+					);
+				},
+				index,
 				std::get<As>(m_tiles)[j]...,
-				std::get<Is>(element)...,
-				position
+				std::get<Is>(element)...
 			);
 		}
 	}
@@ -403,12 +424,12 @@ private:
 	 * shaped for. Keeping the strip inside here would turn that stream into a
 	 * gather one strip apart, which costs an order of magnitude.
 	 */
-	template <std::size_t... As>
+	template <typename IndexRun, std::size_t... As>
 	void combine(
 		const input_pointers &inputs,
 		std::size_t width,
 		std::size_t count,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::true_type,
 		std::index_sequence<As...>
 	)
@@ -422,12 +443,18 @@ private:
 				input_indices()
 			);
 
-			m_kernel.combine_run(
+			invoke_with_index(
+				[this] (auto &&...arguments)
+				{
+					m_kernel.combine_run(
+						std::forward<decltype(arguments)>(arguments)...
+					);
+				},
+				index_run,
 				std::make_tuple(&std::get<As>(m_tiles)[j]...),
 				column,
 				m_reduced_strides,
-				count,
-				position
+				count
 			);
 		}
 	}
@@ -441,24 +468,30 @@ private:
 	 * of the reduced space into every accumulator of the strip, the two walks
 	 * running side by side.
 	 */
-	template <std::size_t... As>
+	template <typename IndexRun, std::size_t... As>
 	void combine(
 		const input_pointers &inputs,
 		std::size_t width,
 		std::size_t count,
-		std::size_t position,
+		const IndexRun &index_run,
 		std::false_type,
 		std::index_sequence<As...>
 	)
 	{
-		m_kernel.combine_strip(
+		invoke_with_index(
+			[this] (auto &&...arguments)
+			{
+				m_kernel.combine_strip(
+					std::forward<decltype(arguments)>(arguments)...
+				);
+			},
+			index_run,
 			std::make_tuple(std::get<As>(m_tiles).data()...),
 			inputs,
 			m_kept_strides,
 			m_reduced_strides,
 			width,
-			count,
-			position
+			count
 		);
 	}
 
@@ -588,6 +621,7 @@ private:
  */
 template <
 	typename Kernel,
+	typename IndexRun,
 	typename Outputs,
 	typename Inputs,
 	typename KeptStrides,
@@ -597,6 +631,7 @@ class reduction_loop_runner;
 
 template <
 	typename Kernel,
+	typename IndexRun,
 	typename... Outs,
 	typename... Ins,
 	typename... KeptStrides,
@@ -604,6 +639,7 @@ template <
 >
 class reduction_loop_runner<
 	Kernel,
+	IndexRun,
 	std::tuple<Outs*...>,
 	std::tuple<const Ins*...>,
 	std::tuple<KeptStrides...>,
@@ -633,7 +669,8 @@ public:
 		const output_pointers &outputs,
 		const input_pointers &inputs,
 		const kept_strides &kept_inner_strides,
-		const reduced_strides &reduced_inner_strides
+		const reduced_strides &reduced_inner_strides,
+		const IndexRun &index_run
 	)
 		: m_kept_layout(kept_layout)
 		, m_reduced_layout(reduced_layout)
@@ -642,6 +679,7 @@ public:
 		, m_inputs(inputs)
 		, m_kept_strides(kept_inner_strides)
 		, m_reduced_strides(reduced_inner_strides)
+		, m_index_run(index_run)
 		, m_output_strides(read_output_strides(kept_layout))
 		, m_accumulators(
 			kernel,
@@ -893,11 +931,8 @@ private:
 	/**
 	 * @brief Fold `[begin, end)` of the reduced space into the current strip.
 	 *
-	 * The positions handed to the kernel are absolute within the reduced
-	 * space, never relative to the slice. An operation reporting where it
-	 * found something depends on it, and so does the merge that follows: the
-	 * earlier of two equally good answers is only the earlier one if both were
-	 * numbered from the same origin.
+	 * The index handed to the kernel is read off the reduced cursor, so it is
+	 * absolute within the reduced space whatever slice is being folded.
 	 */
 	void fold_slice(
 		const input_pointers &inputs,
@@ -912,23 +947,22 @@ private:
 
 		auto run = m_reduced_run;
 		auto remaining = end - begin;
-		auto position = begin;
 
 		// The first element seeds the accumulators, the rest of its run is
 		// folded in behind it.
 		const auto first = current_reduced_pointers(inputs);
-		m_accumulators.seed(first, width, position);
+		const auto first_index = current_index_run();
+		m_accumulators.seed(first, width, first_index);
 
 		auto count = std::min(run, remaining) - 1;
 		fold_run(
 			step_pointers(first, 1, m_reduced_strides, input_indices()),
 			width,
 			count,
-			position + 1
+			advance_index_run(first_index, 1)
 		);
 
 		++count;
-		position += count;
 		remaining -= count;
 
 		while (remaining)
@@ -941,10 +975,9 @@ private:
 				current_reduced_pointers(inputs),
 				width,
 				count,
-				position
+				current_index_run()
 			);
 
-			position += count;
 			remaining -= count;
 		}
 	}
@@ -960,7 +993,7 @@ private:
 		const input_pointers &base,
 		std::size_t width,
 		std::size_t count,
-		std::size_t position
+		const IndexRun &index_run
 	)
 	{
 		const auto limit = accumulators_type::preferred_run_length(width);
@@ -973,7 +1006,7 @@ private:
 				step_pointers(base, done, m_reduced_strides, input_indices()),
 				width,
 				pass,
-				position + done
+				advance_index_run(index_run, done)
 			);
 			done += pass;
 		}
@@ -987,6 +1020,12 @@ private:
 		return offset_pointers(inputs, offsets.data(), input_indices());
 	}
 
+	IndexRun current_index_run() const
+	{
+		const auto offsets = m_reduced_cursor.get_offsets();
+		return rebase_index_run(m_index_run, offsets.data() + input_count);
+	}
+
 	const joint_layout &m_kept_layout;
 	const joint_layout &m_reduced_layout;
 	std::size_t m_reduction_count;
@@ -994,6 +1033,7 @@ private:
 	input_pointers m_inputs;
 	kept_strides m_kept_strides;
 	reduced_strides m_reduced_strides;
+	IndexRun m_index_run;
 	output_stride_array m_output_strides;
 	accumulators_type m_accumulators;
 	joint_cursor m_kept_cursor;
@@ -1008,18 +1048,21 @@ namespace detail
 {
 
 /**
- * @brief Resolve both layouts' inner strides to tags and hand them over.
+ * @brief Resolve both layouts' inner strides to tags, and the index run of
+ * the reduced layout, and hand them over.
  *
  * Only the inputs take part: the outputs are walked through strides read once
- * into an array, so they cost nothing here. The two dispatches together
- * instantiate @p callable up to `3^(2N)` times, where N is the input count.
+ * into an array, so they cost nothing here. The dispatches together
+ * instantiate @p callable up to `3^(2N)` times, where N is the input count,
+ * and twice that for a linear index.
  */
-template <typename Callable, std::size_t... Is>
+template <typename Callable, typename Indexing, std::size_t... Is>
 inline
 void dispatch_reduction_strides(
 	const joint_layout &kept_layout,
 	const joint_layout &reduced_layout,
 	std::index_sequence<Is...> input_indices,
+	Indexing indexing,
 	const Callable &callable
 )
 {
@@ -1029,7 +1072,15 @@ void dispatch_reduction_strides(
 			dispatch_inner_loop_strides(
 				[&] (auto reduced_strides)
 				{
-					callable(kept_strides, reduced_strides);
+					dispatch_index_run(
+						[&] (auto index_run)
+						{
+							callable(kept_strides, reduced_strides, index_run);
+						},
+						reduced_layout,
+						sizeof...(Is),
+						indexing
+					);
 				},
 				reduced_layout,
 				input_indices
@@ -1041,20 +1092,29 @@ void dispatch_reduction_strides(
 }
 
 /**
- * @brief Build a runner for a set of operands and resolved strides.
+ * @brief Build a runner for a set of operands, resolved strides and index
+ * run.
  *
- * Spares every call site the runner's five template arguments, which are
+ * Spares every call site the runner's six template arguments, which are
  * deducible from what it is handed.
  */
 template <
 	typename Kernel,
+	typename IndexRun,
 	typename Outputs,
 	typename Inputs,
 	typename KeptStrides,
 	typename ReducedStrides
 >
 inline
-reduction_loop_runner<Kernel, Outputs, Inputs, KeptStrides, ReducedStrides>
+reduction_loop_runner<
+	Kernel,
+	IndexRun,
+	Outputs,
+	Inputs,
+	KeptStrides,
+	ReducedStrides
+>
 make_reduction_runner(
 	const Kernel &kernel,
 	const joint_layout &kept_layout,
@@ -1063,7 +1123,8 @@ make_reduction_runner(
 	const Outputs &outputs,
 	const Inputs &inputs,
 	const KeptStrides &kept_strides,
-	const ReducedStrides &reduced_strides
+	const ReducedStrides &reduced_strides,
+	const IndexRun &index_run
 )
 {
 	return {
@@ -1074,7 +1135,8 @@ make_reduction_runner(
 		outputs,
 		inputs,
 		kept_strides,
-		reduced_strides
+		reduced_strides,
+		index_run
 	};
 }
 
@@ -1124,7 +1186,8 @@ template <
 	typename Outputs,
 	typename Inputs,
 	typename KeptStrides,
-	typename ReducedStrides
+	typename ReducedStrides,
+	typename IndexRun
 >
 inline
 void run_reduction_fold_split(
@@ -1136,6 +1199,7 @@ void run_reduction_fold_split(
 	const Inputs &inputs,
 	const KeptStrides &kept_strides,
 	const ReducedStrides &reduced_strides,
+	const IndexRun &index_run,
 	std::size_t kept_count,
 	std::size_t chunk_count,
 	const loop_schedule &schedule
@@ -1151,7 +1215,8 @@ void run_reduction_fold_split(
 			outputs,
 			inputs,
 			kept_strides,
-			reduced_strides
+			reduced_strides,
+			index_run
 		);
 	};
 
@@ -1198,7 +1263,13 @@ void run_reduction_fold_split(
  * thread would fold them, so nothing has to be merged and the answer is
  * unchanged down to the last bit.
  */
-template <typename Kernel, typename Outputs, typename Inputs, std::size_t... Is>
+template <
+	typename Kernel,
+	typename Outputs,
+	typename Inputs,
+	typename Indexing,
+	std::size_t... Is
+>
 inline
 void run_reduction_output_split(
 	const Kernel &kernel,
@@ -1207,6 +1278,7 @@ void run_reduction_output_split(
 	std::size_t reduction_count,
 	const Outputs &outputs,
 	const Inputs &inputs,
+	Indexing indexing,
 	std::size_t kept_count,
 	const loop_schedule &schedule,
 	std::index_sequence<Is...> input_indices
@@ -1227,7 +1299,8 @@ void run_reduction_output_split(
 				kept_layout,
 				reduced_layout,
 				input_indices,
-				[&] (auto kept_strides, auto reduced_strides)
+				indexing,
+				[&] (auto kept_strides, auto reduced_strides, auto index_run)
 				{
 					// A runner of its own per chunk, so that the cursors and
 					// the accumulators it carries live on the stack of
@@ -1240,7 +1313,8 @@ void run_reduction_output_split(
 						outputs,
 						inputs,
 						kept_strides,
-						reduced_strides
+						reduced_strides,
+						index_run
 					).reduce_range(begin, end);
 				}
 			);
@@ -1284,6 +1358,65 @@ void run_reduction_vector_loop(
 	const loop_schedule &schedule
 )
 {
+	run_indexed_reduction_vector_loop(
+		kernel,
+		kept_layout,
+		reduced_layout,
+		reduction_count,
+		outputs,
+		inputs,
+		no_index_tag(),
+		schedule
+	);
+}
+
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+inline
+void run_indexed_reduction_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing
+)
+{
+	run_indexed_reduction_vector_loop(
+		kernel,
+		kept_layout,
+		reduced_layout,
+		reduction_count,
+		outputs,
+		inputs,
+		indexing,
+		loop_schedule()
+	);
+}
+
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+inline
+void run_indexed_reduction_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing,
+	const loop_schedule &schedule
+)
+{
 	REXLIB_CONST_CONSTEXPR std::index_sequence_for<Ins...> input_indices {};
 
 	const auto kept_count = kept_layout.compute_element_count();
@@ -1302,6 +1435,7 @@ void run_reduction_vector_loop(
 			reduction_count,
 			outputs,
 			inputs,
+			indexing,
 			kept_count,
 			schedule,
 			input_indices
@@ -1315,7 +1449,8 @@ void run_reduction_vector_loop(
 		kept_layout,
 		reduced_layout,
 		input_indices,
-		[&] (auto kept_strides, auto reduced_strides)
+		indexing,
+		[&] (auto kept_strides, auto reduced_strides, auto index_run)
 		{
 			detail::run_reduction_fold_split(
 				kernel,
@@ -1326,6 +1461,7 @@ void run_reduction_vector_loop(
 				inputs,
 				kept_strides,
 				reduced_strides,
+				index_run,
 				kept_count,
 				chunk_count,
 				schedule
@@ -1368,13 +1504,73 @@ void run_reduction_loop(
 	const loop_schedule &schedule
 )
 {
-	run_reduction_vector_loop(
+	run_indexed_reduction_loop(
+		kernel,
+		kept_layout,
+		reduced_layout,
+		reduction_count,
+		outputs,
+		inputs,
+		no_index_tag(),
+		schedule
+	);
+}
+
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+inline
+void run_indexed_reduction_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing
+)
+{
+	run_indexed_reduction_loop(
+		kernel,
+		kept_layout,
+		reduced_layout,
+		reduction_count,
+		outputs,
+		inputs,
+		indexing,
+		loop_schedule()
+	);
+}
+
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+inline
+void run_indexed_reduction_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing,
+	const loop_schedule &schedule
+)
+{
+	run_indexed_reduction_vector_loop(
 		make_reduction_element_adaptor(kernel),
 		kept_layout,
 		reduced_layout,
 		reduction_count,
 		outputs,
 		inputs,
+		indexing,
 		schedule
 	);
 }
