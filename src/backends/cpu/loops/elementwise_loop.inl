@@ -2,6 +2,7 @@
 
 #include "elementwise_loop.hpp"
 
+#include "element_index.hpp"
 #include "inner_loop_stride_dispatch.hpp"
 #include "loop_schedule.hpp"
 #include "strided_pointer_iterator.hpp"
@@ -61,7 +62,7 @@ void run_elementwise_outer_loop_impl(
 		// never more than the range asks for, so that two walkers splitting
 		// that range visit between them exactly what one walker visits alone.
 		const auto count = std::min(run, remaining);
-		inner_loop(std::get<Is>(pointers) + offsets[Is]..., count);
+		inner_loop(ite, count, std::get<Is>(pointers) + offsets[Is]...);
 
 		remaining -= count;
 		if (remaining == 0)
@@ -93,28 +94,39 @@ struct all_contiguous
 	>::type;
 };
 
-template <typename Op, typename... Pointers, std::size_t... Is>
+template <
+	typename Op,
+	typename IndexRun,
+	typename... Pointers,
+	std::size_t... Is
+>
 inline
 void run_contiguous_element_loop(
 	const Op &op,
 	const std::tuple<Pointers*...> &pointers,
+	const IndexRun &index_run,
 	std::size_t count,
 	std::index_sequence<Is...>
 )
 {
 	static_assert(
-		sizeof...(Is) == sizeof...(Pointers), 
+		sizeof...(Is) == sizeof...(Pointers),
 		"Index count and pointer count must match."
 	);
 
 	for (std::size_t i = 0; i < count; ++i)
 	{
-		op((std::get<Is>(pointers) + i)...);
+		invoke_with_index(
+			op,
+			get_kernel_index(advance_index_run(index_run, i)),
+			(std::get<Is>(pointers) + i)...
+		);
 	}
 }
 
 template <
 	typename Op,
+	typename IndexRun,
 	typename... Pointers,
 	typename... Strides,
 	std::size_t... Is
@@ -124,16 +136,17 @@ void run_generic_element_loop(
 	const Op &op,
 	const std::tuple<Pointers*...> &pointers,
 	const std::tuple<Strides...> &strides,
+	const IndexRun &index_run,
 	std::size_t count,
 	std::index_sequence<Is...>
 )
 {
 	static_assert(
-		sizeof...(Is) == sizeof...(Pointers), 
+		sizeof...(Is) == sizeof...(Pointers),
 		"Index count and pointer count must match,"
 	);
 	static_assert(
-		sizeof...(Is) == sizeof...(Strides), 
+		sizeof...(Is) == sizeof...(Strides),
 		"Index count and stride count must match."
 	);
 
@@ -145,56 +158,80 @@ void run_generic_element_loop(
 	);
 	for (std::size_t i = 0; i < count; ++i)
 	{
-		op(std::get<Is>(iterators).data()...);
+		invoke_with_index(
+			op,
+			get_kernel_index(advance_index_run(index_run, i)),
+			std::get<Is>(iterators).data()...
+		);
 		(void) std::initializer_list<int> {
 			(++std::get<Is>(iterators), 0)...
 		};
 	}
 }
 
-template <typename Op, typename... Pointers, typename... Strides>
+template <
+	typename Op,
+	typename IndexRun,
+	typename... Pointers,
+	typename... Strides
+>
 inline
 void dispatch_element_loop(
 	const Op &op,
 	const std::tuple<Pointers*...> &pointers,
 	const std::tuple<Strides...> &/*strides*/,
+	const IndexRun &index_run,
 	std::size_t count,
 	std::true_type
 )
 {
 	run_contiguous_element_loop(
-		op, 
-		pointers, 
-		count, 
+		op,
+		pointers,
+		index_run,
+		count,
 		std::index_sequence_for<Pointers...>()
 	);
 }
 
-template <typename Op, typename... Pointers, typename... Strides>
+template <
+	typename Op,
+	typename IndexRun,
+	typename... Pointers,
+	typename... Strides
+>
 inline
 void dispatch_element_loop(
 	const Op &op,
 	const std::tuple<Pointers*...> &pointers,
 	const std::tuple<Strides...> &strides,
+	const IndexRun &index_run,
 	std::size_t count,
 	std::false_type
 )
 {
 	run_generic_element_loop(
-		op, 
-		pointers, 
-		strides, 
-		count, 
+		op,
+		pointers,
+		strides,
+		index_run,
+		count,
 		std::index_sequence_for<Pointers...>()
 	);
 }
 
-template <typename Op, typename... Pointers, typename... Strides>
+template <
+	typename Op,
+	typename IndexRun,
+	typename... Pointers,
+	typename... Strides
+>
 inline
 void run_element_loop(
 	const Op &op,
 	const std::tuple<Pointers*...> &pointers,
 	const std::tuple<Strides...> &strides,
+	const IndexRun &index_run,
 	std::size_t count
 )
 {
@@ -202,8 +239,100 @@ void run_element_loop(
 		op,
 		pointers,
 		strides,
+		index_run,
 		count,
 		typename all_contiguous<Strides...>::type()
+	);
+}
+
+/**
+ * @brief Walk one chunk of a layout's iteration space at vector granularity.
+ *
+ * The kernel is invoked as `kernel(pointers, strides, count, index_run)`,
+ * the index run being handed over even when it is @ref no_index_tag.
+ */
+template <typename Kernel, typename Indexing, typename... Pointers>
+inline
+void run_indexed_vector_chunk(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	Indexing indexing,
+	std::size_t begin,
+	std::size_t end,
+	Pointers... pointers
+)
+{
+	dispatch_inner_loop_strides(
+		[&] (auto strides)
+		{
+			dispatch_index_run(
+				[&] (auto index_run)
+				{
+					run_elementwise_outer_loop_impl(
+						[&] (
+							const joint_cursor &cursor,
+							std::size_t count,
+							Pointers... vector_pointers
+						)
+						{
+							kernel(
+								std::make_tuple(vector_pointers...),
+								strides,
+								count,
+								rebase_index_run(
+									index_run,
+									cursor.get_offsets().data() +
+									sizeof...(Pointers)
+								)
+							);
+						},
+						layout,
+						begin,
+						end,
+						std::make_tuple(pointers...),
+						std::index_sequence_for<Pointers...>()
+					);
+				},
+				layout,
+				sizeof...(Pointers),
+				indexing
+			);
+		},
+		layout,
+		std::integral_constant<std::size_t, sizeof...(Pointers)>()
+	);
+}
+
+template <typename Kernel, typename Indexing, typename... Pointers>
+inline
+void run_indexed_vector_loop_impl(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	Indexing indexing,
+	const loop_schedule &schedule,
+	Pointers... pointers
+)
+{
+	// The split goes outside the stride dispatch, not inside it. Inside, the
+	// body handed to the schedule would be a distinct type per stride
+	// combination and would instantiate the whole of the pool's type erasure
+	// 3^N times over; outside, it is instantiated once. The cost is resolving
+	// the strides once per chunk rather than once per loop, which is a switch
+	// over one stride per operand against a chunk of at least one grain.
+	schedule.run(
+		layout.compute_element_count(),
+		[&kernel, &layout, indexing, &pointers...]
+		(std::size_t begin, std::size_t end)
+		{
+			run_indexed_vector_chunk(
+				kernel,
+				layout,
+				indexing,
+				begin,
+				end,
+				pointers...
+			);
+		}
 	);
 }
 
@@ -237,7 +366,14 @@ void run_elementwise_outer_loop_range(
 )
 {
 	detail::run_elementwise_outer_loop_impl(
-		std::forward<InnerLoop>(inner_loop),
+		[&inner_loop] (
+			const joint_cursor& /*cursor*/,
+			std::size_t count,
+			Pointers... vector_pointers
+		)
+		{
+			inner_loop(vector_pointers..., count);
+		},
 		layout,
 		begin,
 		end,
@@ -266,39 +402,63 @@ void run_elementwise_vector_loop(
 	Pointers... pointers
 )
 {
-	// The split goes outside the stride dispatch, not inside it. Inside, the
-	// body handed to the schedule would be a distinct type per stride
-	// combination and would instantiate the whole of the pool's type erasure
-	// 3^N times over; outside, it is instantiated once. The cost is resolving
-	// the strides once per chunk rather than once per loop, which is a switch
-	// over one stride per operand against a chunk of at least one grain.
-	schedule.run(
-		layout.compute_element_count(),
-		[&kernel, &layout, &pointers...] (std::size_t begin, std::size_t end)
+	run_indexed_elementwise_vector_loop(
+		kernel,
+		layout,
+		no_index_tag(),
+		schedule,
+		pointers...
+	);
+}
+
+template <typename Kernel, typename Indexing, typename... Pointers>
+inline
+void run_indexed_elementwise_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	Indexing indexing,
+	Pointers... pointers
+)
+{
+	run_indexed_elementwise_vector_loop(
+		kernel,
+		layout,
+		indexing,
+		loop_schedule(),
+		pointers...
+	);
+}
+
+template <typename Kernel, typename Indexing, typename... Pointers>
+inline
+void run_indexed_elementwise_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	Indexing indexing,
+	const loop_schedule &schedule,
+	Pointers... pointers
+)
+{
+	detail::run_indexed_vector_loop_impl(
+		[&kernel] (
+			const auto &vector_pointers,
+			const auto &strides,
+			std::size_t count,
+			const auto &index_run
+		)
 		{
-			dispatch_inner_loop_strides(
-				[begin, end, &kernel, &layout, &pointers...] (auto strides)
-				{
-					run_elementwise_outer_loop_range(
-						[&kernel, &strides]
-						(Pointers... vector_pointers, std::size_t count)
-						{
-							kernel(
-								std::make_tuple(vector_pointers...),
-								strides,
-								count
-							);
-						},
-						layout,
-						begin,
-						end,
-						pointers...
-					);
-				},
-				layout,
-				std::integral_constant<std::size_t, sizeof...(Pointers)>()
+			detail::invoke_with_index(
+				kernel,
+				index_run,
+				vector_pointers,
+				strides,
+				count
 			);
-		}
+		},
+		layout,
+		indexing,
+		schedule,
+		pointers...
 	);
 }
 
@@ -322,12 +482,61 @@ void run_elementwise_loop(
 	Pointers... pointers
 )
 {
-	run_elementwise_vector_loop(
-		[&op] (const auto &pointers, const auto &strides, std::size_t count)
+	run_indexed_elementwise_loop(
+		op,
+		layout,
+		no_index_tag(),
+		schedule,
+		pointers...
+	);
+}
+
+template <typename Op, typename Indexing, typename... Pointers>
+inline
+void run_indexed_elementwise_loop(
+	const Op &op,
+	const joint_layout &layout,
+	Indexing indexing,
+	Pointers... pointers
+)
+{
+	run_indexed_elementwise_loop(
+		op,
+		layout,
+		indexing,
+		loop_schedule(),
+		pointers...
+	);
+}
+
+template <typename Op, typename Indexing, typename... Pointers>
+inline
+void run_indexed_elementwise_loop(
+	const Op &op,
+	const joint_layout &layout,
+	Indexing indexing,
+	const loop_schedule &schedule,
+	Pointers... pointers
+)
+{
+	detail::run_indexed_vector_loop_impl(
+		[&op] (
+			const auto &vector_pointers,
+			const auto &strides,
+			std::size_t count,
+			const auto &index_run
+		)
 		{
-			detail::run_element_loop(op, pointers, strides, count);
+			detail::run_element_loop(
+				op,
+				vector_pointers,
+				strides,
+				index_run,
+				count
+			);
 		},
 		layout,
+		indexing,
 		schedule,
 		pointers...
 	);

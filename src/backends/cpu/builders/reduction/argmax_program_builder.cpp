@@ -20,7 +20,7 @@ namespace
  *
  * The same ordering amax takes the largest element by, asked which of two
  * elements won rather than for the element itself: a not-a-number wins, and
- * a tie keeps the first place it was seen.
+ * a tie goes to the smallest index.
  */
 struct maximum_order
 {
@@ -33,7 +33,7 @@ struct maximum_order
 
 } // anonymous namespace
 
-REXLIB_REGISTER_INDEXED_REDUCTION_PROGRAM_BUILDER(
+REXLIB_REGISTER_LINEAR_INDEXED_REDUCTION_PROGRAM_BUILDER(
 	argmax,
 	ops::argmax_operation,
 	default_kernel_factory<extremum_locator_kernel<maximum_order>>

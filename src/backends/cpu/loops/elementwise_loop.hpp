@@ -251,6 +251,145 @@ void run_elementwise_loop(
 	Pointers... pointers
 );
 
+/**
+ * @brief Run an elementwise loop over a layout at 1D-vector granularity,
+ * handing the kernel the index of every vector.
+ *
+ * As @ref run_elementwise_vector_loop, over a layout that also holds the index
+ * operands @ref add_index_operands adds for @p indexing, after the operands
+ * @p pointers point into. The kernel is invoked as:
+ * @code
+ * kernel(pointers, strides, count, index_run)
+ * @endcode
+ * where `index_run` is at the first element of the vector, and
+ * `index_run.advanced(i)` at its element `i`. It is a
+ * `linear_index_run<Stride>` for @ref linear_index_tag, its stride resolved
+ * to `contiguous_stride_tag` when it is one and left as a runtime
+ * `std::ptrdiff_t` otherwise, and a @ref multidimensional_index for
+ * @ref multidimensional_index_tag. For @ref no_index_tag it is left out.
+ *
+ * @tparam Kernel Functor invoked per 1D vector.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @tparam Pointers CV-qualified operand pointers, one per operand.
+ * @param kernel The functor to be invoked for each 1D vector.
+ * @param layout Access layout. Its operands are the ones @p pointers point
+ * into, followed by the index operands of @p indexing.
+ * @param indexing The index to hand the kernel.
+ * @param pointers The base pointer of each operand.
+ *
+ * @warning A linear index doubles the stride combinations @p kernel is
+ * instantiated for, to up to `2*3^N`.
+ *
+ * @see run_elementwise_vector_loop
+ * @see add_index_operands
+ */
+template <typename Kernel, typename Indexing, typename... Pointers>
+void run_indexed_elementwise_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	Indexing indexing,
+	Pointers... pointers
+);
+
+/**
+ * @brief Run an elementwise loop over a layout at 1D-vector granularity,
+ * handing the kernel the index of every vector, spread over the threads a
+ * schedule names.
+ *
+ * As the unscheduled overload, split as @ref run_elementwise_vector_loop
+ * splits. The index a vector is handed does not depend on the split.
+ *
+ * @tparam Kernel Functor invoked per 1D vector.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @tparam Pointers CV-qualified operand pointers, one per operand.
+ * @param kernel The functor to be invoked for each 1D vector.
+ * @param layout Access layout. Its operands are the ones @p pointers point
+ * into, followed by the index operands of @p indexing.
+ * @param indexing The index to hand the kernel.
+ * @param schedule The threads to spread the loop over, and the smallest slice
+ * worth handing to one of them.
+ * @param pointers The base pointer of each operand.
+ *
+ * @see run_indexed_elementwise_vector_loop
+ * @see loop_schedule
+ */
+template <typename Kernel, typename Indexing, typename... Pointers>
+void run_indexed_elementwise_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &layout,
+	Indexing indexing,
+	const loop_schedule &schedule,
+	Pointers... pointers
+);
+
+/**
+ * @brief Run an elementwise loop over a layout, handing the operation the
+ * index of every element.
+ *
+ * As @ref run_elementwise_loop, over a layout that also holds the index
+ * operands @ref add_index_operands adds for @p indexing, after the operands
+ * @p pointers point into. For each element, @p op is invoked as:
+ * @code
+ * op(current0, current1, ..., index)
+ * @endcode
+ * where `index` is the linear index of the element as a `std::size_t` for
+ * @ref linear_index_tag, and its @ref multidimensional_index for
+ * @ref multidimensional_index_tag. For @ref no_index_tag it is left out.
+ *
+ * @tparam Op Operation invoked once per element.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @tparam Pointers CV-qualified operand pointers, one per operand.
+ * @param op The operation to be applied to every element.
+ * @param layout Access layout. Its operands are the ones @p pointers point
+ * into, followed by the index operands of @p indexing.
+ * @param indexing The index to hand the operation.
+ * @param pointers The base pointer of each operand.
+ *
+ * @see run_elementwise_loop
+ * @see add_index_operands
+ */
+template <typename Op, typename Indexing, typename... Pointers>
+void run_indexed_elementwise_loop(
+	const Op &op,
+	const joint_layout &layout,
+	Indexing indexing,
+	Pointers... pointers
+);
+
+/**
+ * @brief Run an elementwise loop over a layout, handing the operation the
+ * index of every element, spread over the threads a schedule names.
+ *
+ * As the unscheduled overload, split as @ref run_elementwise_loop splits. The
+ * index an element is handed does not depend on the split.
+ *
+ * @tparam Op Operation invoked once per element.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @tparam Pointers CV-qualified operand pointers, one per operand.
+ * @param op The operation to be applied to every element.
+ * @param layout Access layout. Its operands are the ones @p pointers point
+ * into, followed by the index operands of @p indexing.
+ * @param indexing The index to hand the operation.
+ * @param schedule The threads to spread the loop over, and the smallest slice
+ * worth handing to one of them.
+ * @param pointers The base pointer of each operand.
+ *
+ * @see run_indexed_elementwise_loop
+ * @see loop_schedule
+ */
+template <typename Op, typename Indexing, typename... Pointers>
+void run_indexed_elementwise_loop(
+	const Op &op,
+	const joint_layout &layout,
+	Indexing indexing,
+	const loop_schedule &schedule,
+	Pointers... pointers
+);
+
 } // namespace cpu
 } // namespace rexlib
 

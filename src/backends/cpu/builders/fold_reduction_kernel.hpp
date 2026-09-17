@@ -96,25 +96,14 @@ public:
 		>;
 	};
 
-	// The trailing position says where in the reduced space the element
-	// sits. Only an operation reporting a location has any use for it, so
-	// it is ignored here and the compiler drops the arithmetic behind it.
 	template <typename Accumulator, typename T>
-	void seed(
-		Accumulator &accumulator,
-		const T *value,
-		std::size_t /*position*/
-	) const noexcept
+	void seed(Accumulator &accumulator, const T *value) const noexcept
 	{
 		accumulator = Lift::template apply<Accumulator>(load(value));
 	}
 
 	template <typename Accumulator, typename T>
-	void combine(
-		Accumulator &accumulator,
-		const T *value,
-		std::size_t /*position*/
-	) const noexcept
+	void combine(Accumulator &accumulator, const T *value) const noexcept
 	{
 		accumulator = m_fold(
 			accumulator,

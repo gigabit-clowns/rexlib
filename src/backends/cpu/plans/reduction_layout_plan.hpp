@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <backends/cpu/loops/element_index_tags.hpp>
+
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/span.hpp>
 
@@ -55,14 +57,7 @@ public:
 	 * @param axes The axes being reduced, ascending and without repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes with
 	 * an extent of one instead of dropping them.
-	 * @param ordered Whether the reduced space must be traversed in a
-	 * defined order, namely the one an index into it would count in: last
-	 * axis fastest, as an array of the reduced extents is laid out. An
-	 * operation that reports where in that space it found something cannot
-	 * let the traversal be permuted for locality, so it asks for this and
-	 * gives up the reordering. Adjacent axes are still merged, which
-	 * preserves the order, and for an operand already laid out that way the
-	 * order asked for is the locality-optimal one anyway.
+	 * @param indexing No index operand is added to either layout.
 	 *
 	 * @throws std::invalid_argument When there is no input, when an output
 	 * does not have the rank the axes and @p keep_dimensions imply, or when
@@ -75,7 +70,65 @@ public:
 		span<const operand_signature> input_signatures,
 		span<const std::size_t> axes,
 		bool keep_dimensions,
-		bool ordered = false
+		no_index_tag indexing = no_index_tag()
+	);
+
+	/**
+	 * @brief Plan the iteration of a reduction handing its kernel the linear
+	 * index of every element within the reduced space.
+	 *
+	 * As the overload taking @ref no_index_tag, with the linear index operand
+	 * added to the reduced layout after the inputs. The reduced axes, in
+	 * ascending order, are the axes of its index space.
+	 *
+	 * @param output_signatures Signatures of the outputs.
+	 * @param input_signatures Signatures of the inputs. At least one is
+	 * needed.
+	 * @param axes The axes being reduced, ascending and without repetitions.
+	 * @param keep_dimensions Whether the outputs kept the reduced axes.
+	 * @param indexing Selects the linear index.
+	 *
+	 * @throws std::invalid_argument When there is no input, when an output
+	 * does not have the rank the axes and @p keep_dimensions imply, or when
+	 * the inputs cannot be broadcast together.
+	 * @throws std::out_of_range When an axis is not within the broadcast
+	 * rank.
+	 */
+	reduction_layout_plan(
+		span<const operand_signature> output_signatures,
+		span<const operand_signature> input_signatures,
+		span<const std::size_t> axes,
+		bool keep_dimensions,
+		linear_index_tag indexing
+	);
+
+	/**
+	 * @brief Plan the iteration of a reduction handing its kernel the
+	 * coordinates of every element within the reduced space.
+	 *
+	 * As the overload taking @ref no_index_tag, with one index operand per
+	 * reduced axis added to the reduced layout after the inputs, in ascending
+	 * axis order.
+	 *
+	 * @param output_signatures Signatures of the outputs.
+	 * @param input_signatures Signatures of the inputs. At least one is
+	 * needed.
+	 * @param axes The axes being reduced, ascending and without repetitions.
+	 * @param keep_dimensions Whether the outputs kept the reduced axes.
+	 * @param indexing Selects the coordinates.
+	 *
+	 * @throws std::invalid_argument When there is no input, when an output
+	 * does not have the rank the axes and @p keep_dimensions imply, or when
+	 * the inputs cannot be broadcast together.
+	 * @throws std::out_of_range When an axis is not within the broadcast
+	 * rank.
+	 */
+	reduction_layout_plan(
+		span<const operand_signature> output_signatures,
+		span<const operand_signature> input_signatures,
+		span<const std::size_t> axes,
+		bool keep_dimensions,
+		multidimensional_index_tag indexing
 	);
 
 	reduction_layout_plan(const reduction_layout_plan &other) = delete;
@@ -100,12 +153,12 @@ public:
 	/**
 	 * @brief Get the layout over the axes being folded away.
 	 *
-	 * Its axes are sorted for locality and merged where possible, unless an
-	 * ordered traversal was asked for.
+	 * Its axes are sorted for locality and merged where possible.
 	 *
-	 * Its operands are the inputs, in order. The operand offsets belong to
-	 * the kept layout alone, so this one starts every operand at zero and
-	 * only ever displaces the pointer the kept layout has already placed.
+	 * Its operands are the inputs, in order, followed by the index operands
+	 * the plan was asked for. The operand offsets belong to the kept layout
+	 * alone, so this one starts every operand at zero and only ever displaces
+	 * the pointer the kept layout has already placed.
 	 *
 	 * @return const joint_layout& The reduced layout.
 	 */
@@ -122,6 +175,15 @@ public:
 	std::size_t get_reduction_count() const noexcept;
 
 private:
+	template <typename Indexing>
+	void plan(
+		span<const operand_signature> output_signatures,
+		span<const operand_signature> input_signatures,
+		span<const std::size_t> axes,
+		bool keep_dimensions,
+		Indexing indexing
+	);
+
 	joint_layout m_kept_layout;
 	joint_layout m_reduced_layout;
 	std::size_t m_reduction_count;

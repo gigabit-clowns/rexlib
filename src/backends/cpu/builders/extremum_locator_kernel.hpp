@@ -39,12 +39,17 @@ namespace cpu
  * the type of the output. Only the index is written out; the value it was
  * found at is dropped.
  *
+ * Two elements neither of which displaces the other are a tie, and a tie goes
+ * to the smaller linear index. The answer therefore does not depend on the
+ * order the elements are visited in, which the reduced layout chooses for
+ * locality, nor on the order partial answers are merged in.
+ *
  * There is no identity. An extremum of nothing does not exist, and the loop
  * rejects that case rather than inventing one, as NumPy does.
  *
  * @tparam Order Whether a candidate should displace the element held,
  * invoked as `order(candidate, best)`. Must be default constructible, and
- * strict, so that a tie keeps the first place it was seen.
+ * strict.
  */
 template <typename Order>
 class extremum_locator_kernel
@@ -75,11 +80,11 @@ public:
 		Accumulator &best,
 		std::int64_t &where,
 		const T *value,
-		std::size_t position
+		std::size_t index
 	) const noexcept
 	{
 		best = load(value);
-		where = static_cast<std::int64_t>(position);
+		where = static_cast<std::int64_t>(index);
 	}
 
 	template <typename Accumulator, typename T>
@@ -87,15 +92,15 @@ public:
 		Accumulator &best,
 		std::int64_t &where,
 		const T *value,
-		std::size_t position
+		std::size_t index
 	) const noexcept
 	{
-		const auto current = static_cast<Accumulator>(load(value));
-		if (m_order(current, best))
-		{
-			best = current;
-			where = static_cast<std::int64_t>(position);
-		}
+		displace(
+			best,
+			where,
+			static_cast<Accumulator>(load(value)),
+			static_cast<std::int64_t>(index)
+		);
 	}
 
 	template <typename Accumulator>
@@ -106,11 +111,7 @@ public:
 		const std::int64_t &other_where
 	) const noexcept
 	{
-		if (m_order(other_best, best))
-		{
-			best = other_best;
-			where = other_where;
-		}
+		displace(best, where, other_best, other_where);
 	}
 
 	template <typename U, typename Accumulator>
@@ -125,6 +126,38 @@ public:
 	}
 
 private:
+	template <typename Accumulator>
+	bool less(
+		const Accumulator &best,
+		const std::int64_t &where,
+		const Accumulator &candidate,
+		const std::int64_t &candidate_where
+	) const noexcept
+	{
+		// m_order(best, candidate) and m_order(candidate, best) are likely 
+		// to be decisive comparisons: They are the ones evaluated first.
+		// Only when best and candidate tie, candidate_where < where is 
+		// evaluated, saving memory bandwidth.
+		return
+			!m_order(best, candidate) &&
+			(m_order(candidate, best) || candidate_where < where);
+	}
+
+	template <typename Accumulator>
+	void displace(
+		Accumulator &best,
+		std::int64_t &where,
+		const Accumulator &candidate,
+		std::int64_t candidate_where
+	) const noexcept
+	{
+		if (less(best, where, candidate, candidate_where))
+		{
+			best = candidate;
+			where = candidate_where;
+		}
+	}
+
 	REXLIB_NO_UNIQUE_ADDRESS Order m_order;
 };
 

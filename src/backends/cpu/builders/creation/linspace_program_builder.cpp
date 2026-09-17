@@ -2,7 +2,7 @@
 
 #include <rexlib/ops/creation/linspace_operation.hpp>
 
-#include <backends/cpu/builders/sequence_program_builder.hpp>
+#include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/load_store.hpp>
 
 #include <cstddef>
@@ -92,7 +92,7 @@ struct linspace_kernel_factory
 
 } // anonymous namespace
 
-REXLIB_REGISTER_SEQUENCE_PROGRAM_BUILDER(
+REXLIB_REGISTER_LINEAR_INDEXED_ELEMENTWISE_PROGRAM_BUILDER(
 	linspace,
 	ops::linspace_operation,
 	linspace_kernel_factory

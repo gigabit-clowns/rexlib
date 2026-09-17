@@ -73,10 +73,10 @@ Out fold_over(const Kernel &kernel, const T (&values)[N])
 	>::type;
 
 	accumulator_type accumulator = accumulator_type();
-	kernel.seed(accumulator, &values[0], std::size_t(0));
+	kernel.seed(accumulator, &values[0]);
 	for (std::size_t i = 1; i < N; ++i)
 	{
-		kernel.combine(accumulator, &values[i], i);
+		kernel.combine(accumulator, &values[i]);
 	}
 
 	Out result = Out();

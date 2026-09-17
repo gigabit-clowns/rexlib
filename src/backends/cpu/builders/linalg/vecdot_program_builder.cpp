@@ -66,8 +66,7 @@ struct vecdot_kernel
 	void seed(
 		Accumulator &accumulator,
 		const T *left,
-		const T *right,
-		std::size_t /*position*/
+		const T *right
 	) const noexcept
 	{
 		accumulator = contract(load(left), load(right));
@@ -77,8 +76,7 @@ struct vecdot_kernel
 	void combine(
 		Accumulator &accumulator,
 		const T *left,
-		const T *right,
-		std::size_t /*position*/
+		const T *right
 	) const noexcept
 	{
 		accumulator += contract(load(left), load(right));

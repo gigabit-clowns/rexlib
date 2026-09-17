@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "element_index_tags.hpp"
 #include "reduction_kernel_traits.hpp"
 
 #include <rexlib/core/layout/joint_layout.hpp>
@@ -48,6 +49,9 @@ class loop_schedule;
  * over several sub-accumulators so that the fold is not one dependent chain.
  * This is the entry point most reduction program builders should use.
  *
+ * Both have an indexed counterpart, which additionally hands the kernel where
+ * in the reduced space every element sits.
+ *
  * @{
  */
 
@@ -73,23 +77,18 @@ class loop_schedule;
  * because it happens once per output; only the bulk of the fold is handed
  * over wholesale. @p kernel is invoked as:
  * @code
- * kernel.seed    (accumulators..., inputs..., position)
+ * kernel.seed    (accumulators..., inputs...)
  * kernel.merge   (accumulators..., others...)
  * kernel.finalize(outputs..., accumulators..., count)
  * kernel.identity(accumulators...)               // only when count is zero
  *
- * kernel.combine_run  (accumulators, inputs, strides, count, position)
+ * kernel.combine_run  (accumulators, inputs, strides, count)
  * kernel.combine_strip(accumulators, inputs, kept_strides, reduced_strides,
- *                      width, count, position)
+ *                      width, count)
  * @endcode
  * where `accumulators` are mutable references, `inputs` are pointers to the
  * element of each input for the current iteration and `outputs` are pointers
- * to the element of each output being completed. `position` says where in
- * the reduced space the element sits, counted from the first element folded
- * into that output; only an operation reporting a location has any use for
- * it, and the arithmetic behind it disappears for the operations that
- * ignore it. It is only meaningful when the reduced space is traversed in a
- * defined order, which @ref reduction_layout_plan arranges on request.
+ * to the element of each output being completed.
  *
  * The two bulk members take tuples rather than flattened packs, as
  * @ref run_elementwise_vector_loop does and for the same reason: two packs
@@ -100,15 +99,14 @@ class loop_schedule;
  * per accumulator, `inputs` a `std::tuple` of one pointer per input placed at
  * the first element of the run, and `strides` a `std::tuple` of the resolved
  * inner strides of the reduced layout, one per input. Element `e` of the run
- * sits at `input + e*stride` and at position `position + e`.
+ * sits at `input + e*stride`.
  *
  * `combine_strip` folds a run into each of `width` consecutive accumulator
  * sets, and so is handed both layouts' strides. `accumulators` is a
  * `std::tuple` of one pointer per accumulator, each at the first accumulator
  * of its strip and walked with a stride of one; `inputs` sits at the first
  * element of the run for the first accumulator. Accumulator `j` takes element
- * `e` of the run at `input + e*reduced_stride + j*kept_stride`, at position
- * `position + e`.
+ * `e` of the run at `input + e*reduced_stride + j*kept_stride`.
  *
  * Both loops belong to the kernel here, rather than the reduced one being
  * driven from outside, because which of them runs innermost is what decides
@@ -158,6 +156,7 @@ class loop_schedule;
  * grow with the number of outputs.
  *
  * @see run_reduction_loop
+ * @see run_indexed_reduction_vector_loop
  * @see reduction_element_adaptor
  */
 template <typename Kernel, typename... Outs, typename... Ins>
@@ -206,6 +205,114 @@ void run_reduction_vector_loop(
 );
 
 /**
+ * @brief Hand the kernel the fold in bulk, together with where in the reduced
+ * space every element sits.
+ *
+ * As @ref run_reduction_vector_loop, over a reduced layout that also holds the
+ * index operands @ref add_index_operands adds for @p indexing, after the
+ * inputs. The kernel is handed one more trailing argument:
+ * @code
+ * kernel.seed         (accumulators..., inputs..., index)
+ * kernel.combine_run  (accumulators, inputs, strides, count, index_run)
+ * kernel.combine_strip(accumulators, inputs, kept_strides, reduced_strides,
+ *                      width, count, index_run)
+ * @endcode
+ * `index` is where the element seeding the accumulators sits: its linear
+ * index as a `std::size_t` for @ref linear_index_tag, and its
+ * @ref multidimensional_index for @ref multidimensional_index_tag. The index
+ * space is the reduced one, its axes being the reduced axes in ascending
+ * order, so it is the same for every output. `index_run` is placed at the
+ * first element of the run, `index_run.advanced(e)` at its element `e`. It
+ * is a `linear_index_run<Stride>` or a @ref multidimensional_index.
+ *
+ * The index does not depend on the order the reduced space is walked in, nor
+ * on how the fold is split between threads.
+ *
+ * @tparam Kernel The vector reduction kernel.
+ * @tparam Outs Element types of the outputs.
+ * @tparam Ins Element types of the inputs.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @param kernel The kernel describing the fold.
+ * @param kept_layout Layout over the axes that survive into the output. Its
+ * operands are the inputs, in order, followed by the outputs, in order.
+ * @param reduced_layout Layout over the axes being folded away. Its operands
+ * are the inputs, in order, followed by the index operands of @p indexing.
+ * @param reduction_count Number of elements folded into each output.
+ * @param outputs Base pointer of each output.
+ * @param inputs Base pointer of each input.
+ * @param indexing The index to hand the kernel.
+ *
+ * @throws std::invalid_argument When the reduction is over no elements and
+ * @p kernel supplies no identity.
+ *
+ * @warning A linear index doubles the stride combinations @p kernel is
+ * instantiated for.
+ *
+ * @see run_reduction_vector_loop
+ * @see add_index_operands
+ */
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+void run_indexed_reduction_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing
+);
+
+/**
+ * @brief Hand the kernel the fold in bulk and where every element sits,
+ * spreading the work over the threads a schedule names.
+ *
+ * As the unscheduled overload, split as @ref run_reduction_loop describes.
+ *
+ * @tparam Kernel The vector reduction kernel.
+ * @tparam Outs Element types of the outputs.
+ * @tparam Ins Element types of the inputs.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @param kernel The kernel describing the fold.
+ * @param kept_layout Layout over the axes that survive.
+ * @param reduced_layout Layout over the axes being folded away, followed by
+ * the index operands of @p indexing.
+ * @param reduction_count How many elements each output folds.
+ * @param outputs Base pointer of each output.
+ * @param inputs Base pointer of each input.
+ * @param indexing The index to hand the kernel.
+ * @param schedule The threads to spread the loop over.
+ *
+ * @throws std::invalid_argument if the reduction is over no elements and the
+ * kernel has no identity.
+ *
+ * @see run_indexed_reduction_vector_loop
+ * @see loop_schedule
+ */
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+void run_indexed_reduction_vector_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing,
+	const loop_schedule &schedule
+);
+
+/**
  * @brief Run a reduction over a layout, folding the reduced axes into an
  * accumulator per output element one element at a time.
  *
@@ -217,8 +324,8 @@ void run_reduction_vector_loop(
  *
  * @p kernel is invoked as:
  * @code
- * kernel.seed    (accumulators..., inputs..., position)
- * kernel.combine (accumulators..., inputs..., position)
+ * kernel.seed    (accumulators..., inputs...)
+ * kernel.combine (accumulators..., inputs...)
  * kernel.merge   (accumulators..., others...)
  * kernel.finalize(outputs..., accumulators..., count)
  * kernel.identity(accumulators...)               // only when count is zero
@@ -254,6 +361,7 @@ void run_reduction_vector_loop(
  * @ref run_reduction_vector_loop.
  *
  * @see run_reduction_vector_loop
+ * @see run_indexed_reduction_loop
  * @see reduction_element_adaptor
  */
 template <typename Kernel, typename... Outs, typename... Ins>
@@ -314,6 +422,106 @@ void run_reduction_loop(
 	std::size_t reduction_count,
 	const std::tuple<Outs*...> &outputs,
 	const std::tuple<const Ins*...> &inputs,
+	const loop_schedule &schedule
+);
+
+/**
+ * @brief Fold the reduced axes one element at a time, handing the kernel
+ * where in the reduced space every element sits.
+ *
+ * As @ref run_reduction_loop, over a reduced layout that also holds the index
+ * operands @ref add_index_operands adds for @p indexing, after the inputs.
+ * @p kernel is invoked as:
+ * @code
+ * kernel.seed    (accumulators..., inputs..., index)
+ * kernel.combine (accumulators..., inputs..., index)
+ * kernel.merge   (accumulators..., others...)
+ * kernel.finalize(outputs..., accumulators..., count)
+ * kernel.identity(accumulators...)               // only when count is zero
+ * @endcode
+ * with `index` as @ref run_indexed_reduction_vector_loop describes it.
+ *
+ * @tparam Kernel The element reduction kernel.
+ * @tparam Outs Element types of the outputs.
+ * @tparam Ins Element types of the inputs.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @param kernel The kernel describing the fold.
+ * @param kept_layout Layout over the axes that survive into the output. Its
+ * operands are the inputs, in order, followed by the outputs, in order.
+ * @param reduced_layout Layout over the axes being folded away. Its operands
+ * are the inputs, in order, followed by the index operands of @p indexing.
+ * @param reduction_count Number of elements folded into each output.
+ * @param outputs Base pointer of each output.
+ * @param inputs Base pointer of each input.
+ * @param indexing The index to hand the kernel.
+ *
+ * @throws std::invalid_argument When the reduction is over no elements and
+ * @p kernel supplies no identity.
+ *
+ * @warning Inherits the stride specialization cost of
+ * @ref run_indexed_reduction_vector_loop.
+ *
+ * @see run_reduction_loop
+ * @see add_index_operands
+ */
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+void run_indexed_reduction_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing
+);
+
+/**
+ * @brief Fold the reduced axes one element at a time, handing the kernel
+ * where every element sits, spread over the threads a schedule names.
+ *
+ * As the unscheduled overload, split as @ref run_reduction_loop describes.
+ *
+ * @tparam Kernel The element reduction kernel.
+ * @tparam Outs Element types of the outputs.
+ * @tparam Ins Element types of the inputs.
+ * @tparam Indexing One of @ref no_index_tag, @ref linear_index_tag and
+ * @ref multidimensional_index_tag.
+ * @param kernel The kernel describing the fold.
+ * @param kept_layout Layout over the axes that survive.
+ * @param reduced_layout Layout over the axes being folded away, followed by
+ * the index operands of @p indexing.
+ * @param reduction_count How many elements each output folds.
+ * @param outputs Base pointer of each output.
+ * @param inputs Base pointer of each input.
+ * @param indexing The index to hand the kernel.
+ * @param schedule The threads to spread the loop over.
+ *
+ * @throws std::invalid_argument if the reduction is over no elements and the
+ * kernel has no identity.
+ *
+ * @see run_indexed_reduction_loop
+ * @see loop_schedule
+ */
+template <
+	typename Kernel,
+	typename... Outs,
+	typename... Ins,
+	typename Indexing
+>
+void run_indexed_reduction_loop(
+	const Kernel &kernel,
+	const joint_layout &kept_layout,
+	const joint_layout &reduced_layout,
+	std::size_t reduction_count,
+	const std::tuple<Outs*...> &outputs,
+	const std::tuple<const Ins*...> &inputs,
+	Indexing indexing,
 	const loop_schedule &schedule
 );
 
