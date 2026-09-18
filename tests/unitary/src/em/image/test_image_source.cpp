@@ -36,6 +36,13 @@ namespace
 
 const std::vector<std::size_t> plane_extents = {3, 5};
 
+// A stack deep enough to hold every element the cases below address, and a
+// batch with a slot for each of them. image_source clips every region to
+// both of them, so a reader reports the first and a destination carries the
+// second.
+const std::vector<std::size_t> stack_extents = {8, 3, 5};
+const std::vector<std::size_t> batch_extents = {4, 3, 5};
+
 // trompeloeil keeps no internal lock, so a mock is not safe to call from
 // several threads at once — not just on the same instance, since matching a
 // call also touches bookkeeping trompeloeil shares across every mock. The
@@ -80,12 +87,12 @@ public:
 
 	span<const std::size_t> get_extents() const noexcept override
 	{
-		return span<const std::size_t>();
+		return make_span(stack_extents);
 	}
 
 	std::size_t get_core_rank() const noexcept override
 	{
-		return 0;
+		return plane_extents.size();
 	}
 
 	numerical_type get_data_type() const noexcept override
@@ -110,10 +117,9 @@ private:
 
 array make_test_array()
 {
-	const std::vector<std::size_t> extents = {1};
 	const auto storage = std::make_shared<mock_buffer>();
 	const auto layout = strided_layout::make_contiguous_layout(
-		make_span(extents)
+		make_span(batch_extents)
 	);
 	array_descriptor descriptor(layout, numerical_type::float32);
 	return array(storage, std::move(descriptor));
@@ -129,6 +135,21 @@ void add_element(
 )
 {
 	const std::size_t file_offset[3] = {position, 0, 0};
+	const std::size_t array_offset[3] = {slot, 0, 0};
+	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
+}
+
+// Add one region placed at a row of a plane rather than at its origin, which
+// is what makes it run past the far edge of the file.
+void add_region(
+	image_transaction_plan &plan,
+	std::size_t file,
+	std::size_t position,
+	std::size_t row,
+	std::size_t slot
+)
+{
+	const std::size_t file_offset[3] = {position, row, 0};
 	const std::size_t array_offset[3] = {slot, 0, 0};
 	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
 }
@@ -181,6 +202,8 @@ TEST_CASE(
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader_zero);
 	REQUIRE_CALL(*readers, acquire("stack_1.mrcs")).RETURN(reader_one);
+	ALLOW_CALL(*reader_zero, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader_one, get_extents()).RETURN(make_span(stack_extents));
 	REQUIRE_CALL(*reader_zero, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_region_count() == 3 );
 	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_))
@@ -207,6 +230,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 	// No expectation for "stack_1.mrcs": acquiring it would violate.
 
@@ -230,6 +254,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.SIDE_EFFECT( throw std::runtime_error("from a reader") );
 
@@ -238,6 +263,99 @@ TEST_CASE(
 
 	REQUIRE( completion->is_ready() );
 	REQUIRE_THROWS_AS( completion->get(), std::runtime_error );
+}
+
+TEST_CASE(
+	"image_source shortens a region that runs past the file",
+	"[image_source]"
+)
+{
+	// A plane of the stack is three rows tall, so a region of three rows
+	// placed at the second one reaches only two of them.
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	const auto zero = plan.add_file("stack_0.mrcs");
+	add_region(plan, zero, 0, 1, 0);
+
+	const auto readers = std::make_shared<mock_image_reader_provider>();
+	const auto reader = std::make_shared<mock_image_reader>();
+
+	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH(
+			_2.get_region_count() == 1 &&
+			_2.get_extents()[0] == 2 &&
+			_2.get_extents()[1] == 5 &&
+			_2.get_file_offset(0)[1] == 1
+		);
+
+	image_source source(readers, std::make_shared<synchronous_executor>());
+	const auto completion = source.read(make_test_array(), plan);
+
+	CHECK( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
+	"image_source reads one plan per shape its regions clip to",
+	"[image_source]"
+)
+{
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	const auto zero = plan.add_file("stack_0.mrcs");
+	add_region(plan, zero, 0, 0, 0); // three rows of three
+	add_region(plan, zero, 0, 1, 1); // two of them
+	add_region(plan, zero, 0, 2, 2); // one
+
+	const auto readers = std::make_shared<mock_image_reader_provider>();
+	const auto reader = std::make_shared<mock_image_reader>();
+
+	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( _2.get_extents()[0] == 3 );
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( _2.get_extents()[0] == 2 );
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( _2.get_extents()[0] == 1 );
+
+	image_source source(readers, std::make_shared<synchronous_executor>());
+	const auto completion = source.read(make_test_array(), plan);
+
+	CHECK( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
+	"image_source drops a region the file does not reach at all",
+	"[image_source]"
+)
+{
+	// The stack holds eight elements, so the region addressing its tenth
+	// reaches nothing and is left out of what the reader is handed. The
+	// file is still opened, for the region that does reach something.
+	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	const auto zero = plan.add_file("stack_0.mrcs");
+	add_element(plan, zero, 10, 0);
+	add_element(plan, zero, 3, 1);
+
+	const auto readers = std::make_shared<mock_image_reader_provider>();
+	const auto reader = std::make_shared<mock_image_reader>();
+
+	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH(
+			_2.get_region_count() == 1 &&
+			_2.get_file_offset(0)[0] == 3 &&
+			_2.get_array_offset(0)[0] == 1
+		);
+
+	image_source source(readers, std::make_shared<synchronous_executor>());
+	const auto completion = source.read(make_test_array(), plan);
+
+	CHECK( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(

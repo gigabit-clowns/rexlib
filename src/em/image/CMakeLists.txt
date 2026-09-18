@@ -7,12 +7,14 @@ target_sources(
 		image_format_registry.cpp
 		image_location.cpp
 		image_metadata.cpp
+		image_patch_source.cpp
 		image_probe.cpp
 		image_read.cpp
 		image_read_format.cpp
 		image_read_format_manager.cpp
 		image_reader.cpp
 		image_reader_provider.cpp
+		image_region_clipping.cpp
 		image_region_extents.cpp
 		image_region_grouping.cpp
 		image_sink.cpp
