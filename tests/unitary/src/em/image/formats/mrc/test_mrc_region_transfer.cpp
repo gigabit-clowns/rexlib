@@ -199,6 +199,92 @@ TEST_CASE( "a batch of regions shares one layout",
 	}
 }
 
+TEST_CASE( "a run of the regions of a batch is moved on its own",
+	"[mrc_region_transfer]" )
+{
+	const std::vector<std::size_t> file_extents = {3, 2, 2};
+	const std::vector<std::size_t> region_extents = {2, 2};
+	const auto file_strides = contiguous_strides(file_extents);
+	const auto file = counting<float32_t>(12);
+
+	// Each region lands where it sits in the file, so a run of them leaves
+	// the slots of the others alone.
+	image_transfer_plan regions(make_span(region_extents), 3, 3);
+	for (std::size_t i = 0; i < 3; ++i)
+	{
+		regions.add(
+			make_span(std::vector<std::size_t>{i, 0, 0}),
+			make_span(std::vector<std::size_t>{i, 0, 0})
+		);
+	}
+
+	const mrc_region_read_plan plan(
+		regions,
+		make_span(file_extents), make_span(file_strides),
+		make_span(file_extents), make_span(file_strides),
+		0
+	);
+
+	SECTION( "only the regions of the run are moved" )
+	{
+		std::vector<float32_t> array(12, -1.0F);
+		read_regions(
+			plan, 1, 1,
+			array.data(), numerical_type::float32,
+			as_file(file), numerical_type::float32,
+			get_system_byte_order()
+		);
+
+		const std::vector<float32_t> expected = {
+			-1, -1, -1, -1, 4, 5, 6, 7, -1, -1, -1, -1
+		};
+
+		REQUIRE( array == expected );
+	}
+
+	SECTION( "the run that spans the batch moves all of it" )
+	{
+		std::vector<float32_t> array(12, -1.0F);
+		read_regions(
+			plan, 0, 3,
+			array.data(), numerical_type::float32,
+			as_file(file), numerical_type::float32,
+			get_system_byte_order()
+		);
+
+		REQUIRE( array == file );
+	}
+
+	SECTION( "consecutive runs together move the whole batch" )
+	{
+		std::vector<float32_t> array(12, -1.0F);
+		for (std::size_t first = 0; first < 3; ++first)
+		{
+			read_regions(
+				plan, first, 1,
+				array.data(), numerical_type::float32,
+				as_file(file), numerical_type::float32,
+				get_system_byte_order()
+			);
+		}
+
+		REQUIRE( array == file );
+	}
+
+	SECTION( "a run of no region moves nothing" )
+	{
+		std::vector<float32_t> array(12, -1.0F);
+		read_regions(
+			plan, 1, 0,
+			array.data(), numerical_type::float32,
+			as_file(file), numerical_type::float32,
+			get_system_byte_order()
+		);
+
+		REQUIRE( array == std::vector<float32_t>(12, -1.0F) );
+	}
+}
+
 TEST_CASE( "a region reaches an array of a different rank",
 	"[mrc_region_transfer]" )
 {

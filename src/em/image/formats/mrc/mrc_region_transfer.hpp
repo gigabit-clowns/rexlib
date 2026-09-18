@@ -9,6 +9,8 @@
 #include <rexlib/core/memory/byte_order.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 
+#include <cstddef>
+
 namespace rexlib
 {
 namespace em
@@ -33,6 +35,38 @@ namespace mrc
  */
 void read_regions(
 	const mrc_region_read_plan &plan,
+	void *array_data,
+	numerical_type array_type,
+	const byte *file_data,
+	numerical_type file_type,
+	byte_order file_order
+);
+
+/**
+ * @brief Move a run of the regions of a batch out of a file and into an array.
+ *
+ * The regions of a batch are held in ascending file order, so a run of them is
+ * a stretch of the file, which is what lets a reader walk a batch a step at a
+ * time and advise the step after the one it is walking.
+ *
+ * @param plan The regions and the space they are walked in.
+ * @param first_region Index of the first region to move, among those @p plan
+ * holds.
+ * @param region_count How many regions to move from there. The run must not
+ * reach past what @p plan holds.
+ * @param array_data First element of the array.
+ * @param array_type Data type of the array.
+ * @param file_data First element of the values of the file, past both of its
+ * headers.
+ * @param file_type Data type of the file.
+ * @param file_order Byte order the file states its values in.
+ * @throws invalid_operation_error If @p array_type can not be produced from
+ * @p file_type, or if @p file_type is not one an MRC file holds.
+ */
+void read_regions(
+	const mrc_region_read_plan &plan,
+	std::size_t first_region,
+	std::size_t region_count,
 	void *array_data,
 	numerical_type array_type,
 	const byte *file_data,
@@ -90,6 +124,8 @@ namespace detail
 template <typename Q>
 void read_regions_as(
 	const mrc_region_read_plan &plan,
+	std::size_t first_region,
+	std::size_t region_count,
 	void *array_data,
 	numerical_type array_type,
 	const Q *file_data,

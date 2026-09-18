@@ -3,12 +3,13 @@
 #include "mrc_reader.hpp"
 
 #include "mrc_host_access.hpp"
+#include "mrc_region_prefetch_plan.hpp"
 #include "mrc_region_read_plan.hpp"
 #include "mrc_region_transfer.hpp"
-#include "mrc_region_window.hpp"
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
+#include <rexlib/core/system/page_prefetch.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
@@ -102,20 +103,42 @@ void mrc_reader::read(
 		layout.get_offset()
 	);
 
-	const auto window = make_region_window(regions, m_geometry);
-	m_mapping.prefetch(
-		m_geometry.get_data_offset() + window.get_byte_offset(),
-		window.get_byte_size()
+	const mrc_region_prefetch_plan advice(
+		regions,
+		m_geometry,
+		plan.get_offsets().get_file(),
+		make_span(m_mapping.get_data(), m_mapping.get_size()),
+		make_prefetch_policy(compute_region_span(regions, m_geometry))
 	);
+	const auto *file_data =
+		m_mapping.get_data() + m_geometry.get_data_offset();
+	const auto step_count = advice.get_step_count();
 
-	read_regions(
-		plan,
-		array_data,
-		descriptor.get_data_type(),
-		m_mapping.get_data() + m_geometry.get_data_offset(),
-		m_geometry.get_data_type(),
-		m_header.get_byte_order()
-	);
+	if (step_count > 0)
+	{
+		prefetch_pages(advice.get_step_ranges(0));
+	}
+
+	for (std::size_t step = 0; step < step_count; ++step)
+	{
+		// The step after this one is asked for before this one is walked, so
+		// that it is on its way while these values are being moved.
+		if (step + 1 < step_count)
+		{
+			prefetch_pages(advice.get_step_ranges(step + 1));
+		}
+
+		read_regions(
+			plan,
+			advice.get_step_first_region(step),
+			advice.get_step_region_count(step),
+			array_data,
+			descriptor.get_data_type(),
+			file_data,
+			m_geometry.get_data_type(),
+			m_header.get_byte_order()
+		);
+	}
 }
 
 } // namespace mrc

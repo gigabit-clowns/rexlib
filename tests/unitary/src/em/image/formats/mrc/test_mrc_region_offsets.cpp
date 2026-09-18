@@ -143,6 +143,46 @@ TEST_CASE( "every region of a batch is resolved", "[mrc_region_offsets]" )
 		std::vector<std::ptrdiff_t>{8, 4, 0} );
 }
 
+TEST_CASE( "a batch is held in ascending file order",
+	"[mrc_region_offsets]" )
+{
+	const std::vector<std::size_t> extents = {3, 2, 2};
+	const std::vector<std::ptrdiff_t> strides = {4, 2, 1};
+	const std::vector<std::size_t> region = {2, 2};
+
+	// Stated 2, 0, 1 along the file, each paired with a different plane of
+	// the array, so that the order and the pairing are told apart.
+	const std::size_t positions[3] = {2, 0, 1};
+
+	image_transfer_plan regions(make_span(region), 3, 3);
+	for (std::size_t i = 0; i < 3; ++i)
+	{
+		regions.add(
+			make_span(std::vector<std::size_t>{positions[i], 0, 0}),
+			make_span(std::vector<std::size_t>{i, 0, 0})
+		);
+	}
+
+	const mrc_region_offsets offsets(
+		regions,
+		make_span(extents), make_span(strides),
+		make_span(extents), make_span(strides),
+		0
+	);
+
+	SECTION( "the file offsets come out ascending" )
+	{
+		REQUIRE( collect(offsets.get_file()) ==
+			std::vector<std::ptrdiff_t>{0, 4, 8} );
+	}
+
+	SECTION( "each array offset follows the file offset it was stated with" )
+	{
+		REQUIRE( collect(offsets.get_array()) ==
+			std::vector<std::ptrdiff_t>{4, 8, 0} );
+	}
+}
+
 TEST_CASE( "an empty batch resolves to nothing", "[mrc_region_offsets]" )
 {
 	const std::vector<std::size_t> extents = {2, 2};

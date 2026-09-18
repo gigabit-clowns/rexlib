@@ -78,17 +78,6 @@ public:
 	std::size_t get_size() const noexcept;
 
 	/**
-	 * @brief Ask for a stretch of the mapping to be brought into memory.
-	 *
-	 * Hints the kernel to bring the whole stretch of a file at once.
-	 *
-	 * @param offset Where the stretch starts, in bytes from the start of the
-	 * mapping.
-	 * @param size How many bytes it covers. Clamped to what is mapped.
-	 */
-	void prefetch(std::size_t offset, std::size_t size) const noexcept;
-
-	/**
 	 * @brief Make everything written through the mapping reach the storage.
 	 *
 	 * @throws image_format_error If the mapping could not be flushed.

@@ -121,6 +121,8 @@ void run_supported_regions(
 template <typename Q>
 void read_regions_as(
 	const mrc_region_read_plan &plan,
+	std::size_t first_region,
+	std::size_t region_count,
 	void *array_data,
 	numerical_type array_type,
 	const Q *file_data,
@@ -129,8 +131,17 @@ void read_regions_as(
 {
 	const auto &offsets = plan.get_offsets();
 
+	// The run is taken here rather than inside the loop, so that what walks
+	// the regions is the same loop whether it is handed a whole batch or a
+	// step of one.
+	const auto array_offsets =
+		make_span(offsets.get_array().data() + first_region, region_count);
+	const auto file_offsets =
+		make_span(offsets.get_file().data() + first_region, region_count);
+
 	dispatch_numerical_types(
-		[&offsets, &plan, array_data, file_data, swapped] (auto array_tag)
+		[&plan, array_offsets, file_offsets, array_data, file_data, swapped]
+		(auto array_tag)
 		{
 			using T = typename decltype(array_tag)::type;
 			const auto support = transfer_support<T, Q>();
@@ -143,8 +154,8 @@ void read_regions_as(
 					support,
 					mrc_byte_swapped_read_kernel(),
 					plan.get_layout(),
-					offsets.get_array(),
-					offsets.get_file(),
+					array_offsets,
+					file_offsets,
 					array,
 					file_data
 				);
@@ -155,8 +166,8 @@ void read_regions_as(
 					support,
 					mrc_read_kernel(),
 					plan.get_layout(),
-					offsets.get_array(),
-					offsets.get_file(),
+					array_offsets,
+					file_offsets,
 					array,
 					file_data
 				);
@@ -227,6 +238,8 @@ void write_regions_as(
 #define REXLIB_INSTANTIATE_MRC_REGION_TRANSFER(...) \
 	template void detail::read_regions_as<__VA_ARGS__>( \
 		const mrc_region_read_plan&, \
+		std::size_t, \
+		std::size_t, \
 		void*, \
 		numerical_type, \
 		const __VA_ARGS__*, \

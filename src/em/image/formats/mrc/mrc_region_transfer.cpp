@@ -53,6 +53,29 @@ void read_regions(
 	byte_order file_order
 )
 {
+	read_regions(
+		plan,
+		0,
+		plan.get_offsets().get_region_count(),
+		array_data,
+		array_type,
+		file_data,
+		file_type,
+		file_order
+	);
+}
+
+void read_regions(
+	const mrc_region_read_plan &plan,
+	std::size_t first_region,
+	std::size_t region_count,
+	void *array_data,
+	numerical_type array_type,
+	const byte *file_data,
+	numerical_type file_type,
+	byte_order file_order
+)
+{
 	const auto swapped = file_order != get_system_byte_order();
 
 	switch (file_type)
@@ -61,6 +84,8 @@ void read_regions(
 		case numerical_type::name: \
 			detail::read_regions_as( \
 				plan, \
+				first_region, \
+				region_count, \
 				array_data, \
 				array_type, \
 				reinterpret_cast<const __VA_ARGS__*>(file_data), \

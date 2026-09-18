@@ -24,6 +24,12 @@ namespace mrc
  * starts, so all of them are walked by one iteration space and only the two
  * base pointers move. This is that pair of pointer offsets, one per region.
  *
+ * The pairs are held in ascending file order rather than in the order the
+ * batch states them, so that a transfer walks the file forwards and the
+ * regions it is about to touch form runs that can be asked for together. The
+ * index of a pair is therefore its position in that order, not the one it was
+ * added at.
+ *
  * Resolving them is also where every region is bounds checked, so a batch
  * that does not fit is refused here, before anything has been moved, rather
  * than halfway through it.
@@ -82,14 +88,15 @@ public:
 	/**
 	 * @brief Get where each region starts in the array, in elements.
 	 *
-	 * @return span<const std::ptrdiff_t> One offset per region.
+	 * @return span<const std::ptrdiff_t> One offset per region, ordered by
+	 * the file offset it is paired with.
 	 */
 	span<const std::ptrdiff_t> get_array() const noexcept;
 
 	/**
 	 * @brief Get where each region starts in the file, in elements.
 	 *
-	 * @return span<const std::ptrdiff_t> One offset per region.
+	 * @return span<const std::ptrdiff_t> One offset per region, ascending.
 	 */
 	span<const std::ptrdiff_t> get_file() const noexcept;
 

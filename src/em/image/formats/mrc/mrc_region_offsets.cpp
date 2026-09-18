@@ -4,7 +4,9 @@
 
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
+#include <algorithm>
 #include <stdexcept>
+#include <utility>
 
 namespace rexlib
 {
@@ -101,19 +103,17 @@ mrc_region_offsets::mrc_region_offsets(
 	);
 
 	const auto count = regions.get_region_count();
-	m_array.reserve(count);
-	m_file.reserve(count);
+	std::vector<std::pair<std::ptrdiff_t, std::ptrdiff_t>> resolved;
+	resolved.reserve(count);
 	for (std::size_t i = 0; i < count; ++i)
 	{
-		m_file.push_back(
+		resolved.emplace_back(
 			resolve_offset(
 				regions,
 				regions.get_file_offset(i),
 				file_extents,
 				file_strides
-			)
-		);
-		m_array.push_back(
+			),
 			array_offset +
 			resolve_offset(
 				regions,
@@ -122,6 +122,19 @@ mrc_region_offsets::mrc_region_offsets(
 				array_strides
 			)
 		);
+	}
+
+	if (!std::is_sorted(resolved.begin(), resolved.end()))
+	{
+		std::sort(resolved.begin(), resolved.end());
+	}
+
+	m_array.reserve(count);
+	m_file.reserve(count);
+	for (const auto &pair : resolved)
+	{
+		m_file.push_back(pair.first);
+		m_array.push_back(pair.second);
 	}
 }
 
