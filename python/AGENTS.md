@@ -14,8 +14,8 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 40 `.cpp` and 40 `.hpp`, compiled into the `rexlib._binding` extension |
-| `python/rexlib/` | The Python package, 10 `.py`: everything the binding cannot express |
+| `src/` | The pybind11 binding, 42 `.cpp` and 42 `.hpp`, compiled into the `rexlib._binding` extension |
+| `python/rexlib/` | The Python package, 11 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
 | `scripts/` | Development tools: the test runner, the stub generator and collector, the wheel check |
@@ -70,7 +70,7 @@ name that names them. See #143.
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, events, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
-| `_binding.em.image` | `src/em/image/` | `ImageLocation`, the read and write format managers |
+| `_binding.em.image` | `src/em/image/` | `ImageLocation`, the read and write format managers, `read` and `write` |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the
 `bind_` function of the directory it stands for: `src/main.cpp` creates `em`
@@ -88,11 +88,23 @@ the order the declarations need.
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
 | `_functional.py` | The operations again, with `context` defaulting to the active one |
 | `_ndarray.py` | Installs the Python operators onto `Array` |
-| `em/` | The electron microscopy areas, one module each |
+| `em/` | The electron microscopy areas, one module each; `em/image/` defaults the format manager and the context |
 
 `_paths` is imported first in `__init__.py`, and the order matters: on Windows
 nothing else imports until the bundled library is findable. `_ndarray` is
 imported for its side effect, before anything can hand out an `Array`.
+
+`em/image/_functions.py` takes `_resolve_context` from `_functional` rather
+than carrying one of its own, so `read` asks for an active device exactly as
+`zeros` does and there is one place to change if that ever stops being the
+rule. Two things about those functions are rexlib's and not this package's:
+`em::read` allocates on the host whatever device is active, and `em::write`
+refuses storage the host cannot reach instead of transferring it. Both are
+stated in their docstrings, since a caller has no other way to find out.
+
+`image_metadata` is not bound. rexlib declares it empty, so the parameter is
+left off `write` until the type has fields; adding it later is compatible,
+and publishing an empty class now would not be.
 
 ## Building
 
@@ -309,7 +321,7 @@ Tests for what `_binding` exposes at its top level stay at the root.
 | `tests/hardware/` | Devices, sessions, events, memory resources, the session pool |
 | `tests/dispatch/` | `ExecutionContext`, the active context, `rexlib.device(...)` |
 | `tests/functional/` | The operations |
-| `tests/em/image/` | `ImageLocation`, parsing, the format managers |
+| `tests/em/image/` | `ImageLocation`, parsing, the format managers, `read` and `write` |
 
 There are no `__init__.py` files and no `conftest.py`. Test module names are
 therefore unique across the whole tree, and a fixture belongs to the file that
