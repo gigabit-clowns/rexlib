@@ -15,7 +15,7 @@ void bind_image(pybind11::module_ &m)
 	declare_image_read_format_manager(m);
 	declare_image_write_format_manager(m);
 
-	define_image_location(image_location, m);
+	define_image_location(image_location);
 	define_image_read_format_manager(m);
 	define_image_write_format_manager(m);
 }

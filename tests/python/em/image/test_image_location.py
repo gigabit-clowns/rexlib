@@ -64,3 +64,40 @@ def test_repr_names_the_type():
 def test_pickle():
 	location = ImageLocation('stack.mrc', 2)
 	assert pickle.loads(pickle.dumps(location)) == location
+
+@pytest.mark.parametrize(
+	"text, expected",
+	[
+		pytest.param('stack.mrc', ImageLocation('stack.mrc'), id="Whole file"),
+		pytest.param('3@stack.mrc', ImageLocation('stack.mrc', 2), id="One based index"),
+	]
+)
+def test_from_string_reads_a_location(text, expected):
+	assert ImageLocation.from_string(text) == expected
+
+@pytest.mark.parametrize(
+	"text",
+	[
+		pytest.param('stack.mrc', id="Whole file"),
+		pytest.param('3@stack.mrc', id="Position in a stack"),
+	]
+)
+def test_from_string_is_the_inverse_of_str(text):
+	assert str(ImageLocation.from_string(text)) == text
+
+@pytest.mark.parametrize(
+	"text",
+	[
+		pytest.param('', id="Empty string"),
+		pytest.param('0@stack.mrc', id="Zero is not a valid index"),
+		pytest.param('@stack.mrc', id="Empty index"),
+		pytest.param('x@stack.mrc', id="Index is not a number"),
+		pytest.param('3@', id="Empty path"),
+	]
+)
+def test_from_string_raises_value_error_with_invalid_string(text):
+	with pytest.raises(ValueError):
+		ImageLocation.from_string(text)
+
+def test_the_constructor_never_parses():
+	assert ImageLocation('3@stack.mrc').path == '3@stack.mrc'

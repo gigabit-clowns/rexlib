@@ -9,8 +9,8 @@ import rexlib
 def test_constructor_from_params():
   assert rexlib.hardware.DeviceIndex('host', 0) is not None
 
-def test_constructor_from_string():
-  assert rexlib.hardware.DeviceIndex('cuda:0') is not None
+def test_from_string():
+  assert rexlib.hardware.DeviceIndex.from_string('cuda:0') is not None
 
 @pytest.mark.parametrize(
   "backend, device_id",
@@ -52,7 +52,7 @@ def test_raises_type_error_with_invalid_arguments(backend, device_id):
   ]
 )
 def test_returns_expected_properties_from_string(backend, device_id):
-  device_index = rexlib.hardware.DeviceIndex(f"{backend}:{device_id}")
+  device_index = rexlib.hardware.DeviceIndex.from_string(f"{backend}:{device_id}")
   assert (
     (
       device_index.backend, device_index.id
@@ -72,7 +72,7 @@ def test_returns_expected_properties_from_string(backend, device_id):
 )
 def test_raises_value_error_with_invalid_string(name):
   with pytest.raises(ValueError):
-    rexlib.hardware.DeviceIndex(name)
+    rexlib.hardware.DeviceIndex.from_string(name)
 
 @pytest.mark.parametrize(
   "backend, device_id, are_equals",

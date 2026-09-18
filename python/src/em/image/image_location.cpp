@@ -5,10 +5,9 @@
 #include <rexlib/em/image/image_location.hpp>
 
 #include <pybind11/operators.h>
-#include <pybind11/stl.h>
 
-#include <optional>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 namespace rexlib
@@ -29,13 +28,15 @@ static std::string to_repr(const em::image_location &l)
 	return oss.str();
 }
 
-static std::optional<em::image_location>
-parse_image_location(const std::string &text)
+static em::image_location from_string(const std::string &text)
 {
 	em::image_location result;
 	if (!em::parse_image_location(text, result))
 	{
-		return std::nullopt;
+		std::ostringstream oss;
+		oss << "Invalid image_location syntax \"" << text << "\"\n"
+			<< R"(Expected syntax "index@path", one based, or "path")";
+		throw std::invalid_argument(oss.str());
 	}
 	return result;
 }
@@ -45,7 +46,7 @@ image_location_class declare_image_location(pybind11::module_ &m)
 	return image_location_class(m, "ImageLocation");
 }
 
-void define_image_location(image_location_class &c, pybind11::module_ &m)
+void define_image_location(image_location_class &c)
 {
 	c
 		.def(
@@ -54,6 +55,7 @@ void define_image_location(image_location_class &c, pybind11::module_ &m)
 			py::arg("position") = em::image_location::no_position
 		)
 		.def(py::init<>())
+		.def_static("from_string", &from_string, py::arg("text"))
 		.def(py::self == py::self)
 		.def(py::self != py::self)
 		.def(py::self < py::self)
@@ -86,8 +88,6 @@ void define_image_location(image_location_class &c, pybind11::module_ &m)
 		));
 
 	c.attr("no_position") = em::image_location::no_position;
-
-	m.def("parse_image_location", &parse_image_location, py::arg("text"));
 }
 
 } // namespace rexlib

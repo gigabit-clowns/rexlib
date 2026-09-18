@@ -219,6 +219,14 @@ Every argument is named with `py::arg`. An optional out parameter is
 `py_` function beside the binding; that function exists because the C++
 signature takes a raw pointer and pybind11 will not produce one from `None`.
 
+A type rexlib parses from a string carries a `from_string` static method and
+no constructor that parses. `DeviceIndex` and `ImageLocation` both do, and
+`ImageLocation` is why: its constructor already gives a lone string the
+meaning "this path, whole file", so a parsing overload would be competing for
+that signature rather than adding to it. `from_string` is the inverse of
+`__str__` and raises `ValueError`, which is what the `bool` of rexlib's
+`parse_*` becomes on this side.
+
 Lifetimes are stated: `py::keep_alive` where an object borrows from another,
 `py::return_value_policy::reference_internal` where a getter hands out a
 reference into its owner. Getting this wrong does not fail a test, it crashes

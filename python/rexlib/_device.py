@@ -20,7 +20,7 @@ def _resolve_device_context(spec: DeviceSpec) -> hardware.DeviceContext:
 		return hardware.DeviceContext(spec)
 
 	index = (
-		hardware.DeviceIndex(spec)
+		hardware.DeviceIndex.from_string(spec)
 		if isinstance(spec, str)
 		else spec
 	)

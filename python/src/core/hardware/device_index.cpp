@@ -52,7 +52,7 @@ void define_device_index(device_index_class &c)
 {
 	c
 		.def(py::init<py::str, py::size_t>(), py::arg("backend"), py::arg("id"))
-		.def(py::init(&from_string))
+		.def_static("from_string", &from_string, py::arg("text"))
 		.def(py::self == py::self)
 		.def(py::self != py::self)
 		.def(py::self < py::self)

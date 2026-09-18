@@ -8,7 +8,10 @@ services, reached from a `rexlib.ServiceCatalog` the way the device and
 program managers are.
 
 A string is never parsed into an `ImageLocation` on its way anywhere: a
-path is a path, and `parse_image_location` is asked for by name.
+path handed to the constructor is a path, and `ImageLocation.from_string`
+is the one thing that reads `"3@stack.mrc"` as a position in a stack. It
+is the inverse of `str`, and raises `ValueError` on anything it cannot
+read.
 """
 
 from __future__ import annotations
@@ -19,7 +22,6 @@ from ..._binding.em.image import (
 	ImageWriteFormatManager as ImageWriteFormatManager,
 	get_image_read_format_manager as get_image_read_format_manager,
 	get_image_write_format_manager as get_image_write_format_manager,
-	parse_image_location as parse_image_location,
 )
 
 __all__ = [
@@ -28,5 +30,4 @@ __all__ = [
 	"ImageWriteFormatManager",
 	"get_image_read_format_manager",
 	"get_image_write_format_manager",
-	"parse_image_location",
 ]
