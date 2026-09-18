@@ -72,6 +72,17 @@ The last one exists because a memory checker pays its start-up on every test
 CTest runs. Discovering each case makes it re-analyse the whole binary once per
 case, which took the memcheck job past six hours.
 
+`REXLIB_ENABLE_COVERAGE` instruments with `-fprofile-update=atomic` beside
+`--coverage`. The counters gcov keeps are one per arc and shared by every
+thread running the code, and the CPU backend runs its loops on a thread pool,
+so without it the increments race and are lost. That does not merely
+undercount: gcov measures a subset of the arcs and derives the rest by
+conservation of flow, so counters that disagree make a derived branch come out
+negative, and gcovr stops at the first one. The flag costs time in an
+instrumented run, which is a coverage build only. GCC picks atomic counters on
+its own when `-pthread` is on the compile line, which here it is not: nothing
+sets `THREADS_PREFER_PTHREAD_FLAG`, so `Threads::Threads` only links.
+
 Dependencies come through one `cmake/modules/rexlib_add_*.cmake` each: boost,
 spdlog, half, pocketfft and eigen for the library, catch2 and trompeloeil for
 the tests. Every one is fetched and built by default and can instead be taken
