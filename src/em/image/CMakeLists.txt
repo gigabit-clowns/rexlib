@@ -13,6 +13,7 @@ target_sources(
 		image_read_format.cpp
 		image_read_format_manager.cpp
 		image_reader.cpp
+		image_reader_extents.cpp
 		image_reader_provider.cpp
 		image_region_clipping.cpp
 		image_region_extents.cpp

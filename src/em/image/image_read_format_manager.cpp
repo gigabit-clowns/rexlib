@@ -10,6 +10,7 @@
 
 #include <core/find_most_suitable_backend.hpp>
 #include <em/image/core_image_format_registry.hpp>
+#include <em/image/image_reader_extents.hpp>
 
 #include <utility>
 #include <vector>
@@ -118,6 +119,22 @@ image_read_format_manager::get_implementation() const noexcept
 {
 	static const implementation empty_implementation;
 	return m_implementation ? *m_implementation : empty_implementation;
+}
+
+std::vector<std::size_t> query_extents(
+	const image_read_format_manager &formats,
+	const std::string &path
+)
+{
+	return copy_extents(*formats.open(path));
+}
+
+std::vector<std::size_t> query_core_extents(
+	const image_read_format_manager &formats,
+	const std::string &path
+)
+{
+	return copy_core_extents(*formats.open(path));
 }
 
 } // namespace em
