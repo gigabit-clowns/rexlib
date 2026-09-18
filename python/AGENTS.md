@@ -14,11 +14,11 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 35 `.cpp` and 35 `.hpp`, compiled into the `rexlib._binding` extension |
-| `python/rexlib/` | The Python package, 8 `.py`: everything the binding cannot express |
+| `src/` | The pybind11 binding, 40 `.cpp` and 40 `.hpp`, compiled into the `rexlib._binding` extension |
+| `python/rexlib/` | The Python package, 10 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
-| `scripts/` | Development tools: the test runner, the stub generator, the wheel check |
+| `scripts/` | Development tools: the test runner, the stub generator and collector, the wheel check |
 | `cmake/modules/` | `python_stubs.cmake`, which installs the type stubs |
 | `conf/` | `coverage.ini` |
 | `external/rexlib` | The rexlib the repository is developed against, a submodule |
@@ -29,9 +29,15 @@ to ask.
 `src/` mirrors rexlib's own directory structure, and the module it produces
 mirrors the C++ API: same names, same argument order, same required arguments.
 It does not decide anything. `python/rexlib/` is where the API becomes Python:
-default arguments, implicit context, operators, process-wide state. Everything
-in it is private — a leading underscore on every module — and `__init__.py` is
-the whole public surface.
+default arguments, implicit context, operators, process-wide state. Its
+modules carry a leading underscore and `__init__.py` re-exports what they
+hold, so that the public surface is one flat namespace rather than a set of
+import paths.
+
+A public subpackage is the exception to that, and `em/` is the one: its module
+path *is* the API, `rexlib.em.image`, so the directories are named without an
+underscore and each carries an `__all__` of its own. Anything private inside
+one still takes the underscore.
 
 The rule that follows: if a change could be expressed in either place, it goes
 in `python/rexlib/`. C++ is the expensive side to change and the one that has
@@ -47,10 +53,12 @@ them: everything under those directories is flat in `namespace rexlib`,
 the only place rexlib separates these areas, so the paths are what the
 submodule names come from.
 
-Nothing under `em/` is bound yet. When it is, the same rule decides its module
-path: `em/image/` sits inside `namespace em` the way `core/hardware/` sits
-inside `namespace rexlib`, and the path is what will separate it from the
-areas that come after it. See #143.
+It reaches through nesting where rexlib's directories nest. `em/image/` sits
+inside `namespace em` the way `core/hardware/` sits inside `namespace rexlib`,
+so it binds as `em.image` rather than as `em`, even though `em::read` carries
+no `image` qualifier of its own. The path is what keeps images apart from the
+areas that come after them, which is why it is the path and not the function
+name that names them. See #143.
 
 `_binding` carries at its top level what the directories below it sit in:
 
@@ -62,9 +70,12 @@ areas that come after it. See #143.
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, events, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
+| `_binding.em.image` | `src/em/image/` | `ImageLocation`, the read and write format managers |
 
-`src/main.cpp` is the only place that creates a submodule, and it names them
-in the order the declarations need.
+A submodule is created by the `main.cpp` above it, which then hands it to the
+`bind_` function of the directory it stands for: `src/main.cpp` creates `em`
+and `src/em/main.cpp` creates `image` inside it. Each names its submodules in
+the order the declarations need.
 
 ### The package's modules
 
@@ -77,6 +88,7 @@ in the order the declarations need.
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
 | `_functional.py` | The operations again, with `context` defaulting to the active one |
 | `_ndarray.py` | Installs the Python operators onto `Array` |
+| `em/` | The electron microscopy areas, one module each |
 
 `_paths` is imported first in `__init__.py`, and the order matters: on Windows
 nothing else imports until the bundled library is findable. `_ndarray` is
@@ -159,6 +171,14 @@ fails rather than producing an untyped package.
 The package is typed — `py.typed` ships — so a change to the binding's
 signatures is a change to the stubs, generated for free, and a change to
 `python/rexlib/` is only as typed as it was written.
+
+A submodule that holds submodules of its own becomes a directory of stubs
+rather than one file: `em` is `_binding/em/__init__.pyi` beside
+`_binding/em/image.pyi`. Every step that moves stubs has to carry that tree,
+so `scripts/collect_stubs.py` copies it and the artifact holding it is
+uploaded as a directory. A flat `*.pyi` glob at either step takes the top
+level and drops the rest, which fails nothing and publishes wheels typed
+everywhere except the area that was just added.
 
 ## Conventions
 
@@ -281,6 +301,7 @@ Tests for what `_binding` exposes at its top level stay at the root.
 | `tests/hardware/` | Devices, sessions, events, memory resources, the session pool |
 | `tests/dispatch/` | `ExecutionContext`, the active context, `rexlib.device(...)` |
 | `tests/functional/` | The operations |
+| `tests/em/image/` | `ImageLocation`, parsing, the format managers |
 
 There are no `__init__.py` files and no `conftest.py`. Test module names are
 therefore unique across the whole tree, and a fixture belongs to the file that

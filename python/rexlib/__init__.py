@@ -12,6 +12,10 @@ sub-namespaces, matching both the C++ side, where they are in `rexlib`
 itself, and the shape of the array libraries they are used alongside.
 Device management and dispatch stay in their own modules: they are
 reached for when setting up rather than when computing.
+
+`em` is a package rather than a flat name, one module per area of
+electron microscopy, so that each area keeps its own `read` and `write`
+instead of spelling the area into the function name.
 """
 
 from __future__ import annotations
@@ -38,6 +42,8 @@ from ._catalog import get_default_catalog as get_default_catalog
 from ._context import get_active_execution_context as get_active_execution_context
 from ._device import device as device
 from ._paths import get_cmake_dir as get_cmake_dir, get_include as get_include
+
+from . import em as em
 
 # Imported for its effect: it installs the Python operators onto Array,
 # which has to happen before anything hands one out.
@@ -89,6 +95,7 @@ __all__ = [
 	"device",
 	"dispatch",
 	"divide",
+	"em",
 	"empty",
 	"fill",
 	"full",

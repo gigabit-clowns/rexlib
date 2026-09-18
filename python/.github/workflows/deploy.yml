@@ -90,16 +90,13 @@ jobs:
           key: stubs-ubuntu-latest
 
       - name: Collect the generated stubs
-        run: |
-          mkdir -p stubs
-          cp "$(python -c 'import rexlib, pathlib; print(pathlib.Path(rexlib.__file__).parent)')"/_binding/*.pyi stubs/
-          ls -l stubs
+        run: python scripts/collect_stubs.py --module rexlib._binding --output stubs
 
       - name: Upload stubs
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: type-stubs
-          path: stubs/*.pyi
+          path: stubs/
 
   build_wheels:
     needs: generate_stubs
