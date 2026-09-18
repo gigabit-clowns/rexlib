@@ -44,8 +44,8 @@ public:
 	REXLIB_API
 	explicit image_batch_source(std::shared_ptr<const image_source> source);
 
-	image_batch_source(const image_source &other) = delete;
-	image_batch_source(image_source &&other) = delete;
+	image_batch_source(const image_batch_source &other) = delete;
+	image_batch_source(image_batch_source &&other) = delete;
 
 	REXLIB_API
 	~image_batch_source();

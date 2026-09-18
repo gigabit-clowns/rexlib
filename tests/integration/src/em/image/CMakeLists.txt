@@ -2,6 +2,7 @@ target_sources(
 	rexlib-integration-tests
 	PRIVATE
 		test_image_format_managers.cpp
+		test_image_patch_source.cpp
 		test_mrc_real_files.cpp
 		test_mrc_round_trip.cpp
 )

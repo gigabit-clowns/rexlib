@@ -29,6 +29,12 @@ using namespace rexlib::em;
 namespace
 {
 
+// image_source clips every region to the file it comes from, so a mocked
+// reader has to report extents an unclipped region fits in: the shape of the
+// image the cases below read whole, and the stack the indexed one draws from.
+const std::vector<std::size_t> image_extents = {3, 5};
+const std::vector<std::size_t> stack_extents = {6, 4, 4};
+
 array make_array(const std::vector<std::size_t> &extents)
 {
 	const auto storage = std::make_shared<mock_buffer>();
@@ -168,6 +174,8 @@ TEST_CASE(
 
 	REQUIRE_CALL(*readers, acquire("a.mrc")).RETURN(reader_a);
 	REQUIRE_CALL(*readers, acquire("b.mrc")).RETURN(reader_b);
+	ALLOW_CALL(*reader_a, get_extents()).RETURN(make_span(image_extents));
+	ALLOW_CALL(*reader_b, get_extents()).RETURN(make_span(image_extents));
 
 	REQUIRE_CALL(*reader_a, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
@@ -210,6 +218,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("a.mrc")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(image_extents));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 2 &&
@@ -244,6 +253,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 3 &&
@@ -287,6 +297,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("a.mrc")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(image_extents));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.SIDE_EFFECT( throw std::runtime_error("from a reader") );
 
