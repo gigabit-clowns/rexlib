@@ -45,12 +45,12 @@ class index_table;
  * A patch reaching past the edge of the image is read as far as the image
  * goes and no further, which @ref image_source resolves. The elements of the
  * destination no data reached are left untouched, so what a patch is padded
- * with is decided by what the destination held beforehand. Filling it with a
- * value that cannot occur in the image, such as a quiet NaN, is what lets a
- * later pass tell the padding apart and replace it.
+ * with is decided by what the destination held beforehand. Previously filling 
+ * it with a sentinel value that should not occur in the image, such as a quiet 
+ * NaN, is  what lets a later pass tell the padding apart and replace it.
  *
  * @par Thread safety
- * read may be called concurrently.
+ * `read` may be called concurrently.
  */
 class image_patch_source
 {

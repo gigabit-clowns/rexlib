@@ -74,13 +74,9 @@ public:
 	 * single position, transfers nothing at all. The elements of
 	 * @p destination no region reached are left as they were.
 	 *
-	 * A batch of patches is what this is for: a patch centred near a
-	 * corner of an image begins outside it, which the array offset of its
-	 * region carries, and only the part of it the image holds is read.
-	 *
-	 * The cost is that a @p destination too small for a region is
-	 * shortened to fit instead of reported, since it is the same thing to
-	 * this as a patch hanging over an edge.
+	 * As a consequence @p destination too small for a region is shortened to 
+	 * fit instead of reported, since it is the same thing to this as a patch 
+	 * hanging over an edge.
 	 *
 	 * @param destination Where the regions land.
 	 * @param plan The transaction to read.
