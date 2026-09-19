@@ -63,10 +63,10 @@ function(rexlib_add_component NAME)
 
 	# Add coverage flags if requested
 	if(REXLIB_ENABLE_COVERAGE)
-		if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-			target_compile_options(
-				${NAME} PRIVATE --coverage -fprofile-update=atomic -O0 -g
-			)
+		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+			target_compile_options(${NAME} PRIVATE --coverage -pthread -O0 -g)
+		elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+			target_compile_options(${NAME} PRIVATE --coverage -O0 -g)
 		elseif(MSVC)
 			target_compile_options(${NAME} PRIVATE /Z7 /Od)
 		endif()

@@ -72,16 +72,28 @@ The last one exists because a memory checker pays its start-up on every test
 CTest runs. Discovering each case makes it re-analyse the whole binary once per
 case, which took the memcheck job past six hours.
 
-`REXLIB_ENABLE_COVERAGE` instruments with `-fprofile-update=atomic` beside
-`--coverage`. The counters gcov keeps are one per arc and shared by every
-thread running the code, and the CPU backend runs its loops on a thread pool,
-so without it the increments race and are lost. That does not merely
+`REXLIB_ENABLE_COVERAGE` adds `-pthread` beside `--coverage` under GCC. The
+counters gcov keeps are one per arc and shared by every thread running the
+code, and the CPU backend runs its loops on a thread pool, so updated the
+ordinary way the increments race and are lost. That does not merely
 undercount: gcov measures a subset of the arcs and derives the rest by
 conservation of flow, so counters that disagree make a derived branch come out
-negative, and gcovr stops at the first one. The flag costs time in an
-instrumented run, which is a coverage build only. GCC picks atomic counters on
-its own when `-pthread` is on the compile line, which here it is not: nothing
-sets `THREADS_PREFER_PTHREAD_FLAG`, so `Threads::Threads` only links.
+negative, and gcovr stops at the first one. The GCC driver selects
+`-fprofile-update=prefer-atomic` when `-pthread` is on the compile line, which
+is the whole reason the flag is named there; nothing else sets it, since
+`THREADS_PREFER_PTHREAD_FLAG` is unset and `Threads::Threads` only links.
+
+Naming `-fprofile-update=atomic` directly would say the same thing and is what
+the option is for, but ccache learned that option in 4.10 and treats it as
+unsupported before then, making every instrumented unit uncacheable. The
+runners carry 4.5.1 on jammy, 4.9.1 on noble and on Windows, so all but macOS
+would recompile the whole library on every run. `-pthread` is an ordinary
+flag every version caches.
+
+Clang ignores `-pthread` here — its driver acts on `-fprofile-update` alone —
+so its counters are not atomic and its counts are lost the same way. It is
+left as it is because clang selects arcs differently and has never produced a
+negative, and because buying atomic counters there costs the cache.
 
 Dependencies come through one `cmake/modules/rexlib_add_*.cmake` each: boost,
 spdlog, half, pocketfft and eigen for the library, catch2 and trompeloeil for
