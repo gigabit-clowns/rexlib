@@ -389,5 +389,13 @@ The source distribution names `external/rexlib/**` explicitly, because
 `git ls-files` does not report a submodule's contents and the archive would
 otherwise carry an empty directory and fail to build.
 
+The job that installs that distribution sets `SKBUILD_BUILD_DIR`, which is
+what lets its compiler cache work. scikit-build-core otherwise builds in a
+temporary directory of its own, unrelated to the one pip unpacked the archive
+into, so the sources sit at a different place relative to the build directory
+on every run and `CCACHE_BASEDIR` has nothing stable to rewrite against. The
+value has to stay relative — scikit-build-core resolves it against the source
+directory, and an absolute one would leave the sources where they were.
+
 Publishing to PyPI is wired up but disabled. Every push to `main` updates the
 `development` pre-release with its binaries.

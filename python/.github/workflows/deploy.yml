@@ -343,6 +343,7 @@ jobs:
       - name: Install
         env:
           CMAKE_BUILD_PARALLEL_LEVEL: 4
+          SKBUILD_BUILD_DIR: build
           SKBUILD_CMAKE_DEFINE: FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }};CMAKE_C_COMPILER_LAUNCHER=ccache;CMAKE_CXX_COMPILER_LAUNCHER=ccache
         run: pip install --verbose dist/*.tar.gz
 
