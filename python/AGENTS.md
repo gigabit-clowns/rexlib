@@ -131,6 +131,14 @@ CMake, and the install rules are what put the package together. A CMake build
 on its own is what CI uses to get a compilation database for the scanner, not
 a way to get a working package.
 
+That build is thrown away with its directory, so installing twice compiles the
+binding twice. `SKBUILD_BUILD_DIR` names one to keep and is left to whoever is
+installing rather than set here — the README carries it. It is deliberately
+not in `pyproject.toml`: the gain is a developer's repeated install, while the
+cost, a CMake cache that outlives the options it was configured with, would
+fall on every user and on six wheel jobs that already hit their compiler cache
+without it.
+
 CMake 3.18 is the minimum. The binding is C++20, unlike rexlib itself, which
 is C++14: nothing here has to build on the compilers rexlib supports, only on
 the ones that build wheels. `CMAKE_CXX_STANDARD_REQUIRED` is off all the same.

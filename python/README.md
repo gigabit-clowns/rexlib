@@ -23,7 +23,22 @@ Then, to install in development mode from the root of this project:
 CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
   pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
 ```
-To run the tests for this project (only avaiable when installed in development mode), run:
+That builds in a temporary directory that is discarded afterwards, so every run
+compiles the whole binding again. If you are installing repeatedly, name a
+build directory and the build becomes incremental:
+```
+SKBUILD_BUILD_DIR=build/binding CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
+  pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
+```
+The directory has to be relative: scikit-build-core resolves it against this
+project, which is what makes it the same one next time. It sits beside the one
+rexlib was built in above rather than over it, so removing either leaves the
+other alone. It keeps CMake's cache along with the objects, so an option that
+is only read the first time a build directory is configured —
+`REXLIB_USE_SYSTEM_BOOST` and its siblings, among others — keeps the answer it
+was given then. Remove `build/binding` to change one.
+
+To run the tests for this project (only available when installed in development mode), run:
 ```
 ./scripts/run-tests.sh
 ```
