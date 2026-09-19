@@ -13,6 +13,7 @@
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
+#include <em/image/image_region_clipping.hpp>
 #include <em/image/image_region_grouping.hpp>
 
 #include <cstddef>
@@ -20,6 +21,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace rexlib
 {
@@ -49,7 +51,26 @@ public:
 	{
 		const auto reader = m_readers->acquire(m_path);
 		array_ref destination(*m_destination);
-		reader->read(destination, m_transfer);
+
+		std::vector<std::size_t> array_extents;
+		destination.get_descriptor().get_layout().get_extents(array_extents);
+
+		std::vector<image_transfer_plan> clipped;
+		if (!make_clipped_transfer_plans(
+				m_transfer,
+				reader->get_extents(),
+				make_span(array_extents),
+				clipped
+			))
+		{
+			reader->read(destination, m_transfer);
+			return;
+		}
+
+		for (const auto &regions : clipped)
+		{
+			reader->read(destination, regions);
+		}
 	}
 
 private:
