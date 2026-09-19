@@ -64,6 +64,20 @@ public:
 	 * from within a task already running on the executor this source
 	 * was constructed with.
 	 *
+	 * A region transfers the intersection of what its file holds at its
+	 * file offset with what @p destination holds at its array offset, up
+	 * to the extents of the plan. The intersection begins where the region
+	 * begins on either side, so a region reaching past either of them is
+	 * shortened rather than refused, and one that reaches past both is
+	 * shortened by whichever runs out first. A region reaching past a side
+	 * along an axis the extents of the plan do not cover, which spans a
+	 * single position, transfers nothing at all. The elements of
+	 * @p destination no region reached are left as they were.
+	 *
+	 * As a consequence @p destination too small for a region is shortened to 
+	 * fit instead of reported, since it is the same thing to this as a patch 
+	 * hanging over an edge.
+	 *
 	 * @param destination Where the regions land.
 	 * @param plan The transaction to read.
 	 * @return std::shared_ptr<completion> The completion, never null.
