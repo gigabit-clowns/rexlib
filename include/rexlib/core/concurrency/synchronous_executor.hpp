@@ -20,7 +20,7 @@ namespace rexlib
  * submitted here is therefore already resolved by the time submit is
  * back.
  */
-class synchronous_executor final
+class REXLIB_API synchronous_executor final
 	: public executor
 {
 public:

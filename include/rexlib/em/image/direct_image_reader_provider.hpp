@@ -28,7 +28,7 @@ class image_read_format_manager;
  * provider rather than a second opener, so the code that turns a path into a
  * reader lives here alone.
  */
-class direct_image_reader_provider final
+class REXLIB_API direct_image_reader_provider final
 	: public image_reader_provider
 {
 public:

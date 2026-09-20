@@ -39,7 +39,7 @@ namespace em
  * @c shared_ptr means the one not kept stays alive as long as its caller
  * reads through it, and so does an evicted one.
  */
-class caching_image_reader_provider final
+class REXLIB_API caching_image_reader_provider final
 	: public image_reader_provider
 {
 public:

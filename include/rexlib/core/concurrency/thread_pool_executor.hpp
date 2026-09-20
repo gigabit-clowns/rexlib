@@ -33,7 +33,7 @@ namespace rexlib
  * @par Thread safety
  * submit may be called concurrently.
  */
-class thread_pool_executor final
+class REXLIB_API thread_pool_executor final
 	: public executor
 {
 public:
