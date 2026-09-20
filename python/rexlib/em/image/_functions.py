@@ -10,10 +10,17 @@ execution context, the way `rexlib.add` and its siblings take theirs.
 
 from __future__ import annotations
 
+import os
+
+from ..._binding.concurrency import Executor, ThreadPoolExecutor
 from ..._binding.dispatch import ExecutionContext
 from ..._binding.em import image as _raw
 from ..._binding.em.image import (
+	CachingImageReaderProvider,
+	DirectImageReaderProvider,
+	ImageBatchSource,
 	ImageLocation,
+	ImageSource,
 	ImageReadFormatManager,
 	ImageWriteFormatManager,
 	get_image_read_format_manager,
@@ -23,6 +30,9 @@ from ..._binding.ndarray import Array
 from ..._binding.numerical import NumericalType
 from ..._catalog import get_default_catalog
 from ..._functional import _resolve_context
+
+def _default_worker_count() -> int:
+	return os.cpu_count() or 1
 
 def _resolve_read_manager(
 	manager: ImageReadFormatManager | None
@@ -37,6 +47,45 @@ def _resolve_write_manager(
 	if manager is None:
 		manager = get_image_write_format_manager(get_default_catalog())
 	return manager
+
+def batch_source(
+	workers: int | None = None,
+	cache: int | None = None,
+	manager: ImageReadFormatManager | None = None,
+	executor: Executor | None = None
+) -> ImageBatchSource:
+	"""
+	Assemble a batch source over a thread pool.
+
+	Wires the four objects a batch source stands on — the formats, a
+	reader provider, an executor and the source itself — so that a
+	caller reaches the pipeline without naming them.
+
+	Each source built this way owns its executor. Two of them means two
+	thread pools, each sized to the machine, which is worth avoiding by
+	passing one executor to both.
+
+	Args:
+		workers: How many threads to run reads on. Defaults to what the
+			machine reports. Ignored when `executor` is given.
+		cache: How many open readers to keep between reads. Defaults to
+			opening a file every time it is asked for, which is what
+			suits reads that do not revisit a file.
+		manager: The formats to recognize files with. Defaults to the
+			ones the default catalog holds.
+		executor: Where reads run. Defaults to a thread pool of its own.
+
+	Returns:
+		ImageBatchSource: The assembled source.
+	"""
+	readers = DirectImageReaderProvider(_resolve_read_manager(manager))
+	if cache is not None:
+		readers = CachingImageReaderProvider(readers, cache)
+	if executor is None:
+		executor = ThreadPoolExecutor(
+			workers if workers is not None else _default_worker_count()
+		)
+	return ImageBatchSource(ImageSource(readers, executor))
 
 def query_extents(
 	path: str,

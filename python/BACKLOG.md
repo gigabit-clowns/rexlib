@@ -56,55 +56,12 @@ One trap before `compare` lands: a type that defines `__eq__` and no
 rexlib, so the comparison operators need an answer about identity before they
 go in.
 
-## 3. Bind the batch source
+## 3. Bind the patch source
 
-`image_batch_source` is the class meant for pipelines: asynchronous, batched,
-running its own threads, and where the performance is. The slow path
-(`em.image.read`) stays what it is, for one-off reads and tests.
-
-The chain:
-
-```
-ImageReadFormatManager                     ← bound
-  └→ DirectImageReaderProvider(formats)    │ CachingImageReaderProvider(backing, capacity)
-     └→ ImageSource(readers, executor)     ← ThreadPoolExecutor(n) │ SynchronousExecutor()
-        └→ ImageBatchSource(source)
-           └→ read(destination, locations) → Completion{wait, is_ready, get}
-```
-
-It splits in two, by risk rather than by size.
-
-**3a — geometry.** Bind `query_extents` and `query_core_extents` over a format
-manager. Read-only surface, no threads, no GIL, and useful for sizing any read
-rather than only a batch. Their overloads over a reader provider wait for 3b,
-which is what binds the provider; those take a non-const reference where the
-format manager ones take a const one.
-
-`query_core_extents` returns the shape of a single image or volume, which is
-what a batch destination carries beside its leading extent, so no arithmetic
-has to be reproduced here. Whether a `make_batch_descriptor` helper on top is
-worth its weight is decided when this is written, with the code in view; it
-would only save a caller from getting the leading extent wrong.
-
-**3b — the pipeline.** Executors, providers, source, batch source, completion,
-the Python layer, and the GIL work.
-
-Settled before starting, recorded in [DECISIONS.md](DECISIONS.md): the
-destination's data type is the caller's choice rather than the file's; the
-thread pool is per instance with an executor accepted as an override; the
-completion is mirrored rather than wrapped in a future; and `wait`, `get` and
-`read` release the GIL.
-
-Two facts to build against, both verified in rexlib's sources:
-
-- `rexlib::array` is move-only and `read` takes it by value. Bound plainly,
-  pybind11 would move the array out of the caller's Python object and leave
-  them holding an empty one. The binding takes `array&` and passes
-  `destination.share()`.
-- Nothing else needs keeping alive. The `locations` span is consumed
-  synchronously while the plan is built; the destination is a handle whose
-  storage outlives a dropped Python reference; and `image_source::read`
-  extracts what each task needs at submit time, so its plan does not dangle.
+`image_patch_source` arrived with the batch source upstream and crops batches
+of patches out of an image, clipped at the borders. The batch source is bound;
+this one is not, and it stands on the same chain, so it is a smaller piece of
+work than the first was.
 
 ## 4. Translate the library's exceptions
 

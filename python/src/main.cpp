@@ -2,6 +2,7 @@
 #include "core/hardware/main.hpp"
 #include "core/ndarray/main.hpp"
 #include "core/numerical/main.hpp"
+#include "core/concurrency/main.hpp"
 #include "core/dispatch/main.hpp"
 #include "em/main.hpp"
 #include "functional/main.hpp"
@@ -32,6 +33,9 @@ PYBIND11_MODULE(_binding, m) {
 
 	auto dispatch_module = m.def_submodule("dispatch");
 	bind_dispatch(dispatch_module);
+
+	auto concurrency_module = m.def_submodule("concurrency");
+	bind_concurrency(concurrency_module);
 
 	auto functional_module = m.def_submodule("functional");
 	bind_functional(functional_module);

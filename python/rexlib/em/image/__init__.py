@@ -21,13 +21,19 @@ as a position in a stack. It is the inverse of `str`, and raises
 from __future__ import annotations
 
 from ..._binding.em.image import (
+	CachingImageReaderProvider as CachingImageReaderProvider,
+	DirectImageReaderProvider as DirectImageReaderProvider,
+	ImageBatchSource as ImageBatchSource,
 	ImageLocation as ImageLocation,
+	ImageReaderProvider as ImageReaderProvider,
+	ImageSource as ImageSource,
 	ImageReadFormatManager as ImageReadFormatManager,
 	ImageWriteFormatManager as ImageWriteFormatManager,
 	get_image_read_format_manager as get_image_read_format_manager,
 	get_image_write_format_manager as get_image_write_format_manager,
 )
 from ._functions import (
+	batch_source as batch_source,
 	query_core_extents as query_core_extents,
 	query_extents as query_extents,
 	read as read,
@@ -35,9 +41,15 @@ from ._functions import (
 )
 
 __all__ = [
+	"CachingImageReaderProvider",
+	"DirectImageReaderProvider",
+	"ImageBatchSource",
 	"ImageLocation",
 	"ImageReadFormatManager",
+	"ImageReaderProvider",
+	"ImageSource",
 	"ImageWriteFormatManager",
+	"batch_source",
 	"get_image_read_format_manager",
 	"get_image_write_format_manager",
 	"query_core_extents",

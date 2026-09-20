@@ -25,6 +25,7 @@ from __future__ import annotations
 from . import _paths as _paths
 
 from ._binding import (
+	concurrency as concurrency,
 	dispatch as dispatch,
 	hardware as hardware,
 	Plugin as Plugin,
@@ -91,6 +92,7 @@ __all__ = [
 	"add",
 	"cast",
 	"cast_copy",
+	"concurrency",
 	"copy",
 	"device",
 	"dispatch",

@@ -14,7 +14,7 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 42 `.cpp` and 42 `.hpp`, compiled into the `rexlib._binding` extension |
+| `src/` | The pybind11 binding, 47 `.cpp` and 47 `.hpp`, compiled into the `rexlib._binding` extension |
 | `python/rexlib/` | The Python package, 11 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
@@ -69,8 +69,9 @@ name that names them. See #143.
 | `_binding.ndarray` | `src/core/ndarray/` | `Array`, `ArrayDescriptor` |
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, events, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
+| `_binding.concurrency` | `src/core/concurrency/` | `Executor` and its two kinds, `Completion` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
-| `_binding.em.image` | `src/em/image/` | `ImageLocation`, the read and write format managers, `read` and `write` |
+| `_binding.em.image` | `src/em/image/` | `ImageLocation`, the format managers and reader providers, the sources, `read`, `write` and the shape queries |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the
 `bind_` function of the directory it stands for: `src/main.cpp` creates `em`
@@ -245,6 +246,19 @@ cannot be a dictionary key or go in a set. Where rexlib gives the type a
 Where it does not, `device_index` being the one left, the hash has to be
 written, which is rexlib's to do rather than this binding's;
 `_session_pool.py` keys on a `(backend, id)` tuple in the meantime.
+
+A binding that blocks releases the GIL with
+`py::call_guard<py::gil_scoped_release>()`. `Completion.wait`, `Completion.get`
+and `ImageBatchSource.read` all do: held through a read, the GIL would freeze
+every other Python thread for its duration and there would be nothing
+asynchronous left about the interface. pybind11 converts the arguments before
+the guard is constructed and the return value after it is destroyed, so
+nothing touches Python without it.
+
+`rexlib::array` is move-only, and anything taking one by value has to be given
+`destination.share()` rather than the caller's own. Bound plainly, pybind11
+would move the array out of the Python object and hand the caller back an
+empty one.
 
 A type rexlib parses from a string carries a `from_string` static method and
 no constructor that parses. `DeviceIndex` and `ImageLocation` both do, and
