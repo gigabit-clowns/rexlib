@@ -12,7 +12,6 @@ on:
       - .github/workflows/release.yml
       - .gitattributes
       - .gitignore
-      - .gitattributes
       - .vscode/**
       - LICENSE
       - renovate.json
