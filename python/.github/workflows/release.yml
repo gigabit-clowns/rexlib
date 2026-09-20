@@ -7,3 +7,6 @@ jobs:
   tag_and_release:
     name: Generate new tag and GitHub release
     uses: gigabit-clowns/.github/.github/workflows/release.yml@main
+    secrets:
+      W2W_CLIENT_ID: ${{ secrets.W2W_CLIENT_ID }}
+      W2W_APP_PRIVATE_KEY: ${{ secrets.W2W_APP_PRIVATE_KEY }}
