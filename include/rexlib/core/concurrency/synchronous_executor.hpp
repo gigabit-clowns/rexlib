@@ -24,13 +24,11 @@ class REXLIB_API synchronous_executor final
 	: public executor
 {
 public:
-	REXLIB_API
 	synchronous_executor() noexcept;
 
 	synchronous_executor(const synchronous_executor &other) = delete;
 	synchronous_executor(synchronous_executor &&other) = delete;
 
-	REXLIB_API
 	~synchronous_executor() override;
 
 	synchronous_executor&
@@ -45,7 +43,6 @@ public:
 	 * @param notifier Where the outcome is reported. Must not be null.
 	 * @throws std::invalid_argument If @p t or @p notifier is null.
 	 */
-	REXLIB_API
 	void submit(
 		std::unique_ptr<task> t,
 		std::shared_ptr<completion_notifier> notifier

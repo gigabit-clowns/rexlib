@@ -52,13 +52,11 @@ public:
 	 * @throws std::invalid_argument If @p backing is null or @p capacity is
 	 * zero.
 	 */
-	REXLIB_API
 	caching_image_reader_provider(
 		std::shared_ptr<image_reader_provider> backing,
 		std::size_t capacity
 	);
 
-	REXLIB_API
 	~caching_image_reader_provider() override;
 
 	/**
@@ -66,7 +64,6 @@ public:
 	 *
 	 * @return std::size_t The capacity, in entries.
 	 */
-	REXLIB_API
 	std::size_t get_capacity() const noexcept;
 
 	/**
@@ -75,7 +72,6 @@ public:
 	 * @return std::size_t The number of entries, never above
 	 * @ref get_capacity.
 	 */
-	REXLIB_API
 	std::size_t get_reader_count() const noexcept;
 
 	/**
@@ -88,12 +84,12 @@ public:
 	 * @throws invalid_operation_error If no format recognizes the file.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
-	REXLIB_API
 	std::shared_ptr<const image_reader>
 	acquire(const std::string &path) override;
 
 private:
 	class implementation;
+	REXLIB_STD_MEMBER_INTERFACE
 	std::unique_ptr<implementation> m_implementation;
 };
 

@@ -43,13 +43,11 @@ public:
 	 * @param worker_count Threads to spawn. Must be greater than zero.
 	 * @throws std::invalid_argument If @p worker_count is zero.
 	 */
-	REXLIB_API
 	explicit thread_pool_executor(std::size_t worker_count);
 
 	thread_pool_executor(const thread_pool_executor &other) = delete;
 	thread_pool_executor(thread_pool_executor &&other) = delete;
 
-	REXLIB_API
 	~thread_pool_executor() override;
 
 	thread_pool_executor&
@@ -62,7 +60,6 @@ public:
 	 *
 	 * @return std::size_t The worker count passed at construction.
 	 */
-	REXLIB_API
 	std::size_t get_worker_count() const noexcept;
 
 	/**
@@ -72,7 +69,6 @@ public:
 	 * @param notifier Where the outcome is reported. Must not be null.
 	 * @throws std::invalid_argument If @p t or @p notifier is null.
 	 */
-	REXLIB_API
 	void submit(
 		std::unique_ptr<task> t,
 		std::shared_ptr<completion_notifier> notifier
@@ -80,6 +76,7 @@ public:
 
 private:
 	class implementation;
+	REXLIB_STD_MEMBER_INTERFACE
 	std::unique_ptr<implementation> m_implementation;
 };
 

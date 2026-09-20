@@ -38,12 +38,10 @@ public:
 	 * @param formats The formats a file may be opened with.
 	 * @throws std::invalid_argument If @p formats is null.
 	 */
-	REXLIB_API
 	explicit direct_image_reader_provider(
 		std::shared_ptr<const image_read_format_manager> formats
 	);
 
-	REXLIB_API
 	~direct_image_reader_provider() override;
 
 	/**
@@ -55,11 +53,11 @@ public:
 	 * @throws invalid_operation_error If no format recognizes the file.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
-	REXLIB_API
 	std::shared_ptr<const image_reader>
 	acquire(const std::string &path) override;
 
 private:
+	REXLIB_STD_MEMBER_INTERFACE
 	std::shared_ptr<const image_read_format_manager> m_formats;
 };
 
