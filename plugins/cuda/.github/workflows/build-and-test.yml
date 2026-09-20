@@ -11,6 +11,7 @@ on:
       - .github/workflows/keep-caches-warm.yml
       - .github/workflows/release.yml
       - .gitignore
+      - .gitattributes
       - .vscode/**
       - LICENSE
       - pyproject.toml
