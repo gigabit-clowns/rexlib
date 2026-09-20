@@ -14,5 +14,6 @@ namespace rexlib
 using array_class = pybind11::class_<array>;
 
 array_class declare_array(pybind11::module_ &m);
+void define_array(array_class &c);
 
 } // namespace rexlib

@@ -239,6 +239,13 @@ Every argument is named with `py::arg`. An optional out parameter is
 `py_` function beside the binding; that function exists because the C++
 signature takes a raw pointer and pybind11 will not produce one from `None`.
 
+A bound type that defines `__eq__` and no `__hash__` is unhashable, so it
+cannot be a dictionary key or go in a set. Where rexlib gives the type a
+`hash()` of its own — `array_descriptor` and `image_location` do — forward it.
+Where it does not, `device_index` being the one left, the hash has to be
+written, which is rexlib's to do rather than this binding's;
+`_session_pool.py` keys on a `(backend, id)` tuple in the meantime.
+
 A type rexlib parses from a string carries a `from_string` static method and
 no constructor that parses. `DeviceIndex` and `ImageLocation` both do, and
 `ImageLocation` is why: its constructor already gives a lone string the
