@@ -38,6 +38,50 @@ def _resolve_write_manager(
 		manager = get_image_write_format_manager(get_default_catalog())
 	return manager
 
+def query_extents(
+	path: str,
+	manager: ImageReadFormatManager | None = None
+) -> tuple[int, ...]:
+	"""
+	Get the extents of a whole image file.
+
+	Slowest axis first, so a stack reports the axis it stacks along
+	before the shape of one of its images.
+
+	Args:
+		path: The file to ask about.
+		manager: The formats to recognize the file with. Defaults to the
+			ones the default catalog holds.
+
+	Returns:
+		tuple: The extents of the file.
+	"""
+	return _raw.query_extents(_resolve_read_manager(manager), path)
+
+def query_core_extents(
+	path: str,
+	manager: ImageReadFormatManager | None = None
+) -> tuple[int, ...]:
+	"""
+	Get the extents of one image or volume of a file.
+
+	The axes a file stacks along are left out, so this is the shape a
+	batch destination carries beside its leading extent:
+
+		descriptor = rexlib.make_contiguous_array_descriptor(
+			(len(locations), *query_core_extents(path)), data_type
+		)
+
+	Args:
+		path: The file to ask about.
+		manager: The formats to recognize the file with. Defaults to the
+			ones the default catalog holds.
+
+	Returns:
+		tuple: The extents of one image or volume.
+	"""
+	return _raw.query_core_extents(_resolve_read_manager(manager), path)
+
 def read(
 	path: str | ImageLocation,
 	manager: ImageReadFormatManager | None = None,

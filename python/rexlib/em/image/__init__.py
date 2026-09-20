@@ -27,7 +27,12 @@ from ..._binding.em.image import (
 	get_image_read_format_manager as get_image_read_format_manager,
 	get_image_write_format_manager as get_image_write_format_manager,
 )
-from ._functions import read as read, write as write
+from ._functions import (
+	query_core_extents as query_core_extents,
+	query_extents as query_extents,
+	read as read,
+	write as write,
+)
 
 __all__ = [
 	"ImageLocation",
@@ -35,6 +40,8 @@ __all__ = [
 	"ImageWriteFormatManager",
 	"get_image_read_format_manager",
 	"get_image_write_format_manager",
+	"query_core_extents",
+	"query_extents",
 	"read",
 	"write",
 ]

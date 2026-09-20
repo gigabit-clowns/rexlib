@@ -74,11 +74,11 @@ ImageReadFormatManager                     ← bound
 
 It splits in two, by risk rather than by size.
 
-**3a — geometry.** Bind `query_extents` and `query_core_extents`, each with
-its two overloads, over a format manager and over a reader provider. Read-only
-surface, no threads, no GIL, and useful for sizing any read rather than only a
-batch. Note the provider overloads take a non-const reference where the format
-manager ones take a const one.
+**3a — geometry.** Bind `query_extents` and `query_core_extents` over a format
+manager. Read-only surface, no threads, no GIL, and useful for sizing any read
+rather than only a batch. Their overloads over a reader provider wait for 3b,
+which is what binds the provider; those take a non-const reference where the
+format manager ones take a const one.
 
 `query_core_extents` returns the shape of a single image or volume, which is
 what a batch destination carries beside its leading extent, so no arithmetic
