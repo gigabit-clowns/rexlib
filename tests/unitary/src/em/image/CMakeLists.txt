@@ -3,6 +3,7 @@ target_sources(
 	PRIVATE
 		test_caching_image_reader_provider.cpp
 		test_direct_image_reader_provider.cpp
+		test_image_batch_plan.cpp
 		test_image_batch_sink.cpp
 		test_image_batch_source.cpp
 		test_image_format_registration.cpp
