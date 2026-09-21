@@ -88,7 +88,7 @@ image_sink::~image_sink() = default;
 std::shared_ptr<completion> image_sink::write(
 	const_array source,
 	const image_transaction_plan &plan
-)
+) const
 {
 	image_region_grouping grouping;
 	grouping.build(plan);
