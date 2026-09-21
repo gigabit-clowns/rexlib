@@ -95,6 +95,16 @@ public:
 	REXLIB_API
 	std::size_t get_position_in_stack() const noexcept;
 
+	/**
+	 * @brief Check whether this addresses an element of its file rather than
+	 * the file as a whole.
+	 *
+	 * @return true It carries a position along the slowest axis of the file.
+	 * @return false Its position is @ref no_position.
+	 */
+	REXLIB_API
+	bool has_position() const noexcept;
+
 	friend bool
 	operator==(const image_location &lhs, const image_location &rhs) noexcept
 	{
@@ -144,7 +154,7 @@ public:
 	friend std::ostream&
 	operator<<(std::ostream &os, const image_location &location)
 	{
-		if (location.get_position_in_stack() != no_position)
+		if (location.has_position())
 		{
 			os << (location.get_position_in_stack() + 1) << '@';
 		}

@@ -110,9 +110,7 @@ std::shared_ptr<completion> image_patch_source::read(
 		return std::make_shared<counting_completion>(0);
 	}
 
-	const auto position_in_stack = location.get_position_in_stack();
-	const auto stack_indexing =
-		position_in_stack != image_location::no_position;
+	const auto stack_indexing = location.has_position();
 	const auto file_rank = stack_indexing ? array_rank : patch_rank;
 	const auto file_leading = file_rank - patch_rank;
 	const span<const std::size_t> patch_extents(
@@ -132,7 +130,7 @@ std::shared_ptr<completion> image_patch_source::read(
 	std::vector<std::size_t> array_offset(array_rank, 0UL);
 	if (stack_indexing)
 	{
-		file_offset[0] = position_in_stack;
+		file_offset[0] = location.get_position_in_stack();
 	}
 
 	for (std::size_t i = 0; i < batch_size; ++i)

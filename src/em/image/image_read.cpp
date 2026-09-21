@@ -100,14 +100,17 @@ array read(
 )
 {
 	const auto reader = manager.open(location.get_path());
-	const auto position = location.get_position_in_stack();
 
-	if (position == image_location::no_position)
+	if (!location.has_position())
 	{
 		return read_whole_file(*reader, context);
 	}
 
-	return read_stack_position(*reader, position, context);
+	return read_stack_position(
+		*reader,
+		location.get_position_in_stack(),
+		context
+	);
 }
 
 } // namespace em
