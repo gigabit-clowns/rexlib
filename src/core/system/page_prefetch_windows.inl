@@ -36,9 +36,11 @@ prefetch_virtual_memory_function get_prefetch_virtual_memory() noexcept
 {
 	static const auto function =
 		reinterpret_cast<prefetch_virtual_memory_function>(
-			::GetProcAddress(
-				::GetModuleHandleW(L"kernel32.dll"),
-				"PrefetchVirtualMemory"
+			reinterpret_cast<void*>(
+				::GetProcAddress(
+					::GetModuleHandleW(L"kernel32.dll"),
+					"PrefetchVirtualMemory"
+				)
 			)
 		);
 

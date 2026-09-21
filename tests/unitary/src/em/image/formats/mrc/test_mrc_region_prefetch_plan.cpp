@@ -290,7 +290,7 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		const auto &range = advice.get_ranges()[0];
+		const auto range = advice.get_ranges()[0];
 		CHECK( reinterpret_cast<std::uintptr_t>(range.get_address()) % 32 ==
 			0 );
 		CHECK( offset_in(range, *file) == values + plane_bytes - 16 );
@@ -305,7 +305,7 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 		);
 
 		REQUIRE( advice.get_ranges().size() == 1 );
-		const auto &range = advice.get_ranges()[0];
+		const auto range = advice.get_ranges()[0];
 		CHECK( offset_in(range, *file) + range.get_size() == end );
 	}
 
