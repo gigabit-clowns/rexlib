@@ -8,6 +8,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <cstddef>
+#include <vector>
 
 namespace rexlib
 {
@@ -153,6 +154,34 @@ public:
 		const image_transfer_plan &regions
 	) const = 0;
 };
+
+/**
+ * @brief Copy the extents a reader reports.
+ *
+ * @ref image_reader::get_extents refers to storage the reader owns, which a
+ * caller that let go of the reader in the same expression outlives. This owns
+ * what it returns, which is the whole of asking for it safely.
+ *
+ * @param reader The reader to ask.
+ * @return std::vector<std::size_t> The extents of the file, slowest axis
+ * first.
+ */
+REXLIB_API
+std::vector<std::size_t> copy_extents(const image_reader &reader);
+
+/**
+ * @brief Copy the extents of one image or volume of a file.
+ *
+ * The trailing @ref image_reader::get_core_rank extents, so the axes the file
+ * stacks along are left out and what remains is the shape of a single image
+ * or volume. That is what the destination of a batch carries beside its
+ * leading extent.
+ *
+ * @param reader The reader to ask.
+ * @return std::vector<std::size_t> The extents of one image or volume.
+ */
+REXLIB_API
+std::vector<std::size_t> copy_core_extents(const image_reader &reader);
 
 } // namespace em
 } // namespace rexlib
