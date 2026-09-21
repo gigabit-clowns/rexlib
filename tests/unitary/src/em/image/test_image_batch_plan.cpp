@@ -36,7 +36,7 @@ image_transaction_plan plan_of(
 	const std::vector<image_location> &locations
 )
 {
-	return make_batch_transaction_plan(
+	return make_batch_plan(
 		make_span(array_extents),
 		make_span(locations),
 		caller
@@ -46,7 +46,7 @@ image_transaction_plan plan_of(
 } // namespace
 
 TEST_CASE(
-	"make_batch_transaction_plan checks the array against the locations",
+	"make_batch_plan checks the array against the locations",
 	"[image_batch_plan]"
 )
 {
@@ -73,7 +73,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan refuses a batch of both kinds of location",
+	"make_batch_plan refuses a batch of both kinds of location",
 	"[image_batch_plan]"
 )
 {
@@ -107,7 +107,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan names its caller in what it throws",
+	"make_batch_plan names its caller in what it throws",
 	"[image_batch_plan]"
 )
 {
@@ -125,7 +125,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan holds an empty batch",
+	"make_batch_plan holds an empty batch",
 	"[image_batch_plan]"
 )
 {
@@ -137,7 +137,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan addresses whole files at their origin",
+	"make_batch_plan addresses whole files at their origin",
 	"[image_batch_plan]"
 )
 {
@@ -170,7 +170,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan takes a position as the leading file offset",
+	"make_batch_plan takes a position as the leading file offset",
 	"[image_batch_plan]"
 )
 {
@@ -203,7 +203,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan merges a batch that is one run",
+	"make_batch_plan merges a batch that is one run",
 	"[image_batch_plan]"
 )
 {
@@ -229,7 +229,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_transaction_plan leaves a batch that is not one run alone",
+	"make_batch_plan leaves a batch that is not one run alone",
 	"[image_batch_plan]"
 )
 {

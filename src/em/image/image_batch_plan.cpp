@@ -150,7 +150,7 @@ image_transaction_plan make_slot_plan(
 
 } // anonymous namespace
 
-image_transaction_plan make_batch_transaction_plan(
+image_transaction_plan make_batch_plan(
 	span<const std::size_t> array_extents,
 	span<const image_location> locations,
 	const char *context

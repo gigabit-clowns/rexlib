@@ -43,7 +43,7 @@ std::shared_ptr<completion> image_batch_sink::write(
 	std::vector<std::size_t> array_extents;
 	source.get_descriptor().get_layout().get_extents(array_extents);
 
-	const auto transaction = make_batch_transaction_plan(
+	const auto transaction = make_batch_plan(
 		make_span(array_extents),
 		locations,
 		"image_batch_sink::write"

@@ -44,7 +44,7 @@ class image_transaction_plan;
  * extent is not the number of locations, or if @p locations mixes those
  * carrying a position with those carrying none.
  */
-image_transaction_plan make_batch_transaction_plan(
+image_transaction_plan make_batch_plan(
 	span<const std::size_t> array_extents,
 	span<const image_location> locations,
 	const char *context
