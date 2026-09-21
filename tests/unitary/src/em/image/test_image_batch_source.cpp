@@ -289,6 +289,44 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"image_batch_source reads a run of one stack as a single region",
+	"[image_batch_source]"
+)
+{
+	// Reading a stack a batch at a time: consecutive slots taking
+	// consecutive positions are neighbours on both sides, so the batch is
+	// one hyperrectangle rather than three.
+	const auto readers = std::make_shared<mock_image_reader_provider>();
+	const auto reader = std::make_shared<mock_image_reader>();
+
+	REQUIRE_CALL(*readers, acquire("stack.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH(
+			_2.get_region_count() == 1 &&
+			to_vector(_2.get_extents()) ==
+				std::vector<std::size_t>{3, 4, 4} &&
+			to_vector(_2.get_file_offset(0)) ==
+				std::vector<std::size_t>{2, 0, 0} &&
+			to_vector(_2.get_array_offset(0)) ==
+				std::vector<std::size_t>{0, 0, 0}
+		);
+
+	const auto batch = make_batch_source(readers);
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 2),
+		image_location("stack.mrcs", 3),
+		image_location("stack.mrcs", 4)
+	};
+
+	const auto completion =
+		batch->read(make_array({3, 4, 4}), make_span(locations));
+
+	REQUIRE( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
 	"image_batch_source's completion reports what the source threw",
 	"[image_batch_source]"
 )

@@ -203,35 +203,28 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_batch_sink groups the slots of one stack onto one call",
+	"image_batch_sink writes a run of one stack as a single region",
 	"[image_batch_sink]"
 )
 {
-	// A stack written a batch at a time: every slot carries a position, so
-	// the file rank grows to match the array rank, and the one file is
-	// acquired once and written as one call of several regions.
+	// A stack written a batch at a time, which is the case this exists for:
+	// consecutive slots landing on consecutive positions are neighbours on
+	// both sides, so the whole batch is one hyperrectangle rather than three.
 	const auto writers = std::make_shared<mock_image_writer_provider>();
 	const auto writer = std::make_shared<mock_image_writer>();
 
 	REQUIRE_CALL(*writers, acquire("particles.mrcs")).RETURN(writer);
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
-			_2.get_region_count() == 3 &&
+			_2.get_region_count() == 1 &&
 			_2.get_file_rank() == 3 &&
 			_2.get_array_rank() == 3 &&
-			to_vector(_2.get_extents()) == std::vector<std::size_t>{4, 4} &&
+			to_vector(_2.get_extents()) ==
+				std::vector<std::size_t>{3, 4, 4} &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{6, 0, 0} &&
 			to_vector(_2.get_array_offset(0)) ==
-				std::vector<std::size_t>{0, 0, 0} &&
-			to_vector(_2.get_file_offset(1)) ==
-				std::vector<std::size_t>{7, 0, 0} &&
-			to_vector(_2.get_array_offset(1)) ==
-				std::vector<std::size_t>{1, 0, 0} &&
-			to_vector(_2.get_file_offset(2)) ==
-				std::vector<std::size_t>{8, 0, 0} &&
-			to_vector(_2.get_array_offset(2)) ==
-				std::vector<std::size_t>{2, 0, 0}
+				std::vector<std::size_t>{0, 0, 0}
 		);
 
 	const auto batch = make_batch_sink(writers);
@@ -243,6 +236,47 @@ TEST_CASE(
 
 	const auto completion =
 		batch->write(make_const_array({3, 4, 4}), make_span(locations));
+
+	REQUIRE( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
+	"image_batch_sink writes a batch that is not one run slot by slot",
+	"[image_batch_sink]"
+)
+{
+	// Neighbours in part is not enough: every region of a plan spans the
+	// same number of slots, so the two pairs here cannot merge while the
+	// gap between them stays, and the batch is written one slot at a time.
+	const auto writers = std::make_shared<mock_image_writer_provider>();
+	const auto writer = std::make_shared<mock_image_writer>();
+
+	REQUIRE_CALL(*writers, acquire("particles.mrcs")).RETURN(writer);
+	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
+		.LR_WITH(
+			_2.get_region_count() == 4 &&
+			to_vector(_2.get_extents()) == std::vector<std::size_t>{4, 4} &&
+			to_vector(_2.get_file_offset(0)) ==
+				std::vector<std::size_t>{0, 0, 0} &&
+			to_vector(_2.get_file_offset(1)) ==
+				std::vector<std::size_t>{1, 0, 0} &&
+			to_vector(_2.get_file_offset(2)) ==
+				std::vector<std::size_t>{4, 0, 0} &&
+			to_vector(_2.get_file_offset(3)) ==
+				std::vector<std::size_t>{5, 0, 0}
+		);
+
+	const auto batch = make_batch_sink(writers);
+	const std::vector<image_location> locations = {
+		image_location("particles.mrcs", 0),
+		image_location("particles.mrcs", 1),
+		image_location("particles.mrcs", 4),
+		image_location("particles.mrcs", 5)
+	};
+
+	const auto completion =
+		batch->write(make_const_array({4, 4, 4}), make_span(locations));
 
 	REQUIRE( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );

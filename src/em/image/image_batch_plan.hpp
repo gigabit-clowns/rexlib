@@ -23,7 +23,14 @@ class image_transaction_plan;
  * batch may not mix the two, since they do not agree on the rank of the file.
  *
  * The leading extent of the array is the batch size and the rest are the
- * shape of one element, which is what every region of the transaction shares.
+ * shape of one element.
+ *
+ * A batch naming consecutive positions of one file from end to end, which is
+ * what a stack read or written a batch at a time is, travels as a single
+ * region rather than as one per slot. A plan carries one set of extents for
+ * every region it holds, so a batch only partly made of such neighbours
+ * cannot merge the part that is and stays one region per slot, as does a
+ * batch of whole files, no two of which are ever consecutive.
  *
  * Shared so that @ref image_batch_source and @ref image_batch_sink address a
  * batch identically, only the direction the transaction is handed to
