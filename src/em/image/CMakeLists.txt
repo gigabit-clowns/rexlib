@@ -4,6 +4,7 @@ target_sources(
 		caching_image_reader_provider.cpp
 		direct_image_reader_provider.cpp
 		image_batch_plan.cpp
+		image_batch_sink.cpp
 		image_batch_source.cpp
 		image_format_registry.cpp
 		image_location.cpp
