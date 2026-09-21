@@ -24,10 +24,7 @@ image_transaction_plan::image_transaction_plan(
 			extents,
 			file_rank,
 			array_rank,
-			"image_transaction_plan: The regions do not fit in the rank of "
-			"the files.",
-			"image_transaction_plan: The regions do not fit in the rank of "
-			"the array."
+			"image_transaction_plan"
 		)
 	)
 	, m_file_offsets(file_rank)

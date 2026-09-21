@@ -23,10 +23,7 @@ image_transfer_plan::image_transfer_plan(
 			extents,
 			file_rank,
 			array_rank,
-			"image_transfer_plan: The regions do not fit in the rank of "
-			"the file.",
-			"image_transfer_plan: The regions do not fit in the rank of "
-			"the array."
+			"image_transfer_plan"
 		)
 	)
 	, m_file_offsets(file_rank)

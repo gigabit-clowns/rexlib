@@ -25,20 +25,16 @@ namespace em
  * calling plan.
  * @param file_rank Rank of the file side of the plan.
  * @param array_rank Rank of the array side of the plan.
- * @param file_rank_message Message thrown if @p extents outranks
- * @p file_rank.
- * @param array_rank_message Message thrown if @p extents outranks
- * @p array_rank.
+ * @param context What a message names as the caller, the calling plan.
  * @return std::vector<std::size_t> A copy of @p extents.
- * @throws std::invalid_argument With @p file_rank_message or
- * @p array_rank_message, whichever check failed.
+ * @throws std::invalid_argument If @p extents outranks either side, naming
+ * @p context and which side it did not fit.
  */
 std::vector<std::size_t> sanitize_region_extents(
 	span<const std::size_t> extents,
 	std::size_t file_rank,
 	std::size_t array_rank,
-	const char *file_rank_message,
-	const char *array_rank_message
+	const char *context
 );
 
 } // namespace em
