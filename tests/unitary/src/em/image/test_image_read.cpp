@@ -560,13 +560,14 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"read_batch_async reads a run of one stack as a single region",
+	"read_batch_async reads a stack a batch at a time",
 	"[image_read]"
 )
 {
-	// Reading a stack a batch at a time: consecutive slots taking
-	// consecutive positions are neighbours on both sides, so the batch is
-	// one hyperrectangle rather than three.
+	// The slots of one batch take consecutive positions of one stack, which
+	// is one region each: the whole batch is one hyperrectangle, but saying
+	// so needs a set of extents of its own and a plan holds one for every
+	// region in it.
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 	const auto reader = std::make_shared<mock_image_reader>();
 
@@ -574,13 +575,17 @@ TEST_CASE(
 	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(batch_stack_extents));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
-			_2.get_region_count() == 1 &&
+			_2.get_region_count() == 3 &&
 			to_vector(_2.get_extents()) ==
-				std::vector<std::size_t>{3, 4, 4} &&
+				std::vector<std::size_t>{4, 4} &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{2, 0, 0} &&
 			to_vector(_2.get_array_offset(0)) ==
-				std::vector<std::size_t>{0, 0, 0}
+				std::vector<std::size_t>{0, 0, 0} &&
+			to_vector(_2.get_file_offset(2)) ==
+				std::vector<std::size_t>{4, 0, 0} &&
+			to_vector(_2.get_array_offset(2)) ==
+				std::vector<std::size_t>{2, 0, 0}
 		);
 
 	const auto source = make_source(readers);

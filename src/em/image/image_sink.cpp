@@ -14,7 +14,6 @@
 #include <rexlib/em/image/image_writer_provider.hpp>
 
 #include <em/image/image_region_grouping.hpp>
-#include <em/image/image_region_merging.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -51,18 +50,7 @@ public:
 	{
 		const auto writer = m_writers->acquire(m_path);
 		const_array_ref source(*m_source);
-
-		std::vector<image_transfer_plan> merged;
-		if (!make_merged_transfer_plans(m_transfer, merged))
-		{
-			writer->write(source, m_transfer);
-			return;
-		}
-
-		for (const auto &regions : merged)
-		{
-			writer->write(source, regions);
-		}
+		writer->write(source, m_transfer);
 	}
 
 private:

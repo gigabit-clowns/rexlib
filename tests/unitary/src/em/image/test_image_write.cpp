@@ -360,28 +360,31 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"write_batch_async writes a run of one stack as a single region",
+	"write_batch_async writes a stack a batch at a time",
 	"[image_write]"
 )
 {
-	// A stack written a batch at a time, which is the case this exists for:
-	// consecutive slots landing on consecutive positions are neighbours on
-	// both sides, so the whole batch is one hyperrectangle rather than three.
+	// The case this exists for: one file acquired once, and the slots of the
+	// batch written as its regions, each the shape of one element.
 	const auto writers = std::make_shared<mock_image_writer_provider>();
 	const auto writer = std::make_shared<mock_image_writer>();
 
 	REQUIRE_CALL(*writers, acquire("particles.mrcs")).RETURN(writer);
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
-			_2.get_region_count() == 1 &&
+			_2.get_region_count() == 3 &&
 			_2.get_file_rank() == 3 &&
 			_2.get_array_rank() == 3 &&
 			to_vector(_2.get_extents()) ==
-				std::vector<std::size_t>{3, 4, 4} &&
+				std::vector<std::size_t>{4, 4} &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{6, 0, 0} &&
 			to_vector(_2.get_array_offset(0)) ==
-				std::vector<std::size_t>{0, 0, 0}
+				std::vector<std::size_t>{0, 0, 0} &&
+			to_vector(_2.get_file_offset(2)) ==
+				std::vector<std::size_t>{8, 0, 0} &&
+			to_vector(_2.get_array_offset(2)) ==
+				std::vector<std::size_t>{2, 0, 0}
 		);
 
 	const auto sink = make_sink(writers);
@@ -401,30 +404,29 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"write_batch_async writes each run of a batch as one region",
+	"write_batch_async gives every slot of a batch its own region",
 	"[image_write]"
 )
 {
-	// Two runs of two with a gap between them. Each is a hyperrectangle of
-	// its own, and a sink hands a writer one plan per length of run rather
-	// than one region per slot.
+	// Two pairs of consecutive positions with a gap between them, which a
+	// plan describes the same way as any other four slots.
 	const auto writers = std::make_shared<mock_image_writer_provider>();
 	const auto writer = std::make_shared<mock_image_writer>();
 
 	REQUIRE_CALL(*writers, acquire("particles.mrcs")).RETURN(writer);
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
-			_2.get_region_count() == 2 &&
+			_2.get_region_count() == 4 &&
 			to_vector(_2.get_extents()) ==
-				std::vector<std::size_t>{2, 4, 4} &&
+				std::vector<std::size_t>{4, 4} &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{0, 0, 0} &&
-			to_vector(_2.get_array_offset(0)) ==
-				std::vector<std::size_t>{0, 0, 0} &&
 			to_vector(_2.get_file_offset(1)) ==
+				std::vector<std::size_t>{1, 0, 0} &&
+			to_vector(_2.get_file_offset(2)) ==
 				std::vector<std::size_t>{4, 0, 0} &&
-			to_vector(_2.get_array_offset(1)) ==
-				std::vector<std::size_t>{2, 0, 0}
+			to_vector(_2.get_file_offset(3)) ==
+				std::vector<std::size_t>{5, 0, 0}
 		);
 
 	const auto sink = make_sink(writers);

@@ -25,14 +25,7 @@ class image_transaction_plan;
  * The leading extent of the array is the batch size and the rest are the
  * shape of one element.
  *
- * A batch naming consecutive positions of one file from end to end, which is
- * what a stack read or written a batch at a time is, travels as a single
- * region rather than as one per slot. A plan carries one set of extents for
- * every region it holds, so a batch only partly made of such neighbours
- * cannot merge the part that is and stays one region per slot, as does a
- * batch of whole files, no two of which are ever consecutive.
- *
- * Shared so that @ref image_batch_source and @ref image_batch_sink address a
+ * Shared so that @ref read_batch_async and @ref write_batch_async address a
  * batch identically, only the direction the transaction is handed to
  * differing.
  *

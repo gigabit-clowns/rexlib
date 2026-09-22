@@ -203,14 +203,13 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_plan leaves merging to whoever transfers the plan",
+	"make_batch_plan gives every slot a region of its own",
 	"[image_batch_plan]"
 )
 {
-	// A run of consecutive positions is one hyperrectangle, but saying so
-	// needs a set of extents of its own, and a plan holds one for every
-	// region in it. image_source and image_sink merge what they can once a
-	// plan is theirs, where a run may have a plan to itself.
+	// Even consecutive positions of one file, which are one hyperrectangle
+	// and could be described as one: saying so needs a set of extents of its
+	// own, and a plan holds one for every region in it.
 	const std::vector<image_location> locations = {
 		image_location("stack.mrcs", 6),
 		image_location("stack.mrcs", 7),
@@ -227,12 +226,12 @@ TEST_CASE(
 		std::vector<std::size_t>{8, 0, 0} );
 }
 TEST_CASE(
-	"make_batch_plan leaves a batch that is not one run alone",
+	"make_batch_plan keeps every slot apart however they are placed",
 	"[image_batch_plan]"
 )
 {
-	// A plan carries one set of extents for every region it holds, so a
-	// batch only partly made of neighbours cannot merge the part that is.
+	// A plan carries one set of extents for every region it holds, whatever
+	// the locations look like.
 	SECTION( "a run that stops before the end of the batch" )
 	{
 		const std::vector<image_location> locations = {
@@ -275,7 +274,7 @@ TEST_CASE(
 		CHECK( to_vector(plan.get_extents()) == element_extents );
 	}
 
-	SECTION( "a batch of one slot, which neighbours nothing" )
+	SECTION( "a batch of a single slot" )
 	{
 		const std::vector<image_location> locations = {
 			image_location("stack.mrcs", 4)

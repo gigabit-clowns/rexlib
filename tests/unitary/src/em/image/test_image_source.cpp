@@ -187,14 +187,13 @@ TEST_CASE(
 )
 {
 	// Three regions in one file, one in the other: exercises both the
-	// many-regions and the few-regions skew in the same plan. None of them
-	// neighbours another, so nothing here is merged away.
+	// many-regions and the few-regions skew in the same plan.
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
 	const auto zero = plan.add_file("stack_0.mrcs");
 	const auto one = plan.add_file("stack_1.mrcs");
 	add_element(plan, zero, 0, 0);
-	add_element(plan, zero, 2, 1);
-	add_element(plan, zero, 4, 2);
+	add_element(plan, zero, 1, 1);
+	add_element(plan, zero, 2, 2);
 	add_element(plan, one, 5, 3);
 
 	const auto readers = std::make_shared<mock_image_reader_provider>();
@@ -209,39 +208,6 @@ TEST_CASE(
 		.LR_WITH( _2.get_region_count() == 3 );
 	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_region_count() == 1 );
-
-	image_source source(readers, std::make_shared<synchronous_executor>());
-	const auto completion = source.read(make_test_array(), plan);
-
-	CHECK( completion->is_ready() );
-	CHECK_NOTHROW( completion->get() );
-}
-
-TEST_CASE(
-	"image_source reads a run of one file as a single region",
-	"[image_source]"
-)
-{
-	// Consecutive elements landing in consecutive slots are one
-	// hyperrectangle, and a reader is handed it as one rather than as three.
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
-	const auto zero = plan.add_file("stack_0.mrcs");
-	add_element(plan, zero, 1, 0);
-	add_element(plan, zero, 2, 1);
-	add_element(plan, zero, 3, 2);
-
-	const auto readers = std::make_shared<mock_image_reader_provider>();
-	const auto reader = std::make_shared<mock_image_reader>();
-
-	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
-	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH(
-			_2.get_region_count() == 1 &&
-			_2.get_extents()[0] == 3 &&
-			_2.get_file_offset(0)[0] == 1 &&
-			_2.get_array_offset(0)[0] == 0
-		);
 
 	image_source source(readers, std::make_shared<synchronous_executor>());
 	const auto completion = source.read(make_test_array(), plan);
