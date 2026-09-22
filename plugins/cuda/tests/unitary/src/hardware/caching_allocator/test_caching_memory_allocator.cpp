@@ -30,7 +30,7 @@ constexpr std::size_t alignment =
 constexpr std::size_t min_heap =
 	REXLIB_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"caching_memory_allocator should report what it is backed by",

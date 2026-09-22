@@ -119,7 +119,7 @@ std::vector<cuda::memory_block*> partition_evenly(
 	return result;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"a heap taken into a memory_block_pool should arrive as one free block "

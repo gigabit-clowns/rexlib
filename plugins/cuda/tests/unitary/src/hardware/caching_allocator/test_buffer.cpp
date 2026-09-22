@@ -37,7 +37,7 @@ cuda::buffer& allocate_buffer(
 	return cuda::buffer::cast(*owner);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"a fresh buffer should have no queues recorded against it",

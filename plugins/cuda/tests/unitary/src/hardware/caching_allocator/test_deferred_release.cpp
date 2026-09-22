@@ -154,7 +154,7 @@ private:
 	cuda::deferred_release m_deferred;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"deferred_release should hold a block back until every queue that used it "
