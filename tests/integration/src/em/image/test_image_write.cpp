@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/image_batch_sink.hpp>
+#include <rexlib/em/image/image_write.hpp>
 
 #include "../../functional/fixtures/cpu_execution_context_fixture.hpp"
 #include "fixtures/scoped_path.hpp"
@@ -12,9 +12,9 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
-#include <rexlib/em/image/image_batch_source.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
+#include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_sink.hpp>
 #include <rexlib/em/image/image_source.hpp>
@@ -84,7 +84,7 @@ std::vector<image_location> slots_of(
 
 TEST_CASE_METHOD( cpu_execution_context_fixture,
 	"a stack written a batch at a time reads back a batch at a time",
-	"[mrc][image_batch_sink]" )
+	"[mrc][image_write]" )
 {
 	const scoped_path path("batch_sink_stack.mrcs");
 	const auto values = counting(element_count(stack_extents));
@@ -99,7 +99,6 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		writers,
 		std::make_shared<synchronous_executor>()
 	);
-	const image_batch_sink batches(sink);
 
 	// The size of the stack is settled here and nowhere else.
 	writers->declare(
@@ -126,7 +125,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		const auto slots = slots_of(path.get(), k);
 		written.push_back(
-			batches.write(source.share_const(), make_span(slots))
+			write_batch_async(*sink, source.share_const(), make_span(slots))
 		);
 	}
 
@@ -147,7 +146,6 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const image_batch_source incoming(source);
 
 	SECTION( "the file states the stack it was declared as" )
 	{
@@ -171,8 +169,11 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 			);
 
 			const auto slots = slots_of(path.get(), k);
-			const auto completion =
-				incoming.read(destination.share(), make_span(slots));
+			const auto completion = read_batch_async(
+				*source,
+				destination.share(),
+				make_span(slots)
+			);
 			REQUIRE_NOTHROW( completion->get() );
 
 			const std::vector<float> expected(

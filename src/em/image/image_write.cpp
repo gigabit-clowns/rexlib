@@ -2,13 +2,21 @@
 
 #include <rexlib/em/image/image_write.hpp>
 
+#include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_sink.hpp>
+#include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 
+#include <em/image/image_batch_plan.hpp>
+
 #include <cstddef>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace rexlib
@@ -47,6 +55,24 @@ void write(
 
 	writer->write(arr, plan);
 	writer->flush();
+}
+
+std::shared_ptr<completion> write_batch_async(
+	const image_sink &sink,
+	const_array source,
+	span<const image_location> locations
+)
+{
+	std::vector<std::size_t> array_extents;
+	source.get_descriptor().get_layout().get_extents(array_extents);
+
+	const auto transaction = make_batch_plan(
+		make_span(array_extents),
+		locations,
+		"write_batch_async"
+	);
+
+	return sink.write(std::move(source), transaction);
 }
 
 } // namespace em

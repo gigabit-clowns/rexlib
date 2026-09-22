@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/image_patch_source.hpp>
+#include <rexlib/em/image/image_read.hpp>
 
 #include "../../functional/fixtures/cpu_execution_context_fixture.hpp"
 
@@ -11,7 +11,6 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
 #include <rexlib/em/image/image_location.hpp>
-#include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_source.hpp>
 #include <rexlib/em/image/index_table.hpp>
@@ -65,7 +64,7 @@ void add_position(
 
 TEST_CASE_METHOD( cpu_execution_context_fixture,
 	"patches cut from a real MRC file hold what the file holds",
-	"[mrc][image_patch_source]" )
+	"[mrc][image_read]" )
 {
 	const auto manager =
 		catalog.get_service_manager<image_read_format_manager>();
@@ -85,7 +84,6 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const image_patch_source patches(source);
 
 	// One box well inside the volume and one centred so near a corner that
 	// it begins two samples outside it along every axis.
@@ -104,7 +102,12 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	);
 
 	const auto completion =
-		patches.read(destination.share(), location, positions);
+		read_patches_async(
+			*source,
+			destination.share(),
+			location,
+			positions
+		);
 	REQUIRE( completion != nullptr );
 	REQUIRE_NOTHROW( completion->get() );
 

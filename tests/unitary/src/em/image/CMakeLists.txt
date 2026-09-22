@@ -4,12 +4,9 @@ target_sources(
 		test_caching_image_reader_provider.cpp
 		test_direct_image_reader_provider.cpp
 		test_image_batch_plan.cpp
-		test_image_batch_sink.cpp
-		test_image_batch_source.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp
 		test_image_metadata.cpp
-		test_image_patch_source.cpp
 		test_image_probe.cpp
 		test_image_read.cpp
 		test_image_read_format_manager.cpp
