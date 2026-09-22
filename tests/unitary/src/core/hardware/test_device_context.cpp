@@ -69,7 +69,7 @@ protected:
 	std::shared_ptr<const device_session> session;
 };
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

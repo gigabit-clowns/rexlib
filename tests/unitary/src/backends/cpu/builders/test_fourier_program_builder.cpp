@@ -124,7 +124,7 @@ void check_ramp_spectrum(
 // along the only axis there is.
 const std::vector<std::size_t> unit_extents = { 4 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"fourier_program_builder reports its target operation id",

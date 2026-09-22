@@ -32,7 +32,7 @@ std::vector<std::size_t> extents_of(const array &value)
 	return extents;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

@@ -34,7 +34,7 @@ protected:
     execution_context context;
 };
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

@@ -38,7 +38,7 @@ private:
 	std::function<void()> m_body;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"thread_pool_executor needs at least one worker",

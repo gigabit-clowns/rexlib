@@ -21,7 +21,7 @@ struct probe_kernel
 // A stand-in operation type; default_kernel_factory ignores it.
 struct dummy_operation {};
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"default_kernel_factory returns a value-initialized kernel",

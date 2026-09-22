@@ -72,7 +72,7 @@ std::unique_ptr<image_read_format> make_staged(
 const std::vector<std::size_t> stack_extents = {6, 3, 5};
 const std::vector<std::size_t> plane_extents = {3, 5};
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "an empty read manager recognizes nothing",
 	"[image_read_format_manager]" )

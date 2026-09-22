@@ -65,7 +65,7 @@ operand_signature make_signature(const memory_resource *resource)
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

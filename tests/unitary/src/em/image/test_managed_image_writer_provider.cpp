@@ -120,7 +120,7 @@ std::size_t count(const open_log &log, const std::string &path)
 	return result;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "a managed writer provider needs a format manager",
 	"[managed_image_writer_provider]" )

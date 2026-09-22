@@ -65,6 +65,12 @@ public:
 	 * from within a task already running on the executor this sink was
 	 * constructed with.
 	 *
+	 * Every region must fit the file it names and @p source both. One that
+	 * does not is reported rather than shortened to fit, which is where this
+	 * parts company with @ref image_source::read: a shortened read leaves
+	 * what it did not reach as it was and the caller can see it, while a
+	 * shortened write would drop values and say nothing.
+	 *
 	 * @param source The values to write.
 	 * @param plan The transaction to write.
 	 * @return std::shared_ptr<completion> The completion, never null.
@@ -73,7 +79,7 @@ public:
 	std::shared_ptr<completion> write(
 		const_array source,
 		const image_transaction_plan &plan
-	);
+	) const;
 
 	/**
 	 * @brief Make everything written through this sink reach storage.

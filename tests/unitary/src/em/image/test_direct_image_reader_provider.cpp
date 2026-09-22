@@ -65,7 +65,7 @@ std::shared_ptr<const image_read_format_manager> make_manager(
 	return manager;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "a direct reader provider needs a format manager",
 	"[direct_image_reader_provider]" )

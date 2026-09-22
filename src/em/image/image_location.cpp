@@ -52,7 +52,7 @@ bool parse_position(
 	return true;
 }
 
-} // namespace
+} // anonymous namespace
 
 image_location::image_location() noexcept
 	: m_position_in_stack(no_position)
@@ -89,6 +89,11 @@ const std::string& image_location::get_path() const noexcept
 std::size_t image_location::get_position_in_stack() const noexcept
 {
 	return m_position_in_stack;
+}
+
+bool image_location::has_position() const noexcept
+{
+	return m_position_in_stack != no_position;
 }
 
 bool parse_image_location(const std::string &text, image_location &result)

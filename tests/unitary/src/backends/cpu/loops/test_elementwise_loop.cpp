@@ -306,7 +306,7 @@ std::vector<std::ptrdiff_t> offsets_of(
 	return result;
 }
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

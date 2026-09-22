@@ -28,7 +28,7 @@ const std::vector<std::size_t> plane_extents = {3, 5};
 // A volume stacks along nothing, so its core rank is its whole rank.
 const std::vector<std::size_t> volume_extents = {20, 20, 20};
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"a query answers the shape of a file a provider serves",

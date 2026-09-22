@@ -71,7 +71,7 @@ protected:
 	std::shared_ptr<mock_dispatcher> dispatcher;
 };
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

@@ -313,7 +313,7 @@ protected:
 	std::vector<std::unique_ptr<trompeloeil::expectation>> expectations;
 };
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

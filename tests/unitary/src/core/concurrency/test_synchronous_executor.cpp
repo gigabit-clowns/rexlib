@@ -32,7 +32,7 @@ private:
 	std::function<void()> m_body;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"synchronous_executor rejects a null task or notifier",

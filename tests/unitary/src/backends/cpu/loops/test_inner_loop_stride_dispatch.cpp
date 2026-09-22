@@ -139,7 +139,7 @@ joint_layout make_layout(
 	return builder.build({});
 }
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(
