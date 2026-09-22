@@ -401,29 +401,30 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"write_batch_async writes a batch that is not one run slot by slot",
+	"write_batch_async writes each run of a batch as one region",
 	"[image_write]"
 )
 {
-	// Neighbours in part is not enough: every region of a plan spans the
-	// same number of slots, so the two pairs here cannot merge while the
-	// gap between them stays, and the batch is written one slot at a time.
+	// Two runs of two with a gap between them. Each is a hyperrectangle of
+	// its own, and a sink hands a writer one plan per length of run rather
+	// than one region per slot.
 	const auto writers = std::make_shared<mock_image_writer_provider>();
 	const auto writer = std::make_shared<mock_image_writer>();
 
 	REQUIRE_CALL(*writers, acquire("particles.mrcs")).RETURN(writer);
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
-			_2.get_region_count() == 4 &&
-			to_vector(_2.get_extents()) == std::vector<std::size_t>{4, 4} &&
+			_2.get_region_count() == 2 &&
+			to_vector(_2.get_extents()) ==
+				std::vector<std::size_t>{2, 4, 4} &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{0, 0, 0} &&
+			to_vector(_2.get_array_offset(0)) ==
+				std::vector<std::size_t>{0, 0, 0} &&
 			to_vector(_2.get_file_offset(1)) ==
-				std::vector<std::size_t>{1, 0, 0} &&
-			to_vector(_2.get_file_offset(2)) ==
 				std::vector<std::size_t>{4, 0, 0} &&
-			to_vector(_2.get_file_offset(3)) ==
-				std::vector<std::size_t>{5, 0, 0}
+			to_vector(_2.get_array_offset(1)) ==
+				std::vector<std::size_t>{2, 0, 0}
 		);
 
 	const auto sink = make_sink(writers);

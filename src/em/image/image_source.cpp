@@ -14,6 +14,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include <em/image/image_region_clipping.hpp>
+#include <em/image/image_region_merging.hpp>
 #include <em/image/image_region_grouping.hpp>
 
 #include <cstddef>
@@ -30,6 +31,33 @@ namespace em
 
 namespace
 {
+
+// A reader is handed what its file actually holds, so a plan reaches it
+// clipped, one call per shape the clipping left.
+void read_clipped(
+	const image_reader &reader,
+	array_ref destination,
+	span<const std::size_t> array_extents,
+	const image_transfer_plan &regions
+)
+{
+	std::vector<image_transfer_plan> clipped;
+	if (!make_clipped_transfer_plans(
+			regions,
+			reader.get_extents(),
+			array_extents,
+			clipped
+		))
+	{
+		reader.read(destination, regions);
+		return;
+	}
+
+	for (const auto &part : clipped)
+	{
+		reader.read(destination, part);
+	}
+}
 
 class image_read_task final : public task
 {
@@ -55,21 +83,26 @@ public:
 		std::vector<std::size_t> array_extents;
 		destination.get_descriptor().get_layout().get_extents(array_extents);
 
-		std::vector<image_transfer_plan> clipped;
-		if (!make_clipped_transfer_plans(
-				m_transfer,
-				reader->get_extents(),
-				make_span(array_extents),
-				clipped
-			))
+		std::vector<image_transfer_plan> merged;
+		if (!make_merged_transfer_plans(m_transfer, merged))
 		{
-			reader->read(destination, m_transfer);
+			read_clipped(
+				*reader,
+				destination,
+				make_span(array_extents),
+				m_transfer
+			);
 			return;
 		}
 
-		for (const auto &regions : clipped)
+		for (const auto &regions : merged)
 		{
-			reader->read(destination, regions);
+			read_clipped(
+				*reader,
+				destination,
+				make_span(array_extents),
+				regions
+			);
 		}
 	}
 

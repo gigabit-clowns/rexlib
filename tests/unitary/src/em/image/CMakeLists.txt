@@ -15,6 +15,7 @@ target_sources(
 		test_image_region_clipping.cpp
 		test_image_region_extents.cpp
 		test_image_region_grouping.cpp
+		test_image_region_merging.cpp
 		test_image_sink.cpp
 		test_image_source.cpp
 		test_image_transaction_plan.cpp

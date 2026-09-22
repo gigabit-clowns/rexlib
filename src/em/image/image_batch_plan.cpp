@@ -24,44 +24,6 @@ void throw_invalid_argument(const char *context, const char *what)
 	throw std::invalid_argument(std::string(context) + ": " + what);
 }
 
-// Two slots belong to one region when they are neighbours on both sides:
-// consecutive positions of one file, and consecutive slots of the array,
-// which slots next to each other in a batch always are.
-bool are_adjacent(
-	const image_location &first,
-	const image_location &second
-) noexcept
-{
-	return
-		first.has_position() &&
-		second.has_position() &&
-		second.get_position_in_stack() ==
-			first.get_position_in_stack() + 1 &&
-		second.get_path() == first.get_path();
-}
-
-// Whether the batch is one run of neighbours from end to end, which is what
-// a stack read or written a batch at a time is. A plan carries one set of
-// extents for every region it holds, so a batch that is only partly made of
-// neighbours cannot merge the part that is.
-bool is_one_run(span<const image_location> locations) noexcept
-{
-	if (locations.size() < 2)
-	{
-		return false;
-	}
-
-	for (std::size_t i = 1; i < locations.size(); ++i)
-	{
-		if (!are_adjacent(locations[i - 1], locations[i]))
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 bool get_stack_indexing(
 	span<const image_location> locations,
 	const char *context
@@ -81,31 +43,6 @@ bool get_stack_indexing(
 	}
 
 	return result;
-}
-
-// The whole batch as one region: its extents are the array's, since the
-// slots it spans are every slot there is.
-image_transaction_plan make_run_plan(
-	span<const std::size_t> array_extents,
-	const image_location &first
-)
-{
-	const auto rank = array_extents.size();
-
-	image_transaction_plan transaction(array_extents, rank, rank);
-	transaction.reserve(1, 1);
-
-	std::vector<std::size_t> file_offset(rank, 0UL);
-	file_offset[0] = first.get_position_in_stack();
-	const std::vector<std::size_t> array_offset(rank, 0UL);
-
-	transaction.add(
-		transaction.add_file(first.get_path()),
-		make_span(file_offset),
-		make_span(array_offset)
-	);
-
-	return transaction;
 }
 
 // One region per slot, each the shape of one element.
@@ -173,11 +110,11 @@ image_transaction_plan make_batch_plan(
 		);
 	}
 
-	const auto stack_indexing = get_stack_indexing(locations, context);
-
-	return is_one_run(locations)
-		? make_run_plan(array_extents, locations.front())
-		: make_slot_plan(array_extents, locations, stack_indexing);
+	return make_slot_plan(
+		array_extents,
+		locations,
+		get_stack_indexing(locations, context)
+	);
 }
 
 } // namespace em

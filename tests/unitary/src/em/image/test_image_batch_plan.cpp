@@ -203,13 +203,14 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_plan merges a batch that is one run",
+	"make_batch_plan leaves merging to whoever transfers the plan",
 	"[image_batch_plan]"
 )
 {
-	// Consecutive slots on consecutive positions of one file are one
-	// hyperrectangle, so the whole batch is a single region whose extents
-	// are the array's.
+	// A run of consecutive positions is one hyperrectangle, but saying so
+	// needs a set of extents of its own, and a plan holds one for every
+	// region in it. image_source and image_sink merge what they can once a
+	// plan is theirs, where a run may have a plan to itself.
 	const std::vector<image_location> locations = {
 		image_location("stack.mrcs", 6),
 		image_location("stack.mrcs", 7),
@@ -218,16 +219,13 @@ TEST_CASE(
 
 	const auto plan = plan_of(batch_extents, locations);
 
-	REQUIRE( plan.get_region_count() == 1 );
-	CHECK( plan.get_file_rank() == 3 );
-	CHECK( plan.get_array_rank() == 3 );
-	CHECK( to_vector(plan.get_extents()) == batch_extents );
+	CHECK( plan.get_region_count() == 3 );
+	CHECK( to_vector(plan.get_extents()) == element_extents );
 	CHECK( to_vector(plan.get_file_offset(0)) ==
 		std::vector<std::size_t>{6, 0, 0} );
-	CHECK( to_vector(plan.get_array_offset(0)) ==
-		std::vector<std::size_t>{0, 0, 0} );
+	CHECK( to_vector(plan.get_file_offset(2)) ==
+		std::vector<std::size_t>{8, 0, 0} );
 }
-
 TEST_CASE(
 	"make_batch_plan leaves a batch that is not one run alone",
 	"[image_batch_plan]"
