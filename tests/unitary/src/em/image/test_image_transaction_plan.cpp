@@ -36,7 +36,7 @@ void add_element(
 	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "an image_transaction_plan starts empty of files and regions",
 	"[image_transaction_plan]" )

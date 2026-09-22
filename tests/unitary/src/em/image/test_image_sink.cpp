@@ -133,7 +133,7 @@ void add_element(
 	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"image_sink needs a writer provider and an executor",

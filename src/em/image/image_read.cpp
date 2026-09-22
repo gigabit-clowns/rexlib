@@ -82,7 +82,7 @@ array read_stack_position(
 	return destination;
 }
 
-} // namespace
+} // anonymous namespace
 
 array read(
 	const std::string &path,

@@ -61,7 +61,7 @@ std::shared_ptr<image_batch_source> make_batch_source(
 	return std::make_shared<image_batch_source>(std::move(source));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"image_batch_source needs a downstream source",

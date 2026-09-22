@@ -43,7 +43,7 @@ struct round_trips
 {
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "native_type_of should contain the expected type", "[native_type_of]" )
 {

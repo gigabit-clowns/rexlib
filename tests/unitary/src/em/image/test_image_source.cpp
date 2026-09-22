@@ -154,7 +154,7 @@ void add_region(
 	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"image_source needs a reader provider and an executor",

@@ -34,7 +34,7 @@ std::vector<std::size_t> sanitize(
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"sanitize_region_extents copies extents that fit both sides",

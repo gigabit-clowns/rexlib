@@ -85,7 +85,7 @@ std::shared_ptr<host_buffer> make_float32_buffer(std::size_t count)
 	return std::make_shared<host_buffer>(count * sizeof(float), alignof(float));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"elementwise_program_builder reports its target operation id",
@@ -290,7 +290,7 @@ using coordinate_builder = multidimensional_indexed_elementwise_program_builder<
 	default_kernel_factory<coordinate_kernel>
 >;
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"elementwise_program_builder hands the kernel the coordinates of every "

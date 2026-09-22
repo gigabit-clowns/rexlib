@@ -173,7 +173,7 @@ std::vector<std::size_t> extents_of(const array &arr)
 	return result;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE_METHOD(
 	mocked_execution_context_fixture,

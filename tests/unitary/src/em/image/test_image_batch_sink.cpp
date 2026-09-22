@@ -57,7 +57,7 @@ std::shared_ptr<image_batch_sink> make_batch_sink(
 	return std::make_shared<image_batch_sink>(std::move(sink));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"image_batch_sink needs a downstream sink",

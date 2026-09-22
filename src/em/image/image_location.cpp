@@ -52,7 +52,7 @@ bool parse_position(
 	return true;
 }
 
-} // namespace
+} // anonymous namespace
 
 image_location::image_location() noexcept
 	: m_position_in_stack(no_position)

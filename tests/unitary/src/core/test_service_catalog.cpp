@@ -47,7 +47,7 @@ private:
 	int m_register_count = 0;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"service_catalog returns the same instance on repeated access",

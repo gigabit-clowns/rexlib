@@ -99,7 +99,7 @@ std::string test_file()
 	return std::string("absent") + test_extension;
 }
 
-} // namespace
+} // anonymous namespace
 
 REXLIB_REGISTER_IMAGE_READ_FORMAT(test, registered_read_format);
 REXLIB_REGISTER_IMAGE_WRITE_FORMAT(test, registered_write_format);

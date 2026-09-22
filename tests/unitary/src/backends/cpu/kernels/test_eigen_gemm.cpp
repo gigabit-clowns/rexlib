@@ -137,7 +137,7 @@ struct extent_probe
 	}
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"dispatch_extent tags extents one through four as a compile time "
@@ -184,7 +184,7 @@ linalg_operand_core column_major_core(std::size_t rows, std::size_t cols)
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"resolve_gemm computes a fully fixed size row-major product",

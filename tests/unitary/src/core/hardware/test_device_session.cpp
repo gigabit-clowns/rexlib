@@ -101,7 +101,7 @@ private:
 	std::vector<std::unique_ptr<trompeloeil::expectation>> m_expectations;
 };
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE_METHOD(

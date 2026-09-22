@@ -19,7 +19,7 @@ std::vector<std::size_t> to_vector(span<const std::size_t> values)
 	return std::vector<std::size_t>(values.begin(), values.end());
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "an image_transfer_plan starts empty of regions",
 	"[image_transfer_plan]" )

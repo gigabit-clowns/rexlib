@@ -33,7 +33,7 @@ std::unique_ptr<string_key> make_string_key(std::string v)
 	return std::make_unique<string_key>(std::move(v));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"program_cache reports the capacity it was built with",

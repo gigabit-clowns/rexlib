@@ -80,7 +80,7 @@ private:
 	std::shared_ptr<image_reader_provider> m_readers;
 };
 
-} // namespace
+} // anonymous namespace
 
 image_source::image_source(
 	std::shared_ptr<image_reader_provider> readers,

@@ -109,7 +109,7 @@ std::vector<std::size_t> to_vector(span<const std::size_t> values)
 	return std::vector<std::size_t>(values.begin(), values.end());
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"write(...) creates the file over the array's own shape and data type",
