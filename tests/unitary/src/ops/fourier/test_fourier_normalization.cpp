@@ -25,7 +25,7 @@ double scale(
 	return get_fourier_scale(normalization, direction, count);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"get_fourier_scale leaves the forward transform alone by default",

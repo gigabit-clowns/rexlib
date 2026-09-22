@@ -43,7 +43,7 @@ image_transaction_plan plan_of(
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"make_batch_plan checks the array against the locations",

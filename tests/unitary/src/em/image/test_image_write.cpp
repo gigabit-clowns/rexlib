@@ -137,7 +137,7 @@ std::shared_ptr<image_sink> make_sink(
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"write(...) creates the file over the array's own shape and data type",

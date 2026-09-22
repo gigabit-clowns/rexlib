@@ -53,7 +53,7 @@ private:
 	std::string m_path;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "image_probe reads the leading bytes once", "[image_probe]" )
 {

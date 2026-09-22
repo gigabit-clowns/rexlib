@@ -30,7 +30,7 @@ std::exception_ptr make_error(const std::string &what)
 	}
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"counting_completion with a count of zero is already resolved",

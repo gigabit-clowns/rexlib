@@ -221,7 +221,7 @@ index_table make_positions(
 	return result;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE_METHOD(
 	mocked_execution_context_fixture,

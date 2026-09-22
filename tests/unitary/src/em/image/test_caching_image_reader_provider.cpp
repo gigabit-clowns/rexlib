@@ -24,7 +24,7 @@ std::shared_ptr<const image_reader> make_reader()
 	return std::make_shared<mock_image_reader>();
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "a caching reader provider needs a backing provider and room",
 	"[caching_image_reader_provider]" )

@@ -50,7 +50,7 @@ operand_signature make_custom_signature(
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"fourier_layout_plan describes a transform between two complex operands",

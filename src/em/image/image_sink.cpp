@@ -59,7 +59,7 @@ private:
 	std::shared_ptr<image_writer_provider> m_writers;
 };
 
-} // namespace
+} // anonymous namespace
 
 image_sink::image_sink(
 	std::shared_ptr<image_writer_provider> writers,

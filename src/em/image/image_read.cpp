@@ -121,7 +121,7 @@ void place_patch(
 	}
 }
 
-} // namespace
+} // anonymous namespace
 
 array read(
 	const std::string &path,

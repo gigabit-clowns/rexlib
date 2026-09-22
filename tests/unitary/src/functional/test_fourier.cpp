@@ -28,7 +28,7 @@ namespace
 // The operand is two dimensional, so the last axis is axis 1.
 REXLIB_CONST_CONSTEXPR std::size_t last_axis = 1;
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,

@@ -29,7 +29,7 @@ const operation_descriptor& stub_descriptor()
     return instance;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
     "elementwise_operation_shape_policy::get returns a singleton",

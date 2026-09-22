@@ -13,7 +13,7 @@ class test_program final : public program
 {
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"program::get_scratch_requirements returns empty span by default",

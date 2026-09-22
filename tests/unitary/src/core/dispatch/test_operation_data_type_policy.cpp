@@ -34,7 +34,7 @@ public:
 	) const override {}
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"operation_data_type_policy::accept should succeed with zero outputs",

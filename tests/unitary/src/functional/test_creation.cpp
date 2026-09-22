@@ -47,7 +47,7 @@ private:
 	std::unique_ptr<scalar_value> m_value;
 };
 
-} // namespace
+} // anonymous namespace
 
 
 

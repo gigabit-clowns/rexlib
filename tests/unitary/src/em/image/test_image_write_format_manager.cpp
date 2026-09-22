@@ -92,7 +92,7 @@ std::unique_ptr<image_write_format> make_staged(
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE( "an empty write manager recognizes nothing",
 	"[image_write_format_manager]" )

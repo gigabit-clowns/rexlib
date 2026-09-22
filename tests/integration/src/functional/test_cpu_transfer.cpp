@@ -40,7 +40,7 @@ using all_types = type_list_cat_t<
 	>
 >;
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE_METHOD(

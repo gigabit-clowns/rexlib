@@ -66,7 +66,7 @@ bool read_leading_bytes(
 	return true;
 }
 
-} // namespace
+} // anonymous namespace
 
 image_probe::image_probe(std::string path)
 	: m_path(std::move(path))

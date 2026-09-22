@@ -31,7 +31,7 @@ struct mock_operation_b
 	~mock_operation_b() override = default;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"program_manager::register_builder accepts a valid builder",
