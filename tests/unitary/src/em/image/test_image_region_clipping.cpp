@@ -55,7 +55,7 @@ std::vector<std::size_t> make_array_extents(std::size_t count)
 	};
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"make_clipped_transfer_plans checks the rank of each side",

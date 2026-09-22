@@ -54,16 +54,21 @@ public:
 	image_batch_source& operator=(image_batch_source &&other) = delete;
 
 	/**
-	 * @brief Read every region a transaction plan names.
+	 * @brief Read one element per location into a batch.
 	 *
 	 * Returns before the reads are done. Neither @ref completion::wait
 	 * nor @ref completion::get of the completion returned may be called
 	 * from within a task already running on the executor this source
 	 * was constructed with.
 	 *
-	 * @param destination Where the regions land.
-	 * @param plan The transaction to read.
+	 * @param destination Where the elements land. Its leading extent is the
+	 * batch size and its remaining extents are the shape of one element.
+	 * @param locations Where each slot comes from, one per slot of
+	 * @p destination and in the same order.
 	 * @return std::shared_ptr<completion> The completion, never null.
+	 * @throws std::invalid_argument If @p destination has no extents, if its
+	 * leading extent is not the number of locations, or if @p locations
+	 * mixes those carrying a position with those carrying none.
 	 */
 	REXLIB_API
 	std::shared_ptr<completion> read(

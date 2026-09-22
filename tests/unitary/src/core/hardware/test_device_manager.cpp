@@ -106,7 +106,7 @@ protected:
 	}
 };
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

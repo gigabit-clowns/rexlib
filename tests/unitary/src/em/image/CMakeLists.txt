@@ -3,6 +3,8 @@ target_sources(
 	PRIVATE
 		test_caching_image_reader_provider.cpp
 		test_direct_image_reader_provider.cpp
+		test_image_batch_plan.cpp
+		test_image_batch_sink.cpp
 		test_image_batch_source.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp
@@ -11,8 +13,10 @@ target_sources(
 		test_image_probe.cpp
 		test_image_read.cpp
 		test_image_read_format_manager.cpp
+		test_image_reader.cpp
 		test_image_reader_provider.cpp
 		test_image_region_clipping.cpp
+		test_image_region_extents.cpp
 		test_image_region_grouping.cpp
 		test_image_sink.cpp
 		test_image_source.cpp

@@ -234,7 +234,7 @@ void apply_index(
 	offset += increment;
 }
 
-} // namespace
+} // anonymous namespace
 
 inline
 void apply_index(

@@ -28,7 +28,7 @@ operand_signature make_signature(std::vector<std::size_t> extents)
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"linalg_core_layout_plan::for_trailing_core splits whole-matrix operands "

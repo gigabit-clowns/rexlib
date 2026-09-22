@@ -10,7 +10,6 @@
 
 #include <core/find_most_suitable_backend.hpp>
 #include <em/image/core_image_format_registry.hpp>
-#include <em/image/image_reader_extents.hpp>
 
 #include <utility>
 #include <vector>

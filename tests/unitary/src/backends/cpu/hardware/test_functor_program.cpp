@@ -94,7 +94,7 @@ std::shared_ptr<host_buffer> make_host_buffer(std::size_t size)
 }
 
 
-} // namespace
+} // anonymous namespace
 
 
 TEST_CASE(

@@ -3,6 +3,8 @@ target_sources(
 	PRIVATE
 		caching_image_reader_provider.cpp
 		direct_image_reader_provider.cpp
+		image_batch_plan.cpp
+		image_batch_sink.cpp
 		image_batch_source.cpp
 		image_format_registry.cpp
 		image_location.cpp
@@ -13,7 +15,6 @@ target_sources(
 		image_read_format.cpp
 		image_read_format_manager.cpp
 		image_reader.cpp
-		image_reader_extents.cpp
 		image_reader_provider.cpp
 		image_region_clipping.cpp
 		image_region_extents.cpp

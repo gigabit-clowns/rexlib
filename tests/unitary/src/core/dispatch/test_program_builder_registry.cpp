@@ -83,7 +83,7 @@ std::shared_ptr<program> build_stub_operation(const program_manager &manager)
 	);
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"program_builder_registry::register_all registers every factory's "

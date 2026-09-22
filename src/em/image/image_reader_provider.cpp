@@ -2,8 +2,6 @@
 
 #include <rexlib/em/image/image_reader_provider.hpp>
 
-#include "image_reader_extents.hpp"
-
 #include <rexlib/em/image/image_reader.hpp>
 
 namespace rexlib

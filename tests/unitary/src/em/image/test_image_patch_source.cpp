@@ -75,7 +75,7 @@ std::shared_ptr<image_patch_source> make_patch_source(
 	return std::make_shared<image_patch_source>(std::move(source));
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"image_patch_source needs a downstream source",
