@@ -10,10 +10,8 @@
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <vector>
 
 using namespace rexlib;
 using namespace rexlib::em;
@@ -65,11 +63,6 @@ std::unique_ptr<image_read_format> make_staged(
 {
 	return std::make_unique<staged_format>(std::move(name), suitability);
 }
-
-// A stack of six planes of three by five: the leading axis is the one it
-// stacks along, so one image of it is the trailing two extents.
-const std::vector<std::size_t> stack_extents = {6, 3, 5};
-const std::vector<std::size_t> plane_extents = {3, 5};
 
 } // anonymous namespace
 
@@ -196,50 +189,4 @@ TEST_CASE( "the read manager consults every registered format",
 		image_probe("absent.mrc"));
 
 	REQUIRE( chosen == expected );
-}
-
-TEST_CASE( "a query answers the shape of a file the read manager opens",
-	"[image_read_format_manager]" )
-{
-	// Declared before the expectations so that the format it owns outlives
-	// them.
-	image_read_format_manager manager;
-
-	const auto reader = std::make_shared<mock_image_reader>();
-	auto format = std::make_unique<mock_image_read_format>();
-
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
-	ALLOW_CALL(*reader, get_core_rank()).RETURN(plane_extents.size());
-	ALLOW_CALL(*format, get_suitability(ANY(const image_probe&)))
-		.RETURN(backend_priority::normal);
-	ALLOW_CALL(*format, open(ANY(const image_probe&))).RETURN(reader);
-
-	manager.register_format(std::move(format));
-
-	SECTION( "every extent of the file" )
-	{
-		CHECK( query_extents(manager, "stack.mrcs") == stack_extents );
-	}
-
-	SECTION( "the extents of one image of it" )
-	{
-		CHECK( query_core_extents(manager, "stack.mrcs") == plane_extents );
-	}
-}
-
-TEST_CASE( "a query reports what opening the file reported",
-	"[image_read_format_manager]" )
-{
-	// A manager with no format recognizes nothing, and a query adds no
-	// opinion of its own.
-	const image_read_format_manager manager;
-
-	REQUIRE_THROWS_AS(
-		query_extents(manager, "absent.mrc"),
-		invalid_operation_error
-	);
-	REQUIRE_THROWS_AS(
-		query_core_extents(manager, "absent.mrc"),
-		invalid_operation_error
-	);
 }

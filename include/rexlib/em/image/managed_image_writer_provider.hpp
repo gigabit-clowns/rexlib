@@ -2,9 +2,7 @@
 
 #pragma once
 
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_writer_provider.hpp>
 
 #include <cstddef>
@@ -16,6 +14,7 @@ namespace rexlib
 namespace em
 {
 
+class image_descriptor;
 class image_metadata;
 class image_write_format_manager;
 
@@ -76,22 +75,14 @@ public:
 	 * to the file it names. @ref close it first, which says so.
 	 *
 	 * @param path Path to the file to create.
-	 * @param extents Extents of the file, slowest axis first.
-	 * @param core_rank How many trailing extents are one image or volume,
-	 * the leading ones being the axes the file stacks along. Two for a stack
-	 * of images, three for one volume.
-	 * @param data_type Data type of its elements.
+	 * @param descriptor What the file holds.
 	 * @param metadata How its samples map onto physical space.
-	 * @throws std::invalid_argument If @p core_rank is zero or exceeds the
-	 * rank of @p extents.
 	 * @throws invalid_operation_error If that path is already declared.
 	 */
 	REXLIB_API
 	void declare(
 		std::string path,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type,
+		image_descriptor descriptor,
 		const image_metadata &metadata
 	);
 

@@ -6,6 +6,7 @@
 
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -132,12 +133,10 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		const auto reader = manager->open(path);
 
-		REQUIRE( reader->get_data_type() == numerical_type::float32 );
-		REQUIRE( reader->get_core_rank() == 3 );
-		REQUIRE( reader->get_extents().size() == 3 );
-		REQUIRE( reader->get_extents()[0] == 20 );
-		REQUIRE( reader->get_extents()[1] == 20 );
-		REQUIRE( reader->get_extents()[2] == 20 );
+		const std::vector<std::size_t> extents = {20, 20, 20};
+
+		REQUIRE( reader->get_descriptor() ==
+			image_descriptor(make_span(extents), 3, numerical_type::float32) );
 	}
 
 	SECTION( "a crystallographic volume does not read its sampling as depth" )
@@ -154,8 +153,8 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		const auto reader = manager->open(path);
 
-		REQUIRE( reader->get_core_rank() == 3 );
-		REQUIRE( reader->get_extents().size() == 3 );
+		REQUIRE( reader->get_descriptor().get_core_rank() == 3 );
+		REQUIRE( reader->get_descriptor().get_extents().size() == 3 );
 	}
 
 	SECTION( "a volume is read along the axes its header names" )
@@ -171,11 +170,12 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		REQUIRE( field(raw, 72) == 2 );
 
 		const auto reader = manager->open(path);
+		const auto extents = reader->get_descriptor().get_extents();
 
-		REQUIRE( reader->get_extents().size() == 3 );
-		REQUIRE( reader->get_extents()[0] == 73 );
-		REQUIRE( reader->get_extents()[1] == 25 );
-		REQUIRE( reader->get_extents()[2] == 43 );
+		REQUIRE( extents.size() == 3 );
+		REQUIRE( extents[0] == 73 );
+		REQUIRE( extents[1] == 25 );
+		REQUIRE( extents[2] == 43 );
 	}
 }
 
@@ -191,7 +191,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	{
 		const auto path = get_mrc_asset_path(name);
 		const auto reader = manager->open(path);
-		const auto extents = reader->get_extents();
+		const auto extents = reader->get_descriptor().get_extents();
 		const std::vector<std::size_t> shape(
 			extents.begin(), extents.end());
 

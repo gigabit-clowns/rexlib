@@ -59,19 +59,9 @@ mrc_reader::mrc_reader(const std::string &path)
 	check_length(m_mapping, m_geometry);
 }
 
-span<const std::size_t> mrc_reader::get_extents() const noexcept
+const image_descriptor& mrc_reader::get_descriptor() const noexcept
 {
-	return m_geometry.get_extents();
-}
-
-std::size_t mrc_reader::get_core_rank() const noexcept
-{
-	return m_geometry.get_core_rank();
-}
-
-numerical_type mrc_reader::get_data_type() const noexcept
-{
-	return m_geometry.get_data_type();
+	return m_geometry.get_descriptor();
 }
 
 const image_metadata& mrc_reader::get_metadata() const noexcept
@@ -97,7 +87,7 @@ void mrc_reader::read(
 	// Validate the batch before the prefetch touches it.
 	const image_region_read_plan plan(
 		regions,
-		m_geometry.get_extents(),
+		m_geometry.get_descriptor().get_extents(),
 		m_geometry.get_strides(),
 		make_span(array_extents),
 		make_span(array_strides),
@@ -107,7 +97,7 @@ void mrc_reader::read(
 	const image_region_prefetch_plan advice(
 		regions,
 		m_geometry.get_strides(),
-		m_geometry.get_data_type(),
+		m_geometry.get_descriptor().get_data_type(),
 		plan.get_offsets().get_file(),
 		make_span(m_mapping.get_data(), m_mapping.get_size()),
 		m_geometry.get_data_offset(),
@@ -115,7 +105,7 @@ void mrc_reader::read(
 			compute_region_span(
 				regions,
 				m_geometry.get_strides(),
-				m_geometry.get_data_type()
+				m_geometry.get_descriptor().get_data_type()
 			)
 		)
 	);
@@ -144,7 +134,7 @@ void mrc_reader::read(
 			array_data,
 			descriptor.get_data_type(),
 			file_data,
-			m_geometry.get_data_type(),
+			m_geometry.get_descriptor().get_data_type(),
 			m_header.get_byte_order()
 		);
 	}

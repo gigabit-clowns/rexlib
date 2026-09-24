@@ -48,11 +48,7 @@ public:
 
 	~mrc_reader() override = default;
 
-	span<const std::size_t> get_extents() const noexcept override;
-
-	std::size_t get_core_rank() const noexcept override;
-
-	numerical_type get_data_type() const noexcept override;
+	const image_descriptor& get_descriptor() const noexcept override;
 
 	const image_metadata& get_metadata() const noexcept override;
 

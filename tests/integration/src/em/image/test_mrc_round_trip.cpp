@@ -8,6 +8,7 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -103,14 +104,15 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 			values.size() * sizeof(float)
 		);
 
+		const image_descriptor descriptor(
+			make_span(subject.extents),
+			subject.core_rank,
+			numerical_type::float32
+		);
+
 		{
-			const auto writer = writers->open(
-				path.get(),
-				make_span(subject.extents),
-				subject.core_rank,
-				numerical_type::float32,
-				image_metadata()
-			);
+			const auto writer =
+				writers->open(path.get(), descriptor, image_metadata());
 			writer->write(
 				const_array_ref(source), whole_of(subject.extents));
 			writer->flush();
@@ -118,11 +120,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		const auto reader = readers->open(path.get());
 
-		REQUIRE( reader->get_core_rank() == subject.core_rank );
-		REQUIRE( reader->get_data_type() == numerical_type::float32 );
-		REQUIRE( std::vector<std::size_t>(
-			reader->get_extents().begin(),
-			reader->get_extents().end()) == subject.extents );
+		REQUIRE( reader->get_descriptor() == descriptor );
 
 		auto destination = zeros(
 			make_descriptor(subject.extents, numerical_type::float32),
@@ -170,9 +168,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		{
 			const auto writer = writers->open(
 				path.get(),
-				make_span(extents),
-				2,
-				file_type,
+				image_descriptor(make_span(extents), 2, file_type),
 				image_metadata()
 			);
 			writer->write(const_array_ref(source), whole_of(extents));
@@ -181,7 +177,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		const auto reader = readers->open(path.get());
 
-		REQUIRE( reader->get_data_type() == file_type );
+		REQUIRE( reader->get_descriptor().get_data_type() == file_type );
 
 		// Read back into a wider type than the file holds, which is the
 		// conversion a caller asks for rather than the one the file forces.

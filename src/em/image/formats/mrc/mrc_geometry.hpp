@@ -4,8 +4,8 @@
 
 #include "mrc_header.hpp"
 
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 
 #include <cstddef>
 #include <vector>
@@ -26,7 +26,7 @@ namespace mrc
  * stack of volumes divides the sections between its two leading axes, unless
  * the division leaves one of them a single element, which is how a volume and
  * a stack of images are stated too. This resolves all of it once, when a file
- * is opened, into the extents and the core rank an @ref image_reader reports.
+ * is opened, into the descriptor an @ref image_reader reports.
  *
  * The values themselves are laid out with the columns changing fastest, and
  * the header names the axis of space the columns, the rows and the sections
@@ -57,23 +57,16 @@ public:
 	mrc_geometry& operator=(mrc_geometry &&other) noexcept = default;
 
 	/**
-	 * @brief Get the extents of the file.
+	 * @brief Get the shape and data type of the values of the file.
 	 *
 	 * The axes of a stack come first, and the axes of one image or volume
 	 * follow in the order of the axes of space, the one along the first axis
-	 * of space last.
+	 * of space last. The core rank is two for a file of images and three for
+	 * one of volumes.
 	 *
-	 * @return span<const std::size_t> The extents.
+	 * @return const image_descriptor& The descriptor.
 	 */
-	span<const std::size_t> get_extents() const noexcept;
-
-	/**
-	 * @brief Get how many of the extents are one image or volume.
-	 *
-	 * @return std::size_t Two for a file of images, three for one of
-	 * volumes.
-	 */
-	std::size_t get_core_rank() const noexcept;
+	const image_descriptor& get_descriptor() const noexcept;
 
 	/**
 	 * @brief Get the distance between consecutive elements along each axis.
@@ -84,13 +77,6 @@ public:
 	 * @return span<const std::ptrdiff_t> The strides.
 	 */
 	span<const std::ptrdiff_t> get_strides() const noexcept;
-
-	/**
-	 * @brief Get the data type of the elements of the file.
-	 *
-	 * @return numerical_type The data type.
-	 */
-	numerical_type get_data_type() const noexcept;
 
 	/**
 	 * @brief Get where the values of the file begin.
@@ -114,11 +100,14 @@ public:
 	std::size_t get_data_size() const noexcept;
 
 private:
-	std::vector<std::size_t> m_extents;
+	image_descriptor m_descriptor;
 	std::vector<std::ptrdiff_t> m_strides;
-	std::size_t m_core_rank;
-	numerical_type m_data_type;
 	std::size_t m_data_offset;
+
+	mrc_geometry(
+		const mrc_header &header,
+		const std::vector<std::size_t> &axis_order
+	);
 };
 
 } // namespace mrc

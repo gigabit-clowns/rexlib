@@ -7,6 +7,7 @@
 #include "mock/mock_image_writer.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_write_format.hpp>
@@ -25,6 +26,11 @@ namespace
 {
 
 const std::vector<std::size_t> stack_extents = {4, 3, 5};
+const image_descriptor stack_descriptor(
+	make_span(stack_extents),
+	2,
+	numerical_type::int16
+);
 
 // What one call to open was asked for, and the writer it handed back. The
 // writer is owned by the provider; this only names it, so that a test can
@@ -32,8 +38,7 @@ const std::vector<std::size_t> stack_extents = {4, 3, 5};
 struct open_record
 {
 	std::string path;
-	std::vector<std::size_t> extents;
-	std::size_t core_rank;
+	image_descriptor descriptor;
 	mock_image_writer *writer;
 };
 
@@ -62,19 +67,14 @@ public:
 
 	std::shared_ptr<image_writer> open(
 		const image_probe &probe,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type,
+		const image_descriptor &descriptor,
 		const image_metadata &
 	) const override
 	{
 		auto writer = std::make_shared<mock_image_writer>();
-		m_log->push_back(open_record{
-			probe.get_path(),
-			std::vector<std::size_t>(extents.begin(), extents.end()),
-			core_rank,
-			writer.get()
-		});
+		m_log->push_back(
+			open_record{probe.get_path(), descriptor, writer.get()}
+		);
 		return writer;
 	}
 
@@ -98,13 +98,7 @@ void declare_stack(
 	std::string path
 )
 {
-	provider.declare(
-		std::move(path),
-		make_span(stack_extents),
-		2,
-		numerical_type::int16,
-		image_metadata()
-	);
+	provider.declare(std::move(path), stack_descriptor, image_metadata());
 }
 
 std::size_t count(const open_log &log, const std::string &path)
@@ -168,61 +162,6 @@ TEST_CASE( "a managed writer provider serves only what was declared",
 	}
 }
 
-TEST_CASE( "a managed writer provider refuses a core rank it can not mean",
-	"[managed_image_writer_provider]" )
-{
-	// Refused where it was written down rather than at whatever later point
-	// the file is first acquired.
-	const auto log = std::make_shared<open_log>();
-	managed_image_writer_provider provider(make_manager(log));
-
-	SECTION( "a core rank of zero names no image or volume" )
-	{
-		REQUIRE_THROWS_AS(
-			provider.declare(
-				"stack_0.mrcs",
-				make_span(stack_extents),
-				0,
-				numerical_type::int16,
-				image_metadata()
-			),
-			std::invalid_argument
-		);
-		REQUIRE( provider.get_file_count() == 0 );
-	}
-
-	SECTION( "a core rank above the rank of the extents is refused" )
-	{
-		REQUIRE_THROWS_AS(
-			provider.declare(
-				"stack_0.mrcs",
-				make_span(stack_extents),
-				4,
-				numerical_type::int16,
-				image_metadata()
-			),
-			std::invalid_argument
-		);
-		REQUIRE( provider.get_file_count() == 0 );
-	}
-
-	SECTION( "a core rank equal to the rank of the extents is one volume" )
-	{
-		provider.declare(
-			"volume.mrc",
-			make_span(stack_extents),
-			3,
-			numerical_type::float32,
-			image_metadata()
-		);
-
-		provider.acquire("volume.mrc");
-
-		REQUIRE( log->size() == 1 );
-		REQUIRE( log->front().core_rank == 3 );
-	}
-}
-
 TEST_CASE( "a managed writer provider creates a file once",
 	"[managed_image_writer_provider]" )
 {
@@ -253,8 +192,7 @@ TEST_CASE( "a managed writer provider creates a file once",
 		provider.acquire("stack_0.mrcs");
 
 		REQUIRE( log->size() == 1 );
-		REQUIRE( log->front().extents == stack_extents );
-		REQUIRE( log->front().core_rank == 2 );
+		REQUIRE( log->front().descriptor == stack_descriptor );
 	}
 }
 

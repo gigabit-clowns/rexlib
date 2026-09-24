@@ -4,6 +4,7 @@
 
 #include <em/image/formats/mrc/mrc_write_format.hpp>
 
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_writer.hpp>
@@ -57,16 +58,19 @@ TEST_CASE( "the MRC format claims the files it can create",
 	{
 		const scoped_path path("writer_claimed.mrc");
 		const std::vector<std::size_t> extents = {3, 4};
+		const image_descriptor descriptor(
+			make_span(extents),
+			2,
+			numerical_type::float32
+		);
 
 		const auto writer = format.open(
 			image_probe(path.get()),
-			make_span(extents),
-			2,
-			numerical_type::float32,
+			descriptor,
 			image_metadata()
 		);
 
 		REQUIRE( writer != nullptr );
-		REQUIRE( writer->get_core_rank() == 2 );
+		REQUIRE( writer->get_descriptor() == descriptor );
 	}
 }

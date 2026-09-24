@@ -15,6 +15,7 @@
 #include <rexlib/em/image/executor_image_sink.hpp>
 #include <rexlib/em/image/executor_image_source.hpp>
 #include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
@@ -101,13 +102,12 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	);
 
 	// The size of the stack is settled here and nowhere else.
-	writers->declare(
-		path.get(),
+	const image_descriptor stack_descriptor(
 		make_span(stack_extents),
 		core_rank,
-		numerical_type::float32,
-		image_metadata()
+		numerical_type::float32
 	);
+	writers->declare(path.get(), stack_descriptor, image_metadata());
 
 	std::vector<std::shared_ptr<completion>> written;
 	for (std::size_t k = 0; k < batch_count; ++k)
@@ -151,11 +151,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	{
 		const auto reader = reader_formats->open(path.get());
 
-		CHECK( reader->get_core_rank() == core_rank );
-		CHECK( reader->get_data_type() == numerical_type::float32 );
-		CHECK( std::vector<std::size_t>(
-			reader->get_extents().begin(),
-			reader->get_extents().end()) == stack_extents );
+		CHECK( reader->get_descriptor() == stack_descriptor );
 	}
 
 	SECTION( "every batch holds what was written into its slots" )

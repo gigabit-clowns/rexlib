@@ -39,30 +39,17 @@ public:
 	 * Any file already at that path is replaced.
 	 *
 	 * @param path Path to the file to create.
-	 * @param extents Extents of the file, slowest axis first.
-	 * @param core_rank How many trailing extents are one image or volume.
-	 * @param data_type Data type of its elements.
-	 * @throws std::invalid_argument If @p core_rank is zero or exceeds the
-	 * rank of @p extents.
+	 * @param descriptor What the file holds.
 	 * @throws invalid_operation_error If the MRC format holds no file of
-	 * that shape, or no mode holds @p data_type.
+	 * that shape, or no mode holds its data type.
 	 * @throws image_format_error If the file could not be created, sized or
 	 * mapped.
 	 */
-	mrc_writer(
-		const std::string &path,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type
-	);
+	mrc_writer(const std::string &path, const image_descriptor &descriptor);
 
 	~mrc_writer() override;
 
-	span<const std::size_t> get_extents() const noexcept override;
-
-	std::size_t get_core_rank() const noexcept override;
-
-	numerical_type get_data_type() const noexcept override;
+	const image_descriptor& get_descriptor() const noexcept override;
 
 	void write(
 		const_array_ref source,
@@ -81,28 +68,20 @@ private:
  * @brief Build the header of a file of a given shape.
  *
  * The inverse of @ref mrc_geometry: it decides the space group and the
- * sampling that state the difference @p core_rank names, since the extents
- * alone do not say whether a file of @c (N,H,W) is a stack of images or one
- * volume.
+ * sampling that state the difference the core rank of @p descriptor names,
+ * since the extents alone do not say whether a file of @c (N,H,W) is a stack
+ * of images or one volume.
  *
  * Every field the format does not derive from the shape is left at what a
  * newly created file carries, save for a label naming the library that
  * built it.
  *
- * @param extents Extents of the file, slowest axis first.
- * @param core_rank How many trailing extents are one image or volume.
- * @param data_type Data type of the elements.
+ * @param descriptor What the file holds.
  * @return mrc_header The header, in the byte order of the host.
- * @throws std::invalid_argument If @p core_rank is zero or exceeds the rank
- * of @p extents.
  * @throws invalid_operation_error If no MRC file has that shape, or if no
- * mode holds @p data_type.
+ * mode holds its data type.
  */
-mrc_header make_header(
-	span<const std::size_t> extents,
-	std::size_t core_rank,
-	numerical_type data_type
-);
+mrc_header make_header(const image_descriptor &descriptor);
 
 } // namespace mrc
 } // namespace em

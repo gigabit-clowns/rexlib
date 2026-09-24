@@ -12,20 +12,12 @@ namespace em
 image_reader_provider::image_reader_provider() noexcept = default;
 image_reader_provider::~image_reader_provider() = default;
 
-std::vector<std::size_t> query_extents(
+image_descriptor query_descriptor(
 	image_reader_provider &readers,
 	const std::string &path
 )
 {
-	return copy_extents(*readers.acquire(path));
-}
-
-std::vector<std::size_t> query_core_extents(
-	image_reader_provider &readers,
-	const std::string &path
-)
-{
-	return copy_core_extents(*readers.acquire(path));
+	return readers.acquire(path)->get_descriptor();
 }
 
 } // namespace em

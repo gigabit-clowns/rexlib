@@ -7,6 +7,7 @@ target_sources(
 		test_executor_image_sink.cpp
 		test_executor_image_source.cpp
 		test_image_batch_plan.cpp
+		test_image_descriptor.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp
 		test_image_metadata.cpp
@@ -14,7 +15,6 @@ target_sources(
 		test_image_read.cpp
 		test_image_read_format_manager.cpp
 		test_image_read_format_registry.cpp
-		test_image_reader.cpp
 		test_image_reader_provider.cpp
 		test_image_region_clipping.cpp
 		test_image_region_extents.cpp

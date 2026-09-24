@@ -6,6 +6,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_sink.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
@@ -43,9 +44,7 @@ void write(
 
 	const auto writer = manager.open(
 		path,
-		make_span(extents),
-		rank,
-		data_type,
+		image_descriptor(make_span(extents), rank, data_type),
 		metadata
 	);
 

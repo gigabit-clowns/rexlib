@@ -4,6 +4,7 @@
 
 #include <em/image/formats/mrc/mrc_read_format.hpp>
 
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 
@@ -81,6 +82,6 @@ TEST_CASE( "the MRC format claims the files it can read",
 		const auto reader = format.open(image_probe(path.get()));
 
 		REQUIRE( reader != nullptr );
-		REQUIRE( reader->get_core_rank() == 2 );
+		REQUIRE( reader->get_descriptor().get_core_rank() == 2 );
 	}
 }

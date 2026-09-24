@@ -5,6 +5,7 @@
 #include <rexlib/em/image/image_reader.hpp>
 
 #include <rexlib/core/ndarray/array_ref.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
@@ -22,14 +23,10 @@ public:
 	mock_image_reader() = default;
 
 	MAKE_CONST_MOCK0(
-		get_extents,
-		span<const std::size_t>(),
+		get_descriptor,
+		const image_descriptor&(),
 		noexcept override
 	);
-
-	MAKE_CONST_MOCK0(get_core_rank, std::size_t(), noexcept override);
-
-	MAKE_CONST_MOCK0(get_data_type, numerical_type(), noexcept override);
 
 	MAKE_CONST_MOCK0(
 		get_metadata,

@@ -2,13 +2,10 @@
 
 #pragma once
 
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/service_manager.hpp>
-#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 
-#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -17,6 +14,7 @@ namespace rexlib
 namespace em
 {
 
+class image_descriptor;
 class image_metadata;
 class image_probe;
 class image_write_format;
@@ -62,10 +60,7 @@ public:
 	 * normally rests on its extension. Any file already there is replaced.
 	 *
 	 * @param path Path to the file to create.
-	 * @param extents Extents of the file to create, slowest axis first.
-	 * @param core_rank How many trailing extents are one image or volume,
-	 * which is what tells a stack of images from a volume.
-	 * @param data_type Data type of its elements.
+	 * @param descriptor What the file holds.
 	 * @param metadata How its samples map onto physical space.
 	 * @return std::shared_ptr<image_writer> The opened writer, never null.
 	 * @throws invalid_operation_error If no registered format recognizes the
@@ -74,9 +69,7 @@ public:
 	 */
 	std::shared_ptr<image_writer> open(
 		const std::string &path,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type,
+		const image_descriptor &descriptor,
 		const image_metadata &metadata
 	) const;
 

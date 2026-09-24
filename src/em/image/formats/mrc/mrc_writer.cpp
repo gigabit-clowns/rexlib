@@ -66,11 +66,9 @@ image_file_mapping lay_out_file(
 
 mrc_writer::mrc_writer(
 	const std::string &path,
-	span<const std::size_t> extents,
-	std::size_t core_rank,
-	numerical_type data_type
+	const image_descriptor &descriptor
 )
-	: m_header(make_header(extents, core_rank, data_type))
+	: m_header(make_header(descriptor))
 	, m_geometry(m_header)
 	, m_mapping(lay_out_file(path, m_geometry))
 {
@@ -102,19 +100,9 @@ mrc_writer::~mrc_writer()
 	}
 }
 
-span<const std::size_t> mrc_writer::get_extents() const noexcept
+const image_descriptor& mrc_writer::get_descriptor() const noexcept
 {
-	return m_geometry.get_extents();
-}
-
-std::size_t mrc_writer::get_core_rank() const noexcept
-{
-	return m_geometry.get_core_rank();
-}
-
-numerical_type mrc_writer::get_data_type() const noexcept
-{
-	return m_geometry.get_data_type();
+	return m_geometry.get_descriptor();
 }
 
 void mrc_writer::write(
@@ -134,7 +122,7 @@ void mrc_writer::write(
 
 	const image_region_write_plan plan(
 		regions,
-		m_geometry.get_extents(),
+		m_geometry.get_descriptor().get_extents(),
 		m_geometry.get_strides(),
 		make_span(array_extents),
 		make_span(array_strides),
@@ -146,7 +134,7 @@ void mrc_writer::write(
 		array_data,
 		descriptor.get_data_type(),
 		m_mapping.get_data() + m_geometry.get_data_offset(),
-		m_geometry.get_data_type(),
+		m_geometry.get_descriptor().get_data_type(),
 		m_header.get_byte_order()
 	);
 }
@@ -156,20 +144,12 @@ void mrc_writer::flush()
 	m_mapping.flush();
 }
 
-mrc_header make_header(
-	span<const std::size_t> extents,
-	std::size_t core_rank,
-	numerical_type data_type
-)
+mrc_header make_header(const image_descriptor &descriptor)
 {
+	const auto extents = descriptor.get_extents();
+	const auto core_rank = descriptor.get_core_rank();
+	const auto data_type = descriptor.get_data_type();
 	const auto rank = extents.size();
-	if (core_rank == 0 || core_rank > rank)
-	{
-		throw std::invalid_argument(
-			"mrc::make_header: The core rank must name at least one and at "
-			"most every extent."
-		);
-	}
 
 	if (rank < 2 || rank > 4)
 	{

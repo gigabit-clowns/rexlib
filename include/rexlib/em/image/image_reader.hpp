@@ -2,13 +2,8 @@
 
 #pragma once
 
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
-
-#include <cstddef>
-#include <vector>
 
 namespace rexlib
 {
@@ -18,6 +13,7 @@ class array_ref;
 namespace em
 {
 
+class image_descriptor;
 class image_metadata;
 
 /**
@@ -52,45 +48,21 @@ public:
 	image_reader& operator=(image_reader &&other) = delete;
 
 	/**
-	 * @brief Get the extents of the file.
+	 * @brief Get the shape and data type of what the file holds.
 	 *
-	 * Those of the file in the order it stores its axes, slowest first. How
-	 * it lays its elements out within them is the format's own business and
-	 * is not reported.
+	 * The extents are those of the file in the order it stores its axes,
+	 * slowest first. How it lays its elements out within them is the
+	 * format's own business and is not reported. The data type is the one a
+	 * read produces without converting, which is therefore the cheapest type
+	 * to ask a destination for.
 	 *
-	 * @return span<const std::size_t> The extents. It refers to storage
+	 * A file whose format can not tell a stack of one image or volume from a
+	 * single one is described as the single one.
+	 *
+	 * @return const image_descriptor& The descriptor. It refers to storage
 	 * owned by this reader.
 	 */
-	virtual span<const std::size_t> get_extents() const noexcept = 0;
-
-	/**
-	 * @brief Get how many of the extents describe one image or volume.
-	 *
-	 * That many trailing extents are one image or one volume, and the
-	 * leading ones are the axes the file stacks along. It is therefore the
-	 * dimensionality of what the file holds, two for an image and three for
-	 * a volume, and it is what tells a stack of @c N images from one volume
-	 * of @c N planes: their extents are identical and only this differs.
-	 * Each format records the difference in its own way, as MRC does
-	 * through its space group and its grid size.
-	 *
-	 * Equal to the rank of @ref get_extents for a file holding a single
-	 * image or volume.
-	 *
-	 * @return std::size_t The rank of one image or volume. Never zero, and
-	 * never above the rank of @ref get_extents.
-	 */
-	virtual std::size_t get_core_rank() const noexcept = 0;
-
-	/**
-	 * @brief Get the data type of the elements of the file.
-	 *
-	 * The one a read produces without converting, which is therefore the
-	 * cheapest type to ask a destination for.
-	 *
-	 * @return numerical_type The data type.
-	 */
-	virtual numerical_type get_data_type() const noexcept = 0;
+	virtual const image_descriptor& get_descriptor() const noexcept = 0;
 
 	/**
 	 * @brief Get how the samples of the file map onto physical space.
@@ -125,8 +97,8 @@ public:
 	 * Values are converted to the data type of @p destination with
 	 * @ref numerical_cast semantics, which preserve the numeric value.
 	 * Nothing is scaled, normalised or clipped, whatever statistics the file
-	 * may carry in its header; asking for @ref get_data_type converts
-	 * nothing at all.
+	 * may carry in its header; asking for the data type of
+	 * @ref get_descriptor converts nothing at all.
 	 *
 	 * @par Thread safety
 	 * This method may be called concurrently on one reader. A reader that
@@ -154,34 +126,6 @@ public:
 		const image_transfer_plan &regions
 	) const = 0;
 };
-
-/**
- * @brief Copy the extents a reader reports.
- *
- * @ref image_reader::get_extents refers to storage the reader owns, which a
- * caller that let go of the reader in the same expression outlives. This owns
- * what it returns, which is the whole of asking for it safely.
- *
- * @param reader The reader to ask.
- * @return std::vector<std::size_t> The extents of the file, slowest axis
- * first.
- */
-REXLIB_API
-std::vector<std::size_t> copy_extents(const image_reader &reader);
-
-/**
- * @brief Copy the extents of one image or volume of a file.
- *
- * The trailing @ref image_reader::get_core_rank extents, so the axes the file
- * stacks along are left out and what remains is the shape of a single image
- * or volume. That is what the destination of a batch carries beside its
- * leading extent.
- *
- * @param reader The reader to ask.
- * @return std::vector<std::size_t> The extents of one image or volume.
- */
-REXLIB_API
-std::vector<std::size_t> copy_core_extents(const image_reader &reader);
 
 } // namespace em
 } // namespace rexlib

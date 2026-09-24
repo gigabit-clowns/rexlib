@@ -52,7 +52,7 @@ mrc_header with_axes(
 
 std::vector<std::size_t> extents_of(const mrc_geometry &geometry)
 {
-	const auto extents = geometry.get_extents();
+	const auto extents = geometry.get_descriptor().get_extents();
 	return std::vector<std::size_t>(extents.begin(), extents.end());
 }
 
@@ -72,7 +72,7 @@ TEST_CASE( "the shape of an MRC file follows from its space group",
 		const mrc_geometry geometry(make_header_of(4, 3, 1, 1, 0));
 
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{3, 4} );
-		REQUIRE( geometry.get_core_rank() == 2 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
 	}
 
 	SECTION( "several sections and no space group is a stack of images" )
@@ -80,7 +80,7 @@ TEST_CASE( "the shape of an MRC file follows from its space group",
 		const mrc_geometry geometry(make_header_of(4, 3, 5, 1, 0));
 
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{5, 3, 4} );
-		REQUIRE( geometry.get_core_rank() == 2 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
 	}
 
 	SECTION( "a space group of one is a volume" )
@@ -88,7 +88,7 @@ TEST_CASE( "the shape of an MRC file follows from its space group",
 		const mrc_geometry geometry(make_header_of(4, 3, 5, 5, 1));
 
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{5, 3, 4} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
 	SECTION( "a crystallographic space group is a volume too" )
@@ -97,7 +97,7 @@ TEST_CASE( "the shape of an MRC file follows from its space group",
 
 		REQUIRE( extents_of(geometry) ==
 			std::vector<std::size_t>{25, 43, 73} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
 	SECTION( "a space group above four hundred is a stack of volumes" )
@@ -106,7 +106,7 @@ TEST_CASE( "the shape of an MRC file follows from its space group",
 
 		REQUIRE( extents_of(geometry) ==
 			std::vector<std::size_t>{3, 4, 3, 4} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
 	SECTION( "the last space group of the range is still a stack" )
@@ -122,7 +122,7 @@ TEST_CASE( "the shape of an MRC file follows from its space group",
 
 		REQUIRE( extents_of(geometry) ==
 			std::vector<std::size_t>{12, 3, 4} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 }
 
@@ -177,7 +177,7 @@ TEST_CASE( "a stack of volumes that holds no stack of volumes is not one",
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{6, 3, 4} );
 		REQUIRE( strides_of(geometry) ==
 			std::vector<std::ptrdiff_t>{12, 4, 1} );
-		REQUIRE( geometry.get_core_rank() == 2 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
 	}
 
 	SECTION( "a stack of a single volume is a volume" )
@@ -187,7 +187,7 @@ TEST_CASE( "a stack of volumes that holds no stack of volumes is not one",
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{5, 3, 4} );
 		REQUIRE( strides_of(geometry) ==
 			std::vector<std::ptrdiff_t>{12, 4, 1} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
 	SECTION( "a single volume of a single section is a volume too" )
@@ -195,7 +195,7 @@ TEST_CASE( "a stack of volumes that holds no stack of volumes is not one",
 		const mrc_geometry geometry(make_header_of(4, 3, 1, 1, 401));
 
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{1, 3, 4} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
 	SECTION( "a single image of a stack of images is still an image" )
@@ -203,7 +203,7 @@ TEST_CASE( "a stack of volumes that holds no stack of volumes is not one",
 		const mrc_geometry geometry(make_header_of(4, 3, 1, 1, 0));
 
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{3, 4} );
-		REQUIRE( geometry.get_core_rank() == 2 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
 	}
 }
 
@@ -222,7 +222,7 @@ TEST_CASE( "the axes of an MRC file are ordered by the axis of space each "
 			std::vector<std::size_t>{73, 25, 43} );
 		REQUIRE( strides_of(geometry) ==
 			std::vector<std::ptrdiff_t>{1, 3139, 73} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 		REQUIRE( geometry.get_element_count() == 25 * 43 * 73 );
 	}
 
@@ -243,7 +243,7 @@ TEST_CASE( "the axes of an MRC file are ordered by the axis of space each "
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{5, 4, 3} );
 		REQUIRE( strides_of(geometry) ==
 			std::vector<std::ptrdiff_t>{12, 1, 4} );
-		REQUIRE( geometry.get_core_rank() == 2 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
 	}
 
 	SECTION( "the volumes of a stack of volumes are no axis of space either" )
@@ -255,7 +255,7 @@ TEST_CASE( "the axes of an MRC file are ordered by the axis of space each "
 			std::vector<std::size_t>{3, 3, 4, 4} );
 		REQUIRE( strides_of(geometry) ==
 			std::vector<std::ptrdiff_t>{48, 4, 1, 12} );
-		REQUIRE( geometry.get_core_rank() == 3 );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
 	SECTION( "an axis correspondence that is no permutation is refused" )
@@ -296,7 +296,8 @@ TEST_CASE( "an MRC file reports where and how much of it holds values",
 		REQUIRE( geometry.get_data_offset() == 1024 );
 		REQUIRE( geometry.get_element_count() == 60 );
 		REQUIRE( geometry.get_data_size() == 240 );
-		REQUIRE( geometry.get_data_type() == numerical_type::float32 );
+		REQUIRE( geometry.get_descriptor().get_data_type() ==
+			numerical_type::float32 );
 	}
 
 	SECTION( "an extended header pushes them further" )
@@ -317,7 +318,8 @@ TEST_CASE( "an MRC file reports where and how much of it holds values",
 
 		const mrc_geometry geometry(header);
 
-		REQUIRE( geometry.get_data_type() == numerical_type::uint8 );
+		REQUIRE( geometry.get_descriptor().get_data_type() ==
+			numerical_type::uint8 );
 		REQUIRE( geometry.get_data_size() == 12 );
 	}
 }

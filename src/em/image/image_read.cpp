@@ -9,6 +9,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_reader.hpp>
@@ -42,11 +43,12 @@ array read_whole_file(
 	const execution_context &context
 )
 {
-	const auto extents = reader.get_extents();
+	const auto &descriptor = reader.get_descriptor();
+	const auto extents = descriptor.get_extents();
 	const auto rank = extents.size();
 
 	auto destination = empty(
-		make_contiguous_array_descriptor(extents, reader.get_data_type()),
+		make_contiguous_array_descriptor(extents, descriptor.get_data_type()),
 		memory_resource_affinity::host,
 		context
 	);
@@ -70,15 +72,16 @@ array read_stack_slice(
 	const execution_context &context
 )
 {
-	const auto file_extents = reader.get_extents();
-	const auto core_rank = reader.get_core_rank();
-	const span<const std::size_t> core_extents(
-		file_extents.data() + (file_extents.size() - core_rank),
-		core_rank
-	);
+	const auto &descriptor = reader.get_descriptor();
+	const auto file_extents = descriptor.get_extents();
+	const auto core_extents = get_core_extents(descriptor);
+	const auto core_rank = core_extents.size();
 
 	auto destination = empty(
-		make_contiguous_array_descriptor(core_extents, reader.get_data_type()),
+		make_contiguous_array_descriptor(
+			core_extents,
+			descriptor.get_data_type()
+		),
 		memory_resource_affinity::host,
 		context
 	);

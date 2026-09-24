@@ -10,6 +10,7 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
@@ -34,6 +35,13 @@ namespace
 {
 
 const std::vector<std::size_t> plane_extents = {3, 5};
+const std::vector<std::size_t> stack_extents = {8, 3, 5};
+
+const image_descriptor stack_descriptor(
+	make_span(stack_extents),
+	plane_extents.size(),
+	numerical_type::float32
+);
 
 // trompeloeil keeps no internal lock, so a mock is not safe to call from
 // several threads at once — not just on the same instance, since matching a
@@ -80,19 +88,9 @@ public:
 	{
 	}
 
-	span<const std::size_t> get_extents() const noexcept override
+	const image_descriptor& get_descriptor() const noexcept override
 	{
-		return span<const std::size_t>();
-	}
-
-	std::size_t get_core_rank() const noexcept override
-	{
-		return 0;
-	}
-
-	numerical_type get_data_type() const noexcept override
-	{
-		return numerical_type::float32;
+		return stack_descriptor;
 	}
 
 	void write(const_array_ref, const image_transfer_plan &) override

@@ -8,6 +8,7 @@
 #include <rexlib/core/concurrency/task.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
@@ -58,7 +59,7 @@ public:
 		std::vector<image_transfer_plan> clipped;
 		if (!make_clipped_transfer_plans(
 				m_transfer,
-				reader->get_extents(),
+				reader->get_descriptor().get_extents(),
 				make_span(array_extents),
 				clipped
 			))

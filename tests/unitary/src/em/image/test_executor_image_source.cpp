@@ -10,6 +10,7 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 
@@ -42,6 +43,12 @@ const std::vector<std::size_t> plane_extents = {3, 5};
 // second.
 const std::vector<std::size_t> stack_extents = {8, 3, 5};
 const std::vector<std::size_t> batch_extents = {4, 3, 5};
+
+const image_descriptor stack_descriptor(
+	make_span(stack_extents),
+	plane_extents.size(),
+	numerical_type::float32
+);
 
 // trompeloeil keeps no internal lock, so a mock is not safe to call from
 // several threads at once — not just on the same instance, since matching a
@@ -85,19 +92,9 @@ public:
 	{
 	}
 
-	span<const std::size_t> get_extents() const noexcept override
+	const image_descriptor& get_descriptor() const noexcept override
 	{
-		return make_span(stack_extents);
-	}
-
-	std::size_t get_core_rank() const noexcept override
-	{
-		return plane_extents.size();
-	}
-
-	numerical_type get_data_type() const noexcept override
-	{
-		return numerical_type::float32;
+		return stack_descriptor;
 	}
 
 	const image_metadata& get_metadata() const noexcept override
@@ -207,8 +204,10 @@ TEST_CASE(
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader_zero);
 	REQUIRE_CALL(*readers, acquire("stack_1.mrcs")).RETURN(reader_one);
-	ALLOW_CALL(*reader_zero, get_extents()).RETURN(make_span(stack_extents));
-	ALLOW_CALL(*reader_one, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader_zero, get_descriptor())
+		.RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(*reader_one, get_descriptor())
+		.RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader_zero, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_region_count() == 3 );
 	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_))
@@ -239,7 +238,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 	// No expectation for "stack_1.mrcs": acquiring it would violate.
 
@@ -287,7 +286,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.SIDE_EFFECT( throw std::runtime_error("from a reader") );
 
@@ -316,7 +315,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
@@ -350,7 +349,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_extents()[0] == 3 );
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
@@ -385,7 +384,7 @@ TEST_CASE(
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 1 &&

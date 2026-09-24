@@ -7,6 +7,7 @@ target_sources(
 		executor_image_sink.cpp
 		executor_image_source.cpp
 		image_batch_plan.cpp
+		image_descriptor.cpp
 		image_location.cpp
 		image_metadata.cpp
 		image_probe.cpp

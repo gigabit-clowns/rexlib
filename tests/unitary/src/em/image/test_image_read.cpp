@@ -13,6 +13,7 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format.hpp>
@@ -28,6 +29,7 @@
 #include "mock/mock_image_source.hpp"
 
 #include <cstddef>
+#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -214,9 +216,12 @@ TEST_CASE_METHOD(
 	const auto reader = std::make_shared<mock_image_reader>();
 	const auto opened_path = std::make_shared<std::string>();
 
-	ALLOW_CALL(*reader, get_extents()).LR_RETURN(make_span(extents));
-	ALLOW_CALL(*reader, get_data_type()).RETURN(numerical_type::float32);
-	ALLOW_CALL(*reader, get_core_rank()).RETURN(std::size_t(2));
+	const image_descriptor descriptor(
+		make_span(extents),
+		2,
+		numerical_type::float32
+	);
+	ALLOW_CALL(*reader, get_descriptor()).LR_RETURN(std::ref(descriptor));
 
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
@@ -249,9 +254,12 @@ TEST_CASE_METHOD(
 	const auto reader = std::make_shared<mock_image_reader>();
 	const auto opened_path = std::make_shared<std::string>();
 
-	ALLOW_CALL(*reader, get_extents()).LR_RETURN(make_span(extents));
-	ALLOW_CALL(*reader, get_data_type()).RETURN(numerical_type::float32);
-	ALLOW_CALL(*reader, get_core_rank()).RETURN(std::size_t(2));
+	const image_descriptor descriptor(
+		make_span(extents),
+		2,
+		numerical_type::float32
+	);
+	ALLOW_CALL(*reader, get_descriptor()).LR_RETURN(std::ref(descriptor));
 
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
@@ -285,9 +293,12 @@ TEST_CASE_METHOD(
 	const std::vector<std::size_t> core_extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
 
-	ALLOW_CALL(*reader, get_extents()).LR_RETURN(make_span(file_extents));
-	ALLOW_CALL(*reader, get_data_type()).RETURN(numerical_type::int16);
-	ALLOW_CALL(*reader, get_core_rank()).RETURN(std::size_t(2));
+	const image_descriptor descriptor(
+		make_span(file_extents),
+		2,
+		numerical_type::int16
+	);
+	ALLOW_CALL(*reader, get_descriptor()).LR_RETURN(std::ref(descriptor));
 
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(

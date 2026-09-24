@@ -16,6 +16,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include "../../fixtures/scoped_path.hpp"
@@ -91,6 +92,15 @@ std::vector<float> counting(std::size_t count)
 	return values;
 }
 
+image_descriptor make_descriptor(
+	const std::vector<std::size_t> &extents,
+	std::size_t core_rank,
+	numerical_type data_type = numerical_type::float32
+)
+{
+	return image_descriptor(make_span(extents), core_rank, data_type);
+}
+
 image_transfer_plan whole_of(const std::vector<std::size_t> &extents)
 {
 	image_transfer_plan regions(
@@ -131,8 +141,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "a single image states one section and no space group" )
 	{
-		const auto header = make_header(
-			make_span(image), 2, numerical_type::float32);
+		const auto header = make_header(make_descriptor(image, 2));
 
 		REQUIRE( header.get_column_count() == 4 );
 		REQUIRE( header.get_row_count() == 3 );
@@ -143,8 +152,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "a stack of images states a sampling of one" )
 	{
-		const auto header = make_header(
-			make_span(stack), 2, numerical_type::float32);
+		const auto header = make_header(make_descriptor(stack, 2));
 
 		REQUIRE( header.get_section_count() == 5 );
 		REQUIRE( header.get_section_sampling() == 1 );
@@ -153,8 +161,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "a volume states its depth as its sampling" )
 	{
-		const auto header = make_header(
-			make_span(stack), 3, numerical_type::float32);
+		const auto header = make_header(make_descriptor(stack, 3));
 
 		REQUIRE( header.get_section_count() == 5 );
 		REQUIRE( header.get_section_sampling() == 5 );
@@ -163,8 +170,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "a stack of volumes divides its sections between two axes" )
 	{
-		const auto header = make_header(
-			make_span(volume_stack), 3, numerical_type::float32);
+		const auto header = make_header(make_descriptor(volume_stack, 3));
 
 		REQUIRE( header.get_section_count() == 12 );
 		REQUIRE( header.get_section_sampling() == 4 );
@@ -173,8 +179,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "what it does not derive is what a new file carries" )
 	{
-		const auto header = make_header(
-			make_span(image), 2, numerical_type::float32);
+		const auto header = make_header(make_descriptor(image, 2));
 
 		REQUIRE( header.get_column_axis() == 1 );
 		REQUIRE( header.get_row_axis() == 2 );
@@ -186,8 +191,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "statistics that were not computed carry their sentinels" )
 	{
-		const auto header = make_header(
-			make_span(image), 2, numerical_type::float32);
+		const auto header = make_header(make_descriptor(image, 2));
 
 		REQUIRE( header.get_data_min() == 0.0F );
 		REQUIRE( header.get_data_max() == -1.0F );
@@ -197,8 +201,8 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "unsigned bytes are stamped as such" )
 	{
-		const auto header = make_header(
-			make_span(image), 2, numerical_type::uint8);
+		const auto header =
+			make_header(make_descriptor(image, 2, numerical_type::uint8));
 
 		REQUIRE( header.get_mode() == mrc_mode::int8 );
 		REQUIRE( header.get_imod_stamp() == 1146047817 );
@@ -207,8 +211,8 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "signed bytes are not" )
 	{
-		const auto header = make_header(
-			make_span(image), 2, numerical_type::int8);
+		const auto header =
+			make_header(make_descriptor(image, 2, numerical_type::int8));
 
 		REQUIRE( header.get_mode() == mrc_mode::int8 );
 		REQUIRE( header.get_imod_stamp() == 0 );
@@ -217,8 +221,7 @@ TEST_CASE( "a header is built from the shape a file is created with",
 
 	SECTION( "it is signed with the library that built it" )
 	{
-		const auto header = make_header(
-			make_span(image), 2, numerical_type::float32);
+		const auto header = make_header(make_descriptor(image, 2));
 
 		const auto labels = header.get_labels();
 
@@ -236,29 +239,10 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	const std::vector<std::size_t> line = {4};
 	const std::vector<std::size_t> too_deep = {2, 3, 4, 3, 4};
 
-	// A core rank that does not name a subset of the extents breaks the
-	// contract of image_write_format::open rather than naming a file the MRC
-	// format has no shape for, and is refused as such.
-	SECTION( "a core rank of zero is refused" )
-	{
-		REQUIRE_THROWS_AS(
-			make_header(make_span(image), 0, numerical_type::float32),
-			std::invalid_argument
-		);
-	}
-
-	SECTION( "a core rank above the rank is refused" )
-	{
-		REQUIRE_THROWS_AS(
-			make_header(make_span(image), 3, numerical_type::float32),
-			std::invalid_argument
-		);
-	}
-
 	SECTION( "a rank of one is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			make_header(make_span(line), 1, numerical_type::float32),
+			make_header(make_descriptor(line, 1)),
 			invalid_operation_error
 		);
 	}
@@ -272,7 +256,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 		const std::vector<std::size_t> single = {1, 3, 4};
 
 		REQUIRE_THROWS_AS(
-			make_header(make_span(single), 2, numerical_type::float32),
+			make_header(make_descriptor(single, 2)),
 			invalid_operation_error
 		);
 	}
@@ -282,7 +266,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 		const std::vector<std::size_t> single = {1, 3, 3, 4};
 
 		REQUIRE_THROWS_AS(
-			make_header(make_span(single), 3, numerical_type::float32),
+			make_header(make_descriptor(single, 3)),
 			invalid_operation_error
 		);
 	}
@@ -292,7 +276,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 		const std::vector<std::size_t> flat = {3, 1, 3, 4};
 
 		REQUIRE_THROWS_AS(
-			make_header(make_span(flat), 3, numerical_type::float32),
+			make_header(make_descriptor(flat, 3)),
 			invalid_operation_error
 		);
 	}
@@ -304,14 +288,14 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 		const std::vector<std::size_t> flat = {1, 3, 4};
 
 		REQUIRE_NOTHROW(
-			make_header(make_span(flat), 3, numerical_type::float32)
+			make_header(make_descriptor(flat, 3))
 		);
 	}
 
 	SECTION( "a rank above four is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			make_header(make_span(too_deep), 3, numerical_type::float32),
+			make_header(make_descriptor(too_deep, 3)),
 			invalid_operation_error
 		);
 	}
@@ -319,7 +303,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	SECTION( "a stack of images of images is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			make_header(make_span(volume_stack), 2, numerical_type::float32),
+			make_header(make_descriptor(volume_stack, 2)),
 			invalid_operation_error
 		);
 	}
@@ -327,7 +311,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	SECTION( "a data type the format has no mode for is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			make_header(make_span(stack), 2, numerical_type::float64),
+			make_header(make_descriptor(stack, 2, numerical_type::float64)),
 			invalid_operation_error
 		);
 	}
@@ -343,16 +327,12 @@ TEST_CASE( "a header built from a shape reports that shape when parsed",
 
 	for (std::size_t i = 0; i < shapes.size(); ++i)
 	{
-		const auto header = make_header(
-			make_span(shapes[i]), core_ranks[i], numerical_type::float32);
+		const auto header =
+			make_header(make_descriptor(shapes[i], core_ranks[i]));
 		const mrc_geometry geometry(header);
 
-		const auto extents = geometry.get_extents();
-
-		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
-			shapes[i] );
-		REQUIRE( geometry.get_core_rank() == core_ranks[i] );
-		REQUIRE( geometry.get_data_type() == numerical_type::float32 );
+		REQUIRE( geometry.get_descriptor() ==
+			make_descriptor(shapes[i], core_ranks[i]) );
 	}
 }
 
@@ -364,21 +344,16 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 	SECTION( "a writer reports what it was created over" )
 	{
 		const std::vector<std::size_t> extents = {2, 3, 4};
-		mrc_writer writer(
-			path.get(), make_span(extents), 2, numerical_type::float32);
+		mrc_writer writer(path.get(), make_descriptor(extents, 2));
 
-		REQUIRE( writer.get_extents().size() == 3 );
-		REQUIRE( writer.get_extents()[0] == 2 );
-		REQUIRE( writer.get_core_rank() == 2 );
-		REQUIRE( writer.get_data_type() == numerical_type::float32 );
+		REQUIRE( writer.get_descriptor() == make_descriptor(extents, 2) );
 	}
 
 	SECTION( "the file is laid out in full before anything is written" )
 	{
 		const std::vector<std::size_t> extents = {2, 3, 4};
 		{
-			const mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::float32);
+			const mrc_writer writer(path.get(), make_descriptor(extents, 2));
 		}
 
 		REQUIRE( boost::filesystem::file_size(path.get()) ==
@@ -389,8 +364,7 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 	{
 		const std::vector<std::size_t> extents = {3, 4};
 		{
-			const mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::float32);
+			const mrc_writer writer(path.get(), make_descriptor(extents, 2));
 		}
 
 		// The header owns the labels the span refers to, so it has to
@@ -407,25 +381,8 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 		const std::vector<std::size_t> line = {4};
 
 		REQUIRE_THROWS_AS(
-			mrc_writer(
-				path.get(), make_span(line), 1, numerical_type::float32),
+			mrc_writer(path.get(), make_descriptor(line, 1)),
 			invalid_operation_error
-		);
-	}
-
-	SECTION( "a core rank that names no subset of the extents is refused" )
-	{
-		const std::vector<std::size_t> extents = {2, 3};
-
-		REQUIRE_THROWS_AS(
-			mrc_writer(
-				path.get(), make_span(extents), 0, numerical_type::float32),
-			std::invalid_argument
-		);
-		REQUIRE_THROWS_AS(
-			mrc_writer(
-				path.get(), make_span(extents), 3, numerical_type::float32),
-			std::invalid_argument
 		);
 	}
 
@@ -435,7 +392,9 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 
 		REQUIRE_THROWS_AS(
 			mrc_writer(
-				path.get(), make_span(extents), 2, numerical_type::float64),
+				path.get(),
+				make_descriptor(extents, 2, numerical_type::float64)
+			),
 			invalid_operation_error
 		);
 	}
@@ -452,8 +411,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const auto values = counting(12);
 
 		{
-			mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::float32);
+			mrc_writer writer(path.get(), make_descriptor(extents, 2));
 			const auto source = make_host_array(extents, values);
 			writer.write(const_array_ref(source), whole_of(extents));
 			writer.flush();
@@ -468,8 +426,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const auto values = counting(24);
 
 		{
-			mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::float32);
+			mrc_writer writer(path.get(), make_descriptor(extents, 2));
 			const auto source = make_host_array(extents, values);
 			writer.write(const_array_ref(source), whole_of(extents));
 			writer.flush();
@@ -477,8 +434,8 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_core_rank() == 2 );
-		REQUIRE( reader.get_extents()[0] == 2 );
+		REQUIRE( reader.get_descriptor().get_core_rank() == 2 );
+		REQUIRE( reader.get_descriptor().get_extents()[0] == 2 );
 		REQUIRE( read_back(path.get(), extents) == values );
 	}
 
@@ -488,8 +445,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const auto values = counting(24);
 
 		{
-			mrc_writer writer(
-				path.get(), make_span(extents), 3, numerical_type::float32);
+			mrc_writer writer(path.get(), make_descriptor(extents, 3));
 			const auto source = make_host_array(extents, values);
 			writer.write(const_array_ref(source), whole_of(extents));
 			writer.flush();
@@ -497,7 +453,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_core_rank() == 3 );
+		REQUIRE( reader.get_descriptor().get_core_rank() == 3 );
 		REQUIRE( read_back(path.get(), extents) == values );
 	}
 
@@ -507,8 +463,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const auto values = counting(120);
 
 		{
-			mrc_writer writer(
-				path.get(), make_span(extents), 3, numerical_type::float32);
+			mrc_writer writer(path.get(), make_descriptor(extents, 3));
 			const auto source = make_host_array(extents, values);
 			writer.write(const_array_ref(source), whole_of(extents));
 			writer.flush();
@@ -516,8 +471,8 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_extents().size() == 4 );
-		REQUIRE( reader.get_core_rank() == 3 );
+		REQUIRE( reader.get_descriptor().get_extents().size() == 4 );
+		REQUIRE( reader.get_descriptor().get_core_rank() == 3 );
 		REQUIRE( read_back(path.get(), extents) == values );
 	}
 
@@ -528,7 +483,9 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		{
 			mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::int16);
+				path.get(),
+				make_descriptor(extents, 2, numerical_type::int16)
+			);
 			const auto source = make_host_array(extents, values);
 			writer.write(const_array_ref(source), whole_of(extents));
 			writer.flush();
@@ -536,7 +493,8 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_data_type() == numerical_type::int16 );
+		REQUIRE( reader.get_descriptor().get_data_type() ==
+			numerical_type::int16 );
 		REQUIRE( read_back(path.get(), extents) == values );
 	}
 
@@ -547,7 +505,9 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		{
 			mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::uint8);
+				path.get(),
+				make_descriptor(extents, 2, numerical_type::uint8)
+			);
 			const auto source = make_host_array(extents, values);
 			writer.write(const_array_ref(source), whole_of(extents));
 			writer.flush();
@@ -555,7 +515,8 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_data_type() == numerical_type::uint8 );
+		REQUIRE( reader.get_descriptor().get_data_type() ==
+			numerical_type::uint8 );
 		REQUIRE( read_back(path.get(), extents) == values );
 	}
 
@@ -566,8 +527,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const auto values = counting(12);
 
 		{
-			mrc_writer writer(
-				path.get(), make_span(extents), 2, numerical_type::float32);
+			mrc_writer writer(path.get(), make_descriptor(extents, 2));
 			const auto source = make_host_array(extents, values);
 
 			for (std::size_t i = 0; i < 3; ++i)
@@ -589,8 +549,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 	SECTION( "an uninitialized source is refused" )
 	{
 		const std::vector<std::size_t> extents = {2, 2};
-		mrc_writer writer(
-			path.get(), make_span(extents), 2, numerical_type::float32);
+		mrc_writer writer(path.get(), make_descriptor(extents, 2));
 
 		REQUIRE_THROWS_AS(
 			writer.write(const_array_ref(), whole_of(extents)),

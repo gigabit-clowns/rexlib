@@ -6,6 +6,7 @@
 #include "../mock/mock_image_writer.hpp"
 
 #include <rexlib/core/service_catalog.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format.hpp>
@@ -84,9 +85,7 @@ public:
 
 	std::shared_ptr<image_writer> open(
 		const image_probe &,
-		span<const std::size_t>,
-		std::size_t,
-		numerical_type,
+		const image_descriptor &,
 		const image_metadata &
 	) const override
 	{
@@ -163,9 +162,7 @@ TEST_CASE( "a write format registers itself at static initialization",
 
 		REQUIRE( manager.open(
 			test_file(),
-			make_span(extents),
-			2,
-			numerical_type::int16,
+			image_descriptor(make_span(extents), 2, numerical_type::int16),
 			image_metadata()
 		) != nullptr );
 	}

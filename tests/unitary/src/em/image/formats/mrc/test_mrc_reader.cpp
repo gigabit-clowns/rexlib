@@ -11,11 +11,13 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
 #include "../../fixtures/scoped_path.hpp"
 #include "fixtures/mrc_test_file.hpp"
 
+#include <cstddef>
 #include <memory>
 #include <numeric>
 #include <string>
@@ -66,9 +68,22 @@ std::vector<float> values_of(
 	return std::vector<float>(data, data + element_count(extents));
 }
 
+// Every file the cases below build holds float32, mode 2.
+image_descriptor make_descriptor(
+	const std::vector<std::size_t> &extents,
+	std::size_t core_rank
+)
+{
+	return image_descriptor(
+		make_span(extents),
+		core_rank,
+		numerical_type::float32
+	);
+}
+
 std::vector<float> read_all(const mrc_reader &reader)
 {
-	const auto extents = reader.get_extents();
+	const auto extents = reader.get_descriptor().get_extents();
 	const std::vector<std::size_t> shape(extents.begin(), extents.end());
 
 	auto destination = make_host_array(shape);
@@ -98,12 +113,7 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_extents().size() == 3 );
-		REQUIRE( reader.get_extents()[0] == 2 );
-		REQUIRE( reader.get_extents()[1] == 3 );
-		REQUIRE( reader.get_extents()[2] == 4 );
-		REQUIRE( reader.get_core_rank() == 2 );
-		REQUIRE( reader.get_data_type() == numerical_type::float32 );
+		REQUIRE( reader.get_descriptor() == make_descriptor({2, 3, 4}, 2) );
 	}
 
 	SECTION( "a volume reports three" )
@@ -112,7 +122,7 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_core_rank() == 3 );
+		REQUIRE( reader.get_descriptor() == make_descriptor({2, 3, 4}, 3) );
 	}
 
 	SECTION( "a single image drops the section axis" )
@@ -121,8 +131,7 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_extents().size() == 2 );
-		REQUIRE( reader.get_core_rank() == 2 );
+		REQUIRE( reader.get_descriptor() == make_descriptor({3, 4}, 2) );
 	}
 
 	SECTION( "a stack of volumes one section thick is a stack of images" )
@@ -133,11 +142,7 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_extents().size() == 3 );
-		REQUIRE( reader.get_extents()[0] == 6 );
-		REQUIRE( reader.get_extents()[1] == 3 );
-		REQUIRE( reader.get_extents()[2] == 4 );
-		REQUIRE( reader.get_core_rank() == 2 );
+		REQUIRE( reader.get_descriptor() == make_descriptor({6, 3, 4}, 2) );
 	}
 
 	SECTION( "a stack of a single volume is a volume" )
@@ -146,9 +151,7 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_extents().size() == 3 );
-		REQUIRE( reader.get_extents()[0] == 6 );
-		REQUIRE( reader.get_core_rank() == 3 );
+		REQUIRE( reader.get_descriptor() == make_descriptor({6, 3, 4}, 3) );
 	}
 }
 

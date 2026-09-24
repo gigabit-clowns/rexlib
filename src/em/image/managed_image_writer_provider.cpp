@@ -4,6 +4,7 @@
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/platform/assert.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 #include <rexlib/em/image/image_writer.hpp>
@@ -31,9 +32,7 @@ public:
 
 	void declare(
 		std::string path,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type,
+		image_descriptor descriptor,
 		const image_metadata &metadata
 	)
 	{
@@ -48,12 +47,10 @@ public:
 			);
 		}
 
-		declared_file file;
-		file.extents.assign(extents.begin(), extents.end());
-		file.metadata = metadata;
-		file.core_rank = core_rank;
-		file.data_type = data_type;
-		m_files.emplace(std::move(path), std::move(file));
+		m_files.emplace(
+			std::move(path),
+			declared_file(std::move(descriptor), metadata)
+		);
 	}
 
 	void close(const std::string &path)
@@ -71,7 +68,7 @@ public:
 				);
 			}
 
-			writer = std::move(ite->second.writer);
+			writer = ite->second.get_writer();
 			m_files.erase(ite);
 		}
 
@@ -102,20 +99,20 @@ public:
 			);
 		}
 
-		auto &entry = ite->second;
-		if (!entry.writer)
+		auto &file = ite->second;
+		if (!file.get_writer())
 		{
-			entry.writer = m_formats->open(
-				ite->first,
-				make_span(entry.extents.data(), entry.extents.size()),
-				entry.core_rank,
-				entry.data_type,
-				entry.metadata
+			file.set_writer(
+				m_formats->open(
+					ite->first,
+					file.get_descriptor(),
+					file.get_metadata()
+				)
 			);
-			REXLIB_ASSERT(entry.writer);
+			REXLIB_ASSERT(file.get_writer());
 		}
 
-		return entry.writer;
+		return file.get_writer();
 	}
 
 	void flush()
@@ -126,9 +123,9 @@ public:
 			writers.reserve(m_files.size());
 			for (const auto &file : m_files)
 			{
-				if (file.second.writer)
+				if (file.second.get_writer())
 				{
-					writers.push_back(file.second.writer);
+					writers.push_back(file.second.get_writer());
 				}
 			}
 		}
@@ -140,15 +137,41 @@ public:
 	}
 
 private:
-	// What a file was declared as, kept until it is created. The path is
-	// the key it is stored under.
-	struct declared_file
+	// What a file was declared as, and its writer once it is created. The
+	// path is the key it is stored under.
+	class declared_file
 	{
-		std::vector<std::size_t> extents;
-		image_metadata metadata;
-		std::size_t core_rank = 0;
-		numerical_type data_type = numerical_type::unknown;
-		std::shared_ptr<image_writer> writer;
+	public:
+		declared_file(image_descriptor descriptor, image_metadata metadata)
+			: m_descriptor(std::move(descriptor))
+			, m_metadata(std::move(metadata))
+		{
+		}
+
+		const image_descriptor& get_descriptor() const noexcept
+		{
+			return m_descriptor;
+		}
+
+		const image_metadata& get_metadata() const noexcept
+		{
+			return m_metadata;
+		}
+
+		const std::shared_ptr<image_writer>& get_writer() const noexcept
+		{
+			return m_writer;
+		}
+
+		void set_writer(std::shared_ptr<image_writer> writer) noexcept
+		{
+			m_writer = std::move(writer);
+		}
+
+	private:
+		image_descriptor m_descriptor;
+		image_metadata m_metadata;
+		std::shared_ptr<image_writer> m_writer;
 	};
 
 	mutable std::mutex m_mutex;
@@ -175,36 +198,13 @@ managed_image_writer_provider::~managed_image_writer_provider() = default;
 
 void managed_image_writer_provider::declare(
 	std::string path,
-	span<const std::size_t> extents,
-	std::size_t core_rank,
-	numerical_type data_type,
+	image_descriptor descriptor,
 	const image_metadata &metadata
 )
 {
-	// Checked here rather than left to the format, so that a core rank that
-	// names no image or volume is refused where it was written down and not
-	// at whatever later point the file is first acquired.
-	if (core_rank == 0)
-	{
-		throw std::invalid_argument(
-			"managed_image_writer_provider::declare: The core rank must not "
-			"be zero."
-		);
-	}
-
-	if (core_rank > extents.size())
-	{
-		throw std::invalid_argument(
-			"managed_image_writer_provider::declare: The core rank must not "
-			"exceed the rank of the extents."
-		);
-	}
-
 	m_implementation->declare(
 		std::move(path),
-		extents,
-		core_rank,
-		data_type,
+		std::move(descriptor),
 		metadata
 	);
 }

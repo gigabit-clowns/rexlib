@@ -9,6 +9,7 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
@@ -32,14 +33,10 @@ using namespace rexlib::em;
 namespace
 {
 
-// What one call to open was handed, so a test can check what image_write.cpp
-// asked for rather than reach into a mock's own bookkeeping.
-struct open_record
-{
-	std::vector<std::size_t> extents;
-	std::size_t core_rank = 0;
-	numerical_type data_type = numerical_type::unknown;
-};
+// The descriptor of every file a format was asked to create, so a test can
+// check what image_write.cpp asked for rather than reach into a mock's own
+// bookkeeping.
+using opened_files = std::vector<image_descriptor>;
 
 // A format that always claims a file, records what it was asked to create
 // and hands back one fixed writer.
@@ -49,10 +46,10 @@ class staged_write_format final
 public:
 	staged_write_format(
 		std::shared_ptr<image_writer> writer,
-		std::shared_ptr<open_record> record
+		std::shared_ptr<opened_files> opened
 	)
 		: m_writer(std::move(writer))
-		, m_record(std::move(record))
+		, m_opened(std::move(opened))
 	{
 	}
 
@@ -68,33 +65,29 @@ public:
 
 	std::shared_ptr<image_writer> open(
 		const image_probe &,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type,
+		const image_descriptor &descriptor,
 		const image_metadata &
 	) const override
 	{
-		m_record->extents.assign(extents.begin(), extents.end());
-		m_record->core_rank = core_rank;
-		m_record->data_type = data_type;
+		m_opened->push_back(descriptor);
 		return m_writer;
 	}
 
 private:
 	std::shared_ptr<image_writer> m_writer;
-	std::shared_ptr<open_record> m_record;
+	std::shared_ptr<opened_files> m_opened;
 };
 
 void register_writer(
 	image_write_format_manager &manager,
 	std::shared_ptr<image_writer> writer,
-	std::shared_ptr<open_record> record
+	std::shared_ptr<opened_files> opened
 )
 {
 	manager.register_format(
 		std::make_unique<staged_write_format>(
 			std::move(writer),
-			std::move(record)
+			std::move(opened)
 		)
 	);
 }
@@ -144,7 +137,7 @@ TEST_CASE(
 	const auto arr = make_array(extents, numerical_type::float32);
 
 	const auto writer = std::make_shared<mock_image_writer>();
-	const auto record = std::make_shared<open_record>();
+	const auto opened = std::make_shared<opened_files>();
 
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
@@ -160,12 +153,18 @@ TEST_CASE(
 	REQUIRE_CALL(*writer, flush());
 
 	image_write_format_manager manager;
-	register_writer(manager, writer, record);
+	register_writer(manager, writer, opened);
 	write(arr, "out.mrc", manager);
 
-	CHECK( record->extents == extents );
-	CHECK( record->core_rank == extents.size() );
-	CHECK( record->data_type == numerical_type::float32 );
+	REQUIRE( opened->size() == 1 );
+	CHECK(
+		opened->front() ==
+		image_descriptor(
+			make_span(extents),
+			extents.size(),
+			numerical_type::float32
+		)
+	);
 }
 
 TEST_CASE(
@@ -176,13 +175,13 @@ TEST_CASE(
 	const auto arr = make_array({2, 3}, numerical_type::float32);
 
 	const auto writer = std::make_shared<mock_image_writer>();
-	const auto record = std::make_shared<open_record>();
+	const auto opened = std::make_shared<opened_files>();
 
 	ALLOW_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
 	ALLOW_CALL(*writer, flush());
 
 	image_write_format_manager manager;
-	register_writer(manager, writer, record);
+	register_writer(manager, writer, opened);
 	write(
 		arr,
 		"out.mrc",
@@ -190,7 +189,8 @@ TEST_CASE(
 		numerical_type::int16
 	);
 
-	CHECK( record->data_type == numerical_type::int16 );
+	REQUIRE( opened->size() == 1 );
+	CHECK( opened->front().get_data_type() == numerical_type::int16 );
 }
 
 TEST_CASE(
@@ -201,13 +201,13 @@ TEST_CASE(
 	const auto arr = make_array({2, 3}, numerical_type::float32);
 
 	const auto writer = std::make_shared<mock_image_writer>();
-	const auto record = std::make_shared<open_record>();
+	const auto opened = std::make_shared<opened_files>();
 
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
 	REQUIRE_CALL(*writer, flush());
 
 	image_write_format_manager manager;
-	register_writer(manager, writer, record);
+	register_writer(manager, writer, opened);
 	write(arr, "out.mrc", manager);
 }
 

@@ -3,11 +3,10 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/em/image/image_descriptor.hpp>
 
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace rexlib
 {
@@ -64,46 +63,20 @@ public:
 };
 
 /**
- * @brief Get the extents of a file through a provider.
+ * @brief Get the descriptor of a file through a provider.
  *
- * Asking a reader directly returns extents it owns, which a caller that let
- * go of the reader in the same expression outlives. This owns what it
- * returns, so the shape of a file is answered without the reader being kept
- * or leaked into the caller.
- *
- * The file is opened to answer, which is what @p readers may or may not have
- * to do: one keeping the readers it was asked for answers a repeated question
- * without opening anything.
+ * A copy the caller owns, so the shape of a file is answered without the
+ * reader being kept. Whether the file is opened to answer depends on
+ * @p readers, which may already hold a reader over it.
  *
  * @param readers Where the file becomes a reader.
  * @param path Path to the file.
- * @return std::vector<std::size_t> The extents of the file, slowest axis
- * first.
+ * @return image_descriptor The descriptor of the file.
  * @throws invalid_operation_error If no format recognizes the file.
  * @throws image_format_error If the file is malformed or truncated.
  */
 REXLIB_API
-std::vector<std::size_t> query_extents(
-	image_reader_provider &readers,
-	const std::string &path
-);
-
-/**
- * @brief Get the extents of one image or volume of a file through a provider.
- *
- * The trailing @ref image_reader::get_core_rank extents of the file, so the
- * axes it stacks along are left out. That is the shape of a single image or
- * volume, which is what the destination of a batch carries beside its leading
- * extent.
- *
- * @param readers Where the file becomes a reader.
- * @param path Path to the file.
- * @return std::vector<std::size_t> The extents of one image or volume.
- * @throws invalid_operation_error If no format recognizes the file.
- * @throws image_format_error If the file is malformed or truncated.
- */
-REXLIB_API
-std::vector<std::size_t> query_core_extents(
+image_descriptor query_descriptor(
 	image_reader_provider &readers,
 	const std::string &path
 );

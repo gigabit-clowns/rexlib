@@ -4,6 +4,7 @@
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/platform/assert.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_write_format.hpp>
@@ -52,9 +53,7 @@ public:
 
 	std::shared_ptr<image_writer> open(
 		const image_probe &probe,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type,
+		const image_descriptor &descriptor,
 		const image_metadata &metadata
 	) const
 	{
@@ -67,13 +66,7 @@ public:
 			);
 		}
 
-		return format->open(
-			probe,
-			extents,
-			core_rank,
-			data_type,
-			metadata
-		);
+		return format->open(probe, descriptor, metadata);
 	}
 
 private:
@@ -103,19 +96,11 @@ bool image_write_format_manager::register_format(
 
 std::shared_ptr<image_writer> image_write_format_manager::open(
 	const std::string &path,
-	span<const std::size_t> extents,
-	std::size_t core_rank,
-	numerical_type data_type,
+	const image_descriptor &descriptor,
 	const image_metadata &metadata
 ) const
 {
-	return get_implementation().open(
-		image_probe(path),
-		extents,
-		core_rank,
-		data_type,
-		metadata
-	);
+	return get_implementation().open(image_probe(path), descriptor, metadata);
 }
 
 const image_write_format*
