@@ -14,7 +14,7 @@
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/dispatch/operation.hpp>
 #include <rexlib/core/dispatch/operation_cast.hpp>
-#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#include <rexlib/core/dispatch/program_builder_registration.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>

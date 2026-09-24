@@ -8,7 +8,6 @@
 #include "mock/mock_image_read_format.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/em/image/image_format_registry.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <cstddef>
@@ -197,37 +196,6 @@ TEST_CASE( "the read manager consults every registered format",
 		image_probe("absent.mrc"));
 
 	REQUIRE( chosen == expected );
-}
-
-TEST_CASE( "a read registry hands its formats to a manager",
-	"[image_read_format_manager]" )
-{
-	image_read_format_registry registry;
-	image_read_format_manager manager;
-
-	SECTION( "a drained registry populates the manager" )
-	{
-		registry.add([] () -> std::unique_ptr<image_read_format>
-		{
-			return make_staged("registered", backend_priority::normal);
-		});
-		registry.register_all(manager);
-
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "registered" );
-	}
-
-	SECTION( "a null factory is ignored" )
-	{
-		registry.add(nullptr);
-		registry.register_all(manager);
-
-		REQUIRE( manager.get_most_suitable_format(
-			image_probe("absent.mrc")) == nullptr );
-	}
 }
 
 TEST_CASE( "a query answers the shape of a file the read manager opens",

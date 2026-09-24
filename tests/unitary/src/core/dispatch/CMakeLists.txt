@@ -13,6 +13,7 @@ target_sources(
 		test_operation_id.cpp
 		test_operation_shape_policy.cpp
 		test_parametric_operation.cpp
+		test_program_builder_registration.cpp
 		test_program_builder_registry.cpp
 		test_program_cache.cpp
 		test_program_manager.cpp

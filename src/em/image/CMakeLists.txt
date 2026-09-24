@@ -2,15 +2,16 @@ target_sources(
 	rexlib-em-obj
 	PRIVATE
 		caching_image_reader_provider.cpp
+		core_image_format_registry.cpp
 		direct_image_reader_provider.cpp
 		image_batch_plan.cpp
-		image_format_registry.cpp
 		image_location.cpp
 		image_metadata.cpp
 		image_probe.cpp
 		image_read.cpp
 		image_read_format.cpp
 		image_read_format_manager.cpp
+		image_read_format_registry.cpp
 		image_reader.cpp
 		image_reader_provider.cpp
 		image_region_clipping.cpp
@@ -23,6 +24,7 @@ target_sources(
 		image_write.cpp
 		image_write_format.cpp
 		image_write_format_manager.cpp
+		image_write_format_registry.cpp
 		image_writer.cpp
 		image_writer_provider.cpp
 		index_table.cpp

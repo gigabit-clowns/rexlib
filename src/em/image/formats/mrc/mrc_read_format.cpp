@@ -9,7 +9,7 @@
 
 #include <rexlib/em/image/image_probe.hpp>
 
-#include <em/image/formats/image_format_registration.hpp>
+#include <em/image/formats/image_format_registration_macros.hpp>
 
 namespace rexlib
 {

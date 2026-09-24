@@ -8,7 +8,6 @@
 #include "mock/mock_image_write_format.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/em/image/image_format_registry.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
@@ -178,25 +177,6 @@ TEST_CASE( "the write manager refuses a null format",
 	REQUIRE_FALSE( manager.register_format(nullptr) );
 	REQUIRE( manager.register_format(
 		make_staged("real", backend_priority::normal)) );
-}
-
-TEST_CASE( "a write registry hands its formats to a manager",
-	"[image_write_format_manager]" )
-{
-	image_write_format_registry registry;
-	image_write_format_manager manager;
-
-	registry.add([] () -> std::unique_ptr<image_write_format>
-	{
-		return make_staged("registered", backend_priority::normal);
-	});
-	registry.register_all(manager);
-
-	const auto *chosen = manager.get_most_suitable_format(
-		image_probe("absent.mrc"));
-
-	REQUIRE( chosen != nullptr );
-	REQUIRE( chosen->get_name() == "registered" );
 }
 
 TEST_CASE( "image_write_format is mockable", "[image_write_format_manager]" )

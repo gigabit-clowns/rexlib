@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/em/image/image_format_registry.hpp>
+#include <rexlib/em/image/image_format_registration.hpp>
 
 #include <em/image/core_image_format_registry.hpp>
 

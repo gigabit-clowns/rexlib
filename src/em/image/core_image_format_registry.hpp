@@ -2,7 +2,8 @@
 
 #pragma once
 
-#include <rexlib/em/image/image_format_registry.hpp>
+#include <rexlib/em/image/image_read_format_registry.hpp>
+#include <rexlib/em/image/image_write_format_registry.hpp>
 
 namespace rexlib
 {

@@ -62,29 +62,4 @@ private:
 	std::vector<program_builder_factory> m_factories;
 };
 
-/**
- * @brief Appends a factory for @p Builder to a registry upon construction.
- *
- * Declare one namespace-scope object of this type per builder translation
- * unit so the builder auto-registers during static initialization.
- *
- * @tparam Builder The concrete program_builder type. Must be default
- * constructible.
- */
-template <typename Builder>
-class program_builder_registration
-{
-public:
-	explicit program_builder_registration(program_builder_registry &registry)
-	{
-		registry.add(&create_builder);
-	}
-
-private:
-	static std::unique_ptr<program_builder> create_builder()
-	{
-		return std::make_unique<Builder>();
-	}
-};
-
 } // namespace rexlib
