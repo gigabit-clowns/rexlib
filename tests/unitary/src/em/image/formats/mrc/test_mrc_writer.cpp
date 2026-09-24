@@ -7,7 +7,6 @@
 #include <em/image/formats/mrc/mrc_geometry.hpp>
 #include <em/image/formats/mrc/mrc_header.hpp>
 #include <em/image/formats/mrc/mrc_reader.hpp>
-#include <em/image/formats/mrc/mrc_write_format.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
@@ -17,14 +16,12 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
-#include <rexlib/em/image/image_metadata.hpp>
-#include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
-#include <rexlib/tests/assets.hpp>
+
+#include "../../fixtures/scoped_path.hpp"
 
 #include <boost/filesystem/operations.hpp>
 
-#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <memory>
@@ -39,41 +36,6 @@ using namespace rexlib::em::mrc;
 
 namespace
 {
-
-// A path under the build tree that is removed when the test leaves, whether
-// it succeeded or not.
-//
-// The scratch directory is shared and every case runs as a process of its
-// own, so two cases naming the same file race: one truncates what the other
-// has mapped. No two names here may repeat.
-class scoped_path
-{
-public:
-	explicit scoped_path(const std::string &name)
-		: m_path(get_scratch_path(name))
-	{
-		std::remove(m_path.c_str());
-	}
-
-	scoped_path(const scoped_path &other) = delete;
-	scoped_path(scoped_path &&other) = delete;
-
-	~scoped_path()
-	{
-		std::remove(m_path.c_str());
-	}
-
-	scoped_path& operator=(const scoped_path &other) = delete;
-	scoped_path& operator=(scoped_path &&other) = delete;
-
-	const std::string& get() const noexcept
-	{
-		return m_path;
-	}
-
-private:
-	std::string m_path;
-};
 
 std::size_t element_count(const std::vector<std::size_t> &extents)
 {
@@ -634,59 +596,5 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 			writer.write(const_array_ref(), whole_of(extents)),
 			std::invalid_argument
 		);
-	}
-}
-
-TEST_CASE( "the MRC format claims the files it can create",
-	"[mrc_write_format]" )
-{
-	const mrc_write_format format;
-
-	SECTION( "it is named" )
-	{
-		REQUIRE( format.get_name() == "MRC" );
-	}
-
-	SECTION( "the extensions it creates are claimed" )
-	{
-		REQUIRE( format.get_suitability(image_probe("absent.mrc")) ==
-			backend_priority::normal );
-		REQUIRE( format.get_suitability(image_probe("absent.mrcs")) ==
-			backend_priority::normal );
-		REQUIRE( format.get_suitability(image_probe("absent.map")) ==
-			backend_priority::normal );
-	}
-
-	SECTION( "an extension it reads but does not create is not claimed" )
-	{
-		REQUIRE( format.get_suitability(image_probe("absent.st")) ==
-			backend_priority::unsupported );
-		REQUIRE( format.get_suitability(image_probe("absent.rec")) ==
-			backend_priority::unsupported );
-	}
-
-	SECTION( "any other extension is not claimed" )
-	{
-		REQUIRE( format.get_suitability(image_probe("absent.tif")) ==
-			backend_priority::unsupported );
-		REQUIRE( format.get_suitability(image_probe("absent")) ==
-			backend_priority::unsupported );
-	}
-
-	SECTION( "a claimed file opens into a writer" )
-	{
-		const scoped_path path("writer_claimed.mrc");
-		const std::vector<std::size_t> extents = {3, 4};
-
-		const auto writer = format.open(
-			image_probe(path.get()),
-			make_span(extents),
-			2,
-			numerical_type::float32,
-			image_metadata()
-		);
-
-		REQUIRE( writer != nullptr );
-		REQUIRE( writer->get_core_rank() == 2 );
 	}
 }

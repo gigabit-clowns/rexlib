@@ -4,9 +4,6 @@
 
 #include <em/image/formats/mrc/mrc_reader.hpp>
 
-#include <em/image/formats/mrc/mrc_constants.hpp>
-#include <em/image/formats/mrc/mrc_read_format.hpp>
-
 #include <core/hardware/host_memory/host_buffer.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
@@ -14,13 +11,11 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
-#include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
-#include <rexlib/tests/assets.hpp>
 
-#include <cstdio>
-#include <cstring>
-#include <fstream>
+#include "../../fixtures/scoped_path.hpp"
+#include "fixtures/mrc_test_file.hpp"
+
 #include <memory>
 #include <numeric>
 #include <string>
@@ -29,101 +24,10 @@
 using namespace rexlib;
 using namespace rexlib::em;
 using namespace rexlib::em::mrc;
+using namespace rexlib::test;
 
 namespace
 {
-
-// A path under the build tree that is removed when the test leaves, whether
-// it succeeded or not.
-//
-// The scratch directory is shared and every case runs as a process of its
-// own, so two cases naming the same file race: one truncates what the other
-// has mapped. No two names here may repeat.
-class scoped_path
-{
-public:
-	explicit scoped_path(const std::string &name)
-		: m_path(get_scratch_path(name))
-	{
-		std::remove(m_path.c_str());
-	}
-
-	scoped_path(const scoped_path &other) = delete;
-	scoped_path(scoped_path &&other) = delete;
-
-	~scoped_path()
-	{
-		std::remove(m_path.c_str());
-	}
-
-	scoped_path& operator=(const scoped_path &other) = delete;
-	scoped_path& operator=(scoped_path &&other) = delete;
-
-	const std::string& get() const noexcept
-	{
-		return m_path;
-	}
-
-private:
-	std::string m_path;
-};
-
-void put_int32(std::vector<char> &raw, std::size_t offset, std::int32_t value)
-{
-	std::memcpy(raw.data() + offset, &value, sizeof(value));
-}
-
-// A little-endian MRC file, laid out for a host of that byte order, which is
-// what every machine the suite runs on is.
-std::vector<char> make_file(
-	std::int32_t columns,
-	std::int32_t rows,
-	std::int32_t sections,
-	std::int32_t space_group,
-	std::int32_t mode,
-	const std::vector<float> &values
-)
-{
-	std::vector<char> raw(header_size + values.size() * sizeof(float), '\0');
-
-	put_int32(raw, 0, columns);
-	put_int32(raw, 4, rows);
-	put_int32(raw, 8, sections);
-	put_int32(raw, 12, mode);
-	put_int32(raw, 36, space_group == 0 ? 1 : sections);
-	put_int32(raw, 64, 1);
-	put_int32(raw, 68, 2);
-	put_int32(raw, 72, 3);
-	put_int32(raw, 88, space_group);
-	std::memcpy(raw.data() + 208, "MAP ", 4);
-	raw[212] = static_cast<char>(0x44);
-	raw[213] = static_cast<char>(0x44);
-
-	std::memcpy(
-		raw.data() + header_size,
-		values.data(),
-		values.size() * sizeof(float)
-	);
-
-	return raw;
-}
-
-void write_file(const std::string &path, const std::vector<char> &raw)
-{
-	std::ofstream output(path.c_str(), std::ios::out | std::ios::binary);
-	output.write(raw.data(), static_cast<std::streamsize>(raw.size()));
-}
-
-std::vector<float> counting(std::size_t count)
-{
-	std::vector<float> values(count);
-	for (std::size_t i = 0; i < count; ++i)
-	{
-		values[i] = static_cast<float>(i);
-	}
-
-	return values;
-}
 
 std::size_t element_count(const std::vector<std::size_t> &extents)
 {
@@ -379,70 +283,5 @@ TEST_CASE( "a file that contradicts its own header is refused",
 	SECTION( "one that is not there is refused" )
 	{
 		REQUIRE_THROWS_AS( mrc_reader(path.get()), image_format_error );
-	}
-}
-
-TEST_CASE( "the MRC format claims the files it can read",
-	"[mrc_read_format]" )
-{
-	const scoped_path path("reader_claimed.mrc");
-	const mrc_read_format format;
-
-	SECTION( "it is named" )
-	{
-		REQUIRE( format.get_name() == "MRC" );
-	}
-
-	SECTION( "a file carrying the identifier is claimed" )
-	{
-		write_file(path.get(), make_file(4, 3, 1, 0, 2, counting(12)));
-
-		REQUIRE( format.get_suitability(image_probe(path.get())) ==
-			backend_priority::normal );
-	}
-
-	SECTION( "the identifier is claimed whatever the extension" )
-	{
-		const std::string other = path.get() + ".unknown";
-		write_file(other, make_file(4, 3, 1, 0, 2, counting(12)));
-
-		REQUIRE( format.get_suitability(image_probe(other)) ==
-			backend_priority::normal );
-
-		std::remove(other.c_str());
-	}
-
-	SECTION( "a long enough file of a known extension is claimed weakly" )
-	{
-		auto raw = make_file(4, 3, 1, 0, 2, counting(12));
-		std::memcpy(raw.data() + 208, "\0\0\0\0", 4);
-		write_file(path.get(), raw);
-
-		REQUIRE( format.get_suitability(image_probe(path.get())) ==
-			backend_priority::fallback );
-	}
-
-	SECTION( "a file too short to hold a header is not claimed" )
-	{
-		write_file(path.get(), std::vector<char>(16, '\0'));
-
-		REQUIRE( format.get_suitability(image_probe(path.get())) ==
-			backend_priority::unsupported );
-	}
-
-	SECTION( "a file that is not there is not claimed" )
-	{
-		REQUIRE( format.get_suitability(image_probe(path.get())) ==
-			backend_priority::unsupported );
-	}
-
-	SECTION( "a claimed file opens into a reader" )
-	{
-		write_file(path.get(), make_file(4, 3, 1, 0, 2, counting(12)));
-
-		const auto reader = format.open(image_probe(path.get()));
-
-		REQUIRE( reader != nullptr );
-		REQUIRE( reader->get_core_rank() == 2 );
 	}
 }

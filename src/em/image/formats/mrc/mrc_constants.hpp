@@ -171,12 +171,10 @@ REXLIB_INLINE_CONST_CONSTEXPR std::int32_t written_version = 20141;
  * @param space_group The space group to check.
  * @return bool true if it denotes a stack of volumes.
  */
-inline bool is_volume_stack_space_group(std::int32_t space_group) noexcept
-{
-	return space_group >= first_volume_stack_space_group &&
-		space_group <= last_volume_stack_space_group;
-}
+bool is_volume_stack_space_group(std::int32_t space_group) noexcept;
 
 } // namespace mrc
 } // namespace em
 } // namespace rexlib
+
+#include "mrc_constants.inl"
