@@ -15,5 +15,9 @@
 	"[toml]": {
 		"editor.insertSpaces": true,
 		"editor.tabSize": 4
+	},
+	"sonarlint.connectedMode.project": {
+		"connectionId": "gigabit-clowns",
+		"projectKey": "gigabit-clowns_rexlib-cuda"
 	}
 }
