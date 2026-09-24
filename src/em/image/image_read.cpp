@@ -62,11 +62,11 @@ array read_whole_file(
 }
 
 // Reads one element of a stack into an array covering just its core shape:
-// one region, at `position` along the file's slowest axis and at the
+// one region, at `index_in_stack` along the file's slowest axis and at the
 // origin of the array, spanning the trailing core_rank extents.
-array read_stack_position(
+array read_stack_slice(
 	const image_reader &reader,
-	std::size_t position,
+	std::size_t index_in_stack,
 	const execution_context &context
 )
 {
@@ -85,7 +85,7 @@ array read_stack_position(
 
 	image_transfer_plan plan(core_extents, file_extents.size(), core_rank);
 	std::vector<std::size_t> file_offset(file_extents.size(), 0UL);
-	file_offset[0] = position;
+	file_offset[0] = index_in_stack;
 	const std::vector<std::size_t> array_offset(core_rank, 0UL);
 	plan.add(make_span(file_offset), make_span(array_offset));
 
@@ -100,7 +100,7 @@ array read_stack_position(
 // of by a negative file offset, so that the region the source is handed keeps
 // the extents of a whole patch and every patch of the batch shares them.
 void place_patch(
-	span<const std::size_t> position,
+	span<const std::size_t> centre,
 	span<const std::size_t> patch_extents,
 	std::size_t file_leading,
 	std::vector<std::size_t> &file_offset,
@@ -112,7 +112,7 @@ void place_patch(
 		const auto half =
 			static_cast<std::ptrdiff_t>(patch_extents[axis] / 2);
 		const auto corner =
-			static_cast<std::ptrdiff_t>(position[axis]) - half;
+			static_cast<std::ptrdiff_t>(centre[axis]) - half;
 
 		file_offset[file_leading + axis] =
 			static_cast<std::size_t>(std::max<std::ptrdiff_t>(corner, 0));
@@ -140,16 +140,12 @@ array read(
 {
 	const auto reader = manager.open(location.get_path());
 
-	if (!location.has_position())
+	if (!location.has_index_in_stack())
 	{
 		return read_whole_file(*reader, context);
 	}
 
-	return read_stack_position(
-		*reader,
-		location.get_position_in_stack(),
-		context
-	);
+	return read_stack_slice(*reader, location.get_index_in_stack(), context);
 }
 
 std::shared_ptr<completion> read_batch_async(
@@ -174,7 +170,7 @@ std::shared_ptr<completion> read_patches_async(
 	const image_source &source,
 	array destination,
 	const image_location &location,
-	const index_table &positions
+	const index_table &centres
 )
 {
 	std::vector<std::size_t> array_extents;
@@ -189,21 +185,21 @@ std::shared_ptr<completion> read_patches_async(
 		);
 	}
 
-	const auto batch_size = positions.get_index_count();
+	const auto batch_size = centres.get_index_count();
 	if (array_extents.front() != batch_size)
 	{
 		throw std::invalid_argument(
 			"read_patches_async: The leading extent of the destination is not "
-			"the number of positions."
+			"the number of centres."
 		);
 	}
 
 	const auto array_rank = array_extents.size();
 	const auto patch_rank = array_rank - 1;
-	if (positions.get_rank() != patch_rank)
+	if (centres.get_rank() != patch_rank)
 	{
 		throw std::invalid_argument(
-			"read_patches_async: The positions do not have the rank of one "
+			"read_patches_async: The centres do not have the rank of one "
 			"patch, which is one less than that of the destination."
 		);
 	}
@@ -213,7 +209,7 @@ std::shared_ptr<completion> read_patches_async(
 		return std::make_shared<counting_completion>(0);
 	}
 
-	const auto stack_indexing = location.has_position();
+	const auto stack_indexing = location.has_index_in_stack();
 	const auto file_rank = stack_indexing ? array_rank : patch_rank;
 	const auto file_leading = file_rank - patch_rank;
 	const span<const std::size_t> patch_extents(
@@ -229,14 +225,14 @@ std::shared_ptr<completion> read_patches_async(
 	std::vector<std::size_t> array_offset(array_rank, 0UL);
 	if (stack_indexing)
 	{
-		file_offset[0] = location.get_position_in_stack();
+		file_offset[0] = location.get_index_in_stack();
 	}
 
 	for (std::size_t i = 0; i < batch_size; ++i)
 	{
 		array_offset[0] = i;
 		place_patch(
-			positions.get(i),
+			centres.get(i),
 			patch_extents,
 			file_leading,
 			file_offset,

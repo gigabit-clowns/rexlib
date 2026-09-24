@@ -29,15 +29,16 @@ bool get_stack_indexing(
 	const char *context
 )
 {
-	const auto result = !locations.empty() && locations.front().has_position();
+	const auto result =
+		!locations.empty() && locations.front().has_index_in_stack();
 	for (const auto &location : locations)
 	{
-		if (location.has_position() != result)
+		if (location.has_index_in_stack() != result)
 		{
 			throw_invalid_argument(
 				context,
-				"The batch mixes locations carrying a position in a stack "
-				"with locations carrying none."
+				"The batch mixes locations carrying an index in a stack with "
+				"locations carrying none."
 			);
 		}
 	}
@@ -72,7 +73,7 @@ image_transaction_plan make_slot_plan(
 		array_offset[0] = i;
 		if (stack_indexing)
 		{
-			file_offset[0] = location.get_position_in_stack();
+			file_offset[0] = location.get_index_in_stack();
 		}
 
 		transaction.add(

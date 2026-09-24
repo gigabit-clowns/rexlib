@@ -52,15 +52,12 @@ void write(
  *
  * The mirror of @ref read_batch_async: it turns a batch of locations into an
  * image_transaction_plan the same way and hands it to @p sink. Each slot
- * becomes either the slice @ref image_location::get_position_in_stack names
+ * becomes either the slice @ref image_location::get_index_in_stack names
  * within its file, or the whole file when a location carries none. A batch
  * may not mix the two.
  *
  * Returns before the writes are done, unlike @ref write, and writes into
- * files that already exist rather than creating one. Neither
- * @ref completion::wait nor @ref completion::get of the completion returned
- * may be called from within a task already running on the executor @p sink
- * was constructed with.
+ * files that already exist rather than creating one.
  *
  * @par Writing a stack a batch at a time
  * A file is created with its whole shape before anything is written, so the
@@ -71,7 +68,7 @@ void write(
  * declaring side's business too, once the completion of every batch written
  * into it has resolved.
  *
- * Every slot must fit where it is written, a location naming a position the
+ * Every slot must fit where it is written, a location naming an index the
  * stack does not hold being reported through the completion rather than
  * dropped. See @ref image_sink::write.
  *
@@ -84,7 +81,7 @@ void write(
  * @return std::shared_ptr<completion> The completion, never null.
  * @throws std::invalid_argument If @p source has no extents, if its leading
  * extent is not the number of locations, or if @p locations mixes those
- * carrying a position with those carrying none.
+ * carrying an index in a stack with those carrying none.
  */
 REXLIB_API
 std::shared_ptr<completion> write_batch_async(

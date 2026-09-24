@@ -22,16 +22,16 @@ std::vector<std::size_t> to_vector(span<const std::size_t> values)
 	return std::vector<std::size_t>(values.begin(), values.end());
 }
 
-// Add one whole element of a stack: element `position` of file `file` lands
-// in slot `slot` of a three dimensional array.
+// Add one whole element of a stack: element `index_in_stack` of file `file`
+// lands in slot `slot` of a three dimensional array.
 void add_element(
 	image_transaction_plan &plan,
 	std::size_t file,
-	std::size_t position,
+	std::size_t index_in_stack,
 	std::size_t slot
 )
 {
-	const std::size_t file_offset[3] = {position, 0, 0};
+	const std::size_t file_offset[3] = {index_in_stack, 0, 0};
 	const std::size_t array_offset[3] = {slot, 0, 0};
 	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
 }

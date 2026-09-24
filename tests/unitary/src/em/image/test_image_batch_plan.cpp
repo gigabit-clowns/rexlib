@@ -141,8 +141,9 @@ TEST_CASE(
 	"[image_batch_plan]"
 )
 {
-	// No position: a location names a file read or written as one image, so
-	// the file rank is that of one element and every file offset is zero.
+	// No index in a stack: a location names a file read or written as one
+	// image, so the file rank is that of one element and every file offset is
+	// zero.
 	const std::vector<image_location> locations = {
 		image_location("a.mrc"),
 		image_location("b.mrc"),
@@ -170,7 +171,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_batch_plan takes a position as the leading file offset",
+	"make_batch_plan takes the index in the stack as the leading file offset",
 	"[image_batch_plan]"
 )
 {
@@ -207,7 +208,7 @@ TEST_CASE(
 	"[image_batch_plan]"
 )
 {
-	// Even consecutive positions of one file, which are one hyperrectangle
+	// Even consecutive indices in one stack, which are one hyperrectangle
 	// and could be described as one: saying so needs a set of extents of its
 	// own, and a plan holds one for every region in it.
 	const std::vector<image_location> locations = {
@@ -246,7 +247,7 @@ TEST_CASE(
 		CHECK( to_vector(plan.get_extents()) == element_extents );
 	}
 
-	SECTION( "consecutive positions of different files" )
+	SECTION( "consecutive indices in different stacks" )
 	{
 		const std::vector<image_location> locations = {
 			image_location("first.mrcs", 0),
@@ -260,7 +261,7 @@ TEST_CASE(
 		CHECK( to_vector(plan.get_extents()) == element_extents );
 	}
 
-	SECTION( "one file's positions in descending order" )
+	SECTION( "one stack's indices in descending order" )
 	{
 		const std::vector<image_location> locations = {
 			image_location("stack.mrcs", 2),

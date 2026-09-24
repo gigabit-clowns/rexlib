@@ -321,9 +321,9 @@ TEST_CASE(
 	"[image_write]"
 )
 {
-	// No stack index: every location names a file written as a whole image,
-	// so the file rank is the core rank and every file offset stays at the
-	// origin.
+	// No index in a stack: every location names a file written as a whole
+	// image, so the file rank is the core rank and every file offset stays
+	// at the origin.
 	mock_image_sink sink;
 
 	REQUIRE_CALL(sink, write(trompeloeil::_, trompeloeil::_))
@@ -365,7 +365,7 @@ TEST_CASE(
 {
 	// Every location names the same stack, so the plan names one file, and
 	// each slot of the batch becomes one region of it, placed at the slot's
-	// stack index.
+	// index in the stack.
 	mock_image_sink sink;
 
 	REQUIRE_CALL(sink, write(trompeloeil::_, trompeloeil::_))

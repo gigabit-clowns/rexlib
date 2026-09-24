@@ -49,15 +49,15 @@ std::size_t box_index(
 	return ((slot * box_extent + z) * box_extent + y) * box_extent + x;
 }
 
-void add_position(
-	index_table &positions,
+void add_centre(
+	index_table &centres,
 	std::size_t z,
 	std::size_t y,
 	std::size_t x
 )
 {
 	const std::size_t values[3] = {z, y, x};
-	positions.add(make_span(values, 3));
+	centres.add(make_span(values, 3));
 }
 
 } // anonymous namespace
@@ -87,9 +87,9 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 	// One box well inside the volume and one centred so near a corner that
 	// it begins two samples outside it along every axis.
-	index_table positions(3);
-	add_position(positions, 10, 10, 10);
-	add_position(positions, 1, 1, 1);
+	index_table centres(3);
+	add_centre(centres, 10, 10, 10);
+	add_centre(centres, 1, 1, 1);
 
 	const std::vector<std::size_t> batch_extents = {
 		2, box_extent, box_extent, box_extent
@@ -106,7 +106,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 			*source,
 			destination.share(),
 			location,
-			positions
+			centres
 		);
 	REQUIRE( completion != nullptr );
 	REQUIRE_NOTHROW( completion->get() );

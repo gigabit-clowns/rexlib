@@ -188,15 +188,15 @@ array make_array(const std::vector<std::size_t> &extents)
 	return array(storage, descriptor);
 }
 
-index_table make_positions(
-	const std::vector<std::vector<std::size_t>> &positions,
+index_table make_centres(
+	const std::vector<std::vector<std::size_t>> &centres,
 	std::size_t rank
 )
 {
 	index_table result(rank);
-	for (const auto &position : positions)
+	for (const auto &centre : centres)
 	{
-		result.add(make_span(position));
+		result.add(make_span(centre));
 	}
 
 	return result;
@@ -241,7 +241,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	mocked_execution_context_fixture,
-	"read(location, ...) reads the whole file when it carries no position",
+	"read(location, ...) reads the whole file when it carries no index",
 	"[image_read]"
 )
 {
@@ -275,7 +275,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	mocked_execution_context_fixture,
-	"read(location, ...) reads one stack position into its core shape",
+	"read(location, ...) reads one slice of a stack into its core shape",
 	"[image_read]"
 )
 {
@@ -416,9 +416,9 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	// No stack index: every location names a file read as a whole image, so
-	// the file rank is the core rank and every file offset stays at the
-	// origin.
+	// No index in a stack: every location names a file read as a whole
+	// image, so the file rank is the core rank and every file offset stays
+	// at the origin.
 	mock_image_source source;
 
 	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
@@ -450,13 +450,13 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"read_batch_async uses the stack position as the file offset",
+	"read_batch_async uses the index in the stack as the file offset",
 	"[image_read]"
 )
 {
-	// Every location carries a stack index, so the file rank grows to the
-	// array rank and that index becomes the leading file offset, while the
-	// leading array offset is the slot.
+	// Every location carries an index in a stack, so the file rank grows to
+	// the array rank and that index becomes the leading file offset, while
+	// the leading array offset is the slot.
 	mock_image_source source;
 
 	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
@@ -511,7 +511,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"read_patches_async validates the destination against the positions",
+	"read_patches_async validates the destination against the centres",
 	"[image_read]"
 )
 {
@@ -521,39 +521,39 @@ TEST_CASE(
 
 	SECTION( "a destination with no extents" )
 	{
-		const auto positions = make_positions({}, 2);
+		const auto centres = make_centres({}, 2);
 
 		REQUIRE_THROWS_AS(
-			read_patches_async(source, make_array({}), location, positions),
+			read_patches_async(source, make_array({}), location, centres),
 			std::invalid_argument
 		);
 	}
 
-	SECTION( "a batch size that does not match the position count" )
+	SECTION( "a batch size that does not match the centre count" )
 	{
-		const auto positions = make_positions({{10, 10}, {20, 20}}, 2);
+		const auto centres = make_centres({{10, 10}, {20, 20}}, 2);
 
 		REQUIRE_THROWS_AS(
 			read_patches_async(
 				source,
 				make_array({3, 10, 10}),
 				location,
-				positions
+				centres
 			),
 			std::invalid_argument
 		);
 	}
 
-	SECTION( "positions that do not have the rank of one patch" )
+	SECTION( "centres that do not have the rank of one patch" )
 	{
-		const auto positions = make_positions({{10, 10, 10}}, 3);
+		const auto centres = make_centres({{10, 10, 10}}, 3);
 
 		REQUIRE_THROWS_AS(
 			read_patches_async(
 				source,
 				make_array({1, 10, 10}),
 				location,
-				positions
+				centres
 			),
 			std::invalid_argument
 		);
@@ -568,12 +568,12 @@ TEST_CASE(
 	// No expectations set on `source`: reading anything would violate.
 	mock_image_source source;
 
-	const auto positions = make_positions({}, 2);
+	const auto centres = make_centres({}, 2);
 	const auto completion = read_patches_async(
 		source,
 		make_array({0, 10, 10}),
 		image_location("a.mrc"),
-		positions
+		centres
 	);
 
 	REQUIRE( completion != nullptr );
@@ -582,15 +582,15 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"read_patches_async puts a position at the middle of its patch",
+	"read_patches_async places each patch around its centre",
 	"[image_read]"
 )
 {
-	// The corner of a patch is its position less half its extent, so a
-	// patch of ten centred at fifty starts at forty-five, and one of nine
-	// centred there starts at forty-six.
+	// The corner of a patch is its centre less half its extent, so a patch
+	// of ten centred at fifty starts at forty-five, and one of nine centred
+	// there starts at forty-six.
 	mock_image_source source;
-	const auto positions = make_positions({{50, 50}}, 2);
+	const auto centres = make_centres({{50, 50}}, 2);
 
 	SECTION( "an even extent" )
 	{
@@ -607,7 +607,7 @@ TEST_CASE(
 			source,
 			make_array({1, 10, 10}),
 			image_location("a.mrc"),
-			positions
+			centres
 		);
 	}
 
@@ -626,7 +626,7 @@ TEST_CASE(
 			source,
 			make_array({1, 9, 9}),
 			image_location("a.mrc"),
-			positions
+			centres
 		);
 	}
 }
@@ -660,14 +660,14 @@ TEST_CASE(
 		)
 		.RETURN(std::make_shared<counting_completion>(0));
 
-	const auto positions =
-		make_positions({{20, 30}, {40, 50}, {60, 70}}, 2);
+	const auto centres =
+		make_centres({{20, 30}, {40, 50}, {60, 70}}, 2);
 
 	read_patches_async(
 		source,
 		make_array({3, 10, 10}),
 		image_location("a.mrc"),
-		positions
+		centres
 	);
 }
 
@@ -694,13 +694,13 @@ TEST_CASE(
 		)
 		.RETURN(std::make_shared<counting_completion>(0));
 
-	const auto positions = make_positions({{3, 50}}, 2);
+	const auto centres = make_centres({{3, 50}}, 2);
 
 	read_patches_async(
 		source,
 		make_array({1, 10, 10}),
 		image_location("a.mrc"),
-		positions
+		centres
 	);
 }
 
@@ -709,9 +709,9 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	// A location carrying a stack index grows the file rank by the axis the
-	// stack is indexed along, which every patch of the batch shares since
-	// they all come from one image.
+	// A location carrying an index in a stack grows the file rank by the
+	// axis the stack is indexed along, which every patch of the batch shares
+	// since they all come from one image.
 	mock_image_source source;
 
 	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
@@ -732,13 +732,13 @@ TEST_CASE(
 		)
 		.RETURN(std::make_shared<counting_completion>(0));
 
-	const auto positions = make_positions({{20, 30}, {40, 50}}, 2);
+	const auto centres = make_centres({{20, 30}, {40, 50}}, 2);
 
 	read_patches_async(
 		source,
 		make_array({2, 10, 10}),
 		image_location("stack.mrcs", 4),
-		positions
+		centres
 	);
 }
 
@@ -765,13 +765,13 @@ TEST_CASE(
 		)
 		.RETURN(std::make_shared<counting_completion>(0));
 
-	const auto positions = make_positions({{20, 30, 40}}, 3);
+	const auto centres = make_centres({{20, 30, 40}}, 3);
 
 	read_patches_async(
 		source,
 		make_array({1, 8, 8, 8}),
 		image_location("tomogram.mrc"),
-		positions
+		centres
 	);
 }
 
@@ -786,12 +786,12 @@ TEST_CASE(
 	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
 		.RETURN(pending);
 
-	const auto positions = make_positions({{50, 50}}, 2);
+	const auto centres = make_centres({{50, 50}}, 2);
 	const auto completion = read_patches_async(
 		source,
 		make_array({1, 10, 10}),
 		image_location("a.mrc"),
-		positions
+		centres
 	);
 
 	CHECK( completion == pending );
