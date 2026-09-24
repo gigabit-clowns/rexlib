@@ -41,11 +41,16 @@ public:
 	 * @brief Open a file for reading.
 	 *
 	 * @param path Path to the file.
+	 * @param single_section What the file holds when its header states a
+	 * single section in the image space group.
 	 * @throws image_file_error If the file can not be mapped.
 	 * @throws image_format_error If its header is malformed, or if it is
 	 * shorter than that header says it is.
 	 */
-	explicit mrc_reader(const std::string &path);
+	explicit mrc_reader(
+		const std::string &path,
+		mrc_single_section single_section = mrc_single_section::image
+	);
 
 	~mrc_reader() override = default;
 

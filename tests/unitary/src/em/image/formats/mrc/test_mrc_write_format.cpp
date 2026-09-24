@@ -4,6 +4,7 @@
 
 #include <em/image/formats/mrc/mrc_write_format.hpp>
 
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
@@ -72,5 +73,42 @@ TEST_CASE( "the MRC format claims the files it can create",
 
 		REQUIRE( writer != nullptr );
 		REQUIRE( writer->get_descriptor() == descriptor );
+	}
+}
+
+TEST_CASE(
+	"the MRC write format creates a stack of one only where it reads back",
+	"[mrc_write_format]"
+)
+{
+	const mrc_write_format format;
+	const std::vector<std::size_t> extents = {1, 3, 4};
+	const image_descriptor descriptor(
+		make_span(extents),
+		2,
+		numerical_type::float32
+	);
+
+	SECTION( "in a .mrcs file" )
+	{
+		const scoped_path path("write_format_single.mrcs");
+
+		const auto writer = format.open(
+			image_probe(path.get()),
+			descriptor,
+			image_metadata()
+		);
+
+		REQUIRE( writer->get_descriptor() == descriptor );
+	}
+
+	SECTION( "not in any other, which would read it back as an image" )
+	{
+		const scoped_path path("write_format_single.mrc");
+
+		REQUIRE_THROWS_AS(
+			format.open(image_probe(path.get()), descriptor, image_metadata()),
+			unsupported_operation_error
+		);
 	}
 }

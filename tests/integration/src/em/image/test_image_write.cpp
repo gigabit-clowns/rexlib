@@ -245,3 +245,78 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		}
 	}
 }
+
+TEST_CASE_METHOD( cpu_execution_context_fixture,
+	"a stack of one image in a .mrcs file reads back as a stack of one",
+	"[mrc][image_write]" )
+{
+	// MRC2014 gives a stack of one image the header of a single image, and
+	// the .mrcs name is what reads it back as a stack, as RELION does.
+	const scoped_path path("stack_of_one.mrcs");
+	const std::vector<std::size_t> one_extents = {1, 3, 4};
+	const auto values = counting(element_count(one_extents));
+	const std::vector<image_location> slots = { image_location(path.get(), 0) };
+	const image_descriptor descriptor(
+		make_span(one_extents),
+		core_rank,
+		numerical_type::float32
+	);
+
+	const auto writer_formats =
+		catalog.get_service_manager<image_write_format_manager>();
+	const auto writers =
+		std::make_shared<managed_image_writer_provider>(writer_formats);
+	const executor_image_sink sink(
+		writers,
+		std::make_shared<synchronous_executor>()
+	);
+	writers->declare(path.get(), descriptor, image_metadata());
+
+	auto source = zeros(
+		make_descriptor(one_extents, numerical_type::float32),
+		memory_resource_affinity::host,
+		context
+	);
+	std::memcpy(
+		source.get_storage()->get_host_ptr(),
+		values.data(),
+		values.size() * sizeof(float)
+	);
+	REQUIRE_NOTHROW(
+		write_batch_async(sink, source.share_const(), make_span(slots))->get()
+	);
+	writers->close(path.get());
+
+	const auto reader_formats =
+		catalog.get_service_manager<image_read_format_manager>();
+	const auto readers =
+		std::make_shared<direct_image_reader_provider>(reader_formats);
+
+	SECTION( "the file states the stack it was declared as" )
+	{
+		CHECK( query_descriptor(*readers, path.get()) == descriptor );
+	}
+
+	SECTION( "a batch reads the stack's only image back" )
+	{
+		const executor_image_source image_source(
+			readers,
+			std::make_shared<synchronous_executor>()
+		);
+		auto destination = zeros(
+			make_descriptor(one_extents, numerical_type::float32),
+			memory_resource_affinity::host,
+			context
+		);
+
+		REQUIRE_NOTHROW(
+			read_batch_async(
+				image_source,
+				destination.share(),
+				make_span(slots)
+			)->get()
+		);
+
+		CHECK( read_host<float>(destination, values.size()) == values );
+	}
+}

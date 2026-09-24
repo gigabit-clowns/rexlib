@@ -52,12 +52,15 @@ void check_length(
 
 } // anonymous namespace
 
-mrc_reader::mrc_reader(const std::string &path)
+mrc_reader::mrc_reader(
+	const std::string &path,
+	mrc_single_section single_section
+)
 try
 	: m_path(path)
 	, m_mapping(path, read_only)
 	, m_header(read_header(m_mapping))
-	, m_geometry(m_header)
+	, m_geometry(m_header, single_section)
 {
 	check_length(m_mapping, m_geometry);
 }

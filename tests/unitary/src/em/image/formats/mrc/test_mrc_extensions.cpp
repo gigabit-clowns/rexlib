@@ -95,3 +95,23 @@ TEST_CASE( "every extension written is one that can be read back",
 		}
 	}
 }
+
+TEST_CASE(
+	"a single section is read as a stack only from a file named as one",
+	"[mrc_extensions]"
+)
+{
+	SECTION( ".mrcs names a stack, as RELION uses it" )
+	{
+		REQUIRE( get_single_section(".mrcs") ==
+			mrc_single_section::image_stack );
+	}
+
+	SECTION( "any other extension leaves a single image" )
+	{
+		REQUIRE( get_single_section(".mrc") == mrc_single_section::image );
+		REQUIRE( get_single_section(".map") == mrc_single_section::image );
+		REQUIRE( get_single_section(".st") == mrc_single_section::image );
+		REQUIRE( get_single_section("") == mrc_single_section::image );
+	}
+}

@@ -179,6 +179,38 @@ TEST_CASE( "a header is built from the shape a file is created with",
 		REQUIRE( header.get_space_group() == 401 );
 	}
 
+	SECTION( "a stack of one volume is still a stack of volumes" )
+	{
+		const std::vector<std::size_t> single = {1, 3, 3, 4};
+		const auto header = make_header(make_descriptor(single, 3));
+
+		REQUIRE( header.get_section_count() == 3 );
+		REQUIRE( header.get_section_sampling() == 3 );
+		REQUIRE( header.get_space_group() == 401 );
+	}
+
+	SECTION( "volumes one section deep are still a stack of volumes" )
+	{
+		const std::vector<std::size_t> flat = {3, 1, 3, 4};
+		const auto header = make_header(make_descriptor(flat, 3));
+
+		REQUIRE( header.get_section_count() == 3 );
+		REQUIRE( header.get_section_sampling() == 1 );
+		REQUIRE( header.get_space_group() == 401 );
+	}
+
+	// MRC2014 has no other header for a stack of one image than that of a
+	// single image, so which one the file holds is up to how it is read.
+	SECTION( "a stack of one image gets the header of a single image" )
+	{
+		const std::vector<std::size_t> single = {1, 3, 4};
+		const auto header = make_header(make_descriptor(single, 2));
+
+		REQUIRE( header.get_section_count() == 1 );
+		REQUIRE( header.get_section_sampling() == 1 );
+		REQUIRE( header.get_space_group() == 0 );
+	}
+
 	SECTION( "what it does not derive is what a new file carries" )
 	{
 		const auto header = make_header(make_descriptor(image, 2));
@@ -249,40 +281,6 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 		);
 	}
 
-	// The format states the count of images or volumes of a stack as a
-	// section count, and the depth of a volume beside it, which leaves it no
-	// way to say that either of them is one: such a file states the shape
-	// without that axis and reads back as it.
-	SECTION( "a stack of one image is refused" )
-	{
-		const std::vector<std::size_t> single = {1, 3, 4};
-
-		REQUIRE_THROWS_AS(
-			make_header(make_descriptor(single, 2)),
-			unsupported_operation_error
-		);
-	}
-
-	SECTION( "a stack of one volume is refused" )
-	{
-		const std::vector<std::size_t> single = {1, 3, 3, 4};
-
-		REQUIRE_THROWS_AS(
-			make_header(make_descriptor(single, 3)),
-			unsupported_operation_error
-		);
-	}
-
-	SECTION( "a stack of volumes one section thick is refused" )
-	{
-		const std::vector<std::size_t> flat = {3, 1, 3, 4};
-
-		REQUIRE_THROWS_AS(
-			make_header(make_descriptor(flat, 3)),
-			unsupported_operation_error
-		);
-	}
-
 	// A volume of one section is not a stack of one of anything: the format
 	// states it as a section count of one, which is what it reads back as.
 	SECTION( "a volume of a single section is not refused" )
@@ -349,6 +347,44 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 		mrc_writer writer(path.get(), make_descriptor(extents, 2));
 
 		REQUIRE( writer.get_descriptor() == make_descriptor(extents, 2) );
+	}
+
+	SECTION( "a stack of one image is created where it reads back as one" )
+	{
+		const std::vector<std::size_t> extents = {1, 3, 4};
+		mrc_writer writer(
+			path.get(),
+			make_descriptor(extents, 2),
+			mrc_single_section::image_stack
+		);
+
+		REQUIRE( writer.get_descriptor() == make_descriptor(extents, 2) );
+	}
+
+	SECTION( "a shape that would read back as another is refused" )
+	{
+		// A single section reads back as a single image by default, and as
+		// a stack of one image otherwise, so each refuses the other.
+		const std::vector<std::size_t> stack = {1, 3, 4};
+		const std::vector<std::size_t> image = {3, 4};
+		const auto names_the_file = Catch::Matchers::MessageMatches(
+			Catch::Matchers::StartsWith(path.get() + ": ")
+		);
+
+		REQUIRE_THROWS_MATCHES(
+			mrc_writer(path.get(), make_descriptor(stack, 2)),
+			unsupported_operation_error,
+			names_the_file
+		);
+		REQUIRE_THROWS_MATCHES(
+			mrc_writer(
+				path.get(),
+				make_descriptor(image, 2),
+				mrc_single_section::image_stack
+			),
+			unsupported_operation_error,
+			names_the_file
+		);
 	}
 
 	SECTION( "the file is laid out in full before anything is written" )
@@ -444,6 +480,63 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 		REQUIRE( reader.get_descriptor().get_core_rank() == 2 );
 		REQUIRE( reader.get_descriptor().get_extents()[0] == 2 );
+		REQUIRE( read_back(path.get(), extents) == values );
+	}
+
+	SECTION( "a stack of one image round-trips where read as a stack" )
+	{
+		const std::vector<std::size_t> extents = {1, 3, 4};
+		const std::vector<std::size_t> image = {3, 4};
+		const auto values = counting(12);
+
+		{
+			mrc_writer writer(
+				path.get(),
+				make_descriptor(extents, 2),
+				mrc_single_section::image_stack
+			);
+			const auto source = make_host_array(extents, values);
+			writer.write(const_array_ref(source), whole_of(extents));
+			writer.flush();
+		}
+
+		const mrc_reader reader(path.get(), mrc_single_section::image_stack);
+
+		REQUIRE( reader.get_descriptor() == make_descriptor(extents, 2) );
+		REQUIRE( read_back(path.get(), image) == values );
+	}
+
+	SECTION( "a stack of one volume round-trips as a stack of volumes" )
+	{
+		const std::vector<std::size_t> extents = {1, 2, 3, 4};
+		const auto values = counting(24);
+
+		{
+			mrc_writer writer(path.get(), make_descriptor(extents, 3));
+			const auto source = make_host_array(extents, values);
+			writer.write(const_array_ref(source), whole_of(extents));
+			writer.flush();
+		}
+
+		REQUIRE( mrc_reader(path.get()).get_descriptor() ==
+			make_descriptor(extents, 3) );
+		REQUIRE( read_back(path.get(), extents) == values );
+	}
+
+	SECTION( "volumes one section deep round-trip as a stack of volumes" )
+	{
+		const std::vector<std::size_t> extents = {2, 1, 3, 4};
+		const auto values = counting(24);
+
+		{
+			mrc_writer writer(path.get(), make_descriptor(extents, 3));
+			const auto source = make_host_array(extents, values);
+			writer.write(const_array_ref(source), whole_of(extents));
+			writer.flush();
+		}
+
+		REQUIRE( mrc_reader(path.get()).get_descriptor() ==
+			make_descriptor(extents, 3) );
 		REQUIRE( read_back(path.get(), extents) == values );
 	}
 

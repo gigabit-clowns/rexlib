@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string>
+#include <cstddef>
 #include <vector>
 
 using namespace rexlib;
@@ -83,5 +84,39 @@ TEST_CASE( "the MRC format claims the files it can read",
 
 		REQUIRE( reader != nullptr );
 		REQUIRE( reader->get_descriptor().get_core_rank() == 2 );
+	}
+}
+
+TEST_CASE(
+	"the MRC read format reads a single section as its file is named",
+	"[mrc_read_format]"
+)
+{
+	const mrc_read_format format;
+
+	SECTION( "a stack of one image from a .mrcs file" )
+	{
+		const scoped_path path("read_format_single.mrcs");
+		write_file(path.get(), make_file(4, 3, 1, 0, 2, counting(12)));
+
+		const auto extents =
+			format.open(image_probe(path.get()))->get_descriptor()
+				.get_extents();
+
+		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
+			std::vector<std::size_t>{1, 3, 4} );
+	}
+
+	SECTION( "a single image from any other" )
+	{
+		const scoped_path path("read_format_single.mrc");
+		write_file(path.get(), make_file(4, 3, 1, 0, 2, counting(12)));
+
+		const auto extents =
+			format.open(image_probe(path.get()))->get_descriptor()
+				.get_extents();
+
+		REQUIRE( std::vector<std::size_t>(extents.begin(), extents.end()) ==
+			std::vector<std::size_t>{3, 4} );
 	}
 }

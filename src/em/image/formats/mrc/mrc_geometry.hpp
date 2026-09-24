@@ -3,6 +3,7 @@
 #pragma once
 
 #include "mrc_header.hpp"
+#include "mrc_single_section.hpp"
 
 #include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
@@ -23,10 +24,12 @@ namespace mrc
  * An MRC file states its shape as three counts and a space group, and the
  * same three counts mean different things depending on that space group: a
  * stack of images and one volume of the same depth differ only in it, and a
- * stack of volumes divides the sections between its two leading axes, unless
- * the division leaves one of them a single element, which is how a volume and
- * a stack of images are stated too. This resolves all of it once, when a file
- * is opened, into the descriptor an @ref image_reader reports.
+ * stack of volumes divides the sections between its two leading axes, which
+ * MRC2014 states by the space group alone, even for a stack of one volume or
+ * of volumes one section deep. The one case the standard leaves open, a
+ * single section in the image space group, is either one image or a stack of
+ * one, and is settled by the caller. This resolves all of it once, when a
+ * file is opened, into the descriptor an @ref image_reader reports.
  *
  * The values themselves are laid out with the columns changing fastest, and
  * the header names the axis of space the columns, the rows and the sections
@@ -42,12 +45,17 @@ public:
 	 * @brief Derive the shape of a file from its header.
 	 *
 	 * @param header The header of the file.
+	 * @param single_section What the file holds when the header states a
+	 * single section in the image space group.
 	 * @throws image_format_error If the axis correspondence of the header
 	 * names anything but the three axes of space, one each, without being
 	 * unset, or if the values of the file would not begin at an offset its
 	 * elements can be addressed at.
 	 */
-	explicit mrc_geometry(const mrc_header &header);
+	explicit mrc_geometry(
+		const mrc_header &header,
+		mrc_single_section single_section = mrc_single_section::image
+	);
 
 	mrc_geometry(const mrc_geometry &other) = default;
 	mrc_geometry(mrc_geometry &&other) noexcept = default;
@@ -106,6 +114,7 @@ private:
 
 	mrc_geometry(
 		const mrc_header &header,
+		mrc_single_section single_section,
 		const std::vector<std::size_t> &axis_order
 	);
 };

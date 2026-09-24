@@ -43,7 +43,10 @@ mrc_read_format::get_suitability(const image_probe &probe) const
 std::shared_ptr<image_reader>
 mrc_read_format::open(const image_probe &probe) const
 {
-	return std::make_shared<mrc_reader>(probe.get_path());
+	return std::make_shared<mrc_reader>(
+		probe.get_path(),
+		get_single_section(probe.get_extension())
+	);
 }
 
 REXLIB_REGISTER_IMAGE_READ_FORMAT(mrc, rexlib::em::mrc::mrc_read_format);

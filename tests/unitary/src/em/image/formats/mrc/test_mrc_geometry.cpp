@@ -167,43 +167,78 @@ TEST_CASE( "the values of an MRC file are laid out contiguously",
 	}
 }
 
-TEST_CASE( "a stack of volumes that holds no stack of volumes is not one",
-	"[mrc_geometry]" )
+TEST_CASE(
+	"a stack of volumes is one however few its volumes or sections",
+	"[mrc_geometry]"
+)
 {
-	SECTION( "volumes one section thick are a stack of images" )
+	// MRC2014 states a stack of volumes by its space group alone.
+	SECTION( "volumes one section deep" )
 	{
 		const mrc_geometry geometry(make_header_of(4, 3, 6, 1, 401));
 
-		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{6, 3, 4} );
+		REQUIRE( extents_of(geometry) ==
+			std::vector<std::size_t>{6, 1, 3, 4} );
 		REQUIRE( strides_of(geometry) ==
-			std::vector<std::ptrdiff_t>{12, 4, 1} );
-		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
+			std::vector<std::ptrdiff_t>{12, 12, 4, 1} );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
-	SECTION( "a stack of a single volume is a volume" )
+	SECTION( "a single volume" )
 	{
 		const mrc_geometry geometry(make_header_of(4, 3, 5, 5, 401));
 
-		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{5, 3, 4} );
+		REQUIRE( extents_of(geometry) ==
+			std::vector<std::size_t>{1, 5, 3, 4} );
 		REQUIRE( strides_of(geometry) ==
-			std::vector<std::ptrdiff_t>{12, 4, 1} );
+			std::vector<std::ptrdiff_t>{60, 12, 4, 1} );
 		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
 
-	SECTION( "a single volume of a single section is a volume too" )
+	SECTION( "a single volume of a single section" )
 	{
 		const mrc_geometry geometry(make_header_of(4, 3, 1, 1, 401));
 
-		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{1, 3, 4} );
+		REQUIRE( extents_of(geometry) ==
+			std::vector<std::size_t>{1, 1, 3, 4} );
 		REQUIRE( geometry.get_descriptor().get_core_rank() == 3 );
 	}
+}
 
-	SECTION( "a single image of a stack of images is still an image" )
+TEST_CASE(
+	"a single section in the image space group is read as the caller says",
+	"[mrc_geometry]"
+)
+{
+	// MRC2014 states a single image and a stack of one image alike.
+	const auto header = make_header_of(4, 3, 1, 1, 0);
+
+	SECTION( "a single image by default" )
 	{
-		const mrc_geometry geometry(make_header_of(4, 3, 1, 1, 0));
+		const mrc_geometry geometry(header);
 
 		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{3, 4} );
 		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
+	}
+
+	SECTION( "a stack of one image when told so" )
+	{
+		const mrc_geometry geometry(header, mrc_single_section::image_stack);
+
+		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{1, 3, 4} );
+		REQUIRE( strides_of(geometry) ==
+			std::vector<std::ptrdiff_t>{12, 4, 1} );
+		REQUIRE( geometry.get_descriptor().get_core_rank() == 2 );
+	}
+
+	SECTION( "more than one section is a stack either way" )
+	{
+		const mrc_geometry geometry(
+			make_header_of(4, 3, 6, 1, 0),
+			mrc_single_section::image
+		);
+
+		REQUIRE( extents_of(geometry) == std::vector<std::size_t>{6, 3, 4} );
 	}
 }
 

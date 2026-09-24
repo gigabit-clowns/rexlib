@@ -39,22 +39,24 @@ std::string make_signature()
 	return text.str();
 }
 
-void check_stack_extent(std::size_t extent, const char *what)
-{
-	if (extent == 1)
-	{
-		std::ostringstream message;
-		message << "mrc::make_header: The MRC format holds no " << what
-			<< ": it states it as the shape without that axis.";
-		throw unsupported_operation_error(message.str());
-	}
-}
-
+// Refused before anything is created: a file that would read back as
+// another shape than it was created with, such as a stack of one image read
+// as a single image, would misplace every region written to it.
 image_file_mapping lay_out_file(
 	const std::string &path,
-	const mrc_geometry &geometry
+	const mrc_geometry &geometry,
+	const image_descriptor &descriptor
 )
 {
+	if (geometry.get_descriptor() != descriptor)
+	{
+		throw unsupported_operation_error(
+			"mrc_writer: The file would read back as another shape than it "
+			"is created with, as a stack of one image does from a file not "
+			"named as a stack."
+		);
+	}
+
 	create_image_file(
 		path,
 		geometry.get_data_offset() + geometry.get_data_size()
@@ -67,13 +69,14 @@ image_file_mapping lay_out_file(
 
 mrc_writer::mrc_writer(
 	const std::string &path,
-	const image_descriptor &descriptor
+	const image_descriptor &descriptor,
+	mrc_single_section single_section
 )
 try
 	: m_path(path)
 	, m_header(make_header(descriptor))
-	, m_geometry(m_header)
-	, m_mapping(lay_out_file(path, m_geometry))
+	, m_geometry(m_header, single_section)
+	, m_mapping(lay_out_file(path, m_geometry, descriptor))
 {
 	serialize_header(
 		m_header,
@@ -214,8 +217,6 @@ mrc_header make_header(const image_descriptor &descriptor)
 	}
 	else if (rank == 3 && core_rank == 2)
 	{
-		check_stack_extent(extents[0], "stack of one image");
-
 		header.set_section_count(static_cast<std::int32_t>(extents[0]));
 		header.set_section_sampling(1);
 		header.set_space_group(image_stack_space_group);
@@ -229,9 +230,6 @@ mrc_header make_header(const image_descriptor &descriptor)
 	}
 	else if (rank == 4 && core_rank == 3)
 	{
-		check_stack_extent(extents[0], "stack of one volume");
-		check_stack_extent(extents[1], "stack of volumes one section thick");
-
 		const auto depth = static_cast<std::int32_t>(extents[1]);
 		header.set_section_count(
 			static_cast<std::int32_t>(extents[0] * extents[1]));

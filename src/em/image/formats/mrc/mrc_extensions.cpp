@@ -52,6 +52,13 @@ bool is_writable_extension(const std::string &extension) noexcept
 	return contains(extensions, extension);
 }
 
+mrc_single_section get_single_section(const std::string &extension) noexcept
+{
+	return extension == ".mrcs"
+		? mrc_single_section::image_stack
+		: mrc_single_section::image;
+}
+
 } // namespace mrc
 } // namespace em
 } // namespace rexlib

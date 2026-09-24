@@ -137,7 +137,7 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 		REQUIRE( reader.get_descriptor() == make_descriptor({3, 4}, 2) );
 	}
 
-	SECTION( "a stack of volumes one section thick is a stack of images" )
+	SECTION( "a stack of volumes one section deep is still one" )
 	{
 		auto raw = make_file(4, 3, 6, 401, 2, counting(72));
 		put_int32(raw, 36, 1);
@@ -145,16 +145,28 @@ TEST_CASE( "an MRC file is opened and reports what it holds",
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_descriptor() == make_descriptor({6, 3, 4}, 2) );
+		REQUIRE( reader.get_descriptor() ==
+			make_descriptor({6, 1, 3, 4}, 3) );
 	}
 
-	SECTION( "a stack of a single volume is a volume" )
+	SECTION( "a stack of a single volume is still one" )
 	{
 		write_file(path.get(), make_file(4, 3, 6, 401, 2, counting(72)));
 
 		const mrc_reader reader(path.get());
 
-		REQUIRE( reader.get_descriptor() == make_descriptor({6, 3, 4}, 3) );
+		REQUIRE( reader.get_descriptor() ==
+			make_descriptor({1, 6, 3, 4}, 3) );
+	}
+
+	SECTION( "a single image read as a stack is a stack of one" )
+	{
+		write_file(path.get(), make_file(4, 3, 1, 0, 2, counting(12)));
+
+		const mrc_reader reader(path.get(), mrc_single_section::image_stack);
+
+		REQUIRE( reader.get_descriptor() == make_descriptor({1, 3, 4}, 2) );
+		REQUIRE( read_all(reader) == counting(12) );
 	}
 }
 

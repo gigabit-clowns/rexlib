@@ -34,35 +34,38 @@ enum class file_kind
 	volume_stack
 };
 
-file_kind derive_file_kind(const mrc_header &header) noexcept
+// MRC2014 states a stack of volumes by its space group alone, dividing the
+// sections into volumes of the sampling along them, however many or few of
+// either there are. Only the image space group leaves a case open, one
+// section, which the caller settles.
+file_kind derive_file_kind(
+	const mrc_header &header,
+	mrc_single_section single_section
+) noexcept
 {
 	const auto space_group = header.get_space_group();
-	const auto sections = header.get_section_count();
 
 	if (is_volume_stack_space_group(space_group))
 	{
-		const auto depth = header.get_section_sampling();
-		if (depth == sections)
-		{
-			return file_kind::volume;
-		}
-
-		if (depth != 1)
-		{
-			return file_kind::volume_stack;
-		}
+		return file_kind::volume_stack;
 	}
-	else if (space_group != image_stack_space_group)
+
+	if (space_group != image_stack_space_group)
 	{
 		return file_kind::volume;
 	}
 
-	return sections == 1 ? file_kind::image : file_kind::image_stack;
+	const auto single = header.get_section_count() == 1 &&
+		single_section == mrc_single_section::image;
+	return single ? file_kind::image : file_kind::image_stack;
 }
 
-std::vector<std::size_t> derive_stored_extents(const mrc_header &header)
+std::vector<std::size_t> derive_stored_extents(
+	const mrc_header &header,
+	mrc_single_section single_section
+)
 {
-	const auto kind = derive_file_kind(header);
+	const auto kind = derive_file_kind(header, single_section);
 	const auto columns = to_extent(header.get_column_count());
 	const auto rows = to_extent(header.get_row_count());
 	const auto sections = to_extent(header.get_section_count());
@@ -81,9 +84,12 @@ std::vector<std::size_t> derive_stored_extents(const mrc_header &header)
 	return {sections, rows, columns}; // volume or image_stack
 }
 
-std::size_t derive_core_rank(const mrc_header &header) noexcept
+std::size_t derive_core_rank(
+	const mrc_header &header,
+	mrc_single_section single_section
+) noexcept
 {
-	switch (derive_file_kind(header))
+	switch (derive_file_kind(header, single_section))
 	{
 	case file_kind::image:
 	case file_kind::image_stack:
@@ -138,10 +144,13 @@ std::vector<std::size_t> make_stored_order(std::size_t rank)
 // A file that states no axis correspondence at all is read as the file it
 // would be if it named the three axes in order, which is what the writer that
 // left the fields alone laid out.
-std::vector<std::size_t> derive_axis_order(const mrc_header &header)
+std::vector<std::size_t> derive_axis_order(
+	const mrc_header &header,
+	mrc_single_section single_section
+)
 {
-	const auto rank = derive_stored_extents(header).size();
-	const auto core_rank = derive_core_rank(header);
+	const auto rank = derive_stored_extents(header, single_section).size();
+	const auto core_rank = derive_core_rank(header, single_section);
 
 	if (!has_axis_permutation(header))
 	{
@@ -213,44 +222,55 @@ void check_element_alignment(std::size_t offset, numerical_type data_type)
 
 image_descriptor derive_descriptor(
 	const mrc_header &header,
+	mrc_single_section single_section,
 	const std::vector<std::size_t> &axis_order
 )
 {
 	const auto data_type = mrc::get_data_type(header);
 	check_element_alignment(mrc::get_data_offset(header), data_type);
 
-	const auto extents = reorder(derive_stored_extents(header), axis_order);
+	const auto extents =
+		reorder(derive_stored_extents(header, single_section), axis_order);
 	return image_descriptor(
 		make_span(extents),
-		derive_core_rank(header),
+		derive_core_rank(header, single_section),
 		data_type
 	);
 }
 
 std::vector<std::ptrdiff_t> derive_strides(
 	const mrc_header &header,
+	mrc_single_section single_section,
 	const std::vector<std::size_t> &axis_order
 )
 {
 	return reorder(
-		derive_stored_strides(derive_stored_extents(header)),
+		derive_stored_strides(derive_stored_extents(header, single_section)),
 		axis_order
 	);
 }
 
 } // anonymous namespace
 
-mrc_geometry::mrc_geometry(const mrc_header &header)
-	: mrc_geometry(header, derive_axis_order(header))
+mrc_geometry::mrc_geometry(
+	const mrc_header &header,
+	mrc_single_section single_section
+)
+	: mrc_geometry(
+		header,
+		single_section,
+		derive_axis_order(header, single_section)
+	)
 {
 }
 
 mrc_geometry::mrc_geometry(
 	const mrc_header &header,
+	mrc_single_section single_section,
 	const std::vector<std::size_t> &axis_order
 )
-	: m_descriptor(derive_descriptor(header, axis_order))
-	, m_strides(derive_strides(header, axis_order))
+	: m_descriptor(derive_descriptor(header, single_section, axis_order))
+	, m_strides(derive_strides(header, single_section, axis_order))
 	, m_data_offset(mrc::get_data_offset(header))
 {
 }

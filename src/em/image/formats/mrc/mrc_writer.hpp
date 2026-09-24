@@ -40,12 +40,20 @@ public:
 	 *
 	 * @param path Path to the file to create.
 	 * @param descriptor What the file holds.
+	 * @param single_section What the file will be read as holding when its
+	 * header states a single section in the image space group.
 	 * @throws unsupported_operation_error If the MRC format holds no file of
-	 * that shape, or no mode holds its data type.
+	 * that shape, if it would read back as another shape, as a stack of one
+	 * image does unless @p single_section says so, or if no mode holds its
+	 * data type.
 	 * @throws image_file_error If the file could not be created, sized or
 	 * mapped.
 	 */
-	mrc_writer(const std::string &path, const image_descriptor &descriptor);
+	mrc_writer(
+		const std::string &path,
+		const image_descriptor &descriptor,
+		mrc_single_section single_section = mrc_single_section::image
+	);
 
 	~mrc_writer() override;
 
@@ -76,7 +84,9 @@ private:
  * The inverse of @ref mrc_geometry: it decides the space group and the
  * sampling that state the difference the core rank of @p descriptor names,
  * since the extents alone do not say whether a file of @c (N,H,W) is a stack
- * of images or one volume.
+ * of images or one volume. A stack of one image gets the header of a single
+ * image, since MRC2014 has no other: which of the two the file holds is then
+ * up to how it is read.
  *
  * Every field the format does not derive from the shape is left at what a
  * newly created file carries, save for a label naming the library that
