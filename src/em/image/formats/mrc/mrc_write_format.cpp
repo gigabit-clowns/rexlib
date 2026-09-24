@@ -40,9 +40,9 @@ std::shared_ptr<image_writer> mrc_write_format::open(
 	// Nothing of the metadata reaches the file: image_metadata states
 	// nothing yet.
 	return std::make_shared<mrc_writer>(
-		probe.get_path(), 
-		extents, 
-		core_rank, 
+		probe.get_path(),
+		extents,
+		core_rank,
 		data_type
 	);
 }

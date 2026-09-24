@@ -30,7 +30,7 @@ class image_write_format_manager;
  * @ref close.
  *
  * The declared files are content rather than shape — they come and go over
- * the life of a provider, so only the format manager is a constructor 
+ * the life of a provider, so only the format manager is a constructor
  * parameter.
  *
  * Each file therefore has one lifecycle, **declare, acquire as often as

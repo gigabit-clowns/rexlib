@@ -252,7 +252,7 @@ mrc_header make_header(
 
 	// Sign the header
 	header.add_label(make_signature());
-	
+
 	return header;
 }
 

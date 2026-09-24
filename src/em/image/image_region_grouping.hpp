@@ -19,7 +19,7 @@ class image_transfer_plan;
  * An @ref image_transaction_plan holds its regions in the order they were
  * added, which for a batch drawn at random is an order that hops from stack
  * to stack. A consumer wants the opposite: every region of one file
- * together, so that the file is opened once and read once. 
+ * together, so that the file is opened once and read once.
  *
  * It does not hold the regions, only where they are: @ref get_region maps a
  * position of the ordering to a region of the plan it was built from, which

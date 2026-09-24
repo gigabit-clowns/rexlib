@@ -19,9 +19,9 @@ namespace em
  * @brief A list of paths in which equal paths cost one string.
  *
  * A transaction names one file per region, and the same file over and over:
- * a batch of 256 elements drawn from 8 stacks names eight distinct paths. 
- * Holding a string per entry would copy each of them as many times as it is 
- * named, so the distinct paths are held once and the entries are indices into 
+ * a batch of 256 elements drawn from 8 stacks names eight distinct paths.
+ * Holding a string per entry would copy each of them as many times as it is
+ * named, so the distinct paths are held once and the entries are indices into
  * them.
  *
  * The list therefore has two sizes. @ref get_path_count is how many distinct
@@ -156,8 +156,8 @@ public:
 	/**
 	 * @brief Get how many distinct paths are held.
 	 *
-	 * Never above @ref get_entry_count, and below it as soon as one path is named
-	 * twice.
+	 * Never above @ref get_entry_count, and below it as soon as one path is
+	 * named twice.
 	 *
 	 * @return std::size_t The number of distinct paths.
 	 */

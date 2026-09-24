@@ -31,14 +31,14 @@ namespace em
  * A side of higher rank spans a single position along the axes the extents
  * don't reach; those axes are implicitly padded with leading ones.
  *
- * The extents and each side's ranks is fixed when a plan is constructed and 
- * never changes afterward, so a plan is always a complete, ready-to-use object 
+ * The extents and each side's ranks is fixed when a plan is constructed and
+ * never changes afterward, so a plan is always a complete, ready-to-use object
  * rather than something configured before use. Only its files and regions come
  * and go, and every file must share the same rank.
  *
- * Regions are held in the order they were added. A consumer that wants to walk 
- * them one file at a time builds that ordering alongside the plan rather than 
- * relying on the plan for it, keeping the plan itself limited to what is 
+ * Regions are held in the order they were added. A consumer that wants to walk
+ * them one file at a time builds that ordering alongside the plan rather than
+ * relying on the plan for it, keeping the plan itself limited to what is
  * transferred and nothing else.
  */
 class image_transaction_plan

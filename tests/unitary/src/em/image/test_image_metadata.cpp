@@ -7,5 +7,5 @@
 using namespace rexlib;
 using namespace rexlib::em;
 
-// Test placeholder. 
+// Test placeholder.
 // TODO Add tests when image_metadata is defined

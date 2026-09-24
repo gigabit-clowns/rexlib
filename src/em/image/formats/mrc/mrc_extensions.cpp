@@ -36,7 +36,7 @@ bool contains(
 bool is_readable_extension(const std::string &extension) noexcept
 {
 	static const std::array<const char*, 6> extensions = {{
-		".mrc", ".mrcs", ".map", 
+		".mrc", ".mrcs", ".map",
 		".st", ".rec", ".ali" // IMOD <4.11
 	}};
 

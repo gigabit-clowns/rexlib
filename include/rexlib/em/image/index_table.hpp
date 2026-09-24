@@ -100,7 +100,8 @@ public:
 	/**
 	 * @brief Get one index.
 	 *
-	 * @param position Position of the index. Must be below @ref get_index_count.
+	 * @param position Position of the index. Must be below
+	 * @ref get_index_count.
 	 * @return span<const std::size_t> The coordinates, of rank
 	 * @ref get_rank. It refers to storage owned by this table, which adding
 	 * to, assigning to or destroying it invalidates.

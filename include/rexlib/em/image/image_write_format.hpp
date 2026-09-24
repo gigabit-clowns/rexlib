@@ -28,7 +28,7 @@ class image_probe;
  * an @ref image_probe and in case it fits, serve the writer for it.
  *
  * Formats are usually collected by an @ref image_write_format_manager.
- * 
+ *
  * For read access, see @ref image_read_format.
  */
 class REXLIB_API image_write_format

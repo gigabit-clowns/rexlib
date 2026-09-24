@@ -74,8 +74,8 @@ public:
 	 * single position, transfers nothing at all. The elements of
 	 * @p destination no region reached are left as they were.
 	 *
-	 * As a consequence @p destination too small for a region is shortened to 
-	 * fit instead of reported, since it is the same thing to this as a patch 
+	 * As a consequence @p destination too small for a region is shortened to
+	 * fit instead of reported, since it is the same thing to this as a patch
 	 * hanging over an edge.
 	 *
 	 * @param destination Where the regions land.

@@ -183,8 +183,9 @@ std::shared_ptr<completion> read_patches_async(
 	if (array_extents.empty())
 	{
 		throw std::invalid_argument(
-			"read_patches_async: The destination has no extents, where its leading "
-			"one is the batch size and the rest are the shape of one patch."
+			"read_patches_async: The destination has no extents, where its "
+			"leading one is the batch size and the rest are the shape of one "
+			"patch."
 		);
 	}
 
@@ -192,8 +193,8 @@ std::shared_ptr<completion> read_patches_async(
 	if (array_extents.front() != batch_size)
 	{
 		throw std::invalid_argument(
-			"read_patches_async: The leading extent of the destination is not the "
-			"number of positions."
+			"read_patches_async: The leading extent of the destination is not "
+			"the number of positions."
 		);
 	}
 
@@ -202,8 +203,8 @@ std::shared_ptr<completion> read_patches_async(
 	if (positions.get_rank() != patch_rank)
 	{
 		throw std::invalid_argument(
-			"read_patches_async: The positions do not have the rank of one patch, "
-			"which is one less than that of the destination."
+			"read_patches_async: The positions do not have the rank of one "
+			"patch, which is one less than that of the destination."
 		);
 	}
 
