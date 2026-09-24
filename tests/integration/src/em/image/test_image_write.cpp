@@ -12,12 +12,12 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
+#include <rexlib/em/image/executor_image_sink.hpp>
+#include <rexlib/em/image/executor_image_source.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
-#include <rexlib/em/image/image_sink.hpp>
-#include <rexlib/em/image/image_source.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 #include <rexlib/em/image/managed_image_writer_provider.hpp>
 #include <rexlib/functional/creation.hpp>
@@ -95,7 +95,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		catalog.get_service_manager<image_write_format_manager>();
 	const auto writers =
 		std::make_shared<managed_image_writer_provider>(writer_formats);
-	const auto sink = std::make_shared<image_sink>(
+	const auto sink = std::make_shared<executor_image_sink>(
 		writers,
 		std::make_shared<synchronous_executor>()
 	);
@@ -142,7 +142,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		catalog.get_service_manager<image_read_format_manager>();
 	const auto readers =
 		std::make_shared<direct_image_reader_provider>(reader_formats);
-	const auto source = std::make_shared<image_source>(
+	const auto source = std::make_shared<executor_image_source>(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);

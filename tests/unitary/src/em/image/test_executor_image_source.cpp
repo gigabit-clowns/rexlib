@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/image_source.hpp>
+#include <rexlib/em/image/executor_image_source.hpp>
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
@@ -37,8 +37,8 @@ namespace
 const std::vector<std::size_t> plane_extents = {3, 5};
 
 // A stack deep enough to hold every element the cases below address, and a
-// batch with a slot for each of them. image_source clips every region to
-// both of them, so a reader reports the first and a destination carries the
+// batch with a slot for each of them. executor_image_source clips every region
+// to both of them, so a reader reports the first and a destination carries the
 // second.
 const std::vector<std::size_t> stack_extents = {8, 3, 5};
 const std::vector<std::size_t> batch_extents = {4, 3, 5};
@@ -75,7 +75,7 @@ private:
 };
 
 // A reader whose only behaviour is to run a callback from read(). The other
-// methods are never called by image_source and only exist to satisfy
+// methods are never called by executor_image_source and only exist to satisfy
 // image_reader's interface.
 class barrier_image_reader final : public image_reader
 {
@@ -157,14 +157,17 @@ void add_region(
 } // anonymous namespace
 
 TEST_CASE(
-	"image_source needs a reader provider and an executor",
-	"[image_source]"
+	"executor_image_source needs a reader provider and an executor",
+	"[executor_image_source]"
 )
 {
 	SECTION( "a null reader provider" )
 	{
 		REQUIRE_THROWS_AS(
-			image_source(nullptr, std::make_shared<synchronous_executor>()),
+			executor_image_source(
+				nullptr,
+				std::make_shared<synchronous_executor>()
+			),
 			std::invalid_argument
 		);
 	}
@@ -172,7 +175,7 @@ TEST_CASE(
 	SECTION( "a null executor" )
 	{
 		REQUIRE_THROWS_AS(
-			image_source(
+			executor_image_source(
 				std::make_shared<mock_image_reader_provider>(),
 				nullptr
 			),
@@ -182,8 +185,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source reads each file's regions as one call, split by file",
-	"[image_source]"
+	"executor_image_source reads each file's regions as one call, split by "
+	"file",
+	"[executor_image_source]"
 )
 {
 	// Three regions in one file, one in the other: exercises both the
@@ -209,7 +213,10 @@ TEST_CASE(
 	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_region_count() == 1 );
 
-	image_source source(readers, std::make_shared<synchronous_executor>());
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
 	const auto completion = source.read(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -217,8 +224,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source does not acquire a reader for a file with no regions",
-	"[image_source]"
+	"executor_image_source does not acquire a reader for a file with no "
+	"regions",
+	"[executor_image_source]"
 )
 {
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
@@ -234,7 +242,10 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 	// No expectation for "stack_1.mrcs": acquiring it would violate.
 
-	image_source source(readers, std::make_shared<synchronous_executor>());
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
 	const auto completion = source.read(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -242,8 +253,29 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source's completion reports what a reader threw",
-	"[image_source]"
+	"executor_image_source resolves an empty plan without acquiring a reader",
+	"[executor_image_source]"
+)
+{
+	const image_transaction_plan plan(make_span(plane_extents), 3, 3);
+
+	// No expectations set on `readers`: acquiring anything would violate.
+	const auto readers = std::make_shared<mock_image_reader_provider>();
+
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
+	const auto completion = source.read(make_test_array(), plan);
+
+	REQUIRE( completion != nullptr );
+	CHECK( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
+	"executor_image_source's completion reports what a reader threw",
+	"[executor_image_source]"
 )
 {
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
@@ -258,7 +290,10 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.SIDE_EFFECT( throw std::runtime_error("from a reader") );
 
-	image_source source(readers, std::make_shared<synchronous_executor>());
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
 	const auto completion = source.read(make_test_array(), plan);
 
 	REQUIRE( completion->is_ready() );
@@ -266,8 +301,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source shortens a region that runs past the file",
-	"[image_source]"
+	"executor_image_source shortens a region that runs past the file",
+	"[executor_image_source]"
 )
 {
 	// A plane of the stack is three rows tall, so a region of three rows
@@ -289,7 +324,10 @@ TEST_CASE(
 			_2.get_file_offset(0)[1] == 1
 		);
 
-	image_source source(readers, std::make_shared<synchronous_executor>());
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
 	const auto completion = source.read(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -297,8 +335,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source reads one plan per shape its regions clip to",
-	"[image_source]"
+	"executor_image_source reads one plan per shape its regions clip to",
+	"[executor_image_source]"
 )
 {
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
@@ -319,7 +357,10 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_extents()[0] == 1 );
 
-	image_source source(readers, std::make_shared<synchronous_executor>());
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
 	const auto completion = source.read(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -327,8 +368,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source drops a region the file does not reach at all",
-	"[image_source]"
+	"executor_image_source drops a region the file does not reach at all",
+	"[executor_image_source]"
 )
 {
 	// The stack holds eight elements, so the region addressing its tenth
@@ -351,7 +392,10 @@ TEST_CASE(
 			_2.get_array_offset(0)[0] == 1
 		);
 
-	image_source source(readers, std::make_shared<synchronous_executor>());
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
 	const auto completion = source.read(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -359,8 +403,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source reads the files of one transaction concurrently",
-	"[image_source]"
+	"executor_image_source reads the files of one transaction concurrently",
+	"[executor_image_source]"
 )
 {
 	// Each file's read spins until every other one has also started. A
@@ -397,7 +441,7 @@ TEST_CASE(
 		std::move(readers_by_path)
 	);
 
-	image_source source(
+	executor_image_source source(
 		readers,
 		std::make_shared<thread_pool_executor>(file_count)
 	);
@@ -410,8 +454,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_source lets two concurrently outstanding reads interleave",
-	"[image_source]"
+	"executor_image_source lets two concurrently outstanding reads interleave",
+	"[executor_image_source]"
 )
 {
 	static REXLIB_CONST_CONSTEXPR std::size_t transaction_count = 2;
@@ -442,7 +486,7 @@ TEST_CASE(
 		}
 	);
 
-	image_source source(
+	executor_image_source source(
 		readers,
 		std::make_shared<thread_pool_executor>(transaction_count)
 	);

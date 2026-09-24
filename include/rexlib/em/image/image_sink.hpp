@@ -11,48 +11,31 @@ namespace rexlib
 
 class completion;
 class const_array;
-class executor;
 
 namespace em
 {
 
 class image_transaction_plan;
-class image_writer_provider;
 
 /**
- * @brief Executes a transaction plan by writing every file it names.
+ * @brief Writes the regions of a transaction plan out of one array.
  *
- * Splits the plan by the file each region addresses and writes each
- * file's regions as one task, fanned out onto the executor this was
- * constructed with. Files are therefore written concurrently to
- * whatever degree the executor allows, not necessarily one after
- * another.
+ * Every region a plan names is written out of the array and into its file.
+ * The writes may still be under way when @ref write returns; the completion
+ * it returns says when they are done and reports what failed.
  *
  * @par Thread safety
- * write may be called concurrently.
+ * @ref write may be called concurrently.
+ *
+ * @see image_source
  */
-class image_sink
+class REXLIB_API image_sink
 {
 public:
-	/**
-	 * @brief Construct a sink over a provider and an executor.
-	 *
-	 * @param writers Where a path becomes an open writer.
-	 * @param executor Where a file's write is run.
-	 * @throws std::invalid_argument If @p writers or @p executor is
-	 * null.
-	 */
-	REXLIB_API
-	image_sink(
-		std::shared_ptr<image_writer_provider> writers,
-		std::shared_ptr<rexlib::executor> executor
-	);
-
+	image_sink() noexcept;
 	image_sink(const image_sink &other) = delete;
 	image_sink(image_sink &&other) = delete;
-
-	REXLIB_API
-	~image_sink();
+	virtual ~image_sink();
 
 	image_sink& operator=(const image_sink &other) = delete;
 	image_sink& operator=(image_sink &&other) = delete;
@@ -60,43 +43,32 @@ public:
 	/**
 	 * @brief Write every region a transaction plan names.
 	 *
-	 * Returns before the writes are done. Neither @ref completion::wait
-	 * nor @ref completion::get of the completion returned may be called
-	 * from within a task already running on the executor this sink was
-	 * constructed with.
+	 * Returns before the writes are done. The completion returned is ready
+	 * once every region has been written or has failed, and rethrows what
+	 * the first failure threw.
 	 *
 	 * Every region must fit the file it names and @p source both. One that
-	 * does not is reported rather than shortened to fit, which is where this
-	 * parts company with @ref image_source::read: a shortened read leaves
-	 * what it did not reach as it was and the caller can see it, while a
-	 * shortened write would drop values and say nothing.
+	 * does not is reported through the completion rather than shortened to
+	 * fit.
 	 *
 	 * @param source The values to write.
 	 * @param plan The transaction to write.
 	 * @return std::shared_ptr<completion> The completion, never null.
 	 */
-	REXLIB_API
-	std::shared_ptr<completion> write(
+	virtual std::shared_ptr<completion> write(
 		const_array source,
 		const image_transaction_plan &plan
-	) const;
+	) const = 0;
 
 	/**
-	 * @brief Make everything written through this sink reach storage.
+	 * @brief Make everything written through this sink reach the storage.
 	 *
-	 * Call only after waiting on or getting any @ref write completions
-	 * you care about, matching @ref image_writer_provider::flush's own
-	 * contract.
+	 * Only the writes whose completions are ready are sure to be included.
 	 *
 	 * @throws image_format_error If the pending writes could not be
 	 * completed.
 	 */
-	REXLIB_API
-	void flush();
-
-private:
-	std::shared_ptr<image_writer_provider> m_writers;
-	std::shared_ptr<rexlib::executor> m_executor;
+	virtual void flush() = 0;
 };
 
 } // namespace em

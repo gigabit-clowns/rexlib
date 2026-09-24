@@ -4,6 +4,8 @@ target_sources(
 		caching_image_reader_provider.cpp
 		core_image_format_registry.cpp
 		direct_image_reader_provider.cpp
+		executor_image_sink.cpp
+		executor_image_source.cpp
 		image_batch_plan.cpp
 		image_location.cpp
 		image_metadata.cpp

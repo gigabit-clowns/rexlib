@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/image_sink.hpp>
+#include <rexlib/em/image/executor_image_sink.hpp>
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
@@ -70,7 +70,7 @@ private:
 };
 
 // A writer whose only behaviour is to run a callback from write(). The other
-// methods are never called by image_sink and only exist to satisfy
+// methods are never called by executor_image_sink and only exist to satisfy
 // image_writer's interface.
 class barrier_image_writer final : public image_writer
 {
@@ -136,14 +136,17 @@ void add_element(
 } // anonymous namespace
 
 TEST_CASE(
-	"image_sink needs a writer provider and an executor",
-	"[image_sink]"
+	"executor_image_sink needs a writer provider and an executor",
+	"[executor_image_sink]"
 )
 {
 	SECTION( "a null writer provider" )
 	{
 		REQUIRE_THROWS_AS(
-			image_sink(nullptr, std::make_shared<synchronous_executor>()),
+			executor_image_sink(
+				nullptr,
+				std::make_shared<synchronous_executor>()
+			),
 			std::invalid_argument
 		);
 	}
@@ -151,7 +154,7 @@ TEST_CASE(
 	SECTION( "a null executor" )
 	{
 		REQUIRE_THROWS_AS(
-			image_sink(
+			executor_image_sink(
 				std::make_shared<mock_image_writer_provider>(),
 				nullptr
 			),
@@ -161,8 +164,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_sink writes each file's regions as one call, split by file",
-	"[image_sink]"
+	"executor_image_sink writes each file's regions as one call, split by file",
+	"[executor_image_sink]"
 )
 {
 	// Three regions in one file, one in the other: exercises both the
@@ -186,7 +189,7 @@ TEST_CASE(
 	REQUIRE_CALL(*writer_one, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_region_count() == 1 );
 
-	image_sink sink(writers, std::make_shared<synchronous_executor>());
+	executor_image_sink sink(writers, std::make_shared<synchronous_executor>());
 	const auto completion = sink.write(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -194,8 +197,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_sink does not acquire a writer for a file with no regions",
-	"[image_sink]"
+	"executor_image_sink does not acquire a writer for a file with no regions",
+	"[executor_image_sink]"
 )
 {
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
@@ -210,7 +213,7 @@ TEST_CASE(
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
 	// No expectation for "stack_1.mrcs": acquiring it would violate.
 
-	image_sink sink(writers, std::make_shared<synchronous_executor>());
+	executor_image_sink sink(writers, std::make_shared<synchronous_executor>());
 	const auto completion = sink.write(make_test_array(), plan);
 
 	CHECK( completion->is_ready() );
@@ -218,8 +221,26 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_sink's completion reports what a writer threw",
-	"[image_sink]"
+	"executor_image_sink resolves an empty plan without acquiring a writer",
+	"[executor_image_sink]"
+)
+{
+	const image_transaction_plan plan(make_span(plane_extents), 3, 3);
+
+	// No expectations set on `writers`: acquiring anything would violate.
+	const auto writers = std::make_shared<mock_image_writer_provider>();
+
+	executor_image_sink sink(writers, std::make_shared<synchronous_executor>());
+	const auto completion = sink.write(make_test_array(), plan);
+
+	REQUIRE( completion != nullptr );
+	CHECK( completion->is_ready() );
+	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
+	"executor_image_sink's completion reports what a writer threw",
+	"[executor_image_sink]"
 )
 {
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
@@ -233,7 +254,7 @@ TEST_CASE(
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.SIDE_EFFECT( throw std::runtime_error("from a writer") );
 
-	image_sink sink(writers, std::make_shared<synchronous_executor>());
+	executor_image_sink sink(writers, std::make_shared<synchronous_executor>());
 	const auto completion = sink.write(make_test_array(), plan);
 
 	REQUIRE( completion->is_ready() );
@@ -241,8 +262,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_sink writes the files of one transaction concurrently",
-	"[image_sink]"
+	"executor_image_sink writes the files of one transaction concurrently",
+	"[executor_image_sink]"
 )
 {
 	// Each file's write spins until every other one has also started. A
@@ -279,7 +300,7 @@ TEST_CASE(
 		std::move(writers_by_path)
 	);
 
-	image_sink sink(
+	executor_image_sink sink(
 		writers,
 		std::make_shared<thread_pool_executor>(file_count)
 	);
@@ -292,13 +313,13 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"image_sink's flush delegates to the writer provider",
-	"[image_sink]"
+	"executor_image_sink's flush delegates to the writer provider",
+	"[executor_image_sink]"
 )
 {
 	const auto writers = std::make_shared<mock_image_writer_provider>();
 	REQUIRE_CALL(*writers, flush());
 
-	image_sink sink(writers, std::make_shared<synchronous_executor>());
+	executor_image_sink sink(writers, std::make_shared<synchronous_executor>());
 	sink.flush();
 }
