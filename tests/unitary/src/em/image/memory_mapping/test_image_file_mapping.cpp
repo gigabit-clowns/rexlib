@@ -4,7 +4,7 @@
 
 #include <em/image/memory_mapping/image_file_mapping.hpp>
 
-#include <rexlib/em/image/exceptions/image_format_error.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 
 #include "../fixtures/scoped_path.hpp"
 
@@ -67,7 +67,7 @@ TEST_CASE( "a file is laid out in full before it is mapped",
 	{
 		REQUIRE_THROWS_AS(
 			create_image_file(path.get(), 0),
-			image_format_error
+			image_file_error
 		);
 	}
 }
@@ -93,7 +93,7 @@ TEST_CASE( "a file is read through its mapping",
 	{
 		REQUIRE_THROWS_AS(
 			image_file_mapping(path.get(), read_only),
-			image_format_error
+			image_file_error
 		);
 	}
 
@@ -103,7 +103,7 @@ TEST_CASE( "a file is read through its mapping",
 
 		REQUIRE_THROWS_AS(
 			image_file_mapping(path.get(), read_only),
-			image_format_error
+			image_file_error
 		);
 	}
 }

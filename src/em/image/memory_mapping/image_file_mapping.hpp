@@ -37,7 +37,7 @@ public:
 	 * @param path Path to the file.
 	 * @param access Whether the mapping may be written through. Writing
 	 * needs a file opened for both reading and writing.
-	 * @throws image_format_error If the file can not be opened or mapped, or
+	 * @throws image_file_error If the file can not be opened or mapped, or
 	 * if it is empty.
 	 */
 	image_file_mapping(const std::string &path, access_flags access);
@@ -68,7 +68,7 @@ public:
 	/**
 	 * @brief Make everything written through the mapping reach the storage.
 	 *
-	 * @throws image_format_error If the mapping could not be flushed.
+	 * @throws image_file_error If the mapping could not be flushed.
 	 */
 	void flush();
 
@@ -86,7 +86,7 @@ private:
  *
  * @param path Path to the file to create.
  * @param size Size of the file in bytes. Must not be zero.
- * @throws image_format_error If the file could not be created or sized.
+ * @throws image_file_error If the file could not be created or sized.
  */
 void create_image_file(const std::string &path, std::size_t size);
 

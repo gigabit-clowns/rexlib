@@ -2,7 +2,7 @@
 
 #include "image_host_access.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
@@ -29,7 +29,7 @@ void check_storage(const buffer *storage)
 
 	if (!is_host_accessible(storage->get_memory_resource().get_kind()))
 	{
-		throw invalid_operation_error(
+		throw unsupported_capability_error(
 			"get_host_data: The storage of the array can not be reached from "
 			"the host."
 		);
@@ -40,7 +40,7 @@ void check_data(const void *data)
 {
 	if (data == nullptr)
 	{
-		throw invalid_operation_error(
+		throw unsupported_capability_error(
 			"get_host_data: The array does not expose its storage to the "
 			"host."
 		);

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <em/image/formats/mrc/mrc_writer.hpp>
 
@@ -9,7 +11,7 @@
 #include <em/image/formats/mrc/mrc_reader.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/array.hpp>
@@ -243,7 +245,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	{
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(line, 1)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -257,7 +259,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(single, 2)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -267,7 +269,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(single, 3)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -277,7 +279,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(flat, 3)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -296,7 +298,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	{
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(too_deep, 3)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -304,7 +306,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	{
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(volume_stack, 2)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -312,7 +314,7 @@ TEST_CASE( "a shape the MRC format cannot hold builds no header",
 	{
 		REQUIRE_THROWS_AS(
 			make_header(make_descriptor(stack, 2, numerical_type::float64)),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 }
@@ -380,9 +382,12 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 	{
 		const std::vector<std::size_t> line = {4};
 
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			mrc_writer(path.get(), make_descriptor(line, 1)),
-			invalid_operation_error
+			unsupported_operation_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 
@@ -390,12 +395,15 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 	{
 		const std::vector<std::size_t> extents = {2, 3};
 
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			mrc_writer(
 				path.get(),
 				make_descriptor(extents, 2, numerical_type::float64)
 			),
-			invalid_operation_error
+			unsupported_operation_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 }
@@ -551,9 +559,12 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const std::vector<std::size_t> extents = {2, 2};
 		mrc_writer writer(path.get(), make_descriptor(extents, 2));
 
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			writer.write(const_array_ref(), whole_of(extents)),
-			std::invalid_argument
+			std::invalid_argument,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 }

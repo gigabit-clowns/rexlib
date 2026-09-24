@@ -7,7 +7,7 @@
 #include <em/image/strided_transfer/image_region_read_plan.hpp>
 #include <em/image/strided_transfer/image_region_write_plan.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/numerical/numerical_type_traits.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -454,7 +454,7 @@ TEST_CASE( "values are converted into the type asked for",
 				as_file(file), numerical_type::complex_float32,
 				get_system_byte_order()
 			),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 
@@ -470,7 +470,7 @@ TEST_CASE( "values are converted into the type asked for",
 				as_file(file), numerical_type::float64,
 				get_system_byte_order()
 			),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 }
@@ -665,7 +665,7 @@ TEST_CASE( "a region is moved out of an array and into a file",
 				as_file(file), numerical_type::float32,
 				get_system_byte_order()
 			),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 }

@@ -78,9 +78,10 @@ public:
 	 * @param metadata How its samples map onto physical space. A format
 	 * writes what of it it can carry and ignores the rest.
 	 * @return std::shared_ptr<image_writer> The opened writer, never null.
-	 * @throws invalid_operation_error If this format can not represent the
-	 * requested file, such as a rank or a data type it has no encoding for.
-	 * @throws image_format_error If the file could not be created.
+	 * @throws unsupported_operation_error If this format can not represent
+	 * the requested file, such as a rank or a data type it has no encoding
+	 * for.
+	 * @throws image_file_error If the file could not be created.
 	 */
 	virtual std::shared_ptr<image_writer> open(
 		const image_probe &probe,

@@ -2,7 +2,7 @@
 
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/platform/assert.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
@@ -60,9 +60,9 @@ public:
 		const auto *format = get_most_suitable_format(probe);
 		if (!format)
 		{
-			throw invalid_operation_error(
-				"Could not find a suitable image format to write the "
-				"requested file"
+			throw unsupported_operation_error(
+				probe.get_path() + ": image_write_format_manager::open: No "
+				"registered format can create the file."
 			);
 		}
 

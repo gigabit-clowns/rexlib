@@ -5,7 +5,7 @@
 #include <rexlib/core/dispatch/program_manager.hpp>
 #include <rexlib/core/dispatch/program_cache.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
 #include "mock/mock_operation.hpp"
 #include "mock/mock_program_builder.hpp"
@@ -332,7 +332,7 @@ TEST_CASE(
 			make_span(input_signatures),
 			queue
 		),
-		invalid_operation_error
+		unsupported_operation_error
 	);
 }
 
@@ -388,6 +388,6 @@ TEST_CASE(
 			make_span(input_signatures),
 			queue
 		),
-		invalid_operation_error
+		unsupported_operation_error
 	);
 }

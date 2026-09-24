@@ -7,7 +7,7 @@
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
@@ -115,7 +115,7 @@ TEST_CASE( "an array the host cannot reach is refused",
 	{
 		REQUIRE_THROWS_AS(
 			get_host_data(array_ref(subject)),
-			invalid_operation_error
+			unsupported_capability_error
 		);
 	}
 
@@ -123,7 +123,7 @@ TEST_CASE( "an array the host cannot reach is refused",
 	{
 		REQUIRE_THROWS_AS(
 			get_host_data(const_array_ref(subject)),
-			invalid_operation_error
+			unsupported_capability_error
 		);
 	}
 }
@@ -151,6 +151,6 @@ TEST_CASE( "an array that exposes nothing to the host is refused",
 
 	REQUIRE_THROWS_AS(
 		get_host_data(array_ref(subject)),
-		invalid_operation_error
+		unsupported_capability_error
 	);
 }

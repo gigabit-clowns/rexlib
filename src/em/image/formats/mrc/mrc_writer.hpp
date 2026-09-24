@@ -40,9 +40,9 @@ public:
 	 *
 	 * @param path Path to the file to create.
 	 * @param descriptor What the file holds.
-	 * @throws invalid_operation_error If the MRC format holds no file of
+	 * @throws unsupported_operation_error If the MRC format holds no file of
 	 * that shape, or no mode holds its data type.
-	 * @throws image_format_error If the file could not be created, sized or
+	 * @throws image_file_error If the file could not be created, sized or
 	 * mapped.
 	 */
 	mrc_writer(const std::string &path, const image_descriptor &descriptor);
@@ -59,6 +59,12 @@ public:
 	void flush() override;
 
 private:
+	void transfer(
+		const_array_ref source,
+		const image_transfer_plan &regions
+	);
+
+	std::string m_path;
 	mrc_header m_header;
 	mrc_geometry m_geometry;
 	image_file_mapping m_mapping;
@@ -78,7 +84,7 @@ private:
  *
  * @param descriptor What the file holds.
  * @return mrc_header The header, in the byte order of the host.
- * @throws invalid_operation_error If no MRC file has that shape, or if no
+ * @throws unsupported_operation_error If no MRC file has that shape, or if no
  * mode holds its data type.
  */
 mrc_header make_header(const image_descriptor &descriptor);

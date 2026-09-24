@@ -3,7 +3,7 @@
 #include "image_file_mapping.hpp"
 
 #include <rexlib/core/platform/attributes.hpp>
-#include <rexlib/em/image/exceptions/image_format_error.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 
 #include <boost/filesystem/operations.hpp>
 
@@ -33,7 +33,7 @@ void throw_unmappable(
 	const boost::interprocess::interprocess_exception &error
 )
 {
-	throw image_format_error(
+	throw image_file_error(
 		"image_file_mapping: The file could not be mapped: " +
 		std::string(error.what())
 	);
@@ -80,7 +80,7 @@ image_file_mapping::image_file_mapping(
 {
 	if (m_region.get_size() == 0)
 	{
-		throw image_format_error(
+		throw image_file_error(
 			"image_file_mapping: The file is empty."
 		);
 	}
@@ -100,7 +100,7 @@ void image_file_mapping::flush()
 {
 	if (!m_region.flush())
 	{
-		throw image_format_error(
+		throw image_file_error(
 			"image_file_mapping: The mapping could not be flushed."
 		);
 	}
@@ -110,7 +110,7 @@ void create_image_file(const std::string &path, std::size_t size)
 {
 	if (size == 0)
 	{
-		throw image_format_error(
+		throw image_file_error(
 			"create_image_file: A file of no bytes can not be mapped."
 		);
 	}
@@ -124,7 +124,7 @@ void create_image_file(const std::string &path, std::size_t size)
 		);
 		if (opened == nullptr)
 		{
-			throw image_format_error(
+			throw image_file_error(
 				"create_image_file: The file could not be created."
 			);
 		}
@@ -134,7 +134,7 @@ void create_image_file(const std::string &path, std::size_t size)
 	boost::filesystem::resize_file(path, size, code);
 	if (code)
 	{
-		throw image_format_error(
+		throw image_file_error(
 			"create_image_file: The file could not be sized: " +
 			code.message()
 		);

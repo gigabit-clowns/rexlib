@@ -6,7 +6,7 @@
 
 #include <backends/cpu/load_store.hpp>
 #include <backends/cpu/loops/elementwise_loop.hpp>
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/memory/byte_order.hpp>
 #include <rexlib/core/numerical/numerical_type_dispatch.hpp>
 #include <rexlib/core/platform/attributes.hpp>
@@ -178,7 +178,7 @@ void run_supported_regions(
 	SourcePointer
 )
 {
-	throw invalid_operation_error(
+	throw unsupported_operation_error(
 		"image_region_transfer: The values of the file can not be converted "
 		"into the data type asked for."
 	);

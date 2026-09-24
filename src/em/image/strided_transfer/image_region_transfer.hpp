@@ -27,7 +27,7 @@ namespace em
  * @param file_data First element of the values of the file.
  * @param file_type Data type of the file.
  * @param file_order Byte order the file states its values in.
- * @throws invalid_operation_error If @p array_type can not be produced from
+ * @throws unsupported_operation_error If @p array_type can not be produced from
  * @p file_type, or if @p file_type is not a data type files are
  * transferred in.
  */
@@ -57,7 +57,7 @@ void read_regions(
  * @param file_data First element of the values of the file.
  * @param file_type Data type of the file.
  * @param file_order Byte order the file states its values in.
- * @throws invalid_operation_error If @p array_type can not be produced from
+ * @throws unsupported_operation_error If @p array_type can not be produced from
  * @p file_type, or if @p file_type is not a data type files are
  * transferred in.
  */
@@ -84,7 +84,7 @@ void read_regions(
  * @param file_data First element of the values of the file.
  * @param file_type Data type of the file.
  * @param file_order Byte order the file states its values in.
- * @throws invalid_operation_error If @p file_type can not be produced from
+ * @throws unsupported_operation_error If @p file_type can not be produced from
  * @p array_type, or if @p file_type is not a data type files are
  * transferred in.
  */
@@ -114,7 +114,7 @@ void write_regions(
  * @param array_type Data type of the array.
  * @param file_data First element of the values of the file.
  * @param swapped Whether the file states its values in the other byte order.
- * @throws invalid_operation_error If @p array_type can not be produced from
+ * @throws unsupported_operation_error If @p array_type can not be produced from
  * @p Q.
  */
 template <typename Q>

@@ -65,7 +65,7 @@ public:
 	 *
 	 * Only the writes whose completions are ready are sure to be included.
 	 *
-	 * @throws image_format_error If the pending writes could not be
+	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
 	virtual void flush() = 0;

@@ -77,7 +77,7 @@ public:
 	 * @param path Path to the file to create.
 	 * @param descriptor What the file holds.
 	 * @param metadata How its samples map onto physical space.
-	 * @throws invalid_operation_error If that path is already declared.
+	 * @throws std::logic_error If that path is already declared.
 	 */
 	REXLIB_API
 	void declare(
@@ -98,7 +98,7 @@ public:
 	 *
 	 * @param path Path to the file to finish.
 	 * @throws std::out_of_range If that path is not declared.
-	 * @throws image_format_error If the pending writes could not be
+	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
 	REXLIB_API
@@ -123,8 +123,9 @@ public:
 	 * @return std::shared_ptr<image_writer> The writer, never null, and the
 	 * same one every time until the file is closed.
 	 * @throws std::out_of_range If that path is not declared.
-	 * @throws invalid_operation_error If no format can create the file.
-	 * @throws image_format_error If the file could not be created.
+	 * @throws unsupported_operation_error If no format can create the file,
+	 * or the chosen one can not represent it.
+	 * @throws image_file_error If the file could not be created.
 	 */
 	REXLIB_API
 	std::shared_ptr<image_writer> acquire(const std::string &path) override;
@@ -134,7 +135,7 @@ public:
 	 *
 	 * Declared files that were never acquired are not created by this.
 	 *
-	 * @throws image_format_error If the pending writes could not be
+	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
 	REXLIB_API

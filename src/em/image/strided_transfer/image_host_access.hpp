@@ -20,7 +20,7 @@ namespace em
  * @param array The array to reach.
  * @return void* Its first byte of storage, never null.
  * @throws std::invalid_argument If @p array is not initialized.
- * @throws invalid_operation_error If its storage is not host accessible.
+ * @throws unsupported_capability_error If its storage is not host accessible.
  */
 void* get_host_data(array_ref array);
 
@@ -30,7 +30,7 @@ void* get_host_data(array_ref array);
  * @param array The array to reach.
  * @return const void* Its first byte of storage, never null.
  * @throws std::invalid_argument If @p array is not initialized.
- * @throws invalid_operation_error If its storage is not host accessible.
+ * @throws unsupported_capability_error If its storage is not host accessible.
  */
 const void* get_host_data(const_array_ref array);
 

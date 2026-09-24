@@ -69,6 +69,8 @@ public:
 	 * to the selected builder.
 	 * @return std::shared_ptr<program> The executable program suited
 	 * for the requested operation and signature.
+	 * @throws unsupported_operation_error If no registered builder supports
+	 * the operation with these signatures on this queue.
 	 */
 	std::shared_ptr<program> build(
 		const operation &operation,

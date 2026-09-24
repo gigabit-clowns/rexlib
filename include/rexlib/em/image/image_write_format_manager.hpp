@@ -63,9 +63,9 @@ public:
 	 * @param descriptor What the file holds.
 	 * @param metadata How its samples map onto physical space.
 	 * @return std::shared_ptr<image_writer> The opened writer, never null.
-	 * @throws invalid_operation_error If no registered format recognizes the
-	 * file, or if the chosen one can not represent the requested file.
-	 * @throws image_format_error If the file could not be created.
+	 * @throws unsupported_operation_error If no registered format recognizes
+	 * the file, or if the chosen one can not represent the requested file.
+	 * @throws image_file_error If the file could not be created.
 	 */
 	std::shared_ptr<image_writer> open(
 		const std::string &path,

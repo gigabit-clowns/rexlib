@@ -16,7 +16,8 @@ namespace em
  *
  * Thrown when the contents of a file contradict the format that is reading
  * it: a malformed or truncated header, a declared size that the file can not
- * hold, or an encoding that the format recognizes but does not implement.
+ * hold, or an encoding that the format recognizes but does not implement. A
+ * file that can not be reached at all is an @ref image_file_error instead.
  */
 REXLIB_STD_BASE_INTERFACE
 class REXLIB_API image_format_error : public std::runtime_error

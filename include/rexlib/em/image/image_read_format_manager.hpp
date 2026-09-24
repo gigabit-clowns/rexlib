@@ -61,10 +61,13 @@ public:
 	 * format, then opens the file with whichever reported the highest
 	 * suitability.
 	 *
-	 * @param path Path to the file to open.
+	 * @param path Path to the file to open, or any other locator a
+	 * registered format claims, such as the address of a remote file.
 	 * @return std::shared_ptr<image_reader> The opened reader, never null.
-	 * @throws invalid_operation_error If no registered format recognizes the
-	 * file.
+	 * @throws image_file_error If no registered format claims the path and
+	 * no readable file exists there.
+	 * @throws unsupported_operation_error If no registered format recognizes
+	 * the file, which exists.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
 	std::shared_ptr<image_reader> open(const std::string &path) const;

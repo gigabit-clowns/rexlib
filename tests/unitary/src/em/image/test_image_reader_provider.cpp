@@ -7,7 +7,7 @@
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_reader_provider.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 
 #include <cstddef>
@@ -48,11 +48,11 @@ TEST_CASE(
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 
 	REQUIRE_CALL(*readers, acquire("absent.mrc"))
-		.SIDE_EFFECT( throw invalid_operation_error("nothing claims it") )
+		.SIDE_EFFECT( throw unsupported_operation_error("nothing claims it") )
 		.RETURN(nullptr);
 
 	REQUIRE_THROWS_AS(
 		query_descriptor(*readers, "absent.mrc"),
-		invalid_operation_error
+		unsupported_operation_error
 	);
 }

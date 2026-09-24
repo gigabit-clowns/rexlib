@@ -7,7 +7,7 @@
 #include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_reader.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 
@@ -86,6 +86,6 @@ TEST_CASE( "a direct reader provider reports what the manager reports",
 
 	REQUIRE_THROWS_AS(
 		provider.acquire("stack_0.mrcs"),
-		invalid_operation_error
+		image_file_error
 	);
 }

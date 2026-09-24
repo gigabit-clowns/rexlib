@@ -2,7 +2,6 @@
 
 #include <rexlib/em/image/managed_image_writer_provider.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/platform/assert.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
@@ -41,8 +40,8 @@ public:
 		const auto ite = m_files.find(path);
 		if (ite != m_files.end())
 		{
-			throw invalid_operation_error(
-				"managed_image_writer_provider::declare: That path is "
+			throw std::logic_error(
+				path + ": managed_image_writer_provider::declare: The file is "
 				"already declared."
 			);
 		}
@@ -63,8 +62,8 @@ public:
 			if (ite == m_files.end())
 			{
 				throw std::out_of_range(
-					"managed_image_writer_provider::close: That path is not "
-					"declared."
+					path + ": managed_image_writer_provider::close: The file "
+					"is not declared."
 				);
 			}
 
@@ -94,8 +93,8 @@ public:
 		if (ite == m_files.end())
 		{
 			throw std::out_of_range(
-				"managed_image_writer_provider::acquire: That path is not "
-				"declared."
+				path + ": managed_image_writer_provider::acquire: The file "
+				"is not declared."
 			);
 		}
 

@@ -2,7 +2,7 @@
 
 #include "image_region_transfer.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
@@ -35,7 +35,7 @@ namespace
 REXLIB_NORETURN
 void reject_file_type()
 {
-	throw invalid_operation_error(
+	throw unsupported_operation_error(
 		"image_region_transfer: Files are not transferred in that data type."
 	);
 }

@@ -5,9 +5,10 @@
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/service_catalog.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
@@ -80,7 +81,7 @@ TEST_CASE( "a file that is not there is claimed by no bundled format",
 		REQUIRE( manager->get_most_suitable_format(probe) == nullptr );
 		REQUIRE_THROWS_AS(
 			manager->open("absent.mrc"),
-			invalid_operation_error
+			image_file_error
 		);
 	}
 
@@ -109,7 +110,7 @@ TEST_CASE( "a file that is not there is claimed by no bundled format",
 		REQUIRE( manager->get_most_suitable_format(other) == nullptr );
 		REQUIRE_THROWS_AS(
 			manager->open("absent.eer", descriptor, image_metadata()),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 }

@@ -34,7 +34,7 @@ class image_metadata;
  * arithmetic.
  *
  * Everything a reader reports is fixed when it is opened, and reading does
- * not change it.
+ * not change it. Every exception a reader throws names its file.
  */
 class REXLIB_API image_reader
 {
@@ -115,9 +115,10 @@ public:
 	 * @p destination, or if @p destination is not initialized.
 	 * @throws std::out_of_range If a region is not contained in the file,
 	 * or does not fit in @p destination where it is placed.
-	 * @throws invalid_operation_error If the data type of @p destination can
-	 * not be produced from the one of the file, or if @p destination is
-	 * not host accessible.
+	 * @throws unsupported_operation_error If the data type of @p destination
+	 * can not be produced from the one of the file.
+	 * @throws unsupported_capability_error If @p destination is not host
+	 * accessible.
 	 * @throws image_format_error If the file turns out to be malformed
 	 * or truncated where a region is read.
 	 */

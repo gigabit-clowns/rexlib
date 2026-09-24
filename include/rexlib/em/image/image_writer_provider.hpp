@@ -48,8 +48,9 @@ public:
 	 * @param path Path to the file to write.
 	 * @return std::shared_ptr<image_writer> The writer, never null.
 	 * @throws std::out_of_range If this provider serves no such file.
-	 * @throws invalid_operation_error If no format can create the file.
-	 * @throws image_format_error If the file could not be created.
+	 * @throws unsupported_operation_error If no format can create the file,
+	 * or the chosen one can not represent it.
+	 * @throws image_file_error If the file could not be created.
 	 */
 	virtual std::shared_ptr<image_writer>
 	acquire(const std::string &path) = 0;
@@ -60,7 +61,7 @@ public:
 	 *
 	 * Flushes every writer it holds open and none it does not.
 	 *
-	 * @throws image_format_error If the pending writes could not be
+	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
 	virtual void flush() = 0;

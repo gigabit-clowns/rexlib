@@ -41,8 +41,9 @@ public:
 	 * @brief Open a file for reading.
 	 *
 	 * @param path Path to the file.
-	 * @throws image_format_error If the file can not be mapped, if its
-	 * header is malformed, or if it is shorter than that header says it is.
+	 * @throws image_file_error If the file can not be mapped.
+	 * @throws image_format_error If its header is malformed, or if it is
+	 * shorter than that header says it is.
 	 */
 	explicit mrc_reader(const std::string &path);
 
@@ -58,6 +59,12 @@ public:
 	) const override;
 
 private:
+	void transfer(
+		array_ref destination,
+		const image_transfer_plan &regions
+	) const;
+
+	std::string m_path;
 	image_file_mapping m_mapping;
 	mrc_header m_header;
 	mrc_geometry m_geometry;

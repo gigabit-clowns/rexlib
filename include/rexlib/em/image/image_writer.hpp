@@ -23,6 +23,7 @@ class image_descriptor;
  * A writer is opened over complete extents, so the shape of the file is
  * settled before anything is written; the file can be laid out once up
  * front and a region can be written wherever it belongs, in any order.
+ * Every exception a writer throws names its file.
  */
 class REXLIB_API image_writer
 {
@@ -81,10 +82,11 @@ public:
 	 * the file, or if @p source is not initialized.
 	 * @throws std::out_of_range If a region is not contained in the file,
 	 * or is not contained in @p source where it is taken from.
-	 * @throws invalid_operation_error If the data type of the file can not
-	 * be produced from the one of @p source, or if @p source is not host
+	 * @throws unsupported_operation_error If the data type of the file can
+	 * not be produced from the one of @p source.
+	 * @throws unsupported_capability_error If @p source is not host
 	 * accessible.
-	 * @throws image_format_error If the file can not be written.
+	 * @throws image_file_error If the file can not be written.
 	 */
 	virtual void write(
 		const_array_ref source,
@@ -99,7 +101,7 @@ public:
 	 * a failure, so a write that only fails on the way out is lost unless it
 	 * was flushed explicitly.
 	 *
-	 * @throws image_format_error If the pending writes could not be
+	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
 	virtual void flush() = 0;

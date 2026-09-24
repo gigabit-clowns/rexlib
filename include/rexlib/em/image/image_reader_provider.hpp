@@ -55,7 +55,8 @@ public:
 	 *
 	 * @param path Path to the file to read.
 	 * @return std::shared_ptr<const image_reader> The reader, never null.
-	 * @throws invalid_operation_error If no format recognizes the file.
+	 * @throws image_file_error If the file does not exist or can not be read.
+	 * @throws unsupported_operation_error If no format can read the file.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
 	virtual std::shared_ptr<const image_reader>
@@ -72,7 +73,8 @@ public:
  * @param readers Where the file becomes a reader.
  * @param path Path to the file.
  * @return image_descriptor The descriptor of the file.
- * @throws invalid_operation_error If no format recognizes the file.
+ * @throws image_file_error If the file does not exist or can not be read.
+ * @throws unsupported_operation_error If no format can read the file.
  * @throws image_format_error If the file is malformed or truncated.
  */
 REXLIB_API

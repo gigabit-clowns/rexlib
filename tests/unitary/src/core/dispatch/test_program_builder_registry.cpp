@@ -5,7 +5,7 @@
 #include <rexlib/core/dispatch/program_builder_registry.hpp>
 #include <rexlib/core/dispatch/program_manager.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
 #include "fixtures/stub_program_builder.hpp"
 
@@ -40,7 +40,7 @@ TEST_CASE(
 
 	CHECK_THROWS_AS(
 		build_stub_operation(manager),
-		invalid_operation_error
+		unsupported_operation_error
 	);
 }
 
@@ -57,6 +57,6 @@ TEST_CASE(
 
 	CHECK_THROWS_AS(
 		build_stub_operation(manager),
-		invalid_operation_error
+		unsupported_operation_error
 	);
 }

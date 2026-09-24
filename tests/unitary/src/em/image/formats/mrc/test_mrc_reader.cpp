@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <em/image/formats/mrc/mrc_reader.hpp>
 
@@ -10,6 +12,7 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -253,9 +256,12 @@ TEST_CASE( "the values of an MRC file are read into an array",
 		const std::vector<std::size_t> region = {3, 4};
 		image_transfer_plan regions(make_span(region), 2, 2);
 
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			reader.read(array_ref(), regions),
-			std::invalid_argument
+			std::invalid_argument,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 }
@@ -264,6 +270,9 @@ TEST_CASE( "a file that contradicts its own header is refused",
 	"[mrc_reader]" )
 {
 	const scoped_path path("reader_bad_header.mrc");
+	const auto names_the_file = Catch::Matchers::MessageMatches(
+		Catch::Matchers::StartsWith(path.get() + ": ")
+	);
 
 	SECTION( "one shorter than the shape it states is refused" )
 	{
@@ -271,7 +280,11 @@ TEST_CASE( "a file that contradicts its own header is refused",
 		raw.resize(raw.size() - sizeof(float));
 		write_file(path.get(), raw);
 
-		REQUIRE_THROWS_AS( mrc_reader(path.get()), image_format_error );
+		REQUIRE_THROWS_MATCHES(
+			mrc_reader(path.get()),
+			image_format_error,
+			names_the_file
+		);
 	}
 
 	SECTION( "one without the identifier is refused" )
@@ -280,11 +293,19 @@ TEST_CASE( "a file that contradicts its own header is refused",
 		raw[208] = 'X';
 		write_file(path.get(), raw);
 
-		REQUIRE_THROWS_AS( mrc_reader(path.get()), image_format_error );
+		REQUIRE_THROWS_MATCHES(
+			mrc_reader(path.get()),
+			image_format_error,
+			names_the_file
+		);
 	}
 
 	SECTION( "one that is not there is refused" )
 	{
-		REQUIRE_THROWS_AS( mrc_reader(path.get()), image_format_error );
+		REQUIRE_THROWS_MATCHES(
+			mrc_reader(path.get()),
+			image_file_error,
+			names_the_file
+		);
 	}
 }

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
@@ -8,7 +10,7 @@
 #include "mock/mock_image_writer.hpp"
 #include "mock/mock_image_write_format.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
@@ -46,9 +48,12 @@ TEST_CASE( "an empty write manager recognizes nothing",
 
 	SECTION( "opening reports that nothing is suitable" )
 	{
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			manager.open("absent.mrc", file_descriptor, image_metadata()),
-			invalid_operation_error
+			unsupported_operation_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith("absent.mrc: ")
+			)
 		);
 	}
 }

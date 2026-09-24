@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <rexlib/em/image/managed_image_writer_provider.hpp>
 
 #include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_writer.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
@@ -64,9 +65,12 @@ TEST_CASE_METHOD(
 	SECTION( "it starts serving nothing" )
 	{
 		REQUIRE( provider.get_file_count() == 0 );
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			provider.acquire("stack_0.mrcs"),
-			std::out_of_range
+			std::out_of_range,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith("stack_0.mrcs: ")
+			)
 		);
 	}
 
@@ -83,9 +87,12 @@ TEST_CASE_METHOD(
 		// it names, so the caller has to close it and say so.
 		declare_stack(provider, "stack_0.mrcs");
 
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			declare_stack(provider, "stack_0.mrcs"),
-			invalid_operation_error
+			std::logic_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith("stack_0.mrcs: ")
+			)
 		);
 		REQUIRE( provider.get_file_count() == 1 );
 	}
@@ -133,7 +140,13 @@ TEST_CASE_METHOD(
 
 	SECTION( "closing what was never declared is refused" )
 	{
-		REQUIRE_THROWS_AS( provider.close("absent.mrcs"), std::out_of_range );
+		REQUIRE_THROWS_MATCHES(
+			provider.close("absent.mrcs"),
+			std::out_of_range,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith("absent.mrcs: ")
+			)
+		);
 	}
 
 	SECTION( "close flushes the writer it drops" )

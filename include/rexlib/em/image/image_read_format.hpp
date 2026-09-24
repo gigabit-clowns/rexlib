@@ -74,6 +74,7 @@ public:
 	 *
 	 * @param probe The file to open.
 	 * @return std::shared_ptr<image_reader> The opened reader, never null.
+	 * @throws image_file_error If the file can not be reached.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
 	virtual std::shared_ptr<image_reader> open(

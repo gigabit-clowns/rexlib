@@ -5,12 +5,13 @@
 #include "mrc_constants.hpp"
 #include "mrc_mode.hpp"
 
+#include <em/image/formats/rethrow_with_path.hpp>
 #include <em/image/strided_transfer/image_host_access.hpp>
 #include <em/image/strided_transfer/image_region_transfer.hpp>
 #include <em/image/strided_transfer/image_region_write_plan.hpp>
 
 #include <core/logger.hpp>
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/library_version.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
@@ -45,7 +46,7 @@ void check_stack_extent(std::size_t extent, const char *what)
 		std::ostringstream message;
 		message << "mrc::make_header: The MRC format holds no " << what
 			<< ": it states it as the shape without that axis.";
-		throw invalid_operation_error(message.str());
+		throw unsupported_operation_error(message.str());
 	}
 }
 
@@ -68,7 +69,9 @@ mrc_writer::mrc_writer(
 	const std::string &path,
 	const image_descriptor &descriptor
 )
-	: m_header(make_header(descriptor))
+try
+	: m_path(path)
+	, m_header(make_header(descriptor))
 	, m_geometry(m_header)
 	, m_mapping(lay_out_file(path, m_geometry))
 {
@@ -76,6 +79,10 @@ mrc_writer::mrc_writer(
 		m_header,
 		make_span(m_mapping.get_data(), m_mapping.get_size())
 	);
+}
+catch (...)
+{
+	rethrow_with_path(path);
 }
 
 mrc_writer::~mrc_writer()
@@ -91,12 +98,17 @@ mrc_writer::~mrc_writer()
 	catch (const std::exception &error)
 	{
 		REXLIB_LOG_ERROR(
-			"Failed to flush an MRC file while closing it: {}", error.what()
+			"Failed to flush the MRC file {} while closing it: {}",
+			m_path,
+			error.what()
 		);
 	}
 	catch (...)
 	{
-		REXLIB_LOG_ERROR("Failed to flush an MRC file while closing it.");
+		REXLIB_LOG_ERROR(
+			"Failed to flush the MRC file {} while closing it.",
+			m_path
+		);
 	}
 }
 
@@ -106,6 +118,21 @@ const image_descriptor& mrc_writer::get_descriptor() const noexcept
 }
 
 void mrc_writer::write(
+	const_array_ref source,
+	const image_transfer_plan &regions
+)
+{
+	try
+	{
+		transfer(source, regions);
+	}
+	catch (...)
+	{
+		rethrow_with_path(m_path);
+	}
+}
+
+void mrc_writer::transfer(
 	const_array_ref source,
 	const image_transfer_plan &regions
 )
@@ -141,7 +168,14 @@ void mrc_writer::write(
 
 void mrc_writer::flush()
 {
-	m_mapping.flush();
+	try
+	{
+		m_mapping.flush();
+	}
+	catch (...)
+	{
+		rethrow_with_path(m_path);
+	}
 }
 
 mrc_header make_header(const image_descriptor &descriptor)
@@ -153,7 +187,7 @@ mrc_header make_header(const image_descriptor &descriptor)
 
 	if (rank < 2 || rank > 4)
 	{
-		throw invalid_operation_error(
+		throw unsupported_operation_error(
 			"mrc::make_header: The MRC format holds no file of that rank."
 		);
 	}
@@ -206,7 +240,7 @@ mrc_header make_header(const image_descriptor &descriptor)
 	}
 	else
 	{
-		throw invalid_operation_error(
+		throw unsupported_operation_error(
 			"mrc::make_header: The MRC format holds no file of that rank "
 			"and core rank."
 		);
