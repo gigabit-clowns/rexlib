@@ -2,9 +2,11 @@
 
 #pragma once
 
+#include "../numerical/fixed_width_float.hpp"
 #include "../platform/attributes.hpp"
 #include "../platform/constexpr.hpp"
 
+#include <complex>
 #include <type_traits>
 
 namespace rexlib
@@ -25,6 +27,45 @@ template<typename T>
 REXLIB_NODISCARD REXLIB_CONSTEXPR 
 typename std::enable_if<std::is_integral<T>::value, T>::type
 reverse_byte_order(T x) noexcept;
+
+/**
+ * @brief Reverse the bytes of a single precision value.
+ *
+ * @param x The value.
+ * @return float The value with its bytes in the other order.
+ */
+REXLIB_NODISCARD float reverse_byte_order(float x) noexcept;
+
+/**
+ * @brief Reverse the bytes of a double precision value.
+ *
+ * @param x The value.
+ * @return double The value with its bytes in the other order.
+ */
+REXLIB_NODISCARD double reverse_byte_order(double x) noexcept;
+
+/**
+ * @brief Reverse the bytes of a half precision value.
+ *
+ * @param x The value.
+ * @return float16_t The value with its bytes in the other order.
+ */
+REXLIB_NODISCARD float16_t reverse_byte_order(float16_t x) noexcept;
+
+/**
+ * @brief Reverse the bytes of each component of a complex value.
+ *
+ * The real and the imaginary parts are reversed each on its own, rather than
+ * the whole value at once, which would also exchange them.
+ *
+ * @tparam T The component type.
+ * @param x The value.
+ * @return std::complex<T> The value with the bytes of each component in the
+ * other order.
+ */
+template<typename T>
+REXLIB_NODISCARD
+std::complex<T> reverse_byte_order(const std::complex<T> &x) noexcept;
 
 template<typename T>
 REXLIB_CONSTEXPR T& reverse_byte_order_inplace(T& x) noexcept;

@@ -2,10 +2,11 @@
 
 #include "mrc_reader.hpp"
 
-#include "mrc_host_access.hpp"
-#include "mrc_region_prefetch_plan.hpp"
-#include "mrc_region_read_plan.hpp"
-#include "mrc_region_transfer.hpp"
+#include <em/image/memory_mapping/image_prefetch_policy.hpp>
+#include <em/image/memory_mapping/image_region_prefetch_plan.hpp>
+#include <em/image/strided_transfer/image_host_access.hpp>
+#include <em/image/strided_transfer/image_region_read_plan.hpp>
+#include <em/image/strided_transfer/image_region_transfer.hpp>
 
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
@@ -25,7 +26,7 @@ namespace mrc
 namespace
 {
 
-mrc_header read_header(const mrc_file_mapping &mapping)
+mrc_header read_header(const image_file_mapping &mapping)
 {
 	return parse_header(
 		make_span(mapping.get_data(), mapping.get_size())
@@ -33,7 +34,7 @@ mrc_header read_header(const mrc_file_mapping &mapping)
 }
 
 void check_length(
-	const mrc_file_mapping &mapping,
+	const image_file_mapping &mapping,
 	const mrc_geometry &geometry
 )
 {
@@ -94,7 +95,7 @@ void mrc_reader::read(
 	layout.get_strides(array_strides);
 
 	// Validate the batch before the prefetch touches it.
-	const mrc_region_read_plan plan(
+	const image_region_read_plan plan(
 		regions,
 		m_geometry.get_extents(),
 		m_geometry.get_strides(),
@@ -103,12 +104,20 @@ void mrc_reader::read(
 		layout.get_offset()
 	);
 
-	const mrc_region_prefetch_plan advice(
+	const image_region_prefetch_plan advice(
 		regions,
-		m_geometry,
+		m_geometry.get_strides(),
+		m_geometry.get_data_type(),
 		plan.get_offsets().get_file(),
 		make_span(m_mapping.get_data(), m_mapping.get_size()),
-		make_prefetch_policy(compute_region_span(regions, m_geometry))
+		m_geometry.get_data_offset(),
+		make_prefetch_policy(
+			compute_region_span(
+				regions,
+				m_geometry.get_strides(),
+				m_geometry.get_data_type()
+			)
+		)
 	);
 	const auto *file_data =
 		m_mapping.get_data() + m_geometry.get_data_offset();

@@ -30,3 +30,5 @@ target_sources(
 )
 
 add_subdirectory(formats)
+add_subdirectory(memory_mapping)
+add_subdirectory(strided_transfer)

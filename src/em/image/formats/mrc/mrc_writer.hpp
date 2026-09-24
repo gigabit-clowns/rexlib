@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "mrc_file_mapping.hpp"
 #include "mrc_geometry.hpp"
 #include "mrc_header.hpp"
+
+#include <em/image/memory_mapping/image_file_mapping.hpp>
 
 #include <rexlib/em/image/image_writer.hpp>
 
@@ -73,7 +74,7 @@ public:
 private:
 	mrc_header m_header;
 	mrc_geometry m_geometry;
-	mrc_file_mapping m_mapping;
+	image_file_mapping m_mapping;
 };
 
 /**

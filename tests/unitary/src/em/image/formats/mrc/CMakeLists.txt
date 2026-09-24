@@ -1,22 +1,13 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_mrc_byte_swap.cpp
 		test_mrc_constants.cpp
 		test_mrc_extensions.cpp
-		test_mrc_file_mapping.cpp
 		test_mrc_geometry.cpp
 		test_mrc_header.cpp
-		test_mrc_host_access.cpp
 		test_mrc_mode.cpp
 		test_mrc_read_format.cpp
 		test_mrc_reader.cpp
-		test_mrc_region_layout.cpp
-		test_mrc_region_offsets.cpp
-		test_mrc_region_prefetch_plan.cpp
-		test_mrc_region_read_plan.cpp
-		test_mrc_region_transfer.cpp
-		test_mrc_region_write_plan.cpp
 		test_mrc_write_format.cpp
 		test_mrc_writer.cpp
 )

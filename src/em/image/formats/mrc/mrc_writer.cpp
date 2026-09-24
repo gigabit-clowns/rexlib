@@ -3,10 +3,11 @@
 #include "mrc_writer.hpp"
 
 #include "mrc_constants.hpp"
-#include "mrc_host_access.hpp"
 #include "mrc_mode.hpp"
-#include "mrc_region_transfer.hpp"
-#include "mrc_region_write_plan.hpp"
+
+#include <em/image/strided_transfer/image_host_access.hpp>
+#include <em/image/strided_transfer/image_region_transfer.hpp>
+#include <em/image/strided_transfer/image_region_write_plan.hpp>
 
 #include <core/logger.hpp>
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
@@ -48,17 +49,17 @@ void check_stack_extent(std::size_t extent, const char *what)
 	}
 }
 
-mrc_file_mapping lay_out_file(
+image_file_mapping lay_out_file(
 	const std::string &path,
 	const mrc_geometry &geometry
 )
 {
-	create_file(
+	create_image_file(
 		path,
 		geometry.get_data_offset() + geometry.get_data_size()
 	);
 
-	return mrc_file_mapping(path, read_write);
+	return image_file_mapping(path, read_write);
 }
 
 } // anonymous namespace
@@ -131,7 +132,7 @@ void mrc_writer::write(
 	layout.get_extents(array_extents);
 	layout.get_strides(array_strides);
 
-	const mrc_region_write_plan plan(
+	const image_region_write_plan plan(
 		regions,
 		m_geometry.get_extents(),
 		m_geometry.get_strides(),

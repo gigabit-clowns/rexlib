@@ -2,26 +2,11 @@ target_sources(
 	rexlib-em-obj
 	PRIVATE
 		mrc_extensions.cpp
-		mrc_file_mapping.cpp
 		mrc_geometry.cpp
 		mrc_header.cpp
-		mrc_host_access.cpp
 		mrc_mode.cpp
 		mrc_read_format.cpp
 		mrc_reader.cpp
-		mrc_region_layout.cpp
-		mrc_region_offsets.cpp
-		mrc_region_prefetch_plan.cpp
-		mrc_region_read_plan.cpp
-		mrc_region_transfer.cpp
-		mrc_region_transfer_complex_float32.cpp
-		mrc_region_transfer_float16.cpp
-		mrc_region_transfer_float32.cpp
-		mrc_region_transfer_int16.cpp
-		mrc_region_transfer_int8.cpp
-		mrc_region_transfer_uint16.cpp
-		mrc_region_transfer_uint8.cpp
-		mrc_region_write_plan.cpp
 		mrc_write_format.cpp
 		mrc_writer.cpp
 )

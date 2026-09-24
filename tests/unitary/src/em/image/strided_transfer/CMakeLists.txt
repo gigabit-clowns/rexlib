@@ -1,0 +1,10 @@
+target_sources(
+	rexlib-unitary-tests
+	PRIVATE
+		test_image_host_access.cpp
+		test_image_region_layout.cpp
+		test_image_region_offsets.cpp
+		test_image_region_read_plan.cpp
+		test_image_region_transfer.cpp
+		test_image_region_write_plan.cpp
+)

@@ -2,9 +2,10 @@
 
 #pragma once
 
-#include "mrc_file_mapping.hpp"
 #include "mrc_geometry.hpp"
 #include "mrc_header.hpp"
+
+#include <em/image/memory_mapping/image_file_mapping.hpp>
 
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_reader.hpp>
@@ -29,7 +30,7 @@ namespace mrc
  * across calls.
  *
  * A read asks for the stretches it is about to touch before it touches them,
- * a step ahead of the one it is walking. See @ref mrc_region_prefetch_plan,
+ * a step ahead of the one it is walking. See @ref image_region_prefetch_plan,
  * which works out what those stretches and steps are.
  */
 class mrc_reader final
@@ -61,7 +62,7 @@ public:
 	) const override;
 
 private:
-	mrc_file_mapping m_mapping;
+	image_file_mapping m_mapping;
 	mrc_header m_header;
 	mrc_geometry m_geometry;
 	image_metadata m_metadata;

@@ -1,0 +1,17 @@
+target_sources(
+	rexlib-em-obj
+	PRIVATE
+		image_host_access.cpp
+		image_region_layout.cpp
+		image_region_offsets.cpp
+		image_region_read_plan.cpp
+		image_region_transfer.cpp
+		image_region_transfer_complex_float32.cpp
+		image_region_transfer_float16.cpp
+		image_region_transfer_float32.cpp
+		image_region_transfer_int16.cpp
+		image_region_transfer_int8.cpp
+		image_region_transfer_uint16.cpp
+		image_region_transfer_uint8.cpp
+		image_region_write_plan.cpp
+)
