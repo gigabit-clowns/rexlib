@@ -21,30 +21,86 @@ class completion;
 namespace em
 {
 
+class image_descriptor;
 class image_location;
 class image_sink;
 
 /**
- * @brief Write a whole array out as one file.
+ * @brief Write a whole array out as one image or volume.
  *
  * Creates the file, writes every element and flushes it, all before
- * returning. Its asynchronous peer below writes into files declared
- * elsewhere.
+ * returning. The file holds a single image or volume with the extents of
+ * @p arr. Its asynchronous peer below writes into files declared elsewhere.
  *
  * @param arr The values to write.
  * @param path Path to the file to create.
  * @param manager The formats the file may be created with.
- * @param data_type Data type of the file, or unknown to keep the one
- * @p arr carries.
+ * @param data_type Data type of the file, the values of @p arr being
+ * converted to it, or unknown to keep the one @p arr carries.
  * @param metadata How its samples map onto physical space.
+ * @throws std::invalid_argument If @p arr has no extents, or if neither
+ * @p data_type nor @p arr names a data type.
+ *
+ * @see write_stack
+ */
+REXLIB_API
+void write_single(
+	const_array_ref arr,
+	const std::string &path,
+	const image_write_format_manager &manager,
+	numerical_type data_type = numerical_type::unknown,
+	const image_metadata &metadata = image_metadata()
+);
+
+/**
+ * @brief Write a whole array out as a stack of images or volumes.
+ *
+ * As @ref write_single, except that the leading extent of @p arr is the axis
+ * the file stacks along and the rest are the extents of one image or volume:
+ * an array of @c (N,H,W) becomes a stack of @c N images of @c (H,W).
+ *
+ * @param arr The values to write.
+ * @param path Path to the file to create.
+ * @param manager The formats the file may be created with.
+ * @param data_type Data type of the file, the values of @p arr being
+ * converted to it, or unknown to keep the one @p arr carries.
+ * @param metadata How its samples map onto physical space.
+ * @throws std::invalid_argument If @p arr has fewer than two extents, or if
+ * neither @p data_type nor @p arr names a data type.
+ */
+REXLIB_API
+void write_stack(
+	const_array_ref arr,
+	const std::string &path,
+	const image_write_format_manager &manager,
+	numerical_type data_type = numerical_type::unknown,
+	const image_metadata &metadata = image_metadata()
+);
+
+/**
+ * @brief Write a whole array out as the file a descriptor states.
+ *
+ * As @ref write_single, except that the file is created as @p descriptor
+ * states. Its core rank is what makes the file a stack of images or volumes
+ * rather than a single one, and its data type is what the file holds, the
+ * values of @p arr being converted to it.
+ *
+ * @param arr The values to write. Its extents must be those of
+ * @p descriptor.
+ * @param path Path to the file to create.
+ * @param manager The formats the file may be created with.
+ * @param descriptor What the file holds.
+ * @param metadata How its samples map onto physical space.
+ * @throws std::invalid_argument If the extents of @p arr are not those of
+ * @p descriptor.
  */
 REXLIB_API
 void write(
 	const_array_ref arr,
 	const std::string &path,
 	const image_write_format_manager &manager,
-	numerical_type data_type = numerical_type::unknown,
-	image_metadata metadata = image_metadata()
+	const image_descriptor &descriptor,
+	const image_metadata &metadata = image_metadata()
 );
 
 /**

@@ -70,7 +70,7 @@ const_array make_const_array(const std::vector<std::size_t> &extents)
 
 TEST_CASE_METHOD(
 	write_format_manager_fixture,
-	"write(...) creates the file over the array's own shape and data type",
+	"write_single(...) creates one image or volume of the array's extents",
 	"[image_write]"
 )
 {
@@ -101,32 +101,185 @@ TEST_CASE_METHOD(
 		);
 	ALLOW_CALL(*writer, flush());
 
-	write(arr, "out.mrc", *get_manager());
+	write_single(arr, "out.mrc", *get_manager());
 }
 
 TEST_CASE_METHOD(
 	write_format_manager_fixture,
-	"write(...) honors an explicit data_type over the array's own",
+	"write_single(...) converts to the data type it is given",
 	"[image_write]"
 )
 {
-	const auto arr = make_array({2, 3}, numerical_type::float32);
+	const std::vector<std::size_t> extents = {2, 3};
+	const auto arr = make_array(extents, numerical_type::float32);
+	const image_descriptor expected(
+		make_span(extents),
+		extents.size(),
+		numerical_type::int16
+	);
 
 	auto &format = add_format(backend_priority::normal);
 	const auto writer = std::make_shared<mock_image_writer>();
 
 	REQUIRE_CALL(format, open(trompeloeil::_, trompeloeil::_, trompeloeil::_))
-		.LR_WITH( _2.get_data_type() == numerical_type::int16 )
+		.LR_WITH( _2 == expected )
 		.RETURN(writer);
 	ALLOW_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
 	ALLOW_CALL(*writer, flush());
 
-	write(arr, "out.mrc", *get_manager(), numerical_type::int16);
+	write_single(arr, "out.mrc", *get_manager(), numerical_type::int16);
 }
 
 TEST_CASE_METHOD(
 	write_format_manager_fixture,
-	"write(...) flushes after writing",
+	"write_single(...) refuses an array with no extents",
+	"[image_write]"
+)
+{
+	// No expectation on open: creating the file would violate.
+	add_format(backend_priority::normal);
+
+	REQUIRE_THROWS_AS(
+		write_single(
+			make_array({}, numerical_type::float32),
+			"out.mrc",
+			*get_manager()
+		),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
+	"write_stack(...) stacks the file along the leading extent",
+	"[image_write]"
+)
+{
+	// Extents that could be one volume, written as a stack of two images.
+	const std::vector<std::size_t> extents = {2, 3, 4};
+	const auto arr = make_array(extents, numerical_type::float32);
+
+	auto &format = add_format(backend_priority::normal);
+	const auto writer = std::make_shared<mock_image_writer>();
+	ALLOW_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
+	ALLOW_CALL(*writer, flush());
+
+	SECTION( "in the data type of the array" )
+	{
+		const image_descriptor expected(
+			make_span(extents),
+			2,
+			numerical_type::float32
+		);
+
+		REQUIRE_CALL(
+			format,
+			open(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		)
+			.LR_WITH( _1.get_path() == "stack.mrcs" && _2 == expected )
+			.RETURN(writer);
+
+		write_stack(arr, "stack.mrcs", *get_manager());
+	}
+
+	SECTION( "in the data type it is given" )
+	{
+		const image_descriptor expected(
+			make_span(extents),
+			2,
+			numerical_type::int16
+		);
+
+		REQUIRE_CALL(
+			format,
+			open(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		)
+			.LR_WITH( _2 == expected )
+			.RETURN(writer);
+
+		write_stack(arr, "stack.mrcs", *get_manager(), numerical_type::int16);
+	}
+}
+
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
+	"write_stack(...) refuses an array with nothing to stack",
+	"[image_write]"
+)
+{
+	// No expectation on open: creating the file would violate.
+	add_format(backend_priority::normal);
+
+	REQUIRE_THROWS_AS(
+		write_stack(
+			make_array({4}, numerical_type::float32),
+			"stack.mrcs",
+			*get_manager()
+		),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
+	"write(..., descriptor) creates the file the descriptor states",
+	"[image_write]"
+)
+{
+	// Extents that could be one volume, stated as a stack of two images, and
+	// stored as a narrower type than the array carries.
+	const std::vector<std::size_t> extents = {2, 3, 4};
+	const auto arr = make_array(extents, numerical_type::float32);
+	const image_descriptor descriptor(
+		make_span(extents),
+		2,
+		numerical_type::int16
+	);
+
+	auto &format = add_format(backend_priority::normal);
+	const auto writer = std::make_shared<mock_image_writer>();
+
+	REQUIRE_CALL(format, open(trompeloeil::_, trompeloeil::_, trompeloeil::_))
+		.LR_WITH( _1.get_path() == "stack.mrcs" && _2 == descriptor )
+		.RETURN(writer);
+	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
+		.LR_WITH(
+			_2.get_region_count() == 1 &&
+			_2.get_file_rank() == 3 &&
+			_2.get_array_rank() == 3 &&
+			to_vector(_2.get_extents()) == extents
+		);
+	ALLOW_CALL(*writer, flush());
+
+	write(arr, "stack.mrcs", *get_manager(), descriptor);
+}
+
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
+	"write(..., descriptor) refuses a descriptor of other extents",
+	"[image_write]"
+)
+{
+	const std::vector<std::size_t> file_extents = {3, 2};
+	const auto arr = make_array({2, 3}, numerical_type::float32);
+	const image_descriptor descriptor(
+		make_span(file_extents),
+		2,
+		numerical_type::float32
+	);
+
+	// No expectation on open: creating the file would violate.
+	add_format(backend_priority::normal);
+
+	REQUIRE_THROWS_AS(
+		write(arr, "out.mrc", *get_manager(), descriptor),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
+	"write_single(...) flushes after writing",
 	"[image_write]"
 )
 {
@@ -143,7 +296,7 @@ TEST_CASE_METHOD(
 	REQUIRE_CALL(*writer, flush())
 		.IN_SEQUENCE(order);
 
-	write(arr, "out.mrc", *get_manager());
+	write_single(arr, "out.mrc", *get_manager());
 }
 
 TEST_CASE(

@@ -19,6 +19,7 @@
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
+#include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 #include <rexlib/em/image/managed_image_writer_provider.hpp>
 #include <rexlib/functional/creation.hpp>
@@ -178,6 +179,69 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 			);
 
 			CHECK( read_host<float>(destination, batch_elements) == expected );
+		}
+	}
+}
+
+TEST_CASE_METHOD( cpu_execution_context_fixture,
+	"a stack written whole reads back as a stack",
+	"[mrc][image_write]" )
+{
+	// The same extents would make one volume. write_stack is what makes the
+	// file a stack of images instead.
+	const scoped_path path("whole_stack.mrcs");
+	const auto values = counting(element_count(stack_extents));
+
+	auto source = zeros(
+		make_descriptor(stack_extents, numerical_type::float32),
+		memory_resource_affinity::host,
+		context
+	);
+	std::memcpy(
+		source.get_storage()->get_host_ptr(),
+		values.data(),
+		values.size() * sizeof(float)
+	);
+
+	const auto writer_formats =
+		catalog.get_service_manager<image_write_format_manager>();
+	write_stack(source, path.get(), *writer_formats);
+
+	const auto reader_formats =
+		catalog.get_service_manager<image_read_format_manager>();
+	direct_image_reader_provider readers(reader_formats);
+
+	SECTION( "the file states a stack of images of the array's type" )
+	{
+		const image_descriptor expected(
+			make_span(stack_extents),
+			core_rank,
+			numerical_type::float32
+		);
+
+		CHECK( query_descriptor(readers, path.get()) == expected );
+	}
+
+	SECTION( "each image of the stack reads back on its own" )
+	{
+		const std::vector<std::size_t> image_extents = {3, 4};
+		const auto image_elements = element_count(image_extents);
+
+		for (std::size_t k = 0; k < stack_count; ++k)
+		{
+			const auto image =
+				em::read(image_location(path.get(), k), readers, context);
+
+			std::vector<std::size_t> extents;
+			image.get_descriptor().get_layout().get_extents(extents);
+			REQUIRE( extents == image_extents );
+
+			const std::vector<float> expected(
+				values.begin() + k * image_elements,
+				values.begin() + (k + 1) * image_elements
+			);
+
+			CHECK( read_host<float>(image, image_elements) == expected );
 		}
 	}
 }

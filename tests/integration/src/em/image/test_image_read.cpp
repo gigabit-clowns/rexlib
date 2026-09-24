@@ -68,18 +68,18 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 {
 	const auto manager =
 		catalog.get_service_manager<image_read_format_manager>();
+	const auto readers =
+		std::make_shared<direct_image_reader_provider>(manager);
 	const auto path = get_mrc_asset_path("EMD-3197.map");
 	const image_location location(path);
 
-	const auto whole = em::read(location, *manager, context);
+	const auto whole = em::read(location, *readers, context);
 	REQUIRE( whole.get_descriptor().get_layout().get_rank() == 3 );
 	const auto volume = read_host<float>(
 		whole,
 		volume_extent * volume_extent * volume_extent
 	);
 
-	const auto readers =
-		std::make_shared<direct_image_reader_provider>(manager);
 	const auto source = std::make_shared<executor_image_source>(
 		readers,
 		std::make_shared<synchronous_executor>()

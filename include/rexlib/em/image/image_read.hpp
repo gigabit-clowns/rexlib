@@ -19,26 +19,26 @@ namespace em
 {
 
 class image_location;
-class image_read_format_manager;
+class image_reader_provider;
 class image_source;
 class index_table;
 
 /**
  * @brief Read a whole file into an array of its own.
  *
- * Opens the file, allocates what it holds and fills it, all before
- * returning. Its asynchronous peers below fill an array the caller already
- * has.
+ * Gets a reader over the file from @p readers, allocates what the file holds
+ * and fills it, all before returning. Its asynchronous peers below fill an
+ * array the caller already has.
  *
  * @param path Path to the file to read.
- * @param manager The formats the file may be opened with.
+ * @param readers Where the file becomes a reader.
  * @param context Where the array is allocated.
- * @return array The contents of the file.
+ * @return array The contents of the file, in its own data type.
  */
 REXLIB_API
 array read(
 	const std::string &path,
-	const image_read_format_manager &manager,
+	image_reader_provider &readers,
 	const execution_context &context
 );
 
@@ -46,14 +46,15 @@ array read(
  * @brief Read a whole file, or one element of it, into an array of its own.
  *
  * @param location The file, or the element of it, to read.
- * @param manager The formats the file may be opened with.
+ * @param readers Where the file becomes a reader.
  * @param context Where the array is allocated.
- * @return array The contents of what @p location names.
+ * @return array The contents of what @p location names, in the data type of
+ * its file.
  */
 REXLIB_API
 array read(
 	const image_location &location,
-	const image_read_format_manager &manager,
+	image_reader_provider &readers,
 	const execution_context &context
 );
 

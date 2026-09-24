@@ -11,8 +11,8 @@
 #include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
-#include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_reader.hpp>
+#include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_source.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -128,20 +128,20 @@ void place_patch(
 
 array read(
 	const std::string &path,
-	const image_read_format_manager &manager,
+	image_reader_provider &readers,
 	const execution_context &context
 )
 {
-	return read_whole_file(*manager.open(path), context);
+	return read_whole_file(*readers.acquire(path), context);
 }
 
 array read(
 	const image_location &location,
-	const image_read_format_manager &manager,
+	image_reader_provider &readers,
 	const execution_context &context
 )
 {
-	const auto reader = manager.open(location.get_path());
+	const auto reader = readers.acquire(location.get_path());
 
 	if (!location.has_index_in_stack())
 	{

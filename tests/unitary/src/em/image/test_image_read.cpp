@@ -15,8 +15,6 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
-#include <rexlib/em/image/image_probe.hpp>
-#include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/index_table.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
@@ -24,8 +22,8 @@
 #include "../../core/hardware/mock/mock_device.hpp"
 #include "../../core/hardware/mock/mock_memory_allocator.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"
-#include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_reader.hpp"
+#include "mock/mock_image_reader_provider.hpp"
 #include "mock/mock_image_source.hpp"
 
 #include <cstddef>
@@ -157,8 +155,7 @@ TEST_CASE_METHOD(
 	"[image_read]"
 )
 {
-	read_format_manager_fixture formats;
-	auto &format = formats.add_format(backend_priority::normal);
+	mock_image_reader_provider readers;
 	const std::vector<std::size_t> extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
 
@@ -181,11 +178,9 @@ TEST_CASE_METHOD(
 				std::vector<std::size_t>{0, 0}
 		);
 
-	REQUIRE_CALL(format, open(ANY(const image_probe&)))
-		.LR_WITH( _1.get_path() == "plane.mrc" )
-		.RETURN(reader);
+	REQUIRE_CALL(readers, acquire("plane.mrc")).RETURN(reader);
 
-	const auto result = read("plane.mrc", *formats.get_manager(), context);
+	const auto result = read("plane.mrc", readers, context);
 
 	CHECK( extents_of(result) == extents );
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::float32 );
@@ -197,8 +192,7 @@ TEST_CASE_METHOD(
 	"[image_read]"
 )
 {
-	read_format_manager_fixture formats;
-	auto &format = formats.add_format(backend_priority::normal);
+	mock_image_reader_provider readers;
 	const std::vector<std::size_t> extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
 
@@ -220,12 +214,10 @@ TEST_CASE_METHOD(
 				std::vector<std::size_t>{0, 0}
 		);
 
-	REQUIRE_CALL(format, open(ANY(const image_probe&)))
-		.LR_WITH( _1.get_path() == "plane.mrc" )
-		.RETURN(reader);
+	REQUIRE_CALL(readers, acquire("plane.mrc")).RETURN(reader);
 
 	const auto result =
-		read(image_location("plane.mrc"), *formats.get_manager(), context);
+		read(image_location("plane.mrc"), readers, context);
 
 	CHECK( extents_of(result) == extents );
 }
@@ -238,8 +230,7 @@ TEST_CASE_METHOD(
 {
 	// A stack of 4 planes of 3x5: the slowest axis is the stack axis and
 	// the trailing two are one plane's core shape.
-	read_format_manager_fixture formats;
-	auto &format = formats.add_format(backend_priority::normal);
+	mock_image_reader_provider readers;
 	const std::vector<std::size_t> file_extents = {4, 3, 5};
 	const std::vector<std::size_t> core_extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -263,15 +254,10 @@ TEST_CASE_METHOD(
 				std::vector<std::size_t>{0, 0}
 		);
 
-	REQUIRE_CALL(format, open(ANY(const image_probe&)))
-		.LR_WITH( _1.get_path() == "stack.mrcs" )
-		.RETURN(reader);
+	REQUIRE_CALL(readers, acquire("stack.mrcs")).RETURN(reader);
 
-	const auto result = read(
-		image_location("stack.mrcs", 2),
-		*formats.get_manager(),
-		context
-	);
+	const auto result =
+		read(image_location("stack.mrcs", 2), readers, context);
 
 	CHECK( extents_of(result) == core_extents );
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::int16 );
