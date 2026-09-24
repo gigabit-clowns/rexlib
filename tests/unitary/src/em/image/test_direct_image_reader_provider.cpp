@@ -4,68 +4,19 @@
 
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
 
+#include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_reader.hpp"
 
 #include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/em/image/image_probe.hpp>
-#include <rexlib/em/image/image_read_format.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 
-#include <cstddef>
 #include <memory>
 #include <stdexcept>
-#include <string>
-#include <vector>
+#include <trompeloeil.hpp>
 
 using namespace rexlib;
 using namespace rexlib::em;
-
-namespace
-{
-
-// A format that claims every file and counts how often it is asked to open
-// one. The manager is final, so counting opens means counting them here.
-class counting_format final
-	: public image_read_format
-{
-public:
-	explicit counting_format(std::shared_ptr<std::size_t> count)
-		: m_count(std::move(count))
-	{
-	}
-
-	std::string get_name() const override
-	{
-		return "counting";
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return backend_priority::normal;
-	}
-
-	std::shared_ptr<image_reader> open(const image_probe &) const override
-	{
-		++(*m_count);
-		return std::make_unique<mock_image_reader>();
-	}
-
-private:
-	std::shared_ptr<std::size_t> m_count;
-};
-
-std::shared_ptr<const image_read_format_manager> make_manager(
-	const std::shared_ptr<std::size_t> &count
-)
-{
-	auto manager = std::make_shared<image_read_format_manager>();
-	manager->register_format(
-		std::make_unique<counting_format>(count)
-	);
-	return manager;
-}
-
-} // anonymous namespace
 
 TEST_CASE( "a direct reader provider needs a format manager",
 	"[direct_image_reader_provider]" )
@@ -76,36 +27,51 @@ TEST_CASE( "a direct reader provider needs a format manager",
 	);
 }
 
-TEST_CASE( "a direct reader provider opens a file every time it is asked",
-	"[direct_image_reader_provider]" )
+TEST_CASE_METHOD(
+	read_format_manager_fixture,
+	"a direct reader provider opens a file every time it is asked",
+	"[direct_image_reader_provider]"
+)
 {
-	const auto count = std::make_shared<std::size_t>(0);
-	direct_image_reader_provider provider(make_manager(count));
+	auto &format = add_format(backend_priority::normal);
+	direct_image_reader_provider provider(get_manager());
 
 	SECTION( "one request opens the file once" )
 	{
-		const auto reader = provider.acquire("stack_0.mrcs");
+		const auto reader = std::make_shared<mock_image_reader>();
 
-		REQUIRE( reader != nullptr );
-		REQUIRE( *count == 1 );
+		REQUIRE_CALL(format, open(ANY(const image_probe&)))
+			.LR_WITH( _1.get_path() == "stack_0.mrcs" )
+			.RETURN(reader);
+
+		REQUIRE( provider.acquire("stack_0.mrcs") == reader );
 	}
 
 	SECTION( "the same path asked twice is opened twice" )
 	{
 		// It keeps nothing, which is what makes it the plain one.
+		REQUIRE_CALL(format, open(ANY(const image_probe&)))
+			.LR_WITH( _1.get_path() == "stack_0.mrcs" )
+			.TIMES(2)
+			.RETURN(std::make_shared<mock_image_reader>());
+
 		const auto first = provider.acquire("stack_0.mrcs");
 		const auto second = provider.acquire("stack_0.mrcs");
 
-		REQUIRE( *count == 2 );
 		REQUIRE( first != second );
 	}
 
 	SECTION( "distinct paths are opened separately" )
 	{
+		REQUIRE_CALL(format, open(ANY(const image_probe&)))
+			.LR_WITH( _1.get_path() == "stack_0.mrcs" )
+			.RETURN(std::make_shared<mock_image_reader>());
+		REQUIRE_CALL(format, open(ANY(const image_probe&)))
+			.LR_WITH( _1.get_path() == "stack_1.mrcs" )
+			.RETURN(std::make_shared<mock_image_reader>());
+
 		provider.acquire("stack_0.mrcs");
 		provider.acquire("stack_1.mrcs");
-
-		REQUIRE( *count == 2 );
 	}
 }
 

@@ -6,26 +6,21 @@
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
-#include <rexlib/core/concurrency/thread_pool_executor.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
-#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 
+#include "../../core/concurrency/mock/mock_executor.hpp"
 #include "../../core/hardware/mock/mock_buffer.hpp"
 #include "mock/mock_image_writer.hpp"
 #include "mock/mock_image_writer_provider.hpp"
 
-#include <atomic>
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <thread>
 #include <trompeloeil.hpp>
-#include <unordered_map>
 #include <vector>
 
 using namespace rexlib;
@@ -35,76 +30,6 @@ namespace
 {
 
 const std::vector<std::size_t> plane_extents = {3, 5};
-const std::vector<std::size_t> stack_extents = {8, 3, 5};
-
-const image_descriptor stack_descriptor(
-	make_span(stack_extents),
-	plane_extents.size(),
-	numerical_type::float32
-);
-
-// trompeloeil keeps no internal lock, so a mock is not safe to call from
-// several threads at once — not just on the same instance, since matching a
-// call also touches bookkeeping trompeloeil shares across every mock. The
-// concurrency test below therefore uses plain fakes instead, for both the
-// provider and the writers.
-
-// Filled once, before any task runs, and never written to again, so
-// concurrent acquire() calls are concurrent reads of an otherwise-immutable
-// map.
-class fixed_image_writer_provider final : public image_writer_provider
-{
-public:
-	explicit fixed_image_writer_provider(
-		std::unordered_map<std::string, std::shared_ptr<image_writer>>
-			writers
-	)
-		: m_writers(std::move(writers))
-	{
-	}
-
-	std::shared_ptr<image_writer> acquire(const std::string &path) override
-	{
-		return m_writers.at(path);
-	}
-
-	void flush() override
-	{
-	}
-
-private:
-	const std::unordered_map<std::string, std::shared_ptr<image_writer>>
-		m_writers;
-};
-
-// A writer whose only behaviour is to run a callback from write(). The other
-// methods are never called by executor_image_sink and only exist to satisfy
-// image_writer's interface.
-class barrier_image_writer final : public image_writer
-{
-public:
-	explicit barrier_image_writer(std::function<void()> on_write)
-		: m_on_write(std::move(on_write))
-	{
-	}
-
-	const image_descriptor& get_descriptor() const noexcept override
-	{
-		return stack_descriptor;
-	}
-
-	void write(const_array_ref, const image_transfer_plan &) override
-	{
-		m_on_write();
-	}
-
-	void flush() override
-	{
-	}
-
-private:
-	std::function<void()> m_on_write;
-};
 
 const_array make_test_array()
 {
@@ -261,54 +186,33 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"executor_image_sink writes the files of one transaction concurrently",
+	"executor_image_sink submits each file as a task of its own",
 	"[executor_image_sink]"
 )
 {
-	// Each file's write spins until every other one has also started. A
-	// sink that serialized file writes would deadlock the first one here
-	// rather than merely run slowly.
+	// Running the tasks, and how many at once, is the executor's business.
+	// The sink's is to submit one task per file and wait for none of them.
 	static REXLIB_CONST_CONSTEXPR std::size_t file_count = 4;
 
 	image_transaction_plan plan(make_span(plane_extents), 3, 3);
-	std::atomic<std::size_t> entered(0);
-	const auto barrier =
-		[&entered]
-		{
-			entered.fetch_add(1);
-			while (entered.load() < file_count)
-			{
-				std::this_thread::yield();
-			}
-		};
-
-	std::unordered_map<std::string, std::shared_ptr<image_writer>>
-		writers_by_path;
 	for (std::size_t i = 0; i < file_count; ++i)
 	{
-		const auto path = "stack_" + std::to_string(i) + ".mrcs";
-		const auto file = plan.add_file(path);
+		const auto file = plan.add_file("stack_" + std::to_string(i) + ".mrcs");
 		add_element(plan, file, 0, i);
-
-		writers_by_path.emplace(
-			path,
-			std::make_shared<barrier_image_writer>(barrier)
-		);
 	}
-	const auto writers = std::make_shared<fixed_image_writer_provider>(
-		std::move(writers_by_path)
-	);
 
-	executor_image_sink sink(
-		writers,
-		std::make_shared<thread_pool_executor>(file_count)
-	);
+	// No expectations set on `writers`: writing is what the tasks do.
+	const auto writers = std::make_shared<mock_image_writer_provider>();
+	const auto executor = std::make_shared<mock_executor>();
+
+	REQUIRE_CALL(*executor, submit(trompeloeil::_, trompeloeil::_))
+		.WITH( _1 != nullptr && _2 != nullptr )
+		.TIMES(file_count);
+
+	executor_image_sink sink(writers, executor);
 	const auto completion = sink.write(make_test_array(), plan);
 
-	completion->wait();
-
-	CHECK( entered.load() == file_count );
-	CHECK_NOTHROW( completion->get() );
+	CHECK_FALSE( completion->is_ready() );
 }
 
 TEST_CASE(

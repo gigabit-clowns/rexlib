@@ -4,6 +4,7 @@
 
 #include <rexlib/em/image/image_read_format_manager.hpp>
 
+#include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_read_format.hpp"
 
@@ -12,59 +13,10 @@
 
 #include <memory>
 #include <string>
+#include <trompeloeil.hpp>
 
 using namespace rexlib;
 using namespace rexlib::em;
-
-namespace
-{
-
-std::unique_ptr<image_reader> make_fake_reader()
-{
-	return std::make_unique<mock_image_reader>();
-}
-
-class staged_format final
-	: public image_read_format
-{
-public:
-	staged_format(std::string name, backend_priority suitability)
-		: m_name(std::move(name))
-		, m_suitability(suitability)
-	{
-	}
-
-	std::string get_name() const override
-	{
-		return m_name;
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return m_suitability;
-	}
-
-	std::shared_ptr<image_reader> open(
-		const image_probe &
-	) const override
-	{
-		return make_fake_reader();
-	}
-
-private:
-	std::string m_name;
-	backend_priority m_suitability;
-};
-
-std::unique_ptr<image_read_format> make_staged(
-	std::string name,
-	backend_priority suitability
-)
-{
-	return std::make_unique<staged_format>(std::move(name), suitability);
-}
-
-} // anonymous namespace
 
 TEST_CASE( "an empty read manager recognizes nothing",
 	"[image_read_format_manager]" )
@@ -86,61 +38,45 @@ TEST_CASE( "an empty read manager recognizes nothing",
 	}
 }
 
-TEST_CASE( "the read manager picks the most suitable format",
-	"[image_read_format_manager]" )
+TEST_CASE_METHOD(
+	read_format_manager_fixture,
+	"the read manager picks the most suitable format",
+	"[image_read_format_manager]"
+)
 {
-	image_read_format_manager manager;
+	const auto &manager = *get_manager();
+	const image_probe probe("absent.mrc");
 
 	SECTION( "the only supporting format is chosen" )
 	{
-		manager.register_format(make_staged("only", backend_priority::normal));
+		const auto &only = add_format(backend_priority::normal);
 
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "only" );
+		REQUIRE( manager.get_most_suitable_format(probe) == &only );
 	}
 
 	SECTION( "the highest priority wins" )
 	{
-		manager.register_format(
-			make_staged("fallback", backend_priority::fallback));
-		manager.register_format(
-			make_staged("optimal", backend_priority::optimal));
-		manager.register_format(
-			make_staged("normal", backend_priority::normal));
+		add_format(backend_priority::fallback);
+		const auto &optimal = add_format(backend_priority::optimal);
+		add_format(backend_priority::normal);
 
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "optimal" );
+		REQUIRE( manager.get_most_suitable_format(probe) == &optimal );
 	}
 
 	SECTION( "a format reporting unsupported is never chosen" )
 	{
-		manager.register_format(
-			make_staged("declines", backend_priority::unsupported));
-		manager.register_format(
-			make_staged("accepts", backend_priority::fallback));
+		add_format(backend_priority::unsupported);
+		const auto &accepts = add_format(backend_priority::fallback);
 
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "accepts" );
+		REQUIRE( manager.get_most_suitable_format(probe) == &accepts );
 	}
 
 	SECTION( "every format declining leaves nothing suitable" )
 	{
-		manager.register_format(
-			make_staged("a", backend_priority::unsupported));
-		manager.register_format(
-			make_staged("b", backend_priority::unsupported));
+		add_format(backend_priority::unsupported);
+		add_format(backend_priority::unsupported);
 
-		REQUIRE( manager.get_most_suitable_format(
-			image_probe("absent.mrc")) == nullptr );
+		REQUIRE( manager.get_most_suitable_format(probe) == nullptr );
 		REQUIRE_THROWS_AS(
 			manager.open("absent.mrc"),
 			invalid_operation_error
@@ -149,11 +85,14 @@ TEST_CASE( "the read manager picks the most suitable format",
 
 	SECTION( "the chosen format opens the reader" )
 	{
-		manager.register_format(make_staged("only", backend_priority::normal));
+		auto &only = add_format(backend_priority::normal);
+		const auto reader = std::make_shared<mock_image_reader>();
 
-		const auto reader = manager.open("absent.mrc");
+		REQUIRE_CALL(only, open(ANY(const image_probe&)))
+			.LR_WITH( _1.get_path() == "absent.mrc" )
+			.RETURN(reader);
 
-		REQUIRE( reader != nullptr );
+		REQUIRE( manager.open("absent.mrc") == reader );
 	}
 }
 
@@ -164,7 +103,7 @@ TEST_CASE( "the read manager refuses a null format",
 
 	REQUIRE_FALSE( manager.register_format(nullptr) );
 	REQUIRE( manager.register_format(
-		make_staged("real", backend_priority::normal)) );
+		std::make_unique<mock_image_read_format>()) );
 }
 
 TEST_CASE( "the read manager consults every registered format",

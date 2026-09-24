@@ -16,7 +16,6 @@
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_probe.hpp>
-#include <rexlib/em/image/image_read_format.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/index_table.hpp>
 
@@ -25,6 +24,7 @@
 #include "../../core/hardware/mock/mock_device.hpp"
 #include "../../core/hardware/mock/mock_memory_allocator.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"
+#include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_source.hpp"
 
@@ -32,7 +32,6 @@
 #include <functional>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <trompeloeil.hpp>
 #include <vector>
 
@@ -114,60 +113,6 @@ private:
 	std::vector<std::unique_ptr<trompeloeil::expectation>> expectations;
 };
 
-// A format that always claims a file and hands back one fixed reader, and
-// remembers the path it was asked about, so a test controls exactly what
-// image_read.cpp sees without touching the filesystem or the real registry.
-class staged_read_format final
-	: public image_read_format
-{
-public:
-	staged_read_format(
-		std::shared_ptr<image_reader> reader,
-		std::shared_ptr<std::string> opened_path = nullptr
-	)
-		: m_reader(std::move(reader))
-		, m_opened_path(std::move(opened_path))
-	{
-	}
-
-	std::string get_name() const override
-	{
-		return "staged";
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return backend_priority::normal;
-	}
-
-	std::shared_ptr<image_reader> open(const image_probe &probe) const override
-	{
-		if (m_opened_path)
-		{
-			*m_opened_path = probe.get_path();
-		}
-		return m_reader;
-	}
-
-private:
-	std::shared_ptr<image_reader> m_reader;
-	std::shared_ptr<std::string> m_opened_path;
-};
-
-void register_reader(
-	image_read_format_manager &manager,
-	std::shared_ptr<image_reader> reader,
-	std::shared_ptr<std::string> opened_path = nullptr
-)
-{
-	manager.register_format(
-		std::make_unique<staged_read_format>(
-			std::move(reader),
-			std::move(opened_path)
-		)
-	);
-}
-
 std::vector<std::size_t> to_vector(span<const std::size_t> values)
 {
 	return std::vector<std::size_t>(values.begin(), values.end());
@@ -212,9 +157,10 @@ TEST_CASE_METHOD(
 	"[image_read]"
 )
 {
+	read_format_manager_fixture formats;
+	auto &format = formats.add_format(backend_priority::normal);
 	const std::vector<std::size_t> extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
-	const auto opened_path = std::make_shared<std::string>();
 
 	const image_descriptor descriptor(
 		make_span(extents),
@@ -235,11 +181,12 @@ TEST_CASE_METHOD(
 				std::vector<std::size_t>{0, 0}
 		);
 
-	image_read_format_manager manager;
-	register_reader(manager, reader, opened_path);
-	const auto result = read("plane.mrc", manager, context);
+	REQUIRE_CALL(format, open(ANY(const image_probe&)))
+		.LR_WITH( _1.get_path() == "plane.mrc" )
+		.RETURN(reader);
 
-	CHECK( *opened_path == "plane.mrc" );
+	const auto result = read("plane.mrc", *formats.get_manager(), context);
+
 	CHECK( extents_of(result) == extents );
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::float32 );
 }
@@ -250,9 +197,10 @@ TEST_CASE_METHOD(
 	"[image_read]"
 )
 {
+	read_format_manager_fixture formats;
+	auto &format = formats.add_format(backend_priority::normal);
 	const std::vector<std::size_t> extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
-	const auto opened_path = std::make_shared<std::string>();
 
 	const image_descriptor descriptor(
 		make_span(extents),
@@ -272,12 +220,13 @@ TEST_CASE_METHOD(
 				std::vector<std::size_t>{0, 0}
 		);
 
-	image_read_format_manager manager;
-	register_reader(manager, reader, opened_path);
-	const auto result =
-		read(image_location("plane.mrc"), manager, context);
+	REQUIRE_CALL(format, open(ANY(const image_probe&)))
+		.LR_WITH( _1.get_path() == "plane.mrc" )
+		.RETURN(reader);
 
-	CHECK( *opened_path == "plane.mrc" );
+	const auto result =
+		read(image_location("plane.mrc"), *formats.get_manager(), context);
+
 	CHECK( extents_of(result) == extents );
 }
 
@@ -289,6 +238,8 @@ TEST_CASE_METHOD(
 {
 	// A stack of 4 planes of 3x5: the slowest axis is the stack axis and
 	// the trailing two are one plane's core shape.
+	read_format_manager_fixture formats;
+	auto &format = formats.add_format(backend_priority::normal);
 	const std::vector<std::size_t> file_extents = {4, 3, 5};
 	const std::vector<std::size_t> core_extents = {3, 5};
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -312,10 +263,15 @@ TEST_CASE_METHOD(
 				std::vector<std::size_t>{0, 0}
 		);
 
-	image_read_format_manager manager;
-	register_reader(manager, reader);
-	const auto result =
-		read(image_location("stack.mrcs", 2), manager, context);
+	REQUIRE_CALL(format, open(ANY(const image_probe&)))
+		.LR_WITH( _1.get_path() == "stack.mrcs" )
+		.RETURN(reader);
+
+	const auto result = read(
+		image_location("stack.mrcs", 2),
+		*formats.get_manager(),
+		context
+	);
 
 	CHECK( extents_of(result) == core_extents );
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::int16 );

@@ -13,17 +13,16 @@
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
-#include <rexlib/em/image/image_write_format.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
+#include "fixtures/format_manager_fixture.hpp"
 #include "mock/mock_image_sink.hpp"
 #include "mock/mock_image_writer.hpp"
 
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <trompeloeil.hpp>
 #include <vector>
 
@@ -32,65 +31,6 @@ using namespace rexlib::em;
 
 namespace
 {
-
-// The descriptor of every file a format was asked to create, so a test can
-// check what image_write.cpp asked for rather than reach into a mock's own
-// bookkeeping.
-using opened_files = std::vector<image_descriptor>;
-
-// A format that always claims a file, records what it was asked to create
-// and hands back one fixed writer.
-class staged_write_format final
-	: public image_write_format
-{
-public:
-	staged_write_format(
-		std::shared_ptr<image_writer> writer,
-		std::shared_ptr<opened_files> opened
-	)
-		: m_writer(std::move(writer))
-		, m_opened(std::move(opened))
-	{
-	}
-
-	std::string get_name() const override
-	{
-		return "staged";
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return backend_priority::normal;
-	}
-
-	std::shared_ptr<image_writer> open(
-		const image_probe &,
-		const image_descriptor &descriptor,
-		const image_metadata &
-	) const override
-	{
-		m_opened->push_back(descriptor);
-		return m_writer;
-	}
-
-private:
-	std::shared_ptr<image_writer> m_writer;
-	std::shared_ptr<opened_files> m_opened;
-};
-
-void register_writer(
-	image_write_format_manager &manager,
-	std::shared_ptr<image_writer> writer,
-	std::shared_ptr<opened_files> opened
-)
-{
-	manager.register_format(
-		std::make_unique<staged_write_format>(
-			std::move(writer),
-			std::move(opened)
-		)
-	);
-}
 
 array make_array(
 	const std::vector<std::size_t> &extents,
@@ -128,17 +68,26 @@ const_array make_const_array(const std::vector<std::size_t> &extents)
 
 } // anonymous namespace
 
-TEST_CASE(
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
 	"write(...) creates the file over the array's own shape and data type",
 	"[image_write]"
 )
 {
 	const std::vector<std::size_t> extents = {2, 3, 4};
 	const auto arr = make_array(extents, numerical_type::float32);
+	const image_descriptor expected(
+		make_span(extents),
+		extents.size(),
+		numerical_type::float32
+	);
 
+	auto &format = add_format(backend_priority::normal);
 	const auto writer = std::make_shared<mock_image_writer>();
-	const auto opened = std::make_shared<opened_files>();
 
+	REQUIRE_CALL(format, open(trompeloeil::_, trompeloeil::_, trompeloeil::_))
+		.LR_WITH( _1.get_path() == "out.mrc" && _2 == expected )
+		.RETURN(writer);
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
@@ -150,65 +99,51 @@ TEST_CASE(
 			to_vector(_2.get_array_offset(0)) ==
 				std::vector<std::size_t>{0, 0, 0}
 		);
-	REQUIRE_CALL(*writer, flush());
+	ALLOW_CALL(*writer, flush());
 
-	image_write_format_manager manager;
-	register_writer(manager, writer, opened);
-	write(arr, "out.mrc", manager);
-
-	REQUIRE( opened->size() == 1 );
-	CHECK(
-		opened->front() ==
-		image_descriptor(
-			make_span(extents),
-			extents.size(),
-			numerical_type::float32
-		)
-	);
+	write(arr, "out.mrc", *get_manager());
 }
 
-TEST_CASE(
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
 	"write(...) honors an explicit data_type over the array's own",
 	"[image_write]"
 )
 {
 	const auto arr = make_array({2, 3}, numerical_type::float32);
 
+	auto &format = add_format(backend_priority::normal);
 	const auto writer = std::make_shared<mock_image_writer>();
-	const auto opened = std::make_shared<opened_files>();
 
+	REQUIRE_CALL(format, open(trompeloeil::_, trompeloeil::_, trompeloeil::_))
+		.LR_WITH( _2.get_data_type() == numerical_type::int16 )
+		.RETURN(writer);
 	ALLOW_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
 	ALLOW_CALL(*writer, flush());
 
-	image_write_format_manager manager;
-	register_writer(manager, writer, opened);
-	write(
-		arr,
-		"out.mrc",
-		manager,
-		numerical_type::int16
-	);
-
-	REQUIRE( opened->size() == 1 );
-	CHECK( opened->front().get_data_type() == numerical_type::int16 );
+	write(arr, "out.mrc", *get_manager(), numerical_type::int16);
 }
 
-TEST_CASE(
+TEST_CASE_METHOD(
+	write_format_manager_fixture,
 	"write(...) flushes after writing",
 	"[image_write]"
 )
 {
 	const auto arr = make_array({2, 3}, numerical_type::float32);
 
+	auto &format = add_format(backend_priority::normal);
 	const auto writer = std::make_shared<mock_image_writer>();
-	const auto opened = std::make_shared<opened_files>();
+	trompeloeil::sequence order;
 
-	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_));
-	REQUIRE_CALL(*writer, flush());
+	REQUIRE_CALL(format, open(trompeloeil::_, trompeloeil::_, trompeloeil::_))
+		.RETURN(writer);
+	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
+		.IN_SEQUENCE(order);
+	REQUIRE_CALL(*writer, flush())
+		.IN_SEQUENCE(order);
 
-	image_write_format_manager manager;
-	register_writer(manager, writer, opened);
-	write(arr, "out.mrc", manager);
+	write(arr, "out.mrc", *get_manager());
 }
 
 TEST_CASE(

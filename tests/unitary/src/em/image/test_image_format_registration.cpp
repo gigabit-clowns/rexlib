@@ -4,115 +4,54 @@
 
 #include <rexlib/em/image/image_format_registration.hpp>
 
-#include "mock/mock_image_reader.hpp"
-#include "mock/mock_image_writer.hpp"
+#include "mock/mock_image_format_registry.hpp"
+#include "mock/mock_image_read_format.hpp"
+#include "mock/mock_image_write_format.hpp"
 
-#include <rexlib/em/image/image_metadata.hpp>
-#include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format.hpp>
-#include <rexlib/em/image/image_read_format_manager.hpp>
-#include <rexlib/em/image/image_read_format_registry.hpp>
 #include <rexlib/em/image/image_write_format.hpp>
-#include <rexlib/em/image/image_write_format_manager.hpp>
-#include <rexlib/em/image/image_write_format_registry.hpp>
 
-#include <cstddef>
-#include <memory>
-#include <string>
+#include <trompeloeil.hpp>
 
 using namespace rexlib;
 using namespace rexlib::em;
-
-namespace
-{
-
-// Formats that claim every file under a name of their own, default
-// constructible as a registration requires, so that asking a manager for a
-// file says whether the manager was handed one.
-class claiming_read_format final
-	: public image_read_format
-{
-public:
-	std::string get_name() const override
-	{
-		return "registered";
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return backend_priority::normal;
-	}
-
-	std::shared_ptr<image_reader> open(const image_probe &) const override
-	{
-		return std::make_shared<mock_image_reader>();
-	}
-};
-
-class claiming_write_format final
-	: public image_write_format
-{
-public:
-	std::string get_name() const override
-	{
-		return "registered";
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return backend_priority::normal;
-	}
-
-	std::shared_ptr<image_writer> open(
-		const image_probe &,
-		const image_descriptor &,
-		const image_metadata &
-	) const override
-	{
-		return std::make_shared<mock_image_writer>();
-	}
-};
-
-} // anonymous namespace
 
 TEST_CASE(
 	"a registration appends a factory for its format to a registry",
 	"[image_format_registration]"
 )
 {
-	SECTION( "a read registry" )
+	SECTION( "a read format" )
 	{
-		image_read_format_registry registry;
+		using registry_type = mock_image_format_registry<image_read_format>;
+		registry_type registry;
+
+		REQUIRE_CALL(registry, add(trompeloeil::_))
+			.WITH(
+				dynamic_cast<const mock_image_read_format*>(_1().get()) !=
+				nullptr
+			);
+
 		const image_format_registration<
-			claiming_read_format,
-			image_read_format_registry
+			mock_image_read_format,
+			registry_type
 		> registration(registry);
-
-		image_read_format_manager manager;
-		registry.register_all(manager);
-
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "registered" );
 	}
 
-	SECTION( "a write registry" )
+	SECTION( "a write format" )
 	{
-		image_write_format_registry registry;
+		using registry_type = mock_image_format_registry<image_write_format>;
+		registry_type registry;
+
+		REQUIRE_CALL(registry, add(trompeloeil::_))
+			.WITH(
+				dynamic_cast<const mock_image_write_format*>(_1().get()) !=
+				nullptr
+			);
+
 		const image_format_registration<
-			claiming_write_format,
-			image_write_format_registry
+			mock_image_write_format,
+			registry_type
 		> registration(registry);
-
-		image_write_format_manager manager;
-		registry.register_all(manager);
-
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "registered" );
 	}
 }
