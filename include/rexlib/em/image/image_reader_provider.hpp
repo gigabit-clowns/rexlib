@@ -18,20 +18,13 @@ class image_reader;
 /**
  * @brief Where a path becomes an open @ref image_reader.
  *
- * One method, so that whether a handle is opened afresh, kept or shared is a
- * policy of the implementation rather than a fact of life for the code that
- * reads through it. A consumer names a file and gets something it can read;
- * it never learns which.
- *
- * How a path becomes a reader is deliberately not stated here either. The
- * implementations bundled with the library go through an
- * @ref image_read_format_manager, but one serving readers from a plugin, a
- * shared memory segment or a set already open fits the same interface with
- * no format manager anywhere in it.
+ * Whether a reader is opened afresh, kept or shared is up to the provider,
+ * and so is how a path becomes a reader at all: through formats, from
+ * readers already open, or from anywhere else. Whoever asks names a path and
+ * gets something it can read, and learns neither.
  *
  * @par Thread safety
- * A provider may be asked for readers concurrently, since that is what a
- * transaction in flight does.
+ * A provider may be asked for readers concurrently.
  */
 class REXLIB_API image_reader_provider
 {
@@ -49,9 +42,9 @@ public:
 	/**
 	 * @brief Get a reader over one file.
 	 *
-	 * Shared ownership rather than a reference, so that a reader an
-	 * implementation stops keeping stays alive as long as a transaction is
-	 * still reading through it.
+	 * Shared ownership rather than a reference, so that a reader the
+	 * provider stops keeping stays alive for as long as it is still read
+	 * through.
 	 *
 	 * @param path Path to the file to read.
 	 * @return std::shared_ptr<const image_reader> The reader, never null.

@@ -15,40 +15,32 @@ namespace em
 {
 
 /**
- * @brief The regions transferred in one call.
+ * @brief The regions to transfer between one file and one array.
  *
  * Every region pairs an offset into the file with an offset into the array,
  * and every region in a plan shares one set of extents. The two sides are
- * named for what they are rather than for which way the data moves, so
- * there is nothing to remember when a plan is built: the file side is the
- * file whether it is being read or written, and the direction belongs to
- * the call the plan is handed to, since @ref image_reader::read takes the
- * file as its source and @ref image_writer::write takes it as its
- * destination.
+ * named file and array rather than source and destination, so the same plan
+ * describes a read and a write alike.
  *
  * The extents are the shape of one region and nothing else, so they carry
  * the rank of the region rather than the rank of either side. A side of
  * higher rank spans a single position along the axes the extents do not
- * reach, which are its leading ones: a batch of two dimensional patches is
- * cut out of a two dimensional micrograph into a three dimensional array
- * with extents of rank two, a file offset of rank two and an array offset of
- * rank three, and neither side pads the extents. Ranks may differ in either
- * direction, so a plane of a stack may equally be read into an array that
- * does not carry the axis it was stacked along.
+ * reach, which are its leading ones, and neither side pads the extents. For
+ * example, two dimensional regions of a two dimensional file placed side by
+ * side along the first axis of a three dimensional array have extents of
+ * rank two, file offsets of rank two and array offsets of rank three. Ranks
+ * may differ in either direction, so a plane of a three dimensional file
+ * may equally go to a two dimensional array.
  *
- * The shape (the extents and the two ranks) is stated when a plan is
- * constructed and never changes. A plan is therefore always one whole thing
- * rather than something to be configured before it can be used, and only the
- * regions come and go.
+ * The shape, which is the extents and the two ranks, is fixed when a plan is
+ * constructed; only the regions come and go.
  *
- * The offsets are held in two @ref index_table instead of one allocation per
- * region, so a batch of any size costs a bounded number of allocations, and
- * @ref clear keeps the capacity: one instance refilled from one call to the
- * next allocates nothing after the first. That is the point of the class,
- * and reusing it is the expected way to use it.
+ * The offsets are held in two @ref index_table rather than one allocation
+ * per region, so any number of regions costs a bounded number of
+ * allocations, and @ref clear keeps the capacity, so a plan refilled after
+ * its first use allocates nothing.
  *
- * @ref image_transaction_plan is its peer over several files. Neither holds
- * the other.
+ * @see image_transaction_plan
  */
 class image_transfer_plan
 {
@@ -192,11 +184,10 @@ private:
  *
  * The extents of a plan cover the trailing axes of each side, and a side
  * spans a single position along the leading axes they do not reach. This
- * resolves either case for one axis, so that a caller walking a side does
- * not repeat the arithmetic.
+ * resolves either case for one axis.
  *
  * @param regions The plan the region belongs to.
- * @param rank Rank of the side being walked, one of
+ * @param rank Rank of the side, one of
  * @ref image_transfer_plan::get_file_rank or
  * @ref image_transfer_plan::get_array_rank.
  * @param axis Index of the axis, below @p rank.

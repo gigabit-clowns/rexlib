@@ -222,7 +222,7 @@ void image_region_prefetch_plan::gather_steps(
 	}
 
 	// The last step takes every region the stretches left out, which is what
-	// makes the steps tile the batch however little there was to ask for.
+	// makes the steps tile the regions however little there was to ask for.
 	m_step_first_range.push_back(m_ranges.size());
 	m_step_first_region.push_back(region_count);
 }

@@ -12,7 +12,7 @@ namespace em
 {
 
 /**
- * @brief A batch of regions to be read, ready to be walked.
+ * @brief Regions to be read, resolved and ready to be walked.
  *
  * A read writes the array, so the array is named first in the layout.
  * That is what settles the order the axes are walked in, and so makes the
@@ -20,15 +20,15 @@ namespace em
  *
  * That is the whole of what separates this from
  * @ref image_region_write_plan, and it is why the two are separate types
- * rather than one carrying a direction: a batch resolved for one of them
- * states nothing that would make it correct for the other, and only
- * @ref read_regions accepts this one.
+ * rather than one carrying a direction: regions resolved for one direction
+ * state nothing that would make them correct for the other.
  */
 class image_region_read_plan
 {
 public:
 	/**
-	 * @brief Resolve a batch of regions and build the space to walk it in.
+	 * @brief Resolve the regions of a plan and build the space to walk them
+	 * in.
 	 *
 	 * @param regions The regions to move.
 	 * @param file_extents Extents of the file.
@@ -38,7 +38,7 @@ public:
 	 * @param array_strides Distance between consecutive elements of the
 	 * array along each axis, in elements.
 	 * @param array_offset Index of the first element of the array.
-	 * @throws std::invalid_argument If a rank does not match the batch or
+	 * @throws std::invalid_argument If a rank does not match the plan or
 	 * the strides do not match their extents.
 	 * @throws std::out_of_range If a region is not contained in the file or
 	 * in the array where it is placed.

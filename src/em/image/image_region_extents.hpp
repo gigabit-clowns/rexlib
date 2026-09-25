@@ -16,16 +16,12 @@ namespace em
  * @brief Check the extents of a region fit both sides of a plan and copy
  * them.
  *
- * @ref image_transfer_plan and @ref image_transaction_plan are constructed
- * from the same shape: extents that must not outrank either side of the
- * plan they describe. This is that one check, shared so neither carries its
- * own copy of it.
+ * Extents fit a side they do not outrank.
  *
- * @param extents Extents of one region, as given to the constructor of the
- * calling plan.
+ * @param extents Extents of one region.
  * @param file_rank Rank of the file side of the plan.
  * @param array_rank Rank of the array side of the plan.
- * @param context What a message names as the caller, the calling plan.
+ * @param context What an error message starts with.
  * @return std::vector<std::size_t> A copy of @p extents.
  * @throws std::invalid_argument If @p extents outranks either side, naming
  * @p context and which side it did not fit.

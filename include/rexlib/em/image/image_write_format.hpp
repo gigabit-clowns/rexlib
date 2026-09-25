@@ -19,15 +19,12 @@ class image_metadata;
 class image_probe;
 
 /**
- * @brief The ability of one file format to be written.
+ * @brief One file format that can be written.
  *
- * It serves as a factory for @ref image_writer-s that encode a particular
- * file format. It is able to judge its own suitability for a given file through
- * an @ref image_probe and in case it fits, serve the writer for it.
+ * Judges from an @ref image_probe how well it fits a file, and creates a
+ * file it fits, returning an @ref image_writer for it.
  *
- * Formats are usually collected by an @ref image_write_format_manager.
- *
- * For read access, see @ref image_read_format.
+ * @see image_read_format
  */
 class REXLIB_API image_write_format
 {
@@ -43,17 +40,17 @@ public:
 	/**
 	 * @brief Get the name of this format.
 	 *
-	 * @return std::string The name.
+	 * @return std::string The name, which identifies the format.
 	 */
 	virtual std::string get_name() const = 0;
 
 	/**
 	 * @brief Report how well this format fits a file.
 	 *
-	 * The file named by @p probe usually does not exist yet, in which case
-	 * the probe carries no leading bytes and the decision rests on the
-	 * extension alone. Check @ref image_probe::exists rather than assuming
-	 * there are leading bytes to read.
+	 * The file named by @p probe need not exist, in which case the probe
+	 * carries no leading bytes and the decision rests on the extension
+	 * alone. Check @ref image_probe::exists rather than assuming there are
+	 * leading bytes to read.
 	 *
 	 * @param probe The file under consideration.
 	 * @return backend_priority How well this format fits @p probe.
@@ -67,10 +64,8 @@ public:
 	 * The descriptor is complete, so the file may be laid out in full before
 	 * anything is written. Any file already at that path is replaced.
 	 *
-	 * The shape is given as an @ref image_descriptor rather than as an
-	 * @ref array_descriptor because how the file lays its elements out is
-	 * the format's own decision: strides and an offset would be stated by
-	 * the caller and then ignored.
+	 * How the file lays its samples out is the format's own decision, so the
+	 * shape comes as an @ref image_descriptor, with no strides or offset.
 	 *
 	 * @param probe The file to create.
 	 * @param descriptor What the file holds. Its data type is what the file

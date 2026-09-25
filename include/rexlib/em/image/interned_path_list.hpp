@@ -16,22 +16,20 @@ namespace em
 {
 
 /**
- * @brief A list of paths in which equal paths cost one string.
+ * @brief A list of paths in which equal paths are held once.
  *
- * A transaction names one file per region, and the same file over and over:
- * a batch of 256 elements drawn from 8 stacks names eight distinct paths.
- * Holding a string per entry would copy each of them as many times as it is
- * named, so the distinct paths are held once and the entries are indices into
- * them.
+ * Each entry of the list refers to a path, and entries naming the same path
+ * share one copy of it: the distinct paths are held once and the entries are
+ * indices into them. A list naming a few paths many times over therefore
+ * costs a string per distinct path rather than per entry.
  *
- * The list therefore has two sizes. @ref get_path_count is how many distinct
- * paths were interned and @ref get_entry_count how many entries refer to
- * them, and the second is the larger one. Both are addressed separately:
- * @ref get_path takes a path index, @ref get takes an entry index.
+ * The list has two sizes. @ref get_path_count is how many distinct paths
+ * were interned and @ref get_entry_count how many entries there are. Each is
+ * addressed on its own: @ref get_path takes a path index, @ref get an entry
+ * index.
  *
- * @ref clear keeps both capacities and the interned paths are dropped with
- * them, so one instance reused from one call to the next allocates nothing
- * after the first beyond the strings it has not seen before.
+ * @ref clear keeps both capacities, so a list refilled after clearing
+ * allocates only the strings of the paths it interns.
  */
 class interned_path_list
 {
@@ -64,13 +62,11 @@ public:
 	 * @brief Intern a path without appending an entry.
 	 *
 	 * A path equal to one already interned yields the index it was given
-	 * the first time rather than a second one, which is what lets a caller
-	 * name a file once and then refer to it by index.
+	 * the first time rather than a second one, so a path can be interned
+	 * once and referred to by index afterwards.
 	 *
-	 * The interned paths are searched one by one, so this costs what the
-	 * number of distinct paths costs rather than what the number of entries
-	 * does. Those are the files one transaction touches, which the stack
-	 * model keeps small however many elements the transaction carries.
+	 * The interned paths are searched one by one, so this takes time in
+	 * proportion to the number of distinct paths, not of entries.
 	 *
 	 * @param path The path to intern.
 	 * @return std::size_t Index of the path, below @ref get_path_count.
@@ -156,8 +152,8 @@ public:
 	/**
 	 * @brief Get how many distinct paths are held.
 	 *
-	 * Never above @ref get_entry_count, and below it as soon as one path is
-	 * named twice.
+	 * A path counts once however many entries refer to it, and also when
+	 * none does, having been interned without an entry.
 	 *
 	 * @return std::size_t The number of distinct paths.
 	 */

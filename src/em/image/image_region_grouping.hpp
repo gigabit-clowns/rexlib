@@ -14,16 +14,15 @@ class image_transaction_plan;
 class image_transfer_plan;
 
 /**
- * @brief Indexes regions of a transaction, ordered by the file they address.
+ * @brief Orders the regions of a transaction plan by the file they
+ * address.
  *
- * An @ref image_transaction_plan holds its regions in the order they were
- * added, which for a batch drawn at random is an order that hops from stack
- * to stack. A consumer wants the opposite: every region of one file
- * together, so that the file is opened once and read once.
+ * Every region of one file ends up together, and regions of one file keep
+ * the order they have in the plan.
  *
  * It does not hold the regions, only where they are: @ref get_region maps a
  * position of the ordering to a region of the plan it was built from, which
- * the plan is then asked about. So a consumer walks one file with
+ * the plan is then asked about. One file is walked with
  *
  * @code
  * const auto first = grouping.get_first_position(file);
@@ -36,8 +35,8 @@ class image_transfer_plan;
  * @endcode
  *
  * @ref build costs one pass over the regions rather than a comparison sort,
- * and keeps the capacity, so one instance reused from one transaction to the
- * next allocates nothing after the first.
+ * and keeps the capacity, so a grouping rebuilt after its first use
+ * allocates nothing.
  */
 class image_region_grouping
 {
@@ -60,7 +59,7 @@ public:
 	 * Regions addressing one file keep the order they have in @p plan.
 	 * Replaces whatever this grouping held, keeping its capacity.
 	 *
-	 * @param plan The transaction whose regions are ordered.
+	 * @param plan The plan whose regions are ordered.
 	 */
 	void build(const image_transaction_plan &plan);
 
@@ -94,9 +93,8 @@ public:
 	/**
 	 * @brief Get how many files at least one region addresses.
 	 *
-	 * A file the plan named but that no region addresses is one of
-	 * @ref get_file_count and none of these, so this is what a consumer
-	 * counts to know how many files it will open.
+	 * A file the plan named but that no region addresses counts in
+	 * @ref get_file_count and not here.
 	 *
 	 * @return std::size_t The number of files addressed.
 	 */
@@ -142,11 +140,10 @@ private:
  * @brief Make the transfer plan for the regions of one file.
  *
  * Takes the shape from @p plan and appends every region @p grouping holds
- * for @p file_index, in the order it holds them, so that the file is read
- * or written in one call.
+ * for @p file_index, in the order it holds them.
  *
  * @param grouping The grouping the regions are read from.
- * @param plan The transaction the shape and the regions come from. Must be
+ * @param plan The plan the shape and the regions come from. Must be
  * the one @p grouping was built from.
  * @param file_index Index of the file. Must be below
  * @ref image_region_grouping::get_file_count.

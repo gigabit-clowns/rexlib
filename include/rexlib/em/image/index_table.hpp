@@ -16,17 +16,16 @@ namespace em
 /**
  * @brief A sequence of indices of one and the same rank.
  *
- * Every index a plan holds is a tuple of one coordinate per axis, and a plan
- * holds as many of them as it has regions. Held one vector per index that
- * would be one allocation per region; held here it is one flat vector of
- * @ref get_index_count by @ref get_rank values, so a batch of any size costs a
- * bounded number of allocations and @ref clear keeps the capacity: one
- * instance reused from one call to the next allocates nothing after the
- * first.
+ * Each index is a tuple of one coordinate per axis. The indices are held in
+ * one flat vector of @ref get_index_count by @ref get_rank values rather
+ * than one vector each, so a table of any length costs a bounded number of
+ * allocations, and @ref clear keeps the capacity: a table refilled after
+ * clearing allocates nothing until it outgrows what it held before.
  *
  * The rank is stated when a table is constructed and never changes, so every
- * index it holds carries it. A table of rank zero holds indices that address
- * a single position, which is what a plan over a rank zero side needs.
+ * index it holds carries it. A table of rank zero holds indices of no
+ * coordinates, each addressing the single position a space of rank zero
+ * has.
  */
 class index_table
 {

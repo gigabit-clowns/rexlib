@@ -10,9 +10,10 @@ namespace em
 {
 
 /**
- * @brief What a format states about a file beyond its shape and data type.
+ * @brief What a file states beyond its shape and data type, such as how its
+ * samples map onto physical space.
  *
- * TODO: It holds nothing for now; structure and contents are to be determined.
+ * It carries no fields yet, so every instance states nothing.
  */
 class image_metadata
 {

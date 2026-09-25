@@ -15,21 +15,21 @@ namespace em
 class image_transfer_plan;
 
 /**
- * @brief Where each region of a batch starts on each of the two sides.
+ * @brief Where each region of a plan starts on each of the two sides.
  *
- * Every region of a batch has the same extents and differs only in where it
+ * Every region of a plan has the same extents and differs only in where it
  * starts, so all of them are walked by one iteration space and only the two
  * base pointers move. This is that pair of pointer offsets, one per region.
  *
  * The pairs are held in ascending file order rather than in the order the
- * batch states them, so that a transfer walks the file forwards and the
- * regions it is about to touch form runs that can be asked for together. The
- * index of a pair is therefore its position in that order, not the one it was
- * added at.
+ * plan states them, so that the file is walked forwards and the regions
+ * about to be touched form runs that can be asked for together. The index of
+ * a pair is therefore its position in that order, not the one it was added
+ * at.
  *
- * Resolving them is also where every region is bounds checked, so a batch
- * that does not fit is refused here, before anything has been moved, rather
- * than halfway through it.
+ * Resolving them is also where every region is bounds checked, so regions
+ * that do not fit are refused here, before anything has been moved, rather
+ * than halfway through.
  *
  * The extents and the strides the offsets were resolved from are not kept:
  * a @ref joint_layout is what they become, and holding them here as well
@@ -39,7 +39,8 @@ class image_region_offsets
 {
 public:
 	/**
-	 * @brief Resolve a batch of regions against the two sides they address.
+	 * @brief Resolve the regions of a plan against the two sides they
+	 * address.
 	 *
 	 * The extents of @p regions cover the trailing axes of each side, which
 	 * spans a single position along the leading axes they do not reach.
@@ -52,7 +53,7 @@ public:
 	 * @param array_strides Distance between consecutive elements of the
 	 * array along each axis, in elements.
 	 * @param array_offset Index of the first element of the array.
-	 * @throws std::invalid_argument If a rank does not match the batch or
+	 * @throws std::invalid_argument If a rank does not match the plan or
 	 * the strides do not match their extents.
 	 * @throws std::out_of_range If a region is not contained in the file or
 	 * in the array where it is placed.
@@ -76,7 +77,7 @@ public:
 	operator=(image_region_offsets &&other) noexcept = default;
 
 	/**
-	 * @brief Get how many regions the batch holds.
+	 * @brief Get how many regions there are.
 	 *
 	 * @return std::size_t The number of regions.
 	 */

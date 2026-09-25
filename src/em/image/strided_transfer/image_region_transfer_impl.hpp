@@ -101,7 +101,7 @@ struct region_transfer_support : std::is_convertible<Source, Destination>
 };
 
 /**
- * @brief Walk every region of a batch with one layout.
+ * @brief Walk every region of a plan with one layout.
  *
  * Each region is the same iteration space reached through a different pair of
  * pointers, so the layout is built once and only the two bases move. The loop
@@ -198,8 +198,8 @@ void read_regions_as(
 	const auto &offsets = plan.get_offsets();
 
 	// The run is taken here rather than inside the loop, so that what walks
-	// the regions is the same loop whether it is handed a whole batch or a
-	// step of one.
+	// the regions is the same loop whether it is handed every region or a
+	// step of them.
 	const auto array_offsets =
 		make_span(offsets.get_array().data() + first_region, region_count);
 	const auto file_offsets =

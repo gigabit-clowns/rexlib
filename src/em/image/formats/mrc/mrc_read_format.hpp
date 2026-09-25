@@ -20,6 +20,9 @@ namespace mrc
  * @ref backend_priority::fallback, which covers the files written before the
  * identifier was specified without letting this format take a file another
  * one recognizes properly.
+ *
+ * A file holding a single section in the image space group opens as a stack
+ * of one image when its extension is `.mrcs`, and as one image otherwise.
  */
 class mrc_read_format final
 	: public image_read_format

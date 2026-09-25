@@ -24,9 +24,9 @@ namespace em
  * so the header is mapped along with them and skipped by pointer arithmetic
  * instead.
  *
- * Mapping is what makes a file one strided operand like any other: a region
- * of it is read or written by the same loop that walks an array, with no
- * buffer in between and no per region system call.
+ * A mapped file is addressed like memory, so a region of it can be walked
+ * as a strided operand like any other, with no buffer in between and no
+ * system call per region.
  */
 class image_file_mapping
 {

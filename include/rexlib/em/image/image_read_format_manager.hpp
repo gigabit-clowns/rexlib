@@ -18,14 +18,13 @@ class image_probe;
 class image_read_format;
 
 /**
- * @brief Centralizes all known image formats that can be read.
+ * @brief Holds the image formats that can be read, and opens a file with
+ * the most suitable of them.
  *
- * Reached through @ref service_catalog::get_service_manager. The formats
- * bundled with the library are added by @ref register_builtin_backends, and
- * a plugin adds its own from @ref plugin::register_at.
+ * A service: @ref register_builtin_backends adds the formats bundled with
+ * the library, and @ref register_format adds any other.
  *
- * Writing is served by @ref image_write_format_manager, which is a separate
- * service, so a program that only reads never constructs it.
+ * @see image_write_format_manager
  */
 class REXLIB_API image_read_format_manager final
 	: public service_manager

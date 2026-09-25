@@ -24,11 +24,14 @@ using image_write_format_factory =
 /**
  * @brief Collects image write format factories for bulk registration.
  *
- * The counterpart of @ref image_read_format_registry.
+ * Registers one fresh format per factory into a manager, as many times and
+ * into as many managers as asked.
  *
- * @note @ref add is not thread-safe. It is meant to run during the owning
- * module's static initialization, before any concurrent access. Reads
- * (@ref register_all) happen strictly afterwards.
+ * @note @ref add must not run concurrently with any other call, while
+ * @ref register_all may run concurrently with itself into different
+ * managers.
+ *
+ * @see image_read_format_registry
  */
 class image_write_format_registry
 {

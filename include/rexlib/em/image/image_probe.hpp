@@ -17,17 +17,16 @@ namespace em
 {
 
 /**
- * @brief What every format is shown when it is asked whether it fits a file.
+ * @brief The path, extension and leading bytes of a file, from which a
+ * format can tell whether it fits the file.
  *
- * A probe is built once per open and handed to each candidate format, so the
- * leading bytes of the file are read once however many formats are
- * registered, and no format opens the file just to decline it.
+ * It reads the leading bytes once, when it is constructed, and never
+ * changes afterwards, so one probe can be shown to any number of formats and
+ * shared between threads.
  *
- * It is filled when it is constructed and never changes afterwards, which is
- * what lets it be shared. A file that does not exist yields a probe with no
- * leading bytes rather than an error, since opening a file for writing
- * names a file that is not there yet and the decision then rests on the
- * extension alone.
+ * A file that does not exist yields a probe with no leading bytes rather
+ * than an error, so a probe can name a file yet to be created, and what
+ * fits it then rests on the extension alone.
  */
 class image_probe
 {
@@ -72,9 +71,8 @@ public:
 	/**
 	 * @brief Get the extension of the probed file.
 	 *
-	 * Folded to lower case and including the leading dot, so that a format
-	 * matches on it without spelling the comparison out itself. Empty when
-	 * the file name has no extension.
+	 * Folded to lower case and including the leading dot. Empty when the
+	 * file name has no extension.
 	 *
 	 * @return const std::string& The extension.
 	 */
@@ -85,10 +83,8 @@ public:
 	 * @brief Get the leading bytes of the probed file.
 	 *
 	 * At most @ref max_leading_bytes bytes, and fewer when the file is
-	 * shorter. These are the front of the file and nothing more: what counts
-	 * as its header is the format's own business, and a format that needs
-	 * more than this to recognize a file is looking at the wrong thing.
-	 * A format reads its magic number out of them.
+	 * shorter. They are the front of the file and nothing more: what counts
+	 * as its header is up to each format.
 	 *
 	 * @return span<const byte> The bytes. Empty when the file does not
 	 * exist, is empty, or could not be read.

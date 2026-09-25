@@ -17,7 +17,7 @@ namespace em
 {
 
 /**
- * @brief Move every region of a batch out of a file and into an array.
+ * @brief Move every region of a plan out of a file and into an array.
  *
  * Values are converted to @p array_type, and read in @p file_order.
  *
@@ -41,11 +41,11 @@ void read_regions(
 );
 
 /**
- * @brief Move a run of the regions of a batch out of a file and into an array.
+ * @brief Move a run of the regions of a plan out of a file and into an array.
  *
- * The regions of a batch are held in ascending file order, so a run of them is
- * a stretch of the file, which is what lets a reader walk a batch a step at a
- * time and advise the step after the one it is walking.
+ * The regions of a plan are held in ascending file order, so a run of them is
+ * a stretch of the file, which can be walked while the stretch after it is
+ * advised.
  *
  * @param plan The regions and the space they are walked in.
  * @param first_region Index of the first region to move, among those @p plan
@@ -73,7 +73,7 @@ void read_regions(
 );
 
 /**
- * @brief Move every region of a batch out of an array and into a file.
+ * @brief Move every region of a plan out of an array and into a file.
  *
  * The mirror of @ref read_regions, over a plan whose layout is ordered for
  * the file instead.
@@ -98,7 +98,8 @@ void write_regions(
 );
 
 /**
- * @brief Move a batch out of a file of one statically known element type.
+ * @brief Move a run of the regions of a plan out of a file of one
+ * statically known element type.
  *
  * Defined in image_region_transfer_impl.hpp and explicitly instantiated once
  * per data type files are transferred in, in the
@@ -129,7 +130,8 @@ void read_regions_as(
 );
 
 /**
- * @brief Move a batch into a file of one statically known element type.
+ * @brief Move the regions of a plan into a file of one statically known
+ * element type.
  *
  * @see read_regions_as
  */

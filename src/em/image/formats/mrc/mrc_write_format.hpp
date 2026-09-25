@@ -14,8 +14,12 @@ namespace mrc
 /**
  * @brief The ability of the MRC format to be written.
  *
- * The file named usually does not exist yet, so there is no header to
- * recognize and the extension is the whole of the decision.
+ * A file is claimed on its extension alone, since it need not exist yet and
+ * so has no header to recognize.
+ *
+ * A stack of one image can only be created with the extension `.mrcs`, and
+ * a single image only with another one, so that the file reads back as it
+ * was declared.
  */
 class mrc_write_format final
 	: public image_write_format

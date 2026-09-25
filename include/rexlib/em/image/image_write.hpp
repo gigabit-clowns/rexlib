@@ -28,9 +28,9 @@ class image_sink;
 /**
  * @brief Write a whole array out as one image or volume.
  *
- * Creates the file, writes every element and flushes it, all before
+ * Creates the file, writes every sample and flushes it, all before
  * returning. The file holds a single image or volume with the extents of
- * @p arr. Its asynchronous peer below writes into files declared elsewhere.
+ * @p arr.
  *
  * @param arr The values to write.
  * @param path Path to the file to create.
@@ -104,40 +104,35 @@ void write(
 );
 
 /**
- * @brief Write one element per location out of a batch, asynchronously.
+ * @brief Write one image or volume per location out of a batch,
+ * asynchronously.
  *
- * The mirror of @ref read_batch_async: it turns a batch of locations into an
- * image_transaction_plan the same way and hands it to @p sink. Each slot
- * becomes either the slice @ref image_location::get_index_in_stack names
- * within its file, or the whole file when a location carries none. A batch
- * may not mix the two.
+ * Each slot of @p source goes where its location names: the image or volume
+ * @ref image_location::get_index_in_stack indexes within its file, or the
+ * whole file when the location carries no index. A batch may not mix the
+ * two. The writes are handed to @p sink as one transaction.
  *
  * Returns before the writes are done, unlike @ref write, and writes into
- * files that already exist rather than creating one.
+ * files whose shape is already settled rather than creating them from
+ * @p source. A stack can therefore be written a batch at a time, several
+ * stacks at once, and one batch may span more than one of them.
  *
- * @par Writing a stack a batch at a time
- * A file is created with its whole shape before anything is written, so the
- * size of a stack is stated once, when it is declared through
- * @ref managed_image_writer_provider::declare, and this writes into it a
- * batch at a time. Nothing binds a call to one stack: several may be written
- * at once and one batch may span more than one. Closing a stack is the
- * declaring side's business too, once the completion of every batch written
- * into it has resolved.
- *
- * Every slot must fit where it is written, a location naming an index the
- * stack does not hold being reported through the completion rather than
+ * Every slot must fit where it is written: a location naming an index the
+ * stack does not hold is reported through the completion rather than
  * dropped. See @ref image_sink::write.
  *
  * @param sink Where the writes are dispatched. Needs to outlive this call
  * and no longer, the work outliving it carrying what it needs.
  * @param source The values to write. Its leading extent is the batch size
- * and its remaining extents are the shape of one element.
+ * and its remaining extents are the shape of one image or volume.
  * @param locations Where each slot goes, one per slot of @p source and in
  * the same order.
  * @return std::shared_ptr<completion> The completion, never null.
  * @throws std::invalid_argument If @p source has no extents, if its leading
  * extent is not the number of locations, or if @p locations mixes those
  * carrying an index in a stack with those carrying none.
+ *
+ * @see read_batch_async
  */
 REXLIB_API
 std::shared_ptr<completion> write_batch_async(

@@ -27,13 +27,14 @@ class index_table;
  * @brief Read a whole file into an array of its own.
  *
  * Gets a reader over the file from @p readers, allocates what the file holds
- * and fills it, all before returning. Its asynchronous peers below fill an
- * array the caller already has.
+ * and fills it, all before returning.
  *
  * @param path Path to the file to read.
  * @param readers Where the file becomes a reader.
  * @param context Where the array is allocated.
  * @return array The contents of the file, in its own data type.
+ *
+ * @see read_batch_async
  */
 REXLIB_API
 array read(
@@ -43,9 +44,10 @@ array read(
 );
 
 /**
- * @brief Read a whole file, or one element of it, into an array of its own.
+ * @brief Read a whole file, or one image or volume of a stack, into an array
+ * of its own.
  *
- * @param location The file, or the element of it, to read.
+ * @param location The file, or the image or volume of it, to read.
  * @param readers Where the file becomes a reader.
  * @param context Where the array is allocated.
  * @return array The contents of what @p location names, in the data type of
@@ -59,21 +61,23 @@ array read(
 );
 
 /**
- * @brief Read one element per location into a batch, asynchronously.
+ * @brief Read one image or volume per location into a batch,
+ * asynchronously.
  *
- * Turns a batch of locations into an image_transaction_plan and hands it to
- * @p source. Each slot is either the slice
- * @ref image_location::get_index_in_stack names within its file, or the
- * whole file when a location carries none. A batch may not mix the two;
- * every location must either carry an index in a stack or none may.
+ * Each slot of @p destination receives what its location names: the image
+ * or volume @ref image_location::get_index_in_stack indexes within its file,
+ * or the whole file when the location carries no index. A batch may not mix
+ * the two; every location must either carry an index in a stack or none may.
+ * The reads are handed to @p source as one transaction.
  *
  * Returns before the reads are done, unlike @ref read, and fills an array
  * the caller already has rather than allocating one.
  *
  * @param source Where the reads are dispatched. Needs to outlive this call
  * and no longer, the work outliving it carrying what it needs.
- * @param destination Where the elements land. Its leading extent is the
- * batch size and its remaining extents are the shape of one element.
+ * @param destination Where the images or volumes land. Its leading extent
+ * is the batch size and its remaining extents are the shape of one image or
+ * volume.
  * @param locations Where each slot comes from, one per slot of
  * @p destination and in the same order.
  * @return std::shared_ptr<completion> The completion, never null.
@@ -93,7 +97,7 @@ std::shared_ptr<completion> read_batch_async(
  * asynchronously.
  *
  * Every patch comes from the image @p location names, which is either the
- * slice @ref image_location::get_index_in_stack indexes within the file or
+ * image @ref image_location::get_index_in_stack indexes within the file or
  * the whole file when it carries no index in a stack.
  *
  * @par Centres
@@ -103,11 +107,10 @@ std::shared_ptr<completion> read_batch_async(
  *
  * @par Borders
  * A patch reaching past the edge of the image is read as far as the image
- * goes and no further, which @ref image_source resolves. The elements of
- * @p destination no data reached are left untouched, so what a patch is
- * padded with is decided by what @p destination held beforehand. Filling it
- * beforehand with a sentinel that cannot occur in the image, such as a quiet
- * NaN, is what lets a later pass tell the padding apart and replace it.
+ * goes and no further. The elements of @p destination no data reached are
+ * left untouched, so a patch is padded with whatever @p destination held
+ * beforehand. Filling it first with a value that cannot occur in the image,
+ * such as a quiet NaN, marks the padding.
  *
  * @param source Where the reads are dispatched. Needs to outlive this call
  * and no longer.

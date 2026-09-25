@@ -61,7 +61,7 @@ public:
 	 * the accesses it is about to make, and pays for the source's geometry
 	 * once.
 	 *
-	 * @p source is the array as the caller holds it and may be strided. Its
+	 * @p source is the whole array and may be strided. Its
 	 * rank must be the array rank of the plan and the file's the file rank,
 	 * and values are converted with @ref numerical_cast semantics without
 	 * scaling or normalising.

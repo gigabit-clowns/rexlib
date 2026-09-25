@@ -15,7 +15,7 @@ namespace em
 class image_transfer_plan;
 
 /**
- * @brief Build the space every region of a batch is walked in.
+ * @brief Build the space every region of a plan is walked in.
  *
  * @ref joint_layout orders its axes by the strides of its operands taken in
  * the order they were added, the first one to prefer an order deciding it and
@@ -26,9 +26,9 @@ class image_transfer_plan;
  * side.
  *
  * Both sides are given as the strides of the whole side. The extents of a
- * batch cover only its trailing axes, so only that many strides are taken.
+ * plan cover only its trailing axes, so only that many strides are taken.
  *
- * @param regions The batch whose extents the space has.
+ * @param regions The regions whose extents the space has.
  * @param destination_strides Strides of the side being written, in elements.
  * @param source_strides Strides of the side being read, in elements.
  * @return joint_layout The space, naming the destination first.

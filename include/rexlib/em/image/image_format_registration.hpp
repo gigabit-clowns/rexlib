@@ -12,12 +12,14 @@ namespace em
 /**
  * @brief Appends a factory for @p Format to a registry upon construction.
  *
- * Declare one namespace-scope object of this type per format translation
- * unit so the format auto-registers during static initialization.
+ * An instance at namespace scope registers its format during static
+ * initialization.
  *
  * @tparam Format The concrete format type. Must be default constructible.
  * @tparam Registry The registry to append to, which decides whether the
- * format is registered for reading or for writing.
+ * format is registered for reading or for writing. Any type that names its
+ * format interface as @c format_type and takes a factory of it through
+ * @c add.
  */
 template <typename Format, typename Registry>
 class image_format_registration

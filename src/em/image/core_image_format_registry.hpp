@@ -13,9 +13,8 @@ namespace em
 /**
  * @brief Get the registry of the image read formats bundled with the library.
  *
- * Declared in a private header so that external modules can not name it, and
- * so can not auto-register into it. A plugin owns and drains its own
- * @ref image_read_format_registry instead.
+ * Private to the library, so only the formats bundled with it can register
+ * into it.
  *
  * @return image_read_format_registry& The registry.
  */

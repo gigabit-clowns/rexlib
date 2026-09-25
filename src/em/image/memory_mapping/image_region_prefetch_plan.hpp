@@ -20,11 +20,11 @@ namespace em
 class image_transfer_plan;
 
 /**
- * @brief Work out what one region of a batch spans, in bytes.
+ * @brief Work out what each region of a plan spans, in bytes.
  *
  * The stretch from the first byte of a region to its last, gaps included,
  * which is what a region occupies when it is not contiguous. Every region of
- * a batch shares the extents, so all of them span the same.
+ * a plan shares the extents, so all of them span the same.
  *
  * @param regions The regions to be moved.
  * @param file_strides Distance between consecutive elements of the file along
@@ -39,42 +39,40 @@ std::size_t compute_region_span(
 ) noexcept;
 
 /**
- * @brief The stretches of a file a batch reaches, grouped into steps.
+ * @brief The stretches of a file a set of regions reaches, grouped into
+ * steps.
  *
- * The regions of a batch are advised as the stretches they actually touch
- * rather than as the one span that covers them, so that a batch drawn at
- * random out of a large file asks for what it reads and not for the file.
- * Stretches that overlap or that lie within the tolerance of each other are
- * merged, which collapses a batch reading consecutive regions back into the
- * few stretches it is. Merging stops where a stretch would grow past the
- * budget of a step, so that a long run of consecutive regions is advised a
- * step at a time like any other batch rather than all at once.
+ * Regions are advised as the stretches they actually touch rather than as
+ * the one span that covers them, so regions scattered over a large file ask
+ * for what they reach and not for the file. Stretches that overlap or that
+ * lie within the tolerance of each other are merged, which collapses
+ * consecutive regions back into the few stretches they are. Merging stops
+ * where a stretch would grow past the budget of a step, so a long run of
+ * consecutive regions is advised a step at a time rather than all at once.
  *
- * Every stretch is made to start on a page boundary and to end within the
- * mapping here, once, so that what @ref prefetch_pages is handed is already
- * what it asks for.
+ * Every stretch starts on a page boundary and ends within the mapping, so it
+ * can be advised as it is.
  *
- * The merged stretches are then grouped into steps of a bounded number of
- * bytes, so that a reader advises one step ahead of the one it is walking
- * instead of the whole batch at once. A batch that fits in the budget is one
- * step, which is what a batch of small scattered regions wants: all of it is
- * advised before any of it is read, and every latency overlaps. A step always
- * holds at least one region, so a region wider than the budget is advised
- * whole.
+ * The merged stretches are grouped into steps of a bounded number of bytes,
+ * so that one step can be advised while the one before it is walked.
+ * Regions that fit in the budget are one step, so small scattered regions
+ * are all advised before any of them is walked, and their latencies
+ * overlap. A step always holds at least one region, so a region wider than
+ * the budget is advised whole.
  *
- * The steps tile the batch: every region belongs to exactly one of them, so
- * walking the steps walks the batch. A region there is nothing to ask for,
- * one that starts past what is mapped, still belongs to a step, since advice
- * is what this decides and moving the values is not.
+ * The steps tile the regions: every region belongs to exactly one of them,
+ * so walking the steps walks every region. A region there is nothing to ask
+ * for, one that starts past what is mapped, still belongs to a step, since
+ * advice is what this decides and moving the values is not.
  *
- * The file offsets this is built from must be ascending, which is how
- * @ref image_region_offsets holds them.
+ * The file offsets this is built from must be ascending.
  */
 class image_region_prefetch_plan
 {
 public:
 	/**
-	 * @brief Work out the stretches of a batch and the steps they fall in.
+	 * @brief Work out the stretches of the regions and the steps they fall
+	 * in.
 	 *
 	 * @param regions The regions to be moved.
 	 * @param file_strides Distance between consecutive elements of the file
@@ -86,7 +84,7 @@ public:
 	 * which no stretch reaches past.
 	 * @param data_offset Where the values of the file begin in @p mapping,
 	 * in bytes.
-	 * @param policy What the batch is advised with.
+	 * @param policy How the regions are advised.
 	 */
 	image_region_prefetch_plan(
 		const image_transfer_plan &regions,
@@ -112,14 +110,14 @@ public:
 	operator=(image_region_prefetch_plan &&other) noexcept = default;
 
 	/**
-	 * @brief Get how many steps the batch is walked in.
+	 * @brief Get how many steps the regions fall in.
 	 *
-	 * @return std::size_t The number of steps, zero for a batch of no region.
+	 * @return std::size_t The number of steps, zero when there is no region.
 	 */
 	std::size_t get_step_count() const noexcept;
 
 	/**
-	 * @brief Get every stretch the batch reaches.
+	 * @brief Get every stretch the regions reach.
 	 *
 	 * @return span<const memory_range> The stretches, ascending and disjoint.
 	 */
@@ -153,7 +151,8 @@ public:
 
 private:
 	/**
-	 * @brief Work out the stretches of the batch, merging as they are found.
+	 * @brief Work out the stretches of the regions, merging as they are
+	 * found.
 	 *
 	 * @return std::vector<std::size_t> How many regions each stretch covers.
 	 */
@@ -171,7 +170,7 @@ private:
 	 * @brief Group the stretches into steps of a bounded number of bytes.
 	 *
 	 * @param regions_per_range How many regions each stretch covers.
-	 * @param region_count How many regions the batch holds, which the last
+	 * @param region_count How many regions there are, which the last
 	 * step reaches whether or not every one of them was asked for.
 	 * @param byte_budget Most bytes one step advises.
 	 */

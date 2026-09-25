@@ -17,15 +17,12 @@ namespace em
 class image_probe;
 
 /**
- * @brief The ability of one file format to be read.
+ * @brief One file format that can be read.
  *
- * It serves as a factory for @ref image_reader-s that decode a particular
- * file format. It is able to judge its own suitability for a given file through
- * an @ref image_probe and in case it fits, serve the reader for it.
+ * Judges from an @ref image_probe how well it fits a file, and opens a file
+ * it fits as an @ref image_reader.
  *
- * Formats are usually collected by an @ref image_read_format_manager.
- *
- * For write access, see @ref image_write_format.
+ * @see image_write_format
  */
 class REXLIB_API image_read_format
 {
@@ -41,19 +38,15 @@ public:
 	/**
 	 * @brief Get the name of this format.
 	 *
-	 * Identifies the format in diagnostics and lets a caller tell which one
-	 * claimed a file.
-	 *
-	 * @return std::string The name.
+	 * @return std::string The name, which identifies the format.
 	 */
 	virtual std::string get_name() const = 0;
 
 	/**
 	 * @brief Report how well this format fits a file.
 	 *
-	 * Decide from @p probe alone and do not open the file: the probe already
-	 * carries its path, its lower case extension and its leading bytes, read
-	 * once for every format consulted.
+	 * Decide from @p probe alone, without opening the file: the probe
+	 * carries its path, its lower case extension and its leading bytes.
 	 *
 	 * Return @ref backend_priority::unsupported for a file this format does
 	 * not recognize, and something higher than
@@ -69,8 +62,8 @@ public:
 	/**
 	 * @brief Open a file for reading.
 	 *
-	 * Only called when @ref get_suitability reported something other than
-	 * @ref backend_priority::unsupported for @p probe.
+	 * @pre @ref get_suitability does not report @p probe as
+	 * @ref backend_priority::unsupported.
 	 *
 	 * @param probe The file to open.
 	 * @return std::shared_ptr<image_reader> The opened reader, never null.

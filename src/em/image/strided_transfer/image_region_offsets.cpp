@@ -28,7 +28,7 @@ void check_rank(
 	}
 }
 
-// The extents of a batch cover the trailing axes of a side, which spans a
+// The extents of a plan cover the trailing axes of a side, which spans a
 // single position along the leading ones, so the extent of an axis is
 // resolved through get_region_extent rather than by indexing them directly.
 std::ptrdiff_t resolve_offset(

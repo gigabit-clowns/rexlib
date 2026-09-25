@@ -32,7 +32,9 @@ REXLIB_INLINE_CONST_CONSTEXPR std::size_t default_prefetch_budget =
 	REXLIB_PREFETCH_BYTE_BUDGET;
 
 /**
- * @brief What a batch is advised with.
+ * @brief How the regions of a file are advised: which gaps between them are
+ * bridged, how many bytes one step advises, and the boundary every stretch
+ * starts on.
  */
 class image_prefetch_policy
 {
@@ -90,7 +92,7 @@ private:
 };
 
 /**
- * @brief Work out the policy a batch of a given region span is advised with.
+ * @brief Work out the policy regions of a given span are advised with.
  *
  * The tolerance scales with the region rather than being flat, so that a gap
  * wider than the data on either side of it is never bridged; it is floored at

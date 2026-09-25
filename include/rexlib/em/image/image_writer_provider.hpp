@@ -17,10 +17,10 @@ class image_writer;
 /**
  * @brief Where a path becomes an open @ref image_writer.
  *
- * The counterpart of @ref image_reader_provider, and as small: a consumer
- * names a file and gets something it can write. How that file came to be
- * writable at all (what extents and data type it was created with) depends
- * on the implementation.
+ * The counterpart of @ref image_reader_provider: whoever asks names a path
+ * and gets something it can write. How that file came to be writable at
+ * all, and what shape and data type it was created with, is up to the
+ * provider.
  *
  * @par Thread safety
  * A provider may be asked for writers concurrently.
@@ -41,9 +41,9 @@ public:
 	/**
 	 * @brief Get a writer over one file.
 	 *
-	 * Shared ownership rather than a reference, so that a writer an
-	 * implementation stops keeping stays alive as long as a transaction is
-	 * still writing through it.
+	 * Shared ownership rather than a reference, so that a writer the
+	 * provider stops keeping stays alive for as long as it is still written
+	 * through.
 	 *
 	 * @param path Path to the file to write.
 	 * @return std::shared_ptr<image_writer> The writer, never null.

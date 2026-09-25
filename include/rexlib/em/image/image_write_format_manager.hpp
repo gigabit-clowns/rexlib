@@ -20,11 +20,13 @@ class image_probe;
 class image_write_format;
 
 /**
- * @brief Centralizes all known image formats that can be written.
+ * @brief Holds the image formats that can be written, and creates a file
+ * with the most suitable of them.
  *
- * The counterpart of @ref image_read_format_manager, kept as a service of
- * its own so that the reading and the writing sides are registered, looked
- * up and reasoned about separately.
+ * A service: @ref register_builtin_backends adds the formats bundled with
+ * the library, and @ref register_format adds any other.
+ *
+ * @see image_read_format_manager
  */
 class REXLIB_API image_write_format_manager final
 	: public service_manager
@@ -56,8 +58,8 @@ public:
 	/**
 	 * @brief Create a file with the most suitable format.
 	 *
-	 * The file named by @p path usually does not exist yet, so the choice
-	 * normally rests on its extension. Any file already there is replaced.
+	 * The file named by @p path need not exist, in which case the choice
+	 * rests on its extension. Any file already there is replaced.
 	 *
 	 * @param path Path to the file to create.
 	 * @param descriptor What the file holds.

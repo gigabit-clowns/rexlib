@@ -17,29 +17,24 @@ namespace em
 {
 
 /**
- * @brief The regions transferred in one transaction.
+ * @brief The regions to transfer between many files and one array.
  *
- * A transaction describes moving data between one array and one set of
- * files as a single whole.
- *
- * Every region pairs an ND offset into a file with an ND offset into the
- * array, names the file it belongs to, and shares one set of extents with
- * every other region in the plan.
+ * Every region pairs an offset into a file with an offset into the array,
+ * names the file it belongs to, and shares one set of extents with every
+ * other region in the plan.
  *
  * The extents are the shape of one region, so their rank is the rank of the
  * region rather than of either side, exactly as in @ref image_transfer_plan.
  * A side of higher rank spans a single position along the axes the extents
- * don't reach; those axes are implicitly padded with leading ones.
+ * do not reach, which are its leading ones.
  *
- * The extents and each side's ranks is fixed when a plan is constructed and
- * never changes afterward, so a plan is always a complete, ready-to-use object
- * rather than something configured before use. Only its files and regions come
- * and go, and every file must share the same rank.
+ * The shape, which is the extents and the two ranks, is fixed when a plan is
+ * constructed; only the files and the regions come and go. Every file has
+ * the same rank.
  *
- * Regions are held in the order they were added. A consumer that wants to walk
- * them one file at a time builds that ordering alongside the plan rather than
- * relying on the plan for it, keeping the plan itself limited to what is
- * transferred and nothing else.
+ * Regions are held in the order they were added, not grouped by file.
+ *
+ * @see image_transfer_plan
  */
 class image_transaction_plan
 {
@@ -81,8 +76,8 @@ public:
 	 * @brief Name a file the regions may address.
 	 *
 	 * A path equal to one already named yields the index it was given the
-	 * first time, so a caller may name the file of every region without
-	 * checking whether it has been named already.
+	 * first time, so the file of every region may be named without checking
+	 * whether it has been named already.
 	 *
 	 * @param path Path to the file.
 	 * @return std::size_t Index of the file, below @ref get_file_count.
@@ -171,8 +166,7 @@ public:
 	/**
 	 * @brief Get how many distinct files the regions may address.
 	 *
-	 * Counts the files that were named, which a file no region ended up
-	 * addressing is still one of.
+	 * Counts every file named, including one no region addresses.
 	 *
 	 * @return std::size_t The number of files.
 	 */

@@ -14,9 +14,6 @@ namespace em
 /**
  * @brief Get where an array holds its values, on the host.
  *
- * A transfer reads and writes the values of an array directly, so an array
- * whose storage the host can not reach is not one it can move anything into.
- *
  * @param array The array to reach.
  * @return void* Its first byte of storage, never null.
  * @throws std::invalid_argument If @p array is not initialized.

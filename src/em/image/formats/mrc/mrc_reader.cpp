@@ -109,7 +109,7 @@ void mrc_reader::transfer(
 	layout.get_extents(array_extents);
 	layout.get_strides(array_strides);
 
-	// Validate the batch before the prefetch touches it.
+	// Validate the regions before the prefetch touches them.
 	const image_region_read_plan plan(
 		regions,
 		m_geometry.get_descriptor().get_extents(),

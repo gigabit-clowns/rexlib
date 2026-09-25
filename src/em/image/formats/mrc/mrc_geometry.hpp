@@ -28,8 +28,8 @@ namespace mrc
  * MRC2014 states by the space group alone, even for a stack of one volume or
  * of volumes one section deep. The one case the standard leaves open, a
  * single section in the image space group, is either one image or a stack of
- * one, and is settled by the caller. This resolves all of it once, when a
- * file is opened, into the descriptor an @ref image_reader reports.
+ * one, and is settled by what this is constructed with. This resolves all of
+ * it, once, into an @ref image_descriptor.
  *
  * The values themselves are laid out with the columns changing fastest, and
  * the header names the axis of space the columns, the rows and the sections

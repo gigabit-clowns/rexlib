@@ -21,15 +21,15 @@ class image_metadata;
  *
  * A reader is opened over one image file and exposes its contents as one
  * rectangular ND array. Every read is a set of hyperrectangles of that
- * array, which is the only access pattern there is: element @c i of an
+ * array, which is the only access pattern there is: image @c i of an
  * @c (N,H,W) stack is the region of extents @c (H,W) at offset @c (i,0,0),
  * a patch of an @c (H,W) micrograph is the region of extents @c (h,w) at
  * offset @c (y,x), and a whole volume is the region covering everything.
  * Reading in a random or in a sequential order is a property of a sequence
  * of calls rather than of one, so it is nothing a reader distinguishes.
  *
- * A read takes a whole batch of regions rather than one at a time. That is
- * the only shape in which a reader can see enough to order and merge the
+ * A read takes every region at once rather than one at a time. That is the
+ * only shape in which a reader can see enough to order and merge the
  * accesses it is about to make, and it keeps the per region cost to
  * arithmetic.
  *
@@ -84,8 +84,8 @@ public:
 	 * can not express; it also pays for the destination's geometry once
 	 * rather than once per region.
 	 *
-	 * @p destination is the array as the caller holds it, not a view of one
-	 * slot, and it may be strided. The file offsets of the plan must have
+	 * @p destination is the whole array, not a view of the part a region
+	 * lands in, and it may be strided. The file offsets of the plan must have
 	 * the rank of the file and its array offsets the rank of
 	 * @p destination; a side whose rank exceeds that of the extents spans a
 	 * single position along the axes they do not reach.
@@ -102,8 +102,8 @@ public:
 	 *
 	 * @par Thread safety
 	 * This method may be called concurrently on one reader. A reader that
-	 * can not decode in parallel serialises the calls itself, so a caller
-	 * never loses correctness by issuing them at once.
+	 * can not decode in parallel serialises the calls itself, so issuing
+	 * them at once never costs correctness.
 	 *
 	 * An empty plan reads nothing and succeeds.
 	 *
