@@ -11,11 +11,10 @@
 #include <rexlib/em/image/image_sink.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
-#include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 #include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 
-#include <em/image/image_batch_plan.hpp>
+#include <em/image/image_plan_builders.hpp>
 
 #include <algorithm>
 #include <cstddef>
@@ -125,13 +124,7 @@ void write(
 	}
 
 	const auto writer = manager.open(path, descriptor, metadata);
-
-	const auto rank = extents.size();
-	image_transfer_plan plan(image_transfer_shape(extents, rank, rank));
-	const std::vector<std::size_t> origin(rank, 0UL);
-	plan.add(make_span(origin), make_span(origin));
-
-	writer->write(arr, plan);
+	writer->write(arr, make_location_plan(descriptor, image_location(path)));
 	writer->flush();
 }
 
@@ -144,11 +137,8 @@ std::shared_ptr<completion> write_batch_async(
 	std::vector<std::size_t> array_extents;
 	source.get_descriptor().get_layout().get_extents(array_extents);
 
-	const auto transaction = make_batch_plan(
-		make_span(array_extents),
-		locations,
-		"write_batch_async"
-	);
+	const auto transaction =
+		make_batch_plan(make_span(array_extents), locations);
 
 	return sink.write(
 		std::move(source),

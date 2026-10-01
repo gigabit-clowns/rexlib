@@ -7,10 +7,10 @@ target_sources(
 		direct_image_reader_provider.cpp
 		executor_image_sink.cpp
 		executor_image_source.cpp
-		image_batch_plan.cpp
 		image_descriptor.cpp
 		image_location.cpp
 		image_metadata.cpp
+		image_plan_builders.cpp
 		image_probe.cpp
 		image_read.cpp
 		image_read_format.cpp

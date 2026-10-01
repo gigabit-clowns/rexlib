@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/span.hpp>
@@ -32,7 +33,11 @@ class index_table;
  * @param path Path to the file to read.
  * @param readers Where the file becomes a reader.
  * @param context Where the array is allocated.
- * @return array The contents of the file, in its own data type.
+ * @param data_type Data type of the array, the values of the file being
+ * converted to it, or unknown to keep the one the file holds.
+ * @return array The contents of the file.
+ * @throws unsupported_operation_error If @p data_type can not be produced
+ * from the one of the file.
  *
  * @see read_batch_async
  */
@@ -40,7 +45,8 @@ REXLIB_API
 array read(
 	const std::string &path,
 	image_reader_provider &readers,
-	const execution_context &context
+	const execution_context &context,
+	numerical_type data_type = numerical_type::unknown
 );
 
 /**
@@ -50,14 +56,18 @@ array read(
  * @param location The file, or the image or volume of it, to read.
  * @param readers Where the file becomes a reader.
  * @param context Where the array is allocated.
- * @return array The contents of what @p location names, in the data type of
- * its file.
+ * @param data_type Data type of the array, the values of the file being
+ * converted to it, or unknown to keep the one the file holds.
+ * @return array The contents of what @p location names.
+ * @throws unsupported_operation_error If @p data_type can not be produced
+ * from the one of the file.
  */
 REXLIB_API
 array read(
 	const image_location &location,
 	image_reader_provider &readers,
-	const execution_context &context
+	const execution_context &context,
+	numerical_type data_type = numerical_type::unknown
 );
 
 /**

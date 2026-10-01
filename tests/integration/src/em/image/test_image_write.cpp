@@ -244,6 +244,31 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 			CHECK( read_host<float>(image, image_elements) == expected );
 		}
 	}
+
+	SECTION( "an image reads back in the data type asked for" )
+	{
+		const std::vector<std::size_t> image_extents = {3, 4};
+		const auto image_elements = element_count(image_extents);
+
+		const auto image = em::read(
+			image_location(path.get(), 1),
+			readers,
+			context,
+			numerical_type::float64
+		);
+
+		REQUIRE(
+			image.get_descriptor().get_data_type() ==
+			numerical_type::float64
+		);
+
+		const std::vector<double> expected(
+			values.begin() + image_elements,
+			values.begin() + 2 * image_elements
+		);
+
+		CHECK( read_host<double>(image, image_elements) == expected );
+	}
 }
 
 TEST_CASE_METHOD( cpu_execution_context_fixture,

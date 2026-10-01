@@ -265,6 +265,59 @@ TEST_CASE_METHOD(
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::int16 );
 }
 
+TEST_CASE_METHOD(
+	mocked_execution_context_fixture,
+	"read allocates the data type it is asked for rather than the file's",
+	"[image_read]"
+)
+{
+	mock_image_reader_provider readers;
+	const std::vector<std::size_t> file_extents = {4, 3, 5};
+	const auto reader = std::make_shared<mock_image_reader>();
+
+	const image_descriptor descriptor(
+		make_span(file_extents),
+		2,
+		numerical_type::int16
+	);
+	ALLOW_CALL(*reader, get_descriptor()).LR_RETURN(std::ref(descriptor));
+
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH(
+			_1.get_descriptor().get_data_type() == numerical_type::float32
+		);
+
+	REQUIRE_CALL(readers, acquire("stack.mrcs")).RETURN(reader);
+
+	SECTION( "a file read whole by its path" )
+	{
+		const auto result =
+			read("stack.mrcs", readers, context, numerical_type::float32);
+
+		CHECK( extents_of(result) == file_extents );
+		CHECK(
+			result.get_descriptor().get_data_type() ==
+			numerical_type::float32
+		);
+	}
+
+	SECTION( "one image of a stack by its location" )
+	{
+		const auto result = read(
+			image_location("stack.mrcs", 2),
+			readers,
+			context,
+			numerical_type::float32
+		);
+
+		CHECK( extents_of(result) == std::vector<std::size_t>{3, 5} );
+		CHECK(
+			result.get_descriptor().get_data_type() ==
+			numerical_type::float32
+		);
+	}
+}
+
 TEST_CASE(
 	"read_batch_async validates the destination array",
 	"[image_read]"
@@ -550,12 +603,19 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"read_patches_async resolves an empty batch without touching the source",
+	"read_patches_async hands an empty batch over as an empty plan",
 	"[image_read]"
 )
 {
-	// No expectations set on `source`: reading anything would violate.
 	mock_image_source source;
+	const auto done = std::make_shared<counting_completion>(0);
+
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_WITH( _2.get_region_count() == 0 )
+		.RETURN(done);
 
 	const auto centres = make_centres({}, 2);
 	const auto completion = read_patches_async(
@@ -565,9 +625,7 @@ TEST_CASE(
 		centres
 	);
 
-	REQUIRE( completion != nullptr );
-	CHECK( completion->is_ready() );
-	CHECK_NOTHROW( completion->get() );
+	CHECK( completion == done );
 }
 
 TEST_CASE(
