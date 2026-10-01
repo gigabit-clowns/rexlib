@@ -3,13 +3,18 @@
 #include "mrc_geometry.hpp"
 
 #include "mrc_constants.hpp"
+#include "mrc_mode.hpp"
 
 #include <core/logger.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
+#include <rexlib/core/library_version.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 
 #include <algorithm>
-#include <functional>
 #include <numeric>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace rexlib
 {
@@ -157,8 +162,8 @@ std::vector<std::size_t> derive_axis_order(
 		if (!has_unset_axes(header))
 		{
 			throw image_format_error(
-				"mrc_geometry: The axis correspondence of the file names "
-				"anything but the three axes of space, one each."
+				"mrc::derive_file_layout: The axis correspondence of the file "
+				"names anything but the three axes of space, one each."
 			);
 		}
 
@@ -208,33 +213,18 @@ std::vector<T> reorder(
 	return result;
 }
 
-void check_element_alignment(std::size_t offset, numerical_type data_type)
-{
-	const auto element_size = get_size(data_type);
-	if (element_size == 0 || offset % element_size != 0)
-	{
-		throw image_format_error(
-			"mrc_geometry: The values of the file do not begin at an offset "
-			"their data type can be addressed at."
-		);
-	}
-}
-
 image_descriptor derive_descriptor(
 	const mrc_header &header,
 	mrc_single_section single_section,
 	const std::vector<std::size_t> &axis_order
 )
 {
-	const auto data_type = mrc::get_data_type(header);
-	check_element_alignment(mrc::get_data_offset(header), data_type);
-
 	const auto extents =
 		reorder(derive_stored_extents(header, single_section), axis_order);
 	return image_descriptor(
 		make_span(extents),
 		derive_core_rank(header, single_section),
-		data_type
+		mrc::get_data_type(header)
 	);
 }
 
@@ -250,60 +240,116 @@ std::vector<std::ptrdiff_t> derive_strides(
 	);
 }
 
+std::string make_signature()
+{
+	std::ostringstream text;
+	text << "Created by rexlib " << get_library_version();
+	return text.str();
+}
+
 } // anonymous namespace
 
-mrc_geometry::mrc_geometry(
+image_file_layout derive_file_layout(
 	const mrc_header &header,
 	mrc_single_section single_section
 )
-	: mrc_geometry(
-		header,
-		single_section,
-		derive_axis_order(header, single_section)
-	)
 {
-}
+	const auto axis_order = derive_axis_order(header, single_section);
 
-mrc_geometry::mrc_geometry(
-	const mrc_header &header,
-	mrc_single_section single_section,
-	const std::vector<std::size_t> &axis_order
-)
-	: m_descriptor(derive_descriptor(header, single_section, axis_order))
-	, m_strides(derive_strides(header, single_section, axis_order))
-	, m_data_offset(mrc::get_data_offset(header))
-{
-}
-
-const image_descriptor& mrc_geometry::get_descriptor() const noexcept
-{
-	return m_descriptor;
-}
-
-span<const std::ptrdiff_t> mrc_geometry::get_strides() const noexcept
-{
-	return make_span(m_strides.data(), m_strides.size());
-}
-
-std::size_t mrc_geometry::get_data_offset() const noexcept
-{
-	return m_data_offset;
-}
-
-std::size_t mrc_geometry::get_element_count() const noexcept
-{
-	const auto extents = m_descriptor.get_extents();
-	return std::accumulate(
-		extents.begin(),
-		extents.end(),
-		std::size_t(1),
-		std::multiplies<std::size_t>()
+	return image_file_layout(
+		derive_descriptor(header, single_section, axis_order),
+		derive_strides(header, single_section, axis_order),
+		mrc::get_data_offset(header),
+		header.get_byte_order()
 	);
 }
 
-std::size_t mrc_geometry::get_data_size() const noexcept
+mrc_header make_header(const image_descriptor &descriptor)
 {
-	return get_element_count() * get_size(m_descriptor.get_data_type());
+	const auto extents = descriptor.get_extents();
+	const auto core_rank = descriptor.get_core_rank();
+	const auto data_type = descriptor.get_data_type();
+	const auto rank = extents.size();
+
+	if (rank < 2 || rank > 4)
+	{
+		throw unsupported_operation_error(
+			"mrc::make_header: The MRC format holds no file of that rank."
+		);
+	}
+
+	mrc_header header;
+	header.set_mode(get_mode(data_type));
+	if (needs_imod_unsigned_flag(data_type))
+	{
+		header.set_imod_stamp(imod_stamp_value);
+	}
+
+	const auto columns = static_cast<std::int32_t>(extents[rank - 1]);
+	const auto rows = static_cast<std::int32_t>(extents[rank - 2]);
+	header.set_column_count(columns);
+	header.set_row_count(rows);
+	header.set_column_sampling(columns);
+	header.set_row_sampling(rows);
+
+	if (rank == 2 && core_rank == 2)
+	{
+		header.set_section_count(1);
+		header.set_section_sampling(1);
+		header.set_space_group(image_stack_space_group);
+	}
+	else if (rank == 3 && core_rank == 2)
+	{
+		header.set_section_count(static_cast<std::int32_t>(extents[0]));
+		header.set_section_sampling(1);
+		header.set_space_group(image_stack_space_group);
+	}
+	else if (rank == 3 && core_rank == 3)
+	{
+		const auto sections = static_cast<std::int32_t>(extents[0]);
+		header.set_section_count(sections);
+		header.set_section_sampling(sections);
+		header.set_space_group(volume_space_group);
+	}
+	else if (rank == 4 && core_rank == 3)
+	{
+		const auto depth = static_cast<std::int32_t>(extents[1]);
+		header.set_section_count(
+			static_cast<std::int32_t>(extents[0] * extents[1]));
+		header.set_section_sampling(depth);
+		header.set_space_group(first_volume_stack_space_group);
+	}
+	else
+	{
+		throw unsupported_operation_error(
+			"mrc::make_header: The MRC format holds no file of that rank "
+			"and core rank."
+		);
+	}
+
+	header.set_cell_size({{
+		static_cast<float>(header.get_column_count()),
+		static_cast<float>(header.get_row_count()),
+		static_cast<float>(header.get_section_sampling())
+	}});
+	header.set_cell_angles({{90.0F, 90.0F, 90.0F}});
+	header.set_column_axis(1);
+	header.set_row_axis(2);
+	header.set_section_axis(3);
+	header.set_version(written_version);
+
+	// The sentinels the format reserves for statistics that were not
+	// computed: a minimum above the maximum, a mean below both, and a
+	// negative deviation.
+	header.set_data_min(0.0F);
+	header.set_data_max(-1.0F);
+	header.set_data_mean(-2.0F);
+	header.set_data_rms(-1.0F);
+
+	// Sign the header
+	header.add_label(make_signature());
+
+	return header;
 }
 
 } // namespace mrc

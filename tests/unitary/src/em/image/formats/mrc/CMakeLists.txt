@@ -7,7 +7,5 @@ target_sources(
 		test_mrc_header.cpp
 		test_mrc_mode.cpp
 		test_mrc_read_format.cpp
-		test_mrc_reader.cpp
 		test_mrc_write_format.cpp
-		test_mrc_writer.cpp
 )

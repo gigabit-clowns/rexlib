@@ -4,12 +4,14 @@
 
 #include "mrc_constants.hpp"
 #include "mrc_extensions.hpp"
+#include "mrc_geometry.hpp"
 #include "mrc_header.hpp"
-#include "mrc_reader.hpp"
 
+#include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
 #include <em/image/formats/image_format_registration_macros.hpp>
+#include <em/image/formats/memory_mapping/mapped_image_reader.hpp>
 
 namespace rexlib
 {
@@ -43,9 +45,15 @@ mrc_read_format::get_suitability(const image_probe &probe) const
 std::shared_ptr<image_reader>
 mrc_read_format::open(const image_probe &probe) const
 {
-	return std::make_shared<mrc_reader>(
+	const auto header = parse_header(probe.get_leading_bytes());
+
+	return std::make_shared<mapped_image_reader>(
 		probe.get_path(),
-		get_single_section(probe.get_extension())
+		derive_file_layout(
+			header,
+			get_single_section(probe.get_extension())
+		),
+		image_metadata()
 	);
 }
 
