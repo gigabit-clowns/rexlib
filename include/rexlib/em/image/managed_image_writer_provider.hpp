@@ -43,7 +43,7 @@ class image_write_format_manager;
  * created, since two concurrent calls creating one file would otherwise each
  * replace it, and only long enough to look it up when it is already open.
  */
-class managed_image_writer_provider final
+class REXLIB_API managed_image_writer_provider final
 	: public image_writer_provider
 {
 public:
@@ -53,12 +53,10 @@ public:
 	 * @param formats The formats a file may be created with.
 	 * @throws std::invalid_argument If @p formats is null.
 	 */
-	REXLIB_API
 	explicit managed_image_writer_provider(
 		std::shared_ptr<const image_write_format_manager> formats
 	);
 
-	REXLIB_API
 	~managed_image_writer_provider() override;
 
 	/**
@@ -78,7 +76,6 @@ public:
 	 * @param metadata How its samples map onto physical space.
 	 * @throws std::logic_error If that path is already declared.
 	 */
-	REXLIB_API
 	void declare(
 		std::string path,
 		image_descriptor descriptor,
@@ -100,7 +97,6 @@ public:
 	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
-	REXLIB_API
 	void close(const std::string &path);
 
 	/**
@@ -111,17 +107,15 @@ public:
 	 *
 	 * @return std::size_t The number of files.
 	 */
-	REXLIB_API
 	std::size_t get_file_count() const noexcept;
 
-	REXLIB_API
 	std::shared_ptr<image_writer> acquire(const std::string &path) override;
 
-	REXLIB_API
 	void flush() override;
 
 private:
 	class implementation;
+	REXLIB_STD_MEMBER_INTERFACE
 	std::unique_ptr<implementation> m_implementation;
 };
 
