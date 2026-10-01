@@ -5,6 +5,7 @@
 #include <em/image/strided_transfer/image_region_layout.hpp>
 
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <vector>
 
@@ -20,7 +21,9 @@ image_transfer_plan one_region(
 	std::size_t array_rank
 )
 {
-	image_transfer_plan regions(make_span(extents), file_rank, array_rank);
+	image_transfer_plan regions(
+		image_transfer_shape(extents, file_rank, array_rank)
+	);
 	regions.add(
 		make_span(std::vector<std::size_t>(file_rank, 0)),
 		make_span(std::vector<std::size_t>(array_rank, 0))

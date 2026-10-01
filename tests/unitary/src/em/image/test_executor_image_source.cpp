@@ -11,6 +11,7 @@
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include "../../core/concurrency/mock/mock_executor.hpp"
 #include "../../core/hardware/mock/mock_buffer.hpp"
@@ -124,7 +125,7 @@ TEST_CASE(
 {
 	// Three regions in one file, one in the other: exercises both the
 	// many-regions and the few-regions skew in the same plan.
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	const auto one = plan.add_file("stack_1.mrcs");
 	add_element(plan, zero, 0, 0);
@@ -163,7 +164,7 @@ TEST_CASE(
 	"[executor_image_source]"
 )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	plan.add_file("stack_1.mrcs"); // named, never given a region
 	add_element(plan, zero, 0, 0);
@@ -191,7 +192,9 @@ TEST_CASE(
 	"[executor_image_source]"
 )
 {
-	const image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	const image_transaction_plan plan(
+		image_transfer_shape(plane_extents, 3, 3)
+	);
 
 	// No expectations set on `readers`: acquiring anything would violate.
 	const auto readers = std::make_shared<mock_image_reader_provider>();
@@ -212,7 +215,7 @@ TEST_CASE(
 	"[executor_image_source]"
 )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	add_element(plan, zero, 0, 0);
 
@@ -241,7 +244,7 @@ TEST_CASE(
 {
 	// A plane of the stack is three rows tall, so a region of three rows
 	// placed at the second one reaches only two of them.
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	add_region(plan, zero, 0, 1, 0);
 
@@ -253,8 +256,8 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
-			_2.get_extents()[0] == 2 &&
-			_2.get_extents()[1] == 5 &&
+			_2.get_shape().get_extents()[0] == 2 &&
+			_2.get_shape().get_extents()[1] == 5 &&
 			_2.get_file_offset(0)[1] == 1
 		);
 
@@ -273,7 +276,7 @@ TEST_CASE(
 	"[executor_image_source]"
 )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	add_region(plan, zero, 0, 0, 0); // three rows of three
 	add_region(plan, zero, 0, 1, 1); // two of them
@@ -285,11 +288,11 @@ TEST_CASE(
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH( _2.get_extents()[0] == 3 );
+		.LR_WITH( _2.get_shape().get_extents()[0] == 3 );
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH( _2.get_extents()[0] == 2 );
+		.LR_WITH( _2.get_shape().get_extents()[0] == 2 );
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH( _2.get_extents()[0] == 1 );
+		.LR_WITH( _2.get_shape().get_extents()[0] == 1 );
 
 	executor_image_source source(
 		readers,
@@ -309,7 +312,7 @@ TEST_CASE(
 	// The stack holds eight elements, so the region addressing its tenth
 	// reaches nothing and is left out of what the reader is handed. The
 	// file is still opened, for the region that does reach something.
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	add_element(plan, zero, 10, 0);
 	add_element(plan, zero, 3, 1);
@@ -345,7 +348,7 @@ TEST_CASE(
 	// The source's is to submit one task per file and wait for none of them.
 	static REXLIB_CONST_CONSTEXPR std::size_t file_count = 4;
 
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	for (std::size_t i = 0; i < file_count; ++i)
 	{
 		const auto file = plan.add_file("stack_" + std::to_string(i) + ".mrcs");
@@ -371,11 +374,15 @@ TEST_CASE(
 	"[executor_image_source]"
 )
 {
-	image_transaction_plan first_plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan first_plan(
+		image_transfer_shape(plane_extents, 3, 3)
+	);
 	const auto first_file = first_plan.add_file("stack_0.mrcs");
 	add_element(first_plan, first_file, 0, 0);
 
-	image_transaction_plan second_plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan second_plan(
+		image_transfer_shape(plane_extents, 3, 3)
+	);
 	const auto second_file = second_plan.add_file("stack_1.mrcs");
 	add_element(second_plan, second_file, 0, 0);
 

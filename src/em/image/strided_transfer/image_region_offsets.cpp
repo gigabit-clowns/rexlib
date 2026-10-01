@@ -30,9 +30,9 @@ void check_rank(
 
 // The extents of a plan cover the trailing axes of a side, which spans a
 // single position along the leading ones, so the extent of an axis is
-// resolved through get_region_extent rather than by indexing them directly.
+// resolved through the shape rather than by indexing them directly.
 std::ptrdiff_t resolve_offset(
-	const image_transfer_plan &regions,
+	const image_transfer_shape &shape,
 	span<const std::size_t> region_offset,
 	span<const std::size_t> extents,
 	span<const std::ptrdiff_t> strides
@@ -45,7 +45,7 @@ std::ptrdiff_t resolve_offset(
 	{
 		// Check "offset within bounds, then extent within what remains"
 		// to avoid false negatives due to overflow
-		const auto extent = get_region_extent(regions, rank, axis);
+		const auto extent = shape.get_extent(rank, axis);
 		const auto position = region_offset[axis];
 		const auto boundary = extents[axis];
 		const auto remaining = boundary - position;
@@ -75,15 +75,16 @@ image_region_offsets::image_region_offsets(
 	std::ptrdiff_t array_offset
 )
 {
+	const auto &shape = regions.get_shape();
 	check_rank(
 		file_extents.size(),
-		regions.get_file_rank(),
+		shape.get_file_rank(),
 		"image_region_offsets: The file extents do not have the file rank of "
 		"the batch."
 	);
 	check_rank(
 		array_extents.size(),
-		regions.get_array_rank(),
+		shape.get_array_rank(),
 		"image_region_offsets: The array extents do not have the array rank "
 		"of the batch."
 	);
@@ -107,14 +108,14 @@ image_region_offsets::image_region_offsets(
 	{
 		resolved.emplace_back(
 			resolve_offset(
-				regions,
+				shape,
 				regions.get_file_offset(i),
 				file_extents,
 				file_strides
 			),
 			array_offset +
 			resolve_offset(
-				regions,
+				shape,
 				regions.get_array_offset(i),
 				array_extents,
 				array_strides

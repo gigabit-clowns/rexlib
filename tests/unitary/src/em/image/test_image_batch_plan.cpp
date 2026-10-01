@@ -152,9 +152,9 @@ TEST_CASE(
 
 	const auto plan = plan_of(batch_extents, locations);
 
-	CHECK( plan.get_file_rank() == 2 );
-	CHECK( plan.get_array_rank() == 3 );
-	CHECK( to_vector(plan.get_extents()) == element_extents );
+	CHECK( plan.get_shape().get_file_rank() == 2 );
+	CHECK( plan.get_shape().get_array_rank() == 3 );
+	CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 	REQUIRE( plan.get_region_count() == 3 );
 
 	for (std::size_t i = 0; i < 3; ++i)
@@ -185,9 +185,9 @@ TEST_CASE(
 
 	const auto plan = plan_of(batch_extents, locations);
 
-	CHECK( plan.get_file_rank() == 3 );
-	CHECK( plan.get_array_rank() == 3 );
-	CHECK( to_vector(plan.get_extents()) == element_extents );
+	CHECK( plan.get_shape().get_file_rank() == 3 );
+	CHECK( plan.get_shape().get_array_rank() == 3 );
+	CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 	REQUIRE( plan.get_region_count() == 3 );
 	CHECK( to_vector(plan.get_file_offset(0)) ==
 		std::vector<std::size_t>{2, 0, 0} );
@@ -220,7 +220,7 @@ TEST_CASE(
 	const auto plan = plan_of(batch_extents, locations);
 
 	CHECK( plan.get_region_count() == 3 );
-	CHECK( to_vector(plan.get_extents()) == element_extents );
+	CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 	CHECK( to_vector(plan.get_file_offset(0)) ==
 		std::vector<std::size_t>{6, 0, 0} );
 	CHECK( to_vector(plan.get_file_offset(2)) ==
@@ -244,7 +244,7 @@ TEST_CASE(
 		const auto plan = plan_of(batch_extents, locations);
 
 		CHECK( plan.get_region_count() == 3 );
-		CHECK( to_vector(plan.get_extents()) == element_extents );
+		CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 	}
 
 	SECTION( "consecutive indices in different stacks" )
@@ -258,7 +258,7 @@ TEST_CASE(
 		const auto plan = plan_of(batch_extents, locations);
 
 		CHECK( plan.get_region_count() == 3 );
-		CHECK( to_vector(plan.get_extents()) == element_extents );
+		CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 	}
 
 	SECTION( "one stack's indices in descending order" )
@@ -272,7 +272,7 @@ TEST_CASE(
 		const auto plan = plan_of(batch_extents, locations);
 
 		CHECK( plan.get_region_count() == 3 );
-		CHECK( to_vector(plan.get_extents()) == element_extents );
+		CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 	}
 
 	SECTION( "a batch of a single slot" )
@@ -284,7 +284,7 @@ TEST_CASE(
 		const auto plan = plan_of({1, 4, 4}, locations);
 
 		REQUIRE( plan.get_region_count() == 1 );
-		CHECK( to_vector(plan.get_extents()) == element_extents );
+		CHECK( to_vector(plan.get_shape().get_extents()) == element_extents );
 		CHECK( to_vector(plan.get_file_offset(0)) ==
 			std::vector<std::size_t>{4, 0, 0} );
 	}

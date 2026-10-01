@@ -5,6 +5,7 @@
 #include <em/image/image_region_grouping.hpp>
 
 #include <rexlib/em/image/image_transaction_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
 #include <cstddef>
@@ -52,7 +53,7 @@ TEST_CASE( "an image_region_grouping gathers the regions of each file together",
 {
 	// A batch drawn at random from three stacks, in the order a sampler
 	// happened to produce it. This is the case the type exists for.
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	const auto one = plan.add_file("stack_1.mrcs");
 	const auto two = plan.add_file("stack_2.mrcs");
@@ -158,7 +159,7 @@ TEST_CASE( "an image_region_grouping gathers the regions of each file together",
 TEST_CASE( "a file no region addresses is grouped as empty",
 	"[image_region_grouping]" )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	const auto empty = plan.add_file("stack_1.mrcs");
 	add_element(plan, zero, 0, 0);
@@ -173,7 +174,7 @@ TEST_CASE( "a file no region addresses is grouped as empty",
 
 TEST_CASE( "an empty plan groups into nothing", "[image_region_grouping]" )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	plan.add_file("stack_0.mrcs");
 
 	image_region_grouping grouping;
@@ -192,7 +193,7 @@ TEST_CASE(
 {
 	const std::size_t count = 64;
 
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	plan.reserve(2, count);
 
 	image_region_grouping grouping;
@@ -230,7 +231,7 @@ TEST_CASE(
 	"[image_region_grouping]"
 )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto file = plan.add_file("stack_0.mrcs");
 	add_element(plan, file, 2, 0);
 

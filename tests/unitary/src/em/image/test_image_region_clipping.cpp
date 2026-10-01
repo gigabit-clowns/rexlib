@@ -5,6 +5,7 @@
 #include <em/image/image_region_clipping.hpp>
 
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <cstddef>
 #include <stdexcept>
@@ -42,7 +43,7 @@ void add_patch(
 
 image_transfer_plan make_patch_plan()
 {
-	return image_transfer_plan(make_span(patch_extents), 2, 3);
+	return image_transfer_plan(image_transfer_shape(patch_extents, 2, 3));
 }
 
 // The destination of a batch of `count` patches.
@@ -143,7 +144,7 @@ TEST_CASE(
 	);
 
 	REQUIRE( result.size() == 1 );
-	CHECK( to_vector(result[0].get_extents()) ==
+	CHECK( to_vector(result[0].get_shape().get_extents()) ==
 		std::vector<std::size_t>{5, 7} );
 	REQUIRE( result[0].get_region_count() == 1 );
 	CHECK( to_vector(result[0].get_file_offset(0)) ==
@@ -177,7 +178,7 @@ TEST_CASE(
 	);
 
 	REQUIRE( result.size() == 1 );
-	CHECK( to_vector(result[0].get_extents()) ==
+	CHECK( to_vector(result[0].get_shape().get_extents()) ==
 		std::vector<std::size_t>{6, 4} );
 	REQUIRE( result[0].get_region_count() == 1 );
 	CHECK( to_vector(result[0].get_file_offset(0)) ==
@@ -211,7 +212,7 @@ TEST_CASE(
 	);
 
 	REQUIRE( result.size() == 1 );
-	CHECK( to_vector(result[0].get_extents()) ==
+	CHECK( to_vector(result[0].get_shape().get_extents()) ==
 		std::vector<std::size_t>{8, 5} );
 }
 
@@ -239,7 +240,8 @@ TEST_CASE(
 		);
 
 		REQUIRE( result.size() == 1 );
-		CHECK( to_vector(result[0].get_extents()) == patch_extents );
+		CHECK( to_vector(result[0].get_shape().get_extents()) ==
+			patch_extents );
 		REQUIRE( result[0].get_region_count() == 1 );
 		CHECK( to_vector(result[0].get_array_offset(0)) ==
 			std::vector<std::size_t>{1, 0, 0} );
@@ -317,22 +319,22 @@ TEST_CASE(
 	// One per distinct shape, in the order the shapes were first met.
 	REQUIRE( result.size() == 4 );
 
-	CHECK( to_vector(result[0].get_extents()) == patch_extents );
+	CHECK( to_vector(result[0].get_shape().get_extents()) == patch_extents );
 	REQUIRE( result[0].get_region_count() == 2 );
 	CHECK( to_vector(result[0].get_array_offset(0)) ==
 		std::vector<std::size_t>{0, 0, 0} );
 	CHECK( to_vector(result[0].get_array_offset(1)) ==
 		std::vector<std::size_t>{2, 0, 0} );
 
-	CHECK( to_vector(result[1].get_extents()) ==
+	CHECK( to_vector(result[1].get_shape().get_extents()) ==
 		std::vector<std::size_t>{5, 10} );
 	REQUIRE( result[1].get_region_count() == 1 );
 
-	CHECK( to_vector(result[2].get_extents()) ==
+	CHECK( to_vector(result[2].get_shape().get_extents()) ==
 		std::vector<std::size_t>{10, 3} );
 	REQUIRE( result[2].get_region_count() == 1 );
 
-	CHECK( to_vector(result[3].get_extents()) ==
+	CHECK( to_vector(result[3].get_shape().get_extents()) ==
 		std::vector<std::size_t>{4, 10} );
 	REQUIRE( result[3].get_region_count() == 1 );
 }
@@ -345,7 +347,7 @@ TEST_CASE(
 	// A patch of one slice of a stack: the file carries an axis the extents
 	// do not reach, as the array does.
 	const std::vector<std::size_t> stack_extents = {6, 100, 100};
-	image_transfer_plan regions(make_span(patch_extents), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(patch_extents, 3, 3));
 
 	const std::size_t file_offset[3] = {4, 95, 40};
 	const std::size_t array_offset[3] = {0, 0, 0};
@@ -364,10 +366,10 @@ TEST_CASE(
 	);
 
 	REQUIRE( result.size() == 1 );
-	CHECK( result[0].get_file_rank() == 3 );
-	CHECK( result[0].get_array_rank() == 3 );
-	CHECK( result[0].get_rank() == 2 );
-	CHECK( to_vector(result[0].get_extents()) ==
+	CHECK( result[0].get_shape().get_file_rank() == 3 );
+	CHECK( result[0].get_shape().get_array_rank() == 3 );
+	CHECK( result[0].get_shape().get_rank() == 2 );
+	CHECK( to_vector(result[0].get_shape().get_extents()) ==
 		std::vector<std::size_t>{5, 10} );
 	CHECK( to_vector(result[0].get_file_offset(0)) ==
 		std::vector<std::size_t>{4, 95, 40} );
@@ -383,7 +385,7 @@ TEST_CASE(
 
 	const auto array_extents = make_array_extents(1);
 	std::vector<image_transfer_plan> result;
-	result.emplace_back(make_span(patch_extents), 2, 3);
+	result.emplace_back(image_transfer_shape(patch_extents, 2, 3));
 
 	REQUIRE(
 		make_clipped_transfer_plans(
@@ -395,6 +397,6 @@ TEST_CASE(
 	);
 
 	REQUIRE( result.size() == 1 );
-	CHECK( to_vector(result[0].get_extents()) ==
+	CHECK( to_vector(result[0].get_shape().get_extents()) ==
 		std::vector<std::size_t>{5, 10} );
 }

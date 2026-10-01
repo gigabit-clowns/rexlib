@@ -10,6 +10,7 @@
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
 
@@ -202,7 +203,8 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		);
 
 		image_transfer_plan regions(
-			make_span(shape), shape.size(), shape.size());
+			image_transfer_shape(shape, shape.size(), shape.size())
+		);
 		regions.add(
 			make_span(std::vector<std::size_t>(shape.size(), 0)),
 			make_span(std::vector<std::size_t>(shape.size(), 0))

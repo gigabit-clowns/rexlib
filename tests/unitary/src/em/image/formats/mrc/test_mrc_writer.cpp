@@ -20,6 +20,7 @@
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include "../../fixtures/scoped_path.hpp"
 
@@ -106,7 +107,8 @@ image_descriptor make_descriptor(
 image_transfer_plan whole_of(const std::vector<std::size_t> &extents)
 {
 	image_transfer_plan regions(
-		make_span(extents), extents.size(), extents.size());
+		image_transfer_shape(extents, extents.size(), extents.size())
+	);
 	regions.add(
 		make_span(std::vector<std::size_t>(extents.size(), 0)),
 		make_span(std::vector<std::size_t>(extents.size(), 0))
@@ -633,7 +635,7 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 
 			for (std::size_t i = 0; i < 3; ++i)
 			{
-				image_transfer_plan regions(make_span(plane), 3, 3);
+				image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 				regions.add(
 					make_span(std::vector<std::size_t>{i, 0, 0}),
 					make_span(std::vector<std::size_t>{i, 0, 0})

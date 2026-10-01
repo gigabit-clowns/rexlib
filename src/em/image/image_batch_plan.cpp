@@ -5,6 +5,7 @@
 #include <rexlib/core/platform/attributes.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <stdexcept>
 #include <string>
@@ -56,12 +57,17 @@ image_transaction_plan make_slot_plan(
 	const auto array_rank = array_extents.size();
 	const auto core_rank = array_rank - 1;
 	const auto file_rank = stack_indexing ? array_rank : core_rank;
-	const span<const std::size_t> core_extents(
-		array_extents.data() + 1,
-		core_rank
-	);
 
-	image_transaction_plan transaction(core_extents, file_rank, array_rank);
+	image_transaction_plan transaction(
+		image_transfer_shape(
+			std::vector<std::size_t>(
+				array_extents.begin() + 1,
+				array_extents.end()
+			),
+			file_rank,
+			array_rank
+		)
+	);
 	transaction.reserve(locations.size(), locations.size());
 
 	std::vector<std::size_t> file_offset(file_rank, 0UL);

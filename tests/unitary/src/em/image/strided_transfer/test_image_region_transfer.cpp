@@ -11,6 +11,7 @@
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/numerical/numerical_type_traits.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
 #include <complex>
@@ -125,7 +126,7 @@ TEST_CASE( "one region is moved out of a file and into an array",
 	const auto strides = contiguous_strides(extents);
 	const auto file = counting<float32_t>(12);
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -163,7 +164,7 @@ TEST_CASE( "a batch of regions shares one layout",
 	const auto file_strides = contiguous_strides(file_extents);
 	const auto file = counting<float32_t>(12);
 
-	image_transfer_plan regions(make_span(region_extents), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(region_extents, 3, 3));
 	for (std::size_t i = 0; i < 3; ++i)
 	{
 		regions.add(
@@ -208,7 +209,7 @@ TEST_CASE( "a run of the regions of a batch is moved on its own",
 
 	// Each region lands where it sits in the file, so a run of them leaves
 	// the slots of the others alone.
-	image_transfer_plan regions(make_span(region_extents), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(region_extents, 3, 3));
 	for (std::size_t i = 0; i < 3; ++i)
 	{
 		regions.add(
@@ -294,7 +295,7 @@ TEST_CASE( "a region reaches an array of a different rank",
 	const auto array_strides = contiguous_strides(array_extents);
 	const auto file = counting<float32_t>(12);
 
-	image_transfer_plan regions(make_span(region_extents), 3, 2);
+	image_transfer_plan regions(image_transfer_shape(region_extents, 3, 2));
 	regions.add(make_span(std::vector<std::size_t>{1, 0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -325,7 +326,7 @@ TEST_CASE( "a region lands in a strided array",
 	const std::vector<std::ptrdiff_t> array_strides = {5, 1};
 	const auto file = counting<float32_t>(6);
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -358,7 +359,7 @@ TEST_CASE( "values are converted into the type asked for",
 	const std::vector<std::size_t> extents = {2, 2};
 	const auto strides = contiguous_strides(extents);
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -481,7 +482,7 @@ TEST_CASE( "a file of the other byte order is read in it",
 	const std::vector<std::size_t> extents = {2, 2};
 	const auto strides = contiguous_strides(extents);
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -575,7 +576,7 @@ TEST_CASE( "a region is moved out of an array and into a file",
 	const std::vector<std::size_t> extents = {2, 2};
 	const auto strides = contiguous_strides(extents);
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -679,7 +680,7 @@ TEST_CASE( "a batch that does not fit is refused before anything moves",
 
 	SECTION( "a region past the end of the file is refused" )
 	{
-		image_transfer_plan regions(make_span(region_extents), 2, 2);
+		image_transfer_plan regions(image_transfer_shape(region_extents, 2, 2));
 		regions.add(make_span(std::vector<std::size_t>{1, 0}),
 			make_span(std::vector<std::size_t>{0, 0}));
 
@@ -696,7 +697,7 @@ TEST_CASE( "a batch that does not fit is refused before anything moves",
 
 	SECTION( "a region past the end of the array is refused" )
 	{
-		image_transfer_plan regions(make_span(region_extents), 2, 2);
+		image_transfer_plan regions(image_transfer_shape(region_extents, 2, 2));
 		regions.add(make_span(std::vector<std::size_t>{0, 0}),
 			make_span(std::vector<std::size_t>{0, 1}));
 
@@ -713,7 +714,7 @@ TEST_CASE( "a batch that does not fit is refused before anything moves",
 
 	SECTION( "one bad region among good ones refuses the whole batch" )
 	{
-		image_transfer_plan regions(make_span(region_extents), 2, 2);
+		image_transfer_plan regions(image_transfer_shape(region_extents, 2, 2));
 		regions.add(make_span(std::vector<std::size_t>{0, 0}),
 			make_span(std::vector<std::size_t>{0, 0}));
 		regions.add(make_span(std::vector<std::size_t>{0, 3}),
@@ -739,7 +740,7 @@ TEST_CASE( "a batch whose ranks disagree with its sides is refused",
 	const auto strides = contiguous_strides(extents);
 	const auto deeper_strides = contiguous_strides(deeper);
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -790,7 +791,7 @@ TEST_CASE( "an empty batch moves nothing and succeeds",
 	const auto strides = contiguous_strides(extents);
 	const std::vector<float32_t> file = {1, 2, 3, 4};
 
-	const image_transfer_plan regions(make_span(extents), 2, 2);
+	const image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	const image_region_read_plan plan(
 		regions,
 		make_span(extents), make_span(strides),

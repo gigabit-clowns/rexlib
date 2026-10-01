@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <limits>
 #include <stdexcept>
+#include <utility>
 
 namespace rexlib
 {
@@ -52,11 +53,13 @@ bool clip_region(
 	std::vector<std::size_t> &extents
 )
 {
-	const auto rank = regions.get_rank();
+	const auto &shape = regions.get_shape();
+	const auto rank = shape.get_rank();
 	const auto file_offset = regions.get_file_offset(region_index);
 	const auto array_offset = regions.get_array_offset(region_index);
-	const auto file_leading = regions.get_file_rank() - rank;
-	const auto array_leading = regions.get_array_rank() - rank;
+	const auto file_leading = shape.get_leading_rank(shape.get_file_rank());
+	const auto array_leading =
+		shape.get_leading_rank(shape.get_array_rank());
 
 	for (std::size_t axis = 0; axis < file_leading; ++axis)
 	{
@@ -74,7 +77,7 @@ bool clip_region(
 		}
 	}
 
-	const auto whole = regions.get_extents();
+	const auto whole = shape.get_extents();
 	extents.assign(whole.begin(), whole.end());
 	for (std::size_t axis = 0; axis < rank; ++axis)
 	{
@@ -122,15 +125,16 @@ bool make_clipped_transfer_plans(
 	std::vector<image_transfer_plan> &result
 )
 {
+	const auto &shape = regions.get_shape();
 	check_rank(
 		file_extents.size(),
-		regions.get_file_rank(),
+		shape.get_file_rank(),
 		"make_clipped_transfer_plans: The file extents do not have the file "
 		"rank of the regions."
 	);
 	check_rank(
 		array_extents.size(),
-		regions.get_array_rank(),
+		shape.get_array_rank(),
 		"make_clipped_transfer_plans: The array extents do not have the "
 		"array rank of the regions."
 	);
@@ -138,7 +142,7 @@ bool make_clipped_transfer_plans(
 	result.clear();
 
 	const auto count = regions.get_region_count();
-	const auto whole = regions.get_extents();
+	const auto whole = shape.get_extents();
 
 	std::vector<std::size_t> group_of_region(count, no_group);
 	std::vector<std::vector<std::size_t>> group_extents;
@@ -179,9 +183,11 @@ bool make_clipped_transfer_plans(
 	for (std::size_t group = 0; group < group_extents.size(); ++group)
 	{
 		result.emplace_back(
-			make_span(group_extents[group]),
-			regions.get_file_rank(),
-			regions.get_array_rank()
+			image_transfer_shape(
+				std::move(group_extents[group]),
+				shape.get_file_rank(),
+				shape.get_array_rank()
+			)
 		);
 		result.back().reserve(group_counts[group]);
 	}

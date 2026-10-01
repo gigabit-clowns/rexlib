@@ -16,6 +16,7 @@
 #include <rexlib/em/image/image_source.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/index_table.hpp>
 #include <rexlib/functional/creation.hpp>
 
@@ -53,7 +54,13 @@ array read_whole_file(
 		context
 	);
 
-	image_transfer_plan plan(extents, rank, rank);
+	image_transfer_plan plan(
+		image_transfer_shape(
+			std::vector<std::size_t>(extents.begin(), extents.end()),
+			rank,
+			rank
+		)
+	);
 	const std::vector<std::size_t> origin(rank, 0UL);
 	plan.add(make_span(origin), make_span(origin));
 
@@ -86,7 +93,13 @@ array read_stack_slice(
 		context
 	);
 
-	image_transfer_plan plan(core_extents, file_extents.size(), core_rank);
+	image_transfer_plan plan(
+		image_transfer_shape(
+			std::vector<std::size_t>(core_extents.begin(), core_extents.end()),
+			file_extents.size(),
+			core_rank
+		)
+	);
 	std::vector<std::size_t> file_offset(file_extents.size(), 0UL);
 	file_offset[0] = index_in_stack;
 	const std::vector<std::size_t> array_offset(core_rank, 0UL);
@@ -104,12 +117,14 @@ array read_stack_slice(
 // the extents of a whole patch and every patch of the batch shares them.
 void place_patch(
 	span<const std::size_t> centre,
-	span<const std::size_t> patch_extents,
-	std::size_t file_leading,
+	const image_transfer_shape &shape,
 	std::vector<std::size_t> &file_offset,
 	std::vector<std::size_t> &array_offset
 ) noexcept
 {
+	const auto patch_extents = shape.get_extents();
+	const auto file_leading = shape.get_leading_rank(shape.get_file_rank());
+	const auto array_leading = shape.get_leading_rank(shape.get_array_rank());
 	for (std::size_t axis = 0; axis < patch_extents.size(); ++axis)
 	{
 		const auto half =
@@ -119,7 +134,7 @@ void place_patch(
 
 		file_offset[file_leading + axis] =
 			static_cast<std::size_t>(std::max<std::ptrdiff_t>(corner, 0));
-		array_offset[1 + axis] =
+		array_offset[array_leading + axis] =
 			static_cast<std::size_t>(std::max<std::ptrdiff_t>(-corner, 0));
 	}
 }
@@ -214,13 +229,17 @@ std::shared_ptr<completion> read_patches_async(
 
 	const auto stack_indexing = location.has_index_in_stack();
 	const auto file_rank = stack_indexing ? array_rank : patch_rank;
-	const auto file_leading = file_rank - patch_rank;
-	const span<const std::size_t> patch_extents(
-		array_extents.data() + 1,
-		patch_rank
-	);
 
-	image_transaction_plan transaction(patch_extents, file_rank, array_rank);
+	image_transaction_plan transaction(
+		image_transfer_shape(
+			std::vector<std::size_t>(
+				array_extents.begin() + 1,
+				array_extents.end()
+			),
+			file_rank,
+			array_rank
+		)
+	);
 	transaction.reserve(1, batch_size);
 
 	const auto file_index = transaction.add_file(location.get_path());
@@ -236,8 +255,7 @@ std::shared_ptr<completion> read_patches_async(
 		array_offset[0] = i;
 		place_patch(
 			centres.get(i),
-			patch_extents,
-			file_leading,
+			transaction.get_shape(),
 			file_offset,
 			array_offset
 		);

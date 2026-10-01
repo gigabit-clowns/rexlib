@@ -91,9 +91,9 @@ TEST_CASE_METHOD(
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
-			_2.get_file_rank() == 3 &&
-			_2.get_array_rank() == 3 &&
-			to_vector(_2.get_extents()) == extents &&
+			_2.get_shape().get_file_rank() == 3 &&
+			_2.get_shape().get_array_rank() == 3 &&
+			to_vector(_2.get_shape().get_extents()) == extents &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{0, 0, 0} &&
 			to_vector(_2.get_array_offset(0)) ==
@@ -245,9 +245,9 @@ TEST_CASE_METHOD(
 	REQUIRE_CALL(*writer, write(trompeloeil::_, trompeloeil::_))
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
-			_2.get_file_rank() == 3 &&
-			_2.get_array_rank() == 3 &&
-			to_vector(_2.get_extents()) == extents
+			_2.get_shape().get_file_rank() == 3 &&
+			_2.get_shape().get_array_rank() == 3 &&
+			to_vector(_2.get_shape().get_extents()) == extents
 		);
 	ALLOW_CALL(*writer, flush());
 
@@ -418,9 +418,10 @@ TEST_CASE(
 		.LR_WITH(
 			extents_of(_1) == std::vector<std::size_t>{2, 3, 5} &&
 			_2.get_region_count() == 2 &&
-			_2.get_file_rank() == 2 &&
-			_2.get_array_rank() == 3 &&
-			to_vector(_2.get_extents()) == std::vector<std::size_t>{3, 5} &&
+			_2.get_shape().get_file_rank() == 2 &&
+			_2.get_shape().get_array_rank() == 3 &&
+			to_vector(_2.get_shape().get_extents()) ==
+				std::vector<std::size_t>{3, 5} &&
 			_2.get_file(_2.get_region_file(0)) == "a.mrc" &&
 			_2.get_file(_2.get_region_file(1)) == "b.mrc" &&
 			to_vector(_2.get_file_offset(0)) ==
@@ -461,9 +462,10 @@ TEST_CASE(
 			_2.get_file_count() == 1 &&
 			_2.get_file(0) == "particles.mrcs" &&
 			_2.get_region_count() == 3 &&
-			_2.get_file_rank() == 3 &&
-			_2.get_array_rank() == 3 &&
-			to_vector(_2.get_extents()) == std::vector<std::size_t>{4, 4} &&
+			_2.get_shape().get_file_rank() == 3 &&
+			_2.get_shape().get_array_rank() == 3 &&
+			to_vector(_2.get_shape().get_extents()) ==
+				std::vector<std::size_t>{4, 4} &&
 			to_vector(_2.get_file_offset(0)) ==
 				std::vector<std::size_t>{6, 0, 0} &&
 			to_vector(_2.get_array_offset(0)) ==

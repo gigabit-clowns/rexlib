@@ -11,6 +11,7 @@
 #include <rexlib/em/image/image_sink.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 
 #include <em/image/image_batch_plan.hpp>
@@ -125,7 +126,7 @@ void write(
 	const auto writer = manager.open(path, descriptor, metadata);
 
 	const auto rank = extents.size();
-	image_transfer_plan plan(make_span(extents), rank, rank);
+	image_transfer_plan plan(image_transfer_shape(extents, rank, rank));
 	const std::vector<std::size_t> origin(rank, 0UL);
 	plan.add(make_span(origin), make_span(origin));
 

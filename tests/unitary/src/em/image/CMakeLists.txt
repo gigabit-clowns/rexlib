@@ -17,10 +17,10 @@ target_sources(
 		test_image_read_format_registry.cpp
 		test_image_reader_provider.cpp
 		test_image_region_clipping.cpp
-		test_image_region_extents.cpp
 		test_image_region_grouping.cpp
 		test_image_transaction_plan.cpp
 		test_image_transfer_plan.cpp
+		test_image_transfer_shape.cpp
 		test_image_write.cpp
 		test_image_write_format_manager.cpp
 		test_image_write_format_registry.cpp

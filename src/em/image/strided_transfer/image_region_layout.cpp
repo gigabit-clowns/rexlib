@@ -13,10 +13,15 @@ namespace em
 namespace
 {
 
-span<const std::ptrdiff_t>
-trailing(span<const std::ptrdiff_t> strides, std::size_t count)
+span<const std::ptrdiff_t> get_region_strides(
+	const image_transfer_shape &shape,
+	span<const std::ptrdiff_t> strides
+)
 {
-	return make_span(strides.data() + (strides.size() - count), count);
+	return make_span(
+		strides.data() + shape.get_leading_rank(strides.size()),
+		shape.get_rank()
+	);
 }
 
 } // anonymous namespace
@@ -27,13 +32,17 @@ joint_layout build_region_layout(
 	span<const std::ptrdiff_t> source_strides
 )
 {
-	const auto rank = regions.get_rank();
-	const auto extents = regions.get_extents();
+	const auto &shape = regions.get_shape();
+	const auto extents = shape.get_extents();
 
 	joint_layout_builder builder;
 	builder.set_extents(extents);
-	builder.add_operand(extents, trailing(destination_strides, rank), 0);
-	builder.add_operand(extents, trailing(source_strides, rank), 0);
+	builder.add_operand(
+		extents,
+		get_region_strides(shape, destination_strides),
+		0
+	);
+	builder.add_operand(extents, get_region_strides(shape, source_strides), 0);
 	return builder.build();
 }
 

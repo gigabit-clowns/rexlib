@@ -4,12 +4,12 @@
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/index_table.hpp>
 #include <rexlib/em/image/interned_path_list.hpp>
 
 #include <cstddef>
 #include <string>
-#include <vector>
 
 namespace rexlib
 {
@@ -20,17 +20,12 @@ namespace em
  * @brief The regions to transfer between many files and one array.
  *
  * Every region pairs an offset into a file with an offset into the array,
- * names the file it belongs to, and shares one set of extents with every
- * other region in the plan.
+ * names the file it belongs to, and shares one @ref image_transfer_shape with
+ * every other region in the plan. The file rank of the shape is the rank of
+ * every file.
  *
- * The extents are the shape of one region, so their rank is the rank of the
- * region rather than of either side, exactly as in @ref image_transfer_plan.
- * A side of higher rank spans a single position along the axes the extents
- * do not reach, which are its leading ones.
- *
- * The shape, which is the extents and the two ranks, is fixed when a plan is
- * constructed; only the files and the regions come and go. Every file has
- * the same rank.
+ * The shape is fixed when a plan is constructed; only the files and the
+ * regions come and go.
  *
  * Regions are held in the order they were added, not grouped by file.
  *
@@ -45,19 +40,10 @@ public:
 	 * The shape is what every region of the plan shares and is fixed for
 	 * the life of it; only the files and the regions are added and dropped.
 	 *
-	 * @param extents Extents of one region. Their rank is the rank of the
-	 * region, which may be lower than that of either side.
-	 * @param file_rank Rank of every file the regions address.
-	 * @param array_rank Rank of the array the regions address.
-	 * @throws std::invalid_argument If the rank of @p extents exceeds
-	 * @p file_rank or @p array_rank.
+	 * @param shape The shape of every region.
 	 */
 	REXLIB_API
-	image_transaction_plan(
-		span<const std::size_t> extents,
-		std::size_t file_rank,
-		std::size_t array_rank
-	);
+	explicit image_transaction_plan(image_transfer_shape shape);
 
 	REXLIB_API
 	image_transaction_plan(const image_transaction_plan &other);
@@ -91,9 +77,9 @@ public:
 	 * @param file_index Index of the file it addresses, as @ref add_file
 	 * returned it.
 	 * @param file_offset Index of the first element of the region in the
-	 * file. Its size must equal @ref get_file_rank.
+	 * file. Its size must equal the file rank of the shape.
 	 * @param array_offset Index of the first element of the region in the
-	 * array. Its size must equal @ref get_array_rank.
+	 * array. Its size must equal the array rank of the shape.
 	 * @throws std::out_of_range If @p file_index names no file.
 	 * @throws std::invalid_argument If either offset has the wrong rank.
 	 */
@@ -129,39 +115,13 @@ public:
 	std::size_t get_region_count() const noexcept;
 
 	/**
-	 * @brief Get the rank of one region.
+	 * @brief Get the shape every region shares.
 	 *
-	 * The rank of the extents. Each side spans a single position along the
-	 * axes beyond it.
-	 *
-	 * @return std::size_t The rank.
+	 * @return const image_transfer_shape& The shape. It refers to storage
+	 * owned by this plan.
 	 */
 	REXLIB_API
-	std::size_t get_rank() const noexcept;
-
-	/**
-	 * @brief Get the rank of every file the regions address.
-	 *
-	 * @return std::size_t The rank.
-	 */
-	REXLIB_API
-	std::size_t get_file_rank() const noexcept;
-
-	/**
-	 * @brief Get the rank of the array the regions address.
-	 *
-	 * @return std::size_t The rank.
-	 */
-	REXLIB_API
-	std::size_t get_array_rank() const noexcept;
-
-	/**
-	 * @brief Get the extents shared by every region.
-	 *
-	 * @return span<const std::size_t> The extents, of rank @ref get_rank.
-	 */
-	REXLIB_API
-	span<const std::size_t> get_extents() const noexcept;
+	const image_transfer_shape& get_shape() const noexcept;
 
 	/**
 	 * @brief Get how many distinct files the regions may address.
@@ -199,8 +159,8 @@ public:
 	 *
 	 * @param region_index Index of the region. Must be below
 	 * @ref get_region_count.
-	 * @return span<const std::size_t> The offset, of rank
-	 * @ref get_file_rank. It refers to storage owned by this plan.
+	 * @return span<const std::size_t> The offset, of the file rank of the
+	 * shape. It refers to storage owned by this plan.
 	 */
 	REXLIB_API
 	span<const std::size_t>
@@ -211,15 +171,15 @@ public:
 	 *
 	 * @param region_index Index of the region. Must be below
 	 * @ref get_region_count.
-	 * @return span<const std::size_t> The offset, of rank
-	 * @ref get_array_rank. It refers to storage owned by this plan.
+	 * @return span<const std::size_t> The offset, of the array rank of the
+	 * shape. It refers to storage owned by this plan.
 	 */
 	REXLIB_API
 	span<const std::size_t>
 	get_array_offset(std::size_t region_index) const noexcept;
 
 private:
-	std::vector<std::size_t> m_extents;
+	image_transfer_shape m_shape;
 	interned_path_list m_files;
 	index_table m_file_offsets;
 	index_table m_array_offsets;

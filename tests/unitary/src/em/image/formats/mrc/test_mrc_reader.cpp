@@ -16,6 +16,7 @@
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include "../../fixtures/scoped_path.hpp"
 #include "fixtures/mrc_test_file.hpp"
@@ -92,7 +93,8 @@ std::vector<float> read_all(const mrc_reader &reader)
 	auto destination = make_host_array(shape);
 
 	image_transfer_plan regions(
-		make_span(shape), shape.size(), shape.size());
+		image_transfer_shape(shape, shape.size(), shape.size())
+	);
 	regions.add(
 		make_span(std::vector<std::size_t>(shape.size(), 0)),
 		make_span(std::vector<std::size_t>(shape.size(), 0))
@@ -195,7 +197,7 @@ TEST_CASE( "the values of an MRC file are read into an array",
 		const std::vector<std::size_t> region = {3, 4};
 		auto destination = make_host_array(region);
 
-		image_transfer_plan regions(make_span(region), 3, 2);
+		image_transfer_plan regions(image_transfer_shape(region, 3, 2));
 		regions.add(
 			make_span(std::vector<std::size_t>{1, 0, 0}),
 			make_span(std::vector<std::size_t>{0, 0})
@@ -221,7 +223,7 @@ TEST_CASE( "the values of an MRC file are read into an array",
 		auto destination = make_host_array(shape);
 
 		const std::vector<std::size_t> region = {3, 4};
-		image_transfer_plan regions(make_span(region), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(region, 3, 3));
 
 		const std::size_t sections[3] = {2, 0, 1};
 		for (std::size_t i = 0; i < 3; ++i)
@@ -255,7 +257,7 @@ TEST_CASE( "the values of an MRC file are read into an array",
 
 		const std::vector<std::size_t> region = {3, 4};
 		auto destination = make_host_array(region);
-		const image_transfer_plan regions(make_span(region), 3, 2);
+		const image_transfer_plan regions(image_transfer_shape(region, 3, 2));
 
 		REQUIRE_NOTHROW( reader.read(array_ref(destination), regions) );
 	}
@@ -266,7 +268,7 @@ TEST_CASE( "the values of an MRC file are read into an array",
 
 		const mrc_reader reader(path.get());
 		const std::vector<std::size_t> region = {3, 4};
-		image_transfer_plan regions(make_span(region), 2, 2);
+		image_transfer_plan regions(image_transfer_shape(region, 2, 2));
 
 		REQUIRE_THROWS_MATCHES(
 			reader.read(array_ref(), regions),

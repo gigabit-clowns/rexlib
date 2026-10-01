@@ -5,6 +5,7 @@
 #include <em/image/strided_transfer/image_region_read_plan.hpp>
 
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <stdexcept>
 #include <vector>
@@ -23,7 +24,7 @@ const std::vector<std::ptrdiff_t> column_major = {1, 4};
 
 image_transfer_plan one_region()
 {
-	image_transfer_plan regions(make_span(region_extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(region_extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -61,7 +62,7 @@ TEST_CASE( "a batch that does not fit is refused by a read",
 	const std::vector<std::size_t> extents = {2, 2};
 	const std::vector<std::ptrdiff_t> strides = {2, 1};
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{1, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 

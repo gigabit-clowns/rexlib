@@ -18,12 +18,12 @@ target_sources(
 		image_reader.cpp
 		image_reader_provider.cpp
 		image_region_clipping.cpp
-		image_region_extents.cpp
 		image_region_grouping.cpp
 		image_sink.cpp
 		image_source.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
+		image_transfer_shape.cpp
 		image_write.cpp
 		image_write_format.cpp
 		image_write_format_manager.cpp

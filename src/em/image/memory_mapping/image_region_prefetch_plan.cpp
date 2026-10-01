@@ -19,12 +19,13 @@ std::size_t compute_region_span(
 	numerical_type data_type
 ) noexcept
 {
+	const auto &shape = regions.get_shape();
 	const auto rank = file_strides.size();
 
 	std::size_t elements = 1;
 	for (std::size_t axis = 0; axis < rank; ++axis)
 	{
-		const auto extent = get_region_extent(regions, rank, axis);
+		const auto extent = shape.get_extent(rank, axis);
 		if (extent == 0)
 		{
 			return 0;

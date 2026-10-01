@@ -2,10 +2,6 @@
 
 #include <rexlib/em/image/image_transaction_plan.hpp>
 
-#include "image_region_extents.hpp"
-
-#include <rexlib/core/platform/assert.hpp>
-
 #include <stdexcept>
 #include <utility>
 
@@ -14,21 +10,10 @@ namespace rexlib
 namespace em
 {
 
-image_transaction_plan::image_transaction_plan(
-	span<const std::size_t> extents,
-	std::size_t file_rank,
-	std::size_t array_rank
-)
-	: m_extents(
-		sanitize_region_extents(
-			extents,
-			file_rank,
-			array_rank,
-			"image_transaction_plan"
-		)
-	)
-	, m_file_offsets(file_rank)
-	, m_array_offsets(array_rank)
+image_transaction_plan::image_transaction_plan(image_transfer_shape shape)
+	: m_shape(std::move(shape))
+	, m_file_offsets(m_shape.get_file_rank())
+	, m_array_offsets(m_shape.get_array_rank())
 {
 }
 
@@ -109,24 +94,10 @@ std::size_t image_transaction_plan::get_region_count() const noexcept
 	return m_files.get_entry_count();
 }
 
-std::size_t image_transaction_plan::get_rank() const noexcept
+const image_transfer_shape&
+image_transaction_plan::get_shape() const noexcept
 {
-	return m_extents.size();
-}
-
-std::size_t image_transaction_plan::get_file_rank() const noexcept
-{
-	return m_file_offsets.get_rank();
-}
-
-std::size_t image_transaction_plan::get_array_rank() const noexcept
-{
-	return m_array_offsets.get_rank();
-}
-
-span<const std::size_t> image_transaction_plan::get_extents() const noexcept
-{
-	return make_span(m_extents.data(), m_extents.size());
+	return m_shape;
 }
 
 std::size_t image_transaction_plan::get_file_count() const noexcept

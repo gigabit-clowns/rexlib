@@ -5,6 +5,7 @@
 #include <em/image/strided_transfer/image_region_offsets.hpp>
 
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <stdexcept>
 #include <vector>
@@ -29,7 +30,7 @@ TEST_CASE( "where a region starts is the offsets times the strides",
 	const std::vector<std::ptrdiff_t> strides = {4, 1};
 	const std::vector<std::size_t> region = {2, 2};
 
-	image_transfer_plan regions(make_span(region), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(region, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{1, 2}),
 		make_span(std::vector<std::size_t>{2, 1}));
 
@@ -61,7 +62,7 @@ TEST_CASE( "the array carries the offset of its own first element",
 	const std::vector<std::ptrdiff_t> strides = {4, 1};
 	const std::vector<std::size_t> region = {2, 2};
 
-	image_transfer_plan regions(make_span(region), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(region, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{1, 1}));
 
@@ -96,7 +97,7 @@ TEST_CASE( "a side deeper than the region resolves its leading axes too",
 	const std::vector<std::ptrdiff_t> array_strides = {4, 1};
 	const std::vector<std::size_t> region = {3, 4};
 
-	image_transfer_plan regions(make_span(region), 3, 2);
+	image_transfer_plan regions(image_transfer_shape(region, 3, 2));
 	regions.add(make_span(std::vector<std::size_t>{2, 0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 
@@ -119,7 +120,7 @@ TEST_CASE( "every region of a batch is resolved", "[image_region_offsets]" )
 	const std::vector<std::ptrdiff_t> strides = {4, 2, 1};
 	const std::vector<std::size_t> region = {2, 2};
 
-	image_transfer_plan regions(make_span(region), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(region, 3, 3));
 	for (std::size_t i = 0; i < 3; ++i)
 	{
 		regions.add(
@@ -153,7 +154,7 @@ TEST_CASE( "a batch is held in ascending file order",
 	// the array, so that the order and the pairing are told apart.
 	const std::size_t positions[3] = {2, 0, 1};
 
-	image_transfer_plan regions(make_span(region), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(region, 3, 3));
 	for (std::size_t i = 0; i < 3; ++i)
 	{
 		regions.add(
@@ -187,7 +188,7 @@ TEST_CASE( "an empty batch resolves to nothing", "[image_region_offsets]" )
 	const std::vector<std::size_t> extents = {2, 2};
 	const std::vector<std::ptrdiff_t> strides = {2, 1};
 
-	const image_transfer_plan regions(make_span(extents), 2, 2);
+	const image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	const image_region_offsets offsets(
 		regions,
 		make_span(extents), make_span(strides),
@@ -211,7 +212,7 @@ TEST_CASE( "a region that does not fit is refused", "[image_region_offsets]" )
 		const std::vector<std::size_t> &array_offset
 	)
 	{
-		image_transfer_plan regions(make_span(region), 2, 2);
+		image_transfer_plan regions(image_transfer_shape(region, 2, 2));
 		regions.add(make_span(file_offset), make_span(array_offset));
 
 		return image_region_offsets(
@@ -246,7 +247,7 @@ TEST_CASE( "a batch whose ranks disagree with its sides is refused",
 	const std::vector<std::size_t> deeper = {1, 2, 2};
 	const std::vector<std::ptrdiff_t> deeper_strides = {4, 2, 1};
 
-	image_transfer_plan regions(make_span(extents), 2, 2);
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
 	regions.add(make_span(std::vector<std::size_t>{0, 0}),
 		make_span(std::vector<std::size_t>{0, 0}));
 

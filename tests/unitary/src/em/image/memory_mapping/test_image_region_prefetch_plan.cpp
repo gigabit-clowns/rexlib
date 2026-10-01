@@ -8,6 +8,7 @@
 #include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -123,7 +124,7 @@ TEST_CASE( "what one region of a batch spans is its bounding stretch",
 
 	SECTION( "a whole plane spans the plane" )
 	{
-		const image_transfer_plan regions(make_span(plane), 3, 3);
+		const image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 
 		REQUIRE( span_of(regions) == plane_bytes );
 	}
@@ -131,7 +132,7 @@ TEST_CASE( "what one region of a batch spans is its bounding stretch",
 	SECTION( "a crop spans its bounding box rather than its elements" )
 	{
 		const std::vector<std::size_t> crop = {2, 2};
-		const image_transfer_plan regions(make_span(crop), 3, 3);
+		const image_transfer_plan regions(image_transfer_shape(crop, 3, 3));
 
 		// Two rows of two, four elements apart: the first to the last is
 		// six elements, not the four it holds.
@@ -142,7 +143,7 @@ TEST_CASE( "what one region of a batch spans is its bounding stretch",
 	SECTION( "a region of no elements spans nothing" )
 	{
 		const std::vector<std::size_t> empty = {0, 4};
-		const image_transfer_plan regions(make_span(empty), 3, 3);
+		const image_transfer_plan regions(image_transfer_shape(empty, 3, 3));
 
 		REQUIRE( span_of(regions) == 0 );
 	}
@@ -157,7 +158,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 
 	SECTION( "a batch of no region is advised nothing" )
 	{
-		const image_transfer_plan regions(make_span(plane), 3, 3);
+		const image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		const auto advice = advise(
 			regions, plane_offsets({}), mapped,
 			make_policy(0, default_prefetch_budget)
@@ -169,7 +170,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 
 	SECTION( "one region is the stretch it spans" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 2);
 
 		const auto advice = advise(
@@ -185,7 +186,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 
 	SECTION( "consecutive regions merge into one stretch" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 1);
 		add_plane(regions, 2);
 		add_plane(regions, 3);
@@ -203,7 +204,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 
 	SECTION( "regions with a gap between them leave the gap out" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 1);
 		add_plane(regions, 4);
 
@@ -223,7 +224,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 
 	SECTION( "a gap within the tolerance is bridged" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 0);
 		add_plane(regions, 2);
 
@@ -239,7 +240,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 
 	SECTION( "a region stated twice is advised once" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 3);
 		add_plane(regions, 3);
 
@@ -255,7 +256,7 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 	SECTION( "a region of no elements is advised nothing" )
 	{
 		const std::vector<std::size_t> empty = {0, 4};
-		image_transfer_plan regions(make_span(empty), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(empty, 3, 3));
 		const std::size_t origin[3] = {0, 0, 0};
 		regions.add(make_span(origin, 3), make_span(origin, 3));
 
@@ -279,7 +280,7 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 	const auto values = values_offset;
 	const auto file = map_file();
 
-	image_transfer_plan regions(make_span(plane), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 	add_plane(regions, 1);
 
 	SECTION( "a stretch starting inside a page grows back to its boundary" )
@@ -329,7 +330,7 @@ TEST_CASE( "every stretch starts on a page and stays within the mapping",
 
 	SECTION( "a region past the mapping still belongs to the last step" )
 	{
-		image_transfer_plan both(make_span(plane), 3, 3);
+		image_transfer_plan both(image_transfer_shape(plane, 3, 3));
 		add_plane(both, 0);
 		add_plane(both, 1);
 
@@ -357,7 +358,7 @@ TEST_CASE( "the stretches of a batch are grouped into steps",
 	const auto file = map_file();
 	const auto mapped = first_bytes(*file, whole_file);
 
-	image_transfer_plan regions(make_span(plane), 3, 3);
+	image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 	add_plane(regions, 0);
 	add_plane(regions, 2);
 	add_plane(regions, 4);
@@ -431,7 +432,7 @@ TEST_CASE( "merging never grows a stretch past the budget of a step",
 
 	SECTION( "a long run of consecutive regions is split into steps" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		for (std::size_t section = 0; section < 5; ++section)
 		{
 			add_plane(regions, section);
@@ -458,7 +459,7 @@ TEST_CASE( "merging never grows a stretch past the budget of a step",
 
 	SECTION( "a region wider than the budget takes in no neighbour" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 1);
 		add_plane(regions, 2);
 
@@ -473,7 +474,7 @@ TEST_CASE( "merging never grows a stretch past the budget of a step",
 
 	SECTION( "a region stated twice is advised once whatever the budget" )
 	{
-		image_transfer_plan regions(make_span(plane), 3, 3);
+		image_transfer_plan regions(image_transfer_shape(plane, 3, 3));
 		add_plane(regions, 3);
 		add_plane(regions, 3);
 

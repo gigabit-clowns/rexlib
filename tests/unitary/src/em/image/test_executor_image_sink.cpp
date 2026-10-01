@@ -10,6 +10,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include "../../core/concurrency/mock/mock_executor.hpp"
 #include "../../core/hardware/mock/mock_buffer.hpp"
@@ -94,7 +95,7 @@ TEST_CASE(
 {
 	// Three regions in one file, one in the other: exercises both the
 	// many-regions and the few-regions skew in the same plan.
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	const auto one = plan.add_file("stack_1.mrcs");
 	add_element(plan, zero, 0, 0);
@@ -125,7 +126,7 @@ TEST_CASE(
 	"[executor_image_sink]"
 )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	plan.add_file("stack_1.mrcs"); // named, never given a region
 	add_element(plan, zero, 0, 0);
@@ -149,7 +150,9 @@ TEST_CASE(
 	"[executor_image_sink]"
 )
 {
-	const image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	const image_transaction_plan plan(
+		image_transfer_shape(plane_extents, 3, 3)
+	);
 
 	// No expectations set on `writers`: acquiring anything would violate.
 	const auto writers = std::make_shared<mock_image_writer_provider>();
@@ -167,7 +170,7 @@ TEST_CASE(
 	"[executor_image_sink]"
 )
 {
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
 	add_element(plan, zero, 0, 0);
 
@@ -194,7 +197,7 @@ TEST_CASE(
 	// The sink's is to submit one task per file and wait for none of them.
 	static REXLIB_CONST_CONSTEXPR std::size_t file_count = 4;
 
-	image_transaction_plan plan(make_span(plane_extents), 3, 3);
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	for (std::size_t i = 0; i < file_count; ++i)
 	{
 		const auto file = plan.add_file("stack_" + std::to_string(i) + ".mrcs");

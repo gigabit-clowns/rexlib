@@ -12,6 +12,7 @@
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
@@ -52,7 +53,8 @@ std::vector<float> counting(std::size_t count)
 image_transfer_plan whole_of(const std::vector<std::size_t> &extents)
 {
 	image_transfer_plan regions(
-		make_span(extents), extents.size(), extents.size());
+		image_transfer_shape(extents, extents.size(), extents.size())
+	);
 	regions.add(
 		make_span(std::vector<std::size_t>(extents.size(), 0)),
 		make_span(std::vector<std::size_t>(extents.size(), 0))
