@@ -3,7 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/em/image/image_source.hpp>
+#include <rexlib/em/image/image_loader.hpp>
 
 #include <memory>
 
@@ -30,29 +30,29 @@ class image_transfer_sanitizer;
  * degree the executor allows, not necessarily one after another.
  *
  * Neither @ref completion::wait nor @ref completion::get of a completion
- * this source returns may be called from within a task already running on
+ * this loader returns may be called from within a task already running on
  * that executor.
  */
-class REXLIB_API executor_image_source final
-	: public image_source
+class REXLIB_API executor_image_loader final
+	: public image_loader
 {
 public:
 	/**
-	 * @brief Construct a source over a provider and an executor.
+	 * @brief Construct a loader over a provider and an executor.
 	 *
 	 * @param readers Where a path becomes an open reader.
 	 * @param executor Where a file's read is run.
 	 * @throws std::invalid_argument If @p readers or @p executor is
 	 * null.
 	 */
-	executor_image_source(
+	executor_image_loader(
 		std::shared_ptr<image_reader_provider> readers,
 		std::shared_ptr<rexlib::executor> executor
 	);
 
-	~executor_image_source() override;
+	~executor_image_loader() override;
 
-	std::shared_ptr<completion> read(
+	std::shared_ptr<completion> load(
 		array destination,
 		const image_transaction_plan &plan,
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer

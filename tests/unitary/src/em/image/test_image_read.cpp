@@ -24,9 +24,9 @@
 #include "../../core/hardware/mock/mock_device.hpp"
 #include "../../core/hardware/mock/mock_memory_allocator.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"
+#include "mock/mock_image_loader.hpp"
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_reader_provider.hpp"
-#include "mock/mock_image_source.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -323,15 +323,15 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	// No expectations set on `source`: none of these calls may reach it.
-	mock_image_source source;
+	// No expectations set on `loader`: none of these calls may reach it.
+	mock_image_loader loader;
 
 	SECTION( "a destination with no extents" )
 	{
 		const std::vector<image_location> locations;
 
 		REQUIRE_THROWS_AS(
-			read_batch_async(source, make_array({}), make_span(locations)),
+			read_batch_async(loader, make_array({}), make_span(locations)),
 			std::invalid_argument
 		);
 	}
@@ -345,7 +345,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			read_batch_async(
-				source,
+				loader,
 				make_array({3, 4, 4}),
 				make_span(locations)
 			),
@@ -359,8 +359,8 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	// No expectations set on `source`: a rejected batch must not reach it.
-	mock_image_source source;
+	// No expectations set on `loader`: a rejected batch must not reach it.
+	mock_image_loader loader;
 
 	SECTION( "an unindexed location following an indexed one" )
 	{
@@ -371,7 +371,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			read_batch_async(
-				source,
+				loader,
 				make_array({2, 4, 4}),
 				make_span(locations)
 			),
@@ -388,7 +388,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			read_batch_async(
-				source,
+				loader,
 				make_array({2, 4, 4}),
 				make_span(locations)
 			),
@@ -402,19 +402,19 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 	const auto done = std::make_shared<counting_completion>(0);
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH( _2.get_region_count() == 0 )
 		.RETURN(done);
 
 	const std::vector<image_location> locations;
 	const auto completion = read_batch_async(
-		source,
+		loader,
 		make_array({0, 4, 4}),
 		make_span(locations)
 	);
@@ -427,11 +427,11 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH( _3 == strict_image_transfer_sanitizer::get_shared() )
 		.RETURN(std::make_shared<counting_completion>(0));
@@ -439,7 +439,7 @@ TEST_CASE(
 	const std::vector<image_location> locations = {
 		image_location("a.mrcs", 0)
 	};
-	read_batch_async(source, make_array({1, 4, 4}), make_span(locations));
+	read_batch_async(loader, make_array({1, 4, 4}), make_span(locations));
 }
 
 TEST_CASE(
@@ -450,11 +450,11 @@ TEST_CASE(
 	// No index in a stack: every location names a file read as a whole
 	// image, so the file rank is the core rank and every file offset stays
 	// at the origin.
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			extents_of(_1) == std::vector<std::size_t>{2, 3, 5} &&
@@ -481,7 +481,7 @@ TEST_CASE(
 		image_location("b.mrc")
 	};
 
-	read_batch_async(source, make_array({2, 3, 5}), make_span(locations));
+	read_batch_async(loader, make_array({2, 3, 5}), make_span(locations));
 }
 
 TEST_CASE(
@@ -492,11 +492,11 @@ TEST_CASE(
 	// Every location carries an index in a stack, so the file rank grows to
 	// the array rank and that index becomes the leading file offset, while
 	// the leading array offset is the slot.
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			_2.get_region_count() == 3 &&
@@ -525,26 +525,26 @@ TEST_CASE(
 		image_location("stack.mrcs", 5)
 	};
 
-	read_batch_async(source, make_array({3, 4, 4}), make_span(locations));
+	read_batch_async(loader, make_array({3, 4, 4}), make_span(locations));
 }
 
 TEST_CASE(
-	"read_batch_async returns the completion of the source",
+	"read_batch_async returns the completion of the loader",
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 	const auto pending = std::make_shared<counting_completion>(1);
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.RETURN(pending);
 
 	const std::vector<image_location> locations = { image_location("a.mrc") };
 	const auto completion = read_batch_async(
-		source,
+		loader,
 		make_array({1, 3, 5}),
 		make_span(locations)
 	);
@@ -557,8 +557,8 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	// No expectations set on `source`: none of these calls may reach it.
-	mock_image_source source;
+	// No expectations set on `loader`: none of these calls may reach it.
+	mock_image_loader loader;
 	const image_location location("a.mrc");
 
 	SECTION( "a destination with no extents" )
@@ -566,7 +566,7 @@ TEST_CASE(
 		const auto centres = make_centres({}, 2);
 
 		REQUIRE_THROWS_AS(
-			read_patches_async(source, make_array({}), location, centres),
+			read_patches_async(loader, make_array({}), location, centres),
 			std::invalid_argument
 		);
 	}
@@ -577,7 +577,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			read_patches_async(
-				source,
+				loader,
 				make_array({3, 10, 10}),
 				location,
 				centres
@@ -592,7 +592,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			read_patches_async(
-				source,
+				loader,
 				make_array({1, 10, 10}),
 				location,
 				centres
@@ -607,19 +607,19 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 	const auto done = std::make_shared<counting_completion>(0);
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH( _2.get_region_count() == 0 )
 		.RETURN(done);
 
 	const auto centres = make_centres({}, 2);
 	const auto completion = read_patches_async(
-		source,
+		loader,
 		make_array({0, 10, 10}),
 		image_location("a.mrc"),
 		centres
@@ -636,14 +636,14 @@ TEST_CASE(
 	// The corner of a patch is its centre less half its extent, so a patch
 	// of ten centred at fifty starts at forty-five, and one of nine centred
 	// there starts at forty-six.
-	mock_image_source source;
+	mock_image_loader loader;
 	const auto centres = make_centres({{50, 50}}, 2);
 
 	SECTION( "an even extent" )
 	{
 		REQUIRE_CALL(
-			source,
-			read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+			loader,
+			load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 		)
 			.LR_WITH(
 				to_vector(_2.get_shape().get_extents()) ==
@@ -654,7 +654,7 @@ TEST_CASE(
 			.RETURN(std::make_shared<counting_completion>(0));
 
 		read_patches_async(
-			source,
+			loader,
 			make_array({1, 10, 10}),
 			image_location("a.mrc"),
 			centres
@@ -664,8 +664,8 @@ TEST_CASE(
 	SECTION( "an odd extent" )
 	{
 		REQUIRE_CALL(
-			source,
-			read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+			loader,
+			load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 		)
 			.LR_WITH(
 				to_vector(_2.get_shape().get_extents()) ==
@@ -676,7 +676,7 @@ TEST_CASE(
 			.RETURN(std::make_shared<counting_completion>(0));
 
 		read_patches_async(
-			source,
+			loader,
 			make_array({1, 9, 9}),
 			image_location("a.mrc"),
 			centres
@@ -689,17 +689,17 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH( _3 == clipping_image_transfer_sanitizer::get_shared() )
 		.RETURN(std::make_shared<counting_completion>(0));
 
 	read_patches_async(
-		source,
+		loader,
 		make_array({1, 10, 10}),
 		image_location("a.mrc"),
 		make_centres({{50, 50}}, 2)
@@ -711,11 +711,11 @@ TEST_CASE(
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			_2.get_file_count() == 1 &&
@@ -742,7 +742,7 @@ TEST_CASE(
 		make_centres({{20, 30}, {40, 50}, {60, 70}}, 2);
 
 	read_patches_async(
-		source,
+		loader,
 		make_array({3, 10, 10}),
 		image_location("a.mrc"),
 		centres
@@ -758,11 +758,11 @@ TEST_CASE(
 	// A patch of ten centred at three starts two rows before the image
 	// begins. The region still names a whole patch, starting two rows into
 	// its slot and at the first row of the image.
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
@@ -778,7 +778,7 @@ TEST_CASE(
 	const auto centres = make_centres({{3, 50}}, 2);
 
 	read_patches_async(
-		source,
+		loader,
 		make_array({1, 10, 10}),
 		image_location("a.mrc"),
 		centres
@@ -793,11 +793,11 @@ TEST_CASE(
 	// A location carrying an index in a stack grows the file rank by the
 	// axis the stack is indexed along, which every patch of the batch shares
 	// since they all come from one image.
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			_2.get_region_count() == 2 &&
@@ -819,7 +819,7 @@ TEST_CASE(
 	const auto centres = make_centres({{20, 30}, {40, 50}}, 2);
 
 	read_patches_async(
-		source,
+		loader,
 		make_array({2, 10, 10}),
 		image_location("stack.mrcs", 4),
 		centres
@@ -833,11 +833,11 @@ TEST_CASE(
 {
 	// Nothing about the function is two dimensional: a subtomogram is a
 	// patch of one more axis.
-	mock_image_source source;
+	mock_image_loader loader;
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
@@ -855,7 +855,7 @@ TEST_CASE(
 	const auto centres = make_centres({{20, 30, 40}}, 3);
 
 	read_patches_async(
-		source,
+		loader,
 		make_array({1, 8, 8, 8}),
 		image_location("tomogram.mrc"),
 		centres
@@ -863,22 +863,22 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"read_patches_async returns the completion of the source",
+	"read_patches_async returns the completion of the loader",
 	"[image_read]"
 )
 {
-	mock_image_source source;
+	mock_image_loader loader;
 	const auto pending = std::make_shared<counting_completion>(1);
 
 	REQUIRE_CALL(
-		source,
-		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		loader,
+		load(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.RETURN(pending);
 
 	const auto centres = make_centres({{50, 50}}, 2);
 	const auto completion = read_patches_async(
-		source,
+		loader,
 		make_array({1, 10, 10}),
 		image_location("a.mrc"),
 		centres

@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/executor_image_source.hpp>
+#include <rexlib/em/image/executor_image_loader.hpp>
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
@@ -91,14 +91,14 @@ allow_passing_through(const mock_image_transfer_sanitizer &sanitizer)
 } // anonymous namespace
 
 TEST_CASE(
-	"executor_image_source needs a reader provider and an executor",
-	"[executor_image_source]"
+	"executor_image_loader needs a reader provider and an executor",
+	"[executor_image_loader]"
 )
 {
 	SECTION( "a null reader provider" )
 	{
 		REQUIRE_THROWS_AS(
-			executor_image_source(
+			executor_image_loader(
 				nullptr,
 				std::make_shared<synchronous_executor>()
 			),
@@ -109,7 +109,7 @@ TEST_CASE(
 	SECTION( "a null executor" )
 	{
 		REQUIRE_THROWS_AS(
-			executor_image_source(
+			executor_image_loader(
 				std::make_shared<mock_image_reader_provider>(),
 				nullptr
 			),
@@ -119,29 +119,29 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"executor_image_source needs a sanitizer",
-	"[executor_image_source]"
+	"executor_image_loader needs a sanitizer",
+	"[executor_image_loader]"
 )
 {
 	const image_transaction_plan plan(
 		image_transfer_shape(plane_extents, 3, 3)
 	);
 
-	executor_image_source source(
+	executor_image_loader loader(
 		std::make_shared<mock_image_reader_provider>(),
 		std::make_shared<synchronous_executor>()
 	);
 
 	REQUIRE_THROWS_AS(
-		source.read(make_test_array(), plan, nullptr),
+		loader.load(make_test_array(), plan, nullptr),
 		std::invalid_argument
 	);
 }
 
 TEST_CASE(
-	"executor_image_source reads each file's regions as one call, split by "
+	"executor_image_loader reads each file's regions as one call, split by "
 	"file",
-	"[executor_image_source]"
+	"[executor_image_loader]"
 )
 {
 	// Three regions in one file, one in the other: exercises both the
@@ -172,20 +172,20 @@ TEST_CASE(
 	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_region_count() == 1 );
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source does not acquire a reader for a file with no "
+	"executor_image_loader does not acquire a reader for a file with no "
 	"regions",
-	"[executor_image_source]"
+	"[executor_image_loader]"
 )
 {
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
@@ -204,19 +204,19 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 	// No expectation for "stack_1.mrcs": acquiring it would violate.
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source resolves an empty plan without acquiring a reader",
-	"[executor_image_source]"
+	"executor_image_loader resolves an empty plan without acquiring a reader",
+	"[executor_image_loader]"
 )
 {
 	const image_transaction_plan plan(
@@ -228,11 +228,11 @@ TEST_CASE(
 	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	REQUIRE( completion != nullptr );
 	CHECK( completion->is_ready() );
@@ -240,8 +240,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"executor_image_source's completion reports what a reader threw",
-	"[executor_image_source]"
+	"executor_image_loader's completion reports what a reader threw",
+	"[executor_image_loader]"
 )
 {
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
@@ -259,20 +259,20 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.SIDE_EFFECT( throw std::runtime_error("from a reader") );
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	REQUIRE( completion->is_ready() );
 	REQUIRE_THROWS_AS( completion->get(), std::runtime_error );
 }
 
 TEST_CASE(
-	"executor_image_source shows each file's regions to the sanitizer beside "
+	"executor_image_loader shows each file's regions to the sanitizer beside "
 	"the extents of both sides",
-	"[executor_image_source]"
+	"[executor_image_loader]"
 )
 {
 	const std::vector<std::size_t> short_stack_extents = {2, 3, 5};
@@ -324,19 +324,19 @@ TEST_CASE(
 	REQUIRE_CALL(*reader_zero, read(trompeloeil::_, trompeloeil::_));
 	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_));
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source reads every plan the sanitizer answers with",
-	"[executor_image_source]"
+	"executor_image_loader reads every plan the sanitizer answers with",
+	"[executor_image_loader]"
 )
 {
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
@@ -371,20 +371,20 @@ TEST_CASE(
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_shape().get_extents()[0] == 1 );
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source reads nothing of a file the sanitizer answers no "
+	"executor_image_loader reads nothing of a file the sanitizer answers no "
 	"plan for",
-	"[executor_image_source]"
+	"[executor_image_loader]"
 )
 {
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
@@ -405,19 +405,19 @@ TEST_CASE(
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	// No expectation for `read`: reading anything would violate.
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source's completion reports what the sanitizer threw",
-	"[executor_image_source]"
+	"executor_image_loader's completion reports what the sanitizer threw",
+	"[executor_image_loader]"
 )
 {
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
@@ -438,23 +438,23 @@ TEST_CASE(
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	// No expectation for `read`: reading anything would violate.
 
-	executor_image_source source(
+	executor_image_loader loader(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	REQUIRE( completion->is_ready() );
 	REQUIRE_THROWS_AS( completion->get(), std::out_of_range );
 }
 
 TEST_CASE(
-	"executor_image_source submits each file as a task of its own",
-	"[executor_image_source]"
+	"executor_image_loader submits each file as a task of its own",
+	"[executor_image_loader]"
 )
 {
 	// Running the tasks, and how many at once, is the executor's business.
-	// The source's is to submit one task per file and wait for none of them.
+	// The loader's is to submit one task per file and wait for none of them.
 	static REXLIB_CONST_CONSTEXPR std::size_t file_count = 4;
 
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
@@ -475,15 +475,15 @@ TEST_CASE(
 	// No expectations set on `sanitizer` either: no task runs.
 	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
 
-	executor_image_source source(readers, executor);
-	const auto completion = source.read(make_test_array(), plan, sanitizer);
+	executor_image_loader loader(readers, executor);
+	const auto completion = loader.load(make_test_array(), plan, sanitizer);
 
 	CHECK_FALSE( completion->is_ready() );
 }
 
 TEST_CASE(
-	"executor_image_source lets a second read start before the first ends",
-	"[executor_image_source]"
+	"executor_image_loader lets a second read start before the first ends",
+	"[executor_image_loader]"
 )
 {
 	image_transaction_plan first_plan(
@@ -507,10 +507,10 @@ TEST_CASE(
 
 	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
 
-	executor_image_source source(readers, executor);
-	const auto first = source.read(make_test_array(), first_plan, sanitizer);
+	executor_image_loader loader(readers, executor);
+	const auto first = loader.load(make_test_array(), first_plan, sanitizer);
 	const auto second =
-		source.read(make_test_array(), second_plan, sanitizer);
+		loader.load(make_test_array(), second_plan, sanitizer);
 
 	CHECK_FALSE( first->is_ready() );
 	CHECK_FALSE( second->is_ready() );

@@ -8,7 +8,7 @@
 #include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
-#include <rexlib/em/image/image_sink.hpp>
+#include <rexlib/em/image/image_saver.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_writer.hpp>
@@ -129,7 +129,7 @@ void write(
 }
 
 std::shared_ptr<completion> write_batch_async(
-	const image_sink &sink,
+	const image_saver &saver,
 	const_array source,
 	span<const image_location> locations
 )
@@ -140,7 +140,7 @@ std::shared_ptr<completion> write_batch_async(
 	const auto transaction =
 		make_batch_plan(make_span(array_extents), locations);
 
-	return sink.write(
+	return saver.save(
 		std::move(source),
 		transaction,
 		strict_image_transfer_sanitizer::get_shared()

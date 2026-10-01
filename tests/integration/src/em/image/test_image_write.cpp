@@ -12,8 +12,8 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
-#include <rexlib/em/image/executor_image_sink.hpp>
-#include <rexlib/em/image/executor_image_source.hpp>
+#include <rexlib/em/image/executor_image_loader.hpp>
+#include <rexlib/em/image/executor_image_saver.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_metadata.hpp>
@@ -88,7 +88,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	"a stack written a batch at a time reads back a batch at a time",
 	"[mrc][image_write]" )
 {
-	const scoped_path path("batch_sink_stack.mrcs");
+	const scoped_path path("batch_saver_stack.mrcs");
 	const auto values = counting(element_count(stack_extents));
 	const auto batch_elements = element_count(batch_extents);
 	const auto batch_count = stack_count / batch_size;
@@ -97,7 +97,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		catalog.get_service_manager<image_write_format_manager>();
 	const auto writers =
 		std::make_shared<managed_image_writer_provider>(writer_formats);
-	const auto sink = std::make_shared<executor_image_sink>(
+	const auto saver = std::make_shared<executor_image_saver>(
 		writers,
 		std::make_shared<synchronous_executor>()
 	);
@@ -126,7 +126,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		const auto slots = slots_of(path.get(), k);
 		written.push_back(
-			write_batch_async(*sink, source.share_const(), make_span(slots))
+			write_batch_async(*saver, source.share_const(), make_span(slots))
 		);
 	}
 
@@ -143,7 +143,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		catalog.get_service_manager<image_read_format_manager>();
 	const auto readers =
 		std::make_shared<direct_image_reader_provider>(reader_formats);
-	const auto source = std::make_shared<executor_image_source>(
+	const auto loader = std::make_shared<executor_image_loader>(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
@@ -167,7 +167,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 			const auto slots = slots_of(path.get(), k);
 			const auto completion = read_batch_async(
-				*source,
+				*loader,
 				destination.share(),
 				make_span(slots)
 			);
@@ -291,7 +291,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		catalog.get_service_manager<image_write_format_manager>();
 	const auto writers =
 		std::make_shared<managed_image_writer_provider>(writer_formats);
-	const executor_image_sink sink(
+	const executor_image_saver saver(
 		writers,
 		std::make_shared<synchronous_executor>()
 	);
@@ -308,7 +308,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		values.size() * sizeof(float)
 	);
 	REQUIRE_NOTHROW(
-		write_batch_async(sink, source.share_const(), make_span(slots))->get()
+		write_batch_async(saver, source.share_const(), make_span(slots))->get()
 	);
 	writers->close(path.get());
 
@@ -324,7 +324,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 	SECTION( "a batch reads the stack's only image back" )
 	{
-		const executor_image_source image_source(
+		const executor_image_loader loader(
 			readers,
 			std::make_shared<synchronous_executor>()
 		);
@@ -336,7 +336,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 		REQUIRE_NOTHROW(
 			read_batch_async(
-				image_source,
+				loader,
 				destination.share(),
 				make_span(slots)
 			)->get()

@@ -23,7 +23,7 @@ namespace em
 
 class image_descriptor;
 class image_location;
-class image_sink;
+class image_saver;
 
 /**
  * @brief Write a whole array out as one image or volume.
@@ -110,7 +110,7 @@ void write(
  * Each slot of @p source goes where its location names: the image or volume
  * @ref image_location::get_index_in_stack indexes within its file, or the
  * whole file when the location carries no index. A batch may not mix the
- * two. The writes are handed to @p sink as one transaction.
+ * two. The writes are handed to @p saver as one transaction.
  *
  * Returns before the writes are done, unlike @ref write, and writes into
  * files whose shape is already settled rather than creating them from
@@ -121,7 +121,7 @@ void write(
  * stack does not hold is reported through the completion rather than
  * dropped. See @ref strict_image_transfer_sanitizer.
  *
- * @param sink Where the writes are dispatched. Needs to outlive this call
+ * @param saver Where the writes are dispatched. Needs to outlive this call
  * and no longer, the work outliving it carrying what it needs.
  * @param source The values to write. Its leading extent is the batch size
  * and its remaining extents are the shape of one image or volume.
@@ -136,7 +136,7 @@ void write(
  */
 REXLIB_API
 std::shared_ptr<completion> write_batch_async(
-	const image_sink &sink,
+	const image_saver &saver,
 	const_array source,
 	span<const image_location> locations
 );

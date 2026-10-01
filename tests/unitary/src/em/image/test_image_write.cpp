@@ -18,7 +18,7 @@
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
 #include "fixtures/format_manager_fixture.hpp"
-#include "mock/mock_image_sink.hpp"
+#include "mock/mock_image_saver.hpp"
 #include "mock/mock_image_writer.hpp"
 
 #include <cstddef>
@@ -305,8 +305,8 @@ TEST_CASE(
 	"[image_write]"
 )
 {
-	// No expectations set on `sink`: none of these calls may reach it.
-	mock_image_sink sink;
+	// No expectations set on `saver`: none of these calls may reach it.
+	mock_image_saver saver;
 
 	SECTION( "a source with no extents" )
 	{
@@ -314,7 +314,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			write_batch_async(
-				sink,
+				saver,
 				make_const_array({}),
 				make_span(locations)
 			),
@@ -331,7 +331,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			write_batch_async(
-				sink,
+				saver,
 				make_const_array({3, 4, 4}),
 				make_span(locations)
 			),
@@ -345,8 +345,8 @@ TEST_CASE(
 	"[image_write]"
 )
 {
-	// No expectations set on `sink`: a rejected batch must not reach it.
-	mock_image_sink sink;
+	// No expectations set on `saver`: a rejected batch must not reach it.
+	mock_image_saver saver;
 
 	SECTION( "an unindexed location following an indexed one" )
 	{
@@ -357,7 +357,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			write_batch_async(
-				sink,
+				saver,
 				make_const_array({2, 4, 4}),
 				make_span(locations)
 			),
@@ -374,7 +374,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			write_batch_async(
-				sink,
+				saver,
 				make_const_array({2, 4, 4}),
 				make_span(locations)
 			),
@@ -388,19 +388,19 @@ TEST_CASE(
 	"[image_write]"
 )
 {
-	mock_image_sink sink;
+	mock_image_saver saver;
 	const auto done = std::make_shared<counting_completion>(0);
 
 	REQUIRE_CALL(
-		sink,
-		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		saver,
+		save(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH( _2.get_region_count() == 0 )
 		.RETURN(done);
 
 	const std::vector<image_location> locations;
 	const auto completion = write_batch_async(
-		sink,
+		saver,
 		make_const_array({0, 4, 4}),
 		make_span(locations)
 	);
@@ -413,11 +413,11 @@ TEST_CASE(
 	"[image_write]"
 )
 {
-	mock_image_sink sink;
+	mock_image_saver saver;
 
 	REQUIRE_CALL(
-		sink,
-		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		saver,
+		save(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH( _3 == strict_image_transfer_sanitizer::get_shared() )
 		.RETURN(std::make_shared<counting_completion>(0));
@@ -426,7 +426,7 @@ TEST_CASE(
 		image_location("a.mrcs", 0)
 	};
 	write_batch_async(
-		sink,
+		saver,
 		make_const_array({1, 4, 4}),
 		make_span(locations)
 	);
@@ -440,11 +440,11 @@ TEST_CASE(
 	// No index in a stack: every location names a file written as a whole
 	// image, so the file rank is the core rank and every file offset stays
 	// at the origin.
-	mock_image_sink sink;
+	mock_image_saver saver;
 
 	REQUIRE_CALL(
-		sink,
-		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		saver,
+		save(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			extents_of(_1) == std::vector<std::size_t>{2, 3, 5} &&
@@ -472,7 +472,7 @@ TEST_CASE(
 	};
 
 	write_batch_async(
-		sink,
+		saver,
 		make_const_array({2, 3, 5}),
 		make_span(locations)
 	);
@@ -486,11 +486,11 @@ TEST_CASE(
 	// Every location names the same stack, so the plan names one file, and
 	// each slot of the batch becomes one region of it, placed at the slot's
 	// index in the stack.
-	mock_image_sink sink;
+	mock_image_saver saver;
 
 	REQUIRE_CALL(
-		sink,
-		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		saver,
+		save(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.LR_WITH(
 			_2.get_file_count() == 1 &&
@@ -522,29 +522,29 @@ TEST_CASE(
 	};
 
 	write_batch_async(
-		sink,
+		saver,
 		make_const_array({3, 4, 4}),
 		make_span(locations)
 	);
 }
 
 TEST_CASE(
-	"write_batch_async returns the completion of the sink",
+	"write_batch_async returns the completion of the saver",
 	"[image_write]"
 )
 {
-	mock_image_sink sink;
+	mock_image_saver saver;
 	const auto pending = std::make_shared<counting_completion>(1);
 
 	REQUIRE_CALL(
-		sink,
-		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		saver,
+		save(trompeloeil::_, trompeloeil::_, trompeloeil::_)
 	)
 		.RETURN(pending);
 
 	const std::vector<image_location> locations = { image_location("a.mrc") };
 	const auto completion = write_batch_async(
-		sink,
+		saver,
 		make_const_array({1, 3, 5}),
 		make_span(locations)
 	);

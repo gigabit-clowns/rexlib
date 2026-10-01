@@ -5,9 +5,10 @@ target_sources(
 		clipping_image_transfer_sanitizer.cpp
 		core_image_format_registry.cpp
 		direct_image_reader_provider.cpp
-		executor_image_sink.cpp
-		executor_image_source.cpp
+		executor_image_loader.cpp
+		executor_image_saver.cpp
 		image_descriptor.cpp
+		image_loader.cpp
 		image_location.cpp
 		image_metadata.cpp
 		image_plan_builders.cpp
@@ -19,8 +20,7 @@ target_sources(
 		image_reader.cpp
 		image_reader_provider.cpp
 		image_region_grouping.cpp
-		image_sink.cpp
-		image_source.cpp
+		image_saver.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
 		image_transfer_sanitizer.cpp

@@ -19,30 +19,30 @@ class image_transaction_plan;
 class image_transfer_sanitizer;
 
 /**
- * @brief Writes the regions of a transaction plan out of one array.
+ * @brief Saves the regions of a transaction plan out of one array.
  *
  * Every region a plan names is written out of the array and into its file.
- * The writes may still be under way when @ref write returns; the completion
+ * The writes may still be under way when @ref save returns; the completion
  * it returns says when they are done and reports what failed.
  *
  * @par Thread safety
- * @ref write may be called concurrently.
+ * @ref save may be called concurrently.
  *
- * @see image_source
+ * @see image_loader
  */
-class REXLIB_API image_sink
+class REXLIB_API image_saver
 {
 public:
-	image_sink() noexcept;
-	image_sink(const image_sink &other) = delete;
-	image_sink(image_sink &&other) = delete;
-	virtual ~image_sink();
+	image_saver() noexcept;
+	image_saver(const image_saver &other) = delete;
+	image_saver(image_saver &&other) = delete;
+	virtual ~image_saver();
 
-	image_sink& operator=(const image_sink &other) = delete;
-	image_sink& operator=(image_sink &&other) = delete;
+	image_saver& operator=(const image_saver &other) = delete;
+	image_saver& operator=(image_saver &&other) = delete;
 
 	/**
-	 * @brief Write every region a transaction plan names.
+	 * @brief Save every region a transaction plan names.
 	 *
 	 * Returns before the writes are done. The completion returned is ready
 	 * once every region has been written or has failed, and rethrows what
@@ -52,20 +52,20 @@ public:
 	 * of that file and of @p source, and what it answers is written in
 	 * their place. What it refuses is reported through the completion.
 	 *
-	 * @param source The values to write.
-	 * @param plan The transaction to write.
+	 * @param source The values to save.
+	 * @param plan The transaction to save.
 	 * @param sanitizer What becomes of the regions that do not fit.
 	 * @return std::shared_ptr<completion> The completion, never null.
 	 * @throws std::invalid_argument If @p sanitizer is null.
 	 */
-	virtual std::shared_ptr<completion> write(
+	virtual std::shared_ptr<completion> save(
 		const_array source,
 		const image_transaction_plan &plan,
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const = 0;
 
 	/**
-	 * @brief Make everything written through this sink reach the storage.
+	 * @brief Make everything saved through this reach the storage.
 	 *
 	 * Only the writes whose completions are ready are sure to be included.
 	 *

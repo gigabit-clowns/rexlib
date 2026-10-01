@@ -11,7 +11,7 @@
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
-#include <rexlib/em/image/executor_image_source.hpp>
+#include <rexlib/em/image/executor_image_loader.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_write.hpp>
@@ -84,7 +84,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		volume_extent * volume_extent * volume_extent
 	);
 
-	const auto source = std::make_shared<executor_image_source>(
+	const auto loader = std::make_shared<executor_image_loader>(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
@@ -107,7 +107,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 
 	const auto completion =
 		read_patches_async(
-			*source,
+			*loader,
 			destination.share(),
 			location,
 			centres
@@ -186,7 +186,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		*catalog.get_service_manager<image_write_format_manager>()
 	);
 
-	const auto source = std::make_shared<executor_image_source>(
+	const auto loader = std::make_shared<executor_image_loader>(
 		std::make_shared<direct_image_reader_provider>(
 			catalog.get_service_manager<image_read_format_manager>()
 		),
@@ -206,7 +206,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		image_location(path.get(), 3)
 	};
 	const auto completion = read_batch_async(
-		*source,
+		*loader,
 		destination.share(),
 		make_span(locations)
 	);

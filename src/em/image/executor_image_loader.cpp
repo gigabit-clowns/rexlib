@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/em/image/executor_image_sink.hpp>
+#include <rexlib/em/image/executor_image_loader.hpp>
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/counting_completion.hpp>
 #include <rexlib/core/concurrency/executor.hpp>
 #include <rexlib/core/concurrency/task.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/core/ndarray/const_array.hpp>
-#include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
+#include <rexlib/em/image/image_reader.hpp>
+#include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_sanitizer.hpp>
-#include <rexlib/em/image/image_writer.hpp>
-#include <rexlib/em/image/image_writer_provider.hpp>
 
 #include <em/image/image_region_grouping.hpp>
 
@@ -33,79 +32,79 @@ namespace em
 namespace
 {
 
-class image_write_task final : public task
+class image_read_task final : public task
 {
 public:
-	image_write_task(
+	image_read_task(
 		std::string path,
 		image_transfer_plan transfer,
-		std::shared_ptr<const_array> source,
-		std::shared_ptr<image_writer_provider> writers,
+		std::shared_ptr<array> destination,
+		std::shared_ptr<image_reader_provider> readers,
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	)
 		: m_path(std::move(path))
 		, m_transfer(std::move(transfer))
-		, m_source(std::move(source))
-		, m_writers(std::move(writers))
+		, m_destination(std::move(destination))
+		, m_readers(std::move(readers))
 		, m_sanitizer(std::move(sanitizer))
 	{
 	}
 
 	void run() override
 	{
-		const auto writer = m_writers->acquire(m_path);
-		const_array_ref source(*m_source);
+		const auto reader = m_readers->acquire(m_path);
+		array_ref destination(*m_destination);
 
 		std::vector<std::size_t> array_extents;
-		source.get_descriptor().get_layout().get_extents(array_extents);
+		destination.get_descriptor().get_layout().get_extents(array_extents);
 
 		const auto sanitized = m_sanitizer->sanitize(
 			m_transfer,
-			writer->get_descriptor().get_extents(),
+			reader->get_descriptor().get_extents(),
 			make_span(array_extents)
 		);
 		for (const auto &regions : sanitized)
 		{
-			writer->write(source, regions);
+			reader->read(destination, regions);
 		}
 	}
 
 private:
 	std::string m_path;
 	image_transfer_plan m_transfer;
-	std::shared_ptr<const_array> m_source;
-	std::shared_ptr<image_writer_provider> m_writers;
+	std::shared_ptr<array> m_destination;
+	std::shared_ptr<image_reader_provider> m_readers;
 	std::shared_ptr<const image_transfer_sanitizer> m_sanitizer;
 };
 
 } // anonymous namespace
 
-executor_image_sink::executor_image_sink(
-	std::shared_ptr<image_writer_provider> writers,
+executor_image_loader::executor_image_loader(
+	std::shared_ptr<image_reader_provider> readers,
 	std::shared_ptr<rexlib::executor> executor
 )
-	: m_writers(std::move(writers))
+	: m_readers(std::move(readers))
 	, m_executor(std::move(executor))
 {
-	if (!m_writers)
+	if (!m_readers)
 	{
 		throw std::invalid_argument(
-			"executor_image_sink: The writer provider must not be null."
+			"executor_image_loader: The reader provider must not be null."
 		);
 	}
 
 	if (!m_executor)
 	{
 		throw std::invalid_argument(
-			"executor_image_sink: The executor must not be null."
+			"executor_image_loader: The executor must not be null."
 		);
 	}
 }
 
-executor_image_sink::~executor_image_sink() = default;
+executor_image_loader::~executor_image_loader() = default;
 
-std::shared_ptr<completion> executor_image_sink::write(
-	const_array source,
+std::shared_ptr<completion> executor_image_loader::load(
+	array destination,
 	const image_transaction_plan &plan,
 	std::shared_ptr<const image_transfer_sanitizer> sanitizer
 ) const
@@ -113,14 +112,14 @@ std::shared_ptr<completion> executor_image_sink::write(
 	if (!sanitizer)
 	{
 		throw std::invalid_argument(
-			"executor_image_sink: The sanitizer must not be null."
+			"executor_image_loader: The sanitizer must not be null."
 		);
 	}
 
 	image_region_grouping grouping;
 	grouping.build(plan);
 
-	auto shared_source = std::make_shared<const_array>(std::move(source));
+	auto shared_destination = std::make_shared<array>(std::move(destination));
 	auto result = std::make_shared<counting_completion>(
 		grouping.get_addressed_file_count()
 	);
@@ -134,11 +133,11 @@ std::shared_ptr<completion> executor_image_sink::write(
 		}
 
 		m_executor->submit(
-			std::make_unique<image_write_task>(
+			std::make_unique<image_read_task>(
 				plan.get_file(file_index),
 				make_file_transfer_plan(grouping, plan, file_index),
-				shared_source,
-				m_writers,
+				shared_destination,
+				m_readers,
 				sanitizer
 			),
 			result
@@ -146,11 +145,6 @@ std::shared_ptr<completion> executor_image_sink::write(
 	}
 
 	return result;
-}
-
-void executor_image_sink::flush()
-{
-	m_writers->flush();
 }
 
 } // namespace em

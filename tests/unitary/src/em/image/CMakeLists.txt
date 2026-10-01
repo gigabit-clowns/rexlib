@@ -5,8 +5,8 @@ target_sources(
 		test_clipping_image_transfer_sanitizer.cpp
 		test_core_image_format_registry.cpp
 		test_direct_image_reader_provider.cpp
-		test_executor_image_sink.cpp
-		test_executor_image_source.cpp
+		test_executor_image_loader.cpp
+		test_executor_image_saver.cpp
 		test_image_descriptor.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp

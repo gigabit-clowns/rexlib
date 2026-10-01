@@ -19,30 +19,30 @@ class image_transaction_plan;
 class image_transfer_sanitizer;
 
 /**
- * @brief Reads the regions of a transaction plan into one array.
+ * @brief Loads the regions of a transaction plan into one array.
  *
  * Every region a plan names is read out of its file and into the array. The
- * reads may still be under way when @ref read returns; the completion it
+ * reads may still be under way when @ref load returns; the completion it
  * returns says when they are done and reports what failed.
  *
  * @par Thread safety
- * @ref read may be called concurrently.
+ * @ref load may be called concurrently.
  *
- * @see image_sink
+ * @see image_saver
  */
-class REXLIB_API image_source
+class REXLIB_API image_loader
 {
 public:
-	image_source() noexcept;
-	image_source(const image_source &other) = delete;
-	image_source(image_source &&other) = delete;
-	virtual ~image_source();
+	image_loader() noexcept;
+	image_loader(const image_loader &other) = delete;
+	image_loader(image_loader &&other) = delete;
+	virtual ~image_loader();
 
-	image_source& operator=(const image_source &other) = delete;
-	image_source& operator=(image_source &&other) = delete;
+	image_loader& operator=(const image_loader &other) = delete;
+	image_loader& operator=(image_loader &&other) = delete;
 
 	/**
-	 * @brief Read every region a transaction plan names.
+	 * @brief Load every region a transaction plan names.
 	 *
 	 * Returns before the reads are done. The completion returned is ready
 	 * once every region has been read or has failed, and rethrows what the
@@ -54,12 +54,12 @@ public:
 	 * elements of @p destination no region reached are left as they were.
 	 *
 	 * @param destination Where the regions land.
-	 * @param plan The transaction to read.
+	 * @param plan The transaction to load.
 	 * @param sanitizer What becomes of the regions that do not fit.
 	 * @return std::shared_ptr<completion> The completion, never null.
 	 * @throws std::invalid_argument If @p sanitizer is null.
 	 */
-	virtual std::shared_ptr<completion> read(
+	virtual std::shared_ptr<completion> load(
 		array destination,
 		const image_transaction_plan &plan,
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer

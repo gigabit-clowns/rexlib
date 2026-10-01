@@ -10,10 +10,10 @@
 #include <rexlib/core/span.hpp>
 #include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
+#include <rexlib/em/image/image_loader.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
-#include <rexlib/em/image/image_source.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
@@ -73,7 +73,7 @@ array read(
 }
 
 std::shared_ptr<completion> read_batch_async(
-	const image_source &source,
+	const image_loader &loader,
 	array destination,
 	span<const image_location> locations
 )
@@ -84,7 +84,7 @@ std::shared_ptr<completion> read_batch_async(
 	const auto transaction =
 		make_batch_plan(make_span(array_extents), locations);
 
-	return source.read(
+	return loader.load(
 		std::move(destination),
 		transaction,
 		strict_image_transfer_sanitizer::get_shared()
@@ -92,7 +92,7 @@ std::shared_ptr<completion> read_batch_async(
 }
 
 std::shared_ptr<completion> read_patches_async(
-	const image_source &source,
+	const image_loader &loader,
 	array destination,
 	const image_location &location,
 	const index_table &centres
@@ -104,7 +104,7 @@ std::shared_ptr<completion> read_patches_async(
 	const auto transaction =
 		make_patch_plan(make_span(array_extents), location, centres);
 
-	return source.read(
+	return loader.load(
 		std::move(destination),
 		transaction,
 		clipping_image_transfer_sanitizer::get_shared()

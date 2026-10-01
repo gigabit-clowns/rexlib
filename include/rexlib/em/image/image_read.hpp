@@ -19,9 +19,9 @@ class execution_context;
 namespace em
 {
 
+class image_loader;
 class image_location;
 class image_reader_provider;
-class image_source;
 class index_table;
 
 /**
@@ -78,7 +78,7 @@ array read(
  * or volume @ref image_location::get_index_in_stack indexes within its file,
  * or the whole file when the location carries no index. A batch may not mix
  * the two; every location must either carry an index in a stack or none may.
- * The reads are handed to @p source as one transaction.
+ * The reads are handed to @p loader as one transaction.
  *
  * Returns before the reads are done, unlike @ref read, and fills an array
  * the caller already has rather than allocating one.
@@ -87,7 +87,7 @@ array read(
  * does not hold is reported through the completion rather than skipped. See
  * @ref strict_image_transfer_sanitizer.
  *
- * @param source Where the reads are dispatched. Needs to outlive this call
+ * @param loader Where the reads are dispatched. Needs to outlive this call
  * and no longer, the work outliving it carrying what it needs.
  * @param destination Where the images or volumes land. Its leading extent
  * is the batch size and its remaining extents are the shape of one image or
@@ -101,7 +101,7 @@ array read(
  */
 REXLIB_API
 std::shared_ptr<completion> read_batch_async(
-	const image_source &source,
+	const image_loader &loader,
 	array destination,
 	span<const image_location> locations
 );
@@ -127,7 +127,7 @@ std::shared_ptr<completion> read_batch_async(
  * such as a quiet NaN, marks the padding. See
  * @ref clipping_image_transfer_sanitizer.
  *
- * @param source Where the reads are dispatched. Needs to outlive this call
+ * @param loader Where the reads are dispatched. Needs to outlive this call
  * and no longer.
  * @param destination Where the patches land. Its leading extent is the batch
  * size and its remaining extents are the shape of one patch.
@@ -141,7 +141,7 @@ std::shared_ptr<completion> read_batch_async(
  */
 REXLIB_API
 std::shared_ptr<completion> read_patches_async(
-	const image_source &source,
+	const image_loader &loader,
 	array destination,
 	const image_location &location,
 	const index_table &centres

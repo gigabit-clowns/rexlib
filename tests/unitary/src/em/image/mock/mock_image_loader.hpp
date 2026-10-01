@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rexlib/em/image/image_sink.hpp>
+#include <rexlib/em/image/image_loader.hpp>
 
 #include <rexlib/core/concurrency/completion.hpp>
-#include <rexlib/core/ndarray/const_array.hpp>
+#include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_sanitizer.hpp>
 
@@ -16,23 +16,21 @@ namespace rexlib
 namespace em
 {
 
-class mock_image_sink final
-	: public image_sink
+class mock_image_loader final
+	: public image_loader
 {
 public:
-	mock_image_sink() = default;
+	mock_image_loader() = default;
 
 	MAKE_CONST_MOCK3(
-		write,
+		load,
 		std::shared_ptr<completion>(
-			const_array source,
+			array destination,
 			const image_transaction_plan &plan,
 			std::shared_ptr<const image_transfer_sanitizer> sanitizer
 		),
 		override
 	);
-
-	MAKE_MOCK0(flush, void(), override);
 };
 
 } // namespace em

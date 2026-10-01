@@ -3,7 +3,7 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/em/image/image_sink.hpp>
+#include <rexlib/em/image/image_saver.hpp>
 
 #include <memory>
 
@@ -31,29 +31,29 @@ class image_writer_provider;
  * another.
  *
  * Neither @ref completion::wait nor @ref completion::get of a completion
- * this sink returns may be called from within a task already running on
+ * this saver returns may be called from within a task already running on
  * that executor.
  */
-class REXLIB_API executor_image_sink final
-	: public image_sink
+class REXLIB_API executor_image_saver final
+	: public image_saver
 {
 public:
 	/**
-	 * @brief Construct a sink over a provider and an executor.
+	 * @brief Construct a saver over a provider and an executor.
 	 *
 	 * @param writers Where a path becomes an open writer.
 	 * @param executor Where a file's write is run.
 	 * @throws std::invalid_argument If @p writers or @p executor is
 	 * null.
 	 */
-	executor_image_sink(
+	executor_image_saver(
 		std::shared_ptr<image_writer_provider> writers,
 		std::shared_ptr<rexlib::executor> executor
 	);
 
-	~executor_image_sink() override;
+	~executor_image_saver() override;
 
-	std::shared_ptr<completion> write(
+	std::shared_ptr<completion> save(
 		const_array source,
 		const image_transaction_plan &plan,
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer
