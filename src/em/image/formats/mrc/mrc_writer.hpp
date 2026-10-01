@@ -67,11 +67,6 @@ public:
 	void flush() override;
 
 private:
-	void transfer(
-		const_array_ref source,
-		const image_transfer_plan &regions
-	);
-
 	std::string m_path;
 	mrc_header m_header;
 	mrc_geometry m_geometry;

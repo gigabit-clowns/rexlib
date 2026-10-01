@@ -34,7 +34,7 @@ class image_metadata;
  * arithmetic.
  *
  * Everything a reader reports is fixed when it is opened, and reading does
- * not change it. Every exception a reader throws names its file.
+ * not change it.
  */
 class REXLIB_API image_reader
 {

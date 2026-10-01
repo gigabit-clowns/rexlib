@@ -16,6 +16,7 @@ namespace em
 {
 
 class image_transaction_plan;
+class image_transfer_sanitizer;
 
 /**
  * @brief Writes the regions of a transaction plan out of one array.
@@ -47,17 +48,20 @@ public:
 	 * once every region has been written or has failed, and rethrows what
 	 * the first failure threw.
 	 *
-	 * Every region must fit the file it names and @p source both. One that
-	 * does not is reported through the completion rather than shortened to
-	 * fit.
+	 * The regions of each file are shown to @p sanitizer beside the extents
+	 * of that file and of @p source, and what it answers is written in
+	 * their place. What it refuses is reported through the completion.
 	 *
 	 * @param source The values to write.
 	 * @param plan The transaction to write.
+	 * @param sanitizer What becomes of the regions that do not fit.
 	 * @return std::shared_ptr<completion> The completion, never null.
+	 * @throws std::invalid_argument If @p sanitizer is null.
 	 */
 	virtual std::shared_ptr<completion> write(
 		const_array source,
-		const image_transaction_plan &plan
+		const image_transaction_plan &plan,
+		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const = 0;
 
 	/**

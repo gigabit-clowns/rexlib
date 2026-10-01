@@ -5,7 +5,6 @@
 #include "mrc_constants.hpp"
 #include "mrc_mode.hpp"
 
-#include <em/image/formats/rethrow_with_path.hpp>
 #include <em/image/strided_transfer/image_host_access.hpp>
 #include <em/image/strided_transfer/image_region_transfer.hpp>
 #include <em/image/strided_transfer/image_region_write_plan.hpp>
@@ -51,9 +50,9 @@ image_file_mapping lay_out_file(
 	if (geometry.get_descriptor() != descriptor)
 	{
 		throw unsupported_operation_error(
-			"mrc_writer: The file would read back as another shape than it "
-			"is created with, as a stack of one image does from a file not "
-			"named as a stack."
+			path + ": mrc_writer: The file would read back as another shape "
+			"than it is created with, as a stack of one image does from a "
+			"file not named as a stack."
 		);
 	}
 
@@ -72,7 +71,6 @@ mrc_writer::mrc_writer(
 	const image_descriptor &descriptor,
 	mrc_single_section single_section
 )
-try
 	: m_path(path)
 	, m_header(make_header(descriptor))
 	, m_geometry(m_header, single_section)
@@ -82,10 +80,6 @@ try
 		m_header,
 		make_span(m_mapping.get_data(), m_mapping.get_size())
 	);
-}
-catch (...)
-{
-	rethrow_with_path(path);
 }
 
 mrc_writer::~mrc_writer()
@@ -125,21 +119,6 @@ void mrc_writer::write(
 	const image_transfer_plan &regions
 )
 {
-	try
-	{
-		transfer(source, regions);
-	}
-	catch (...)
-	{
-		rethrow_with_path(m_path);
-	}
-}
-
-void mrc_writer::transfer(
-	const_array_ref source,
-	const image_transfer_plan &regions
-)
-{
 	const auto *array_data = get_host_data(source);
 
 	const auto &descriptor = source.get_descriptor();
@@ -171,14 +150,7 @@ void mrc_writer::transfer(
 
 void mrc_writer::flush()
 {
-	try
-	{
-		m_mapping.flush();
-	}
-	catch (...)
-	{
-		rethrow_with_path(m_path);
-	}
+	m_mapping.flush();
 }
 
 mrc_header make_header(const image_descriptor &descriptor)

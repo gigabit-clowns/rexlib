@@ -7,6 +7,7 @@
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
+#include <rexlib/em/image/image_transfer_sanitizer.hpp>
 
 #include <trompeloeil.hpp>
 
@@ -21,11 +22,12 @@ class mock_image_sink final
 public:
 	mock_image_sink() = default;
 
-	MAKE_CONST_MOCK2(
+	MAKE_CONST_MOCK3(
 		write,
 		std::shared_ptr<completion>(
 			const_array source,
-			const image_transaction_plan &plan
+			const image_transaction_plan &plan,
+			std::shared_ptr<const image_transfer_sanitizer> sanitizer
 		),
 		override
 	);

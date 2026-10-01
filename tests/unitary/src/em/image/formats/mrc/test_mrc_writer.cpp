@@ -420,12 +420,9 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 	{
 		const std::vector<std::size_t> line = {4};
 
-		REQUIRE_THROWS_MATCHES(
+		REQUIRE_THROWS_AS(
 			mrc_writer(path.get(), make_descriptor(line, 1)),
-			unsupported_operation_error,
-			Catch::Matchers::MessageMatches(
-				Catch::Matchers::StartsWith(path.get() + ": ")
-			)
+			unsupported_operation_error
 		);
 	}
 
@@ -433,15 +430,12 @@ TEST_CASE( "an MRC file is created with the shape it is opened over",
 	{
 		const std::vector<std::size_t> extents = {2, 3};
 
-		REQUIRE_THROWS_MATCHES(
+		REQUIRE_THROWS_AS(
 			mrc_writer(
 				path.get(),
 				make_descriptor(extents, 2, numerical_type::float64)
 			),
-			unsupported_operation_error,
-			Catch::Matchers::MessageMatches(
-				Catch::Matchers::StartsWith(path.get() + ": ")
-			)
+			unsupported_operation_error
 		);
 	}
 }
@@ -654,12 +648,9 @@ TEST_CASE( "what is written to an MRC file is what is read back",
 		const std::vector<std::size_t> extents = {2, 2};
 		mrc_writer writer(path.get(), make_descriptor(extents, 2));
 
-		REQUIRE_THROWS_MATCHES(
+		REQUIRE_THROWS_AS(
 			writer.write(const_array_ref(), whole_of(extents)),
-			std::invalid_argument,
-			Catch::Matchers::MessageMatches(
-				Catch::Matchers::StartsWith(path.get() + ": ")
-			)
+			std::invalid_argument
 		);
 	}
 }

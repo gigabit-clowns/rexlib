@@ -64,12 +64,6 @@ public:
 	) const override;
 
 private:
-	void transfer(
-		array_ref destination,
-		const image_transfer_plan &regions
-	) const;
-
-	std::string m_path;
 	image_file_mapping m_mapping;
 	mrc_header m_header;
 	mrc_geometry m_geometry;

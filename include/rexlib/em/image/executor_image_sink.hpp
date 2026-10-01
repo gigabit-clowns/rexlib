@@ -18,6 +18,7 @@ namespace em
 {
 
 class image_transaction_plan;
+class image_transfer_sanitizer;
 class image_writer_provider;
 
 /**
@@ -54,7 +55,8 @@ public:
 
 	std::shared_ptr<completion> write(
 		const_array source,
-		const image_transaction_plan &plan
+		const image_transaction_plan &plan,
+		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const override;
 
 	void flush() override;

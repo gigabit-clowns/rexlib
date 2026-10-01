@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <em/image/image_region_clipping.hpp>
+#include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
@@ -56,28 +56,35 @@ std::vector<std::size_t> make_array_extents(std::size_t count)
 	};
 }
 
+std::vector<image_transfer_plan> sanitize(
+	const image_transfer_plan &regions,
+	const std::vector<std::size_t> &file_extents,
+	const std::vector<std::size_t> &array_extents
+)
+{
+	return clipping_image_transfer_sanitizer::get_shared()->sanitize(
+		regions,
+		make_span(file_extents),
+		make_span(array_extents)
+	);
+}
+
 } // anonymous namespace
 
 TEST_CASE(
-	"make_clipped_transfer_plans checks the rank of each side",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer checks the rank of each side",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	const auto regions = make_patch_plan();
 	const auto array_extents = make_array_extents(1);
-	std::vector<image_transfer_plan> result;
 
 	SECTION( "file extents that do not have the file rank" )
 	{
 		const std::vector<std::size_t> rank_three = {100, 100, 100};
 
 		REQUIRE_THROWS_AS(
-			make_clipped_transfer_plans(
-				regions,
-				make_span(rank_three),
-				make_span(array_extents),
-				result
-			),
+			sanitize(regions, rank_three, array_extents),
 			std::invalid_argument
 		);
 	}
@@ -87,20 +94,16 @@ TEST_CASE(
 		const std::vector<std::size_t> rank_two = {100, 100};
 
 		REQUIRE_THROWS_AS(
-			make_clipped_transfer_plans(
-				regions,
-				make_span(image_extents),
-				make_span(rank_two),
-				result
-			),
+			sanitize(regions, image_extents, rank_two),
 			std::invalid_argument
 		);
 	}
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans leaves regions that fit alone",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer answers regions that fit with the "
+	"plan it was shown",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	auto regions = make_patch_plan();
@@ -109,39 +112,34 @@ TEST_CASE(
 	add_patch(regions, 90, 90, 2, 0, 0);
 
 	const auto array_extents = make_array_extents(3);
-	std::vector<image_transfer_plan> result;
 
 	// The last patch ends exactly at the far edge of the image, which fits.
-	REQUIRE_FALSE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(image_extents),
-			make_span(array_extents),
-			result
-		)
-	);
-	CHECK( result.empty() );
+	const auto result = sanitize(regions, image_extents, array_extents);
+
+	REQUIRE( result.size() == 1 );
+	CHECK( to_vector(result[0].get_shape().get_extents()) == patch_extents );
+	REQUIRE( result[0].get_region_count() == 3 );
+	CHECK( to_vector(result[0].get_file_offset(0)) ==
+		std::vector<std::size_t>{0, 0} );
+	CHECK( to_vector(result[0].get_file_offset(1)) ==
+		std::vector<std::size_t>{40, 50} );
+	CHECK( to_vector(result[0].get_file_offset(2)) ==
+		std::vector<std::size_t>{90, 90} );
+	CHECK( to_vector(result[0].get_array_offset(2)) ==
+		std::vector<std::size_t>{2, 0, 0} );
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans shortens a region running off the file",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer shortens a region running off the file",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	auto regions = make_patch_plan();
 	add_patch(regions, 95, 93, 0, 0, 0);
 
 	const auto array_extents = make_array_extents(1);
-	std::vector<image_transfer_plan> result;
 
-	REQUIRE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(image_extents),
-			make_span(array_extents),
-			result
-		)
-	);
+	const auto result = sanitize(regions, image_extents, array_extents);
 
 	REQUIRE( result.size() == 1 );
 	CHECK( to_vector(result[0].get_shape().get_extents()) ==
@@ -154,9 +152,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans shortens a region the array offset pushes "
-	"over the end of its slot",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer shortens a region the array offset "
+	"pushes over the end of its slot",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	// How a patch centred near the origin arrives: the part of it before the
@@ -166,16 +164,8 @@ TEST_CASE(
 	add_patch(regions, 0, 0, 0, 4, 6);
 
 	const auto array_extents = make_array_extents(1);
-	std::vector<image_transfer_plan> result;
 
-	REQUIRE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(image_extents),
-			make_span(array_extents),
-			result
-		)
-	);
+	const auto result = sanitize(regions, image_extents, array_extents);
 
 	REQUIRE( result.size() == 1 );
 	CHECK( to_vector(result[0].get_shape().get_extents()) ==
@@ -188,8 +178,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans shortens by whichever side runs out first",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer shortens by whichever side runs out "
+	"first",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	// A patch wider than the image it is cut from: it begins before the
@@ -200,16 +191,8 @@ TEST_CASE(
 	add_patch(regions, 0, 3, 0, 2, 0);
 
 	const auto array_extents = make_array_extents(1);
-	std::vector<image_transfer_plan> result;
 
-	REQUIRE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(small_image),
-			make_span(array_extents),
-			result
-		)
-	);
+	const auto result = sanitize(regions, small_image, array_extents);
 
 	REQUIRE( result.size() == 1 );
 	CHECK( to_vector(result[0].get_shape().get_extents()) ==
@@ -217,12 +200,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans drops a region that reaches nothing",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer drops a region that reaches nothing",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	const auto array_extents = make_array_extents(2);
-	std::vector<image_transfer_plan> result;
 
 	SECTION( "one starting past the end of the file" )
 	{
@@ -230,14 +212,7 @@ TEST_CASE(
 		add_patch(regions, 100, 0, 0, 0, 0);
 		add_patch(regions, 40, 40, 1, 0, 0);
 
-		REQUIRE(
-			make_clipped_transfer_plans(
-				regions,
-				make_span(image_extents),
-				make_span(array_extents),
-				result
-			)
-		);
+		const auto result = sanitize(regions, image_extents, array_extents);
 
 		REQUIRE( result.size() == 1 );
 		CHECK( to_vector(result[0].get_shape().get_extents()) ==
@@ -253,14 +228,7 @@ TEST_CASE(
 		add_patch(regions, 0, 0, 0, 10, 0);
 		add_patch(regions, 40, 40, 1, 0, 0);
 
-		REQUIRE(
-			make_clipped_transfer_plans(
-				regions,
-				make_span(image_extents),
-				make_span(array_extents),
-				result
-			)
-		);
+		const auto result = sanitize(regions, image_extents, array_extents);
 
 		REQUIRE( result.size() == 1 );
 		REQUIRE( result[0].get_region_count() == 1 );
@@ -276,14 +244,7 @@ TEST_CASE(
 		add_patch(regions, 40, 40, 2, 0, 0);
 		add_patch(regions, 40, 40, 1, 0, 0);
 
-		REQUIRE(
-			make_clipped_transfer_plans(
-				regions,
-				make_span(image_extents),
-				make_span(array_extents),
-				result
-			)
-		);
+		const auto result = sanitize(regions, image_extents, array_extents);
 
 		REQUIRE( result.size() == 1 );
 		REQUIRE( result[0].get_region_count() == 1 );
@@ -293,8 +254,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans makes one plan per shape",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer makes one plan per shape",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	auto regions = make_patch_plan();
@@ -305,16 +266,8 @@ TEST_CASE(
 	add_patch(regions, 96, 40, 4, 0, 0);   // 4 by 10
 
 	const auto array_extents = make_array_extents(5);
-	std::vector<image_transfer_plan> result;
 
-	REQUIRE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(image_extents),
-			make_span(array_extents),
-			result
-		)
-	);
+	const auto result = sanitize(regions, image_extents, array_extents);
 
 	// One per distinct shape, in the order the shapes were first met.
 	REQUIRE( result.size() == 4 );
@@ -340,8 +293,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans keeps the ranks of the plan it clips",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer keeps the ranks of the plan it clips",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
 	// A patch of one slice of a stack: the file carries an axis the extents
@@ -354,16 +307,8 @@ TEST_CASE(
 	regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
 
 	const auto array_extents = make_array_extents(1);
-	std::vector<image_transfer_plan> result;
 
-	REQUIRE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(stack_extents),
-			make_span(array_extents),
-			result
-		)
-	);
+	const auto result = sanitize(regions, stack_extents, array_extents);
 
 	REQUIRE( result.size() == 1 );
 	CHECK( result[0].get_shape().get_file_rank() == 3 );
@@ -376,27 +321,37 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_clipped_transfer_plans clears what it is given",
-	"[image_region_clipping]"
+	"clipping_image_transfer_sanitizer answers no plan when no region "
+	"reaches anything",
+	"[clipping_image_transfer_sanitizer]"
 )
 {
-	auto regions = make_patch_plan();
-	add_patch(regions, 95, 40, 0, 0, 0);
-
 	const auto array_extents = make_array_extents(1);
-	std::vector<image_transfer_plan> result;
-	result.emplace_back(image_transfer_shape(patch_extents, 2, 3));
 
-	REQUIRE(
-		make_clipped_transfer_plans(
-			regions,
-			make_span(image_extents),
-			make_span(array_extents),
-			result
-		)
-	);
+	SECTION( "every region starts past the end of the file" )
+	{
+		auto regions = make_patch_plan();
+		add_patch(regions, 100, 0, 0, 0, 0);
+		add_patch(regions, 0, 100, 0, 0, 0);
 
-	REQUIRE( result.size() == 1 );
-	CHECK( to_vector(result[0].get_shape().get_extents()) ==
-		std::vector<std::size_t>{5, 10} );
+		CHECK( sanitize(regions, image_extents, array_extents).empty() );
+	}
+
+	SECTION( "there is no region" )
+	{
+		const auto regions = make_patch_plan();
+
+		CHECK( sanitize(regions, image_extents, array_extents).empty() );
+	}
+}
+
+TEST_CASE(
+	"clipping_image_transfer_sanitizer has one instance every use shares",
+	"[clipping_image_transfer_sanitizer]"
+)
+{
+	const auto first = clipping_image_transfer_sanitizer::get_shared();
+
+	REQUIRE( first != nullptr );
+	CHECK( first == clipping_image_transfer_sanitizer::get_shared() );
 }

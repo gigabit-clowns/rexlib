@@ -30,12 +30,13 @@ boost::interprocess::mode_t to_mode(access_flags access)
 
 REXLIB_NORETURN
 void throw_unmappable(
+	const std::string &path,
 	const boost::interprocess::interprocess_exception &error
 )
 {
 	throw image_file_error(
-		"image_file_mapping: The file could not be mapped: " +
-		std::string(error.what())
+		path + ": image_file_mapping: The file could not be mapped: " +
+		error.what()
 	);
 }
 
@@ -50,7 +51,7 @@ boost::interprocess::file_mapping open_mapping(
 	}
 	catch (const boost::interprocess::interprocess_exception &error)
 	{
-		throw_unmappable(error);
+		throw_unmappable(path, error);
 	}
 }
 
@@ -65,7 +66,7 @@ boost::interprocess::mapped_region map_region(
 	}
 	catch (const boost::interprocess::interprocess_exception &error)
 	{
-		throw_unmappable(error);
+		throw_unmappable(mapping.get_name(), error);
 	}
 }
 
@@ -81,7 +82,7 @@ image_file_mapping::image_file_mapping(
 	if (m_region.get_size() == 0)
 	{
 		throw image_file_error(
-			"image_file_mapping: The file is empty."
+			path + ": image_file_mapping: The file is empty."
 		);
 	}
 }
@@ -101,7 +102,8 @@ void image_file_mapping::flush()
 	if (!m_region.flush())
 	{
 		throw image_file_error(
-			"image_file_mapping: The mapping could not be flushed."
+			std::string(m_mapping.get_name()) +
+			": image_file_mapping: The mapping could not be flushed."
 		);
 	}
 }
@@ -111,7 +113,8 @@ void create_image_file(const std::string &path, std::size_t size)
 	if (size == 0)
 	{
 		throw image_file_error(
-			"create_image_file: A file of no bytes can not be mapped."
+			path + ": create_image_file: A file of no bytes can not be "
+			"mapped."
 		);
 	}
 
@@ -125,7 +128,7 @@ void create_image_file(const std::string &path, std::size_t size)
 		if (opened == nullptr)
 		{
 			throw image_file_error(
-				"create_image_file: The file could not be created."
+				path + ": create_image_file: The file could not be created."
 			);
 		}
 	}
@@ -135,7 +138,7 @@ void create_image_file(const std::string &path, std::size_t size)
 	if (code)
 	{
 		throw image_file_error(
-			"create_image_file: The file could not be sized: " +
+			path + ": create_image_file: The file could not be sized: " +
 			code.message()
 		);
 	}

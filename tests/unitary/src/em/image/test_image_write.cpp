@@ -14,6 +14,7 @@
 #include <rexlib/em/image/image_metadata.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
+#include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
 #include "fixtures/format_manager_fixture.hpp"
@@ -390,7 +391,10 @@ TEST_CASE(
 	mock_image_sink sink;
 	const auto done = std::make_shared<counting_completion>(0);
 
-	REQUIRE_CALL(sink, write(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		sink,
+		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH( _2.get_region_count() == 0 )
 		.RETURN(done);
 
@@ -405,6 +409,30 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"write_batch_async has its regions written as they are stated",
+	"[image_write]"
+)
+{
+	mock_image_sink sink;
+
+	REQUIRE_CALL(
+		sink,
+		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_WITH( _3 == strict_image_transfer_sanitizer::get_shared() )
+		.RETURN(std::make_shared<counting_completion>(0));
+
+	const std::vector<image_location> locations = {
+		image_location("a.mrcs", 0)
+	};
+	write_batch_async(
+		sink,
+		make_const_array({1, 4, 4}),
+		make_span(locations)
+	);
+}
+
+TEST_CASE(
 	"write_batch_async addresses the whole file for unindexed locations",
 	"[image_write]"
 )
@@ -414,7 +442,10 @@ TEST_CASE(
 	// at the origin.
 	mock_image_sink sink;
 
-	REQUIRE_CALL(sink, write(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		sink,
+		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			extents_of(_1) == std::vector<std::size_t>{2, 3, 5} &&
 			_2.get_region_count() == 2 &&
@@ -457,7 +488,10 @@ TEST_CASE(
 	// index in the stack.
 	mock_image_sink sink;
 
-	REQUIRE_CALL(sink, write(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		sink,
+		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			_2.get_file_count() == 1 &&
 			_2.get_file(0) == "particles.mrcs" &&
@@ -502,7 +536,10 @@ TEST_CASE(
 	mock_image_sink sink;
 	const auto pending = std::make_shared<counting_completion>(1);
 
-	REQUIRE_CALL(sink, write(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		sink,
+		write(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.RETURN(pending);
 
 	const std::vector<image_location> locations = { image_location("a.mrc") };

@@ -9,6 +9,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_reader.hpp>
@@ -18,6 +19,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/index_table.hpp>
+#include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 #include <rexlib/functional/creation.hpp>
 
 #include <em/image/image_batch_plan.hpp>
@@ -181,7 +183,11 @@ std::shared_ptr<completion> read_batch_async(
 		"read_batch_async"
 	);
 
-	return source.read(std::move(destination), transaction);
+	return source.read(
+		std::move(destination),
+		transaction,
+		strict_image_transfer_sanitizer::get_shared()
+	);
 }
 
 std::shared_ptr<completion> read_patches_async(
@@ -267,7 +273,11 @@ std::shared_ptr<completion> read_patches_async(
 		);
 	}
 
-	return source.read(std::move(destination), transaction);
+	return source.read(
+		std::move(destination),
+		transaction,
+		clipping_image_transfer_sanitizer::get_shared()
+	);
 }
 
 } // namespace em

@@ -73,6 +73,10 @@ array read(
  * Returns before the reads are done, unlike @ref read, and fills an array
  * the caller already has rather than allocating one.
  *
+ * Every slot must be there to read: a location naming an index its stack
+ * does not hold is reported through the completion rather than skipped. See
+ * @ref strict_image_transfer_sanitizer.
+ *
  * @param source Where the reads are dispatched. Needs to outlive this call
  * and no longer, the work outliving it carrying what it needs.
  * @param destination Where the images or volumes land. Its leading extent
@@ -110,7 +114,8 @@ std::shared_ptr<completion> read_batch_async(
  * goes and no further. The elements of @p destination no data reached are
  * left untouched, so a patch is padded with whatever @p destination held
  * beforehand. Filling it first with a value that cannot occur in the image,
- * such as a quiet NaN, marks the padding.
+ * such as a quiet NaN, marks the padding. See
+ * @ref clipping_image_transfer_sanitizer.
  *
  * @param source Where the reads are dispatched. Needs to outlive this call
  * and no longer.

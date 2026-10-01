@@ -6,10 +6,13 @@
 #include <rexlib/core/concurrency/counting_completion.hpp>
 #include <rexlib/core/concurrency/executor.hpp>
 #include <rexlib/core/concurrency/task.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_sanitizer.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 #include <rexlib/em/image/image_writer_provider.hpp>
 
@@ -20,6 +23,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace rexlib
 {
@@ -36,12 +40,14 @@ public:
 		std::string path,
 		image_transfer_plan transfer,
 		std::shared_ptr<const_array> source,
-		std::shared_ptr<image_writer_provider> writers
+		std::shared_ptr<image_writer_provider> writers,
+		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	)
 		: m_path(std::move(path))
 		, m_transfer(std::move(transfer))
 		, m_source(std::move(source))
 		, m_writers(std::move(writers))
+		, m_sanitizer(std::move(sanitizer))
 	{
 	}
 
@@ -49,7 +55,19 @@ public:
 	{
 		const auto writer = m_writers->acquire(m_path);
 		const_array_ref source(*m_source);
-		writer->write(source, m_transfer);
+
+		std::vector<std::size_t> array_extents;
+		source.get_descriptor().get_layout().get_extents(array_extents);
+
+		const auto sanitized = m_sanitizer->sanitize(
+			m_transfer,
+			writer->get_descriptor().get_extents(),
+			make_span(array_extents)
+		);
+		for (const auto &regions : sanitized)
+		{
+			writer->write(source, regions);
+		}
 	}
 
 private:
@@ -57,6 +75,7 @@ private:
 	image_transfer_plan m_transfer;
 	std::shared_ptr<const_array> m_source;
 	std::shared_ptr<image_writer_provider> m_writers;
+	std::shared_ptr<const image_transfer_sanitizer> m_sanitizer;
 };
 
 } // anonymous namespace
@@ -87,9 +106,17 @@ executor_image_sink::~executor_image_sink() = default;
 
 std::shared_ptr<completion> executor_image_sink::write(
 	const_array source,
-	const image_transaction_plan &plan
+	const image_transaction_plan &plan,
+	std::shared_ptr<const image_transfer_sanitizer> sanitizer
 ) const
 {
+	if (!sanitizer)
+	{
+		throw std::invalid_argument(
+			"executor_image_sink: The sanitizer must not be null."
+		);
+	}
+
 	image_region_grouping grouping;
 	grouping.build(plan);
 
@@ -111,7 +138,8 @@ std::shared_ptr<completion> executor_image_sink::write(
 				plan.get_file(file_index),
 				make_file_transfer_plan(grouping, plan, file_index),
 				shared_source,
-				m_writers
+				m_writers,
+				sanitizer
 			),
 			result
 		);

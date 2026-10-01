@@ -119,7 +119,7 @@ void write(
  *
  * Every slot must fit where it is written: a location naming an index the
  * stack does not hold is reported through the completion rather than
- * dropped. See @ref image_sink::write.
+ * dropped. See @ref strict_image_transfer_sanitizer.
  *
  * @param sink Where the writes are dispatched. Needs to outlive this call
  * and no longer, the work outliving it carrying what it needs.

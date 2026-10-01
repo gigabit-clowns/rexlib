@@ -11,12 +11,14 @@
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
+#include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include "../../core/concurrency/mock/mock_executor.hpp"
 #include "../../core/hardware/mock/mock_buffer.hpp"
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_reader_provider.hpp"
+#include "mock/mock_image_transfer_sanitizer.hpp"
 
 #include <cstddef>
 #include <functional>
@@ -34,10 +36,8 @@ namespace
 
 const std::vector<std::size_t> plane_extents = {3, 5};
 
-// A stack deep enough to hold every element the cases below address, and a
-// batch with a slot for each of them. executor_image_source clips every region
-// to both of them, so a reader reports the first and a destination carries the
-// second.
+// What a reader reports and what a destination carries, which is what the
+// sanitizer is shown beside the regions of a file.
 const std::vector<std::size_t> stack_extents = {8, 3, 5};
 const std::vector<std::size_t> batch_extents = {4, 3, 5};
 
@@ -72,19 +72,20 @@ void add_element(
 	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
 }
 
-// Add one region placed at a row of a plane rather than at its origin, which
-// is what makes it run past the far edge of the file.
-void add_region(
-	image_transaction_plan &plan,
-	std::size_t file,
-	std::size_t index_in_stack,
-	std::size_t row,
-	std::size_t slot
-)
+std::vector<std::size_t> to_vector(span<const std::size_t> values)
 {
-	const std::size_t file_offset[3] = {index_in_stack, row, 0};
-	const std::size_t array_offset[3] = {slot, 0, 0};
-	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
+	return std::vector<std::size_t>(values.begin(), values.end());
+}
+
+// Answers every plan with itself, for the cases that are not about what a
+// sanitizer answers.
+std::unique_ptr<trompeloeil::expectation>
+allow_passing_through(const mock_image_transfer_sanitizer &sanitizer)
+{
+	return NAMED_ALLOW_CALL(
+		sanitizer,
+		sanitize(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	).RETURN( std::vector<image_transfer_plan>(1, _1) );
 }
 
 } // anonymous namespace
@@ -118,6 +119,26 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"executor_image_source needs a sanitizer",
+	"[executor_image_source]"
+)
+{
+	const image_transaction_plan plan(
+		image_transfer_shape(plane_extents, 3, 3)
+	);
+
+	executor_image_source source(
+		std::make_shared<mock_image_reader_provider>(),
+		std::make_shared<synchronous_executor>()
+	);
+
+	REQUIRE_THROWS_AS(
+		source.read(make_test_array(), plan, nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
 	"executor_image_source reads each file's regions as one call, split by "
 	"file",
 	"[executor_image_source]"
@@ -132,6 +153,9 @@ TEST_CASE(
 	add_element(plan, zero, 1, 1);
 	add_element(plan, zero, 2, 2);
 	add_element(plan, one, 5, 3);
+
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	const auto passing_through = allow_passing_through(*sanitizer);
 
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 	const auto reader_zero = std::make_shared<mock_image_reader>();
@@ -152,7 +176,7 @@ TEST_CASE(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
@@ -169,6 +193,9 @@ TEST_CASE(
 	plan.add_file("stack_1.mrcs"); // named, never given a region
 	add_element(plan, zero, 0, 0);
 
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	const auto passing_through = allow_passing_through(*sanitizer);
+
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 	const auto reader = std::make_shared<mock_image_reader>();
 
@@ -181,7 +208,7 @@ TEST_CASE(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
@@ -196,14 +223,16 @@ TEST_CASE(
 		image_transfer_shape(plane_extents, 3, 3)
 	);
 
-	// No expectations set on `readers`: acquiring anything would violate.
+	// No expectations set on `readers` or on `sanitizer`: acquiring or
+	// sanitizing anything would violate.
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 
 	executor_image_source source(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	REQUIRE( completion != nullptr );
 	CHECK( completion->is_ready() );
@@ -219,6 +248,9 @@ TEST_CASE(
 	const auto zero = plan.add_file("stack_0.mrcs");
 	add_element(plan, zero, 0, 0);
 
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	const auto passing_through = allow_passing_through(*sanitizer);
+
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 	const auto reader = std::make_shared<mock_image_reader>();
 
@@ -231,64 +263,109 @@ TEST_CASE(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	REQUIRE( completion->is_ready() );
 	REQUIRE_THROWS_AS( completion->get(), std::runtime_error );
 }
 
 TEST_CASE(
-	"executor_image_source shortens a region that runs past the file",
+	"executor_image_source shows each file's regions to the sanitizer beside "
+	"the extents of both sides",
 	"[executor_image_source]"
 )
 {
-	// A plane of the stack is three rows tall, so a region of three rows
-	// placed at the second one reaches only two of them.
+	const std::vector<std::size_t> short_stack_extents = {2, 3, 5};
+	const image_descriptor short_stack_descriptor(
+		make_span(short_stack_extents),
+		plane_extents.size(),
+		numerical_type::float32
+	);
+
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
-	add_region(plan, zero, 0, 1, 0);
+	const auto one = plan.add_file("stack_1.mrcs");
+	add_element(plan, zero, 0, 0);
+	add_element(plan, zero, 1, 1);
+	add_element(plan, one, 1, 2);
+
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	REQUIRE_CALL(
+		*sanitizer,
+		sanitize(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_WITH(
+			_1.get_region_count() == 2 &&
+			to_vector(_2) == stack_extents &&
+			to_vector(_3) == batch_extents
+		)
+		.RETURN( std::vector<image_transfer_plan>(1, _1) );
+	REQUIRE_CALL(
+		*sanitizer,
+		sanitize(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_WITH(
+			_1.get_region_count() == 1 &&
+			to_vector(_2) == short_stack_extents &&
+			to_vector(_3) == batch_extents
+		)
+		.RETURN( std::vector<image_transfer_plan>(1, _1) );
 
 	const auto readers = std::make_shared<mock_image_reader_provider>();
-	const auto reader = std::make_shared<mock_image_reader>();
+	const auto reader_zero = std::make_shared<mock_image_reader>();
+	const auto reader_one = std::make_shared<mock_image_reader>();
 
-	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
-	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
-	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH(
-			_2.get_region_count() == 1 &&
-			_2.get_shape().get_extents()[0] == 2 &&
-			_2.get_shape().get_extents()[1] == 5 &&
-			_2.get_file_offset(0)[1] == 1
-		);
+	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader_zero);
+	REQUIRE_CALL(*readers, acquire("stack_1.mrcs")).RETURN(reader_one);
+	ALLOW_CALL(*reader_zero, get_descriptor())
+		.RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(*reader_one, get_descriptor())
+		.LR_RETURN(std::ref(short_stack_descriptor));
+	REQUIRE_CALL(*reader_zero, read(trompeloeil::_, trompeloeil::_));
+	REQUIRE_CALL(*reader_one, read(trompeloeil::_, trompeloeil::_));
 
 	executor_image_source source(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source reads one plan per shape its regions clip to",
+	"executor_image_source reads every plan the sanitizer answers with",
 	"[executor_image_source]"
 )
 {
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
-	add_region(plan, zero, 0, 0, 0); // three rows of three
-	add_region(plan, zero, 0, 1, 1); // two of them
-	add_region(plan, zero, 0, 2, 2); // one
+	add_element(plan, zero, 0, 0);
+
+	// Two plans of other extents than the one asked for, which is how a
+	// sanitizer answers when it shortens regions unevenly.
+	const std::vector<image_transfer_plan> answered = {
+		image_transfer_plan(
+			image_transfer_shape(std::vector<std::size_t>{2, 5}, 3, 3)
+		),
+		image_transfer_plan(
+			image_transfer_shape(std::vector<std::size_t>{1, 5}, 3, 3)
+		)
+	};
+
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	REQUIRE_CALL(
+		*sanitizer,
+		sanitize(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_RETURN( answered );
 
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
-	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH( _2.get_shape().get_extents()[0] == 3 );
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( _2.get_shape().get_extents()[0] == 2 );
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
@@ -298,45 +375,77 @@ TEST_CASE(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
 }
 
 TEST_CASE(
-	"executor_image_source drops a region the file does not reach at all",
+	"executor_image_source reads nothing of a file the sanitizer answers no "
+	"plan for",
 	"[executor_image_source]"
 )
 {
-	// The stack holds eight elements, so the region addressing its tenth
-	// reaches nothing and is left out of what the reader is handed. The
-	// file is still opened, for the region that does reach something.
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto zero = plan.add_file("stack_0.mrcs");
-	add_element(plan, zero, 10, 0);
-	add_element(plan, zero, 3, 1);
+	add_element(plan, zero, 0, 0);
+
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	REQUIRE_CALL(
+		*sanitizer,
+		sanitize(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.RETURN( std::vector<image_transfer_plan>() );
 
 	const auto readers = std::make_shared<mock_image_reader_provider>();
 	const auto reader = std::make_shared<mock_image_reader>();
 
 	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
-	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH(
-			_2.get_region_count() == 1 &&
-			_2.get_file_offset(0)[0] == 3 &&
-			_2.get_array_offset(0)[0] == 1
-		);
+	// No expectation for `read`: reading anything would violate.
 
 	executor_image_source source(
 		readers,
 		std::make_shared<synchronous_executor>()
 	);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	CHECK( completion->is_ready() );
 	CHECK_NOTHROW( completion->get() );
+}
+
+TEST_CASE(
+	"executor_image_source's completion reports what the sanitizer threw",
+	"[executor_image_source]"
+)
+{
+	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
+	const auto zero = plan.add_file("stack_0.mrcs");
+	add_element(plan, zero, 0, 0);
+
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+	REQUIRE_CALL(
+		*sanitizer,
+		sanitize(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.THROW( std::out_of_range("from a sanitizer") );
+
+	const auto readers = std::make_shared<mock_image_reader_provider>();
+	const auto reader = std::make_shared<mock_image_reader>();
+
+	REQUIRE_CALL(*readers, acquire("stack_0.mrcs")).RETURN(reader);
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	// No expectation for `read`: reading anything would violate.
+
+	executor_image_source source(
+		readers,
+		std::make_shared<synchronous_executor>()
+	);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
+
+	REQUIRE( completion->is_ready() );
+	REQUIRE_THROWS_AS( completion->get(), std::out_of_range );
 }
 
 TEST_CASE(
@@ -363,8 +472,11 @@ TEST_CASE(
 		.WITH( _1 != nullptr && _2 != nullptr )
 		.TIMES(file_count);
 
+	// No expectations set on `sanitizer` either: no task runs.
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+
 	executor_image_source source(readers, executor);
-	const auto completion = source.read(make_test_array(), plan);
+	const auto completion = source.read(make_test_array(), plan, sanitizer);
 
 	CHECK_FALSE( completion->is_ready() );
 }
@@ -393,9 +505,12 @@ TEST_CASE(
 	REQUIRE_CALL(*executor, submit(trompeloeil::_, trompeloeil::_))
 		.TIMES(2);
 
+	const auto sanitizer = std::make_shared<mock_image_transfer_sanitizer>();
+
 	executor_image_source source(readers, executor);
-	const auto first = source.read(make_test_array(), first_plan);
-	const auto second = source.read(make_test_array(), second_plan);
+	const auto first = source.read(make_test_array(), first_plan, sanitizer);
+	const auto second =
+		source.read(make_test_array(), second_plan, sanitizer);
 
 	CHECK_FALSE( first->is_ready() );
 	CHECK_FALSE( second->is_ready() );

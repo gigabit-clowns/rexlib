@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "image_region_clipping.hpp"
+#include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 
-#include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
-#include <limits>
+#include <memory>
 #include <stdexcept>
-#include <utility>
 
 namespace rexlib
 {
@@ -16,8 +15,6 @@ namespace em
 
 namespace
 {
-
-const std::size_t no_group = std::numeric_limits<std::size_t>::max();
 
 void check_rank(
 	std::size_t actual,
@@ -100,113 +97,88 @@ bool clip_region(
 	return true;
 }
 
-std::size_t find_group(
-	const std::vector<std::vector<std::size_t>> &group_extents,
+std::size_t find_plan(
+	const std::vector<image_transfer_plan> &plans,
 	const std::vector<std::size_t> &extents
 ) noexcept
 {
-	for (std::size_t group = 0; group < group_extents.size(); ++group)
+	for (std::size_t i = 0; i < plans.size(); ++i)
 	{
-		if (group_extents[group] == extents)
+		const auto candidate = plans[i].get_shape().get_extents();
+		if (std::equal(
+				candidate.begin(),
+				candidate.end(),
+				extents.cbegin(),
+				extents.cend()
+			))
 		{
-			return group;
+			return i;
 		}
 	}
 
-	return group_extents.size();
+	return plans.size();
 }
 
 } // anonymous namespace
 
-bool make_clipped_transfer_plans(
+std::vector<image_transfer_plan> clipping_image_transfer_sanitizer::sanitize(
 	const image_transfer_plan &regions,
 	span<const std::size_t> file_extents,
-	span<const std::size_t> array_extents,
-	std::vector<image_transfer_plan> &result
-)
+	span<const std::size_t> array_extents
+) const
 {
 	const auto &shape = regions.get_shape();
 	check_rank(
 		file_extents.size(),
 		shape.get_file_rank(),
-		"make_clipped_transfer_plans: The file extents do not have the file "
-		"rank of the regions."
+		"clipping_image_transfer_sanitizer: The file extents do not have the "
+		"file rank of the regions."
 	);
 	check_rank(
 		array_extents.size(),
 		shape.get_array_rank(),
-		"make_clipped_transfer_plans: The array extents do not have the "
-		"array rank of the regions."
+		"clipping_image_transfer_sanitizer: The array extents do not have "
+		"the array rank of the regions."
 	);
 
-	result.clear();
+	std::vector<image_transfer_plan> result;
+	std::vector<std::size_t> extents;
 
 	const auto count = regions.get_region_count();
-	const auto whole = shape.get_extents();
-
-	std::vector<std::size_t> group_of_region(count, no_group);
-	std::vector<std::vector<std::size_t>> group_extents;
-	std::vector<std::size_t> group_counts;
-	std::vector<std::size_t> extents;
-	bool clipped = false;
-
 	for (std::size_t i = 0; i < count; ++i)
 	{
 		if (!clip_region(regions, i, file_extents, array_extents, extents))
 		{
-			clipped = true;
 			continue;
 		}
 
-		if (!std::equal(extents.begin(), extents.end(), whole.begin()))
+		const auto plan = find_plan(result, extents);
+		if (plan == result.size())
 		{
-			clipped = true;
+			result.emplace_back(
+				image_transfer_shape(
+					extents,
+					shape.get_file_rank(),
+					shape.get_array_rank()
+				)
+			);
 		}
 
-		auto group = find_group(group_extents, extents);
-		if (group == group_extents.size())
-		{
-			group_extents.push_back(extents);
-			group_counts.push_back(0);
-		}
-
-		group_of_region[i] = group;
-		++group_counts[group];
-	}
-
-	if (!clipped)
-	{
-		return false;
-	}
-
-	result.reserve(group_extents.size());
-	for (std::size_t group = 0; group < group_extents.size(); ++group)
-	{
-		result.emplace_back(
-			image_transfer_shape(
-				std::move(group_extents[group]),
-				shape.get_file_rank(),
-				shape.get_array_rank()
-			)
-		);
-		result.back().reserve(group_counts[group]);
-	}
-
-	for (std::size_t i = 0; i < count; ++i)
-	{
-		const auto group = group_of_region[i];
-		if (group == no_group)
-		{
-			continue;
-		}
-
-		result[group].add(
+		result[plan].add(
 			regions.get_file_offset(i),
 			regions.get_array_offset(i)
 		);
 	}
 
-	return true;
+	return result;
+}
+
+const std::shared_ptr<const clipping_image_transfer_sanitizer>&
+clipping_image_transfer_sanitizer::get_shared()
+{
+	static const auto instance =
+		std::make_shared<const clipping_image_transfer_sanitizer>();
+	return instance;
 }
 
 } // namespace em

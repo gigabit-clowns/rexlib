@@ -2,7 +2,6 @@
 
 #include "mrc_reader.hpp"
 
-#include <em/image/formats/rethrow_with_path.hpp>
 #include <em/image/memory_mapping/image_prefetch_policy.hpp>
 #include <em/image/memory_mapping/image_region_prefetch_plan.hpp>
 #include <em/image/strided_transfer/image_host_access.hpp>
@@ -15,6 +14,7 @@
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 
+#include <string>
 #include <vector>
 
 namespace rexlib
@@ -35,6 +35,7 @@ mrc_header read_header(const image_file_mapping &mapping)
 }
 
 void check_length(
+	const std::string &path,
 	const image_file_mapping &mapping,
 	const mrc_geometry &geometry
 )
@@ -44,8 +45,8 @@ void check_length(
 	if (mapping.get_size() < required)
 	{
 		throw image_format_error(
-			"mrc_reader: The file is shorter than the shape its header "
-			"states."
+			path + ": mrc_reader: The file is shorter than the shape its "
+			"header states."
 		);
 	}
 }
@@ -56,17 +57,11 @@ mrc_reader::mrc_reader(
 	const std::string &path,
 	mrc_single_section single_section
 )
-try
-	: m_path(path)
-	, m_mapping(path, read_only)
+	: m_mapping(path, read_only)
 	, m_header(read_header(m_mapping))
 	, m_geometry(m_header, single_section)
 {
-	check_length(m_mapping, m_geometry);
-}
-catch (...)
-{
-	rethrow_with_path(path);
+	check_length(path, m_mapping, m_geometry);
 }
 
 const image_descriptor& mrc_reader::get_descriptor() const noexcept
@@ -80,21 +75,6 @@ const image_metadata& mrc_reader::get_metadata() const noexcept
 }
 
 void mrc_reader::read(
-	array_ref destination,
-	const image_transfer_plan &regions
-) const
-{
-	try
-	{
-		transfer(destination, regions);
-	}
-	catch (...)
-	{
-		rethrow_with_path(m_path);
-	}
-}
-
-void mrc_reader::transfer(
 	array_ref destination,
 	const image_transfer_plan &regions
 ) const

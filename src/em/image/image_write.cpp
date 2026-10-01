@@ -13,6 +13,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/image_writer.hpp>
+#include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 
 #include <em/image/image_batch_plan.hpp>
 
@@ -149,7 +150,11 @@ std::shared_ptr<completion> write_batch_async(
 		"write_batch_async"
 	);
 
-	return sink.write(std::move(source), transaction);
+	return sink.write(
+		std::move(source),
+		transaction,
+		strict_image_transfer_sanitizer::get_shared()
+	);
 }
 
 } // namespace em

@@ -13,8 +13,8 @@
 #include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
+#include <rexlib/em/image/image_transfer_sanitizer.hpp>
 
-#include <em/image/image_region_clipping.hpp>
 #include <em/image/image_region_grouping.hpp>
 
 #include <cstddef>
@@ -39,12 +39,14 @@ public:
 		std::string path,
 		image_transfer_plan transfer,
 		std::shared_ptr<array> destination,
-		std::shared_ptr<image_reader_provider> readers
+		std::shared_ptr<image_reader_provider> readers,
+		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	)
 		: m_path(std::move(path))
 		, m_transfer(std::move(transfer))
 		, m_destination(std::move(destination))
 		, m_readers(std::move(readers))
+		, m_sanitizer(std::move(sanitizer))
 	{
 	}
 
@@ -56,19 +58,12 @@ public:
 		std::vector<std::size_t> array_extents;
 		destination.get_descriptor().get_layout().get_extents(array_extents);
 
-		std::vector<image_transfer_plan> clipped;
-		if (!make_clipped_transfer_plans(
-				m_transfer,
-				reader->get_descriptor().get_extents(),
-				make_span(array_extents),
-				clipped
-			))
-		{
-			reader->read(destination, m_transfer);
-			return;
-		}
-
-		for (const auto &regions : clipped)
+		const auto sanitized = m_sanitizer->sanitize(
+			m_transfer,
+			reader->get_descriptor().get_extents(),
+			make_span(array_extents)
+		);
+		for (const auto &regions : sanitized)
 		{
 			reader->read(destination, regions);
 		}
@@ -79,6 +74,7 @@ private:
 	image_transfer_plan m_transfer;
 	std::shared_ptr<array> m_destination;
 	std::shared_ptr<image_reader_provider> m_readers;
+	std::shared_ptr<const image_transfer_sanitizer> m_sanitizer;
 };
 
 } // anonymous namespace
@@ -109,9 +105,17 @@ executor_image_source::~executor_image_source() = default;
 
 std::shared_ptr<completion> executor_image_source::read(
 	array destination,
-	const image_transaction_plan &plan
+	const image_transaction_plan &plan,
+	std::shared_ptr<const image_transfer_sanitizer> sanitizer
 ) const
 {
+	if (!sanitizer)
+	{
+		throw std::invalid_argument(
+			"executor_image_source: The sanitizer must not be null."
+		);
+	}
+
 	image_region_grouping grouping;
 	grouping.build(plan);
 
@@ -133,7 +137,8 @@ std::shared_ptr<completion> executor_image_source::read(
 				plan.get_file(file_index),
 				make_file_transfer_plan(grouping, plan, file_index),
 				shared_destination,
-				m_readers
+				m_readers,
+				sanitizer
 			),
 			result
 		);

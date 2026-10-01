@@ -23,7 +23,6 @@ class image_descriptor;
  * A writer is opened over complete extents, so the shape of the file is
  * settled before anything is written; the file can be laid out once up
  * front and a region can be written wherever it belongs, in any order.
- * Every exception a writer throws names its file.
  */
 class REXLIB_API image_writer
 {

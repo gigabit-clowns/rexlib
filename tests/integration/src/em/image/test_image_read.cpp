@@ -5,6 +5,7 @@
 #include <rexlib/em/image/image_read.hpp>
 
 #include "../../functional/fixtures/cpu_execution_context_fixture.hpp"
+#include "fixtures/scoped_path.hpp"
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
@@ -13,6 +14,8 @@
 #include <rexlib/em/image/executor_image_source.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
+#include <rexlib/em/image/image_write.hpp>
+#include <rexlib/em/image/image_write_format_manager.hpp>
 #include <rexlib/em/image/index_table.hpp>
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
@@ -21,6 +24,7 @@
 #include <cstddef>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 using namespace rexlib;
@@ -162,4 +166,51 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 			}
 		}
 	}
+}
+
+TEST_CASE_METHOD( cpu_execution_context_fixture,
+	"a batch read naming an image its stack does not hold is reported",
+	"[mrc][image_read]" )
+{
+	const scoped_path path("stack_read_past_its_end.mrcs");
+
+	const std::vector<std::size_t> stack_extents = {3, 4, 5};
+	const auto stack = zeros(
+		make_descriptor(stack_extents, numerical_type::float32),
+		memory_resource_affinity::host,
+		context
+	);
+	write_stack(
+		stack,
+		path.get(),
+		*catalog.get_service_manager<image_write_format_manager>()
+	);
+
+	const auto source = std::make_shared<executor_image_source>(
+		std::make_shared<direct_image_reader_provider>(
+			catalog.get_service_manager<image_read_format_manager>()
+		),
+		std::make_shared<synchronous_executor>()
+	);
+
+	const std::vector<std::size_t> batch_extents = {2, 4, 5};
+	auto destination = zeros(
+		make_descriptor(batch_extents, numerical_type::float32),
+		memory_resource_affinity::host,
+		context
+	);
+
+	// The stack holds three images, so there is none at index three.
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 0),
+		image_location(path.get(), 3)
+	};
+	const auto completion = read_batch_async(
+		*source,
+		destination.share(),
+		make_span(locations)
+	);
+
+	REQUIRE( completion != nullptr );
+	REQUIRE_THROWS_AS( completion->get(), std::out_of_range );
 }

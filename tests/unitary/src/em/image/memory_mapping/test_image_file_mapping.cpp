@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <em/image/memory_mapping/image_file_mapping.hpp>
 
@@ -65,9 +67,12 @@ TEST_CASE( "a file is laid out in full before it is mapped",
 
 	SECTION( "a file of no bytes is refused" )
 	{
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			create_image_file(path.get(), 0),
-			image_file_error
+			image_file_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 }
@@ -89,11 +94,14 @@ TEST_CASE( "a file is read through its mapping",
 		REQUIRE( as_uint8(mapping.get_data()[5]) == 2 );
 	}
 
-	SECTION( "a file that is not there is refused" )
+	SECTION( "a file that is not there is refused, naming it" )
 	{
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			image_file_mapping(path.get(), read_only),
-			image_file_error
+			image_file_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 
@@ -101,9 +109,12 @@ TEST_CASE( "a file is read through its mapping",
 	{
 		write_file(path.get(), {});
 
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			image_file_mapping(path.get(), read_only),
-			image_file_error
+			image_file_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
 		);
 	}
 }

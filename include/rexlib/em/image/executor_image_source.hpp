@@ -19,6 +19,7 @@ namespace em
 
 class image_reader_provider;
 class image_transaction_plan;
+class image_transfer_sanitizer;
 
 /**
  * @brief Executes a transaction plan by reading every file it names.
@@ -53,7 +54,8 @@ public:
 
 	std::shared_ptr<completion> read(
 		array destination,
-		const image_transaction_plan &plan
+		const image_transaction_plan &plan,
+		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const override;
 
 private:

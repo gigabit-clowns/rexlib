@@ -16,6 +16,7 @@ namespace em
 {
 
 class image_transaction_plan;
+class image_transfer_sanitizer;
 
 /**
  * @brief Reads the regions of a transaction plan into one array.
@@ -47,23 +48,21 @@ public:
 	 * once every region has been read or has failed, and rethrows what the
 	 * first failure threw.
 	 *
-	 * A region transfers the intersection of what its file holds at its file
-	 * offset with what @p destination holds at its array offset, up to the
-	 * extents of the plan. The intersection begins where the region begins
-	 * on either side, so a region reaching past either of them is shortened
-	 * rather than refused, and one that reaches past both is shortened by
-	 * whichever runs out first. A region reaching past a side along an axis
-	 * the extents of the plan do not cover, which spans a single position,
-	 * transfers nothing at all. The elements of @p destination no region
-	 * reached are left as they were.
+	 * The regions of each file are shown to @p sanitizer beside the extents
+	 * of that file and of @p destination, and what it answers is read in
+	 * their place. What it refuses is reported through the completion. The
+	 * elements of @p destination no region reached are left as they were.
 	 *
 	 * @param destination Where the regions land.
 	 * @param plan The transaction to read.
+	 * @param sanitizer What becomes of the regions that do not fit.
 	 * @return std::shared_ptr<completion> The completion, never null.
+	 * @throws std::invalid_argument If @p sanitizer is null.
 	 */
 	virtual std::shared_ptr<completion> read(
 		array destination,
-		const image_transaction_plan &plan
+		const image_transaction_plan &plan,
+		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const = 0;
 };
 

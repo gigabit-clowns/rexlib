@@ -13,9 +13,11 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
+#include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/index_table.hpp>
+#include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
 #include "../../core/hardware/mock/mock_command_queue.hpp"
@@ -350,7 +352,10 @@ TEST_CASE(
 	mock_image_source source;
 	const auto done = std::make_shared<counting_completion>(0);
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH( _2.get_region_count() == 0 )
 		.RETURN(done);
 
@@ -365,6 +370,26 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"read_batch_async has its regions read as they are stated",
+	"[image_read]"
+)
+{
+	mock_image_source source;
+
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_WITH( _3 == strict_image_transfer_sanitizer::get_shared() )
+		.RETURN(std::make_shared<counting_completion>(0));
+
+	const std::vector<image_location> locations = {
+		image_location("a.mrcs", 0)
+	};
+	read_batch_async(source, make_array({1, 4, 4}), make_span(locations));
+}
+
+TEST_CASE(
 	"read_batch_async addresses the whole file for unindexed locations",
 	"[image_read]"
 )
@@ -374,7 +399,10 @@ TEST_CASE(
 	// at the origin.
 	mock_image_source source;
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			extents_of(_1) == std::vector<std::size_t>{2, 3, 5} &&
 			_2.get_region_count() == 2 &&
@@ -413,7 +441,10 @@ TEST_CASE(
 	// the leading array offset is the slot.
 	mock_image_source source;
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			_2.get_region_count() == 3 &&
 			_2.get_shape().get_file_rank() == 3 &&
@@ -452,7 +483,10 @@ TEST_CASE(
 	mock_image_source source;
 	const auto pending = std::make_shared<counting_completion>(1);
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.RETURN(pending);
 
 	const std::vector<image_location> locations = { image_location("a.mrc") };
@@ -549,7 +583,10 @@ TEST_CASE(
 
 	SECTION( "an even extent" )
 	{
-		REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+		REQUIRE_CALL(
+			source,
+			read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		)
 			.LR_WITH(
 				to_vector(_2.get_shape().get_extents()) ==
 					std::vector<std::size_t>{10, 10} &&
@@ -568,7 +605,10 @@ TEST_CASE(
 
 	SECTION( "an odd extent" )
 	{
-		REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+		REQUIRE_CALL(
+			source,
+			read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+		)
 			.LR_WITH(
 				to_vector(_2.get_shape().get_extents()) ==
 					std::vector<std::size_t>{9, 9} &&
@@ -587,13 +627,38 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"read_patches_async has its patches clipped at the borders",
+	"[image_read]"
+)
+{
+	mock_image_source source;
+
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
+		.LR_WITH( _3 == clipping_image_transfer_sanitizer::get_shared() )
+		.RETURN(std::make_shared<counting_completion>(0));
+
+	read_patches_async(
+		source,
+		make_array({1, 10, 10}),
+		image_location("a.mrc"),
+		make_centres({{50, 50}}, 2)
+	);
+}
+
+TEST_CASE(
 	"read_patches_async gives each patch its own slot of the batch",
 	"[image_read]"
 )
 {
 	mock_image_source source;
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			_2.get_file_count() == 1 &&
 			_2.get_file(0) == "a.mrc" &&
@@ -637,7 +702,10 @@ TEST_CASE(
 	// its slot and at the first row of the image.
 	mock_image_source source;
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
 			to_vector(_2.get_shape().get_extents()) ==
@@ -669,7 +737,10 @@ TEST_CASE(
 	// since they all come from one image.
 	mock_image_source source;
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			_2.get_region_count() == 2 &&
 			_2.get_shape().get_file_rank() == 3 &&
@@ -706,7 +777,10 @@ TEST_CASE(
 	// patch of one more axis.
 	mock_image_source source;
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.LR_WITH(
 			_2.get_region_count() == 1 &&
 			_2.get_shape().get_file_rank() == 3 &&
@@ -738,7 +812,10 @@ TEST_CASE(
 	mock_image_source source;
 	const auto pending = std::make_shared<counting_completion>(1);
 
-	REQUIRE_CALL(source, read(trompeloeil::_, trompeloeil::_))
+	REQUIRE_CALL(
+		source,
+		read(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	)
 		.RETURN(pending);
 
 	const auto centres = make_centres({{50, 50}}, 2);
