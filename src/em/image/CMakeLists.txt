@@ -31,7 +31,6 @@ target_sources(
 		image_write_format_registry.cpp
 		image_writer.cpp
 		image_writer_provider.cpp
-		index_table.cpp
 		interned_path_list.cpp
 		managed_image_writer_provider.cpp
 		strict_image_transfer_sanitizer.cpp

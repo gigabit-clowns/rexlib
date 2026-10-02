@@ -5,6 +5,7 @@
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/layout/index_table.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/span.hpp>
@@ -17,7 +18,6 @@
 #include <rexlib/em/image/image_transaction_plan.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
-#include <rexlib/em/image/index_table.hpp>
 #include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 #include <rexlib/functional/creation.hpp>
 

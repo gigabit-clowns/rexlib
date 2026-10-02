@@ -11,12 +11,12 @@
 #include <rexlib/core/hardware/device_properties.hpp>
 #include <rexlib/core/hardware/device_session.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/layout/index_table.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
-#include <rexlib/em/image/index_table.hpp>
 #include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"

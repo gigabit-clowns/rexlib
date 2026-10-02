@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/em/image/index_table.hpp>
+#include <rexlib/core/layout/index_table.hpp>
 
 #include <rexlib/core/platform/assert.hpp>
 
 #include <stdexcept>
 
 namespace rexlib
-{
-namespace em
 {
 
 index_table::index_table() noexcept
@@ -71,5 +69,4 @@ span<const std::size_t> index_table::get(std::size_t position) const noexcept
 	return make_span(m_values.data() + (position * m_rank), m_rank);
 }
 
-} // namespace em
 } // namespace rexlib

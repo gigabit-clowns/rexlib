@@ -2,10 +2,10 @@
 
 #pragma once
 
+#include <rexlib/core/layout/index_table.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
-#include <rexlib/em/image/index_table.hpp>
 #include <rexlib/em/image/interned_path_list.hpp>
 
 #include <cstddef>

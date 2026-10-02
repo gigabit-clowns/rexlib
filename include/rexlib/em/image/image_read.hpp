@@ -15,6 +15,7 @@ namespace rexlib
 
 class completion;
 class execution_context;
+class index_table;
 
 namespace em
 {
@@ -22,7 +23,6 @@ namespace em
 class image_loader;
 class image_location;
 class image_reader_provider;
-class index_table;
 
 /**
  * @brief Read a whole file into an array of its own.

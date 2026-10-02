@@ -2,14 +2,13 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/em/image/index_table.hpp>
+#include <rexlib/core/layout/index_table.hpp>
 
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
 
 using namespace rexlib;
-using namespace rexlib::em;
 
 namespace
 {

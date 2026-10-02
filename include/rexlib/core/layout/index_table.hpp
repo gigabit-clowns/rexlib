@@ -10,8 +10,6 @@
 
 namespace rexlib
 {
-namespace em
-{
 
 /**
  * @brief A sequence of indices of one and the same rank.
@@ -114,5 +112,4 @@ private:
 	std::size_t m_size;
 };
 
-} // namespace em
 } // namespace rexlib

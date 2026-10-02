@@ -10,13 +10,13 @@
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
+#include <rexlib/core/layout/index_table.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
 #include <rexlib/em/image/executor_image_loader.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_write.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
-#include <rexlib/em/image/index_table.hpp>
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
 

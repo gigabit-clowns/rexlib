@@ -2,10 +2,10 @@
 
 #include "image_plan_builders.hpp"
 
+#include <rexlib/core/layout/index_table.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
-#include <rexlib/em/image/index_table.hpp>
 
 #include <algorithm>
 #include <stdexcept>

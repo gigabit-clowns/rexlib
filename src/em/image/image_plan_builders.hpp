@@ -10,12 +10,14 @@
 
 namespace rexlib
 {
+
+class index_table;
+
 namespace em
 {
 
 class image_descriptor;
 class image_location;
-class index_table;
 
 /**
  * @brief Make the plan that pairs each slot along the leading axis of an
