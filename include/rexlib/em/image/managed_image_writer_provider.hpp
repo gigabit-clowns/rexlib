@@ -35,8 +35,8 @@ class image_write_format_manager;
  *   @c std::out_of_range.
  * - @ref close flushes and drops the writer, which is what gives its file
  *   descriptor back.
- * - Flushing the provider flushes every writer it has created, and creates
- *   none: a declared file never acquired stays uncreated.
+ * - @ref flush flushes every writer created so far, and creates none: a
+ *   declared file never acquired stays uncreated.
  *
  * @par Thread safety
  * Every method may be called concurrently. The lock is held while a file is
@@ -100,6 +100,18 @@ public:
 	void close(const std::string &path);
 
 	/**
+	 * @brief Make everything written to the files reach the storage.
+	 *
+	 * Flushes the writer of every file acquired so far and creates none: a
+	 * file declared and never acquired stays uncreated. Every file stays
+	 * declared and writable.
+	 *
+	 * @throws image_file_error If the pending writes could not be
+	 * completed.
+	 */
+	void flush();
+
+	/**
 	 * @brief Get how many files are declared.
 	 *
 	 * Counts what has been declared and not yet closed, whether or not it
@@ -110,8 +122,6 @@ public:
 	std::size_t get_file_count() const noexcept;
 
 	std::shared_ptr<image_writer> acquire(const std::string &path) override;
-
-	void flush() override;
 
 private:
 	class implementation;

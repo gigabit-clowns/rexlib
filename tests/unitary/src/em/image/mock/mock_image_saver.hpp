@@ -31,8 +31,6 @@ public:
 		),
 		override
 	);
-
-	MAKE_MOCK0(flush, void(), override);
 };
 
 } // namespace em

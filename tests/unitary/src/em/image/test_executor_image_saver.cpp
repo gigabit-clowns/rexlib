@@ -478,18 +478,3 @@ TEST_CASE(
 
 	CHECK_FALSE( completion->is_ready() );
 }
-
-TEST_CASE(
-	"executor_image_saver's flush delegates to the writer provider",
-	"[executor_image_saver]"
-)
-{
-	const auto writers = std::make_shared<mock_image_writer_provider>();
-	REQUIRE_CALL(*writers, flush());
-
-	executor_image_saver saver(
-		writers,
-		std::make_shared<synchronous_executor>()
-	);
-	saver.flush();
-}

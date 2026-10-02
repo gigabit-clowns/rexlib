@@ -63,16 +63,6 @@ public:
 		const image_transaction_plan &plan,
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const = 0;
-
-	/**
-	 * @brief Make everything saved through this reach the storage.
-	 *
-	 * Only the writes whose completions are ready are sure to be included.
-	 *
-	 * @throws image_file_error If the pending writes could not be
-	 * completed.
-	 */
-	virtual void flush() = 0;
 };
 
 } // namespace em

@@ -148,10 +148,5 @@ std::shared_ptr<completion> executor_image_saver::save(
 	return result;
 }
 
-void executor_image_saver::flush()
-{
-	m_writers->flush();
-}
-
 } // namespace em
 } // namespace rexlib

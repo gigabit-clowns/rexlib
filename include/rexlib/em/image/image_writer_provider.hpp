@@ -54,17 +54,6 @@ public:
 	 */
 	virtual std::shared_ptr<image_writer>
 	acquire(const std::string &path) = 0;
-
-	/**
-	 * @brief Make everything written through this provider reach the
-	 * storage.
-	 *
-	 * Flushes every writer it holds open and none it does not.
-	 *
-	 * @throws image_file_error If the pending writes could not be
-	 * completed.
-	 */
-	virtual void flush() = 0;
 };
 
 } // namespace em

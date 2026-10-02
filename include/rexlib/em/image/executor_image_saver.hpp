@@ -59,8 +59,6 @@ public:
 		std::shared_ptr<const image_transfer_sanitizer> sanitizer
 	) const override;
 
-	void flush() override;
-
 private:
 	REXLIB_STD_MEMBER_INTERFACE
 	std::shared_ptr<image_writer_provider> m_writers;
