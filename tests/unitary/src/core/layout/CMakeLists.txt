@@ -4,6 +4,7 @@ target_sources(
 		test_broadcast.cpp
 		test_dynamic_subscript.cpp
 		test_index.cpp
+		test_index_table.cpp
 		test_joint_cursor.cpp
 		test_joint_layout.cpp
 		test_joint_layout_builder.cpp

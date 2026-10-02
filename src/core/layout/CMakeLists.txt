@@ -4,6 +4,7 @@ target_sources(
 		broadcast.cpp
 		broadcast_error.cpp
 		index.cpp
+		index_table.cpp
 		joint_cursor.cpp
 		joint_layout.cpp
 		joint_layout_builder.cpp

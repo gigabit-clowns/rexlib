@@ -50,6 +50,8 @@ public:
 	 * 
 	 * @param extents Extents of the iteration space.
 	 * @return joint_layout_builder& A reference to *this.
+	 * @throws std::logic_error If the extents were already set, or an operand
+	 * was already added.
 	 * 
 	 * @note This method can only be called once at most for each layout 
 	 * creation and it must be called before any call to add_operand.

@@ -4,7 +4,7 @@
 
 #include <em/image/formats/mrc/mrc_mode.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
 using namespace rexlib;
 using namespace rexlib::em;
@@ -123,19 +123,19 @@ TEST_CASE( "a data type resolves to the MRC mode that holds it",
 	{
 		REQUIRE_THROWS_AS(
 			get_mode(numerical_type::int32),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 		REQUIRE_THROWS_AS(
 			get_mode(numerical_type::float64),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 		REQUIRE_THROWS_AS(
 			get_mode(numerical_type::complex_float64),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 		REQUIRE_THROWS_AS(
 			get_mode(numerical_type::boolean),
-			invalid_operation_error
+			unsupported_operation_error
 		);
 	}
 }

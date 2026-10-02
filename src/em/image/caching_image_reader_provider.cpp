@@ -54,10 +54,32 @@ public:
 	}
 
 private:
-	struct cached_reader
+	class cached_reader
 	{
-		std::string path;
-		std::shared_ptr<const image_reader> reader;
+	public:
+		cached_reader(
+			std::string path,
+			std::shared_ptr<const image_reader> reader
+		)
+			: m_path(std::move(path))
+			, m_reader(std::move(reader))
+		{
+		}
+
+		const std::string& get_path() const noexcept
+		{
+			return m_path;
+		}
+
+		const std::shared_ptr<const image_reader>&
+		get_reader() const noexcept
+		{
+			return m_reader;
+		}
+
+	private:
+		std::string m_path;
+		std::shared_ptr<const image_reader> m_reader;
 	};
 
 	using cached_reader_list = std::list<cached_reader>;
@@ -79,7 +101,7 @@ private:
 		}
 
 		m_entries.splice(m_entries.begin(), m_entries, ite->second);
-		return ite->second->reader;
+		return ite->second->get_reader();
 	}
 
 	void store(
@@ -92,7 +114,7 @@ private:
 		const auto ite = m_index.find(path);
 		if (ite != m_index.end())
 		{
-			ite->second->reader = reader;
+			*ite->second = cached_reader(path, reader);
 			m_entries.splice(m_entries.begin(), m_entries, ite->second);
 			return;
 		}
@@ -102,7 +124,7 @@ private:
 			evict_oldest();
 		}
 
-		m_entries.push_front(cached_reader{path, reader});
+		m_entries.push_front(cached_reader(path, reader));
 		m_index.emplace(path, m_entries.begin());
 	}
 
@@ -110,7 +132,7 @@ private:
 	{
 		REXLIB_ASSERT(!m_entries.empty());
 		const auto victim = std::prev(m_entries.end());
-		m_index.erase(victim->path);
+		m_index.erase(victim->get_path());
 		m_entries.erase(victim);
 	}
 };

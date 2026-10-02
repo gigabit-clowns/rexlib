@@ -5,6 +5,7 @@
 #include "../platform/byte_order.h"
 #include "../platform/builtin.h"
 
+#include <algorithm>
 #include <cstdint>
 
 namespace rexlib
@@ -121,6 +122,14 @@ reverse_byte_order(T x) noexcept
 	return reverse_byte_order(uint64_t(x));
 }
 
+template<typename T>
+inline T reverse_object_bytes(T x) noexcept
+{
+	auto *bytes = reinterpret_cast<unsigned char*>(&x);
+	std::reverse(bytes, bytes + sizeof(T));
+	return x;
+}
+
 } // namespace detail
 
 template<typename T>
@@ -129,6 +138,31 @@ typename std::enable_if<std::is_integral<T>::value, T>::type
 reverse_byte_order(T x) noexcept
 {
 	return detail::reverse_byte_order(x);
+}
+
+REXLIB_NODISCARD inline float reverse_byte_order(float x) noexcept
+{
+	return detail::reverse_object_bytes(x);
+}
+
+REXLIB_NODISCARD inline double reverse_byte_order(double x) noexcept
+{
+	return detail::reverse_object_bytes(x);
+}
+
+REXLIB_NODISCARD inline float16_t reverse_byte_order(float16_t x) noexcept
+{
+	return detail::reverse_object_bytes(x);
+}
+
+template<typename T>
+REXLIB_NODISCARD inline
+std::complex<T> reverse_byte_order(const std::complex<T> &x) noexcept
+{
+	return std::complex<T>(
+		reverse_byte_order(x.real()),
+		reverse_byte_order(x.imag())
+	);
 }
 
 template<typename T>

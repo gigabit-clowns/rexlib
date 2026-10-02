@@ -2,7 +2,7 @@
 
 #include "mrc_mode.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
 namespace rexlib
 {
@@ -55,7 +55,7 @@ mrc_mode get_mode(numerical_type type)
 	case numerical_type::uint16: return mrc_mode::uint16;
 	case numerical_type::float16: return mrc_mode::float16;
 	default:
-		throw invalid_operation_error(
+		throw unsupported_operation_error(
 			"mrc::get_mode: The MRC format has no mode for this data type."
 		);
 	}

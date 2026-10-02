@@ -3,12 +3,9 @@
 #pragma once
 
 #include <rexlib/core/backend_priority.hpp>
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_writer.hpp>
 
-#include <cstddef>
 #include <memory>
 #include <string>
 
@@ -17,19 +14,17 @@ namespace rexlib
 namespace em
 {
 
+class image_descriptor;
 class image_metadata;
 class image_probe;
 
 /**
- * @brief The ability of one file format to be written.
+ * @brief One file format that can be written.
  *
- * It serves as a factory for @ref image_writer-s that encode a particular
- * file format. It is able to judge its own suitability for a given file through
- * an @ref image_probe and in case it fits, serve the writer for it.
+ * Judges from an @ref image_probe how well it fits a file, and creates a
+ * file it fits, returning an @ref image_writer for it.
  *
- * Formats are usually collected by an @ref image_write_format_manager.
- * 
- * For read access, see @ref image_read_format.
+ * @see image_read_format
  */
 class REXLIB_API image_write_format
 {
@@ -45,17 +40,17 @@ public:
 	/**
 	 * @brief Get the name of this format.
 	 *
-	 * @return std::string The name.
+	 * @return std::string The name, which identifies the format.
 	 */
 	virtual std::string get_name() const = 0;
 
 	/**
 	 * @brief Report how well this format fits a file.
 	 *
-	 * The file named by @p probe usually does not exist yet, in which case
-	 * the probe carries no leading bytes and the decision rests on the
-	 * extension alone. Check @ref image_probe::exists rather than assuming
-	 * there are leading bytes to read.
+	 * The file named by @p probe need not exist, in which case the probe
+	 * carries no leading bytes and the decision rests on the extension
+	 * alone. Check @ref image_probe::exists rather than assuming there are
+	 * leading bytes to read.
 	 *
 	 * @param probe The file under consideration.
 	 * @return backend_priority How well this format fits @p probe.
@@ -66,41 +61,26 @@ public:
 	/**
 	 * @brief Create a file and open it for writing.
 	 *
-	 * The extents are complete, so the file may be laid out in full before
+	 * The descriptor is complete, so the file may be laid out in full before
 	 * anything is written. Any file already at that path is replaced.
 	 *
-	 * The shape is given as extents and a data type rather than as an
-	 * @ref array_descriptor because how the file lays its elements out is
-	 * the format's own decision: strides and an offset would be stated by
-	 * the caller and then ignored.
-	 *
-	 * The extents alone do not say what is being created, since a file of
-	 * @c (N,H,W) may be a stack of @c N images or one volume of @c N
-	 * planes. Only the caller knows which, so it says so through
-	 * @p core_rank.
+	 * How the file lays its samples out is the format's own decision, so the
+	 * shape comes as an @ref image_descriptor, with no strides or offset.
 	 *
 	 * @param probe The file to create.
-	 * @param extents Extents of the file to create, slowest axis first.
-	 * @param core_rank How many trailing extents are one image or volume,
-	 * the leading ones being the axes the file stacks along. Two for a
-	 * stack of images, three for one volume.
-	 * @param data_type Data type of its elements. A format converts to
-	 * whatever it encodes, so this is what the file holds rather than what
-	 * a write will supply.
+	 * @param descriptor What the file holds. Its data type is what the file
+	 * stores rather than what a write will supply, since a write converts.
 	 * @param metadata How its samples map onto physical space. A format
 	 * writes what of it it can carry and ignores the rest.
 	 * @return std::shared_ptr<image_writer> The opened writer, never null.
-	 * @throws std::invalid_argument If @p core_rank is zero or exceeds the
-	 * rank of @p extents.
-	 * @throws invalid_operation_error If this format can not represent the
-	 * requested file, such as a rank or a data type it has no encoding for.
-	 * @throws image_format_error If the file could not be created.
+	 * @throws unsupported_operation_error If this format can not represent
+	 * the requested file, such as a rank or a data type it has no encoding
+	 * for.
+	 * @throws image_file_error If the file could not be created.
 	 */
 	virtual std::shared_ptr<image_writer> open(
 		const image_probe &probe,
-		span<const std::size_t> extents,
-		std::size_t core_rank,
-		numerical_type data_type,
+		const image_descriptor &descriptor,
 		const image_metadata &metadata
 	) const = 0;
 };

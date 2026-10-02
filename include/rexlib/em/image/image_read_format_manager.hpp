@@ -6,10 +6,8 @@
 #include <rexlib/core/service_manager.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 
-#include <cstddef>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace rexlib
 {
@@ -20,14 +18,13 @@ class image_probe;
 class image_read_format;
 
 /**
- * @brief Centralizes all known image formats that can be read.
+ * @brief Holds the image formats that can be read, and opens a file with
+ * the most suitable of them.
  *
- * Reached through @ref service_catalog::get_service_manager. The formats
- * bundled with the library are added by @ref register_builtin_backends, and
- * a plugin adds its own from @ref plugin::register_at.
+ * A service: @ref register_builtin_backends adds the formats bundled with
+ * the library, and @ref register_format adds any other.
  *
- * Writing is served by @ref image_write_format_manager, which is a separate
- * service, so a program that only reads never constructs it.
+ * @see image_write_format_manager
  */
 class REXLIB_API image_read_format_manager final
 	: public service_manager
@@ -63,10 +60,13 @@ public:
 	 * format, then opens the file with whichever reported the highest
 	 * suitability.
 	 *
-	 * @param path Path to the file to open.
+	 * @param path Path to the file to open, or any other locator a
+	 * registered format claims, such as the address of a remote file.
 	 * @return std::shared_ptr<image_reader> The opened reader, never null.
-	 * @throws invalid_operation_error If no registered format recognizes the
-	 * file.
+	 * @throws image_file_error If no registered format claims the path and
+	 * no readable file exists there.
+	 * @throws unsupported_operation_error If no registered format recognizes
+	 * the file, which exists.
 	 * @throws image_format_error If the file is malformed or truncated.
 	 */
 	std::shared_ptr<image_reader> open(const std::string &path) const;
@@ -92,50 +92,6 @@ private:
 	implementation& create_if_null();
 	const implementation& get_implementation() const noexcept;
 };
-
-/**
- * @brief Get the extents of a file through a format manager.
- *
- * The peer of the @ref image_reader_provider overload, for a caller holding
- * the formats rather than something that serves readers from them. It opens
- * the file every time it is asked, keeping nothing, so a caller asking about
- * one file repeatedly goes through a provider instead.
- *
- * @param formats The formats the file may be opened with.
- * @param path Path to the file.
- * @return std::vector<std::size_t> The extents of the file, slowest axis
- * first.
- * @throws invalid_operation_error If no registered format recognizes the
- * file.
- * @throws image_format_error If the file is malformed or truncated.
- */
-REXLIB_API
-std::vector<std::size_t> query_extents(
-	const image_read_format_manager &formats,
-	const std::string &path
-);
-
-/**
- * @brief Get the extents of one image or volume of a file through a format
- * manager.
- *
- * The trailing @ref image_reader::get_core_rank extents of the file, so the
- * axes it stacks along are left out. That is the shape of a single image or
- * volume, which is what the destination of a batch carries beside its leading
- * extent.
- *
- * @param formats The formats the file may be opened with.
- * @param path Path to the file.
- * @return std::vector<std::size_t> The extents of one image or volume.
- * @throws invalid_operation_error If no registered format recognizes the
- * file.
- * @throws image_format_error If the file is malformed or truncated.
- */
-REXLIB_API
-std::vector<std::size_t> query_core_extents(
-	const image_read_format_manager &formats,
-	const std::string &path
-);
 
 } // namespace em
 } // namespace rexlib

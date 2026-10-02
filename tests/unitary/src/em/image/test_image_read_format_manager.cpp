@@ -1,20 +1,24 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <rexlib/em/image/image_read_format_manager.hpp>
 
+#include "fixtures/format_manager_fixture.hpp"
+#include "fixtures/scoped_path.hpp"
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_read_format.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
-#include <rexlib/em/image/image_format_registry.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 
-#include <cstddef>
+#include <fstream>
 #include <memory>
 #include <string>
-#include <vector>
+#include <trompeloeil.hpp>
 
 using namespace rexlib;
 using namespace rexlib::em;
@@ -22,55 +26,12 @@ using namespace rexlib::em;
 namespace
 {
 
-std::unique_ptr<image_reader> make_fake_reader()
+auto names(const std::string &path)
 {
-	return std::make_unique<mock_image_reader>();
+	return Catch::Matchers::MessageMatches(
+		Catch::Matchers::StartsWith(path + ": ")
+	);
 }
-
-class staged_format final
-	: public image_read_format
-{
-public:
-	staged_format(std::string name, backend_priority suitability)
-		: m_name(std::move(name))
-		, m_suitability(suitability)
-	{
-	}
-
-	std::string get_name() const override
-	{
-		return m_name;
-	}
-
-	backend_priority get_suitability(const image_probe &) const override
-	{
-		return m_suitability;
-	}
-
-	std::shared_ptr<image_reader> open(
-		const image_probe &
-	) const override
-	{
-		return make_fake_reader();
-	}
-
-private:
-	std::string m_name;
-	backend_priority m_suitability;
-};
-
-std::unique_ptr<image_read_format> make_staged(
-	std::string name,
-	backend_priority suitability
-)
-{
-	return std::make_unique<staged_format>(std::move(name), suitability);
-}
-
-// A stack of six planes of three by five: the leading axis is the one it
-// stacks along, so one image of it is the trailing two extents.
-const std::vector<std::size_t> stack_extents = {6, 3, 5};
-const std::vector<std::size_t> plane_extents = {3, 5};
 
 } // anonymous namespace
 
@@ -85,83 +46,86 @@ TEST_CASE( "an empty read manager recognizes nothing",
 			image_probe("absent.mrc")) == nullptr );
 	}
 
-	SECTION( "opening reports that nothing is suitable" )
+	SECTION( "opening a path no file is at reports it missing" )
 	{
-		REQUIRE_THROWS_AS(
+		REQUIRE_THROWS_MATCHES(
 			manager.open("absent.mrc"),
-			invalid_operation_error
+			image_file_error,
+			names("absent.mrc")
+		);
+	}
+
+	SECTION( "opening a file that is there reports it unsupported" )
+	{
+		const scoped_path path("read_manager_unclaimed.bin");
+		std::ofstream(path.get().c_str(), std::ios::binary).put('\0');
+
+		REQUIRE_THROWS_MATCHES(
+			manager.open(path.get()),
+			unsupported_operation_error,
+			names(path.get())
 		);
 	}
 }
 
-TEST_CASE( "the read manager picks the most suitable format",
-	"[image_read_format_manager]" )
+TEST_CASE_METHOD(
+	read_format_manager_fixture,
+	"the read manager picks the most suitable format",
+	"[image_read_format_manager]"
+)
 {
-	image_read_format_manager manager;
+	const auto &manager = *get_manager();
+	const image_probe probe("absent.mrc");
 
 	SECTION( "the only supporting format is chosen" )
 	{
-		manager.register_format(make_staged("only", backend_priority::normal));
+		const auto &only = add_format(backend_priority::normal);
 
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "only" );
+		REQUIRE( manager.get_most_suitable_format(probe) == &only );
 	}
 
 	SECTION( "the highest priority wins" )
 	{
-		manager.register_format(
-			make_staged("fallback", backend_priority::fallback));
-		manager.register_format(
-			make_staged("optimal", backend_priority::optimal));
-		manager.register_format(
-			make_staged("normal", backend_priority::normal));
+		add_format(backend_priority::fallback);
+		const auto &optimal = add_format(backend_priority::optimal);
+		add_format(backend_priority::normal);
 
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "optimal" );
+		REQUIRE( manager.get_most_suitable_format(probe) == &optimal );
 	}
 
 	SECTION( "a format reporting unsupported is never chosen" )
 	{
-		manager.register_format(
-			make_staged("declines", backend_priority::unsupported));
-		manager.register_format(
-			make_staged("accepts", backend_priority::fallback));
+		add_format(backend_priority::unsupported);
+		const auto &accepts = add_format(backend_priority::fallback);
 
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "accepts" );
+		REQUIRE( manager.get_most_suitable_format(probe) == &accepts );
 	}
 
 	SECTION( "every format declining leaves nothing suitable" )
 	{
-		manager.register_format(
-			make_staged("a", backend_priority::unsupported));
-		manager.register_format(
-			make_staged("b", backend_priority::unsupported));
+		add_format(backend_priority::unsupported);
+		add_format(backend_priority::unsupported);
 
-		REQUIRE( manager.get_most_suitable_format(
-			image_probe("absent.mrc")) == nullptr );
-		REQUIRE_THROWS_AS(
+		REQUIRE( manager.get_most_suitable_format(probe) == nullptr );
+		REQUIRE_THROWS_MATCHES(
 			manager.open("absent.mrc"),
-			invalid_operation_error
+			image_file_error,
+			names("absent.mrc")
 		);
 	}
 
-	SECTION( "the chosen format opens the reader" )
+	SECTION( "the chosen format opens a path that names no file" )
 	{
-		manager.register_format(make_staged("only", backend_priority::normal));
+		// A path is only a locator: a format may claim one no local file is
+		// at, such as the address of a remote one.
+		auto &only = add_format(backend_priority::normal);
+		const auto reader = std::make_shared<mock_image_reader>();
 
-		const auto reader = manager.open("absent.mrc");
+		REQUIRE_CALL(only, open(ANY(const image_probe&)))
+			.LR_WITH( _1.get_path() == "absent.mrc" )
+			.RETURN(reader);
 
-		REQUIRE( reader != nullptr );
+		REQUIRE( manager.open("absent.mrc") == reader );
 	}
 }
 
@@ -172,7 +136,7 @@ TEST_CASE( "the read manager refuses a null format",
 
 	REQUIRE_FALSE( manager.register_format(nullptr) );
 	REQUIRE( manager.register_format(
-		make_staged("real", backend_priority::normal)) );
+		std::make_unique<mock_image_read_format>()) );
 }
 
 TEST_CASE( "the read manager consults every registered format",
@@ -197,81 +161,4 @@ TEST_CASE( "the read manager consults every registered format",
 		image_probe("absent.mrc"));
 
 	REQUIRE( chosen == expected );
-}
-
-TEST_CASE( "a read registry hands its formats to a manager",
-	"[image_read_format_manager]" )
-{
-	image_read_format_registry registry;
-	image_read_format_manager manager;
-
-	SECTION( "a drained registry populates the manager" )
-	{
-		registry.add([] () -> std::unique_ptr<image_read_format>
-		{
-			return make_staged("registered", backend_priority::normal);
-		});
-		registry.register_all(manager);
-
-		const auto *chosen = manager.get_most_suitable_format(
-			image_probe("absent.mrc"));
-
-		REQUIRE( chosen != nullptr );
-		REQUIRE( chosen->get_name() == "registered" );
-	}
-
-	SECTION( "a null factory is ignored" )
-	{
-		registry.add(nullptr);
-		registry.register_all(manager);
-
-		REQUIRE( manager.get_most_suitable_format(
-			image_probe("absent.mrc")) == nullptr );
-	}
-}
-
-TEST_CASE( "a query answers the shape of a file the read manager opens",
-	"[image_read_format_manager]" )
-{
-	// Declared before the expectations so that the format it owns outlives
-	// them.
-	image_read_format_manager manager;
-
-	const auto reader = std::make_shared<mock_image_reader>();
-	auto format = std::make_unique<mock_image_read_format>();
-
-	ALLOW_CALL(*reader, get_extents()).RETURN(make_span(stack_extents));
-	ALLOW_CALL(*reader, get_core_rank()).RETURN(plane_extents.size());
-	ALLOW_CALL(*format, get_suitability(ANY(const image_probe&)))
-		.RETURN(backend_priority::normal);
-	ALLOW_CALL(*format, open(ANY(const image_probe&))).RETURN(reader);
-
-	manager.register_format(std::move(format));
-
-	SECTION( "every extent of the file" )
-	{
-		CHECK( query_extents(manager, "stack.mrcs") == stack_extents );
-	}
-
-	SECTION( "the extents of one image of it" )
-	{
-		CHECK( query_core_extents(manager, "stack.mrcs") == plane_extents );
-	}
-}
-
-TEST_CASE( "a query reports what opening the file reported",
-	"[image_read_format_manager]" )
-{
-	// A manager with no format recognizes nothing, and a query adds no
-	// opinion of its own.
-	const image_read_format_manager manager;
-
-	REQUIRE_THROWS_AS(
-		query_extents(manager, "absent.mrc"),
-		invalid_operation_error
-	);
-	REQUIRE_THROWS_AS(
-		query_core_extents(manager, "absent.mrc"),
-		invalid_operation_error
-	);
 }

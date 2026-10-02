@@ -16,12 +16,12 @@ namespace em
 {
 
 /**
- * @brief Address of one element inside an image file.
+ * @brief Address of an image file, or of one image or volume of a stack.
  *
- * The pair of a path to a file and a zero based index along the slowest
- * axis of that file. The index @ref no_position addresses the file as a
- * whole rather than one of its elements, which is how a file holding a single
- * image or volume is named.
+ * The pair of a path to a file and a zero based index along the axis the
+ * file stacks along, its slowest. The index @ref no_stack_index addresses the
+ * file as a whole instead, which is how a file holding a single image or
+ * volume is named.
  *
  * The path is held as a string rather than as a filesystem path so that this
  * type stays free of the private dependencies of the library.
@@ -32,26 +32,28 @@ class image_location
 {
 public:
 	/**
-	 * @brief Index addressing the file rather than one of its elements.
+	 * @brief Index addressing the file as a whole rather than one image or
+	 * volume of it.
 	 */
-	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t no_position =
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t no_stack_index =
 		std::numeric_limits<std::size_t>::max();
 
 	/**
 	 * @brief Construct a location from its components.
 	 *
-	 * @param path Path to the file holding the element.
-	 * @param position Zero based index of the element along the slowest axis
-	 * of the file, or @ref no_position to address the whole file.
+	 * @param path Path to the file.
+	 * @param index_in_stack Zero based index of the image or volume along the
+	 * slowest axis of the file, or @ref no_stack_index to address the whole
+	 * file.
 	 */
 	REXLIB_API
 	explicit image_location(
 		std::string path,
-		std::size_t position = no_position
+		std::size_t index_in_stack = no_stack_index
 	);
 
 	/**
-	 * @brief Construct a location with an empty path addressing no element.
+	 * @brief Construct a location with an empty path and no index.
 	 */
 	REXLIB_API
 	image_location() noexcept;
@@ -86,30 +88,30 @@ public:
 	const std::string& get_path() const noexcept;
 
 	/**
-	 * @brief Get the index of the element within the file.
+	 * @brief Get the index of the image or volume within the stack.
 	 *
 	 * @return std::size_t The zero based index along the slowest axis of the
-	 * file, or @ref no_position when the location addresses the file
+	 * file, or @ref no_stack_index when the location addresses the file
 	 * as a whole.
 	 */
 	REXLIB_API
-	std::size_t get_position_in_stack() const noexcept;
+	std::size_t get_index_in_stack() const noexcept;
 
 	/**
-	 * @brief Check whether this addresses an element of its file rather than
-	 * the file as a whole.
+	 * @brief Check whether this addresses one image or volume of its file
+	 * rather than the file as a whole.
 	 *
-	 * @return true It carries a position along the slowest axis of the file.
-	 * @return false Its position is @ref no_position.
+	 * @return true It carries an index along the slowest axis of the file.
+	 * @return false Its index in the stack is @ref no_stack_index.
 	 */
 	REXLIB_API
-	bool has_position() const noexcept;
+	bool has_index_in_stack() const noexcept;
 
 	friend bool
 	operator==(const image_location &lhs, const image_location &rhs) noexcept
 	{
 		return
-			lhs.get_position_in_stack() == rhs.get_position_in_stack() &&
+			lhs.get_index_in_stack() == rhs.get_index_in_stack() &&
 			lhs.get_path() == rhs.get_path();
 	}
 
@@ -128,7 +130,7 @@ public:
 		}
 		else if (lhs.get_path() == rhs.get_path())
 		{
-			return lhs.get_position_in_stack() < rhs.get_position_in_stack();
+			return lhs.get_index_in_stack() < rhs.get_index_in_stack();
 		}
 		return false;
 	}
@@ -154,16 +156,16 @@ public:
 	friend std::ostream&
 	operator<<(std::ostream &os, const image_location &location)
 	{
-		if (location.has_position())
+		if (location.has_index_in_stack())
 		{
-			os << (location.get_position_in_stack() + 1) << '@';
+			os << (location.get_index_in_stack() + 1) << '@';
 		}
 		return os << location.get_path();
 	}
 
 private:
 	std::string m_path;
-	std::size_t m_position_in_stack;
+	std::size_t m_index_in_stack;
 };
 
 /**
@@ -174,7 +176,7 @@ private:
  * `<path>` (addresses the file as a whole)
  *
  * The index is one based to match the convention used by the star files of
- * the field, while @ref image_location::get_position_in_stack is zero based;
+ * the field, while @ref image_location::get_index_in_stack is zero based;
  * this function bridges the two. An index of zero is therefore not a valid
  * representation.
  *

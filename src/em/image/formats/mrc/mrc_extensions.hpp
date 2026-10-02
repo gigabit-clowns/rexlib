@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "mrc_single_section.hpp"
+
 #include <string>
 
 namespace rexlib
@@ -32,6 +34,20 @@ bool is_readable_extension(const std::string &extension) noexcept;
  * @return bool true if an MRC file is created with it.
  */
 bool is_writable_extension(const std::string &extension) noexcept;
+
+/**
+ * @brief Tell what a file of one section in the image space group holds by
+ * its extension.
+ *
+ * `.mrcs` names a stack, as RELION uses it, so such a file holds a stack of
+ * one image. Any other extension leaves it the single image the header
+ * states by default.
+ *
+ * @param extension The extension, folded to lower case and including its
+ * leading dot.
+ * @return mrc_single_section What the file holds.
+ */
+mrc_single_section get_single_section(const std::string &extension) noexcept;
 
 } // namespace mrc
 } // namespace em

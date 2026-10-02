@@ -3,10 +3,11 @@
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 
 #include <rexlib/core/layout/strided_layout.hpp>
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 
 #include "joint_layout_implementation.hpp"
 #include "strided_layout_implementation.hpp"
+
+#include <stdexcept>
 
 namespace rexlib 
 {
@@ -113,7 +114,7 @@ joint_layout_builder::set_extents(span<const std::size_t> extents)
 {
 	if (m_implementation)
 	{
-		throw invalid_operation_error(
+		throw std::logic_error(
 			"Extents can only be set once and before adding any operand"
 		);
 	}

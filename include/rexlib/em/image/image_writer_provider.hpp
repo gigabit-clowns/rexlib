@@ -17,10 +17,10 @@ class image_writer;
 /**
  * @brief Where a path becomes an open @ref image_writer.
  *
- * The counterpart of @ref image_reader_provider, and as small: a consumer
- * names a file and gets something it can write. How that file came to be
- * writable at all (what extents and data type it was created with) depends
- * on the implementation.
+ * The counterpart of @ref image_reader_provider: whoever asks names a path
+ * and gets something it can write. How that file came to be writable at
+ * all, and what shape and data type it was created with, is up to the
+ * provider.
  *
  * @par Thread safety
  * A provider may be asked for writers concurrently.
@@ -41,29 +41,19 @@ public:
 	/**
 	 * @brief Get a writer over one file.
 	 *
-	 * Shared ownership rather than a reference, so that a writer an
-	 * implementation stops keeping stays alive as long as a transaction is
-	 * still writing through it.
+	 * Shared ownership rather than a reference, so that a writer the
+	 * provider stops keeping stays alive for as long as it is still written
+	 * through.
 	 *
 	 * @param path Path to the file to write.
 	 * @return std::shared_ptr<image_writer> The writer, never null.
 	 * @throws std::out_of_range If this provider serves no such file.
-	 * @throws invalid_operation_error If no format can create the file.
-	 * @throws image_format_error If the file could not be created.
+	 * @throws unsupported_operation_error If no format can create the file,
+	 * or the chosen one can not represent it.
+	 * @throws image_file_error If the file could not be created.
 	 */
 	virtual std::shared_ptr<image_writer>
 	acquire(const std::string &path) = 0;
-
-	/**
-	 * @brief Make everything written through this provider reach the
-	 * storage.
-	 *
-	 * Flushes every writer it holds open and none it does not.
-	 *
-	 * @throws image_format_error If the pending writes could not be
-	 * completed.
-	 */
-	virtual void flush() = 0;
 };
 
 } // namespace em
