@@ -187,6 +187,7 @@ jobs:
             libboost-filesystem-dev \
             libeigen3-dev \
             libspdlog-dev \
+            libtiff-dev \
             catch2
 
       # half and pocketfft are packaged nowhere, so a system build of them is
@@ -230,6 +231,7 @@ jobs:
             REXLIB_USE_SYSTEM_HALF=ON
             REXLIB_USE_SYSTEM_POCKETFFT=ON
             REXLIB_USE_SYSTEM_EIGEN=ON
+            REXLIB_USE_SYSTEM_TIFF=ON
             REXLIB_USE_SYSTEM_CATCH2=ON
             CMAKE_C_COMPILER_LAUNCHER=ccache
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -249,7 +251,8 @@ jobs:
           cmake --install build --prefix "${{ runner.temp }}/install"
           found=$(find "${{ runner.temp }}/install" \
             \( -iname '*catch*' -o -iname '*eigen*' -o -iname '*spdlog*' \
-               -o -iname '*boost*' -o -iname '*half*' -o -iname '*pocketfft*' \) \
+               -o -iname '*boost*' -o -iname '*half*' -o -iname '*pocketfft*' \
+               -o -iname '*tiff*' -o -iname 'libz*' -o -iname 'zlib*' \) \
             -print)
           if [ -n "$found" ]; then
             echo "A dependency reached the install tree:"

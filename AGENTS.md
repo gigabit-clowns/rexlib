@@ -103,8 +103,8 @@ left as it is because clang selects arcs differently and has never produced a
 negative, and because buying atomic counters there costs the cache.
 
 Dependencies come through one `cmake/modules/rexlib_add_*.cmake` each: boost,
-spdlog, half, pocketfft and eigen for the library, catch2 and trompeloeil for
-the tests. Every one is fetched and built by default and can instead be taken
+spdlog, half, pocketfft, eigen, zlib and libtiff for the library, catch2 and
+trompeloeil for the tests. Every one is fetched and built by default and can instead be taken
 from the system, either all at once with `REXLIB_USE_SYSTEM_DEPENDENCIES` or
 one at a time with `REXLIB_USE_SYSTEM_BOOST` and its siblings, which default to
 the value the global one had when the build directory was first configured.
@@ -118,6 +118,13 @@ points a fetch at a local checkout without either option.
 half and pocketfft ship no CMake package config anywhere, so their system path
 goes through this project's own `Findhalf.cmake` and `Findpocketfft.cmake`.
 Neither header carries a version, so neither module can check one.
+
+libtiff reads and writes the TIFF image format, and zlib is there for libtiff
+alone, as its Deflate codec. The fetched libtiff is built with the codecs it
+carries itself and that one, whatever else the machine has installed, so that
+what a default build reads does not depend on where it was built. A libtiff
+from the system comes with the codecs its packager chose and brings its own
+zlib, so `REXLIB_USE_SYSTEM_ZLIB` only matters beside a fetched libtiff.
 
 Every dependency is private and none appears in a public header, so the
 installed package asks only for `Threads` whichever way they were obtained,
@@ -193,11 +200,11 @@ up with `vswhere` and `vcvars` beforehand.
 
 Beside the matrix, one `ubuntu-latest` job builds against system dependencies,
 so that the `find_package` half of every `rexlib_add_*` module keeps being
-exercised. It takes boost, eigen, spdlog and catch2 from apt and puts the half
-and pocketfft headers on the include path the way a packager would, which is
-what covers `Findhalf.cmake` and `Findpocketfft.cmake`; trompeloeil, packaged
-nowhere and more than one header, stays fetched. The job also asserts that no
-dependency reached the install tree.
+exercised. It takes boost, eigen, spdlog, libtiff and catch2 from apt and puts
+the half and pocketfft headers on the include path the way a packager would,
+which is what covers `Findhalf.cmake` and `Findpocketfft.cmake`; trompeloeil,
+packaged nowhere and more than one header, stays fetched. The job also asserts
+that no dependency reached the install tree.
 
 Every entry runs the suites, and the `ubuntu-latest` ones run them under a
 memory checker with `REXLIB_REGISTER_TESTS_PER_BINARY`. The rest run them

@@ -128,6 +128,7 @@ target_link_libraries(
 		Boost::container
 		Boost::container_hash
 		Boost::interprocess
+		TIFF::TIFF
 )
 
 # The sources, one CMakeLists per directory. They come after every component
