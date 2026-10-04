@@ -1,0 +1,9 @@
+target_sources(
+	rexlib-unitary-tests
+	PRIVATE
+		test_tiff_extensions.cpp
+		test_tiff_file.cpp
+		test_tiff_page_layout.cpp
+		test_tiff_sample_type.cpp
+		test_tiff_signature.cpp
+)

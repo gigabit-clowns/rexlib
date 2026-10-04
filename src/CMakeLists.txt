@@ -183,6 +183,16 @@ if(MSVC)
 	)
 endif()
 
+# The dependencies built as static libraries are linked whole into this one,
+# and a static library exports whatever it defines. Left exported, libtiff and
+# zlib would be resolved against any other copy the process holds, such as the
+# one a Python imaging package loads, and the other way round. Only the ELF
+# linkers take the option: a Mach-O library binds to the library a symbol was
+# linked from, and a DLL exports only what is marked.
+if(UNIX AND NOT APPLE)
+	target_link_options(rexlib PRIVATE LINKER:--exclude-libs,ALL)
+endif()
+
 # Add coverage flags if requested
 if(REXLIB_ENABLE_COVERAGE)
 	if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

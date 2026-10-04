@@ -1,0 +1,9 @@
+target_sources(
+	rexlib-em-obj
+	PRIVATE
+		tiff_extensions.cpp
+		tiff_file.cpp
+		tiff_page_layout.cpp
+		tiff_sample_type.cpp
+		tiff_signature.cpp
+)

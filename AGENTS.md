@@ -174,6 +174,12 @@ above silences it for that member alone, leaving the warning active elsewhere.
 An operator defined in a class body is implicitly inline and needs no
 `REXLIB_API`.
 
+The dependencies linked as static libraries do not follow that visibility on
+their own: a static library exports whatever it defines. On Linux the shared
+library is therefore linked with `--exclude-libs,ALL`, so that libtiff, zlib
+and boost stay inside it rather than being resolved against another copy the
+process holds.
+
 ## Plugins
 
 A plugin is a shared object exporting `rexlib_get_plugin`, returning a
