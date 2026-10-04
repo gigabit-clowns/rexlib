@@ -10,4 +10,6 @@ target_sources(
 		test_tiff_reader.cpp
 		test_tiff_sample_type.cpp
 		test_tiff_signature.cpp
+		test_tiff_write_format.cpp
+		test_tiff_writer.cpp
 )
