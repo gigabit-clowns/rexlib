@@ -128,6 +128,37 @@ void write_striped_file(
 }
 
 /**
+ * @brief Append a page cut into strips to a file that already exists.
+ *
+ * What lets a file be given pages that differ from one another.
+ *
+ * @tparam T Type of one sample.
+ * @param path Path to the file.
+ * @param width Number of columns of the page.
+ * @param height Number of rows of the page.
+ * @param sample_format The SampleFormat tag.
+ * @param compression The Compression tag.
+ * @param rows_per_strip Number of rows of every strip but the last.
+ * @param page The samples of the page, row after row.
+ */
+template <typename T>
+void append_striped_page(
+	const std::string &path,
+	std::uint32_t width,
+	std::uint32_t height,
+	std::uint16_t sample_format,
+	std::uint16_t compression,
+	std::uint32_t rows_per_strip,
+	const std::vector<T> &page
+)
+{
+	write_striped_file<T>(
+		path, "a", width, height, sample_format, compression,
+		rows_per_strip, {page}
+	);
+}
+
+/**
  * @brief Write a file of one page cut into tiles, through libtiff itself.
  *
  * @tparam T Type of one sample.

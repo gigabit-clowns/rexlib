@@ -3,7 +3,11 @@ target_sources(
 	PRIVATE
 		tiff_extensions.cpp
 		tiff_file.cpp
+		tiff_page_decoder.cpp
 		tiff_page_layout.cpp
+		tiff_page_regions.cpp
+		tiff_read_format.cpp
+		tiff_reader.cpp
 		tiff_sample_type.cpp
 		tiff_signature.cpp
 )
