@@ -124,7 +124,7 @@ private:
 			evict_oldest();
 		}
 
-		m_entries.push_front(cached_reader(path, reader));
+		m_entries.emplace_front(path, reader);
 		m_index.emplace(path, m_entries.begin());
 	}
 
