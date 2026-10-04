@@ -2,8 +2,9 @@
 
 #include <rexlib/em/image/image_read_format_manager.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/platform/assert.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/image_probe.hpp>
 #include <rexlib/em/image/image_read_format.hpp>
 #include <rexlib/em/image/image_reader.hpp>
@@ -54,9 +55,18 @@ public:
 		const auto *format = get_most_suitable_format(probe);
 		if (!format)
 		{
-			throw invalid_operation_error(
-				"Could not find a suitable image format to read the "
-				"requested file"
+			if (!probe.exists())
+			{
+				throw image_file_error(
+					probe.get_path() + ": image_read_format_manager::open: No "
+					"registered format claims the path, and no readable file "
+					"exists there."
+				);
+			}
+
+			throw unsupported_operation_error(
+				probe.get_path() + ": image_read_format_manager::open: No "
+				"registered format can read the file."
 			);
 		}
 
@@ -118,22 +128,6 @@ image_read_format_manager::get_implementation() const noexcept
 {
 	static const implementation empty_implementation;
 	return m_implementation ? *m_implementation : empty_implementation;
-}
-
-std::vector<std::size_t> query_extents(
-	const image_read_format_manager &formats,
-	const std::string &path
-)
-{
-	return copy_extents(*formats.open(path));
-}
-
-std::vector<std::size_t> query_core_extents(
-	const image_read_format_manager &formats,
-	const std::string &path
-)
-{
-	return copy_core_extents(*formats.open(path));
 }
 
 } // namespace em

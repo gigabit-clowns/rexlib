@@ -2,35 +2,38 @@ target_sources(
 	rexlib-em-obj
 	PRIVATE
 		caching_image_reader_provider.cpp
+		clipping_image_transfer_sanitizer.cpp
+		core_image_format_registry.cpp
 		direct_image_reader_provider.cpp
-		image_batch_plan.cpp
-		image_batch_sink.cpp
-		image_batch_source.cpp
-		image_format_registry.cpp
+		executor_image_loader.cpp
+		executor_image_saver.cpp
+		image_descriptor.cpp
+		image_loader.cpp
 		image_location.cpp
 		image_metadata.cpp
-		image_patch_source.cpp
+		image_plan_builders.cpp
 		image_probe.cpp
 		image_read.cpp
 		image_read_format.cpp
 		image_read_format_manager.cpp
+		image_read_format_registry.cpp
 		image_reader.cpp
 		image_reader_provider.cpp
-		image_region_clipping.cpp
-		image_region_extents.cpp
 		image_region_grouping.cpp
-		image_sink.cpp
-		image_source.cpp
+		image_saver.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
+		image_transfer_sanitizer.cpp
+		image_transfer_shape.cpp
 		image_write.cpp
 		image_write_format.cpp
 		image_write_format_manager.cpp
+		image_write_format_registry.cpp
 		image_writer.cpp
 		image_writer_provider.cpp
-		index_table.cpp
 		interned_path_list.cpp
 		managed_image_writer_provider.cpp
+		strict_image_transfer_sanitizer.cpp
 )
 
 add_subdirectory(formats)

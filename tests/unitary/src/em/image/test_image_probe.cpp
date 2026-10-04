@@ -6,7 +6,9 @@
 
 #include <rexlib/core/memory/byte.hpp>
 
-#include <cstdio>
+#include "fixtures/scoped_path.hpp"
+
+#include <cstddef>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -17,41 +19,16 @@ using namespace rexlib::em;
 namespace
 {
 
-class scoped_file
+// Writes `size` bytes counting up from zero and wrapping at 256, so that a
+// test can tell which of them it was handed.
+void write_counting_bytes(const std::string &path, std::size_t size)
 {
-public:
-	explicit scoped_file(std::string path, std::size_t size)
-		: m_path(std::move(path))
+	std::ofstream output(path.c_str(), std::ios::out | std::ios::binary);
+	for (std::size_t i = 0; i < size; ++i)
 	{
-		std::ofstream output(
-			m_path.c_str(),
-			std::ios::out | std::ios::binary
-		);
-		for (std::size_t i = 0; i < size; ++i)
-		{
-			output.put(static_cast<char>(i % 256));
-		}
+		output.put(static_cast<char>(i % 256));
 	}
-
-	scoped_file(const scoped_file &other) = delete;
-	scoped_file(scoped_file &&other) = delete;
-
-	~scoped_file()
-	{
-		std::remove(m_path.c_str());
-	}
-
-	scoped_file& operator=(const scoped_file &other) = delete;
-	scoped_file& operator=(scoped_file &&other) = delete;
-
-	const std::string& get_path() const noexcept
-	{
-		return m_path;
-	}
-
-private:
-	std::string m_path;
-};
+}
 
 } // anonymous namespace
 
@@ -59,11 +36,9 @@ TEST_CASE( "image_probe reads the leading bytes once", "[image_probe]" )
 {
 	SECTION( "a file longer than the limit yields the whole of it" )
 	{
-		const scoped_file file(
-			"test_image_probe_long.bin",
-			image_probe::max_leading_bytes * 2
-		);
-		const image_probe probe(file.get_path());
+		const scoped_path path("test_image_probe_long.bin");
+		write_counting_bytes(path.get(), image_probe::max_leading_bytes * 2);
+		const image_probe probe(path.get());
 
 		REQUIRE( probe.exists() );
 		REQUIRE( probe.get_leading_bytes().size() ==
@@ -74,8 +49,9 @@ TEST_CASE( "image_probe reads the leading bytes once", "[image_probe]" )
 
 	SECTION( "a file shorter than the limit yields what there is" )
 	{
-		const scoped_file file("test_image_probe_short.bin", 16);
-		const image_probe probe(file.get_path());
+		const scoped_path path("test_image_probe_short.bin");
+		write_counting_bytes(path.get(), 16);
+		const image_probe probe(path.get());
 
 		REQUIRE( probe.exists() );
 		REQUIRE( probe.get_leading_bytes().size() == 16 );
@@ -83,8 +59,9 @@ TEST_CASE( "image_probe reads the leading bytes once", "[image_probe]" )
 
 	SECTION( "an empty file yields no leading bytes" )
 	{
-		const scoped_file file("test_image_probe_empty.bin", 0);
-		const image_probe probe(file.get_path());
+		const scoped_path path("test_image_probe_empty.bin");
+		write_counting_bytes(path.get(), 0);
+		const image_probe probe(path.get());
 
 		REQUIRE( probe.exists() );
 		REQUIRE( probe.get_leading_bytes().empty() );

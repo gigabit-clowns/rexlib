@@ -71,7 +71,7 @@ std::size_t get_element_size(mrc_mode mode) noexcept;
  * @return mrc_mode The mode holding it. Both @ref numerical_type::int8 and
  * @ref numerical_type::uint8 map onto @ref mrc_mode::int8, which is what
  * @ref needs_imod_unsigned_flag tells apart.
- * @throws invalid_operation_error If no mode holds @p type.
+ * @throws unsupported_operation_error If no mode holds @p type.
  */
 mrc_mode get_mode(numerical_type type);
 

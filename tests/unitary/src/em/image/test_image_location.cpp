@@ -15,7 +15,7 @@ using namespace rexlib;
 using namespace rexlib::em;
 
 TEST_CASE(
-	"image_location holds a path and a zero based position",
+	"image_location holds a path and a zero based index in a stack",
 	"[image_location]"
 )
 {
@@ -24,30 +24,30 @@ TEST_CASE(
 		const image_location location;
 
 		REQUIRE( location.get_path().empty() );
-		REQUIRE( location.get_position_in_stack() ==
-			image_location::no_position );
+		REQUIRE( location.get_index_in_stack() ==
+			image_location::no_stack_index );
 	}
 
-	SECTION( "a location without a position addresses the whole file" )
+	SECTION( "a location without an index addresses the whole file" )
 	{
 		const image_location location("stack.mrcs");
 
 		REQUIRE( location.get_path() == "stack.mrcs" );
-		REQUIRE( location.get_position_in_stack() ==
-			image_location::no_position );
+		REQUIRE( location.get_index_in_stack() ==
+			image_location::no_stack_index );
 	}
 
-	SECTION( "a location with a position addresses one element" )
+	SECTION( "a location with an index addresses one element" )
 	{
 		const image_location location("stack.mrcs", 2);
 
 		REQUIRE( location.get_path() == "stack.mrcs" );
-		REQUIRE( location.get_position_in_stack() == 2 );
+		REQUIRE( location.get_index_in_stack() == 2 );
 	}
 
-	SECTION( "the sentinel is the largest representable position" )
+	SECTION( "the sentinel is the largest representable index" )
 	{
-		REQUIRE( image_location::no_position ==
+		REQUIRE( image_location::no_stack_index ==
 			std::numeric_limits<std::size_t>::max() );
 	}
 }
@@ -62,7 +62,7 @@ TEST_CASE( "image_location has value semantics", "[image_location]" )
 
 		REQUIRE( copy == location );
 		REQUIRE( copy.get_path() == "stack.mrcs" );
-		REQUIRE( copy.get_position_in_stack() == 7 );
+		REQUIRE( copy.get_index_in_stack() == 7 );
 	}
 
 	SECTION( "assignment replaces both components" )
@@ -81,7 +81,7 @@ TEST_CASE( "image_location has value semantics", "[image_location]" )
 		REQUIRE( moved == location );
 	}
 
-	SECTION( "locations differing in position are not equal" )
+	SECTION( "locations differing in index are not equal" )
 	{
 		REQUIRE( location != image_location("stack.mrcs", 8) );
 		REQUIRE( location != image_location("stack.mrcs") );
@@ -93,7 +93,10 @@ TEST_CASE( "image_location has value semantics", "[image_location]" )
 	}
 }
 
-TEST_CASE( "image_location orders by path before position", "[image_location]" )
+TEST_CASE(
+	"image_location orders by path before index",
+	"[image_location]"
+)
 {
 	SECTION( "the path dominates the comparison" )
 	{
@@ -105,7 +108,7 @@ TEST_CASE( "image_location orders by path before position", "[image_location]" )
 		REQUIRE_FALSE( second < first );
 	}
 
-	SECTION( "positions order within one path" )
+	SECTION( "indices order within one path" )
 	{
 		const image_location first("a.mrcs", 0);
 		const image_location second("a.mrcs", 1);
@@ -154,7 +157,7 @@ TEST_CASE( "image_location hashes consistently", "[image_location]" )
 		REQUIRE( std::hash<image_location>()(first) == first.hash() );
 	}
 
-	SECTION( "the position takes part in the hash" )
+	SECTION( "the index takes part in the hash" )
 	{
 		const image_location first("stack.mrcs", 4);
 		const image_location second("stack.mrcs", 5);
@@ -178,38 +181,38 @@ TEST_CASE( "image_location parses its string form", "[image_location]" )
 {
 	image_location location;
 
-	SECTION( "an indexed path yields a zero based position" )
+	SECTION( "an indexed path yields a zero based index" )
 	{
 		REQUIRE( parse_image_location("3@stack.mrcs", location) );
 		REQUIRE( location.get_path() == "stack.mrcs" );
-		REQUIRE( location.get_position_in_stack() == 2 );
+		REQUIRE( location.get_index_in_stack() == 2 );
 	}
 
 	SECTION( "the smallest valid index is one" )
 	{
 		REQUIRE( parse_image_location("1@stack.mrcs", location) );
-		REQUIRE( location.get_position_in_stack() == 0 );
+		REQUIRE( location.get_index_in_stack() == 0 );
 	}
 
 	SECTION( "a bare path addresses the whole file" )
 	{
 		REQUIRE( parse_image_location("stack.mrcs", location) );
 		REQUIRE( location.get_path() == "stack.mrcs" );
-		REQUIRE( location.get_position_in_stack() ==
-			image_location::no_position );
+		REQUIRE( location.get_index_in_stack() ==
+			image_location::no_stack_index );
 	}
 
 	SECTION( "a path may itself contain directories" )
 	{
 		REQUIRE( parse_image_location("12@a/b/stack.mrcs", location) );
 		REQUIRE( location.get_path() == "a/b/stack.mrcs" );
-		REQUIRE( location.get_position_in_stack() == 11 );
+		REQUIRE( location.get_index_in_stack() == 11 );
 	}
 
 	SECTION( "leading zeros are accepted" )
 	{
 		REQUIRE( parse_image_location("000004@stack.mrcs", location) );
-		REQUIRE( location.get_position_in_stack() == 3 );
+		REQUIRE( location.get_index_in_stack() == 3 );
 	}
 
 	SECTION( "a zero index is rejected because the form is one based" )

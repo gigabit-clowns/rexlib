@@ -1,0 +1,10 @@
+target_sources(
+	rexlib-em-obj
+	PRIVATE
+		image_file_layout.cpp
+		image_file_mapping.cpp
+		image_prefetch_policy.cpp
+		image_prefetch_schedule.cpp
+		mapped_image_reader.cpp
+		mapped_image_writer.cpp
+)

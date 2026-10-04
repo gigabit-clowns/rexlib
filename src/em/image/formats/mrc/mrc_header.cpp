@@ -118,8 +118,8 @@ void write_label(span<byte> bytes, std::size_t index, const std::string &text)
 
 	std::memcpy(first, text.data(), text.size());
 	std::memset(
-		first + text.size(), 
-		' ', 
+		first + text.size(),
+		' ',
 		size::label - text.size()
 	);
 }
@@ -596,7 +596,7 @@ mrc_header parse_header(span<const byte> bytes)
 	// rather than treated as a reason to refuse the file.
 	const auto stated = read_scalar<std::int32_t>(bytes, offset::nlabl, order);
 	const auto used = std::min(
-		static_cast<std::size_t>(std::max(stated, 0)), 
+		static_cast<std::size_t>(std::max(stated, 0)),
 		label_count
 	);
 	for (std::size_t i = 0; i < used; ++i)

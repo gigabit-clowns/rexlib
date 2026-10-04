@@ -24,8 +24,6 @@ public:
 		std::shared_ptr<image_writer>(const std::string &path),
 		override
 	);
-
-	MAKE_MOCK0(flush, void(), override);
 };
 
 } // namespace em

@@ -8,7 +8,6 @@
 
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
 #include <rexlib/core/layout/joint_cursor.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
@@ -336,7 +335,7 @@ TEST_CASE(
 
 	CHECK_THROWS_MATCHES(
 		builder.set_extents(make_span(extents)),
-		invalid_operation_error,
+		std::logic_error,
 		Catch::Matchers::Message(
 			"Extents can only be set once and before adding any operand"
 		)

@@ -124,11 +124,7 @@ image_transfer_plan make_file_transfer_plan(
 	const auto first = grouping.get_first_position(file_index);
 	const auto count = grouping.get_file_region_count(file_index);
 
-	image_transfer_plan transfer(
-		plan.get_extents(),
-		plan.get_file_rank(),
-		plan.get_array_rank()
-	);
+	image_transfer_plan transfer(plan.get_shape());
 	transfer.reserve(count);
 	for (auto i = first; i < first + count; ++i)
 	{

@@ -7,7 +7,7 @@
 
 #include "fixtures/fourier_verb_fixture.hpp"
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/ops/fourier/fourier_normalization.hpp>
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 
@@ -379,7 +379,7 @@ TEST_CASE_METHOD(
 
 	CHECK_THROWS_AS(
 		rexlib::fft(signal_ref, context, nullptr),
-		invalid_operation_error
+		unsupported_operation_error
 	);
 }
 

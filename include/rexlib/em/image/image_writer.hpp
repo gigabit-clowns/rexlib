@@ -2,12 +2,8 @@
 
 #pragma once
 
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
-
-#include <cstddef>
 
 namespace rexlib
 {
@@ -16,6 +12,8 @@ class const_array_ref;
 
 namespace em
 {
+
+class image_descriptor;
 
 /**
  * @brief Abstract writable view of one image file.
@@ -38,43 +36,17 @@ public:
 	image_writer& operator=(image_writer &&other) = delete;
 
 	/**
-	 * @brief Get the extents of the file.
+	 * @brief Get the shape and data type of the file.
 	 *
-	 * The ones the writer was created over, which is what bounds every
-	 * region that may be written. How the file lays its elements out within
-	 * them is the format's own business and is not reported.
+	 * The ones the writer was created over. The extents bound every region
+	 * that may be written, and a write converts to the data type from
+	 * whatever it is given. How the file lays its elements out within the
+	 * extents is the format's own business and is not reported.
 	 *
-	 * @return span<const std::size_t> The extents, slowest axis first. It
-	 * refers to storage owned by this writer.
+	 * @return const image_descriptor& The descriptor. It refers to storage
+	 * owned by this writer.
 	 */
-	virtual span<const std::size_t> get_extents() const noexcept = 0;
-
-	/**
-	 * @brief Get how many of the extents describe one image or volume.
-	 *
-	 * That many trailing extents are one image or one volume, and the
-	 * leading ones are the axes the file stacks along. It is therefore the
-	 * dimensionality of what the file holds, two for an image and three for
-	 * a volume, and it is what tells a stack of @c N images from one volume
-	 * of @c N planes: their extents are identical and only this differs.
-	 *
-	 * Equal to the rank of @ref get_extents for a file holding a single
-	 * image or volume.
-	 *
-	 * @return std::size_t The rank of one image or volume. Never zero, and
-	 * never above the rank of @ref get_extents.
-	 */
-	virtual std::size_t get_core_rank() const noexcept = 0;
-
-	/**
-	 * @brief Get the data type of the elements of the file.
-	 *
-	 * The one the writer was created over. A write converts to it from
-	 * whatever it is given.
-	 *
-	 * @return numerical_type The data type.
-	 */
-	virtual numerical_type get_data_type() const noexcept = 0;
+	virtual const image_descriptor& get_descriptor() const noexcept = 0;
 
 	/**
 	 * @brief Write a set of hyperrectangles of the file from one array.
@@ -88,7 +60,7 @@ public:
 	 * the accesses it is about to make, and pays for the source's geometry
 	 * once.
 	 *
-	 * @p source is the array as the caller holds it and may be strided. Its
+	 * @p source is the whole array and may be strided. Its
 	 * rank must be the array rank of the plan and the file's the file rank,
 	 * and values are converted with @ref numerical_cast semantics without
 	 * scaling or normalising.
@@ -109,10 +81,11 @@ public:
 	 * the file, or if @p source is not initialized.
 	 * @throws std::out_of_range If a region is not contained in the file,
 	 * or is not contained in @p source where it is taken from.
-	 * @throws invalid_operation_error If the data type of the file can not
-	 * be produced from the one of @p source, or if @p source is not host
+	 * @throws unsupported_operation_error If the data type of the file can
+	 * not be produced from the one of @p source.
+	 * @throws unsupported_capability_error If @p source is not host
 	 * accessible.
-	 * @throws image_format_error If the file can not be written.
+	 * @throws image_file_error If the file can not be written.
 	 */
 	virtual void write(
 		const_array_ref source,
@@ -127,7 +100,7 @@ public:
 	 * a failure, so a write that only fails on the way out is lost unless it
 	 * was flushed explicitly.
 	 *
-	 * @throws image_format_error If the pending writes could not be
+	 * @throws image_file_error If the pending writes could not be
 	 * completed.
 	 */
 	virtual void flush() = 0;

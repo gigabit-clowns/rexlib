@@ -2,31 +2,31 @@ target_sources(
 	rexlib-unitary-tests
 	PRIVATE
 		test_caching_image_reader_provider.cpp
+		test_clipping_image_transfer_sanitizer.cpp
+		test_core_image_format_registry.cpp
 		test_direct_image_reader_provider.cpp
-		test_image_batch_plan.cpp
-		test_image_batch_sink.cpp
-		test_image_batch_source.cpp
+		test_executor_image_loader.cpp
+		test_executor_image_saver.cpp
+		test_image_descriptor.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp
 		test_image_metadata.cpp
-		test_image_patch_source.cpp
+		test_image_plan_builders.cpp
 		test_image_probe.cpp
 		test_image_read.cpp
 		test_image_read_format_manager.cpp
-		test_image_reader.cpp
+		test_image_read_format_registry.cpp
 		test_image_reader_provider.cpp
-		test_image_region_clipping.cpp
-		test_image_region_extents.cpp
 		test_image_region_grouping.cpp
-		test_image_sink.cpp
-		test_image_source.cpp
 		test_image_transaction_plan.cpp
 		test_image_transfer_plan.cpp
+		test_image_transfer_shape.cpp
 		test_image_write.cpp
 		test_image_write_format_manager.cpp
-		test_index_table.cpp
+		test_image_write_format_registry.cpp
 		test_interned_path_list.cpp
 		test_managed_image_writer_provider.cpp
+		test_strict_image_transfer_sanitizer.cpp
 )
 
 add_subdirectory(formats)

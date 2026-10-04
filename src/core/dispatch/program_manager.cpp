@@ -2,7 +2,7 @@
 
 #include <rexlib/core/dispatch/program_manager.hpp>
 
-#include <rexlib/core/exceptions/invalid_operation_error.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/dispatch/program_builder.hpp>
 #include <rexlib/core/dispatch/operation.hpp>
 #include <rexlib/core/dispatch/operation_id.hpp>
@@ -84,7 +84,7 @@ public:
 
 		if (!builder)
 		{
-			throw invalid_operation_error(
+			throw unsupported_operation_error(
 				"Could not find a suitable operation program builder for the "
 				"requested operation"
 			);

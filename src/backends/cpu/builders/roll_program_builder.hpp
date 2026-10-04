@@ -9,7 +9,7 @@
 #include <core/dispatch/core_program_builder_registry.hpp>
 
 #include <backends/cpu/builders/dispatched_program_builder.hpp>
-#include <backends/cpu/builders/program_builder_registration.hpp>
+#include <backends/cpu/builders/program_builder_registration_macros.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
