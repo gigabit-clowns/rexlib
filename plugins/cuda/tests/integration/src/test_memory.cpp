@@ -101,7 +101,7 @@ cudaPointerAttributes query(const void *data)
 	return result;
 }
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"a CUDA device should expose a memory resource for each affinity",

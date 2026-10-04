@@ -61,7 +61,7 @@ private:
 	cuda::memory_heap m_heap;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"a memory_block should report the components it was built from",

@@ -78,7 +78,7 @@ private:
 	std::vector<cuda::memory_block*> m_blocks;
 };
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"memory_block_allocator should say what it is willing to do",

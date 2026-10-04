@@ -23,7 +23,7 @@ namespace
 /// page the image is laid out in.
 alignas(1024) std::byte storage[8192];
 
-} // namespace
+} // anonymous namespace
 
 TEST_CASE(
 	"memory_heap should take a region from its source and give it back",
