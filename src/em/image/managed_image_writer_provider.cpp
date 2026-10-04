@@ -40,7 +40,7 @@ public:
 		const auto ite = m_files.find(path);
 		if (ite != m_files.end())
 		{
-			throw std::logic_error(
+			throw std::invalid_argument(
 				path + ": managed_image_writer_provider::declare: The file is "
 				"already declared."
 			);
