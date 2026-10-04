@@ -16,15 +16,12 @@ namespace em
 class image_reader;
 
 /**
- * @brief Where a path becomes an open @ref image_reader.
+ * @brief Interface to serve @ref image_reader given a path.
  *
- * Whether a reader is opened afresh, kept or shared is up to the provider,
- * and so is how a path becomes a reader at all: through formats, from
- * readers already open, or from anywhere else. Whoever asks names a path and
- * gets something it can read, and learns neither.
+ * How the @ref image_reader is created is left to the implementation.
  *
  * @par Thread safety
- * A provider may be asked for readers concurrently.
+ * A provider may be asked for writers concurrently.
  */
 class REXLIB_API image_reader_provider
 {

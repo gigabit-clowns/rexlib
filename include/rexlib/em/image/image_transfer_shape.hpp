@@ -20,12 +20,12 @@ namespace em
  * The extents are the shape of one region and nothing else, so they carry
  * the rank of the region rather than the rank of either side. A side of
  * higher rank spans a single position along the axes the extents do not
- * reach, which are its leading ones, and neither side pads the extents. For
- * example, two dimensional regions of a two dimensional file placed side by
- * side along the first axis of a three dimensional array have extents of
- * rank two, a file rank of two and an array rank of three. Ranks may differ
- * in either direction, so a plane of a three dimensional file may equally go
- * to a two dimensional array.
+ * reach, which are its implicit leading ones, and neither side pads the
+ * extents. For example, two dimensional regions of a two dimensional file
+ * placed side by side along the first axis of a three dimensional array have
+ * extents of rank two, a file rank of two and an array rank of three. Ranks may
+ * differ in either direction, so a plane of a three dimensional file may
+ * equally go to a two dimensional array.
  *
  * @see image_transfer_plan
  * @see image_transaction_plan

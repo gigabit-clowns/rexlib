@@ -17,7 +17,7 @@ namespace em
 class image_probe;
 
 /**
- * @brief One file format that can be read.
+ * @brief Factory interface for image_reader-s.
  *
  * Judges from an @ref image_probe how well it fits a file, and opens a file
  * it fits as an @ref image_reader.

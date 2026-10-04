@@ -15,12 +15,9 @@ namespace em
 class image_writer;
 
 /**
- * @brief Where a path becomes an open @ref image_writer.
+ * @brief Interface to serve @ref image_writer given a path.
  *
- * The counterpart of @ref image_reader_provider: whoever asks names a path
- * and gets something it can write. How that file came to be writable at
- * all, and what shape and data type it was created with, is up to the
- * provider.
+ * The @ref image_writer creation mechanism is left to the implementation.
  *
  * @par Thread safety
  * A provider may be asked for writers concurrently.

@@ -17,8 +17,7 @@ namespace em
 {
 
 /**
- * @brief The path, extension and leading bytes of a file, from which a
- * format can tell whether it fits the file.
+ * @brief Inmutable brief representation of a file.
  *
  * It reads the leading bytes once, when it is constructed, and never
  * changes afterwards, so one probe can be shown to any number of formats and

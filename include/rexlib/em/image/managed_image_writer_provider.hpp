@@ -19,7 +19,8 @@ class image_metadata;
 class image_write_format_manager;
 
 /**
- * @brief A provider whose files are declared and closed by their owner.
+ * @brief A provider whose files are explicitly declared and closed by the
+ * client.
  *
  * Creating a file replaces whatever was there, so a writer dropped and
  * reopened would truncate everything already written to it, and no eviction

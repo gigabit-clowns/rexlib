@@ -18,11 +18,6 @@ namespace em
 /**
  * @brief The shape and data type of the values an image file holds.
  *
- * The extents of the file, slowest axis first, how many of the trailing ones
- * make up one image or volume, and the data type of its elements. The leading
- * extents that remain are the axes the file stacks its images or volumes
- * along.
- *
  * The extents alone do not tell a stack of @c N images from one volume of
  * @c N planes, since both are @c (N,H,W). The core rank does: two for the
  * stack, three for the volume.

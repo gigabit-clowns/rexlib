@@ -13,7 +13,7 @@ namespace em
  * @brief What a file states beyond its shape and data type, such as how its
  * samples map onto physical space.
  *
- * It carries no fields yet, so every instance states nothing.
+ * TODO It carries no fields yet, so every instance states nothing.
  */
 class image_metadata
 {

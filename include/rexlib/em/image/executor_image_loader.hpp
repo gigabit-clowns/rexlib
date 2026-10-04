@@ -22,7 +22,7 @@ class image_transaction_plan;
 class image_transfer_sanitizer;
 
 /**
- * @brief Executes a transaction plan by reading every file it names.
+ * @brief Performs reads described by a transaction plan on an executor.
  *
  * Splits the plan by the file each region addresses and reads each
  * file's regions as one task, fanned out onto the executor this was

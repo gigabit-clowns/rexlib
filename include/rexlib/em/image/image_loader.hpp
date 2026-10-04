@@ -44,7 +44,7 @@ public:
 	/**
 	 * @brief Load every region a transaction plan names.
 	 *
-	 * Returns before the reads are done. The completion returned is ready
+	 * May return before the reads are done. The completion returned is ready
 	 * once every region has been read or has failed, and rethrows what the
 	 * first failure threw.
 	 *

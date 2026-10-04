@@ -22,7 +22,7 @@ class image_transfer_sanitizer;
 class image_writer_provider;
 
 /**
- * @brief Executes a transaction plan by writing every file it names.
+ * @brief Performs writes described by a transaction plan on an executor.
  *
  * Splits the plan by the file each region addresses and writes each
  * file's regions as one task, fanned out onto the executor this was

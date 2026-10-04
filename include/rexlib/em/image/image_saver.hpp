@@ -44,7 +44,7 @@ public:
 	/**
 	 * @brief Save every region a transaction plan names.
 	 *
-	 * Returns before the writes are done. The completion returned is ready
+	 * May return before the writes are done. The completion returned is ready
 	 * once every region has been written or has failed, and rethrows what
 	 * the first failure threw.
 	 *

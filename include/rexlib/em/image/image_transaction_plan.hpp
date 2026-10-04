@@ -17,7 +17,7 @@ namespace em
 {
 
 /**
- * @brief The regions to transfer between many files and one array.
+ * @brief List of regions to transfer between many files and one array.
  *
  * Every region pairs an offset into a file with an offset into the array,
  * names the file it belongs to, and shares one @ref image_transfer_shape with

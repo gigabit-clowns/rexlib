@@ -21,15 +21,6 @@ namespace em
  * either side, so clipping only ever shortens the extents and never moves an
  * offset. A region reaching past both sides is shortened by whichever runs
  * out first.
- *
- * A plan carries one set of extents for every region it holds, so regions
- * clipping to different extents cannot share one. They are grouped by the
- * extents they clip to and one plan is answered per group, in the order the
- * groups were first met. Regions of one group keep the order they had.
- *
- * A region clipping to nothing along any axis is dropped. That includes one
- * reaching past a side along an axis the extents of the plan do not cover,
- * which spans a single position and so cannot be shortened.
  */
 class REXLIB_API clipping_image_transfer_sanitizer final
 	: public image_transfer_sanitizer

@@ -19,7 +19,7 @@ class image_metadata;
 class image_probe;
 
 /**
- * @brief One file format that can be written.
+ * @brief Factory function for image_writer-s
  *
  * Judges from an @ref image_probe how well it fits a file, and creates a
  * file it fits, returning an @ref image_writer for it.
