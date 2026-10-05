@@ -8,6 +8,7 @@ target_sources(
 		tiff_page_regions.cpp
 		tiff_read_format.cpp
 		tiff_reader.cpp
+		tiff_region_bounds.cpp
 		tiff_sample_type.cpp
 		tiff_signature.cpp
 		tiff_write_format.cpp

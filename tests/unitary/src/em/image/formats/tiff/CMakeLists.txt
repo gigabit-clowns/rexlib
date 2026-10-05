@@ -8,6 +8,7 @@ target_sources(
 		test_tiff_page_regions.cpp
 		test_tiff_read_format.cpp
 		test_tiff_reader.cpp
+		test_tiff_region_bounds.cpp
 		test_tiff_sample_type.cpp
 		test_tiff_signature.cpp
 		test_tiff_write_format.cpp

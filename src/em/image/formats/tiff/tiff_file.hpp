@@ -108,6 +108,10 @@ public:
 	 * @param compression How the samples are encoded.
 	 * @param samples The samples of the page, row after row, in the byte
 	 * order of the host. Their size must be that of a page of @p layout.
+	 * They are taken as writable because libtiff is handed them as such:
+	 * it reorders the bytes of the samples in place when a file is not in
+	 * the byte order of the host. A file created here is, so they are left
+	 * as they are.
 	 * @throws std::invalid_argument If @p layout is cut into tiles, or if
 	 * @p samples do not have the size of the page.
 	 * @throws unsupported_operation_error If no sample holds the data type
@@ -117,7 +121,7 @@ public:
 	void write_page(
 		const tiff_page_layout &layout,
 		tiff_compression compression,
-		span<const byte> samples
+		span<byte> samples
 	);
 
 private:

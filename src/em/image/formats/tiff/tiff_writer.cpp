@@ -3,10 +3,10 @@
 #include "tiff_writer.hpp"
 
 #include "tiff_page_regions.hpp"
+#include "tiff_region_bounds.hpp"
 #include "tiff_sample_type.hpp"
 
 #include <em/image/formats/strided_transfer/image_host_access.hpp>
-#include <em/image/formats/strided_transfer/image_region_offsets.hpp>
 #include <em/image/formats/strided_transfer/image_region_transfer.hpp>
 #include <em/image/formats/strided_transfer/image_region_write_walk.hpp>
 
@@ -128,21 +128,6 @@ tiff_compression get_compression(numerical_type data_type) noexcept
 	}
 }
 
-std::vector<std::ptrdiff_t>
-make_contiguous_strides(span<const std::size_t> extents)
-{
-	std::vector<std::ptrdiff_t> strides(extents.size());
-
-	std::ptrdiff_t stride = 1;
-	for (auto axis = extents.size(); axis > 0; --axis)
-	{
-		strides[axis - 1] = stride;
-		stride *= static_cast<std::ptrdiff_t>(extents[axis - 1]);
-	}
-
-	return strides;
-}
-
 bool covers_whole_pages(
 	const image_transfer_shape &shape,
 	span<const std::size_t> page_extents
@@ -205,19 +190,14 @@ void tiff_writer::write(
 	layout.get_extents(array_extents);
 	layout.get_strides(array_strides);
 
-	// The regions are resolved against the whole file first, and so bounds
-	// checked, before any page is written.
-	const auto file_extents = m_descriptor.get_extents();
-	const auto file_strides = make_contiguous_strides(file_extents);
-	const image_region_offsets resolved(
+	check_region_bounds(
 		regions,
-		file_extents,
-		make_span(file_strides.data(), file_strides.size()),
+		m_descriptor,
 		make_span(array_extents),
 		make_span(array_strides),
 		layout.get_offset()
 	);
-	if (resolved.get_region_count() == 0)
+	if (regions.get_region_count() == 0)
 	{
 		return;
 	}
@@ -291,6 +271,8 @@ void tiff_writer::write(
 
 void tiff_writer::flush()
 {
+	// A page reaches the operating system in the call that writes it, so
+	// nothing is pending here.
 }
 
 } // namespace tiff

@@ -47,10 +47,21 @@ std::vector<T> read_block_of(
 	return samples;
 }
 
+// libtiff is handed the samples of a page as writable, so a page is written
+// from a copy of the values a case keeps to compare against.
 template <typename T>
-span<const byte> bytes_of(const std::vector<T> &samples)
+void write_page_of(
+	tiff_file &file,
+	const tiff_page_layout &layout,
+	tiff_compression compression,
+	std::vector<T> samples
+)
 {
-	return make_span(as_bytes(samples.data()), samples.size() * sizeof(T));
+	file.write_page(
+		layout,
+		compression,
+		make_span(as_bytes(samples.data()), samples.size() * sizeof(T))
+	);
 }
 
 template <typename T>
@@ -541,8 +552,8 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 
 		{
 			tiff_file file(path.get(), tiff_file_mode::create);
-			file.write_page(layout, tiff_compression::lzw, bytes_of(first));
-			file.write_page(layout, tiff_compression::none, bytes_of(second));
+			write_page_of(file, layout, tiff_compression::lzw, first);
+			write_page_of(file, layout, tiff_compression::none, second);
 		}
 
 		tiff_file file(path.get(), tiff_file_mode::read);
@@ -569,7 +580,7 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 
 		{
 			tiff_file file(path.get(), tiff_file_mode::create);
-			file.write_page(layout, tiff_compression::none, bytes_of(values));
+			write_page_of(file, layout, tiff_compression::none, values);
 		}
 
 		tiff_file file(path.get(), tiff_file_mode::read);
@@ -586,14 +597,14 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 
 		{
 			tiff_file file(path.get(), tiff_file_mode::create);
-			file.write_page(layout, tiff_compression::none, bytes_of(values));
+			write_page_of(file, layout, tiff_compression::none, values);
 		}
 
 		REQUIRE( read_file(path.get())[2] + read_file(path.get())[3] == 42 );
 
 		{
 			tiff_file file(path.get(), tiff_file_mode::create_big);
-			file.write_page(layout, tiff_compression::none, bytes_of(values));
+			write_page_of(file, layout, tiff_compression::none, values);
 		}
 
 		REQUIRE( read_file(path.get())[2] + read_file(path.get())[3] == 43 );
@@ -620,7 +631,7 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 
 		{
 			tiff_file file(path.get(), tiff_file_mode::create);
-			file.write_page(layout, tiff_compression::none, bytes_of(values));
+			write_page_of(file, layout, tiff_compression::none, values);
 		}
 
 		tiff_file file(path.get(), tiff_file_mode::read);
@@ -635,11 +646,12 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 		tiff_file file(path.get(), tiff_file_mode::create);
 
 		REQUIRE_THROWS_AS(
-			file.write_page(
+			write_page_of(
+				file,
 				tiff_page_layout::make_tiled(
 					16, 16, numerical_type::uint8, 16, 16),
 				tiff_compression::none,
-				bytes_of(values)
+				values
 			),
 			std::invalid_argument
 		);
@@ -651,11 +663,12 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 		tiff_file file(path.get(), tiff_file_mode::create);
 
 		REQUIRE_THROWS_AS(
-			file.write_page(
+			write_page_of(
+				file,
 				tiff_page_layout::make_striped(
 					4, 2, numerical_type::uint8, 2),
 				tiff_compression::none,
-				bytes_of(values)
+				values
 			),
 			std::invalid_argument
 		);
@@ -667,11 +680,12 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 		tiff_file file(path.get(), tiff_file_mode::create);
 
 		REQUIRE_THROWS_AS(
-			file.write_page(
+			write_page_of(
+				file,
 				tiff_page_layout::make_striped(
 					4, 2, numerical_type::boolean, 2),
 				tiff_compression::none,
-				bytes_of(values)
+				values
 			),
 			unsupported_operation_error
 		);

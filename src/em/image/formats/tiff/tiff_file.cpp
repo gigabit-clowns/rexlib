@@ -260,7 +260,7 @@ void tiff_file::read_block(std::size_t block, span<byte> destination)
 void tiff_file::write_page(
 	const tiff_page_layout &layout,
 	tiff_compression compression,
-	span<const byte> samples
+	span<byte> samples
 )
 {
 	if (layout.is_tiled())
@@ -315,14 +315,10 @@ void tiff_file::write_page(
 	{
 		const auto size = layout.get_block_size(block);
 
-		// libtiff takes the samples as writable because it swaps them in
-		// place when the file is in the other byte order. A file being
-		// created is in that of the host, so they are left as they are.
-		auto *strip = const_cast<byte*>(samples.data() + offset);
 		written = TIFFWriteEncodedStrip(
 			m_handle,
 			static_cast<std::uint32_t>(block),
-			strip,
+			samples.data() + offset,
 			static_cast<tmsize_t>(size)
 		) == static_cast<tmsize_t>(size);
 
