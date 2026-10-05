@@ -1,5 +1,6 @@
 
 #include "core/hardware/main.hpp"
+#include "core/layout/main.hpp"
 #include "core/ndarray/main.hpp"
 #include "core/numerical/main.hpp"
 #include "core/concurrency/main.hpp"
@@ -24,6 +25,9 @@ PYBIND11_MODULE(_binding, m) {
 
 	auto numerical_module = m.def_submodule("numerical");
 	bind_numerical(numerical_module);
+
+	auto layout_module = m.def_submodule("layout");
+	bind_layout(layout_module);
 
 	auto ndarray_module = m.def_submodule("ndarray");
 	bind_ndarray(ndarray_module);

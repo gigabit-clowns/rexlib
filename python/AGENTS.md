@@ -14,7 +14,7 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 47 `.cpp` and 47 `.hpp`, compiled into the `rexlib._binding` extension |
+| `src/` | The pybind11 binding, 51 `.cpp` and 51 `.hpp`, compiled into the `rexlib._binding` extension |
 | `python/rexlib/` | The Python package, 11 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
@@ -66,12 +66,13 @@ name that names them. See #143.
 |---|---|---|
 | `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version`, `rexlib_binding_version` |
 | `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
+| `_binding.layout` | `src/core/layout/` | `IndexTable`, and its conversion from and to a numpy array |
 | `_binding.ndarray` | `src/core/ndarray/` | `Array`, `ArrayDescriptor` |
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, events, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.concurrency` | `src/core/concurrency/` | `Executor` and its two kinds, `Completion` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
-| `_binding.em.image` | `src/em/image/` | `ImageLocation`, the format managers and reader providers, the sources, `read`, `write` and the shape queries |
+| `_binding.em.image` | `src/em/image/` | `ImageLocation`, `ImageDescriptor`, the format managers, the reader and writer providers, the loader and the saver, and the functions of `image_read.hpp` and `image_write.hpp` |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the
 `bind_` function of the directory it stands for: `src/main.cpp` creates `em`
@@ -89,7 +90,7 @@ the order the declarations need.
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
 | `_functional.py` | The operations again, with `context` defaulting to the active one |
 | `_ndarray.py` | Installs the Python operators onto `Array` |
-| `em/` | The electron microscopy areas, one module each; `em/image/` defaults the format manager and the context |
+| `em/` | The electron microscopy areas, one module each; `em/image/` defaults the formats, the reader provider and the context, and assembles loaders and savers |
 
 `_paths` is imported first in `__init__.py`, and the order matters: on Windows
 nothing else imports until the bundled library is findable. `_ndarray` is
@@ -99,13 +100,30 @@ imported for its side effect, before anything can hand out an `Array`.
 than carrying one of its own, so `read` asks for an active device exactly as
 `zeros` does and there is one place to change if that ever stops being the
 rule. Two things about those functions are rexlib's and not this package's:
-`em::read` allocates on the host whatever device is active, and `em::write`
-refuses storage the host cannot reach instead of transferring it. Both are
+`em::read` allocates on the host whatever device is active, and the writes
+refuse storage the host cannot reach instead of transferring it. Both are
 stated in their docstrings, since a caller has no other way to find out.
 
+Only what the functions of `image_read.hpp` and `image_write.hpp` need is
+bound. A reader, a writer, a format, a transfer plan and a sanitizer have no
+Python counterpart, so `ImageLoader` and `ImageSaver` are bound without the
+`load` and `save` that take them, and `ManagedImageWriterProvider` without
+`acquire`.
+
+A collaborator the package defaults moves behind the arguments it does not:
+`em::write(arr, path, manager, descriptor)` is
+`write(array, path, descriptor, manager=None)`. A function with nothing to
+default is re-exported as the binding has it, which is how
+`read_batch_async` and `write_batch_async` arrive.
+
+The helpers that assemble collaborators are nouns: `reader_provider`,
+`writer_provider`, `loader` and `saver`. `saver` takes its writer provider
+rather than assembling one, since whoever writes keeps it to declare the
+files and to close them.
+
 `image_metadata` is not bound. rexlib declares it empty, so the parameter is
-left off `write` until the type has fields; adding it later is compatible,
-and publishing an empty class now would not be.
+left off the writes and off `declare` until the type has fields; adding it
+later is compatible, and publishing an empty class now would not be.
 
 ## Building
 
@@ -183,6 +201,11 @@ The extension's `.pyi` files are generated while it is built, by
 `rexlib/_binding/` beside it. They are not in the repository and there is
 nothing to run by hand.
 
+The signatures of `IndexTable` name numpy, which pybind11-stubgen has to
+import to write `import numpy` into the stub. That is why numpy is in
+`build-system.requires` although nothing is compiled against it: without it
+the stubs are still written, with the name left unresolved.
+
 Generating them imports the extension, which a cross-compiling build cannot
 do. Those builds are handed stubs made elsewhere through
 `REXLIB_PYTHON_STUBS_DIR`; stubs describe the Python API, so the same ones are
@@ -249,16 +272,16 @@ written, which is rexlib's to do rather than this binding's;
 
 A binding that blocks releases the GIL with
 `py::call_guard<py::gil_scoped_release>()`. `Completion.wait`, `Completion.get`
-and `ImageBatchSource.read` all do: held through a read, the GIL would freeze
-every other Python thread for its duration and there would be nothing
-asynchronous left about the interface. pybind11 converts the arguments before
+and everything in `em.image` that reaches a file all do: held through a
+read, the GIL would freeze every other Python thread for its duration and
+there would be nothing asynchronous left about the interface. pybind11 converts the arguments before
 the guard is constructed and the return value after it is destroyed, so
 nothing touches Python without it.
 
 `rexlib::array` is move-only, and anything taking one by value has to be given
-`destination.share()` rather than the caller's own. Bound plainly, pybind11
-would move the array out of the Python object and hand the caller back an
-empty one.
+`destination.share()` rather than the caller's own, or `source.share_const()`
+where it takes a `const_array`. Bound plainly, pybind11 would move the array
+out of the Python object and hand the caller back an empty one.
 
 A type rexlib parses from a string carries a `from_string` static method and
 no constructor that parses. `DeviceIndex` and `ImageLocation` both do, and
@@ -267,6 +290,9 @@ meaning "this path, whole file", so a parsing overload would be competing for
 that signature rather than adding to it. `from_string` is the inverse of
 `__str__` and raises `ValueError`, which is what the `bool` of rexlib's
 `parse_*` becomes on this side.
+
+`IndexTable.from_array` is a static method for the same reason: the
+constructor already takes a lone argument, the rank.
 
 Lifetimes are stated: `py::keep_alive` where an object borrows from another,
 `py::return_value_policy::reference_internal` where a getter hands out a
@@ -346,11 +372,12 @@ Tests for what `_binding` exposes at its top level stay at the root.
 |---|---|
 | `tests/` | `Version`, `PluginManager`, `ServiceCatalog` |
 | `tests/numerical/` | `NumericalType` |
+| `tests/layout/` | `IndexTable`, and its conversion from and to a numpy array |
 | `tests/ndarray/` | `ArrayDescriptor`, and the operators installed onto `Array` |
 | `tests/hardware/` | Devices, sessions, events, memory resources, the session pool |
 | `tests/dispatch/` | `ExecutionContext`, the active context, `rexlib.device(...)` |
 | `tests/functional/` | The operations |
-| `tests/em/image/` | `ImageLocation`, parsing, the format managers, `read` and `write` |
+| `tests/em/image/` | `ImageLocation`, `ImageDescriptor`, the format managers, the providers, the synchronous reads and writes and the asynchronous ones |
 
 There are no `__init__.py` files and no `conftest.py`. Test module names are
 therefore unique across the whole tree, and a fixture belongs to the file that

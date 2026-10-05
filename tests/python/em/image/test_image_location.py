@@ -11,17 +11,25 @@ ImageLocation = rexlib.em.image.ImageLocation
 def test_default_addresses_nothing():
 	location = ImageLocation()
 	assert location.path == ''
-	assert location.position_in_stack == ImageLocation.no_position
+	assert location.index_in_stack == ImageLocation.no_stack_index
 
 def test_path_alone_addresses_the_whole_file():
 	location = ImageLocation('stack.mrc')
 	assert location.path == 'stack.mrc'
-	assert location.position_in_stack == ImageLocation.no_position
+	assert location.index_in_stack == ImageLocation.no_stack_index
 
-def test_position_is_kept_as_given():
+def test_index_is_kept_as_given():
 	location = ImageLocation('stack.mrc', 2)
 	assert location.path == 'stack.mrc'
-	assert location.position_in_stack == 2
+	assert location.index_in_stack == 2
+
+def test_index_is_accepted_by_name():
+	location = ImageLocation(path='stack.mrc', index_in_stack=2)
+	assert location.index_in_stack == 2
+
+def test_says_whether_it_carries_an_index():
+	assert ImageLocation('stack.mrc', 2).has_index_in_stack
+	assert not ImageLocation('stack.mrc').has_index_in_stack
 
 def test_equal_locations_compare_equal():
 	first = ImageLocation('stack.mrc', 2)
@@ -32,14 +40,14 @@ def test_equal_locations_compare_equal():
 	"other",
 	[
 		pytest.param(ImageLocation('other.mrc', 2), id="Different path"),
-		pytest.param(ImageLocation('stack.mrc', 3), id="Different position"),
+		pytest.param(ImageLocation('stack.mrc', 3), id="Different index"),
 		pytest.param(ImageLocation('stack.mrc'), id="Whole file"),
 	]
 )
 def test_different_locations_compare_not_equal(other):
 	assert ImageLocation('stack.mrc', 2) != other
 
-def test_orders_by_path_then_position():
+def test_orders_by_path_then_index():
 	assert ImageLocation('a.mrc', 9) < ImageLocation('b.mrc', 0)
 	assert ImageLocation('a.mrc', 0) < ImageLocation('a.mrc', 1)
 
@@ -55,7 +63,7 @@ def test_usable_as_a_dictionary_key():
 def test_whole_file_is_written_as_a_bare_path():
 	assert str(ImageLocation('stack.mrc')) == 'stack.mrc'
 
-def test_position_is_written_one_based():
+def test_index_is_written_one_based():
 	assert str(ImageLocation('stack.mrc', 2)) == '3@stack.mrc'
 
 def test_repr_names_the_type():
@@ -79,7 +87,7 @@ def test_from_string_reads_a_location(text, expected):
 	"text",
 	[
 		pytest.param('stack.mrc', id="Whole file"),
-		pytest.param('3@stack.mrc', id="Position in a stack"),
+		pytest.param('3@stack.mrc', id="Index in a stack"),
 	]
 )
 def test_from_string_is_the_inverse_of_str(text):

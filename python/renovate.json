@@ -43,6 +43,27 @@
       "constraintsFiltering": "strict"
     },
     {
+      "description": "Cap the numpy 3.9 pin to releases that still support 3.9; 2.1.0 raised requires-python to >=3.10.",
+      "matchDepNames": ["numpy"],
+      "matchCurrentVersion": "<2.1",
+      "constraints": { "python": "3.9" },
+      "constraintsFiltering": "strict"
+    },
+    {
+      "description": "Cap the numpy 3.10 pin to releases that still support 3.10; 2.3.0 raised requires-python to >=3.11.",
+      "matchDepNames": ["numpy"],
+      "matchCurrentVersion": ">=2.1,<2.3",
+      "constraints": { "python": "3.10" },
+      "constraintsFiltering": "strict"
+    },
+    {
+      "description": "Cap the numpy 3.11 pin to releases that still support 3.11; 2.5.0 raised requires-python to >=3.12.",
+      "matchDepNames": ["numpy"],
+      "matchCurrentVersion": ">=2.3,<2.5",
+      "constraints": { "python": "3.11" },
+      "constraintsFiltering": "strict"
+    },
+    {
       "description": "Security advisories bypass the 14-day delay",
       "matchUpdateTypes": ["security"],
       "minimumReleaseAge": "0 days"

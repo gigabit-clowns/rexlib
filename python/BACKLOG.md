@@ -4,7 +4,7 @@ Work whose shape is settled and only waits to be scheduled. Everything here
 has a known method; nothing here is waiting on a judgement call. Open
 questions live in [DECISIONS.md](DECISIONS.md).
 
-Reviewed 20 Sep 2026, against rexlib-python `abb3000` and rexlib `ce67271d`.
+Reviewed 1 Oct 2026, against rexlib-python `ea1b87d` and rexlib `09f73158`.
 
 ## 1. Bind the rest of `functional`
 
@@ -56,42 +56,41 @@ One trap before `compare` lands: a type that defines `__eq__` and no
 rexlib, so the comparison operators need an answer about identity before they
 go in.
 
-## 3. Bind the patch source
-
-`image_patch_source` arrived with the batch source upstream and crops batches
-of patches out of an image, clipped at the borders. The batch source is bound;
-this one is not, and it stands on the same chain, so it is a smaller piece of
-work than the first was.
-
-## 4. Translate the library's exceptions
+## 3. Translate the library's exceptions
 
 There is no `py::register_exception` anywhere in `src/`, so everything rexlib
-throws arrives through pybind11's catch-all. `invalid_operation_error` derives
-from `std::logic_error` and `image_format_error` from `std::runtime_error`,
-neither of which pybind11 special-cases, so both land as a bare
-`RuntimeError`.
+throws arrives through pybind11's catch-all. `image_file_error`,
+`image_format_error`, `unsupported_operation_error` and
+`unsupported_capability_error` all derive from `std::runtime_error`, which
+pybind11 does not special-case, so all four land as a bare `RuntimeError`.
 
-This cost nothing while the surface a caller could fail against was small. It
-no longer is: a missing file, a format nothing recognises, a truncated file
-and an array the host cannot reach are four different mistakes that a caller
-meets routinely through `em.image` and cannot tell apart.
+rexlib now tells them apart, and the binding throws that away: a file that
+cannot be reached, a file whose contents contradict its format, a format
+nothing recognises and an array the host cannot reach are four different
+mistakes that a caller meets routinely through `em.image` and cannot tell
+apart. What already arrives well is what rexlib throws as a standard
+exception: an index past the end of a stack is an `IndexError`, and a
+destination of the wrong shape a `ValueError`.
 
 The cheapest visible win is a missing file arriving as `FileNotFoundError`. It
-reaches `image_read_format_manager::open` as "no registered format recognizes
-the file", which is true but is not what went wrong and is not what anyone
-will search for.
+is an `image_file_error` in rexlib, raised with the path at the front of its
+message, and a `RuntimeError` here.
 
 Register the types once where the module is built so every submodule inherits
 them; translate only what genuinely corresponds to a Python builtin and give
 the rest types of their own; the tests under `tests/em/image/` currently
 assert `RuntimeError` and follow.
 
-## 5. Zero-copy exchange with the array ecosystem
+## 4. Zero-copy exchange with the array ecosystem
 
 `Array` can now be measured and printed, but nothing can be handed to anything
 else: there is no buffer protocol, no `__array__`, no DLPack. Loading batches
 at speed and receiving objects that cannot leave the package is a pipeline
 without an exit.
+
+It is also why the tests under `tests/em/image/` assert shapes, types and
+failures and never a value: a patch clipped at a border, or a batch read back
+from a stack, cannot be looked into from Python.
 
 Worth separating: the buffer protocol or `__array__` for host-resident arrays,
 where device-resident ones refuse rather than transfer, matching the explicit

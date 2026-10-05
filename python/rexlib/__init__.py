@@ -37,6 +37,7 @@ from ._binding import (
 	rexlib_binding_version as rexlib_binding_version,
 	rexlib_version as rexlib_version,
 )
+from ._binding.layout import IndexTable as IndexTable
 from ._binding.numerical import NumericalType as NumericalType
 
 from ._catalog import get_default_catalog as get_default_catalog
@@ -83,6 +84,7 @@ from ._functional import (
 __all__ = [
 	"Array",
 	"ArrayDescriptor",
+	"IndexTable",
 	"Plugin",
 	"PluginManager",
 	"ServiceCatalog",

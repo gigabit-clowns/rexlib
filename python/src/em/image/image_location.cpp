@@ -24,7 +24,7 @@ static std::string to_repr(const em::image_location &l)
 {
 	std::ostringstream oss;
 	oss << "ImageLocation(path=\"" << l.get_path() << "\", "
-		<< "position=" << l.get_position_in_stack() << ")";
+		<< "index_in_stack=" << l.get_index_in_stack() << ")";
 	return oss.str();
 }
 
@@ -52,7 +52,7 @@ void define_image_location(image_location_class &c)
 		.def(
 			py::init<std::string, std::size_t>(),
 			py::arg("path"),
-			py::arg("position") = em::image_location::no_position
+			py::arg("index_in_stack") = em::image_location::no_stack_index
 		)
 		.def(py::init<>())
 		.def_static("from_string", &from_string, py::arg("text"))
@@ -67,15 +67,19 @@ void define_image_location(image_location_class &c)
 		.def("__repr__", &to_repr)
 		.def_property_readonly("path", &em::image_location::get_path)
 		.def_property_readonly(
-			"position_in_stack",
-			&em::image_location::get_position_in_stack
+			"index_in_stack",
+			&em::image_location::get_index_in_stack
+		)
+		.def_property_readonly(
+			"has_index_in_stack",
+			&em::image_location::has_index_in_stack
 		)
 		.def(py::pickle(
 			[](const em::image_location &l) // __getstate__
 			{
 				return py::make_tuple(
 					l.get_path(),
-					l.get_position_in_stack()
+					l.get_index_in_stack()
 				);
 			},
 			[](py::tuple t)  // __setstate__
@@ -87,7 +91,7 @@ void define_image_location(image_location_class &c)
 			}
 		));
 
-	c.attr("no_position") = em::image_location::no_position;
+	c.attr("no_stack_index") = em::image_location::no_stack_index;
 }
 
 } // namespace rexlib
