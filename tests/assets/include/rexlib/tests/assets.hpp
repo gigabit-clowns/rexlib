@@ -84,6 +84,17 @@ inline std::string get_mrc_asset_path(const std::string &name)
 	#endif
 }
 
+inline std::string get_tiff_asset_path(const std::string &name)
+{
+	#if REXLIB_WINDOWS
+		return get_asset_root() + "\\tiff\\" + name;
+	#elif REXLIB_APPLE || REXLIB_LINUX
+		return get_asset_root() + "/tiff/" + name;
+	#else
+		#error "Unknown platform"
+	#endif
+}
+
 inline std::string get_mock_plugin_path(const std::string &name)
 {
 

@@ -6,4 +6,6 @@ target_sources(
 		test_image_write.cpp
 		test_mrc_real_files.cpp
 		test_mrc_round_trip.cpp
+		test_tiff_real_files.cpp
+		test_tiff_round_trip.cpp
 )
