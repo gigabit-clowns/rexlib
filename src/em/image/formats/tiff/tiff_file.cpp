@@ -5,6 +5,7 @@
 #include "tiff_sample_type.hpp"
 
 #include <core/logger.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 
@@ -275,6 +276,14 @@ void tiff_file::write_page(
 	{
 		throw std::invalid_argument(
 			"tiff_file: The samples do not have the size of the page."
+		);
+	}
+
+	if (!is_supported(data_type))
+	{
+		throw unsupported_operation_error(
+			"tiff_file: The TIFF format has no sample this format transfers "
+			"for the data type of the page."
 		);
 	}
 

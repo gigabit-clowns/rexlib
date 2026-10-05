@@ -2,8 +2,6 @@
 
 #include "tiff_sample_type.hpp"
 
-#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
-
 #include <tiff.h>
 
 namespace rexlib
@@ -25,6 +23,8 @@ numerical_type get_data_type(
 		{
 		case 8: return numerical_type::uint8;
 		case 16: return numerical_type::uint16;
+		case 32: return numerical_type::uint32;
+		case 64: return numerical_type::uint64;
 		default: return numerical_type::unknown;
 		}
 	case SAMPLEFORMAT_INT:
@@ -32,6 +32,8 @@ numerical_type get_data_type(
 		{
 		case 8: return numerical_type::int8;
 		case 16: return numerical_type::int16;
+		case 32: return numerical_type::int32;
+		case 64: return numerical_type::int64;
 		default: return numerical_type::unknown;
 		}
 	case SAMPLEFORMAT_IEEEFP:
@@ -39,6 +41,14 @@ numerical_type get_data_type(
 		{
 		case 16: return numerical_type::float16;
 		case 32: return numerical_type::float32;
+		case 64: return numerical_type::float64;
+		default: return numerical_type::unknown;
+		}
+	case SAMPLEFORMAT_COMPLEXIEEEFP:
+		switch (bits_per_sample)
+		{
+		case 64: return numerical_type::complex_float32;
+		case 128: return numerical_type::complex_float64;
 		default: return numerical_type::unknown;
 		}
 	default:
@@ -48,51 +58,42 @@ numerical_type get_data_type(
 
 bool is_supported(numerical_type type) noexcept
 {
-	switch (type)
-	{
-	case numerical_type::int8:
-	case numerical_type::uint8:
-	case numerical_type::int16:
-	case numerical_type::uint16:
-	case numerical_type::float16:
-	case numerical_type::float32:
-		return true;
-	default:
-		return false;
-	}
+	return get_sample_format(type) != 0;
 }
 
-std::uint16_t get_bits_per_sample(numerical_type type)
+std::uint16_t get_bits_per_sample(numerical_type type) noexcept
 {
 	if (!is_supported(type))
 	{
-		throw unsupported_operation_error(
-			"tiff::get_bits_per_sample: The TIFF format has no sample this "
-			"format transfers for this data type."
-		);
+		return 0;
 	}
 
 	return static_cast<std::uint16_t>(get_size(type) * 8);
 }
 
-std::uint16_t get_sample_format(numerical_type type)
+std::uint16_t get_sample_format(numerical_type type) noexcept
 {
 	switch (type)
 	{
 	case numerical_type::uint8:
 	case numerical_type::uint16:
+	case numerical_type::uint32:
+	case numerical_type::uint64:
 		return SAMPLEFORMAT_UINT;
 	case numerical_type::int8:
 	case numerical_type::int16:
+	case numerical_type::int32:
+	case numerical_type::int64:
 		return SAMPLEFORMAT_INT;
 	case numerical_type::float16:
 	case numerical_type::float32:
+	case numerical_type::float64:
 		return SAMPLEFORMAT_IEEEFP;
+	case numerical_type::complex_float32:
+	case numerical_type::complex_float64:
+		return SAMPLEFORMAT_COMPLEXIEEEFP;
 	default:
-		throw unsupported_operation_error(
-			"tiff::get_sample_format: The TIFF format has no sample this "
-			"format transfers for this data type."
-		);
+		return 0;
 	}
 }
 

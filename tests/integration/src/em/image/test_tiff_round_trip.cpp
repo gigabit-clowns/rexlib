@@ -156,8 +156,13 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 		numerical_type::uint8,
 		numerical_type::int16,
 		numerical_type::uint16,
+		numerical_type::int32,
+		numerical_type::uint32,
+		numerical_type::int64,
+		numerical_type::uint64,
 		numerical_type::float16,
-		numerical_type::float32
+		numerical_type::float32,
+		numerical_type::float64
 	};
 
 	for (const auto file_type : file_types)

@@ -243,7 +243,7 @@ TEST_CASE( "the TIFF write format refuses what a file can not hold",
 		REQUIRE_THROWS_AS(
 			format.open(
 				probe,
-				describe(extents, 2, numerical_type::complex_float32),
+				describe(extents, 2, numerical_type::complex_float16),
 				image_metadata()
 			),
 			unsupported_operation_error

@@ -15,6 +15,7 @@
 #include "../../fixtures/scoped_path.hpp"
 #include "fixtures/tiff_test_file.hpp"
 
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -264,9 +265,9 @@ TEST_CASE( "a TIFF page this format can not transfer is refused",
 
 	SECTION( "a page of samples with no data type" )
 	{
-		write_striped_file<std::uint32_t>(
-			path.get(), "w", 4, 2, SAMPLEFORMAT_UINT, COMPRESSION_NONE, 2,
-			{counting<std::uint32_t>(8)}
+		write_striped_file<std::uint8_t>(
+			path.get(), "w", 4, 2, SAMPLEFORMAT_VOID, COMPRESSION_NONE, 2,
+			{counting<std::uint8_t>(8)}
 		);
 
 		tiff_file file(path.get(), tiff_file_mode::read);
@@ -401,6 +402,64 @@ TEST_CASE( "a TIFF file decodes the blocks of a page",
 		REQUIRE( tile[0] == values[32 * 50 + 16] );
 		REQUIRE( tile[15] == values[32 * 50 + 31] );
 		REQUIRE( tile[7 * 16 + 3] == values[39 * 50 + 19] );
+	}
+
+	SECTION( "wide and complex samples are decoded in either byte order" )
+	{
+		const auto integers = counting<std::int64_t>(8, -3000000000LL);
+		const std::vector<std::complex<double>> complexes = {
+			{0.5, -1.5}, {0.0, 1.0}, {3.0, 4.0}, {-1.0, 0.25},
+			{1.0e10, -1.0e-10}, {2.0, 2.0}, {-8.0, 0.0}, {0.0, -8.0}
+		};
+		const std::vector<std::complex<float>> singles = {
+			{0.5F, -1.5F}, {0.0F, 1.0F}, {3.0F, 4.0F}, {-1.0F, 0.25F},
+			{1.0e10F, -1.0e-10F}, {2.0F, 2.0F}, {-8.0F, 0.0F}, {0.0F, -8.0F}
+		};
+		const char *modes[] = {"wl", "wb"};
+
+		for (const auto *mode : modes)
+		{
+			write_striped_file<std::int64_t>(
+				path.get(), mode, 4, 2, SAMPLEFORMAT_INT, COMPRESSION_LZW,
+				2, {integers}
+			);
+			{
+				tiff_file file(path.get(), tiff_file_mode::read);
+				const auto layout = file.get_page_layout();
+
+				REQUIRE( layout.get_data_type() == numerical_type::int64 );
+				REQUIRE( read_block_of<std::int64_t>(file, layout, 0) ==
+					integers );
+			}
+
+			write_striped_file<std::complex<float>>(
+				path.get(), mode, 4, 2, SAMPLEFORMAT_COMPLEXIEEEFP,
+				COMPRESSION_NONE, 2, {singles}
+			);
+			{
+				tiff_file file(path.get(), tiff_file_mode::read);
+				const auto layout = file.get_page_layout();
+
+				REQUIRE( layout.get_data_type() ==
+					numerical_type::complex_float32 );
+				REQUIRE( read_block_of<std::complex<float>>(
+					file, layout, 0) == singles );
+			}
+
+			write_striped_file<std::complex<double>>(
+				path.get(), mode, 4, 2, SAMPLEFORMAT_COMPLEXIEEEFP,
+				COMPRESSION_NONE, 2, {complexes}
+			);
+			{
+				tiff_file file(path.get(), tiff_file_mode::read);
+				const auto layout = file.get_page_layout();
+
+				REQUIRE( layout.get_data_type() ==
+					numerical_type::complex_float64 );
+				REQUIRE( read_block_of<std::complex<double>>(
+					file, layout, 0) == complexes );
+			}
+		}
 	}
 
 	SECTION( "samples come in the byte order of the host" )
@@ -604,13 +663,13 @@ TEST_CASE( "a TIFF file being created gains the pages written to it",
 
 	SECTION( "a data type with no sample is not written" )
 	{
-		const auto values = counting<double>(8);
+		const auto values = counting<std::uint8_t>(8);
 		tiff_file file(path.get(), tiff_file_mode::create);
 
 		REQUIRE_THROWS_AS(
 			file.write_page(
 				tiff_page_layout::make_striped(
-					4, 2, numerical_type::float64, 2),
+					4, 2, numerical_type::boolean, 2),
 				tiff_compression::none,
 				bytes_of(values)
 			),

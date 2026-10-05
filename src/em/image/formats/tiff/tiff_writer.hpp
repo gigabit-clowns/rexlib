@@ -25,9 +25,9 @@ namespace tiff
  *
  * A file of rank two is one page, and a file of rank three is a stack of
  * them, its first axis running along the pages. Pages of integer samples
- * are compressed with LZW and pages of floating point ones are left as they
- * are. The file is created as BigTIFF when its samples would not be sure to
- * fit in a classic one.
+ * are compressed with LZW and pages of floating point or complex ones are
+ * left as they are. The file is created as BigTIFF when its samples would
+ * not be sure to fit in a classic one.
  *
  * A page is encoded as a whole and appended to the file, which is what a
  * compressed file allows and no more. A write is therefore narrower than

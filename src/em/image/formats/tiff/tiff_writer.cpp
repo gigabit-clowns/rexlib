@@ -113,11 +113,17 @@ tiff_compression get_compression(numerical_type data_type) noexcept
 {
 	switch (data_type)
 	{
-	case numerical_type::float16:
-	case numerical_type::float32:
-		return tiff_compression::none;
-	default:
+	case numerical_type::int8:
+	case numerical_type::uint8:
+	case numerical_type::int16:
+	case numerical_type::uint16:
+	case numerical_type::int32:
+	case numerical_type::uint32:
+	case numerical_type::int64:
+	case numerical_type::uint64:
 		return tiff_compression::lzw;
+	default:
+		return tiff_compression::none;
 	}
 }
 

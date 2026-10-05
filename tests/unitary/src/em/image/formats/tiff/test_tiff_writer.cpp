@@ -24,6 +24,7 @@
 #include "fixtures/host_array.hpp"
 #include "fixtures/tiff_test_file.hpp"
 
+#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <stdexcept>
@@ -323,6 +324,58 @@ TEST_CASE( "a TIFF writer encodes a file by what it holds",
 		}
 
 		REQUIRE( compression_of(path.get()) == COMPRESSION_LZW );
+	}
+
+	SECTION( "wide and complex samples are written as any other" )
+	{
+		const auto integers = counting<std::uint64_t>(
+			20, 18000000000000000000ULL);
+		const auto reals = counting<double>(20, 0.125);
+		std::vector<std::complex<double>> complexes;
+		for (std::size_t i = 0; i < 20; ++i)
+		{
+			complexes.emplace_back(
+				static_cast<double>(i), -0.5 * static_cast<double>(i));
+		}
+
+		{
+			const auto source = make_host_array<std::uint64_t>(
+				page_extents, numerical_type::uint64, integers);
+			tiff_writer writer(
+				path.get(), describe(page_extents, numerical_type::uint64));
+			writer.write(const_array_ref(source), whole_of(page_extents));
+		}
+
+		REQUIRE( compression_of(path.get()) == COMPRESSION_LZW );
+		REQUIRE( read_back<std::uint64_t>(
+			path.get(), page_extents, numerical_type::uint64) == integers );
+
+		{
+			const auto source = make_host_array<double>(
+				page_extents, numerical_type::float64, reals);
+			tiff_writer writer(
+				path.get(), describe(page_extents, numerical_type::float64));
+			writer.write(const_array_ref(source), whole_of(page_extents));
+		}
+
+		REQUIRE( compression_of(path.get()) == COMPRESSION_NONE );
+		REQUIRE( read_back<double>(
+			path.get(), page_extents, numerical_type::float64) == reals );
+
+		{
+			const auto source = make_host_array<std::complex<double>>(
+				page_extents, numerical_type::complex_float64, complexes);
+			tiff_writer writer(
+				path.get(),
+				describe(page_extents, numerical_type::complex_float64)
+			);
+			writer.write(const_array_ref(source), whole_of(page_extents));
+		}
+
+		REQUIRE( compression_of(path.get()) == COMPRESSION_NONE );
+		REQUIRE( read_back<std::complex<double>>(
+			path.get(), page_extents, numerical_type::complex_float64) ==
+			complexes );
 	}
 
 	SECTION( "floating point samples are not" )
@@ -678,7 +731,7 @@ TEST_CASE( "a TIFF writer is not created over what a file can not hold",
 	{
 		REQUIRE_THROWS_AS(
 			tiff_writer(
-				path.get(), describe(page_extents, numerical_type::float64)),
+				path.get(), describe(page_extents, numerical_type::boolean)),
 			unsupported_operation_error
 		);
 	}

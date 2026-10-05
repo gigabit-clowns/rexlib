@@ -156,9 +156,9 @@ TEST_CASE( "a page decoder refuses a file it can not take for a stack",
 			path.get(), "w", 4, 2, SAMPLEFORMAT_UINT, COMPRESSION_NONE, 2,
 			{counting<std::uint8_t>(8)}
 		);
-		append_striped_page<std::uint32_t>(
-			path.get(), 4, 2, SAMPLEFORMAT_UINT, COMPRESSION_NONE, 2,
-			counting<std::uint32_t>(8)
+		append_striped_page<std::uint8_t>(
+			path.get(), 4, 2, SAMPLEFORMAT_VOID, COMPRESSION_NONE, 2,
+			counting<std::uint8_t>(8)
 		);
 
 		REQUIRE_THROWS_AS( tiff_page_decoder(path.get()), image_format_error );
