@@ -26,6 +26,8 @@ target_sources(
 		test_image_write_format_registry.cpp
 		test_interned_path_list.cpp
 		test_managed_image_writer_provider.cpp
+		test_scratch_image_reader.cpp
+		test_scratch_image_reader_provider.cpp
 		test_strict_image_transfer_sanitizer.cpp
 )
 

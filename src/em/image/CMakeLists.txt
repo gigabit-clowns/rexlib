@@ -21,6 +21,8 @@ target_sources(
 		image_reader_provider.cpp
 		image_region_grouping.cpp
 		image_saver.cpp
+		image_scratch.cpp
+		image_scratch_entry.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
 		image_transfer_sanitizer.cpp
@@ -33,6 +35,8 @@ target_sources(
 		image_writer_provider.cpp
 		interned_path_list.cpp
 		managed_image_writer_provider.cpp
+		scratch_image_reader.cpp
+		scratch_image_reader_provider.cpp
 		strict_image_transfer_sanitizer.cpp
 )
 
