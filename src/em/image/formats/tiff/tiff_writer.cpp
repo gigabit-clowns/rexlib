@@ -49,7 +49,8 @@ const image_descriptor& checked(const image_descriptor &descriptor)
 	const auto extents = descriptor.get_extents();
 	const auto rank = extents.size();
 	if ((rank != page_rank && rank != stack_rank) ||
-		descriptor.get_core_rank() != page_rank)
+		descriptor.get_core_rank() != page_rank
+	)
 	{
 		throw std::invalid_argument(
 			"tiff_writer: A TIFF file holds an image or a stack of images."
@@ -246,7 +247,8 @@ void tiff_writer::write(
 	for (std::size_t position = 0; position < page_count; ++position)
 	{
 		if (pages.get_page(position) != m_next_page + position ||
-			pages.get_regions(position).get_region_count() != 1)
+			pages.get_regions(position).get_region_count() != 1
+		)
 		{
 			throw unsupported_operation_error(
 				"tiff_writer: The pages of a TIFF file are written in "
