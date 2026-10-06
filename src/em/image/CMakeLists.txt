@@ -7,6 +7,7 @@ target_sources(
 		direct_image_reader_provider.cpp
 		executor_image_loader.cpp
 		executor_image_saver.cpp
+		host_image_scratch_storage.cpp
 		image_descriptor.cpp
 		image_loader.cpp
 		image_location.cpp
@@ -24,6 +25,8 @@ target_sources(
 		image_saver.cpp
 		image_scratch.cpp
 		image_scratch_entry.cpp
+		image_scratch_storage.cpp
+		image_scratch_storage_buffer.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
 		image_transfer_sanitizer.cpp
@@ -38,6 +41,7 @@ target_sources(
 		indexed_image_scratch_entry.cpp
 		interned_path_list.cpp
 		managed_image_writer_provider.cpp
+		mapped_file_image_scratch_storage.cpp
 		scratch_image_reader.cpp
 		scratch_image_reader_provider.cpp
 		strict_image_transfer_sanitizer.cpp

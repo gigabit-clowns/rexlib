@@ -14,27 +14,25 @@
 
 namespace rexlib
 {
-
-class buffer;
-
 namespace em
 {
 
 class image_location_grouping;
 class image_reader_provider;
+class image_scratch_storage;
 
 /**
  * @brief A scratch that holds the images that image_location-s can name, each
- * in a slot of one memory buffer.
+ * in a slot of its storage.
  *
  * What it holds of a file are indices of the first axis of the file, which
  * is what an @ref image_location names: for example the images of a stack.
- * Each held index has a slot in the buffer.
+ * Each held index has a slot in the storage.
  *
  * It holds the images that a grouping of locations names, as far as they
- * fit in the buffer. Each file gets one entry, and the entries are stored
- * one after another in the buffer. The buffer decides where the copies
- * live: in main memory, or in a file mapped into it.
+ * fit in the storage. Each file gets one entry, and the entries are stored
+ * one after another. The storage decides where the copies live: in main
+ * memory, or in a file mapped into it.
  *
  * Which images are held is fixed at construction. Entries are loaded from
  * their files when regions are stored into them.
@@ -44,8 +42,8 @@ class image_reader_provider;
  * one, which may have fewer. Storing any image loads its whole run in one
  * read of the file.
  *
- * The buffer also records what is loaded, so that a scratch constructed
- * later over the same buffer can continue from it. The buffer starts with
+ * The storage also records what is loaded, so that a scratch constructed
+ * later over the same storage can continue from it. The storage starts with
  * a fingerprint of how the scratch is laid out: the paths and the held
  * indices, the run length, and the data type and extents of each file.
  * Each run has a flag, which holds the modification time that its file had
@@ -63,14 +61,14 @@ public:
 	 *
 	 * Files are taken in the order of the grouping, which is ascending
 	 * order of path. Each is opened once, to learn its shape and data type.
-	 * If the buffer runs out of room, the current file keeps the lowest
+	 * If the storage runs out of room, the current file keeps the lowest
 	 * indices that fit and the remaining files are not opened.
 	 *
 	 * @param locations The images to hold, grouped by file.
 	 * @param files Provider used to open the files.
-	 * @param storage The buffer that stores the copies. Its size is the
-	 * capacity of the scratch. It must be host accessible, and aligned for
-	 * 64-bit integers and for the data types of the files.
+	 * @param storage Where the copies are stored. Its size is the capacity
+	 * of the scratch. It must be aligned for 64-bit integers and for the
+	 * data types of the files.
 	 * @param run_length Number of held indices per run. A file that holds
 	 * no more indices than this is a single run.
 	 * @param mode Whether the scratch starts empty or resumed.
@@ -86,8 +84,6 @@ public:
 	 * the data type of a file, or if @p run_length is zero.
 	 * @throws std::out_of_range If a location has a stack index that its
 	 * file does not have.
-	 * @throws unsupported_capability_error If @p storage is not host
-	 * accessible.
 	 * @throws image_file_error If a file does not exist or can not be read.
 	 * @throws unsupported_operation_error If no format can read a file.
 	 * @throws image_format_error If a file is malformed or truncated.
@@ -95,7 +91,7 @@ public:
 	indexed_image_scratch(
 		const image_location_grouping &locations,
 		image_reader_provider &files,
-		std::shared_ptr<buffer> storage,
+		std::shared_ptr<image_scratch_storage> storage,
 		std::size_t run_length,
 		image_scratch_open_mode mode = image_scratch_open_mode::empty
 	);
@@ -114,12 +110,12 @@ private:
 };
 
 /**
- * @brief Create a scratch that stores its copies in host memory.
+ * @brief Create a scratch that stores its copies in main memory.
  *
- * The memory is allocated from the host memory resource, and is as large
- * as the scratch needs for the images it holds. The scratch holds every
- * image of @p locations, unless that needs more than @p max_size. It then
- * holds the images that fit, as @ref indexed_image_scratch describes.
+ * The memory is as large as the scratch needs for the images it holds. The
+ * scratch holds every image of @p locations, unless that needs more than
+ * @p max_size. It then holds the images that fit, as
+ * @ref indexed_image_scratch describes.
  *
  * Each file is opened twice through @p files: once to compute the size and
  * once to construct the scratch.
@@ -127,8 +123,8 @@ private:
  * @param locations The images to hold, grouped by file.
  * @param files Provider used to open the files.
  * @param run_length Number of held indices per run.
- * @param max_size Maximum number of bytes to allocate. The allocator may
- * round the allocation up. By default there is no maximum.
+ * @param max_size Maximum number of bytes to allocate. By default there
+ * is no maximum.
  * @return std::shared_ptr<image_scratch> The scratch. Never null.
  * @throws std::invalid_argument If @p run_length is zero, or if there is
  * nothing to hold: @p locations names no image, or @p max_size has no room
@@ -179,11 +175,10 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * @throws std::invalid_argument If @p run_length is zero, or if there is
  * nothing to hold: @p locations names no image, or @p max_size has no room
  * for one. No file is created then.
- * @throws file_error If the file can not be created, sized, mapped or put
- * in place.
  * @throws std::out_of_range If a location has a stack index that its
  * file does not have.
- * @throws image_file_error If an image file does not exist or can not be
+ * @throws image_file_error If the scratch file can not be created, sized,
+ * mapped or put in place, or if an image file does not exist or can not be
  * read.
  * @throws unsupported_operation_error If no format can read an image file.
  * @throws image_format_error If an image file is malformed or truncated.

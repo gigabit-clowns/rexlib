@@ -2,14 +2,9 @@
 
 #include <rexlib/em/image/indexed_image_scratch.hpp>
 
+#include "image_scratch_storage_buffer.hpp"
 #include "indexed_image_scratch_entry.hpp"
 
-#include <rexlib/core/exceptions/file_error.hpp>
-#include <rexlib/core/exceptions/unsupported_capability_error.hpp>
-#include <rexlib/core/hardware/buffer.hpp>
-#include <rexlib/core/hardware/mapped_file_buffer.hpp>
-#include <rexlib/core/hardware/memory_allocator.hpp>
-#include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/memory/align.hpp>
 #include <rexlib/core/memory/byte.hpp>
@@ -17,10 +12,14 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/assert.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
+#include <rexlib/em/image/host_image_scratch_storage.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
+#include <rexlib/em/image/image_scratch_storage.hpp>
+#include <rexlib/em/image/mapped_file_image_scratch_storage.hpp>
 
 #include <boost/filesystem/operations.hpp>
 
@@ -168,40 +167,35 @@ std::uint64_t hash_value(std::uint64_t hash, std::uint64_t value) noexcept
 	return hash_bytes(hash, as_bytes(&value), sizeof(value));
 }
 
-std::uint64_t read_fingerprint(const buffer &storage) noexcept
+std::uint64_t read_fingerprint(const image_scratch_storage &storage) noexcept
 {
 	std::uint64_t fingerprint = 0;
-	std::memcpy(&fingerprint, storage.get_host_ptr(), sizeof(fingerprint));
+	std::memcpy(&fingerprint, storage.get_data(), sizeof(fingerprint));
 
 	return fingerprint;
 }
 
-void write_fingerprint(buffer &storage, std::uint64_t fingerprint) noexcept
+void write_fingerprint(
+	image_scratch_storage &storage,
+	std::uint64_t fingerprint
+) noexcept
 {
-	std::memcpy(storage.get_host_ptr(), &fingerprint, sizeof(fingerprint));
+	std::memcpy(storage.get_data(), &fingerprint, sizeof(fingerprint));
 }
 
-void check_storage(const buffer *storage)
+void check_storage(const image_scratch_storage *storage)
 {
 	if (storage == nullptr)
 	{
 		throw std::invalid_argument(
-			"indexed_image_scratch: The buffer must not be null."
+			"indexed_image_scratch: The storage must not be null."
 		);
 	}
 
-	if (storage->get_host_ptr() == nullptr)
-	{
-		throw unsupported_capability_error(
-			"indexed_image_scratch: The buffer can not be reached from the "
-			"host."
-		);
-	}
-
-	if (!is_aligned(storage->get_host_ptr(), alignof(std::uint64_t)))
+	if (!is_aligned(storage->get_data(), alignof(std::uint64_t)))
 	{
 		throw std::invalid_argument(
-			"indexed_image_scratch: The buffer is not aligned for 64-bit "
+			"indexed_image_scratch: The storage is not aligned for 64-bit "
 			"integers."
 		);
 	}
@@ -209,7 +203,7 @@ void check_storage(const buffer *storage)
 	if (storage->get_size() < sizeof(std::uint64_t))
 	{
 		throw std::invalid_argument(
-			"indexed_image_scratch: The buffer has no room for a scratch."
+			"indexed_image_scratch: The storage has no room for a scratch."
 		);
 	}
 }
@@ -225,15 +219,15 @@ void check_run_length(std::size_t run_length)
 }
 
 void check_alignment(
-	const buffer &storage,
+	const image_scratch_storage &storage,
 	const image_descriptor &file,
 	const std::string &path
 )
 {
-	if (!is_aligned(storage.get_host_ptr(), get_size(file.get_data_type())))
+	if (!is_aligned(storage.get_data(), get_size(file.get_data_type())))
 	{
 		throw std::invalid_argument(
-			path + ": indexed_image_scratch: The buffer is not aligned for "
+			path + ": indexed_image_scratch: The storage is not aligned for "
 			"the data type of the file."
 		);
 	}
@@ -475,7 +469,7 @@ storage_cursor lay_out(
 
 // The storage of the file at a path, if that file holds a scratch that is
 // laid out as `layout` says. Null otherwise.
-std::shared_ptr<buffer>
+std::shared_ptr<image_scratch_storage>
 open_storage(const std::string &path, const storage_cursor &layout)
 {
 	boost::system::error_code error;
@@ -485,7 +479,7 @@ open_storage(const std::string &path, const storage_cursor &layout)
 		return nullptr;
 	}
 
-	auto storage = open_mapped_file_buffer(path);
+	auto storage = open_mapped_file_image_scratch_storage(path);
 	if (read_fingerprint(*storage) != layout.get_fingerprint())
 	{
 		return nullptr;
@@ -505,7 +499,7 @@ std::string make_temporary_path(const std::string &path)
 indexed_image_scratch::indexed_image_scratch(
 	const image_location_grouping &locations,
 	image_reader_provider &files,
-	std::shared_ptr<buffer> storage,
+	std::shared_ptr<image_scratch_storage> storage,
 	std::size_t run_length,
 	image_scratch_open_mode mode
 )
@@ -514,6 +508,8 @@ indexed_image_scratch::indexed_image_scratch(
 	check_run_length(run_length);
 
 	const auto group_count = locations.get_group_count();
+	const auto memory =
+		std::make_shared<image_scratch_storage_buffer>(storage);
 
 	std::vector<std::shared_ptr<indexed_image_scratch_entry>> entries;
 	storage_cursor cursor(storage->get_size(), run_length);
@@ -542,8 +538,8 @@ indexed_image_scratch::indexed_image_scratch(
 			entries.push_back(
 				std::make_shared<indexed_image_scratch_entry>(
 					std::move(indices),
-					array(storage, cursor.get_values()),
-					array(storage, cursor.get_flags()),
+					array(memory, cursor.get_values()),
+					array(memory, cursor.get_flags()),
 					get_modification_time(path),
 					run_length,
 					mode
@@ -601,15 +597,10 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
 	const auto layout = lay_out(locations, files, run_length, max_size);
 	check_not_empty(layout);
 
-	const auto allocator = get_host_memory_resource().create_allocator();
-
 	return std::make_shared<indexed_image_scratch>(
 		locations,
 		files,
-		allocator->allocate(
-			layout.get_used(),
-			allocator->get_max_alignment()
-		),
+		create_host_image_scratch_storage(layout.get_used()),
 		run_length
 	);
 }
@@ -647,7 +638,10 @@ std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
 		auto scratch = std::make_shared<indexed_image_scratch>(
 			locations,
 			files,
-			create_mapped_file_buffer(temporary, layout.get_used()),
+			create_mapped_file_image_scratch_storage(
+				temporary,
+				layout.get_used()
+			),
 			run_length,
 			image_scratch_open_mode::empty
 		);
@@ -656,7 +650,7 @@ std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
 		boost::filesystem::rename(temporary, path, error);
 		if (error)
 		{
-			throw file_error(
+			throw image_file_error(
 				path + ": create_mapped_file_image_scratch: The scratch "
 				"file could not be put in place: " + error.message()
 			);

@@ -8,7 +8,6 @@ target_sources(
 		test_device_properties.cpp
 		test_device_session.cpp
 		test_device_type.cpp
-		test_mapped_file_buffer.cpp
 		test_memory_allocator_table.cpp
 		test_memory_resource_kind.cpp
 		test_program.cpp

@@ -12,23 +12,22 @@
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
 #include <rexlib/core/concurrency/thread_pool_executor.hpp>
-#include <rexlib/core/hardware/buffer.hpp>
-#include <rexlib/core/hardware/mapped_file_buffer.hpp>
-#include <rexlib/core/hardware/memory_allocator.hpp>
-#include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/layout/index_table.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
 #include <rexlib/em/image/executor_image_loader.hpp>
+#include <rexlib/em/image/host_image_scratch_storage.hpp>
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_scratch.hpp>
+#include <rexlib/em/image/image_scratch_storage.hpp>
 #include <rexlib/em/image/image_write.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
+#include <rexlib/em/image/mapped_file_image_scratch_storage.hpp>
 #include <rexlib/functional/creation.hpp>
 
 #include <cstddef>
@@ -95,22 +94,25 @@ protected:
 		return image_location(get_path(stack), image);
 	}
 
-	// A buffer in main memory, or one that is a mapped file.
-	std::shared_ptr<buffer> make_storage(bool in_a_file, std::size_t size) const
+	// Storage in main memory, or in a mapped file.
+	std::shared_ptr<image_scratch_storage>
+	make_storage(bool in_a_file, std::size_t size) const
 	{
 		if (in_a_file)
 		{
-			return create_mapped_file_buffer(m_storage_file.get(), size);
+			return create_mapped_file_image_scratch_storage(
+				m_storage_file.get(),
+				size
+			);
 		}
 
-		const auto allocator = get_host_memory_resource().create_allocator();
-		return allocator->allocate(size, alignof(std::uint64_t));
+		return create_host_image_scratch_storage(size);
 	}
 
 	// A scratch of some locations of the stacks.
 	std::shared_ptr<image_scratch> make_scratch(
 		const std::vector<image_location> &held,
-		std::shared_ptr<buffer> storage,
+		std::shared_ptr<image_scratch_storage> storage,
 		std::size_t run_length = image_count
 	) const
 	{
@@ -153,7 +155,7 @@ protected:
 	// A provider that reads the stacks through a scratch of some locations.
 	std::shared_ptr<image_reader_provider> make_scratched(
 		const std::vector<image_location> &held,
-		std::shared_ptr<buffer> storage,
+		std::shared_ptr<image_scratch_storage> storage,
 		std::size_t run_length = image_count
 	) const
 	{

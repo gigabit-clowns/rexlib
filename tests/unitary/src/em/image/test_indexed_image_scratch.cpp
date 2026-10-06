@@ -6,19 +6,14 @@
 
 #include <rexlib/em/image/indexed_image_scratch.hpp>
 
-#include "../../core/hardware/mock/mock_buffer.hpp"
 #include "fixtures/counting_image_file.hpp"
 #include "fixtures/scoped_path.hpp"
 #include "mock/mock_image_reader.hpp"
 #include "mock/mock_image_reader_provider.hpp"
+#include "mock/mock_image_scratch_storage.hpp"
 
-#include <core/hardware/host_memory/host_buffer.hpp>
-#include <rexlib/core/exceptions/file_error.hpp>
-#include <rexlib/core/exceptions/unsupported_capability_error.hpp>
+#include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
-#include <rexlib/core/hardware/buffer.hpp>
-#include <rexlib/core/hardware/memory_allocator.hpp>
-#include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
@@ -27,8 +22,11 @@
 #include <rexlib/em/image/image_location.hpp>
 #include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_reader.hpp>
+#include <rexlib/em/image/exceptions/image_file_error.hpp>
+#include <rexlib/em/image/host_image_scratch_storage.hpp>
 #include <rexlib/em/image/image_scratch_entry.hpp>
 #include <rexlib/em/image/image_scratch_open_mode.hpp>
+#include <rexlib/em/image/image_scratch_storage.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
@@ -75,10 +73,10 @@ image_location_grouping group(const std::vector<image_location> &locations)
 	return image_location_grouping(make_span(locations));
 }
 
-// A host buffer of a number of bytes, aligned for 64-bit integers.
-std::shared_ptr<buffer> make_storage(std::size_t size)
+// Storage of a number of bytes in main memory.
+std::shared_ptr<image_scratch_storage> make_storage(std::size_t size)
 {
-	return std::make_shared<host_buffer>(size, alignof(std::uint64_t));
+	return create_host_image_scratch_storage(size);
 }
 
 // The bytes a scratch takes to hold some images of each of some stacks: its
@@ -131,17 +129,6 @@ std::vector<std::size_t> get_file_indices(const image_transfer_plan &plan)
 	}
 
 	return indices;
-}
-
-// A plan of one region that spans a whole file of some extents.
-image_transfer_plan whole_file(const std::vector<std::size_t> &extents)
-{
-	const auto rank = extents.size();
-	image_transfer_plan plan(image_transfer_shape(extents, rank, rank));
-	const std::vector<std::size_t> offset(rank, 0);
-	plan.add(make_span(offset), make_span(offset));
-
-	return plan;
 }
 
 // The values of some images of a counting stack, one after another.
@@ -198,7 +185,7 @@ std::ptrdiff_t get_first_element(array_ref values)
 } // anonymous namespace
 
 TEST_CASE(
-	"an indexed_image_scratch needs a buffer it can use",
+	"an indexed_image_scratch needs storage it can use",
 	"[indexed_image_scratch]"
 )
 {
@@ -207,7 +194,7 @@ TEST_CASE(
 		image_location("stack.mrcs", 0)
 	};
 
-	SECTION( "a null buffer is refused" )
+	SECTION( "null storage is refused" )
 	{
 		REQUIRE_THROWS_AS(
 			indexed_image_scratch(
@@ -220,31 +207,13 @@ TEST_CASE(
 		);
 	}
 
-	SECTION( "a buffer the host can not reach is refused" )
+	SECTION( "storage that is not aligned for 64-bit integers is refused" )
 	{
-		const auto storage = std::make_shared<mock_buffer>();
-		const mock_buffer &const_storage = *storage;
-		ALLOW_CALL(*storage, get_host_ptr()).RETURN(nullptr);
-		ALLOW_CALL(const_storage, get_host_ptr()).RETURN(nullptr);
-
-		REQUIRE_THROWS_AS(
-			indexed_image_scratch(
-				group(locations),
-				files,
-				storage,
-				one_run
-			),
-			unsupported_capability_error
-		);
-	}
-
-	SECTION( "a buffer that is not aligned for 64-bit integers is refused" )
-	{
-		alignas(std::uint64_t) char memory[64] = {};
-		const auto storage = std::make_shared<mock_buffer>();
-		const mock_buffer &const_storage = *storage;
-		ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory + 1);
-		ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory + 1);
+		alignas(std::uint64_t) byte memory[64] = {};
+		const auto storage = std::make_shared<mock_image_scratch_storage>();
+		const mock_image_scratch_storage &const_storage = *storage;
+		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory + 1);
+		ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory + 1);
 		ALLOW_CALL(*storage, get_size()).RETURN(32);
 
 		REQUIRE_THROWS_AS(
@@ -258,13 +227,13 @@ TEST_CASE(
 		);
 	}
 
-	SECTION( "a buffer smaller than a fingerprint is refused" )
+	SECTION( "storage smaller than a fingerprint is refused" )
 	{
-		alignas(std::uint64_t) char memory[64] = {};
-		const auto storage = std::make_shared<mock_buffer>();
-		const mock_buffer &const_storage = *storage;
-		ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory);
-		ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory);
+		alignas(std::uint64_t) byte memory[64] = {};
+		const auto storage = std::make_shared<mock_image_scratch_storage>();
+		const mock_image_scratch_storage &const_storage = *storage;
+		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory);
+		ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory);
 		ALLOW_CALL(*storage, get_size()).RETURN(4);
 
 		REQUIRE_THROWS_AS(
@@ -351,7 +320,7 @@ TEST_CASE(
 		scratch.find("stack_1.mrcs")->store(*second, whole_stack());
 	}
 
-	SECTION( "the entries are stored one after another in the buffer" )
+	SECTION( "the entries are stored one after another in the storage" )
 	{
 		// The fingerprint and a flag take four elements, then come two
 		// images of four elements; another flag, then one image.
@@ -436,28 +405,28 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"an indexed_image_scratch refuses a buffer that is not aligned for a file",
+	"an indexed_image_scratch refuses storage that is not aligned for a file",
 	"[indexed_image_scratch]"
 )
 {
-	// A stack whose elements take sixteen bytes, and a buffer that is
+	// A stack whose elements take sixteen bytes, and storage that is
 	// aligned for eight and not for sixteen.
 	const image_descriptor complex_descriptor(
 		make_span(stack_extents),
 		2,
 		numerical_type::complex_float64
 	);
-	alignas(16) char memory[512] = {};
-	const auto storage = std::make_shared<mock_buffer>();
-	const mock_buffer &const_storage = *storage;
+	alignas(16) byte memory[512] = {};
+	const auto storage = std::make_shared<mock_image_scratch_storage>();
+	const mock_image_scratch_storage &const_storage = *storage;
 	const auto reader = std::make_shared<mock_image_reader>();
 	mock_image_reader_provider files;
 	const std::vector<image_location> locations = {
 		image_location("stack.mrcs", 0)
 	};
 
-	ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory + 8);
-	ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory + 8);
+	ALLOW_CALL(*storage, get_data()).LR_RETURN(memory + 8);
+	ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory + 8);
 	ALLOW_CALL(*storage, get_size()).RETURN(256);
 	ALLOW_CALL(*reader, get_descriptor())
 		.RETURN(std::ref(complex_descriptor));
@@ -473,7 +442,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"an indexed_image_scratch holds no more than its buffer has room for",
+	"an indexed_image_scratch holds no more than its storage has room for",
 	"[indexed_image_scratch]"
 )
 {
@@ -527,7 +496,7 @@ TEST_CASE(
 		scratch.find("stack_1.mrcs")->store(*reader, whole_stack());
 	}
 
-	SECTION( "a file that follows one that fills the buffer has no entry" )
+	SECTION( "a file that follows one that fills the storage has no entry" )
 	{
 		// Room for the two images of the first stack and no more.
 		REQUIRE_CALL(files, acquire("stack_0.mrcs")).RETURN(reader);
@@ -669,7 +638,7 @@ TEST_CASE(
 		CHECK( get_values<float>(destination) == expected );
 	}
 
-	SECTION( "the lowest indices when the buffer cuts the file" )
+	SECTION( "the lowest indices when the storage cuts the file" )
 	{
 		indexed_image_scratch scratch(
 			group(locations),
@@ -826,40 +795,27 @@ TEST_CASE(
 	"[indexed_image_scratch]"
 )
 {
-	// Images as large as the alignment of the allocation, so that rounding
-	// the allocation up makes no room for one more.
-	const auto allocator = get_host_memory_resource().create_allocator();
-	const auto large_image_bytes = allocator->get_max_alignment();
-	const std::vector<std::size_t> extents = {
-		8, 2, large_image_bytes / (2 * sizeof(float))
-	};
-	const image_descriptor descriptor(
-		make_span(extents),
-		2,
-		numerical_type::float32
-	);
-
 	const auto reader = std::make_shared<mock_image_reader>();
 	mock_image_reader_provider files;
 	const std::vector<image_location> locations = {
 		image_location("stack.mrcs")
 	};
 
-	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(descriptor));
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
 
 	const auto scratch = create_host_image_scratch(
 		group(locations),
 		files,
 		one_run,
-		3 * large_image_bytes + 2 * sizeof(std::uint64_t)
+		storage_bytes({3}) + image_bytes / 2
 	);
 
 	// Three of the eight images fit.
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( get_file_indices(_2) == index_list({0, 1, 2}) );
 
-	scratch->find("stack.mrcs")->store(*reader, whole_file(extents));
+	scratch->find("stack.mrcs")->store(*reader, whole_stack());
 }
 
 TEST_CASE(
@@ -1124,13 +1080,13 @@ TEST_CASE(
 			directory.get() + "/scratch.bin",
 			one_run
 		),
-		file_error
+		image_file_error
 	);
 }
 
 TEST_CASE(
 	"a resumed indexed_image_scratch keeps what an earlier one loaded into "
-	"its buffer",
+	"its storage",
 	"[indexed_image_scratch]"
 )
 {

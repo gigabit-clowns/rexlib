@@ -7,6 +7,7 @@ target_sources(
 		test_direct_image_reader_provider.cpp
 		test_executor_image_loader.cpp
 		test_executor_image_saver.cpp
+		test_host_image_scratch_storage.cpp
 		test_image_descriptor.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp
@@ -19,6 +20,7 @@ target_sources(
 		test_image_read_format_registry.cpp
 		test_image_reader_provider.cpp
 		test_image_region_grouping.cpp
+		test_image_scratch_storage_buffer.cpp
 		test_image_transaction_plan.cpp
 		test_image_transfer_plan.cpp
 		test_image_transfer_shape.cpp
@@ -29,6 +31,7 @@ target_sources(
 		test_indexed_image_scratch_entry.cpp
 		test_interned_path_list.cpp
 		test_managed_image_writer_provider.cpp
+		test_mapped_file_image_scratch_storage.cpp
 		test_scratch_image_reader.cpp
 		test_scratch_image_reader_provider.cpp
 		test_strict_image_transfer_sanitizer.cpp

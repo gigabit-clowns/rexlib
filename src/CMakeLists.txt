@@ -88,7 +88,6 @@ target_link_libraries(
 		Boost::filesystem # Eventually replace by std::filesystem (C++17)
 		Boost::container # Eventually replace in C++23
 		Boost::container_hash
-		Boost::interprocess
 		${CMAKE_DL_LIBS} # Loading the plugins
 )
 if(WIN32)

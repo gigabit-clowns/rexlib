@@ -13,7 +13,6 @@ target_sources(
 		device_session.cpp
 		device_type.cpp
 		event.cpp
-		mapped_file_buffer.cpp
 		memory_allocator.cpp
 		memory_allocator_table.cpp
 		memory_resource.cpp
