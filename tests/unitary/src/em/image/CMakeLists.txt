@@ -10,6 +10,7 @@ target_sources(
 		test_image_descriptor.cpp
 		test_image_format_registration.cpp
 		test_image_location.cpp
+		test_image_location_grouping.cpp
 		test_image_metadata.cpp
 		test_image_plan_builders.cpp
 		test_image_probe.cpp
@@ -18,6 +19,8 @@ target_sources(
 		test_image_read_format_registry.cpp
 		test_image_reader_provider.cpp
 		test_image_region_grouping.cpp
+		test_image_scratch_runs.cpp
+		test_image_scratch_slots.cpp
 		test_image_transaction_plan.cpp
 		test_image_transfer_plan.cpp
 		test_image_transfer_shape.cpp

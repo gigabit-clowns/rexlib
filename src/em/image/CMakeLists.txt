@@ -10,6 +10,7 @@ target_sources(
 		image_descriptor.cpp
 		image_loader.cpp
 		image_location.cpp
+		image_location_grouping.cpp
 		image_metadata.cpp
 		image_plan_builders.cpp
 		image_probe.cpp
@@ -23,6 +24,8 @@ target_sources(
 		image_saver.cpp
 		image_scratch.cpp
 		image_scratch_entry.cpp
+		image_scratch_runs.cpp
+		image_scratch_slots.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
 		image_transfer_sanitizer.cpp
