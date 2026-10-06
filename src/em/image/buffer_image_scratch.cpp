@@ -33,6 +33,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <array>
 
 namespace rexlib
 {
@@ -110,13 +111,13 @@ array_descriptor make_values_descriptor(
 array_descriptor
 make_flags_descriptor(std::size_t flag_count, std::size_t first_flag)
 {
-	const std::size_t extents[1] = {flag_count};
-	const std::ptrdiff_t strides[1] = {1};
+	const std::array<std::size_t, 1> extents = {flag_count};
+	const std::array<std::ptrdiff_t, 1> strides = {1};
 
 	return array_descriptor(
 		strided_layout::make_custom_layout(
-			make_span(extents, 1),
-			make_span(strides, 1),
+			make_span(extents),
+			make_span(strides),
 			static_cast<std::ptrdiff_t>(first_flag)
 		),
 		numerical_type::uint64
