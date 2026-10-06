@@ -1,6 +1,8 @@
 target_sources(
 	rexlib-em-obj
 	PRIVATE
+		buffer_image_scratch.cpp
+		buffer_image_scratch_entry.cpp
 		caching_image_reader_provider.cpp
 		clipping_image_transfer_sanitizer.cpp
 		core_image_format_registry.cpp

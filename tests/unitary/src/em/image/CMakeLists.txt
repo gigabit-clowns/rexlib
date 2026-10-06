@@ -1,6 +1,8 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_buffer_image_scratch.cpp
+		test_buffer_image_scratch_entry.cpp
 		test_caching_image_reader_provider.cpp
 		test_clipping_image_transfer_sanitizer.cpp
 		test_core_image_format_registry.cpp
