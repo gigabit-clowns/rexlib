@@ -146,11 +146,18 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
 /**
  * @brief Create a scratch that stores its copies in a file.
  *
- * The file is created and mapped into memory, as
- * @ref create_mapped_file_buffer does, and is as large as the scratch
- * needs for the images it holds. The scratch holds every image of
- * @p locations, unless that needs more than @p max_size. It then holds the
- * images that fit, as @ref buffer_image_scratch describes.
+ * The file is mapped into memory, and is as large as the scratch needs for
+ * the images it holds. The scratch holds every image of @p locations,
+ * unless that needs more than @p max_size. It then holds the images that
+ * fit, as @ref buffer_image_scratch describes.
+ *
+ * If the file at @p path already holds a scratch with the same
+ * fingerprint, that file is used as it is and the scratch resumes from
+ * what it has loaded. Programs that do so at the same time share the file.
+ *
+ * Otherwise a new file is built under a temporary name beside @p path, and
+ * then renamed to @p path. The file that was there is replaced without
+ * being changed, so a program that still uses it is not disturbed.
  *
  * The file is not removed when the scratch is destroyed.
  *
@@ -159,8 +166,7 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  *
  * @param locations The images to hold, grouped by file.
  * @param files Provider used to open the image files.
- * @param path Path of the file to create. Any file already there is
- * replaced.
+ * @param path Path of the scratch file.
  * @param run_length Number of held indices per run.
  * @param max_size Maximum size of the file in bytes. By default there is no
  * maximum.
@@ -168,7 +174,8 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * @throws std::invalid_argument If @p run_length is zero, or if there is
  * nothing to hold: @p locations names no image, or @p max_size has no room
  * for one. No file is created then.
- * @throws file_error If the file can not be created, sized or mapped.
+ * @throws file_error If the file can not be created, sized, mapped or put
+ * in place.
  * @throws std::out_of_range If a location has a stack index that its
  * file does not have.
  * @throws image_file_error If an image file does not exist or can not be

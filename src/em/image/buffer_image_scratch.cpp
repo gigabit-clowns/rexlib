@@ -4,6 +4,7 @@
 
 #include "buffer_image_scratch_entry.hpp"
 
+#include <rexlib/core/exceptions/file_error.hpp>
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/mapped_file_buffer.hpp>
@@ -471,6 +472,33 @@ storage_cursor lay_out(
 	return cursor;
 }
 
+// The storage of the file at a path, if that file holds a scratch that is
+// laid out as `layout` says. Null otherwise.
+std::shared_ptr<buffer>
+open_storage(const std::string &path, const storage_cursor &layout)
+{
+	boost::system::error_code error;
+	const auto size = boost::filesystem::file_size(path, error);
+	if (error || size != layout.get_used())
+	{
+		return nullptr;
+	}
+
+	auto storage = open_mapped_file_buffer(path);
+	if (read_fingerprint(*storage) != layout.get_fingerprint())
+	{
+		return nullptr;
+	}
+
+	return storage;
+}
+
+std::string make_temporary_path(const std::string &path)
+{
+	const auto suffix = boost::filesystem::unique_path("%%%%-%%%%-%%%%");
+	return path + "." + suffix.string();
+}
+
 } // anonymous namespace
 
 buffer_image_scratch::buffer_image_scratch(
@@ -598,12 +626,49 @@ std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
 	const auto layout = lay_out(locations, files, run_length, max_size);
 	check_not_empty(layout);
 
-	return std::make_shared<buffer_image_scratch>(
-		locations,
-		files,
-		create_mapped_file_buffer(path, layout.get_used()),
-		run_length
-	);
+	auto storage = open_storage(path, layout);
+	if (storage)
+	{
+		return std::make_shared<buffer_image_scratch>(
+			locations,
+			files,
+			std::move(storage),
+			run_length,
+			image_scratch_open_mode::resumed
+		);
+	}
+
+	// Another program may have the file at the path mapped, so that file is
+	// never changed. A new one is built beside it and takes its place.
+	const auto temporary = make_temporary_path(path);
+	try
+	{
+		auto scratch = std::make_shared<buffer_image_scratch>(
+			locations,
+			files,
+			create_mapped_file_buffer(temporary, layout.get_used()),
+			run_length,
+			image_scratch_open_mode::empty
+		);
+
+		boost::system::error_code error;
+		boost::filesystem::rename(temporary, path, error);
+		if (error)
+		{
+			throw file_error(
+				path + ": create_mapped_file_image_scratch: The scratch "
+				"file could not be put in place: " + error.message()
+			);
+		}
+
+		return scratch;
+	}
+	catch (...)
+	{
+		boost::system::error_code ignored;
+		boost::filesystem::remove(temporary, ignored);
+		throw;
+	}
 }
 
 } // namespace em

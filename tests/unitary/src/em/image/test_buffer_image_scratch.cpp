@@ -32,10 +32,14 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <boost/filesystem/directory.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <fstream>
 #include <functional>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -151,6 +155,38 @@ std::vector<float> values_of_images(const std::vector<std::size_t> &indices)
 	}
 
 	return values;
+}
+
+std::string read_file(const std::string &path)
+{
+	std::ifstream input(path.c_str(), std::ios::in | std::ios::binary);
+	return std::string(
+		std::istreambuf_iterator<char>(input),
+		std::istreambuf_iterator<char>()
+	);
+}
+
+// Whether building a scratch file left another file beside it.
+bool has_leftover(const std::string &path)
+{
+	const boost::filesystem::path file(path);
+	const auto prefix = file.filename().string() + ".";
+
+	const boost::filesystem::directory_iterator end;
+	for (
+		boost::filesystem::directory_iterator ite(file.parent_path());
+		ite != end;
+		++ite
+	)
+	{
+		const auto name = ite->path().filename().string();
+		if (name.compare(0, prefix.size(), prefix) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 // Where in its buffer an array starts, in elements.
@@ -1319,4 +1355,331 @@ TEST_CASE(
 	);
 
 	scratch.find("stack.mrcs")->store(*reader, whole_stack());
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch resumes from the file that an earlier "
+	"scratch left",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("mapped_file_image_scratch_reuse.raw");
+	const scoped_path storage_path("mapped_file_image_scratch_reuse.scratch");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 5),
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire(path.get())).RETURN(reader);
+
+	// An earlier scratch loads the first of its runs of two: images 1 and 3.
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		const auto earlier = create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			storage_path.get(),
+			2
+		);
+		earlier->find(path.get())->store(*reader, images({1}));
+	}
+
+	SECTION( "a run that was loaded is served without its file being read" )
+	{
+		FORBID_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
+
+		const auto scratch = create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			storage_path.get(),
+			2
+		);
+		const auto entry = scratch->find(path.get());
+		auto destination = make_host_array<float>(
+			{2, 2, 2},
+			numerical_type::float32,
+			-1.0F
+		);
+
+		entry->store(*reader, images({3, 1}));
+		const auto missing =
+			entry->read(array_ref(destination), images({3, 1}));
+
+		CHECK( missing.get_region_count() == 0 );
+		CHECK( get_values<float>(destination) == values_of_images({3, 1}) );
+	}
+
+	SECTION( "a run that was not loaded is loaded" )
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({5}) )
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		const auto scratch = create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			storage_path.get(),
+			2
+		);
+
+		scratch->find(path.get())->store(*reader, images({5}));
+	}
+
+	SECTION( "no other file is made" )
+	{
+		const auto scratch = create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			storage_path.get(),
+			2
+		);
+
+		CHECK_FALSE( has_leftover(storage_path.get()) );
+	}
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch replaces a file that holds another "
+	"scratch",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("mapped_file_image_scratch_other.raw");
+	const scoped_path storage_path("mapped_file_image_scratch_other.scratch");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+
+	// As many images of the same stack, so that the file is as large.
+	const std::vector<image_location> others = {
+		image_location(path.get(), 1),
+		image_location(path.get(), 5)
+	};
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire(path.get())).RETURN(reader);
+
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		const auto earlier = create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			storage_path.get(),
+			one_run
+		);
+		earlier->find(path.get())->store(*reader, whole_stack());
+	}
+
+	// Nothing of the earlier scratch is kept: the run is loaded.
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( get_file_indices(_2) == index_list({1, 5}) )
+		.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+	const auto scratch = create_mapped_file_image_scratch(
+		group(others),
+		files,
+		storage_path.get(),
+		one_run
+	);
+	const auto entry = scratch->find(path.get());
+	auto destination =
+		make_host_array<float>({2, 2, 2}, numerical_type::float32, -1.0F);
+
+	entry->store(*reader, whole_stack());
+	const auto missing = entry->read(array_ref(destination), images({5, 1}));
+
+	CHECK( missing.get_region_count() == 0 );
+	CHECK( get_values<float>(destination) == values_of_images({5, 1}) );
+	CHECK( boost::filesystem::file_size(storage_path.get()) ==
+		storage_bytes({2}) );
+	CHECK_FALSE( has_leftover(storage_path.get()) );
+}
+
+TEST_CASE(
+	"scratches that hold the same images share one file while both are "
+	"alive",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("mapped_file_image_scratch_shared.raw");
+	const scoped_path storage_path("mapped_file_image_scratch_shared.scratch");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire(path.get())).RETURN(reader);
+
+	// The first scratch loads its run, and stays alive.
+	const auto first = create_mapped_file_image_scratch(
+		group(locations),
+		files,
+		storage_path.get(),
+		one_run
+	);
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		first->find(path.get())->store(*reader, whole_stack());
+	}
+
+	// The second finds the run loaded.
+	FORBID_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
+
+	const auto second = create_mapped_file_image_scratch(
+		group(locations),
+		files,
+		storage_path.get(),
+		one_run
+	);
+	const auto entry = second->find(path.get());
+	auto destination =
+		make_host_array<float>({2, 2, 2}, numerical_type::float32, -1.0F);
+
+	entry->store(*reader, whole_stack());
+	const auto missing = entry->read(array_ref(destination), images({3, 1}));
+
+	CHECK( missing.get_region_count() == 0 );
+	CHECK( get_values<float>(destination) == values_of_images({3, 1}) );
+}
+
+TEST_CASE(
+	"scratches that hold other images do not disturb one another on one "
+	"path",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("mapped_file_image_scratch_apart.raw");
+	const scoped_path storage_path("mapped_file_image_scratch_apart.scratch");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> first_locations = {
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+	const std::vector<image_location> second_locations = {
+		image_location(path.get(), 5),
+		image_location(path.get(), 7)
+	};
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire(path.get())).RETURN(reader);
+	ALLOW_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+	// The first scratch loads one of its two images, one image a run.
+	const auto first = create_mapped_file_image_scratch(
+		group(first_locations),
+		files,
+		storage_path.get(),
+		1
+	);
+	const auto first_entry = first->find(path.get());
+	first_entry->store(*reader, images({1}));
+
+	// The second is created at the same path while the first is in use, and
+	// loads its images.
+	const auto second = create_mapped_file_image_scratch(
+		group(second_locations),
+		files,
+		storage_path.get(),
+		1
+	);
+	const auto second_entry = second->find(path.get());
+	second_entry->store(*reader, images({5, 7}));
+
+	// The first goes on loading and serving its own images.
+	first_entry->store(*reader, images({3}));
+
+	auto first_destination =
+		make_host_array<float>({2, 2, 2}, numerical_type::float32, -1.0F);
+	auto second_destination =
+		make_host_array<float>({2, 2, 2}, numerical_type::float32, -1.0F);
+	const auto first_missing =
+		first_entry->read(array_ref(first_destination), images({1, 3}));
+	const auto second_missing =
+		second_entry->read(array_ref(second_destination), images({5, 7}));
+
+	CHECK( first_missing.get_region_count() == 0 );
+	CHECK( get_values<float>(first_destination) ==
+		values_of_images({1, 3}) );
+	CHECK( second_missing.get_region_count() == 0 );
+	CHECK( get_values<float>(second_destination) ==
+		values_of_images({5, 7}) );
+	CHECK_FALSE( has_leftover(storage_path.get()) );
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch leaves the file that was at its path "
+	"when it fails",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path storage_path("mapped_file_image_scratch_fail.scratch");
+	const std::string text = "what was at the path";
+	{
+		std::ofstream output(
+			storage_path.get().c_str(),
+			std::ios::out | std::ios::binary
+		);
+		output << text;
+	}
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 0)
+	};
+	trompeloeil::sequence order;
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+
+	// The file is opened to compute the size, and can not be opened again.
+	REQUIRE_CALL(files, acquire("stack.mrcs"))
+		.IN_SEQUENCE(order)
+		.RETURN(reader);
+	REQUIRE_CALL(files, acquire("stack.mrcs"))
+		.IN_SEQUENCE(order)
+		.SIDE_EFFECT( throw unsupported_operation_error("from the provider") )
+		.RETURN(nullptr);
+
+	REQUIRE_THROWS_AS(
+		create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			storage_path.get(),
+			one_run
+		),
+		unsupported_operation_error
+	);
+
+	CHECK( read_file(storage_path.get()) == text );
+	CHECK_FALSE( has_leftover(storage_path.get()) );
 }
