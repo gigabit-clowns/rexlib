@@ -22,6 +22,7 @@
 #include <rexlib/em/image/direct_image_reader_provider.hpp>
 #include <rexlib/em/image/executor_image_loader.hpp>
 #include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
@@ -113,7 +114,7 @@ protected:
 	) const
 	{
 		return std::make_shared<buffer_image_scratch>(
-			make_span(held),
+			image_location_grouping(make_span(held)),
 			*direct,
 			std::move(storage),
 			run_length
@@ -411,7 +412,7 @@ TEST_CASE_METHOD( image_scratch_fixture,
 			*scratch,
 			direct,
 			executor,
-			make_span(batch)
+			image_location_grouping(make_span(batch))
 		);
 		REQUIRE_NOTHROW( prefetched->get() );
 
@@ -425,7 +426,7 @@ TEST_CASE_METHOD( image_scratch_fixture,
 			*scratch,
 			direct,
 			executor,
-			make_span(batch)
+			image_location_grouping(make_span(batch))
 		);
 
 		CHECK( read_batch(scratched, batch) == expected );

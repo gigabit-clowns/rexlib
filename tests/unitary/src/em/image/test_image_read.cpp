@@ -18,6 +18,7 @@
 #include <rexlib/em/image/clipping_image_transfer_sanitizer.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 #include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
@@ -214,7 +215,7 @@ std::shared_ptr<completion> prefetch(
 		scratch,
 		std::move(files),
 		executor,
-		make_span(locations)
+		image_location_grouping(make_span(locations))
 	);
 }
 

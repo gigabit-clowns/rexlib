@@ -17,6 +17,7 @@
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_loader.hpp>
 #include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
 #include <rexlib/em/image/image_scratch.hpp>
@@ -27,7 +28,6 @@
 #include <rexlib/em/image/strict_image_transfer_sanitizer.hpp>
 #include <rexlib/functional/creation.hpp>
 
-#include <em/image/image_location_grouping.hpp>
 #include <em/image/image_plan_builders.hpp>
 
 #include <cstddef>
@@ -195,7 +195,7 @@ std::shared_ptr<completion> prefetch_scratch_async(
 	image_scratch &scratch,
 	std::shared_ptr<image_reader_provider> files,
 	rexlib::executor &executor,
-	span<const image_location> locations
+	const image_location_grouping &locations
 )
 {
 	if (!files)
@@ -205,25 +205,24 @@ std::shared_ptr<completion> prefetch_scratch_async(
 		);
 	}
 
-	const image_location_grouping grouping(locations);
-	const auto file_count = grouping.get_file_count();
+	const auto file_count = locations.get_file_count();
 
 	std::vector<std::unique_ptr<task>> tasks;
 	for (std::size_t file_index = 0; file_index < file_count; ++file_index)
 	{
-		const auto &path = grouping.get_path(file_index);
+		const auto &path = locations.get_path(file_index);
 		auto entry = scratch.find(path);
 		if (!entry)
 		{
 			continue;
 		}
 
-		const auto indices = grouping.get_indices(file_index);
+		const auto indices = locations.get_indices(file_index);
 		tasks.push_back(
 			std::make_unique<scratch_prefetch_task>(
 				path,
 				std::vector<std::size_t>(indices.begin(), indices.end()),
-				grouping.is_whole(file_index),
+				locations.is_whole(file_index),
 				std::move(entry),
 				files
 			)

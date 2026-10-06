@@ -2,11 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <em/image/image_location_grouping.hpp>
+#include <rexlib/em/image/image_location_grouping.hpp>
 
 #include <rexlib/em/image/image_location.hpp>
 
 #include <cstddef>
+#include <stdexcept>
 #include <vector>
 
 using namespace rexlib;
@@ -121,12 +122,10 @@ TEST_CASE(
 		CHECK_FALSE( grouping.is_whole(1) );
 	}
 
-	SECTION( "a file named both ways is whole and keeps its indices" )
+	SECTION( "a file named both ways is whole and carries no index" )
 	{
-		const std::vector<std::size_t> indices = {2, 6};
-
 		CHECK( grouping.is_whole(2) );
-		CHECK( to_vector(grouping.get_indices(2)) == indices );
+		CHECK( grouping.get_indices(2).empty() );
 	}
 }
 
@@ -144,4 +143,30 @@ TEST_CASE(
 	REQUIRE( grouping.get_file_count() == 2 );
 	CHECK( grouping.get_path(0) == "stack.mrcs" );
 	CHECK( grouping.get_path(1) == "./stack.mrcs" );
+}
+
+TEST_CASE(
+	"an image_location_grouping refuses the index of a file it does not have",
+	"[image_location_grouping]"
+)
+{
+	const auto grouping = group({
+		image_location("stack_0.mrcs", 2),
+		image_location("stack_1.mrcs")
+	});
+
+	SECTION( "when asked for its path" )
+	{
+		REQUIRE_THROWS_AS( grouping.get_path(2), std::out_of_range );
+	}
+
+	SECTION( "when asked whether it is named as a whole" )
+	{
+		REQUIRE_THROWS_AS( grouping.is_whole(2), std::out_of_range );
+	}
+
+	SECTION( "when asked for its indices" )
+	{
+		REQUIRE_THROWS_AS( grouping.get_indices(2), std::out_of_range );
+	}
 }

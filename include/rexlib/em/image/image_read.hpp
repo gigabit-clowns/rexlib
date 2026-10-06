@@ -23,6 +23,7 @@ namespace em
 
 class image_loader;
 class image_location;
+class image_location_grouping;
 class image_reader_provider;
 class image_scratch;
 
@@ -150,7 +151,7 @@ std::shared_ptr<completion> read_patches_async(
 );
 
 /**
- * @brief Load what a list of locations names into a scratch object,
+ * @brief Load what a grouping of locations names into a scratch object,
  * asynchronously.
  *
  * A location with a stack index names that index of the first axis of its
@@ -169,7 +170,7 @@ std::shared_ptr<completion> read_patches_async(
  * @param files Provider used to open the files. It must read the files
  * themselves, not read them through @p scratch.
  * @param executor Where the tasks run.
- * @param locations The images to load.
+ * @param locations The images to load, grouped by file.
  * @return std::shared_ptr<completion> The completion, never null. It is
  * ready once every file is loaded or has failed, and it rethrows the first
  * failure.
@@ -180,7 +181,7 @@ std::shared_ptr<completion> prefetch_scratch_async(
 	image_scratch &scratch,
 	std::shared_ptr<image_reader_provider> files,
 	rexlib::executor &executor,
-	span<const image_location> locations
+	const image_location_grouping &locations
 );
 
 } // namespace em

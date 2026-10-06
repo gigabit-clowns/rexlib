@@ -22,6 +22,7 @@
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_scratch_entry.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -58,6 +59,11 @@ const image_descriptor stack_descriptor(
 const std::size_t one_run = 8;
 
 using index_list = std::vector<std::size_t>;
+
+image_location_grouping group(const std::vector<image_location> &locations)
+{
+	return image_location_grouping(make_span(locations));
+}
 
 // A host buffer of a number of bytes, aligned for float32.
 std::shared_ptr<buffer> make_storage(std::size_t size)
@@ -122,7 +128,7 @@ TEST_CASE(
 	{
 		REQUIRE_THROWS_AS(
 			buffer_image_scratch(
-				make_span(locations),
+				group(locations),
 				files,
 				nullptr,
 				one_run
@@ -140,7 +146,7 @@ TEST_CASE(
 
 		REQUIRE_THROWS_AS(
 			buffer_image_scratch(
-				make_span(locations),
+				group(locations),
 				files,
 				storage,
 				one_run
@@ -162,7 +168,7 @@ TEST_CASE(
 
 	REQUIRE_THROWS_AS(
 		buffer_image_scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(8 * image_bytes),
 			0
@@ -193,7 +199,7 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("stack_1.mrcs")).RETURN(second);
 
 	buffer_image_scratch scratch(
-		make_span(locations),
+		group(locations),
 		files,
 		make_storage(8 * image_bytes),
 		one_run
@@ -255,7 +261,7 @@ TEST_CASE(
 		);
 
 	buffer_image_scratch scratch(
-		make_span(locations),
+		group(locations),
 		files,
 		make_storage(8 * image_bytes),
 		one_run
@@ -290,7 +296,7 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(stack);
 
 	buffer_image_scratch scratch(
-		make_span(locations),
+		group(locations),
 		files,
 		make_storage(64),
 		one_run
@@ -325,7 +331,7 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(reader);
 
 	REQUIRE_THROWS_MATCHES(
-		buffer_image_scratch(make_span(locations), files, storage, one_run),
+		buffer_image_scratch(group(locations), files, storage, one_run),
 		std::invalid_argument,
 		Catch::Matchers::MessageMatches(
 			Catch::Matchers::StartsWith("stack.mrcs: buffer_image_scratch: ")
@@ -357,7 +363,7 @@ TEST_CASE(
 		REQUIRE_CALL(files, acquire("stack_2.mrcs")).RETURN(reader);
 
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(5 * image_bytes),
 			one_run
@@ -377,7 +383,7 @@ TEST_CASE(
 			.LR_WITH( get_file_indices(_2) == index_list({0}) );
 
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(3 * image_bytes + image_bytes / 2),
 			one_run
@@ -396,7 +402,7 @@ TEST_CASE(
 		FORBID_CALL(files, acquire("stack_2.mrcs"));
 
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(2 * image_bytes),
 			one_run
@@ -413,7 +419,7 @@ TEST_CASE(
 		FORBID_CALL(files, acquire("stack_1.mrcs"));
 
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(image_bytes - sizeof(float)),
 			one_run
@@ -439,7 +445,7 @@ TEST_CASE(
 
 	REQUIRE_THROWS_MATCHES(
 		buffer_image_scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(8 * image_bytes),
 			one_run
@@ -467,7 +473,7 @@ TEST_CASE(
 
 	REQUIRE_THROWS_AS(
 		buffer_image_scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(8 * image_bytes),
 			one_run
@@ -499,7 +505,7 @@ TEST_CASE(
 	SECTION( "all of them when they fit" )
 	{
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(3 * image_bytes),
 			one_run
@@ -533,7 +539,7 @@ TEST_CASE(
 	SECTION( "the lowest indices when the buffer cuts the file" )
 	{
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(2 * image_bytes),
 			one_run
@@ -560,7 +566,7 @@ TEST_CASE(
 	{
 		// Runs of two images: indices 1 and 3 are one run, 5 another.
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(3 * image_bytes),
 			2
@@ -577,7 +583,7 @@ TEST_CASE(
 	SECTION( "one at a time when a run has one index" )
 	{
 		buffer_image_scratch scratch(
-			make_span(locations),
+			group(locations),
 			files,
 			make_storage(3 * image_bytes),
 			1
@@ -618,7 +624,7 @@ TEST_CASE(
 		.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
 	buffer_image_scratch scratch(
-		make_span(locations),
+		group(locations),
 		files,
 		make_storage(3 * image_bytes),
 		one_run

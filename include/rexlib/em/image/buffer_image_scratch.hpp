@@ -3,7 +3,6 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-#include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_scratch.hpp>
 
 #include <cstddef>
@@ -19,7 +18,7 @@ class buffer;
 namespace em
 {
 
-class image_location;
+class image_location_grouping;
 class image_reader_provider;
 
 /**
@@ -43,7 +42,7 @@ class REXLIB_API buffer_image_scratch final
 {
 public:
 	/**
-	 * @brief Construct a scratch for a list of locations.
+	 * @brief Construct a scratch for a grouping of locations.
 	 *
 	 * A location with a stack index names that index of the first axis of
 	 * its file. A location without one names the whole file.
@@ -53,7 +52,7 @@ public:
 	 * of room, the current file keeps the lowest indices that fit and the
 	 * remaining files are not opened.
 	 *
-	 * @param locations The images to hold.
+	 * @param locations The images to hold, grouped by file.
 	 * @param files Provider used to open the files.
 	 * @param storage The buffer that stores the copies. Its size is the
 	 * capacity of the scratch. It must be host accessible, and aligned for
@@ -71,7 +70,7 @@ public:
 	 * @throws image_format_error If a file is malformed or truncated.
 	 */
 	buffer_image_scratch(
-		span<const image_location> locations,
+		const image_location_grouping &locations,
 		image_reader_provider &files,
 		std::shared_ptr<buffer> storage,
 		std::size_t run_length

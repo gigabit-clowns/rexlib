@@ -3,7 +3,6 @@
 #include <rexlib/em/image/buffer_image_scratch.hpp>
 
 #include "buffer_image_scratch_entry.hpp"
-#include "image_location_grouping.hpp"
 
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
@@ -14,7 +13,7 @@
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/assert.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
-#include <rexlib/em/image/image_location.hpp>
+#include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
 
@@ -194,7 +193,7 @@ private:
 } // anonymous namespace
 
 buffer_image_scratch::buffer_image_scratch(
-	span<const image_location> locations,
+	const image_location_grouping &locations,
 	image_reader_provider &files,
 	std::shared_ptr<buffer> storage,
 	std::size_t run_length
@@ -203,18 +202,17 @@ buffer_image_scratch::buffer_image_scratch(
 	check_storage(storage.get());
 	check_run_length(run_length);
 
-	const image_location_grouping grouping(locations);
-	const auto file_count = grouping.get_file_count();
+	const auto file_count = locations.get_file_count();
 
 	storage_cursor cursor(storage);
 	for (std::size_t file_index = 0; file_index < file_count; ++file_index)
 	{
-		const auto &path = grouping.get_path(file_index);
+		const auto &path = locations.get_path(file_index);
 		const auto file = files.acquire(path);
 		REXLIB_ASSERT(file);
 
 		const auto &descriptor = file->get_descriptor();
-		auto indices = get_named_indices(grouping, file_index, descriptor);
+		auto indices = get_named_indices(locations, file_index, descriptor);
 		if (indices.empty() || compute_slot_size(descriptor) == 0)
 		{
 			continue;
