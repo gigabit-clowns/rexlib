@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/em/image/buffer_image_scratch.hpp>
+#include <rexlib/em/image/indexed_image_scratch.hpp>
 
-#include "buffer_image_scratch_entry.hpp"
+#include "indexed_image_scratch_entry.hpp"
 
 #include <rexlib/core/exceptions/file_error.hpp>
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
@@ -64,7 +64,7 @@ std::vector<std::size_t> get_named_indices(
 	if (!named.empty() && named.back() >= index_count)
 	{
 		throw std::out_of_range(
-			group.get_path() + ": buffer_image_scratch: A location has a "
+			group.get_path() + ": indexed_image_scratch: A location has a "
 			"stack index that the file does not have."
 		);
 	}
@@ -186,14 +186,14 @@ void check_storage(const buffer *storage)
 	if (storage == nullptr)
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch: The buffer must not be null."
+			"indexed_image_scratch: The buffer must not be null."
 		);
 	}
 
 	if (storage->get_host_ptr() == nullptr)
 	{
 		throw unsupported_capability_error(
-			"buffer_image_scratch: The buffer can not be reached from the "
+			"indexed_image_scratch: The buffer can not be reached from the "
 			"host."
 		);
 	}
@@ -201,7 +201,7 @@ void check_storage(const buffer *storage)
 	if (!is_aligned(storage->get_host_ptr(), alignof(std::uint64_t)))
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch: The buffer is not aligned for 64-bit "
+			"indexed_image_scratch: The buffer is not aligned for 64-bit "
 			"integers."
 		);
 	}
@@ -209,7 +209,7 @@ void check_storage(const buffer *storage)
 	if (storage->get_size() < sizeof(std::uint64_t))
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch: The buffer has no room for a scratch."
+			"indexed_image_scratch: The buffer has no room for a scratch."
 		);
 	}
 }
@@ -219,7 +219,7 @@ void check_run_length(std::size_t run_length)
 	if (run_length == 0)
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch: A run must span at least one index."
+			"indexed_image_scratch: A run must span at least one index."
 		);
 	}
 }
@@ -233,7 +233,7 @@ void check_alignment(
 	if (!is_aligned(storage.get_host_ptr(), get_size(file.get_data_type())))
 	{
 		throw std::invalid_argument(
-			path + ": buffer_image_scratch: The buffer is not aligned for "
+			path + ": indexed_image_scratch: The buffer is not aligned for "
 			"the data type of the file."
 		);
 	}
@@ -429,7 +429,7 @@ void check_not_empty(const storage_cursor &layout)
 	if (layout.get_entry_count() == 0)
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch: There is nothing to hold. The locations "
+			"indexed_image_scratch: There is nothing to hold. The locations "
 			"name no image, or the maximum size has no room for one."
 		);
 	}
@@ -502,7 +502,7 @@ std::string make_temporary_path(const std::string &path)
 
 } // anonymous namespace
 
-buffer_image_scratch::buffer_image_scratch(
+indexed_image_scratch::indexed_image_scratch(
 	const image_location_grouping &locations,
 	image_reader_provider &files,
 	std::shared_ptr<buffer> storage,
@@ -515,7 +515,7 @@ buffer_image_scratch::buffer_image_scratch(
 
 	const auto group_count = locations.get_group_count();
 
-	std::vector<std::shared_ptr<buffer_image_scratch_entry>> entries;
+	std::vector<std::shared_ptr<indexed_image_scratch_entry>> entries;
 	storage_cursor cursor(storage->get_size(), run_length);
 	for (std::size_t index = 0; index < group_count; ++index)
 	{
@@ -540,7 +540,7 @@ buffer_image_scratch::buffer_image_scratch(
 		{
 			indices.resize(held_count);
 			entries.push_back(
-				std::make_shared<buffer_image_scratch_entry>(
+				std::make_shared<indexed_image_scratch_entry>(
 					std::move(indices),
 					array(storage, cursor.get_values()),
 					array(storage, cursor.get_flags()),
@@ -575,10 +575,10 @@ buffer_image_scratch::buffer_image_scratch(
 	write_fingerprint(*storage, fingerprint);
 }
 
-buffer_image_scratch::~buffer_image_scratch() = default;
+indexed_image_scratch::~indexed_image_scratch() = default;
 
 std::shared_ptr<image_scratch_entry>
-buffer_image_scratch::find(const std::string &path)
+indexed_image_scratch::find(const std::string &path)
 {
 	const auto ite = m_entries.find(path);
 	if (ite == m_entries.end())
@@ -603,7 +603,7 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
 
 	const auto allocator = get_host_memory_resource().create_allocator();
 
-	return std::make_shared<buffer_image_scratch>(
+	return std::make_shared<indexed_image_scratch>(
 		locations,
 		files,
 		allocator->allocate(
@@ -630,7 +630,7 @@ std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
 	auto storage = open_storage(path, layout);
 	if (storage)
 	{
-		return std::make_shared<buffer_image_scratch>(
+		return std::make_shared<indexed_image_scratch>(
 			locations,
 			files,
 			std::move(storage),
@@ -644,7 +644,7 @@ std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
 	const auto temporary = make_temporary_path(path);
 	try
 	{
-		auto scratch = std::make_shared<buffer_image_scratch>(
+		auto scratch = std::make_shared<indexed_image_scratch>(
 			locations,
 			files,
 			create_mapped_file_buffer(temporary, layout.get_used()),

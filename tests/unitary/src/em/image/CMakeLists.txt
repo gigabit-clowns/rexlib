@@ -1,8 +1,6 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_buffer_image_scratch.cpp
-		test_buffer_image_scratch_entry.cpp
 		test_caching_image_reader_provider.cpp
 		test_clipping_image_transfer_sanitizer.cpp
 		test_core_image_format_registry.cpp
@@ -27,6 +25,8 @@ target_sources(
 		test_image_write.cpp
 		test_image_write_format_manager.cpp
 		test_image_write_format_registry.cpp
+		test_indexed_image_scratch.cpp
+		test_indexed_image_scratch_entry.cpp
 		test_interned_path_list.cpp
 		test_managed_image_writer_provider.cpp
 		test_scratch_image_reader.cpp

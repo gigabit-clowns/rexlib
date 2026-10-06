@@ -1,8 +1,6 @@
 target_sources(
 	rexlib-em-obj
 	PRIVATE
-		buffer_image_scratch.cpp
-		buffer_image_scratch_entry.cpp
 		caching_image_reader_provider.cpp
 		clipping_image_transfer_sanitizer.cpp
 		core_image_format_registry.cpp
@@ -36,6 +34,8 @@ target_sources(
 		image_write_format_registry.cpp
 		image_writer.cpp
 		image_writer_provider.cpp
+		indexed_image_scratch.cpp
+		indexed_image_scratch_entry.cpp
 		interned_path_list.cpp
 		managed_image_writer_provider.cpp
 		scratch_image_reader.cpp

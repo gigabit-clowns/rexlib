@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <rexlib/em/image/buffer_image_scratch.hpp>
+#include <rexlib/em/image/indexed_image_scratch.hpp>
 #include <rexlib/em/image/scratch_image_reader_provider.hpp>
 
 #include "../../functional/fixtures/cpu_execution_context_fixture.hpp"
@@ -114,7 +114,7 @@ protected:
 		std::size_t run_length = image_count
 	) const
 	{
-		return std::make_shared<buffer_image_scratch>(
+		return std::make_shared<indexed_image_scratch>(
 			image_location_grouping(make_span(held)),
 			*direct,
 			std::move(storage),

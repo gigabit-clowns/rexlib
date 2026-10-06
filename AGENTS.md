@@ -19,7 +19,7 @@ the same pull request that causes it.
 | `src/backends/cpu/` | The CPU backend: builders, kernels, loops, plans |
 | `src/core/` | Dispatch, layouts, hardware abstraction, plugin loading |
 | `src/ops/`, `src/functional/`, `src/em/` | Operation declarations and the functions that reach them |
-| `src/em/image/` | The image I/O subsystem. `formats/` holds one directory per file format, plus `strided_transfer/` and `memory_mapping/`, which hold what formats build on. The buffer scratch is built on `strided_transfer/` too |
+| `src/em/image/` | The image I/O subsystem. `formats/` holds one directory per file format, plus `strided_transfer/` and `memory_mapping/`, which hold what formats build on. The indexed scratch is built on `strided_transfer/` too |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
 | `cmake/modules/` | One `rexlib_add_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The template for the installed CMake package config |

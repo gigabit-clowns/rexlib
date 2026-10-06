@@ -24,12 +24,17 @@ class image_location_grouping;
 class image_reader_provider;
 
 /**
- * @brief A scratch that stores its copies in one memory buffer.
+ * @brief A scratch that holds the images that image_location-s can name, each
+ * in a slot of one memory buffer.
  *
- * It holds the images that a list of locations names, as far as they fit in
- * the buffer. Each file gets one entry, and the entries are stored one
- * after another in the buffer. The buffer decides where the copies live:
- * in main memory, or in a file mapped into it.
+ * What it holds of a file are indices of the first axis of the file, which
+ * is what an @ref image_location names: for example the images of a stack.
+ * Each held index has a slot in the buffer.
+ *
+ * It holds the images that a grouping of locations names, as far as they
+ * fit in the buffer. Each file gets one entry, and the entries are stored
+ * one after another in the buffer. The buffer decides where the copies
+ * live: in main memory, or in a file mapped into it.
  *
  * Which images are held is fixed at construction. Entries are loaded from
  * their files when regions are stored into them.
@@ -46,7 +51,7 @@ class image_reader_provider;
  * Each run has a flag, which holds the modification time that its file had
  * when the run was loaded.
  */
-class REXLIB_API buffer_image_scratch final
+class REXLIB_API indexed_image_scratch final
 	: public image_scratch
 {
 public:
@@ -87,7 +92,7 @@ public:
 	 * @throws unsupported_operation_error If no format can read a file.
 	 * @throws image_format_error If a file is malformed or truncated.
 	 */
-	buffer_image_scratch(
+	indexed_image_scratch(
 		const image_location_grouping &locations,
 		image_reader_provider &files,
 		std::shared_ptr<buffer> storage,
@@ -95,7 +100,7 @@ public:
 		image_scratch_open_mode mode = image_scratch_open_mode::empty
 	);
 
-	~buffer_image_scratch() override;
+	~indexed_image_scratch() override;
 
 	std::shared_ptr<image_scratch_entry>
 	find(const std::string &path) override;
@@ -114,7 +119,7 @@ private:
  * The memory is allocated from the host memory resource, and is as large
  * as the scratch needs for the images it holds. The scratch holds every
  * image of @p locations, unless that needs more than @p max_size. It then
- * holds the images that fit, as @ref buffer_image_scratch describes.
+ * holds the images that fit, as @ref indexed_image_scratch describes.
  *
  * Each file is opened twice through @p files: once to compute the size and
  * once to construct the scratch.
@@ -149,7 +154,7 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * The file is mapped into memory, and is as large as the scratch needs for
  * the images it holds. The scratch holds every image of @p locations,
  * unless that needs more than @p max_size. It then holds the images that
- * fit, as @ref buffer_image_scratch describes.
+ * fit, as @ref indexed_image_scratch describes.
  *
  * If the file at @p path already holds a scratch with the same
  * fingerprint, that file is used as it is and the scratch resumes from

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "buffer_image_scratch_entry.hpp"
+#include "indexed_image_scratch_entry.hpp"
 
 #include <em/image/formats/strided_transfer/image_host_access.hpp>
 #include <em/image/formats/strided_transfer/image_region_copy.hpp>
@@ -36,7 +36,7 @@ compute_run_count(std::size_t slot_count, std::size_t run_length)
 	if (run_length == 0)
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch_entry: A run must span at least one slot."
+			"indexed_image_scratch_entry: A run must span at least one slot."
 		);
 	}
 
@@ -59,7 +59,7 @@ compute_end_index(std::size_t first_index, std::size_t index_count) noexcept
 
 } // anonymous namespace
 
-buffer_image_scratch_entry::buffer_image_scratch_entry(
+indexed_image_scratch_entry::indexed_image_scratch_entry(
 	std::vector<std::size_t> indices,
 	array values,
 	array flags,
@@ -82,7 +82,7 @@ buffer_image_scratch_entry::buffer_image_scratch_entry(
 	if (unordered != m_indices.end())
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch_entry: The indices are not strictly "
+			"indexed_image_scratch_entry: The indices are not strictly "
 			"ascending."
 		);
 	}
@@ -94,7 +94,7 @@ buffer_image_scratch_entry::buffer_image_scratch_entry(
 	if (extents.empty() || extents.front() != m_indices.size())
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch_entry: The first extent of the values is "
+			"indexed_image_scratch_entry: The first extent of the values is "
 			"not the number of indices."
 		);
 	}
@@ -110,7 +110,7 @@ buffer_image_scratch_entry::buffer_image_scratch_entry(
 	)
 	{
 		throw std::invalid_argument(
-			"buffer_image_scratch_entry: The flags are not one 64-bit "
+			"indexed_image_scratch_entry: The flags are not one 64-bit "
 			"unsigned integer per run."
 		);
 	}
@@ -131,9 +131,9 @@ buffer_image_scratch_entry::buffer_image_scratch_entry(
 	}
 }
 
-buffer_image_scratch_entry::~buffer_image_scratch_entry() = default;
+indexed_image_scratch_entry::~indexed_image_scratch_entry() = default;
 
-image_transfer_plan buffer_image_scratch_entry::read(
+image_transfer_plan indexed_image_scratch_entry::read(
 	array_ref destination,
 	const image_transfer_plan &regions
 ) const
@@ -180,7 +180,7 @@ image_transfer_plan buffer_image_scratch_entry::read(
 	return missing;
 }
 
-void buffer_image_scratch_entry::store(
+void indexed_image_scratch_entry::store(
 	const image_reader &file,
 	const image_transfer_plan &regions
 )
@@ -213,7 +213,7 @@ void buffer_image_scratch_entry::store(
 	}
 }
 
-void buffer_image_scratch_entry::reset() noexcept
+void indexed_image_scratch_entry::reset() noexcept
 {
 	auto *run_flags = get_flags();
 	for (std::size_t run = 0; run < m_loaded.size(); ++run)
@@ -223,7 +223,7 @@ void buffer_image_scratch_entry::reset() noexcept
 	}
 }
 
-std::uint64_t* buffer_image_scratch_entry::get_flags() noexcept
+std::uint64_t* indexed_image_scratch_entry::get_flags() noexcept
 {
 	auto *storage = static_cast<std::uint64_t*>(
 		m_flags.get_storage()->get_host_ptr()
@@ -233,14 +233,14 @@ std::uint64_t* buffer_image_scratch_entry::get_flags() noexcept
 }
 
 std::size_t
-buffer_image_scratch_entry::find_slot(std::size_t index) const noexcept
+indexed_image_scratch_entry::find_slot(std::size_t index) const noexcept
 {
 	const auto ite =
 		std::lower_bound(m_indices.begin(), m_indices.end(), index);
 	return static_cast<std::size_t>(std::distance(m_indices.begin(), ite));
 }
 
-bool buffer_image_scratch_entry::are_loaded(
+bool indexed_image_scratch_entry::are_loaded(
 	std::size_t first_slot,
 	std::size_t end_slot
 ) const noexcept
@@ -260,7 +260,7 @@ bool buffer_image_scratch_entry::are_loaded(
 	return true;
 }
 
-void buffer_image_scratch_entry::load(
+void indexed_image_scratch_entry::load(
 	const image_reader &file,
 	std::size_t run
 )
@@ -284,7 +284,7 @@ void buffer_image_scratch_entry::load(
 }
 
 image_transfer_plan
-buffer_image_scratch_entry::make_load_plan(std::size_t run) const
+indexed_image_scratch_entry::make_load_plan(std::size_t run) const
 {
 	std::vector<std::size_t> extents;
 	m_values.get_descriptor().get_layout().get_extents(extents);

@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <em/image/buffer_image_scratch_entry.hpp>
+#include <em/image/indexed_image_scratch_entry.hpp>
 
 #include "fixtures/counting_image_file.hpp"
 #include "fixtures/scoped_path.hpp"
@@ -84,7 +84,7 @@ std::size_t count_runs(std::size_t index_count, std::size_t run_length)
 }
 
 // An entry that holds some images of the stack, with nothing loaded.
-std::shared_ptr<buffer_image_scratch_entry> make_entry(
+std::shared_ptr<indexed_image_scratch_entry> make_entry(
 	std::vector<std::size_t> indices,
 	std::size_t run_length
 )
@@ -92,7 +92,7 @@ std::shared_ptr<buffer_image_scratch_entry> make_entry(
 	const std::vector<std::size_t> extents = {indices.size(), 2, 2};
 	const auto run_count = count_runs(indices.size(), run_length);
 
-	return std::make_shared<buffer_image_scratch_entry>(
+	return std::make_shared<indexed_image_scratch_entry>(
 		std::move(indices),
 		make_host_array<float>(extents, numerical_type::float32, 0.0F),
 		make_flags(run_count),
@@ -104,14 +104,14 @@ std::shared_ptr<buffer_image_scratch_entry> make_entry(
 
 // An entry that holds the first four images of the stack in runs of two,
 // over values and flags that the caller keeps.
-std::shared_ptr<buffer_image_scratch_entry> make_entry_over(
+std::shared_ptr<indexed_image_scratch_entry> make_entry_over(
 	array &values,
 	array &flags,
 	std::uint64_t modification_time,
 	image_scratch_open_mode mode
 )
 {
-	return std::make_shared<buffer_image_scratch_entry>(
+	return std::make_shared<indexed_image_scratch_entry>(
 		std::vector<std::size_t>({0, 1, 2, 3}),
 		values.share(),
 		flags.share(),
@@ -197,14 +197,14 @@ using index_list = std::vector<std::size_t>;
 } // anonymous namespace
 
 TEST_CASE(
-	"a buffer_image_scratch_entry needs indices that are strictly ascending",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry needs indices that are strictly ascending",
+	"[indexed_image_scratch_entry]"
 )
 {
 	SECTION( "indices that descend are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({4, 1, 5}),
 				make_batch(3),
 				make_flags(3),
@@ -219,7 +219,7 @@ TEST_CASE(
 	SECTION( "an index given twice is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({1, 4, 4}),
 				make_batch(3),
 				make_flags(3),
@@ -233,14 +233,14 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry needs values that match its indices",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry needs values that match its indices",
+	"[indexed_image_scratch_entry]"
 )
 {
 	SECTION( "values of another number of indices are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({1, 4, 5}),
 				make_batch(2),
 				make_flags(3),
@@ -255,7 +255,7 @@ TEST_CASE(
 	SECTION( "values that are not initialized are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({1, 4, 5}),
 				array(),
 				make_flags(3),
@@ -269,12 +269,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry refuses a run of no slot",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry refuses a run of no slot",
+	"[indexed_image_scratch_entry]"
 )
 {
 	REQUIRE_THROWS_AS(
-		buffer_image_scratch_entry(
+		indexed_image_scratch_entry(
 			index_list({1, 4, 5}),
 			make_batch(3),
 			make_flags(3),
@@ -287,14 +287,14 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry needs one flag per run",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry needs one flag per run",
+	"[indexed_image_scratch_entry]"
 )
 {
 	SECTION( "flags of another number of runs are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({1, 4, 5}),
 				make_batch(3),
 				make_flags(2),
@@ -309,7 +309,7 @@ TEST_CASE(
 	SECTION( "flags of another data type are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({1, 4, 5}),
 				make_batch(3),
 				make_host_array<float>({3}, numerical_type::float32, 0.0F),
@@ -324,7 +324,7 @@ TEST_CASE(
 	SECTION( "flags that are not initialized are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
+			indexed_image_scratch_entry(
 				index_list({1, 4, 5}),
 				make_batch(3),
 				array(),
@@ -338,12 +338,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry flags the runs it loads with the "
+	"an indexed_image_scratch_entry flags the runs it loads with the "
 	"modification time of its file",
-	"[buffer_image_scratch_entry]"
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_flags.raw");
+	const stack_file stack("indexed_scratch_entry_flags.raw");
 	auto values =
 		make_host_array<float>({4, 2, 2}, numerical_type::float32, 0.0F);
 	auto flags = make_flags(2);
@@ -362,8 +362,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"an empty buffer_image_scratch_entry clears its flags",
-	"[buffer_image_scratch_entry]"
+	"an empty indexed_image_scratch_entry clears its flags",
+	"[indexed_image_scratch_entry]"
 )
 {
 	auto values =
@@ -385,9 +385,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a resumed buffer_image_scratch_entry has loaded the runs whose flag "
+	"a resumed indexed_image_scratch_entry has loaded the runs whose flag "
 	"holds the modification time of its file",
-	"[buffer_image_scratch_entry]"
+	"[indexed_image_scratch_entry]"
 )
 {
 	// What an earlier entry left: the first run loaded, the second loaded
@@ -465,8 +465,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry that is reset has nothing loaded",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry that is reset has nothing loaded",
+	"[indexed_image_scratch_entry]"
 )
 {
 	auto values =
@@ -489,8 +489,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry reads nothing before it is loaded",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry reads nothing before it is loaded",
+	"[indexed_image_scratch_entry]"
 )
 {
 	const auto entry = make_entry({0, 1, 2, 3, 4, 5, 6, 7}, 4);
@@ -505,11 +505,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry loads the run of a stored image",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry loads the run of a stored image",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_run.raw");
+	const stack_file stack("indexed_scratch_entry_run.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({0, 1, 2, 3, 4, 5, 6, 7}, 4);
 
@@ -560,11 +560,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry splits its images into runs of one length",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry splits its images into runs of one length",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_runs.raw");
+	const stack_file stack("indexed_scratch_entry_runs.raw");
 	mock_image_reader file;
 
 	// Eight images in runs of three: two whole runs and one of what is left.
@@ -614,9 +614,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry loads all its images at once when a run is "
+	"an indexed_image_scratch_entry loads all its images at once when a run is "
 	"long enough",
-	"[buffer_image_scratch_entry]"
+	"[indexed_image_scratch_entry]"
 )
 {
 	const auto run_length = GENERATE(
@@ -624,7 +624,7 @@ TEST_CASE(
 		std::size_t(9),
 		std::numeric_limits<std::size_t>::max()
 	);
-	const stack_file stack("buffer_scratch_entry_one_run.raw");
+	const stack_file stack("indexed_scratch_entry_one_run.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({0, 1, 2, 3}, run_length);
 
@@ -636,11 +636,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry loads only the images it holds",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry loads only the images it holds",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_subset.raw");
+	const stack_file stack("indexed_scratch_entry_subset.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({1, 4, 5}, 3);
 
@@ -698,13 +698,13 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry takes a region that reaches past the "
+	"an indexed_image_scratch_entry takes a region that reaches past the "
 	"largest index there is",
-	"[buffer_image_scratch_entry]"
+	"[indexed_image_scratch_entry]"
 )
 {
 	const std::size_t max_index = std::numeric_limits<std::size_t>::max();
-	const stack_file stack("buffer_scratch_entry_overflow.raw");
+	const stack_file stack("indexed_scratch_entry_overflow.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({1, 4, 5}, 1);
 
@@ -744,11 +744,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry reads a region that spans several images",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry reads a region that spans several images",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_range.raw");
+	const stack_file stack("indexed_scratch_entry_range.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({2, 3, 4}, 3);
 
@@ -791,11 +791,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry loads every run a stored region spans",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry loads every run a stored region spans",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_whole.raw");
+	const stack_file stack("indexed_scratch_entry_whole.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({0, 1, 2, 3, 4, 5, 6, 7}, 3);
 
@@ -815,11 +815,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry reads a patch of a held image",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry reads a patch of a held image",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_patch.raw");
+	const stack_file stack("indexed_scratch_entry_patch.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({5}, 1);
 
@@ -842,11 +842,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry converts to the type of the destination",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry converts to the type of the destination",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_convert.raw");
+	const stack_file stack("indexed_scratch_entry_convert.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({5}, 1);
 
@@ -864,8 +864,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry passes over a plan of another rank",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry passes over a plan of another rank",
+	"[indexed_image_scratch_entry]"
 )
 {
 	mock_image_reader file;
@@ -896,11 +896,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry leaves a run absent when loading it fails",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry leaves a run absent when loading it fails",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_retry.raw");
+	const stack_file stack("indexed_scratch_entry_retry.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({0, 1, 2, 3}, 4);
 	auto destination = make_batch(1);
@@ -926,11 +926,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry loads a run once for two threads",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry loads a run once for two threads",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_threads.raw");
+	const stack_file stack("indexed_scratch_entry_threads.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({0, 1, 2, 3}, 4);
 
@@ -951,11 +951,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch_entry checks the destination of a read",
-	"[buffer_image_scratch_entry]"
+	"an indexed_image_scratch_entry checks the destination of a read",
+	"[indexed_image_scratch_entry]"
 )
 {
-	const stack_file stack("buffer_scratch_entry_destination.raw");
+	const stack_file stack("indexed_scratch_entry_destination.raw");
 	mock_image_reader file;
 	const auto entry = make_entry({0, 1, 2, 3}, 4);
 

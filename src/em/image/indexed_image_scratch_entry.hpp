@@ -38,7 +38,7 @@ namespace em
  * that holds another time does not count, so a run loaded from an older
  * version of the file is loaded again.
  */
-class buffer_image_scratch_entry final
+class indexed_image_scratch_entry final
 	: public image_scratch_entry
 {
 public:
@@ -66,7 +66,7 @@ public:
 	 * @throws unsupported_capability_error If @p values or @p flags is not
 	 * host accessible.
 	 */
-	buffer_image_scratch_entry(
+	indexed_image_scratch_entry(
 		std::vector<std::size_t> indices,
 		array values,
 		array flags,
@@ -75,7 +75,7 @@ public:
 		image_scratch_open_mode mode
 	);
 
-	~buffer_image_scratch_entry() override;
+	~indexed_image_scratch_entry() override;
 
 	image_transfer_plan read(
 		array_ref destination,

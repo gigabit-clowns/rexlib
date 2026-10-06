@@ -4,7 +4,7 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include <rexlib/em/image/buffer_image_scratch.hpp>
+#include <rexlib/em/image/indexed_image_scratch.hpp>
 
 #include "../../core/hardware/mock/mock_buffer.hpp"
 #include "fixtures/counting_image_file.hpp"
@@ -198,8 +198,8 @@ std::ptrdiff_t get_first_element(array_ref values)
 } // anonymous namespace
 
 TEST_CASE(
-	"a buffer_image_scratch needs a buffer it can use",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch needs a buffer it can use",
+	"[indexed_image_scratch]"
 )
 {
 	mock_image_reader_provider files;
@@ -210,7 +210,7 @@ TEST_CASE(
 	SECTION( "a null buffer is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch(
+			indexed_image_scratch(
 				group(locations),
 				files,
 				nullptr,
@@ -228,7 +228,7 @@ TEST_CASE(
 		ALLOW_CALL(const_storage, get_host_ptr()).RETURN(nullptr);
 
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch(
+			indexed_image_scratch(
 				group(locations),
 				files,
 				storage,
@@ -248,7 +248,7 @@ TEST_CASE(
 		ALLOW_CALL(*storage, get_size()).RETURN(32);
 
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch(
+			indexed_image_scratch(
 				group(locations),
 				files,
 				storage,
@@ -268,7 +268,7 @@ TEST_CASE(
 		ALLOW_CALL(*storage, get_size()).RETURN(4);
 
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch(
+			indexed_image_scratch(
 				group(locations),
 				files,
 				storage,
@@ -280,8 +280,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch refuses a run of no index",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch refuses a run of no index",
+	"[indexed_image_scratch]"
 )
 {
 	mock_image_reader_provider files;
@@ -290,7 +290,7 @@ TEST_CASE(
 	};
 
 	REQUIRE_THROWS_AS(
-		buffer_image_scratch(
+		indexed_image_scratch(
 			group(locations),
 			files,
 			make_storage(8 * image_bytes),
@@ -301,8 +301,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch holds an entry for each file that is named",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch holds an entry for each file that is named",
+	"[indexed_image_scratch]"
 )
 {
 	const auto first = std::make_shared<mock_image_reader>();
@@ -321,7 +321,7 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("stack_0.mrcs")).RETURN(first);
 	REQUIRE_CALL(files, acquire("stack_1.mrcs")).RETURN(second);
 
-	buffer_image_scratch scratch(
+	indexed_image_scratch scratch(
 		group(locations),
 		files,
 		make_storage(8 * image_bytes),
@@ -366,8 +366,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch holds every index of a file named as a whole",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch holds every index of a file named as a whole",
+	"[indexed_image_scratch]"
 )
 {
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -384,7 +384,7 @@ TEST_CASE(
 			get_file_indices(_2) == index_list({0, 1, 2, 3, 4, 5, 6, 7})
 		);
 
-	buffer_image_scratch scratch(
+	indexed_image_scratch scratch(
 		group(locations),
 		files,
 		make_storage(storage_bytes({8})),
@@ -395,8 +395,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch aligns each entry for the data type of its file",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch aligns each entry for the data type of its file",
+	"[indexed_image_scratch]"
 )
 {
 	// Three rows of three bytes, then a stack of float32 images.
@@ -419,7 +419,7 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("bytes.mrc")).RETURN(bytes);
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(stack);
 
-	buffer_image_scratch scratch(
+	indexed_image_scratch scratch(
 		group(locations),
 		files,
 		make_storage(64),
@@ -436,8 +436,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch refuses a buffer that is not aligned for a file",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch refuses a buffer that is not aligned for a file",
+	"[indexed_image_scratch]"
 )
 {
 	// A stack whose elements take sixteen bytes, and a buffer that is
@@ -464,17 +464,17 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(reader);
 
 	REQUIRE_THROWS_MATCHES(
-		buffer_image_scratch(group(locations), files, storage, one_run),
+		indexed_image_scratch(group(locations), files, storage, one_run),
 		std::invalid_argument,
 		Catch::Matchers::MessageMatches(
-			Catch::Matchers::StartsWith("stack.mrcs: buffer_image_scratch: ")
+			Catch::Matchers::StartsWith("stack.mrcs: indexed_image_scratch: ")
 		)
 	);
 }
 
 TEST_CASE(
-	"a buffer_image_scratch holds no more than its buffer has room for",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch holds no more than its buffer has room for",
+	"[indexed_image_scratch]"
 )
 {
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -495,7 +495,7 @@ TEST_CASE(
 		REQUIRE_CALL(files, acquire("stack_1.mrcs")).RETURN(reader);
 		REQUIRE_CALL(files, acquire("stack_2.mrcs")).RETURN(reader);
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({2, 2, 1})),
@@ -515,7 +515,7 @@ TEST_CASE(
 		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 			.LR_WITH( get_file_indices(_2) == index_list({0}) );
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({2, 1}) + image_bytes / 2),
@@ -534,7 +534,7 @@ TEST_CASE(
 		ALLOW_CALL(files, acquire("stack_1.mrcs")).RETURN(reader);
 		FORBID_CALL(files, acquire("stack_2.mrcs"));
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({2})),
@@ -551,7 +551,7 @@ TEST_CASE(
 		REQUIRE_CALL(files, acquire("stack_0.mrcs")).RETURN(reader);
 		FORBID_CALL(files, acquire("stack_1.mrcs"));
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({0})),
@@ -563,8 +563,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a buffer_image_scratch refuses a stack index that a file does not have",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch refuses a stack index that a file does not have",
+	"[indexed_image_scratch]"
 )
 {
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -577,7 +577,7 @@ TEST_CASE(
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(reader);
 
 	REQUIRE_THROWS_MATCHES(
-		buffer_image_scratch(
+		indexed_image_scratch(
 			group(locations),
 			files,
 			make_storage(8 * image_bytes),
@@ -585,14 +585,14 @@ TEST_CASE(
 		),
 		std::out_of_range,
 		Catch::Matchers::MessageMatches(
-			Catch::Matchers::StartsWith("stack.mrcs: buffer_image_scratch: ")
+			Catch::Matchers::StartsWith("stack.mrcs: indexed_image_scratch: ")
 		)
 	);
 }
 
 TEST_CASE(
-	"a buffer_image_scratch reports what opening a file reported",
-	"[buffer_image_scratch]"
+	"an indexed_image_scratch reports what opening a file reported",
+	"[indexed_image_scratch]"
 )
 {
 	mock_image_reader_provider files;
@@ -605,7 +605,7 @@ TEST_CASE(
 		.RETURN(nullptr);
 
 	REQUIRE_THROWS_AS(
-		buffer_image_scratch(
+		indexed_image_scratch(
 			group(locations),
 			files,
 			make_storage(8 * image_bytes),
@@ -616,11 +616,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"an entry of a buffer_image_scratch serves the images it holds",
-	"[buffer_image_scratch]"
+	"an entry of an indexed_image_scratch serves the images it holds",
+	"[indexed_image_scratch]"
 )
 {
-	const scoped_path path("buffer_scratch_serves.raw");
+	const scoped_path path("indexed_scratch_serves.raw");
 	write_counting_image_file(path.get(), stack_extents);
 	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
 
@@ -637,7 +637,7 @@ TEST_CASE(
 
 	SECTION( "all of them when they fit" )
 	{
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({3})),
@@ -671,7 +671,7 @@ TEST_CASE(
 
 	SECTION( "the lowest indices when the buffer cuts the file" )
 	{
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({2})),
@@ -698,7 +698,7 @@ TEST_CASE(
 	SECTION( "a run at a time when it holds more of them than a run has" )
 	{
 		// Runs of two images: indices 1 and 3 are one run, 5 another.
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({3}, 2)),
@@ -715,7 +715,7 @@ TEST_CASE(
 
 	SECTION( "one at a time when a run has one index" )
 	{
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			make_storage(storage_bytes({3}, 3)),
@@ -732,12 +732,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"the entries of a buffer_image_scratch do not overwrite one another",
-	"[buffer_image_scratch]"
+	"the entries of an indexed_image_scratch do not overwrite one another",
+	"[indexed_image_scratch]"
 )
 {
-	const scoped_path first_path("buffer_scratch_first.raw");
-	const scoped_path second_path("buffer_scratch_second.raw");
+	const scoped_path first_path("indexed_scratch_first.raw");
+	const scoped_path second_path("indexed_scratch_second.raw");
 	write_counting_image_file(first_path.get(), stack_extents);
 	write_counting_image_file(second_path.get(), stack_extents);
 	const auto stack =
@@ -756,7 +756,7 @@ TEST_CASE(
 	ALLOW_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
-	buffer_image_scratch scratch(
+	indexed_image_scratch scratch(
 		group(locations),
 		files,
 		make_storage(storage_bytes({2, 1})),
@@ -787,7 +787,7 @@ TEST_CASE(
 
 TEST_CASE(
 	"create_host_image_scratch holds the images that the locations name",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path path("host_image_scratch.raw");
@@ -823,7 +823,7 @@ TEST_CASE(
 
 TEST_CASE(
 	"create_host_image_scratch allocates no more than its maximum size",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	// Images as large as the alignment of the allocation, so that rounding
@@ -864,7 +864,7 @@ TEST_CASE(
 
 TEST_CASE(
 	"create_host_image_scratch refuses to hold nothing",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	mock_image_reader_provider files;
@@ -910,7 +910,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch stores the images in a file of the "
 	"size they need",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path path("mapped_file_image_scratch.raw");
@@ -961,7 +961,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch leaves room between files of "
 	"different data types",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	// Three rows of three bytes, then one image of a float32 stack.
@@ -1008,7 +1008,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch creates a file no larger than its "
 	"maximum size",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path storage_path("mapped_file_image_scratch_cut.scratch");
@@ -1045,7 +1045,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch creates no file when it refuses to "
 	"hold nothing",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path storage_path("mapped_file_image_scratch_none.scratch");
@@ -1104,7 +1104,7 @@ TEST_CASE(
 
 TEST_CASE(
 	"create_mapped_file_image_scratch reports a file it can not create",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path directory("mapped_file_image_scratch_missing");
@@ -1129,12 +1129,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a resumed buffer_image_scratch keeps what an earlier one loaded into "
+	"a resumed indexed_image_scratch keeps what an earlier one loaded into "
 	"its buffer",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
-	const scoped_path path("buffer_scratch_resumed.raw");
+	const scoped_path path("indexed_scratch_resumed.raw");
 	write_counting_image_file(path.get(), stack_extents);
 	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
 
@@ -1157,7 +1157,7 @@ TEST_CASE(
 		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 			.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
-		buffer_image_scratch earlier(group(locations), files, storage, 2);
+		indexed_image_scratch earlier(group(locations), files, storage, 2);
 		earlier.find(path.get())->store(*reader, images({1}));
 	}
 
@@ -1165,7 +1165,7 @@ TEST_CASE(
 	{
 		FORBID_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			storage,
@@ -1193,7 +1193,7 @@ TEST_CASE(
 			.LR_WITH( get_file_indices(_2) == index_list({5}) )
 			.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			storage,
@@ -1210,7 +1210,7 @@ TEST_CASE(
 			.LR_WITH( get_file_indices(_2) == index_list({1, 3}) )
 			.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
-		buffer_image_scratch scratch(group(locations), files, storage, 2);
+		indexed_image_scratch scratch(group(locations), files, storage, 2);
 
 		scratch.find(path.get())->store(*reader, images({1}));
 	}
@@ -1223,7 +1223,7 @@ TEST_CASE(
 			.LR_WITH( get_file_indices(_2) == index_list({1, 3, 5}) )
 			.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			storage,
@@ -1244,7 +1244,7 @@ TEST_CASE(
 			.LR_WITH( get_file_indices(_2) == index_list({1, 3}) )
 			.LR_SIDE_EFFECT( stack->read(_1, _2) );
 
-		buffer_image_scratch scratch(
+		indexed_image_scratch scratch(
 			group(locations),
 			files,
 			storage,
@@ -1257,12 +1257,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a resumed buffer_image_scratch keeps the files that were not modified",
-	"[buffer_image_scratch]"
+	"a resumed indexed_image_scratch keeps the files that were not modified",
+	"[indexed_image_scratch]"
 )
 {
-	const scoped_path first_path("buffer_scratch_resumed_first.raw");
-	const scoped_path second_path("buffer_scratch_resumed_second.raw");
+	const scoped_path first_path("indexed_scratch_resumed_first.raw");
+	const scoped_path second_path("indexed_scratch_resumed_second.raw");
 	write_counting_image_file(first_path.get(), stack_extents);
 	write_counting_image_file(second_path.get(), stack_extents);
 
@@ -1285,7 +1285,7 @@ TEST_CASE(
 		REQUIRE_CALL(*first, read(trompeloeil::_, trompeloeil::_));
 		REQUIRE_CALL(*second, read(trompeloeil::_, trompeloeil::_));
 
-		buffer_image_scratch earlier(
+		indexed_image_scratch earlier(
 			group(locations),
 			files,
 			storage,
@@ -1303,7 +1303,7 @@ TEST_CASE(
 	FORBID_CALL(*first, read(trompeloeil::_, trompeloeil::_));
 	REQUIRE_CALL(*second, read(trompeloeil::_, trompeloeil::_));
 
-	buffer_image_scratch scratch(
+	indexed_image_scratch scratch(
 		group(locations),
 		files,
 		storage,
@@ -1316,9 +1316,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a resumed buffer_image_scratch keeps nothing of a file whose "
+	"a resumed indexed_image_scratch keeps nothing of a file whose "
 	"modification time can not be read",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	// There is no file at this path, only a reader that the provider makes.
@@ -1335,7 +1335,7 @@ TEST_CASE(
 	{
 		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 
-		buffer_image_scratch earlier(
+		indexed_image_scratch earlier(
 			group(locations),
 			files,
 			storage,
@@ -1346,7 +1346,7 @@ TEST_CASE(
 
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
 
-	buffer_image_scratch scratch(
+	indexed_image_scratch scratch(
 		group(locations),
 		files,
 		storage,
@@ -1360,7 +1360,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch resumes from the file that an earlier "
 	"scratch left",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path path("mapped_file_image_scratch_reuse.raw");
@@ -1450,7 +1450,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch replaces a file that holds another "
 	"scratch",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path path("mapped_file_image_scratch_other.raw");
@@ -1515,7 +1515,7 @@ TEST_CASE(
 TEST_CASE(
 	"scratches that hold the same images share one file while both are "
 	"alive",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path path("mapped_file_image_scratch_shared.raw");
@@ -1570,7 +1570,7 @@ TEST_CASE(
 TEST_CASE(
 	"scratches that hold other images do not disturb one another on one "
 	"path",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path path("mapped_file_image_scratch_apart.raw");
@@ -1639,7 +1639,7 @@ TEST_CASE(
 TEST_CASE(
 	"create_mapped_file_image_scratch leaves the file that was at its path "
 	"when it fails",
-	"[buffer_image_scratch]"
+	"[indexed_image_scratch]"
 )
 {
 	const scoped_path storage_path("mapped_file_image_scratch_fail.scratch");
