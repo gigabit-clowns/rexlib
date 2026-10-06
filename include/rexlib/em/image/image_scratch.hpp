@@ -55,17 +55,6 @@ public:
 	 */
 	virtual std::shared_ptr<image_scratch_entry>
 	find(const std::string &path) = 0;
-
-	/**
-	 * @brief Get what is held of a file, to read it.
-	 *
-	 * @param path Path to the file.
-	 * @return std::shared_ptr<const image_scratch_entry> The entry of the
-	 * file, which may be read and not added to, or null when nothing of it
-	 * is held.
-	 */
-	virtual std::shared_ptr<const image_scratch_entry>
-	find(const std::string &path) const = 0;
 };
 
 /**

@@ -31,7 +31,6 @@
 #include <rexlib/functional/creation.hpp>
 
 #include <cstddef>
-#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -110,14 +109,14 @@ protected:
 	std::shared_ptr<image_scratch> make_scratch(
 		const std::vector<image_location> &held,
 		std::shared_ptr<buffer> storage,
-		std::size_t run_size = std::numeric_limits<std::size_t>::max()
+		std::size_t run_length = image_count
 	) const
 	{
 		return std::make_shared<buffer_image_scratch>(
 			make_span(held),
 			*direct,
 			std::move(storage),
-			run_size
+			run_length
 		);
 	}
 
@@ -125,12 +124,12 @@ protected:
 	std::shared_ptr<image_reader_provider> make_scratched(
 		const std::vector<image_location> &held,
 		std::shared_ptr<buffer> storage,
-		std::size_t run_size = std::numeric_limits<std::size_t>::max()
+		std::size_t run_length = image_count
 	) const
 	{
 		return std::make_shared<scratch_image_reader_provider>(
 			direct,
-			make_scratch(held, std::move(storage), run_size)
+			make_scratch(held, std::move(storage), run_length)
 		);
 	}
 
@@ -239,7 +238,7 @@ TEST_CASE_METHOD( image_scratch_fixture,
 		const auto scratched = make_scratched(
 			batch,
 			make_storage(in_a_file, dataset_bytes),
-			2 * image_bytes
+			2
 		);
 
 		CHECK( read_batch(scratched, batch) == expected );
@@ -400,7 +399,7 @@ TEST_CASE_METHOD( image_scratch_fixture,
 	const auto scratch = make_scratch(
 		batch,
 		make_storage(in_a_file, dataset_bytes),
-		2 * image_bytes
+		2
 	);
 	const auto scratched =
 		std::make_shared<scratch_image_reader_provider>(direct, scratch);

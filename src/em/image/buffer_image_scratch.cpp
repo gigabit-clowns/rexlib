@@ -22,6 +22,7 @@
 #include <functional>
 #include <numeric>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -99,16 +100,9 @@ array_descriptor make_values_descriptor(
 	);
 }
 
-} // anonymous namespace
-
-buffer_image_scratch::buffer_image_scratch(
-	span<const image_location> locations,
-	image_reader_provider &files,
-	std::shared_ptr<buffer> storage,
-	std::size_t run_size
-)
+void check_storage(const buffer *storage)
 {
-	if (!storage)
+	if (storage == nullptr)
 	{
 		throw std::invalid_argument(
 			"buffer_image_scratch: The buffer must not be null."
@@ -122,61 +116,124 @@ buffer_image_scratch::buffer_image_scratch(
 			"host."
 		);
 	}
+}
+
+void check_run_length(std::size_t run_length)
+{
+	if (run_length == 0)
+	{
+		throw std::invalid_argument(
+			"buffer_image_scratch: A run must span at least one index."
+		);
+	}
+}
+
+void check_alignment(
+	const buffer &storage,
+	const image_descriptor &file,
+	const std::string &path
+)
+{
+	if (!is_aligned(storage.get_host_ptr(), get_size(file.get_data_type())))
+	{
+		throw std::invalid_argument(
+			path + ": buffer_image_scratch: The buffer is not aligned for "
+			"the data type of the file."
+		);
+	}
+}
+
+// Places the values of the entries one after another in the buffer of a
+// scratch, each aligned for its data type.
+class storage_cursor
+{
+public:
+	explicit storage_cursor(std::shared_ptr<buffer> storage)
+		: m_storage(std::move(storage))
+		, m_used(0)
+	{
+	}
+
+	std::size_t count_fitting(const image_descriptor &file) const noexcept
+	{
+		const auto first = get_first_byte(file);
+		const auto capacity = m_storage->get_size();
+		if (first >= capacity)
+		{
+			return 0;
+		}
+
+		return (capacity - first) / compute_slot_size(file);
+	}
+
+	array place(const image_descriptor &file, std::size_t index_count)
+	{
+		const auto first = get_first_byte(file);
+		m_used = first + index_count * compute_slot_size(file);
+
+		return array(
+			m_storage,
+			make_values_descriptor(
+				file,
+				index_count,
+				first / get_size(file.get_data_type())
+			)
+		);
+	}
+
+private:
+	std::size_t get_first_byte(const image_descriptor &file) const noexcept
+	{
+		return align_ceil(m_used, get_size(file.get_data_type()));
+	}
+
+	std::shared_ptr<buffer> m_storage;
+	std::size_t m_used;
+};
+
+} // anonymous namespace
+
+buffer_image_scratch::buffer_image_scratch(
+	span<const image_location> locations,
+	image_reader_provider &files,
+	std::shared_ptr<buffer> storage,
+	std::size_t run_length
+)
+{
+	check_storage(storage.get());
+	check_run_length(run_length);
 
 	const image_location_grouping grouping(locations);
 	const auto file_count = grouping.get_file_count();
-	const auto capacity = storage->get_size();
 
-	std::size_t used = 0;
+	storage_cursor cursor(storage);
 	for (std::size_t file_index = 0; file_index < file_count; ++file_index)
 	{
-		if (used >= capacity)
-		{
-			break;
-		}
-
 		const auto &path = grouping.get_path(file_index);
 		const auto file = files.acquire(path);
 		REXLIB_ASSERT(file);
 
 		const auto &descriptor = file->get_descriptor();
 		auto indices = get_named_indices(grouping, file_index, descriptor);
-		const auto slot_size = compute_slot_size(descriptor);
-		if (indices.empty() || slot_size == 0)
+		if (indices.empty() || compute_slot_size(descriptor) == 0)
 		{
 			continue;
 		}
 
-		const auto element_size = get_size(descriptor.get_data_type());
-		if (!is_aligned(storage->get_host_ptr(), element_size))
-		{
-			throw std::invalid_argument(
-				path + ": buffer_image_scratch: The buffer is not aligned "
-				"for the data type of the file."
-			);
-		}
+		check_alignment(*storage, descriptor, path);
 
-		const auto first = align_ceil(used, element_size);
-		const auto room = first < capacity ? capacity - first : 0;
 		const auto named_count = indices.size();
-		const auto held_count = std::min(named_count, room / slot_size);
+		const auto held_count =
+			std::min(named_count, cursor.count_fitting(descriptor));
 		if (held_count > 0)
 		{
 			indices.resize(held_count);
-			used = first + held_count * slot_size;
 			m_entries.emplace(
 				path,
 				std::make_shared<buffer_image_scratch_entry>(
 					std::move(indices),
-					array(
-						storage,
-						make_values_descriptor(
-							descriptor,
-							held_count,
-							first / element_size
-						)
-					),
-					std::max<std::size_t>(run_size / slot_size, 1)
+					cursor.place(descriptor, held_count),
+					run_length
 				)
 			);
 		}
@@ -192,18 +249,6 @@ buffer_image_scratch::~buffer_image_scratch() = default;
 
 std::shared_ptr<image_scratch_entry>
 buffer_image_scratch::find(const std::string &path)
-{
-	const auto ite = m_entries.find(path);
-	if (ite == m_entries.end())
-	{
-		return nullptr;
-	}
-
-	return ite->second;
-}
-
-std::shared_ptr<const image_scratch_entry>
-buffer_image_scratch::find(const std::string &path) const
 {
 	const auto ite = m_entries.find(path);
 	if (ite == m_entries.end())

@@ -24,12 +24,6 @@ public:
 		std::shared_ptr<image_scratch_entry>(const std::string &path),
 		override
 	);
-
-	MAKE_CONST_MOCK1(
-		find,
-		std::shared_ptr<const image_scratch_entry>(const std::string &path),
-		override
-	);
 };
 
 } // namespace em

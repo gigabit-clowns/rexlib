@@ -54,6 +54,9 @@ const image_descriptor stack_descriptor(
 	numerical_type::float32
 );
 
+// Long enough for one run to span everything that is held of a stack.
+const std::size_t one_run = 8;
+
 using index_list = std::vector<std::size_t>;
 
 // A host buffer of a number of bytes, aligned for float32.
@@ -118,7 +121,12 @@ TEST_CASE(
 	SECTION( "a null buffer is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch(make_span(locations), files, nullptr),
+			buffer_image_scratch(
+				make_span(locations),
+				files,
+				nullptr,
+				one_run
+			),
 			std::invalid_argument
 		);
 	}
@@ -126,13 +134,41 @@ TEST_CASE(
 	SECTION( "a buffer the host can not reach is refused" )
 	{
 		const auto storage = std::make_shared<mock_buffer>();
+		const mock_buffer &const_storage = *storage;
 		ALLOW_CALL(*storage, get_host_ptr()).RETURN(nullptr);
+		ALLOW_CALL(const_storage, get_host_ptr()).RETURN(nullptr);
 
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch(make_span(locations), files, storage),
+			buffer_image_scratch(
+				make_span(locations),
+				files,
+				storage,
+				one_run
+			),
 			unsupported_capability_error
 		);
 	}
+}
+
+TEST_CASE(
+	"a buffer_image_scratch refuses a run of no index",
+	"[buffer_image_scratch]"
+)
+{
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 0)
+	};
+
+	REQUIRE_THROWS_AS(
+		buffer_image_scratch(
+			make_span(locations),
+			files,
+			make_storage(8 * image_bytes),
+			0
+		),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
@@ -159,7 +195,8 @@ TEST_CASE(
 	buffer_image_scratch scratch(
 		make_span(locations),
 		files,
-		make_storage(8 * image_bytes)
+		make_storage(8 * image_bytes),
+		one_run
 	);
 
 	SECTION( "an entry is found by the path of its file" )
@@ -172,15 +209,6 @@ TEST_CASE(
 	SECTION( "a file that is not named has no entry" )
 	{
 		CHECK( scratch.find("stack_2.mrcs") == nullptr );
-	}
-
-	SECTION( "a const scratch finds the same entries" )
-	{
-		const auto &const_scratch = scratch;
-
-		CHECK( const_scratch.find("stack_0.mrcs") ==
-			scratch.find("stack_0.mrcs") );
-		CHECK( const_scratch.find("stack_2.mrcs") == nullptr );
 	}
 
 	SECTION( "an entry holds the indices that the locations name" )
@@ -229,7 +257,8 @@ TEST_CASE(
 	buffer_image_scratch scratch(
 		make_span(locations),
 		files,
-		make_storage(8 * image_bytes)
+		make_storage(8 * image_bytes),
+		one_run
 	);
 
 	scratch.find("stack.mrcs")->store(*reader, whole_stack());
@@ -263,7 +292,8 @@ TEST_CASE(
 	buffer_image_scratch scratch(
 		make_span(locations),
 		files,
-		make_storage(64)
+		make_storage(64),
+		one_run
 	);
 
 	// Nine bytes are taken, so the float32 values start at the twelfth:
@@ -281,6 +311,7 @@ TEST_CASE(
 {
 	std::vector<char> memory(64);
 	const auto storage = std::make_shared<mock_buffer>();
+	const mock_buffer &const_storage = *storage;
 	const auto reader = std::make_shared<mock_image_reader>();
 	mock_image_reader_provider files;
 	const std::vector<image_location> locations = {
@@ -288,12 +319,13 @@ TEST_CASE(
 	};
 
 	ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory.data() + 1);
+	ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory.data() + 1);
 	ALLOW_CALL(*storage, get_size()).RETURN(32);
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(reader);
 
 	REQUIRE_THROWS_MATCHES(
-		buffer_image_scratch(make_span(locations), files, storage),
+		buffer_image_scratch(make_span(locations), files, storage, one_run),
 		std::invalid_argument,
 		Catch::Matchers::MessageMatches(
 			Catch::Matchers::StartsWith("stack.mrcs: buffer_image_scratch: ")
@@ -324,10 +356,11 @@ TEST_CASE(
 		REQUIRE_CALL(files, acquire("stack_1.mrcs")).RETURN(reader);
 		REQUIRE_CALL(files, acquire("stack_2.mrcs")).RETURN(reader);
 
-		const buffer_image_scratch scratch(
+		buffer_image_scratch scratch(
 			make_span(locations),
 			files,
-			make_storage(5 * image_bytes)
+			make_storage(5 * image_bytes),
+			one_run
 		);
 
 		CHECK( scratch.find("stack_2.mrcs") != nullptr );
@@ -346,7 +379,8 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			make_span(locations),
 			files,
-			make_storage(3 * image_bytes + image_bytes / 2)
+			make_storage(3 * image_bytes + image_bytes / 2),
+			one_run
 		);
 
 		REQUIRE( scratch.find("stack_1.mrcs") != nullptr );
@@ -354,15 +388,35 @@ TEST_CASE(
 		scratch.find("stack_1.mrcs")->store(*reader, whole_stack());
 	}
 
+	SECTION( "a file that follows one that fills the buffer has no entry" )
+	{
+		// Room for the two images of the first stack and no more.
+		REQUIRE_CALL(files, acquire("stack_0.mrcs")).RETURN(reader);
+		ALLOW_CALL(files, acquire("stack_1.mrcs")).RETURN(reader);
+		FORBID_CALL(files, acquire("stack_2.mrcs"));
+
+		buffer_image_scratch scratch(
+			make_span(locations),
+			files,
+			make_storage(2 * image_bytes),
+			one_run
+		);
+
+		CHECK( scratch.find("stack_0.mrcs") != nullptr );
+		CHECK( scratch.find("stack_1.mrcs") == nullptr );
+		CHECK( scratch.find("stack_2.mrcs") == nullptr );
+	}
+
 	SECTION( "a file none of which fits has no entry" )
 	{
 		REQUIRE_CALL(files, acquire("stack_0.mrcs")).RETURN(reader);
 		FORBID_CALL(files, acquire("stack_1.mrcs"));
 
-		const buffer_image_scratch scratch(
+		buffer_image_scratch scratch(
 			make_span(locations),
 			files,
-			make_storage(image_bytes - sizeof(float))
+			make_storage(image_bytes - sizeof(float)),
+			one_run
 		);
 
 		CHECK( scratch.find("stack_0.mrcs") == nullptr );
@@ -387,7 +441,8 @@ TEST_CASE(
 		buffer_image_scratch(
 			make_span(locations),
 			files,
-			make_storage(8 * image_bytes)
+			make_storage(8 * image_bytes),
+			one_run
 		),
 		std::out_of_range,
 		Catch::Matchers::MessageMatches(
@@ -414,7 +469,8 @@ TEST_CASE(
 		buffer_image_scratch(
 			make_span(locations),
 			files,
-			make_storage(8 * image_bytes)
+			make_storage(8 * image_bytes),
+			one_run
 		),
 		unsupported_operation_error
 	);
@@ -445,7 +501,8 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			make_span(locations),
 			files,
-			make_storage(3 * image_bytes)
+			make_storage(3 * image_bytes),
+			one_run
 		);
 		const auto entry = scratch.find(path.get());
 		auto destination = make_host_array<float>(
@@ -454,7 +511,7 @@ TEST_CASE(
 			-1.0F
 		);
 
-		// One run by default: one read of the file brings in all three.
+		// One run: one read of the file brings in all three.
 		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 			.LR_WITH( get_file_indices(_2) == index_list({1, 3, 5}) )
 			.LR_SIDE_EFFECT( stack->read(_1, _2) );
@@ -478,7 +535,8 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			make_span(locations),
 			files,
-			make_storage(2 * image_bytes)
+			make_storage(2 * image_bytes),
+			one_run
 		);
 		const auto entry = scratch.find(path.get());
 		auto destination = make_host_array<float>(
@@ -498,14 +556,14 @@ TEST_CASE(
 		CHECK( get_file_indices(missing) == index_list({5}) );
 	}
 
-	SECTION( "a run at a time when runs are bounded" )
+	SECTION( "a run at a time when it holds more of them than a run has" )
 	{
 		// Runs of two images: indices 1 and 3 are one run, 5 another.
 		buffer_image_scratch scratch(
 			make_span(locations),
 			files,
 			make_storage(3 * image_bytes),
-			2 * image_bytes
+			2
 		);
 		const auto entry = scratch.find(path.get());
 
@@ -516,7 +574,7 @@ TEST_CASE(
 		entry->store(*reader, images({3}));
 	}
 
-	SECTION( "one index a run when a run is smaller than an image" )
+	SECTION( "one at a time when a run has one index" )
 	{
 		buffer_image_scratch scratch(
 			make_span(locations),
@@ -562,7 +620,8 @@ TEST_CASE(
 	buffer_image_scratch scratch(
 		make_span(locations),
 		files,
-		make_storage(3 * image_bytes)
+		make_storage(3 * image_bytes),
+		one_run
 	);
 	const auto first = scratch.find(first_path.get());
 	const auto second = scratch.find(second_path.get());

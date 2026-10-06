@@ -7,7 +7,6 @@
 #include <rexlib/em/image/image_scratch.hpp>
 
 #include <cstddef>
-#include <limits>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -35,7 +34,9 @@ class image_reader_provider;
  * are loaded from their files when regions are stored into them.
  *
  * Loading works in runs. A run is a block of consecutive held images of one
- * file. Storing any image loads its whole run in one read of the file.
+ * file. Every run of a file has the same number of images, except the last
+ * one, which may have fewer. Storing any image loads its whole run in one
+ * read of the file.
  */
 class REXLIB_API buffer_image_scratch final
 	: public image_scratch
@@ -57,11 +58,10 @@ public:
 	 * @param storage The buffer that stores the copies. Its size is the
 	 * capacity of the scratch. It must be host accessible, and aligned for
 	 * the data types of the files.
-	 * @param run_size Maximum number of bytes of image data per run. A run
-	 * holds at least one index. By default all the held indices of a file
-	 * are one run.
-	 * @throws std::invalid_argument If @p storage is null, or is not aligned
-	 * for the data type of a file.
+	 * @param run_length Number of held indices per run. A file that holds
+	 * no more indices than this is a single run.
+	 * @throws std::invalid_argument If @p storage is null, if it is not
+	 * aligned for the data type of a file, or if @p run_length is zero.
 	 * @throws std::out_of_range If a location has a stack index that its
 	 * file does not have.
 	 * @throws unsupported_capability_error If @p storage is not host
@@ -74,16 +74,13 @@ public:
 		span<const image_location> locations,
 		image_reader_provider &files,
 		std::shared_ptr<buffer> storage,
-		std::size_t run_size = std::numeric_limits<std::size_t>::max()
+		std::size_t run_length
 	);
 
 	~buffer_image_scratch() override;
 
 	std::shared_ptr<image_scratch_entry>
 	find(const std::string &path) override;
-
-	std::shared_ptr<const image_scratch_entry>
-	find(const std::string &path) const override;
 
 private:
 	using entry_map_type =
