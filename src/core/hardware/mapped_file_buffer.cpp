@@ -67,8 +67,8 @@ boost::interprocess::mapped_region map_file(const std::string &path)
 	catch (const boost::interprocess::interprocess_exception &error)
 	{
 		throw file_error(
-			path + ": create_mapped_file_buffer: The file could not be "
-			"mapped: " + error.what()
+			path + ": mapped_file_buffer: The file could not be mapped: " +
+			error.what()
 		);
 	}
 }
@@ -123,7 +123,11 @@ std::shared_ptr<buffer> create_mapped_file_buffer(
 	}
 
 	create_file(path, size);
+	return open_mapped_file_buffer(path);
+}
 
+std::shared_ptr<buffer> open_mapped_file_buffer(const std::string &path)
+{
 	return std::make_shared<mapped_file_buffer>(map_file(path));
 }
 

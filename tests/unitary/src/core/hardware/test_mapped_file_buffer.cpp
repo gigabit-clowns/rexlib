@@ -146,3 +146,114 @@ TEST_CASE(
 		);
 	}
 }
+
+TEST_CASE(
+	"open_mapped_file_buffer maps a file as it is",
+	"[mapped_file_buffer]"
+)
+{
+	const scoped_path path("mapped_file_buffer_open.mapped");
+	const std::string text = "left by another run";
+	{
+		std::ofstream output(
+			path.get().c_str(),
+			std::ios::out | std::ios::binary
+		);
+		output << text;
+	}
+
+	const auto mapped = open_mapped_file_buffer(path.get());
+
+	REQUIRE( mapped != nullptr );
+
+	SECTION( "the buffer has the size of the file" )
+	{
+		CHECK( mapped->get_size() == text.size() );
+	}
+
+	SECTION( "the buffer holds what the file holds" )
+	{
+		const auto *data = static_cast<const char*>(mapped->get_host_ptr());
+
+		CHECK( std::string(data, mapped->get_size()) == text );
+	}
+
+	SECTION( "the file is left as it was" )
+	{
+		CHECK( boost::filesystem::file_size(path.get()) == text.size() );
+		CHECK( read_file(path.get()) == text );
+	}
+
+	SECTION( "its memory is host memory" )
+	{
+		CHECK( &mapped->get_memory_resource() == &get_host_memory_resource() );
+	}
+}
+
+TEST_CASE(
+	"buffers that map the same file share its contents",
+	"[mapped_file_buffer]"
+)
+{
+	const scoped_path path("mapped_file_buffer_shared.mapped");
+	const std::string first_text = "from the first";
+	const std::string second_text = "by the second";
+	const auto created = create_mapped_file_buffer(path.get(), 32);
+	std::memcpy(created->get_host_ptr(), first_text.data(), first_text.size());
+
+	const auto opened = open_mapped_file_buffer(path.get());
+
+	REQUIRE( opened->get_size() == 32 );
+
+	SECTION( "what one wrote before the other was opened" )
+	{
+		const auto *data = static_cast<const char*>(opened->get_host_ptr());
+
+		CHECK( std::string(data, first_text.size()) == first_text );
+	}
+
+	SECTION( "and what one writes afterwards" )
+	{
+		std::memcpy(
+			opened->get_host_ptr(),
+			second_text.data(),
+			second_text.size()
+		);
+		const auto *data = static_cast<const char*>(created->get_host_ptr());
+
+		CHECK( std::string(data, second_text.size()) == second_text );
+	}
+}
+
+TEST_CASE(
+	"open_mapped_file_buffer refuses a file it can not map",
+	"[mapped_file_buffer]"
+)
+{
+	SECTION( "a file that does not exist" )
+	{
+		const scoped_path path("mapped_file_buffer_missing.mapped");
+
+		REQUIRE_THROWS_MATCHES(
+			open_mapped_file_buffer(path.get()),
+			file_error,
+			Catch::Matchers::MessageMatches(
+				Catch::Matchers::StartsWith(path.get() + ": ")
+			)
+		);
+		CHECK_FALSE( boost::filesystem::exists(path.get()) );
+	}
+
+	SECTION( "a file of no bytes" )
+	{
+		const scoped_path path("mapped_file_buffer_open_empty.mapped");
+		{
+			const std::ofstream output(
+				path.get().c_str(),
+				std::ios::out | std::ios::binary
+			);
+		}
+
+		REQUIRE_THROWS_AS( open_mapped_file_buffer(path.get()), file_error );
+	}
+}

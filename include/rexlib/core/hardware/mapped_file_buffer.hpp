@@ -39,4 +39,23 @@ std::shared_ptr<buffer> create_mapped_file_buffer(
 	std::size_t size
 );
 
+/**
+ * @brief Map a file that already exists into host memory as a buffer.
+ *
+ * The whole file is mapped for reading and writing. Mapping it does not
+ * change it: the file keeps its size and its contents, and other buffers
+ * that map the same file stay valid.
+ *
+ * The buffer is otherwise like the one @ref create_mapped_file_buffer
+ * returns. Buffers that map the same file share its contents.
+ *
+ * @param path Path of the file to map.
+ * @return std::shared_ptr<buffer> The buffer, of the size of the file.
+ * Never null.
+ * @throws file_error If the file does not exist, is empty or can not be
+ * mapped.
+ */
+REXLIB_API
+std::shared_ptr<buffer> open_mapped_file_buffer(const std::string &path);
+
 } // namespace rexlib
