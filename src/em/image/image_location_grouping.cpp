@@ -13,22 +13,6 @@ namespace rexlib
 namespace em
 {
 
-namespace
-{
-
-void check_file_index(std::size_t file_index, std::size_t file_count)
-{
-	if (file_index >= file_count)
-	{
-		throw std::out_of_range(
-			"image_location_grouping: The file index is not below the number "
-			"of files."
-		);
-	}
-}
-
-} // anonymous namespace
-
 image_location_grouping::image_location_grouping(
 	span<const image_location> locations
 )
@@ -93,32 +77,55 @@ image_location_grouping& image_location_grouping::operator=(
 	image_location_grouping &&other
 ) noexcept = default;
 
-std::size_t image_location_grouping::get_file_count() const noexcept
+std::size_t image_location_grouping::get_group_count() const noexcept
 {
 	return m_paths.size();
 }
 
-const std::string&
-image_location_grouping::get_path(std::size_t file_index) const
+image_location_grouping::group
+image_location_grouping::get_group(std::size_t index) const
 {
-	check_file_index(file_index, get_file_count());
-	return m_paths[file_index];
+	if (index >= get_group_count())
+	{
+		throw std::out_of_range(
+			"image_location_grouping: The index is not below the number of "
+			"groups."
+		);
+	}
+
+	const auto first = m_first_positions[index];
+	const auto last = m_first_positions[index + 1];
+
+	return group(
+		m_paths[index],
+		make_span(m_indices.data() + first, last - first)
+	);
 }
 
-bool image_location_grouping::is_whole(std::size_t file_index) const
+image_location_grouping::group::group(
+	const std::string &path,
+	span<const std::size_t> indices
+) noexcept
+	: m_path(&path)
+	, m_indices(indices)
 {
-	return get_indices(file_index).empty();
+}
+
+const std::string& image_location_grouping::group::get_path() const noexcept
+{
+	REXLIB_ASSERT(m_path);
+	return *m_path;
+}
+
+bool image_location_grouping::group::is_whole() const noexcept
+{
+	return m_indices.empty();
 }
 
 span<const std::size_t>
-image_location_grouping::get_indices(std::size_t file_index) const
+image_location_grouping::group::get_indices() const noexcept
 {
-	check_file_index(file_index, get_file_count());
-
-	const auto first = m_first_positions[file_index];
-	const auto last = m_first_positions[file_index + 1];
-
-	return make_span(m_indices.data() + first, last - first);
+	return m_indices;
 }
 
 } // namespace em

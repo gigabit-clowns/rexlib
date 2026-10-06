@@ -48,22 +48,21 @@ std::size_t compute_slot_size(const image_descriptor &file) noexcept
 }
 
 std::vector<std::size_t> get_named_indices(
-	const image_location_grouping &grouping,
-	std::size_t file_index,
+	const image_location_grouping::group &group,
 	const image_descriptor &file
 )
 {
 	const auto index_count = file.get_extents().front();
-	const auto named = grouping.get_indices(file_index);
+	const auto named = group.get_indices();
 	if (!named.empty() && named.back() >= index_count)
 	{
 		throw std::out_of_range(
-			grouping.get_path(file_index) + ": buffer_image_scratch: A "
-			"location has a stack index that the file does not have."
+			group.get_path() + ": buffer_image_scratch: A location has a "
+			"stack index that the file does not have."
 		);
 	}
 
-	if (!grouping.is_whole(file_index))
+	if (!group.is_whole())
 	{
 		return std::vector<std::size_t>(named.begin(), named.end());
 	}
@@ -164,21 +163,21 @@ std::size_t compute_size(
 	std::size_t max_size
 )
 {
-	const auto file_count = locations.get_file_count();
+	const auto group_count = locations.get_group_count();
 
 	std::size_t size = 0;
 	for (
-		std::size_t file_index = 0;
-		file_index < file_count && size < max_size;
-		++file_index
+		std::size_t index = 0;
+		index < group_count && size < max_size;
+		++index
 	)
 	{
-		const auto file = files.acquire(locations.get_path(file_index));
+		const auto group = locations.get_group(index);
+		const auto file = files.acquire(group.get_path());
 		REXLIB_ASSERT(file);
 
 		const auto &descriptor = file->get_descriptor();
-		const auto index_count =
-			get_named_indices(locations, file_index, descriptor).size();
+		const auto index_count = get_named_indices(group, descriptor).size();
 		const auto slot_size = compute_slot_size(descriptor);
 		if (index_count == 0 || slot_size == 0)
 		{
@@ -252,17 +251,18 @@ buffer_image_scratch::buffer_image_scratch(
 	check_storage(storage.get());
 	check_run_length(run_length);
 
-	const auto file_count = locations.get_file_count();
+	const auto group_count = locations.get_group_count();
 
 	storage_cursor cursor(storage);
-	for (std::size_t file_index = 0; file_index < file_count; ++file_index)
+	for (std::size_t index = 0; index < group_count; ++index)
 	{
-		const auto &path = locations.get_path(file_index);
+		const auto group = locations.get_group(index);
+		const auto &path = group.get_path();
 		const auto file = files.acquire(path);
 		REXLIB_ASSERT(file);
 
 		const auto &descriptor = file->get_descriptor();
-		auto indices = get_named_indices(locations, file_index, descriptor);
+		auto indices = get_named_indices(group, descriptor);
 		if (indices.empty() || compute_slot_size(descriptor) == 0)
 		{
 			continue;

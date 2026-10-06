@@ -77,15 +77,13 @@ class scratch_prefetch_task final : public task
 {
 public:
 	scratch_prefetch_task(
-		std::string path,
-		std::vector<std::size_t> indices,
-		bool whole,
+		const image_location_grouping::group &group,
 		std::shared_ptr<image_scratch_entry> entry,
 		std::shared_ptr<image_reader_provider> files
 	)
-		: m_path(std::move(path))
-		, m_indices(std::move(indices))
-		, m_whole(whole)
+		: m_path(group.get_path())
+		, m_indices(group.get_indices().begin(), group.get_indices().end())
+		, m_whole(group.is_whole())
 		, m_entry(std::move(entry))
 		, m_files(std::move(files))
 	{
@@ -205,24 +203,21 @@ std::shared_ptr<completion> prefetch_scratch_async(
 		);
 	}
 
-	const auto file_count = locations.get_file_count();
+	const auto group_count = locations.get_group_count();
 
 	std::vector<std::unique_ptr<task>> tasks;
-	for (std::size_t file_index = 0; file_index < file_count; ++file_index)
+	for (std::size_t index = 0; index < group_count; ++index)
 	{
-		const auto &path = locations.get_path(file_index);
-		auto entry = scratch.find(path);
+		const auto group = locations.get_group(index);
+		auto entry = scratch.find(group.get_path());
 		if (!entry)
 		{
 			continue;
 		}
 
-		const auto indices = locations.get_indices(file_index);
 		tasks.push_back(
 			std::make_unique<scratch_prefetch_task>(
-				path,
-				std::vector<std::size_t>(indices.begin(), indices.end()),
-				locations.is_whole(file_index),
+				group,
 				std::move(entry),
 				files
 			)

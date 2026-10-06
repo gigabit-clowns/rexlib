@@ -35,7 +35,7 @@ TEST_CASE(
 {
 	const auto grouping = group({});
 
-	CHECK( grouping.get_file_count() == 0 );
+	CHECK( grouping.get_group_count() == 0 );
 }
 
 TEST_CASE(
@@ -53,10 +53,10 @@ TEST_CASE(
 		image_location("stack_0.mrcs", 5)
 	});
 
-	REQUIRE( grouping.get_file_count() == 3 );
-	CHECK( grouping.get_path(0) == "stack_1.mrcs" );
-	CHECK( grouping.get_path(1) == "stack_0.mrcs" );
-	CHECK( grouping.get_path(2) == "stack_2.mrcs" );
+	REQUIRE( grouping.get_group_count() == 3 );
+	CHECK( grouping.get_group(0).get_path() == "stack_1.mrcs" );
+	CHECK( grouping.get_group(1).get_path() == "stack_0.mrcs" );
+	CHECK( grouping.get_group(2).get_path() == "stack_2.mrcs" );
 }
 
 TEST_CASE(
@@ -73,26 +73,26 @@ TEST_CASE(
 		image_location("stack_1.mrcs", 1)
 	});
 
-	REQUIRE( grouping.get_file_count() == 2 );
+	REQUIRE( grouping.get_group_count() == 2 );
 
 	SECTION( "ascending, whatever order the locations name them in" )
 	{
 		const std::vector<std::size_t> indices = {0, 1, 4};
 
-		CHECK( to_vector(grouping.get_indices(0)) == indices );
+		CHECK( to_vector(grouping.get_group(0).get_indices()) == indices );
 	}
 
 	SECTION( "each file with its own" )
 	{
 		const std::vector<std::size_t> indices = {2};
 
-		CHECK( to_vector(grouping.get_indices(1)) == indices );
+		CHECK( to_vector(grouping.get_group(1).get_indices()) == indices );
 	}
 
 	SECTION( "none of them as a whole" )
 	{
-		CHECK_FALSE( grouping.is_whole(0) );
-		CHECK_FALSE( grouping.is_whole(1) );
+		CHECK_FALSE( grouping.get_group(0).is_whole() );
+		CHECK_FALSE( grouping.get_group(1).is_whole() );
 	}
 }
 
@@ -109,23 +109,23 @@ TEST_CASE(
 		image_location("stack_1.mrcs", 2)
 	});
 
-	REQUIRE( grouping.get_file_count() == 3 );
+	REQUIRE( grouping.get_group_count() == 3 );
 
 	SECTION( "a file only ever named as a whole carries no index" )
 	{
-		CHECK( grouping.is_whole(0) );
-		CHECK( grouping.get_indices(0).empty() );
+		CHECK( grouping.get_group(0).is_whole() );
+		CHECK( grouping.get_group(0).get_indices().empty() );
 	}
 
 	SECTION( "a file only ever named by index is not whole" )
 	{
-		CHECK_FALSE( grouping.is_whole(1) );
+		CHECK_FALSE( grouping.get_group(1).is_whole() );
 	}
 
 	SECTION( "a file named both ways is whole and carries no index" )
 	{
-		CHECK( grouping.is_whole(2) );
-		CHECK( grouping.get_indices(2).empty() );
+		CHECK( grouping.get_group(2).is_whole() );
+		CHECK( grouping.get_group(2).get_indices().empty() );
 	}
 }
 
@@ -140,13 +140,14 @@ TEST_CASE(
 		image_location("./stack.mrcs", 1)
 	});
 
-	REQUIRE( grouping.get_file_count() == 2 );
-	CHECK( grouping.get_path(0) == "stack.mrcs" );
-	CHECK( grouping.get_path(1) == "./stack.mrcs" );
+	REQUIRE( grouping.get_group_count() == 2 );
+	CHECK( grouping.get_group(0).get_path() == "stack.mrcs" );
+	CHECK( grouping.get_group(1).get_path() == "./stack.mrcs" );
 }
 
 TEST_CASE(
-	"an image_location_grouping refuses the index of a file it does not have",
+	"an image_location_grouping refuses the index of a group it does not "
+	"have",
 	"[image_location_grouping]"
 )
 {
@@ -155,18 +156,24 @@ TEST_CASE(
 		image_location("stack_1.mrcs")
 	});
 
-	SECTION( "when asked for its path" )
-	{
-		REQUIRE_THROWS_AS( grouping.get_path(2), std::out_of_range );
-	}
+	REQUIRE_THROWS_AS( grouping.get_group(2), std::out_of_range );
+}
 
-	SECTION( "when asked whether it is named as a whole" )
-	{
-		REQUIRE_THROWS_AS( grouping.is_whole(2), std::out_of_range );
-	}
+TEST_CASE(
+	"a group of an image_location_grouping can be copied",
+	"[image_location_grouping]"
+)
+{
+	const auto grouping = group({
+		image_location("stack_0.mrcs", 2),
+		image_location("stack_0.mrcs", 0)
+	});
+	const std::vector<std::size_t> indices = {0, 2};
 
-	SECTION( "when asked for its indices" )
-	{
-		REQUIRE_THROWS_AS( grouping.get_indices(2), std::out_of_range );
-	}
+	const auto first = grouping.get_group(0);
+	const auto copy = first;
+
+	CHECK( copy.get_path() == "stack_0.mrcs" );
+	CHECK( to_vector(copy.get_indices()) == indices );
+	CHECK_FALSE( copy.is_whole() );
 }
