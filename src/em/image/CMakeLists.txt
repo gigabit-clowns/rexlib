@@ -26,8 +26,6 @@ target_sources(
 		image_saver.cpp
 		image_scratch.cpp
 		image_scratch_entry.cpp
-		image_scratch_runs.cpp
-		image_scratch_slots.cpp
 		image_transaction_plan.cpp
 		image_transfer_plan.cpp
 		image_transfer_sanitizer.cpp

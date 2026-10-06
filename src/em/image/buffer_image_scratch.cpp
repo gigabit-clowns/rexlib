@@ -4,7 +4,6 @@
 
 #include "buffer_image_scratch_entry.hpp"
 #include "image_location_grouping.hpp"
-#include "image_scratch_slots.hpp"
 
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
@@ -168,7 +167,7 @@ buffer_image_scratch::buffer_image_scratch(
 			m_entries.emplace(
 				path,
 				std::make_shared<buffer_image_scratch_entry>(
-					image_scratch_slots(std::move(indices)),
+					std::move(indices),
 					array(
 						storage,
 						make_values_descriptor(

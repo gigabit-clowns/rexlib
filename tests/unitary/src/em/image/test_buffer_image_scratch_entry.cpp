@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include <em/image/buffer_image_scratch_entry.hpp>
-
-#include <em/image/image_scratch_slots.hpp>
 
 #include "fixtures/counting_image_file.hpp"
 #include "fixtures/scoped_path.hpp"
@@ -19,6 +18,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <limits>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -72,7 +72,7 @@ std::shared_ptr<buffer_image_scratch_entry> make_entry(
 	const std::vector<std::size_t> extents = {indices.size(), 2, 2};
 
 	return std::make_shared<buffer_image_scratch_entry>(
-		image_scratch_slots(std::move(indices)),
+		std::move(indices),
 		make_host_array<float>(extents, numerical_type::float32, 0.0F),
 		run_length
 	);
@@ -154,18 +154,36 @@ using index_list = std::vector<std::size_t>;
 } // anonymous namespace
 
 TEST_CASE(
-	"a buffer_image_scratch_entry needs values that match its slots",
+	"a buffer_image_scratch_entry needs indices that are strictly ascending",
 	"[buffer_image_scratch_entry]"
 )
 {
-	SECTION( "values of another number of slots are refused" )
+	SECTION( "indices that descend are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
-				image_scratch_slots({1, 4, 5}),
-				make_batch(2),
-				1
-			),
+			buffer_image_scratch_entry(index_list({4, 1, 5}), make_batch(3), 1),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "an index given twice is refused" )
+	{
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch_entry(index_list({1, 4, 4}), make_batch(3), 1),
+			std::invalid_argument
+		);
+	}
+}
+
+TEST_CASE(
+	"a buffer_image_scratch_entry needs values that match its indices",
+	"[buffer_image_scratch_entry]"
+)
+{
+	SECTION( "values of another number of indices are refused" )
+	{
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch_entry(index_list({1, 4, 5}), make_batch(2), 1),
 			std::invalid_argument
 		);
 	}
@@ -173,26 +191,21 @@ TEST_CASE(
 	SECTION( "values that are not initialized are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
-				image_scratch_slots({1, 4, 5}),
-				array(),
-				1
-			),
+			buffer_image_scratch_entry(index_list({1, 4, 5}), array(), 1),
 			std::invalid_argument
 		);
 	}
+}
 
-	SECTION( "a run of no slot is refused" )
-	{
-		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(
-				image_scratch_slots({1, 4, 5}),
-				make_batch(3),
-				0
-			),
-			std::invalid_argument
-		);
-	}
+TEST_CASE(
+	"a buffer_image_scratch_entry refuses a run of no slot",
+	"[buffer_image_scratch_entry]"
+)
+{
+	REQUIRE_THROWS_AS(
+		buffer_image_scratch_entry(index_list({1, 4, 5}), make_batch(3), 0),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
@@ -267,6 +280,82 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"a buffer_image_scratch_entry splits its images into runs of one length",
+	"[buffer_image_scratch_entry]"
+)
+{
+	const stack_file stack("buffer_scratch_entry_runs.raw");
+	mock_image_reader file;
+
+	// Eight images in runs of three: two whole runs and one of what is left.
+	const auto entry = make_entry({0, 1, 2, 3, 4, 5, 6, 7}, 3);
+
+	SECTION( "the last run has the images that are left" )
+	{
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({6, 7}) )
+			.LR_WITH( get_array_slots(_2) == index_list({6, 7}) )
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+
+		entry->store(file, images({7}));
+	}
+
+	SECTION( "a region across two runs loads both" )
+	{
+		trompeloeil::sequence order;
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.IN_SEQUENCE(order)
+			.LR_WITH( get_file_indices(_2) == index_list({0, 1, 2}) )
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.IN_SEQUENCE(order)
+			.LR_WITH( get_file_indices(_2) == index_list({3, 4, 5}) )
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+
+		entry->store(file, image_range(2, 2));
+	}
+
+	SECTION( "a region across two runs is missing until both are loaded" )
+	{
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.TIMES(2)
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+		auto destination = make_batch(2);
+
+		entry->store(file, images({2}));
+		CHECK( entry->read(array_ref(destination), image_range(2, 2))
+			.get_region_count() == 1 );
+
+		entry->store(file, images({3}));
+		CHECK( entry->read(array_ref(destination), image_range(2, 2))
+			.get_region_count() == 0 );
+		CHECK( get_values<float>(destination) == values_of_images({2, 3}) );
+	}
+}
+
+TEST_CASE(
+	"a buffer_image_scratch_entry loads all its images at once when a run is "
+	"long enough",
+	"[buffer_image_scratch_entry]"
+)
+{
+	const auto run_length = GENERATE(
+		std::size_t(4),
+		std::size_t(9),
+		std::numeric_limits<std::size_t>::max()
+	);
+	const stack_file stack("buffer_scratch_entry_one_run.raw");
+	mock_image_reader file;
+	const auto entry = make_entry({0, 1, 2, 3}, run_length);
+
+	REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( get_file_indices(_2) == index_list({0, 1, 2, 3}) )
+		.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+
+	entry->store(file, images({2}));
+}
+
+TEST_CASE(
 	"a buffer_image_scratch_entry loads only the images it holds",
 	"[buffer_image_scratch_entry]"
 )
@@ -296,11 +385,81 @@ TEST_CASE(
 		CHECK( get_values<float>(destination) == expected );
 	}
 
+	SECTION( "storing a region loads the held images among the ones it spans" )
+	{
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({1, 4, 5}) )
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+		auto destination = make_batch(6);
+
+		entry->store(file, image_range(0, 6));
+		const auto missing =
+			entry->read(array_ref(destination), image_range(0, 6));
+
+		// Images 0, 2 and 3 are not held, so the region is not read.
+		CHECK( get_file_indices(missing) == index_list({0}) );
+		CHECK( get_values<float>(destination) ==
+			std::vector<float>(6 * image_size, untouched) );
+	}
+
 	SECTION( "storing images that are not held reads nothing" )
 	{
 		FORBID_CALL(file, read(trompeloeil::_, trompeloeil::_));
 
 		entry->store(file, images({0, 2, 3, 7}));
+	}
+
+	SECTION( "storing a region between held images reads nothing" )
+	{
+		FORBID_CALL(file, read(trompeloeil::_, trompeloeil::_));
+
+		entry->store(file, image_range(2, 2));
+	}
+}
+
+TEST_CASE(
+	"a buffer_image_scratch_entry takes a region that reaches past the "
+	"largest index there is",
+	"[buffer_image_scratch_entry]"
+)
+{
+	const std::size_t max_index = std::numeric_limits<std::size_t>::max();
+	const stack_file stack("buffer_scratch_entry_overflow.raw");
+	mock_image_reader file;
+	const auto entry = make_entry({1, 4, 5}, 1);
+
+	SECTION( "storing it loads the images held from its first index on" )
+	{
+		trompeloeil::sequence order;
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.IN_SEQUENCE(order)
+			.LR_WITH( get_file_indices(_2) == index_list({4}) )
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+		REQUIRE_CALL(file, read(trompeloeil::_, trompeloeil::_))
+			.IN_SEQUENCE(order)
+			.LR_WITH( get_file_indices(_2) == index_list({5}) )
+			.LR_SIDE_EFFECT( stack.get_reader().read(_1, _2) );
+
+		entry->store(file, image_range(4, max_index));
+	}
+
+	SECTION( "storing it reads nothing when none of them is held" )
+	{
+		FORBID_CALL(file, read(trompeloeil::_, trompeloeil::_));
+
+		entry->store(file, image_range(max_index, max_index));
+	}
+
+	SECTION( "reading it answers it" )
+	{
+		auto destination = make_batch(2);
+
+		const auto missing =
+			entry->read(array_ref(destination), image_range(4, max_index));
+
+		CHECK( get_file_indices(missing) == index_list({4}) );
+		CHECK( get_values<float>(destination) ==
+			std::vector<float>(2 * image_size, untouched) );
 	}
 }
 
@@ -327,7 +486,7 @@ TEST_CASE(
 		CHECK( get_values<float>(destination) == values_of_images({3, 4}) );
 	}
 
-	SECTION( "and not when one of them is not" )
+	SECTION( "and not when the last of them is not" )
 	{
 		// The held part is still loaded: images 4 and 5, of which 4 is held.
 		entry->store(file, image_range(4, 2));
@@ -335,6 +494,17 @@ TEST_CASE(
 			entry->read(array_ref(destination), image_range(4, 2));
 
 		CHECK( get_file_indices(missing) == index_list({4}) );
+		CHECK( get_values<float>(destination) ==
+			std::vector<float>(2 * image_size, untouched) );
+	}
+
+	SECTION( "nor when the first of them is not" )
+	{
+		entry->store(file, image_range(1, 2));
+		const auto missing =
+			entry->read(array_ref(destination), image_range(1, 2));
+
+		CHECK( get_file_indices(missing) == index_list({1}) );
 		CHECK( get_values<float>(destination) ==
 			std::vector<float>(2 * image_size, untouched) );
 	}
