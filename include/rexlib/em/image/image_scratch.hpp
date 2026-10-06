@@ -3,15 +3,22 @@
 #pragma once
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/span.hpp>
 
 #include <memory>
 #include <string>
 
 namespace rexlib
 {
+
+class completion;
+class executor;
+
 namespace em
 {
 
+class image_location;
+class image_reader_provider;
 class image_scratch_entry;
 
 /**
@@ -60,6 +67,40 @@ public:
 	virtual std::shared_ptr<const image_scratch_entry>
 	find(const std::string &path) const = 0;
 };
+
+/**
+ * @brief Load what a list of locations names into a scratch,
+ * asynchronously.
+ *
+ * A location with a stack index names that index of the first axis of its
+ * file. A location without one names the whole file.
+ *
+ * One task is submitted for each file the locations name, in the order they
+ * first name it. A task opens its file and stores what the locations name of
+ * it into the entry of that file, which takes in what it has room for. A
+ * file the scratch has no entry for is skipped.
+ *
+ * This function returns before the files are loaded. The scratch may be
+ * read through in the meantime: a read loads what it needs and is not yet
+ * loaded.
+ *
+ * @param scratch The scratch to load.
+ * @param files Provider used to open the files. It must read the files
+ * themselves, not read them through @p scratch.
+ * @param executor Where the tasks run.
+ * @param locations The images to load.
+ * @return std::shared_ptr<completion> The completion, never null. It is
+ * ready once every file is loaded or has failed, and it rethrows the first
+ * failure.
+ * @throws std::invalid_argument If @p files is null.
+ */
+REXLIB_API
+std::shared_ptr<completion> prefetch_scratch_async(
+	image_scratch &scratch,
+	std::shared_ptr<image_reader_provider> files,
+	rexlib::executor &executor,
+	span<const image_location> locations
+);
 
 } // namespace em
 } // namespace rexlib

@@ -21,6 +21,7 @@ target_sources(
 		test_image_read_format_registry.cpp
 		test_image_reader_provider.cpp
 		test_image_region_grouping.cpp
+		test_image_scratch.cpp
 		test_image_scratch_runs.cpp
 		test_image_scratch_slots.cpp
 		test_image_transaction_plan.cpp

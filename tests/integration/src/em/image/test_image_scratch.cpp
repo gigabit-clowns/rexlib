@@ -11,6 +11,7 @@
 
 #include <rexlib/core/concurrency/completion.hpp>
 #include <rexlib/core/concurrency/synchronous_executor.hpp>
+#include <rexlib/core/concurrency/thread_pool_executor.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/mapped_file_buffer.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
@@ -24,6 +25,7 @@
 #include <rexlib/em/image/image_read.hpp>
 #include <rexlib/em/image/image_read_format_manager.hpp>
 #include <rexlib/em/image/image_reader_provider.hpp>
+#include <rexlib/em/image/image_scratch.hpp>
 #include <rexlib/em/image/image_write.hpp>
 #include <rexlib/em/image/image_write_format_manager.hpp>
 #include <rexlib/functional/creation.hpp>
@@ -104,6 +106,21 @@ protected:
 		return allocator->allocate(size, sizeof(float));
 	}
 
+	// A scratch of some locations of the stacks.
+	std::shared_ptr<image_scratch> make_scratch(
+		const std::vector<image_location> &held,
+		std::shared_ptr<buffer> storage,
+		std::size_t run_size = std::numeric_limits<std::size_t>::max()
+	) const
+	{
+		return std::make_shared<buffer_image_scratch>(
+			make_span(held),
+			*direct,
+			std::move(storage),
+			run_size
+		);
+	}
+
 	// A provider that reads the stacks through a scratch of some locations.
 	std::shared_ptr<image_reader_provider> make_scratched(
 		const std::vector<image_location> &held,
@@ -111,16 +128,9 @@ protected:
 		std::size_t run_size = std::numeric_limits<std::size_t>::max()
 	) const
 	{
-		const auto scratch = std::make_shared<buffer_image_scratch>(
-			make_span(held),
-			*direct,
-			std::move(storage),
-			run_size
-		);
-
 		return std::make_shared<scratch_image_reader_provider>(
 			direct,
-			scratch
+			make_scratch(held, std::move(storage), run_size)
 		);
 	}
 
@@ -373,4 +383,55 @@ TEST_CASE_METHOD( image_scratch_fixture,
 		em::read(location, *scratched, context, numerical_type::float64),
 		image_size
 	) == expected );
+}
+
+TEST_CASE_METHOD( image_scratch_fixture,
+	"a batch read through a prefetched scratch holds what the files hold",
+	"[image_scratch]" )
+{
+	const auto in_a_file = GENERATE(false, true);
+
+	const std::vector<image_location> batch = {
+		locate(2, 4), locate(0, 1), locate(1, 5), locate(0, 3),
+		locate(2, 0), locate(1, 2), locate(0, 5), locate(2, 2)
+	};
+	const auto expected = read_batch(direct, batch);
+
+	const auto scratch = make_scratch(
+		batch,
+		make_storage(in_a_file, dataset_bytes),
+		2 * image_bytes
+	);
+	const auto scratched =
+		std::make_shared<scratch_image_reader_provider>(direct, scratch);
+
+	SECTION( "once the prefetch is done" )
+	{
+		synchronous_executor executor;
+		const auto prefetched = prefetch_scratch_async(
+			*scratch,
+			direct,
+			executor,
+			make_span(batch)
+		);
+		REQUIRE_NOTHROW( prefetched->get() );
+
+		CHECK( read_batch(scratched, batch) == expected );
+	}
+
+	SECTION( "while the prefetch is under way" )
+	{
+		thread_pool_executor executor(2);
+		const auto prefetched = prefetch_scratch_async(
+			*scratch,
+			direct,
+			executor,
+			make_span(batch)
+		);
+
+		CHECK( read_batch(scratched, batch) == expected );
+
+		REQUIRE_NOTHROW( prefetched->get() );
+		CHECK( read_batch(scratched, batch) == expected );
+	}
 }
