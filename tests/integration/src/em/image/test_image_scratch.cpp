@@ -32,6 +32,7 @@
 #include <rexlib/functional/creation.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
@@ -103,7 +104,7 @@ protected:
 		}
 
 		const auto allocator = get_host_memory_resource().create_allocator();
-		return allocator->allocate(size, sizeof(float));
+		return allocator->allocate(size, alignof(std::uint64_t));
 	}
 
 	// A scratch of some locations of the stacks.

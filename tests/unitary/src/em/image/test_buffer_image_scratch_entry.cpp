@@ -13,11 +13,13 @@
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/em/image/image_reader.hpp>
+#include <rexlib/em/image/image_scratch_open_mode.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
 #include <stdexcept>
@@ -63,6 +65,24 @@ private:
 	std::shared_ptr<const image_reader> m_reader;
 };
 
+// When the stack was last modified, as far as the entries are told.
+const std::uint64_t stack_time = 1700000000;
+
+// One flag per run, every one set to `value`.
+array make_flags(std::size_t run_count, std::uint64_t value = 0)
+{
+	return make_host_array<std::uint64_t>(
+		{run_count},
+		numerical_type::uint64,
+		value
+	);
+}
+
+std::size_t count_runs(std::size_t index_count, std::size_t run_length)
+{
+	return index_count == 0 ? 0 : (index_count - 1) / run_length + 1;
+}
+
 // An entry that holds some images of the stack, with nothing loaded.
 std::shared_ptr<buffer_image_scratch_entry> make_entry(
 	std::vector<std::size_t> indices,
@@ -70,11 +90,34 @@ std::shared_ptr<buffer_image_scratch_entry> make_entry(
 )
 {
 	const std::vector<std::size_t> extents = {indices.size(), 2, 2};
+	const auto run_count = count_runs(indices.size(), run_length);
 
 	return std::make_shared<buffer_image_scratch_entry>(
 		std::move(indices),
 		make_host_array<float>(extents, numerical_type::float32, 0.0F),
-		run_length
+		make_flags(run_count),
+		stack_time,
+		run_length,
+		image_scratch_open_mode::empty
+	);
+}
+
+// An entry that holds the first four images of the stack in runs of two,
+// over values and flags that the caller keeps.
+std::shared_ptr<buffer_image_scratch_entry> make_entry_over(
+	array &values,
+	array &flags,
+	std::uint64_t modification_time,
+	image_scratch_open_mode mode
+)
+{
+	return std::make_shared<buffer_image_scratch_entry>(
+		std::vector<std::size_t>({0, 1, 2, 3}),
+		values.share(),
+		flags.share(),
+		modification_time,
+		2,
+		mode
 	);
 }
 
@@ -161,7 +204,14 @@ TEST_CASE(
 	SECTION( "indices that descend are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(index_list({4, 1, 5}), make_batch(3), 1),
+			buffer_image_scratch_entry(
+				index_list({4, 1, 5}),
+				make_batch(3),
+				make_flags(3),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
 			std::invalid_argument
 		);
 	}
@@ -169,7 +219,14 @@ TEST_CASE(
 	SECTION( "an index given twice is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(index_list({1, 4, 4}), make_batch(3), 1),
+			buffer_image_scratch_entry(
+				index_list({1, 4, 4}),
+				make_batch(3),
+				make_flags(3),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
 			std::invalid_argument
 		);
 	}
@@ -183,7 +240,14 @@ TEST_CASE(
 	SECTION( "values of another number of indices are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(index_list({1, 4, 5}), make_batch(2), 1),
+			buffer_image_scratch_entry(
+				index_list({1, 4, 5}),
+				make_batch(2),
+				make_flags(3),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
 			std::invalid_argument
 		);
 	}
@@ -191,7 +255,14 @@ TEST_CASE(
 	SECTION( "values that are not initialized are refused" )
 	{
 		REQUIRE_THROWS_AS(
-			buffer_image_scratch_entry(index_list({1, 4, 5}), array(), 1),
+			buffer_image_scratch_entry(
+				index_list({1, 4, 5}),
+				array(),
+				make_flags(3),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
 			std::invalid_argument
 		);
 	}
@@ -203,9 +274,218 @@ TEST_CASE(
 )
 {
 	REQUIRE_THROWS_AS(
-		buffer_image_scratch_entry(index_list({1, 4, 5}), make_batch(3), 0),
+		buffer_image_scratch_entry(
+			index_list({1, 4, 5}),
+			make_batch(3),
+			make_flags(3),
+			stack_time,
+			0,
+			image_scratch_open_mode::empty
+		),
 		std::invalid_argument
 	);
+}
+
+TEST_CASE(
+	"a buffer_image_scratch_entry needs one flag per run",
+	"[buffer_image_scratch_entry]"
+)
+{
+	SECTION( "flags of another number of runs are refused" )
+	{
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch_entry(
+				index_list({1, 4, 5}),
+				make_batch(3),
+				make_flags(2),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "flags of another data type are refused" )
+	{
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch_entry(
+				index_list({1, 4, 5}),
+				make_batch(3),
+				make_host_array<float>({3}, numerical_type::float32, 0.0F),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "flags that are not initialized are refused" )
+	{
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch_entry(
+				index_list({1, 4, 5}),
+				make_batch(3),
+				array(),
+				stack_time,
+				1,
+				image_scratch_open_mode::empty
+			),
+			std::invalid_argument
+		);
+	}
+}
+
+TEST_CASE(
+	"a buffer_image_scratch_entry flags the runs it loads with the "
+	"modification time of its file",
+	"[buffer_image_scratch_entry]"
+)
+{
+	const stack_file stack("buffer_scratch_entry_flags.raw");
+	auto values =
+		make_host_array<float>({4, 2, 2}, numerical_type::float32, 0.0F);
+	auto flags = make_flags(2);
+	const auto entry = make_entry_over(
+		values,
+		flags,
+		stack_time,
+		image_scratch_open_mode::empty
+	);
+
+	entry->store(stack.get_reader(), images({3}));
+
+	// The second run holds image 3, and the first is not loaded.
+	CHECK( get_values<std::uint64_t>(flags) ==
+		std::vector<std::uint64_t>({0, stack_time}) );
+}
+
+TEST_CASE(
+	"an empty buffer_image_scratch_entry clears its flags",
+	"[buffer_image_scratch_entry]"
+)
+{
+	auto values =
+		make_host_array<float>({4, 2, 2}, numerical_type::float32, 7.0F);
+	auto flags = make_flags(2, stack_time);
+	const auto entry = make_entry_over(
+		values,
+		flags,
+		stack_time,
+		image_scratch_open_mode::empty
+	);
+	auto destination = make_batch(1);
+
+	const auto missing = entry->read(array_ref(destination), images({0}));
+
+	CHECK( missing.get_region_count() == 1 );
+	CHECK( get_values<std::uint64_t>(flags) ==
+		std::vector<std::uint64_t>({0, 0}) );
+}
+
+TEST_CASE(
+	"a resumed buffer_image_scratch_entry has loaded the runs whose flag "
+	"holds the modification time of its file",
+	"[buffer_image_scratch_entry]"
+)
+{
+	// What an earlier entry left: the first run loaded, the second loaded
+	// from an older version of the file.
+	auto values =
+		make_host_array<float>({4, 2, 2}, numerical_type::float32, 7.0F);
+	auto flags = make_flags(2);
+	auto *flag_values =
+		static_cast<std::uint64_t*>(flags.get_storage()->get_host_ptr());
+	flag_values[0] = stack_time;
+	flag_values[1] = stack_time - 1;
+
+	SECTION( "a run flagged with that time is read without being loaded" )
+	{
+		const auto entry = make_entry_over(
+			values,
+			flags,
+			stack_time,
+			image_scratch_open_mode::resumed
+		);
+		auto destination = make_batch(1);
+
+		const auto missing = entry->read(array_ref(destination), images({1}));
+
+		CHECK( missing.get_region_count() == 0 );
+		CHECK( get_values<float>(destination) ==
+			std::vector<float>(image_size, 7.0F) );
+	}
+
+	SECTION( "a run flagged with another time is not loaded" )
+	{
+		const auto entry = make_entry_over(
+			values,
+			flags,
+			stack_time,
+			image_scratch_open_mode::resumed
+		);
+		auto destination = make_batch(1);
+
+		const auto missing = entry->read(array_ref(destination), images({2}));
+
+		CHECK( missing.get_region_count() == 1 );
+	}
+
+	SECTION( "the flags are left as they were" )
+	{
+		const auto entry = make_entry_over(
+			values,
+			flags,
+			stack_time,
+			image_scratch_open_mode::resumed
+		);
+
+		CHECK( get_values<std::uint64_t>(flags) ==
+			std::vector<std::uint64_t>({stack_time, stack_time - 1}) );
+	}
+
+	SECTION( "no run is loaded when the time of the file is not known" )
+	{
+		flag_values[0] = 0;
+		flag_values[1] = 0;
+		const auto entry = make_entry_over(
+			values,
+			flags,
+			0,
+			image_scratch_open_mode::resumed
+		);
+		auto destination = make_batch(2);
+
+		const auto missing =
+			entry->read(array_ref(destination), images({1, 2}));
+
+		CHECK( missing.get_region_count() == 2 );
+	}
+}
+
+TEST_CASE(
+	"a buffer_image_scratch_entry that is reset has nothing loaded",
+	"[buffer_image_scratch_entry]"
+)
+{
+	auto values =
+		make_host_array<float>({4, 2, 2}, numerical_type::float32, 7.0F);
+	auto flags = make_flags(2, stack_time);
+	const auto entry = make_entry_over(
+		values,
+		flags,
+		stack_time,
+		image_scratch_open_mode::resumed
+	);
+	auto destination = make_batch(1);
+
+	entry->reset();
+	const auto missing = entry->read(array_ref(destination), images({1}));
+
+	CHECK( missing.get_region_count() == 1 );
+	CHECK( get_values<std::uint64_t>(flags) ==
+		std::vector<std::uint64_t>({0, 0}) );
 }
 
 TEST_CASE(

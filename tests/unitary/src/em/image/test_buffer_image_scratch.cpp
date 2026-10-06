@@ -28,11 +28,13 @@
 #include <rexlib/em/image/image_location_grouping.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_scratch_entry.hpp>
+#include <rexlib/em/image/image_scratch_open_mode.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <boost/filesystem/operations.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <stdexcept>
@@ -69,10 +71,27 @@ image_location_grouping group(const std::vector<image_location> &locations)
 	return image_location_grouping(make_span(locations));
 }
 
-// A host buffer of a number of bytes, aligned for float32.
+// A host buffer of a number of bytes, aligned for 64-bit integers.
 std::shared_ptr<buffer> make_storage(std::size_t size)
 {
-	return std::make_shared<host_buffer>(size, sizeof(float));
+	return std::make_shared<host_buffer>(size, alignof(std::uint64_t));
+}
+
+// The bytes a scratch takes to hold some images of each of some stacks: its
+// fingerprint, then for each stack its flags followed by its images.
+std::size_t storage_bytes(
+	const std::vector<std::size_t> &image_counts,
+	std::size_t flags_per_stack = 1
+)
+{
+	auto bytes = sizeof(std::uint64_t);
+	for (const auto image_count : image_counts)
+	{
+		bytes += flags_per_stack * sizeof(std::uint64_t);
+		bytes += image_count * image_bytes;
+	}
+
+	return bytes;
 }
 
 // Image `indices[i]` of a stack, landing in slot `i` of a batch.
@@ -143,7 +162,7 @@ std::ptrdiff_t get_first_element(array_ref values)
 } // anonymous namespace
 
 TEST_CASE(
-	"a buffer_image_scratch needs a buffer the host can reach",
+	"a buffer_image_scratch needs a buffer it can use",
 	"[buffer_image_scratch]"
 )
 {
@@ -180,6 +199,46 @@ TEST_CASE(
 				one_run
 			),
 			unsupported_capability_error
+		);
+	}
+
+	SECTION( "a buffer that is not aligned for 64-bit integers is refused" )
+	{
+		alignas(std::uint64_t) char memory[64] = {};
+		const auto storage = std::make_shared<mock_buffer>();
+		const mock_buffer &const_storage = *storage;
+		ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory + 1);
+		ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory + 1);
+		ALLOW_CALL(*storage, get_size()).RETURN(32);
+
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch(
+				group(locations),
+				files,
+				storage,
+				one_run
+			),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "a buffer smaller than a fingerprint is refused" )
+	{
+		alignas(std::uint64_t) char memory[64] = {};
+		const auto storage = std::make_shared<mock_buffer>();
+		const mock_buffer &const_storage = *storage;
+		ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory);
+		ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory);
+		ALLOW_CALL(*storage, get_size()).RETURN(4);
+
+		REQUIRE_THROWS_AS(
+			buffer_image_scratch(
+				group(locations),
+				files,
+				storage,
+				one_run
+			),
+			std::invalid_argument
 		);
 	}
 }
@@ -258,11 +317,12 @@ TEST_CASE(
 
 	SECTION( "the entries are stored one after another in the buffer" )
 	{
-		// Two images of four elements, then one image.
+		// The fingerprint and a flag take four elements, then come two
+		// images of four elements; another flag, then one image.
 		REQUIRE_CALL(*first, read(trompeloeil::_, trompeloeil::_))
-			.LR_WITH( get_first_element(_1) == 0 );
+			.LR_WITH( get_first_element(_1) == 4 );
 		REQUIRE_CALL(*second, read(trompeloeil::_, trompeloeil::_))
-			.LR_WITH( get_first_element(_1) == 2 * image_size );
+			.LR_WITH( get_first_element(_1) == 4 + 2 * image_size + 2 );
 
 		scratch.find("stack_0.mrcs")->store(*first, whole_stack());
 		scratch.find("stack_1.mrcs")->store(*second, whole_stack());
@@ -291,7 +351,7 @@ TEST_CASE(
 	buffer_image_scratch scratch(
 		group(locations),
 		files,
-		make_storage(8 * image_bytes),
+		make_storage(storage_bytes({8})),
 		one_run
 	);
 
@@ -330,10 +390,11 @@ TEST_CASE(
 		one_run
 	);
 
-	// Nine bytes are taken, so the float32 values start at the twelfth:
-	// their third element.
+	// The fingerprint, a flag and nine bytes are taken. The flag of the
+	// stack starts at the next multiple of eight, byte 32, and its float32
+	// values at byte 40: their tenth element.
 	REQUIRE_CALL(*stack, read(trompeloeil::_, trompeloeil::_))
-		.LR_WITH( get_first_element(_1) == 3 );
+		.LR_WITH( get_first_element(_1) == 10 );
 
 	scratch.find("stack.mrcs")->store(*stack, whole_stack());
 }
@@ -343,7 +404,14 @@ TEST_CASE(
 	"[buffer_image_scratch]"
 )
 {
-	std::vector<char> memory(64);
+	// A stack whose elements take sixteen bytes, and a buffer that is
+	// aligned for eight and not for sixteen.
+	const image_descriptor complex_descriptor(
+		make_span(stack_extents),
+		2,
+		numerical_type::complex_float64
+	);
+	alignas(16) char memory[512] = {};
 	const auto storage = std::make_shared<mock_buffer>();
 	const mock_buffer &const_storage = *storage;
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -352,10 +420,11 @@ TEST_CASE(
 		image_location("stack.mrcs", 0)
 	};
 
-	ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory.data() + 1);
-	ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory.data() + 1);
-	ALLOW_CALL(*storage, get_size()).RETURN(32);
-	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(*storage, get_host_ptr()).LR_RETURN(memory + 8);
+	ALLOW_CALL(const_storage, get_host_ptr()).LR_RETURN(memory + 8);
+	ALLOW_CALL(*storage, get_size()).RETURN(256);
+	ALLOW_CALL(*reader, get_descriptor())
+		.RETURN(std::ref(complex_descriptor));
 	REQUIRE_CALL(files, acquire("stack.mrcs")).RETURN(reader);
 
 	REQUIRE_THROWS_MATCHES(
@@ -393,7 +462,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(5 * image_bytes),
+			make_storage(storage_bytes({2, 2, 1})),
 			one_run
 		);
 
@@ -402,8 +471,8 @@ TEST_CASE(
 
 	SECTION( "the first file that does not fit is cut, and none follows" )
 	{
-		// Room for three images and a half: two of the first stack and one
-		// of the second. The third stack is not opened.
+		// Room for two images of the first stack, and for one and a half of
+		// the second. The third stack is not opened.
 		REQUIRE_CALL(files, acquire("stack_0.mrcs")).RETURN(reader);
 		REQUIRE_CALL(files, acquire("stack_1.mrcs")).RETURN(reader);
 		FORBID_CALL(files, acquire("stack_2.mrcs"));
@@ -413,7 +482,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(3 * image_bytes + image_bytes / 2),
+			make_storage(storage_bytes({2, 1}) + image_bytes / 2),
 			one_run
 		);
 
@@ -432,7 +501,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(2 * image_bytes),
+			make_storage(storage_bytes({2})),
 			one_run
 		);
 
@@ -449,7 +518,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(image_bytes - sizeof(float)),
+			make_storage(storage_bytes({0})),
 			one_run
 		);
 
@@ -535,7 +604,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(3 * image_bytes),
+			make_storage(storage_bytes({3})),
 			one_run
 		);
 		const auto entry = scratch.find(path.get());
@@ -569,7 +638,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(2 * image_bytes),
+			make_storage(storage_bytes({2})),
 			one_run
 		);
 		const auto entry = scratch.find(path.get());
@@ -596,7 +665,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(3 * image_bytes),
+			make_storage(storage_bytes({3}, 2)),
 			2
 		);
 		const auto entry = scratch.find(path.get());
@@ -613,7 +682,7 @@ TEST_CASE(
 		buffer_image_scratch scratch(
 			group(locations),
 			files,
-			make_storage(3 * image_bytes),
+			make_storage(storage_bytes({3}, 3)),
 			1
 		);
 		const auto entry = scratch.find(path.get());
@@ -654,7 +723,7 @@ TEST_CASE(
 	buffer_image_scratch scratch(
 		group(locations),
 		files,
-		make_storage(3 * image_bytes),
+		make_storage(storage_bytes({2, 1})),
 		one_run
 	);
 	const auto first = scratch.find(first_path.get());
@@ -721,8 +790,8 @@ TEST_CASE(
 	"[buffer_image_scratch]"
 )
 {
-	// Images as large as the alignment of the allocation, so that the
-	// allocator rounds no size up.
+	// Images as large as the alignment of the allocation, so that rounding
+	// the allocation up makes no room for one more.
 	const auto allocator = get_host_memory_resource().create_allocator();
 	const auto large_image_bytes = allocator->get_max_alignment();
 	const std::vector<std::size_t> extents = {
@@ -747,7 +816,7 @@ TEST_CASE(
 		group(locations),
 		files,
 		one_run,
-		3 * large_image_bytes
+		3 * large_image_bytes + 2 * sizeof(std::uint64_t)
 	);
 
 	// Three of the eight images fit.
@@ -836,7 +905,7 @@ TEST_CASE(
 	SECTION( "the file has room for the three images and no more" )
 	{
 		CHECK( boost::filesystem::file_size(storage_path.get()) ==
-			3 * image_bytes );
+			storage_bytes({3}) );
 	}
 
 	SECTION( "the images are read back from it" )
@@ -887,8 +956,9 @@ TEST_CASE(
 		one_run
 	);
 
-	// Nine bytes, three of padding, and the sixteen of the image.
-	CHECK( boost::filesystem::file_size(storage_path.get()) == 28 );
+	// The fingerprint, a flag and nine bytes; seven of padding, a flag and
+	// the sixteen bytes of the image.
+	CHECK( boost::filesystem::file_size(storage_path.get()) == 56 );
 
 	// The image is held whole, so the file is as large as its placing
 	// needs.
@@ -913,7 +983,7 @@ TEST_CASE(
 		image_location("stack.mrcs", 1),
 		image_location("stack.mrcs", 3)
 	};
-	const auto max_size = 2 * image_bytes + sizeof(float);
+	const auto max_size = storage_bytes({2}) + sizeof(float);
 
 	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
 	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
@@ -928,7 +998,7 @@ TEST_CASE(
 
 	// Two of the three images fit, and the file has room for no more.
 	CHECK( boost::filesystem::file_size(storage_path.get()) ==
-		2 * image_bytes );
+		storage_bytes({2}) );
 
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( get_file_indices(_2) == index_list({1, 3}) );
@@ -1020,4 +1090,233 @@ TEST_CASE(
 		),
 		file_error
 	);
+}
+
+TEST_CASE(
+	"a resumed buffer_image_scratch keeps what an earlier one loaded into "
+	"its buffer",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("buffer_scratch_resumed.raw");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 5),
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+
+	// Runs of two images: indices 1 and 3 are one run, 5 another.
+	const auto storage = make_storage(storage_bytes({3}, 2));
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire(path.get())).RETURN(reader);
+
+	// An earlier scratch loads the first run.
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		buffer_image_scratch earlier(group(locations), files, storage, 2);
+		earlier.find(path.get())->store(*reader, images({1}));
+	}
+
+	SECTION( "a run that was loaded is not loaded again" )
+	{
+		FORBID_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
+
+		buffer_image_scratch scratch(
+			group(locations),
+			files,
+			storage,
+			2,
+			image_scratch_open_mode::resumed
+		);
+		const auto entry = scratch.find(path.get());
+		auto destination = make_host_array<float>(
+			{2, 2, 2},
+			numerical_type::float32,
+			-1.0F
+		);
+
+		entry->store(*reader, images({3, 1}));
+		const auto missing =
+			entry->read(array_ref(destination), images({3, 1}));
+
+		CHECK( missing.get_region_count() == 0 );
+		CHECK( get_values<float>(destination) == values_of_images({3, 1}) );
+	}
+
+	SECTION( "a run that was not loaded is loaded" )
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({5}) )
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		buffer_image_scratch scratch(
+			group(locations),
+			files,
+			storage,
+			2,
+			image_scratch_open_mode::resumed
+		);
+
+		scratch.find(path.get())->store(*reader, images({5}));
+	}
+
+	SECTION( "a scratch that starts empty keeps nothing" )
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({1, 3}) )
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		buffer_image_scratch scratch(group(locations), files, storage, 2);
+
+		scratch.find(path.get())->store(*reader, images({1}));
+	}
+
+	SECTION( "a scratch of another layout keeps nothing" )
+	{
+		// With runs of four the three images are one run, whose flag is
+		// where the flag of the loaded run was.
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({1, 3, 5}) )
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		buffer_image_scratch scratch(
+			group(locations),
+			files,
+			storage,
+			4,
+			image_scratch_open_mode::resumed
+		);
+
+		scratch.find(path.get())->store(*reader, images({1}));
+	}
+
+	SECTION( "a run is loaded again when its file was modified since" )
+	{
+		boost::filesystem::last_write_time(
+			path.get(),
+			boost::filesystem::last_write_time(path.get()) + 10
+		);
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+			.LR_WITH( get_file_indices(_2) == index_list({1, 3}) )
+			.LR_SIDE_EFFECT( stack->read(_1, _2) );
+
+		buffer_image_scratch scratch(
+			group(locations),
+			files,
+			storage,
+			2,
+			image_scratch_open_mode::resumed
+		);
+
+		scratch.find(path.get())->store(*reader, images({1}));
+	}
+}
+
+TEST_CASE(
+	"a resumed buffer_image_scratch keeps the files that were not modified",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path first_path("buffer_scratch_resumed_first.raw");
+	const scoped_path second_path("buffer_scratch_resumed_second.raw");
+	write_counting_image_file(first_path.get(), stack_extents);
+	write_counting_image_file(second_path.get(), stack_extents);
+
+	const auto first = std::make_shared<mock_image_reader>();
+	const auto second = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(first_path.get(), 1),
+		image_location(second_path.get(), 5)
+	};
+	const auto storage = make_storage(storage_bytes({1, 1}));
+
+	ALLOW_CALL(*first, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(*second, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire(first_path.get())).RETURN(first);
+	ALLOW_CALL(files, acquire(second_path.get())).RETURN(second);
+
+	// An earlier scratch loads both files.
+	{
+		REQUIRE_CALL(*first, read(trompeloeil::_, trompeloeil::_));
+		REQUIRE_CALL(*second, read(trompeloeil::_, trompeloeil::_));
+
+		buffer_image_scratch earlier(
+			group(locations),
+			files,
+			storage,
+			one_run
+		);
+		earlier.find(first_path.get())->store(*first, whole_stack());
+		earlier.find(second_path.get())->store(*second, whole_stack());
+	}
+
+	// Only the second file is modified, and only it is loaded again.
+	boost::filesystem::last_write_time(
+		second_path.get(),
+		boost::filesystem::last_write_time(second_path.get()) + 10
+	);
+	FORBID_CALL(*first, read(trompeloeil::_, trompeloeil::_));
+	REQUIRE_CALL(*second, read(trompeloeil::_, trompeloeil::_));
+
+	buffer_image_scratch scratch(
+		group(locations),
+		files,
+		storage,
+		one_run,
+		image_scratch_open_mode::resumed
+	);
+
+	scratch.find(first_path.get())->store(*first, whole_stack());
+	scratch.find(second_path.get())->store(*second, whole_stack());
+}
+
+TEST_CASE(
+	"a resumed buffer_image_scratch keeps nothing of a file whose "
+	"modification time can not be read",
+	"[buffer_image_scratch]"
+)
+{
+	// There is no file at this path, only a reader that the provider makes.
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 1)
+	};
+	const auto storage = make_storage(storage_bytes({1}));
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
+
+	{
+		REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
+
+		buffer_image_scratch earlier(
+			group(locations),
+			files,
+			storage,
+			one_run
+		);
+		earlier.find("stack.mrcs")->store(*reader, whole_stack());
+	}
+
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_));
+
+	buffer_image_scratch scratch(
+		group(locations),
+		files,
+		storage,
+		one_run,
+		image_scratch_open_mode::resumed
+	);
+
+	scratch.find("stack.mrcs")->store(*reader, whole_stack());
 }

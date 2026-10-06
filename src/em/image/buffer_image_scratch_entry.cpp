@@ -5,9 +5,11 @@
 #include <em/image/formats/strided_transfer/image_host_access.hpp>
 #include <em/image/formats/strided_transfer/image_region_copy.hpp>
 
+#include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/assert.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
@@ -60,12 +62,17 @@ compute_end_index(std::size_t first_index, std::size_t index_count) noexcept
 buffer_image_scratch_entry::buffer_image_scratch_entry(
 	std::vector<std::size_t> indices,
 	array values,
-	std::size_t run_length
+	array flags,
+	std::uint64_t modification_time,
+	std::size_t run_length,
+	image_scratch_open_mode mode
 )
 	: m_indices(std::move(indices))
 	, m_run_length(run_length)
 	, m_loaded(compute_run_count(m_indices.size(), run_length))
 	, m_values(std::move(values))
+	, m_flags(std::move(flags))
+	, m_modification_time(modification_time)
 {
 	const auto unordered = std::adjacent_find(
 		m_indices.begin(),
@@ -92,9 +99,35 @@ buffer_image_scratch_entry::buffer_image_scratch_entry(
 		);
 	}
 
-	for (auto &loaded : m_loaded)
+	get_host_data(const_array_ref(m_flags));
+
+	const auto &flags_descriptor = m_flags.get_descriptor();
+	std::vector<std::size_t> flag_extents;
+	flags_descriptor.get_layout().get_extents(flag_extents);
+	if (
+		flags_descriptor.get_data_type() != numerical_type::uint64 ||
+		flag_extents != std::vector<std::size_t>({m_loaded.size()})
+	)
 	{
-		loaded.store(false, std::memory_order_relaxed);
+		throw std::invalid_argument(
+			"buffer_image_scratch_entry: The flags are not one 64-bit "
+			"unsigned integer per run."
+		);
+	}
+
+	if (mode == image_scratch_open_mode::empty)
+	{
+		reset();
+		return;
+	}
+
+	const auto *run_flags = get_flags();
+	for (std::size_t run = 0; run < m_loaded.size(); ++run)
+	{
+		const auto is_loaded =
+			m_modification_time != 0 &&
+			run_flags[run] == m_modification_time;
+		m_loaded[run].store(is_loaded, std::memory_order_relaxed);
 	}
 }
 
@@ -180,6 +213,25 @@ void buffer_image_scratch_entry::store(
 	}
 }
 
+void buffer_image_scratch_entry::reset() noexcept
+{
+	auto *run_flags = get_flags();
+	for (std::size_t run = 0; run < m_loaded.size(); ++run)
+	{
+		run_flags[run] = 0;
+		m_loaded[run].store(false, std::memory_order_relaxed);
+	}
+}
+
+std::uint64_t* buffer_image_scratch_entry::get_flags() noexcept
+{
+	auto *storage = static_cast<std::uint64_t*>(
+		m_flags.get_storage()->get_host_ptr()
+	);
+
+	return storage + m_flags.get_descriptor().get_layout().get_offset();
+}
+
 std::size_t
 buffer_image_scratch_entry::find_slot(std::size_t index) const noexcept
 {
@@ -227,6 +279,7 @@ void buffer_image_scratch_entry::load(
 	}
 
 	file.read(array_ref(m_values), make_load_plan(run));
+	get_flags()[run] = m_modification_time;
 	m_loaded[run].store(true, std::memory_order_release);
 }
 

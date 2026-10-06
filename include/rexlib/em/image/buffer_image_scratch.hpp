@@ -4,6 +4,7 @@
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/em/image/image_scratch.hpp>
+#include <rexlib/em/image/image_scratch_open_mode.hpp>
 
 #include <cstddef>
 #include <limits>
@@ -30,13 +31,20 @@ class image_reader_provider;
  * after another in the buffer. The buffer decides where the copies live:
  * in main memory, or in a file mapped into it.
  *
- * Which images are held is fixed at construction. Entries start empty and
- * are loaded from their files when regions are stored into them.
+ * Which images are held is fixed at construction. Entries are loaded from
+ * their files when regions are stored into them.
  *
  * Loading works in runs. A run is a block of consecutive held images of one
  * file. Every run of a file has the same number of images, except the last
  * one, which may have fewer. Storing any image loads its whole run in one
  * read of the file.
+ *
+ * The buffer also records what is loaded, so that a scratch constructed
+ * later over the same buffer can continue from it. The buffer starts with
+ * a fingerprint of how the scratch is laid out: the paths and the held
+ * indices, the run length, and the data type and extents of each file.
+ * Each run has a flag, which holds the modification time that its file had
+ * when the run was loaded.
  */
 class REXLIB_API buffer_image_scratch final
 	: public image_scratch
@@ -57,11 +65,20 @@ public:
 	 * @param files Provider used to open the files.
 	 * @param storage The buffer that stores the copies. Its size is the
 	 * capacity of the scratch. It must be host accessible, and aligned for
-	 * the data types of the files.
+	 * 64-bit integers and for the data types of the files.
 	 * @param run_length Number of held indices per run. A file that holds
 	 * no more indices than this is a single run.
-	 * @throws std::invalid_argument If @p storage is null, if it is not
-	 * aligned for the data type of a file, or if @p run_length is zero.
+	 * @param mode Whether the scratch starts empty or resumed.
+	 * - An empty scratch has nothing loaded, and does not read @p storage.
+	 * - A resumed scratch keeps the runs that an earlier scratch loaded
+	 * into @p storage, if that scratch had the same fingerprint. A run is
+	 * kept only if its file has not been modified since. A file whose
+	 * modification time can not be read is never kept. If the fingerprint
+	 * differs, the scratch starts empty. The contents of @p storage must be
+	 * defined, which those of newly allocated memory are not.
+	 * @throws std::invalid_argument If @p storage is null, if it is smaller
+	 * than a fingerprint, if it is not aligned for 64-bit integers or for
+	 * the data type of a file, or if @p run_length is zero.
 	 * @throws std::out_of_range If a location has a stack index that its
 	 * file does not have.
 	 * @throws unsupported_capability_error If @p storage is not host
@@ -74,7 +91,8 @@ public:
 		const image_location_grouping &locations,
 		image_reader_provider &files,
 		std::shared_ptr<buffer> storage,
-		std::size_t run_length
+		std::size_t run_length,
+		image_scratch_open_mode mode = image_scratch_open_mode::empty
 	);
 
 	~buffer_image_scratch() override;
@@ -94,9 +112,9 @@ private:
  * @brief Create a scratch that stores its copies in host memory.
  *
  * The memory is allocated from the host memory resource, and is as large
- * as the images that the scratch holds need. The scratch holds every image
- * of @p locations, unless they need more than @p max_size. It then holds
- * the images that fit, as @ref buffer_image_scratch describes.
+ * as the scratch needs for the images it holds. The scratch holds every
+ * image of @p locations, unless that needs more than @p max_size. It then
+ * holds the images that fit, as @ref buffer_image_scratch describes.
  *
  * Each file is opened twice through @p files: once to compute the size and
  * once to construct the scratch.
@@ -129,10 +147,10 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * @brief Create a scratch that stores its copies in a file.
  *
  * The file is created and mapped into memory, as
- * @ref create_mapped_file_buffer does, and is as large as the images that
- * the scratch holds need. The scratch holds every image of @p locations,
- * unless they need more than @p max_size. It then holds the images that
- * fit, as @ref buffer_image_scratch describes.
+ * @ref create_mapped_file_buffer does, and is as large as the scratch
+ * needs for the images it holds. The scratch holds every image of
+ * @p locations, unless that needs more than @p max_size. It then holds the
+ * images that fit, as @ref buffer_image_scratch describes.
  *
  * The file is not removed when the scratch is destroyed.
  *
