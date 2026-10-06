@@ -81,19 +81,6 @@ private:
 	) const noexcept;
 
 	/**
-	 * @brief Copy regions of the stored values into an array.
-	 *
-	 * @param destination The array to write.
-	 * @param array_data Host pointer to the storage of @p destination.
-	 * @param regions The regions to copy. Their file offsets are in slots.
-	 */
-	void read_values(
-		array_ref destination,
-		void *array_data,
-		const image_transfer_plan &regions
-	) const;
-
-	/**
 	 * @brief Load a run from the file, unless it is already present.
 	 *
 	 * @param file A reader over the file.
@@ -110,8 +97,8 @@ private:
 	image_transfer_plan make_run_plan(std::size_t run) const;
 
 	image_scratch_slots m_slots;
-	array m_values;
 	image_scratch_runs m_runs;
+	array m_values;
 	std::mutex m_mutex;
 };
 

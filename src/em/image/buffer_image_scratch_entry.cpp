@@ -3,15 +3,11 @@
 #include "buffer_image_scratch_entry.hpp"
 
 #include <em/image/formats/strided_transfer/image_host_access.hpp>
-#include <em/image/formats/strided_transfer/image_region_read_walk.hpp>
-#include <em/image/formats/strided_transfer/image_region_transfer.hpp>
+#include <em/image/formats/strided_transfer/image_region_copy.hpp>
 
-#include <rexlib/core/memory/byte.hpp>
-#include <rexlib/core/memory/byte_order.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/em/image/image_reader.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
@@ -31,8 +27,8 @@ buffer_image_scratch_entry::buffer_image_scratch_entry(
 	std::size_t run_length
 )
 	: m_slots(std::move(slots))
-	, m_values(std::move(values))
 	, m_runs(m_slots.get_count(), run_length)
+	, m_values(std::move(values))
 {
 	get_host_data(const_array_ref(m_values));
 
@@ -54,7 +50,7 @@ image_transfer_plan buffer_image_scratch_entry::read(
 	const image_transfer_plan &regions
 ) const
 {
-	auto *array_data = get_host_data(destination);
+	get_host_data(destination);
 
 	const auto &shape = regions.get_shape();
 	const auto rank = m_values.get_descriptor().get_layout().get_rank();
@@ -84,7 +80,7 @@ image_transfer_plan buffer_image_scratch_entry::read(
 		held.add(make_span(slot_offset), array_offset);
 	}
 
-	read_values(destination, array_data, held);
+	copy_regions(const_array_ref(m_values), destination, held);
 
 	return missing;
 }
@@ -147,54 +143,6 @@ bool buffer_image_scratch_entry::is_present(
 	}
 
 	return true;
-}
-
-void buffer_image_scratch_entry::read_values(
-	array_ref destination,
-	void *array_data,
-	const image_transfer_plan &regions
-) const
-{
-	if (regions.get_region_count() == 0)
-	{
-		return;
-	}
-
-	const auto &source = m_values.get_descriptor();
-	std::vector<std::size_t> source_extents;
-	std::vector<std::ptrdiff_t> source_strides;
-	source.get_layout().get_extents(source_extents);
-	source.get_layout().get_strides(source_strides);
-
-	const auto &target = destination.get_descriptor();
-	std::vector<std::size_t> target_extents;
-	std::vector<std::ptrdiff_t> target_strides;
-	target.get_layout().get_extents(target_extents);
-	target.get_layout().get_strides(target_strides);
-
-	const image_region_read_walk walk(
-		regions,
-		make_span(source_extents),
-		make_span(source_strides),
-		make_span(target_extents),
-		make_span(target_strides),
-		target.get_layout().get_offset()
-	);
-
-	const auto element_size =
-		static_cast<std::ptrdiff_t>(get_size(source.get_data_type()));
-	const auto *source_data =
-		static_cast<const byte*>(get_host_data(const_array_ref(m_values))) +
-		source.get_layout().get_offset() * element_size;
-
-	read_regions(
-		walk,
-		array_data,
-		target.get_data_type(),
-		source_data,
-		source.get_data_type(),
-		get_system_byte_order()
-	);
 }
 
 void buffer_image_scratch_entry::load(
