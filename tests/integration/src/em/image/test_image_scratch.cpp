@@ -121,6 +121,34 @@ protected:
 		);
 	}
 
+	// A scratch of some locations of the stacks, in memory or in a file that
+	// it allocates itself.
+	std::shared_ptr<image_scratch> create_scratch(
+		const std::vector<image_location> &held,
+		bool in_a_file,
+		std::size_t max_size
+	) const
+	{
+		const image_location_grouping grouping(make_span(held));
+		if (in_a_file)
+		{
+			return create_mapped_file_image_scratch(
+				grouping,
+				*direct,
+				m_storage_file.get(),
+				image_count,
+				max_size
+			);
+		}
+
+		return create_host_image_scratch(
+			grouping,
+			*direct,
+			image_count,
+			max_size
+		);
+	}
+
 	// A provider that reads the stacks through a scratch of some locations.
 	std::shared_ptr<image_reader_provider> make_scratched(
 		const std::vector<image_location> &held,
@@ -432,6 +460,42 @@ TEST_CASE_METHOD( image_scratch_fixture,
 		CHECK( read_batch(scratched, batch) == expected );
 
 		REQUIRE_NOTHROW( prefetched->get() );
+		CHECK( read_batch(scratched, batch) == expected );
+	}
+}
+
+TEST_CASE_METHOD( image_scratch_fixture,
+	"a batch read through a scratch that allocates its own storage holds "
+	"what the files hold",
+	"[image_scratch]" )
+{
+	const auto in_a_file = GENERATE(false, true);
+
+	const std::vector<image_location> batch = {
+		locate(2, 4), locate(0, 1), locate(1, 5), locate(0, 3),
+		locate(2, 0), locate(1, 2), locate(0, 5), locate(2, 2)
+	};
+	const auto expected = read_batch(direct, batch);
+
+	SECTION( "when it allocates what the batch needs" )
+	{
+		const auto scratched = std::make_shared<scratch_image_reader_provider>(
+			direct,
+			create_scratch(batch, in_a_file, dataset_bytes)
+		);
+
+		CHECK( read_batch(scratched, batch) == expected );
+		CHECK( read_batch(scratched, batch) == expected );
+	}
+
+	SECTION( "when its maximum size has room for only some of the batch" )
+	{
+		const auto scratched = std::make_shared<scratch_image_reader_provider>(
+			direct,
+			create_scratch(batch, in_a_file, 3 * image_bytes)
+		);
+
+		CHECK( read_batch(scratched, batch) == expected );
 		CHECK( read_batch(scratched, batch) == expected );
 	}
 }

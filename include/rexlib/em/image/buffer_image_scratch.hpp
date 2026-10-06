@@ -6,6 +6,7 @@
 #include <rexlib/em/image/image_scratch.hpp>
 
 #include <cstddef>
+#include <limits>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -88,6 +89,82 @@ private:
 	REXLIB_STD_MEMBER_INTERFACE
 	entry_map_type m_entries;
 };
+
+/**
+ * @brief Create a scratch that stores its copies in host memory.
+ *
+ * The memory is allocated from the host memory resource. Its size is what
+ * the images of @p locations need, or @p max_size if that is smaller. With
+ * less than they need, the scratch holds the images that fit, as
+ * @ref buffer_image_scratch describes.
+ *
+ * Each file is opened twice through @p files: once to compute the size and
+ * once to construct the scratch.
+ *
+ * @param locations The images to hold, grouped by file.
+ * @param files Provider used to open the files.
+ * @param run_length Number of held indices per run.
+ * @param max_size Maximum number of bytes to allocate. The allocator may
+ * round the allocation up. By default there is no maximum.
+ * @return std::shared_ptr<image_scratch> The scratch. Never null.
+ * @throws std::invalid_argument If @p run_length is zero, or if there is
+ * nothing to allocate: @p locations names no image, or @p max_size is zero.
+ * @throws std::bad_alloc If the memory can not be allocated.
+ * @throws std::out_of_range If a location has a stack index that its
+ * file does not have.
+ * @throws image_file_error If a file does not exist or can not be read.
+ * @throws unsupported_operation_error If no format can read a file.
+ * @throws image_format_error If a file is malformed or truncated.
+ */
+REXLIB_API
+std::shared_ptr<image_scratch> create_host_image_scratch(
+	const image_location_grouping &locations,
+	image_reader_provider &files,
+	std::size_t run_length,
+	std::size_t max_size = std::numeric_limits<std::size_t>::max()
+);
+
+/**
+ * @brief Create a scratch that stores its copies in a file.
+ *
+ * The file is created and mapped into memory, as
+ * @ref create_mapped_file_buffer does. Its size is what the images of
+ * @p locations need, or @p max_size if that is smaller. With less than
+ * they need, the scratch holds the images that fit, as
+ * @ref buffer_image_scratch describes.
+ *
+ * The file is not removed when the scratch is destroyed.
+ *
+ * Each image file is opened twice through @p files: once to compute the
+ * size and once to construct the scratch.
+ *
+ * @param locations The images to hold, grouped by file.
+ * @param files Provider used to open the image files.
+ * @param path Path of the file to create. Any file already there is
+ * replaced.
+ * @param run_length Number of held indices per run.
+ * @param max_size Maximum size of the file in bytes. By default there is no
+ * maximum.
+ * @return std::shared_ptr<image_scratch> The scratch. Never null.
+ * @throws std::invalid_argument If @p run_length is zero, or if there is
+ * nothing to store: @p locations names no image, or @p max_size is zero.
+ * No file is created then.
+ * @throws file_error If the file can not be created, sized or mapped.
+ * @throws std::out_of_range If a location has a stack index that its
+ * file does not have.
+ * @throws image_file_error If an image file does not exist or can not be
+ * read.
+ * @throws unsupported_operation_error If no format can read an image file.
+ * @throws image_format_error If an image file is malformed or truncated.
+ */
+REXLIB_API
+std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
+	const image_location_grouping &locations,
+	image_reader_provider &files,
+	const std::string &path,
+	std::size_t run_length,
+	std::size_t max_size = std::numeric_limits<std::size_t>::max()
+);
 
 } // namespace em
 } // namespace rexlib

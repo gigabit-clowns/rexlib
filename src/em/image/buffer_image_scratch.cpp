@@ -6,6 +6,9 @@
 
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/mapped_file_buffer.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/memory/align.hpp>
 #include <rexlib/core/ndarray/array.hpp>
@@ -142,6 +145,53 @@ void check_alignment(
 	}
 }
 
+void check_size(std::size_t size)
+{
+	if (size == 0)
+	{
+		throw std::invalid_argument(
+			"buffer_image_scratch: There is nothing to hold. The locations "
+			"name no image, or the maximum size is zero."
+		);
+	}
+}
+
+// The size of the buffer that holds what the locations name, with its
+// entries placed as storage_cursor places them.
+std::size_t compute_size(
+	const image_location_grouping &locations,
+	image_reader_provider &files,
+	std::size_t max_size
+)
+{
+	const auto file_count = locations.get_file_count();
+
+	std::size_t size = 0;
+	for (
+		std::size_t file_index = 0;
+		file_index < file_count && size < max_size;
+		++file_index
+	)
+	{
+		const auto file = files.acquire(locations.get_path(file_index));
+		REXLIB_ASSERT(file);
+
+		const auto &descriptor = file->get_descriptor();
+		const auto index_count =
+			get_named_indices(locations, file_index, descriptor).size();
+		const auto slot_size = compute_slot_size(descriptor);
+		if (index_count == 0 || slot_size == 0)
+		{
+			continue;
+		}
+
+		const auto element_size = get_size(descriptor.get_data_type());
+		size = align_ceil(size, element_size) + index_count * slot_size;
+	}
+
+	return std::min(size, max_size);
+}
+
 // Places the values of the entries one after another in the buffer of a
 // scratch, each aligned for its data type.
 class storage_cursor
@@ -255,6 +305,49 @@ buffer_image_scratch::find(const std::string &path)
 	}
 
 	return ite->second;
+}
+
+std::shared_ptr<image_scratch> create_host_image_scratch(
+	const image_location_grouping &locations,
+	image_reader_provider &files,
+	std::size_t run_length,
+	std::size_t max_size
+)
+{
+	check_run_length(run_length);
+
+	const auto size = compute_size(locations, files, max_size);
+	check_size(size);
+
+	const auto allocator = get_host_memory_resource().create_allocator();
+
+	return std::make_shared<buffer_image_scratch>(
+		locations,
+		files,
+		allocator->allocate(size, allocator->get_max_alignment()),
+		run_length
+	);
+}
+
+std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
+	const image_location_grouping &locations,
+	image_reader_provider &files,
+	const std::string &path,
+	std::size_t run_length,
+	std::size_t max_size
+)
+{
+	check_run_length(run_length);
+
+	const auto size = compute_size(locations, files, max_size);
+	check_size(size);
+
+	return std::make_shared<buffer_image_scratch>(
+		locations,
+		files,
+		create_mapped_file_buffer(path, size),
+		run_length
+	);
 }
 
 } // namespace em

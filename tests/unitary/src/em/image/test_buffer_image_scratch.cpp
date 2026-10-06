@@ -13,9 +13,12 @@
 #include "mock/mock_image_reader_provider.hpp"
 
 #include <core/hardware/host_memory/host_buffer.hpp>
+#include <rexlib/core/exceptions/file_error.hpp>
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
@@ -28,6 +31,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <boost/filesystem/operations.hpp>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -104,6 +108,30 @@ std::vector<std::size_t> get_file_indices(const image_transfer_plan &plan)
 	}
 
 	return indices;
+}
+
+// A plan of one region that spans a whole file of some extents.
+image_transfer_plan whole_file(const std::vector<std::size_t> &extents)
+{
+	const auto rank = extents.size();
+	image_transfer_plan plan(image_transfer_shape(extents, rank, rank));
+	const std::vector<std::size_t> offset(rank, 0);
+	plan.add(make_span(offset), make_span(offset));
+
+	return plan;
+}
+
+// The values of some images of a counting stack, one after another.
+std::vector<float> values_of_images(const std::vector<std::size_t> &indices)
+{
+	std::vector<float> values;
+	for (const auto index : indices)
+	{
+		const auto image = count_from(index * image_size, image_size);
+		values.insert(values.end(), image.begin(), image.end());
+	}
+
+	return values;
 }
 
 // Where in its buffer an array starts, in elements.
@@ -650,4 +678,330 @@ TEST_CASE(
 	CHECK( get_values<float>(pair) == expected_pair );
 	CHECK( get_values<float>(single) ==
 		count_from(5 * image_size, image_size) );
+}
+
+TEST_CASE(
+	"create_host_image_scratch holds the images that the locations name",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("host_image_scratch.raw");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 5),
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+
+	// The file is opened to compute the size, and again to hold its images.
+	REQUIRE_CALL(files, acquire(path.get())).TIMES(2).RETURN(stack);
+
+	const auto scratch =
+		create_host_image_scratch(group(locations), files, one_run);
+
+	REQUIRE( scratch != nullptr );
+	const auto entry = scratch->find(path.get());
+	REQUIRE( entry != nullptr );
+
+	auto destination =
+		make_host_array<float>({3, 2, 2}, numerical_type::float32, -1.0F);
+	entry->store(*stack, images({5, 1, 3}));
+	const auto missing =
+		entry->read(array_ref(destination), images({5, 1, 3}));
+
+	CHECK( missing.get_region_count() == 0 );
+	CHECK( get_values<float>(destination) == values_of_images({5, 1, 3}) );
+}
+
+TEST_CASE(
+	"create_host_image_scratch allocates no more than its maximum size",
+	"[buffer_image_scratch]"
+)
+{
+	// Images as large as the alignment of the allocation, so that the
+	// allocator rounds no size up.
+	const auto allocator = get_host_memory_resource().create_allocator();
+	const auto large_image_bytes = allocator->get_max_alignment();
+	const std::vector<std::size_t> extents = {
+		8, 2, large_image_bytes / (2 * sizeof(float))
+	};
+	const image_descriptor descriptor(
+		make_span(extents),
+		2,
+		numerical_type::float32
+	);
+
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs")
+	};
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(descriptor));
+	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
+
+	const auto scratch = create_host_image_scratch(
+		group(locations),
+		files,
+		one_run,
+		3 * large_image_bytes
+	);
+
+	// Three of the eight images fit.
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( get_file_indices(_2) == index_list({0, 1, 2}) );
+
+	scratch->find("stack.mrcs")->store(*reader, whole_file(extents));
+}
+
+TEST_CASE(
+	"create_host_image_scratch refuses to hold nothing",
+	"[buffer_image_scratch]"
+)
+{
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 0)
+	};
+
+	SECTION( "when no location is given" )
+	{
+		REQUIRE_THROWS_AS(
+			create_host_image_scratch(group({}), files, one_run),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "when the maximum size is zero" )
+	{
+		REQUIRE_THROWS_AS(
+			create_host_image_scratch(group(locations), files, one_run, 0),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "when a run has no index" )
+	{
+		REQUIRE_THROWS_AS(
+			create_host_image_scratch(group(locations), files, 0),
+			std::invalid_argument
+		);
+	}
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch stores the images in a file of the "
+	"size they need",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path path("mapped_file_image_scratch.raw");
+	const scoped_path storage_path("mapped_file_image_scratch.scratch");
+	write_counting_image_file(path.get(), stack_extents);
+	const auto stack = open_counting_image_file(path.get(), stack_extents, 2);
+
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location(path.get(), 5),
+		image_location(path.get(), 1),
+		image_location(path.get(), 3)
+	};
+
+	REQUIRE_CALL(files, acquire(path.get())).TIMES(2).RETURN(stack);
+
+	const auto scratch = create_mapped_file_image_scratch(
+		group(locations),
+		files,
+		storage_path.get(),
+		one_run
+	);
+
+	REQUIRE( scratch != nullptr );
+	const auto entry = scratch->find(path.get());
+	REQUIRE( entry != nullptr );
+
+	SECTION( "the file has room for the three images and no more" )
+	{
+		CHECK( boost::filesystem::file_size(storage_path.get()) ==
+			3 * image_bytes );
+	}
+
+	SECTION( "the images are read back from it" )
+	{
+		auto destination =
+			make_host_array<float>({3, 2, 2}, numerical_type::float32, -1.0F);
+		entry->store(*stack, images({5, 1, 3}));
+		const auto missing =
+			entry->read(array_ref(destination), images({5, 1, 3}));
+
+		CHECK( missing.get_region_count() == 0 );
+		CHECK( get_values<float>(destination) ==
+			values_of_images({5, 1, 3}) );
+	}
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch leaves room between files of "
+	"different data types",
+	"[buffer_image_scratch]"
+)
+{
+	// Three rows of three bytes, then one image of a float32 stack.
+	const std::vector<std::size_t> bytes_extents = {3, 3};
+	const image_descriptor bytes_descriptor(
+		make_span(bytes_extents),
+		2,
+		numerical_type::uint8
+	);
+	const scoped_path storage_path("mapped_file_image_scratch_types.scratch");
+	const auto bytes = std::make_shared<mock_image_reader>();
+	const auto stack = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("bytes.mrc"),
+		image_location("stack.mrcs", 0)
+	};
+
+	ALLOW_CALL(*bytes, get_descriptor()).RETURN(std::ref(bytes_descriptor));
+	ALLOW_CALL(*stack, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire("bytes.mrc")).RETURN(bytes);
+	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(stack);
+
+	const auto scratch = create_mapped_file_image_scratch(
+		group(locations),
+		files,
+		storage_path.get(),
+		one_run
+	);
+
+	// Nine bytes, three of padding, and the sixteen of the image.
+	CHECK( boost::filesystem::file_size(storage_path.get()) == 28 );
+
+	// The image is held whole, so the file is as large as its placing
+	// needs.
+	REQUIRE_CALL(*stack, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( get_file_indices(_2) == index_list({0}) );
+
+	REQUIRE( scratch->find("stack.mrcs") != nullptr );
+	scratch->find("stack.mrcs")->store(*stack, whole_stack());
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch creates a file no larger than its "
+	"maximum size",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path storage_path("mapped_file_image_scratch_cut.scratch");
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 5),
+		image_location("stack.mrcs", 1),
+		image_location("stack.mrcs", 3)
+	};
+	const auto max_size = 2 * image_bytes + sizeof(float);
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
+
+	const auto scratch = create_mapped_file_image_scratch(
+		group(locations),
+		files,
+		storage_path.get(),
+		one_run,
+		max_size
+	);
+
+	CHECK( boost::filesystem::file_size(storage_path.get()) == max_size );
+
+	// Two of the three images fit.
+	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
+		.LR_WITH( get_file_indices(_2) == index_list({1, 3}) );
+
+	scratch->find("stack.mrcs")->store(*reader, whole_stack());
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch creates no file when it refuses to "
+	"hold nothing",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path storage_path("mapped_file_image_scratch_none.scratch");
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 0)
+	};
+
+	SECTION( "when no location is given" )
+	{
+		REQUIRE_THROWS_AS(
+			create_mapped_file_image_scratch(
+				group({}),
+				files,
+				storage_path.get(),
+				one_run
+			),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "when the maximum size is zero" )
+	{
+		REQUIRE_THROWS_AS(
+			create_mapped_file_image_scratch(
+				group(locations),
+				files,
+				storage_path.get(),
+				one_run,
+				0
+			),
+			std::invalid_argument
+		);
+	}
+
+	SECTION( "when a run has no index" )
+	{
+		REQUIRE_THROWS_AS(
+			create_mapped_file_image_scratch(
+				group(locations),
+				files,
+				storage_path.get(),
+				0
+			),
+			std::invalid_argument
+		);
+	}
+
+	CHECK_FALSE( boost::filesystem::exists(storage_path.get()) );
+}
+
+TEST_CASE(
+	"create_mapped_file_image_scratch reports a file it can not create",
+	"[buffer_image_scratch]"
+)
+{
+	const scoped_path directory("mapped_file_image_scratch_missing");
+	const auto reader = std::make_shared<mock_image_reader>();
+	mock_image_reader_provider files;
+	const std::vector<image_location> locations = {
+		image_location("stack.mrcs", 0)
+	};
+
+	ALLOW_CALL(*reader, get_descriptor()).RETURN(std::ref(stack_descriptor));
+	ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
+
+	REQUIRE_THROWS_AS(
+		create_mapped_file_image_scratch(
+			group(locations),
+			files,
+			directory.get() + "/scratch.bin",
+			one_run
+		),
+		file_error
+	);
 }
