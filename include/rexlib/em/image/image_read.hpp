@@ -157,8 +157,8 @@ std::shared_ptr<completion> read_patches_async(
  * A location with a stack index names that index of the first axis of its
  * file. A location without one names the whole file.
  *
- * One task is submitted for each file the locations name, in the order they
- * first name it. A task opens its file and stores what the locations name of
+ * One task is submitted for each file the locations name, in the order of
+ * the grouping. A task opens its file and stores what the locations name of
  * it into the entry of that file, which takes in what it has room for. A
  * file the scratch has no entry for is skipped.
  *

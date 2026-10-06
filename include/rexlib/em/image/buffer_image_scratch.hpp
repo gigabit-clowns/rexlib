@@ -48,10 +48,10 @@ public:
 	 * A location with a stack index names that index of the first axis of
 	 * its file. A location without one names the whole file.
 	 *
-	 * Files are taken in the order the locations first name them. Each is
-	 * opened once, to learn its shape and data type. If the buffer runs out
-	 * of room, the current file keeps the lowest indices that fit and the
-	 * remaining files are not opened.
+	 * Files are taken in the order of the grouping, which is ascending
+	 * order of path. Each is opened once, to learn its shape and data type.
+	 * If the buffer runs out of room, the current file keeps the lowest
+	 * indices that fit and the remaining files are not opened.
 	 *
 	 * @param locations The images to hold, grouped by file.
 	 * @param files Provider used to open the files.

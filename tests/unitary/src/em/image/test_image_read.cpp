@@ -990,8 +990,8 @@ TEST_CASE(
 	ALLOW_CALL(*second_file, get_descriptor())
 		.RETURN(std::ref(stack_descriptor));
 
-	// The files are taken in the order the locations first name them, each
-	// opened once and stored into its own entry.
+	// The files are taken in ascending order of path, each opened once and
+	// stored into its own entry.
 	REQUIRE_CALL(*files, acquire("stack_0.mrcs"))
 		.IN_SEQUENCE(order)
 		.RETURN(first_file);
@@ -1009,8 +1009,8 @@ TEST_CASE(
 		scratch,
 		files,
 		{
-			image_location("stack_0.mrcs", 4),
 			image_location("stack_1.mrcs", 2),
+			image_location("stack_0.mrcs", 4),
 			image_location("stack_0.mrcs", 1)
 		}
 	);

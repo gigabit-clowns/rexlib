@@ -5,8 +5,10 @@
 #include <rexlib/em/image/image_location.hpp>
 
 #include <algorithm>
+#include <numeric>
 #include <stdexcept>
 #include <unordered_map>
+#include <utility>
 
 namespace rexlib
 {
@@ -18,16 +20,16 @@ image_location_grouping::image_location_grouping(
 )
 {
 	std::unordered_map<std::string, std::size_t> files;
+	std::vector<std::string> paths;
 	std::vector<std::vector<std::size_t>> named;
 	std::vector<bool> whole;
 
 	for (const auto &location : locations)
 	{
-		const auto inserted =
-			files.emplace(location.get_path(), m_paths.size());
+		const auto inserted = files.emplace(location.get_path(), paths.size());
 		if (inserted.second)
 		{
-			m_paths.push_back(location.get_path());
+			paths.push_back(location.get_path());
 			named.emplace_back();
 			whole.push_back(false);
 		}
@@ -43,10 +45,24 @@ image_location_grouping::image_location_grouping(
 		}
 	}
 
-	m_first_positions.reserve(named.size() + 1);
+	std::vector<std::size_t> order(paths.size());
+	std::iota(order.begin(), order.end(), std::size_t(0));
+	std::sort(
+		order.begin(),
+		order.end(),
+		[&paths] (std::size_t lhs, std::size_t rhs)
+		{
+			return paths[lhs] < paths[rhs];
+		}
+	);
+
+	m_paths.reserve(paths.size());
+	m_first_positions.reserve(paths.size() + 1);
 	m_first_positions.push_back(0);
-	for (std::size_t file_index = 0; file_index < named.size(); ++file_index)
+	for (const auto file_index : order)
 	{
+		m_paths.push_back(std::move(paths[file_index]));
+
 		if (!whole[file_index])
 		{
 			auto &indices = named[file_index];

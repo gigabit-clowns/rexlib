@@ -19,10 +19,12 @@ class image_location;
 /**
  * @brief Groups a list of image locations by file.
  *
- * Each file has one group, and the groups are in the order of the first
- * location of each file. A file is either addressed as a whole, or has the
- * stack indices of its locations. A file that any location addresses as a
- * whole has no indices, because the whole file includes them.
+ * Each file has one group, and the groups are in ascending order of path.
+ * The grouping therefore does not depend on the order of the locations.
+ *
+ * A file is either addressed as a whole, or has the stack indices of its
+ * locations. A file that any location addresses as a whole has no indices,
+ * because the whole file includes them.
  *
  * Two locations belong to the same file if their paths are equal strings.
  */
