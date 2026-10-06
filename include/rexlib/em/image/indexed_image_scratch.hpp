@@ -153,12 +153,14 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * fit, as @ref indexed_image_scratch describes.
  *
  * If the file at @p path already holds a scratch with the same
- * fingerprint, that file is used as it is and the scratch resumes from
- * what it has loaded. Programs that do so at the same time share the file.
+ * fingerprint, the scratch resumes from what that file has loaded.
+ * Programs that hold the same images may use the file at the same time,
+ * and share it.
  *
- * Otherwise a new file is built under a temporary name beside @p path, and
- * then renamed to @p path. The file that was there is replaced without
- * being changed, so a program that still uses it is not disturbed.
+ * Otherwise the file is overwritten: it is created if it is missing, given
+ * the size of the scratch, and the scratch starts empty. A warning is
+ * logged if the file held something else. Programs that use the file at
+ * the same time must therefore hold the same images.
  *
  * The file is not removed when the scratch is destroyed.
  *
@@ -177,9 +179,8 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * for one. No file is created then.
  * @throws std::out_of_range If a location has a stack index that its
  * file does not have.
- * @throws image_file_error If the scratch file can not be created, sized,
- * mapped or put in place, or if an image file does not exist or can not be
- * read.
+ * @throws image_file_error If the scratch file can not be created, sized
+ * or mapped, or if an image file does not exist or can not be read.
  * @throws unsupported_operation_error If no format can read an image file.
  * @throws image_format_error If an image file is malformed or truncated.
  */

@@ -5,6 +5,8 @@
 #include "image_scratch_storage_buffer.hpp"
 #include "indexed_image_scratch_entry.hpp"
 
+#include <core/logger.hpp>
+
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/memory/align.hpp>
 #include <rexlib/core/memory/byte.hpp>
@@ -12,7 +14,6 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/assert.hpp>
-#include <rexlib/em/image/exceptions/image_file_error.hpp>
 #include <rexlib/em/image/host_image_scratch_storage.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 #include <rexlib/em/image/image_location_grouping.hpp>
@@ -467,33 +468,6 @@ storage_cursor lay_out(
 	return cursor;
 }
 
-// The storage of the file at a path, if that file holds a scratch that is
-// laid out as `layout` says. Null otherwise.
-std::shared_ptr<image_scratch_storage>
-open_storage(const std::string &path, const storage_cursor &layout)
-{
-	boost::system::error_code error;
-	const auto size = boost::filesystem::file_size(path, error);
-	if (error || size != layout.get_used())
-	{
-		return nullptr;
-	}
-
-	auto storage = open_mapped_file_image_scratch_storage(path);
-	if (read_fingerprint(*storage) != layout.get_fingerprint())
-	{
-		return nullptr;
-	}
-
-	return storage;
-}
-
-std::string make_temporary_path(const std::string &path)
-{
-	const auto suffix = boost::filesystem::unique_path("%%%%-%%%%-%%%%");
-	return path + "." + suffix.string();
-}
-
 } // anonymous namespace
 
 indexed_image_scratch::indexed_image_scratch(
@@ -618,52 +592,32 @@ std::shared_ptr<image_scratch> create_mapped_file_image_scratch(
 	const auto layout = lay_out(locations, files, run_length, max_size);
 	check_not_empty(layout);
 
-	auto storage = open_storage(path, layout);
-	if (storage)
+	// A file that is there is kept and mapped, so that programs that hold
+	// the same images share it. The scratch resumes from it if it carries
+	// the fingerprint, and starts empty over it otherwise.
+	boost::system::error_code error;
+	const auto existed = boost::filesystem::exists(path, error);
+	auto storage =
+		create_mapped_file_image_scratch_storage(path, layout.get_used());
+
+	// A file that was just created holds zeros where its fingerprint goes.
+	const auto fingerprint = read_fingerprint(*storage);
+	if (existed && fingerprint != 0 && fingerprint != layout.get_fingerprint())
 	{
-		return std::make_shared<indexed_image_scratch>(
-			locations,
-			files,
-			std::move(storage),
-			run_length,
-			image_scratch_open_mode::resumed
+		REXLIB_LOG_WARN(
+			"The scratch file {} holds something other than the images it "
+			"is asked for, and is overwritten.",
+			path
 		);
 	}
 
-	// Another program may have the file at the path mapped, so that file is
-	// never changed. A new one is built beside it and takes its place.
-	const auto temporary = make_temporary_path(path);
-	try
-	{
-		auto scratch = std::make_shared<indexed_image_scratch>(
-			locations,
-			files,
-			create_mapped_file_image_scratch_storage(
-				temporary,
-				layout.get_used()
-			),
-			run_length,
-			image_scratch_open_mode::empty
-		);
-
-		boost::system::error_code error;
-		boost::filesystem::rename(temporary, path, error);
-		if (error)
-		{
-			throw image_file_error(
-				path + ": create_mapped_file_image_scratch: The scratch "
-				"file could not be put in place: " + error.message()
-			);
-		}
-
-		return scratch;
-	}
-	catch (...)
-	{
-		boost::system::error_code ignored;
-		boost::filesystem::remove(temporary, ignored);
-		throw;
-	}
+	return std::make_shared<indexed_image_scratch>(
+		locations,
+		files,
+		std::move(storage),
+		run_length,
+		image_scratch_open_mode::resumed
+	);
 }
 
 } // namespace em

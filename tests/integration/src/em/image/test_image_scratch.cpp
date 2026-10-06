@@ -534,45 +534,28 @@ TEST_CASE_METHOD( image_scratch_fixture,
 }
 
 TEST_CASE_METHOD( image_scratch_fixture,
-	"batches read through file scratches that are given one path hold what "
+	"a batch read through two file scratches that share a file holds what "
 	"the files hold",
 	"[image_scratch]" )
 {
-	const std::vector<image_location> first_batch = {
-		locate(2, 4), locate(0, 1), locate(1, 5), locate(0, 3)
-	};
-	const std::vector<image_location> second_batch = {
+	const std::vector<image_location> batch = {
+		locate(2, 4), locate(0, 1), locate(1, 5), locate(0, 3),
 		locate(2, 0), locate(1, 2), locate(0, 5), locate(2, 2)
 	};
-	const auto first_expected = read_batch(direct, first_batch);
-	const auto second_expected = read_batch(direct, second_batch);
+	const auto expected = read_batch(direct, batch);
 
 	const auto first = std::make_shared<scratch_image_reader_provider>(
 		direct,
-		create_scratch(first_batch, true, dataset_bytes)
+		create_scratch(batch, true, dataset_bytes)
 	);
-	REQUIRE( read_batch(first, first_batch) == first_expected );
+	REQUIRE( read_batch(first, batch) == expected );
 
-	SECTION( "when a second scratch holds the same images" )
-	{
-		const auto second = std::make_shared<scratch_image_reader_provider>(
-			direct,
-			create_scratch(first_batch, true, dataset_bytes)
-		);
+	// A second scratch of the same images, while the first is in use.
+	const auto second = std::make_shared<scratch_image_reader_provider>(
+		direct,
+		create_scratch(batch, true, dataset_bytes)
+	);
 
-		CHECK( read_batch(second, first_batch) == first_expected );
-		CHECK( read_batch(first, first_batch) == first_expected );
-	}
-
-	SECTION( "when a second scratch holds other images" )
-	{
-		const auto second = std::make_shared<scratch_image_reader_provider>(
-			direct,
-			create_scratch(second_batch, true, dataset_bytes)
-		);
-
-		CHECK( read_batch(second, second_batch) == second_expected );
-		CHECK( read_batch(first, first_batch) == first_expected );
-		CHECK( read_batch(second, second_batch) == second_expected );
-	}
+	CHECK( read_batch(second, batch) == expected );
+	CHECK( read_batch(first, batch) == expected );
 }
