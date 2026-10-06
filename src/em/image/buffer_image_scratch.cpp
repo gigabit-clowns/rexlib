@@ -150,83 +150,49 @@ void check_size(std::size_t size)
 	{
 		throw std::invalid_argument(
 			"buffer_image_scratch: There is nothing to hold. The locations "
-			"name no image, or the maximum size is zero."
+			"name no image, or the maximum size has no room for one."
 		);
 	}
 }
 
-// The size of the buffer that holds what the locations name, with its
-// entries placed as storage_cursor places them.
-std::size_t compute_size(
-	const image_location_grouping &locations,
-	image_reader_provider &files,
-	std::size_t max_size
-)
-{
-	const auto group_count = locations.get_group_count();
-
-	std::size_t size = 0;
-	for (
-		std::size_t index = 0;
-		index < group_count && size < max_size;
-		++index
-	)
-	{
-		const auto group = locations.get_group(index);
-		const auto file = files.acquire(group.get_path());
-		REXLIB_ASSERT(file);
-
-		const auto &descriptor = file->get_descriptor();
-		const auto index_count = get_named_indices(group, descriptor).size();
-		const auto slot_size = compute_slot_size(descriptor);
-		if (index_count == 0 || slot_size == 0)
-		{
-			continue;
-		}
-
-		const auto element_size = get_size(descriptor.get_data_type());
-		size = align_ceil(size, element_size) + index_count * slot_size;
-	}
-
-	return std::min(size, max_size);
-}
-
-// Places the values of the entries one after another in the buffer of a
-// scratch, each aligned for its data type.
+// Places the values of the entries of a scratch one after another in a
+// number of bytes, each aligned for its data type.
 class storage_cursor
 {
 public:
-	explicit storage_cursor(std::shared_ptr<buffer> storage)
-		: m_storage(std::move(storage))
+	explicit storage_cursor(std::size_t capacity) noexcept
+		: m_capacity(capacity)
 		, m_used(0)
 	{
+	}
+
+	std::size_t get_used() const noexcept
+	{
+		return m_used;
 	}
 
 	std::size_t count_fitting(const image_descriptor &file) const noexcept
 	{
 		const auto first = get_first_byte(file);
-		const auto capacity = m_storage->get_size();
-		if (first >= capacity)
+		if (first >= m_capacity)
 		{
 			return 0;
 		}
 
-		return (capacity - first) / compute_slot_size(file);
+		return (m_capacity - first) / compute_slot_size(file);
 	}
 
-	array place(const image_descriptor &file, std::size_t index_count)
+	// Takes the room for a number of indices of a file, and gives the
+	// element at which they start.
+	std::size_t place(
+		const image_descriptor &file,
+		std::size_t index_count
+	) noexcept
 	{
 		const auto first = get_first_byte(file);
 		m_used = first + index_count * compute_slot_size(file);
 
-		return array(
-			m_storage,
-			make_values_descriptor(
-				file,
-				index_count,
-				first / get_size(file.get_data_type())
-			)
-		);
+		return first / get_size(file.get_data_type());
 	}
 
 private:
@@ -235,9 +201,50 @@ private:
 		return align_ceil(m_used, get_size(file.get_data_type()));
 	}
 
-	std::shared_ptr<buffer> m_storage;
+	std::size_t m_capacity;
 	std::size_t m_used;
 };
+
+// The size of the storage that a scratch of some locations uses, when it
+// may use no more than a maximum. It is a dry run of the constructor: the
+// files are taken and placed the same way, and nothing is stored.
+std::size_t compute_size(
+	const image_location_grouping &locations,
+	image_reader_provider &files,
+	std::size_t max_size
+)
+{
+	const auto group_count = locations.get_group_count();
+
+	storage_cursor cursor(max_size);
+	for (std::size_t index = 0; index < group_count; ++index)
+	{
+		const auto group = locations.get_group(index);
+		const auto file = files.acquire(group.get_path());
+		REXLIB_ASSERT(file);
+
+		const auto &descriptor = file->get_descriptor();
+		const auto named_count = get_named_indices(group, descriptor).size();
+		if (named_count == 0 || compute_slot_size(descriptor) == 0)
+		{
+			continue;
+		}
+
+		const auto held_count =
+			std::min(named_count, cursor.count_fitting(descriptor));
+		if (held_count > 0)
+		{
+			cursor.place(descriptor, held_count);
+		}
+
+		if (held_count < named_count)
+		{
+			break;
+		}
+	}
+
+	return cursor.get_used();
+}
 
 } // anonymous namespace
 
@@ -253,7 +260,7 @@ buffer_image_scratch::buffer_image_scratch(
 
 	const auto group_count = locations.get_group_count();
 
-	storage_cursor cursor(storage);
+	storage_cursor cursor(storage->get_size());
 	for (std::size_t index = 0; index < group_count; ++index)
 	{
 		const auto group = locations.get_group(index);
@@ -276,11 +283,19 @@ buffer_image_scratch::buffer_image_scratch(
 		if (held_count > 0)
 		{
 			indices.resize(held_count);
+			const auto first_element = cursor.place(descriptor, held_count);
 			m_entries.emplace(
 				path,
 				std::make_shared<buffer_image_scratch_entry>(
 					std::move(indices),
-					cursor.place(descriptor, held_count),
+					array(
+						storage,
+						make_values_descriptor(
+							descriptor,
+							held_count,
+							first_element
+						)
+					),
 					run_length
 				)
 			);

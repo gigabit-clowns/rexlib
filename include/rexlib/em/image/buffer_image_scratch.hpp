@@ -93,10 +93,10 @@ private:
 /**
  * @brief Create a scratch that stores its copies in host memory.
  *
- * The memory is allocated from the host memory resource. Its size is what
- * the images of @p locations need, or @p max_size if that is smaller. With
- * less than they need, the scratch holds the images that fit, as
- * @ref buffer_image_scratch describes.
+ * The memory is allocated from the host memory resource, and is as large
+ * as the images that the scratch holds need. The scratch holds every image
+ * of @p locations, unless they need more than @p max_size. It then holds
+ * the images that fit, as @ref buffer_image_scratch describes.
  *
  * Each file is opened twice through @p files: once to compute the size and
  * once to construct the scratch.
@@ -108,7 +108,8 @@ private:
  * round the allocation up. By default there is no maximum.
  * @return std::shared_ptr<image_scratch> The scratch. Never null.
  * @throws std::invalid_argument If @p run_length is zero, or if there is
- * nothing to allocate: @p locations names no image, or @p max_size is zero.
+ * nothing to hold: @p locations names no image, or @p max_size has no room
+ * for one.
  * @throws std::bad_alloc If the memory can not be allocated.
  * @throws std::out_of_range If a location has a stack index that its
  * file does not have.
@@ -128,10 +129,10 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * @brief Create a scratch that stores its copies in a file.
  *
  * The file is created and mapped into memory, as
- * @ref create_mapped_file_buffer does. Its size is what the images of
- * @p locations need, or @p max_size if that is smaller. With less than
- * they need, the scratch holds the images that fit, as
- * @ref buffer_image_scratch describes.
+ * @ref create_mapped_file_buffer does, and is as large as the images that
+ * the scratch holds need. The scratch holds every image of @p locations,
+ * unless they need more than @p max_size. It then holds the images that
+ * fit, as @ref buffer_image_scratch describes.
  *
  * The file is not removed when the scratch is destroyed.
  *
@@ -147,8 +148,8 @@ std::shared_ptr<image_scratch> create_host_image_scratch(
  * maximum.
  * @return std::shared_ptr<image_scratch> The scratch. Never null.
  * @throws std::invalid_argument If @p run_length is zero, or if there is
- * nothing to store: @p locations names no image, or @p max_size is zero.
- * No file is created then.
+ * nothing to hold: @p locations names no image, or @p max_size has no room
+ * for one. No file is created then.
  * @throws file_error If the file can not be created, sized or mapped.
  * @throws std::out_of_range If a location has a stack index that its
  * file does not have.

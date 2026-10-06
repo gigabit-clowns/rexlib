@@ -775,10 +775,20 @@ TEST_CASE(
 		);
 	}
 
-	SECTION( "when the maximum size is zero" )
+	SECTION( "when the maximum size has no room for an image" )
 	{
+		const auto reader = std::make_shared<mock_image_reader>();
+		ALLOW_CALL(*reader, get_descriptor())
+			.RETURN(std::ref(stack_descriptor));
+		ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
+
 		REQUIRE_THROWS_AS(
-			create_host_image_scratch(group(locations), files, one_run, 0),
+			create_host_image_scratch(
+				group(locations),
+				files,
+				one_run,
+				image_bytes - 1
+			),
 			std::invalid_argument
 		);
 	}
@@ -916,9 +926,10 @@ TEST_CASE(
 		max_size
 	);
 
-	CHECK( boost::filesystem::file_size(storage_path.get()) == max_size );
+	// Two of the three images fit, and the file has room for no more.
+	CHECK( boost::filesystem::file_size(storage_path.get()) ==
+		2 * image_bytes );
 
-	// Two of the three images fit.
 	REQUIRE_CALL(*reader, read(trompeloeil::_, trompeloeil::_))
 		.LR_WITH( get_file_indices(_2) == index_list({1, 3}) );
 
@@ -950,15 +961,20 @@ TEST_CASE(
 		);
 	}
 
-	SECTION( "when the maximum size is zero" )
+	SECTION( "when the maximum size has no room for an image" )
 	{
+		const auto reader = std::make_shared<mock_image_reader>();
+		ALLOW_CALL(*reader, get_descriptor())
+			.RETURN(std::ref(stack_descriptor));
+		ALLOW_CALL(files, acquire("stack.mrcs")).RETURN(reader);
+
 		REQUIRE_THROWS_AS(
 			create_mapped_file_image_scratch(
 				group(locations),
 				files,
 				storage_path.get(),
 				one_run,
-				0
+				image_bytes - 1
 			),
 			std::invalid_argument
 		);
