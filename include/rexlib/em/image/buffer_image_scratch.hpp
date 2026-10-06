@@ -86,9 +86,11 @@ public:
 	find(const std::string &path) const override;
 
 private:
+	using entry_map_type =
+		std::unordered_map<std::string, std::shared_ptr<image_scratch_entry>>;
+
 	REXLIB_STD_MEMBER_INTERFACE
-	std::unordered_map<std::string, std::shared_ptr<image_scratch_entry>>
-		m_entries;
+	entry_map_type m_entries;
 };
 
 } // namespace em
