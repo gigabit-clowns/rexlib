@@ -281,7 +281,8 @@ struct coordinate_kernel
 		const multidimensional_index &index
 	) const noexcept
 	{
-		*result = static_cast<T>(10*index[0] + index[1]);
+		// Through float, since a half precision float is only made from one.
+		*result = static_cast<T>(static_cast<float>(10*index[0] + index[1]));
 	}
 };
 
