@@ -174,7 +174,7 @@ TEST_CASE(
 
 	SECTION( "storage that is not aligned for 64-bit integers is refused" )
 	{
-		alignas(std::uint64_t) byte memory[64] = {};
+		alignas(std::uint64_t) rexlib::byte memory[64] = {};
 		const auto storage = std::make_shared<mock_image_scratch_storage>();
 		const mock_image_scratch_storage &const_storage = *storage;
 		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory + 1);
@@ -194,7 +194,7 @@ TEST_CASE(
 
 	SECTION( "storage smaller than a fingerprint is refused" )
 	{
-		alignas(std::uint64_t) byte memory[64] = {};
+		alignas(std::uint64_t) rexlib::byte memory[64] = {};
 		const auto storage = std::make_shared<mock_image_scratch_storage>();
 		const mock_image_scratch_storage &const_storage = *storage;
 		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory);
@@ -381,7 +381,7 @@ TEST_CASE(
 		2,
 		numerical_type::complex_float64
 	);
-	alignas(16) byte memory[512] = {};
+	alignas(16) rexlib::byte memory[512] = {};
 	const auto storage = std::make_shared<mock_image_scratch_storage>();
 	const mock_image_scratch_storage &const_storage = *storage;
 	const auto reader = std::make_shared<mock_image_reader>();
