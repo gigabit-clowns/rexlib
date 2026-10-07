@@ -5,6 +5,7 @@
 #include <em/image/formats/mrc/mrc_mode.hpp>
 
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
+#include <array>
 
 using namespace rexlib;
 using namespace rexlib::em;
@@ -152,7 +153,7 @@ TEST_CASE( "only unsigned bytes need the IMOD flag to be written",
 TEST_CASE( "writing a data type and reading it back yields it again",
 	"[mrc_mode]" )
 {
-	const numerical_type types[] = {
+	const std::array<numerical_type, 7> types = {
 		numerical_type::int8,
 		numerical_type::uint8,
 		numerical_type::int16,

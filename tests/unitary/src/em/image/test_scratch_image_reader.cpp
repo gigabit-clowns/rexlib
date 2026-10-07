@@ -17,6 +17,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <array>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -53,9 +54,9 @@ image_transfer_plan make_plan(
 	image_transfer_plan plan(image_transfer_shape(image_extents, 3, 3));
 	for (std::size_t i = 0; i < indices.size(); ++i)
 	{
-		const std::size_t file_offset[3] = {indices[i], 0, 0};
-		const std::size_t array_offset[3] = {slots[i], 0, 0};
-		plan.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		const std::array<std::size_t, 3> file_offset = {indices[i], 0, 0};
+		const std::array<std::size_t, 3> array_offset = {slots[i], 0, 0};
+		plan.add(make_span(file_offset), make_span(array_offset));
 	}
 
 	return plan;

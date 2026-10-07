@@ -8,6 +8,7 @@
 #include <rexlib/core/memory/byte.hpp>
 #include <rexlib/core/system/host.hpp>
 
+#include <array>
 #include <vector>
 
 using namespace rexlib;
@@ -15,10 +16,10 @@ using namespace rexlib;
 TEST_CASE( "a memory range is the stretch it was built from",
 	"[page_prefetch]" )
 {
-	float values[4];
-	const memory_range range(values + 1, 3 * sizeof(float));
+	std::array<float, 4> values;
+	const memory_range range(values.data() + 1, 3 * sizeof(float));
 
-	CHECK( range.get_address() == static_cast<void*>(values + 1) );
+	CHECK( range.get_address() == static_cast<void*>(values.data() + 1) );
 	CHECK( range.get_size() == 3 * sizeof(float) );
 }
 

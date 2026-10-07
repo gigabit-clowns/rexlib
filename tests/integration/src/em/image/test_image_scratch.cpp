@@ -30,6 +30,7 @@
 #include <rexlib/em/image/mapped_file_image_scratch_storage.hpp>
 #include <rexlib/functional/creation.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -80,7 +81,7 @@ public:
 protected:
 	const std::string& get_path(std::size_t stack) const noexcept
 	{
-		const scoped_path *paths[stack_count] = {
+		const std::array<const scoped_path*, stack_count> paths = {
 			&m_first,
 			&m_second,
 			&m_third
@@ -302,10 +303,10 @@ TEST_CASE_METHOD( image_scratch_fixture,
 	const std::size_t patch_extent = 4;
 	const auto location = locate(1, 2);
 	index_table centres(2);
-	const std::size_t inside[2] = {4, 4};
-	const std::size_t corner[2] = {0, 0};
-	centres.add(make_span(inside, 2));
-	centres.add(make_span(corner, 2));
+	const std::array<std::size_t, 2> inside = {4, 4};
+	const std::array<std::size_t, 2> corner = {0, 0};
+	centres.add(make_span(inside));
+	centres.add(make_span(corner));
 
 	const auto read_patches = [&] (
 		const std::shared_ptr<image_reader_provider> &readers

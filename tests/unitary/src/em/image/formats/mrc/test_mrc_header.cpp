@@ -7,6 +7,7 @@
 #include <em/image/formats/mrc/mrc_constants.hpp>
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 
+#include <array>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -70,15 +71,15 @@ void put_int32(
 {
 	// The source bytes are least significant first only on a little-endian
 	// host, so they are laid out from the value itself rather than copied.
-	unsigned char source[4];
-	for (std::size_t i = 0; i < sizeof(source); ++i)
+	std::array<unsigned char, 4> source;
+	for (std::size_t i = 0; i < source.size(); ++i)
 	{
 		source[i] = static_cast<unsigned char>(
 			(static_cast<std::uint32_t>(value) >> (8 * i)) & 0xFFU
 		);
 	}
 
-	put_bytes(raw, offset, source, sizeof(source), order);
+	put_bytes(raw, offset, source.data(), source.size(), order);
 }
 
 void put_float(
@@ -438,7 +439,7 @@ TEST_CASE( "an MRC header survives being written and read back",
 {
 	SECTION( "a parsed header round-trips in each byte order" )
 	{
-		const byte_order orders[] = {
+		const std::array<byte_order, 2> orders = {
 			byte_order::little_endian,
 			byte_order::big_endian
 		};

@@ -17,6 +17,7 @@
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
 
+#include <array>
 #include <cstdio>
 #include <cstring>
 #include <numeric>
@@ -147,7 +148,7 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	const std::vector<std::size_t> extents = {2, 2};
 	const std::vector<float> values = {-2.0F, -1.0F, 0.0F, 300.0F};
 
-	const numerical_type file_types[] = {
+	const std::array<numerical_type, 2> file_types = {
 		numerical_type::int16,
 		numerical_type::float32
 	};

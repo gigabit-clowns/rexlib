@@ -7,6 +7,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <array>
 #include <stdexcept>
 #include <vector>
 
@@ -152,7 +153,7 @@ TEST_CASE( "a batch is held in ascending file order",
 
 	// Stated 2, 0, 1 along the file, each paired with a different plane of
 	// the array, so that the order and the pairing are told apart.
-	const std::size_t positions[3] = {2, 0, 1};
+	const std::array<std::size_t, 3> positions = {2, 0, 1};
 
 	image_transfer_plan regions(image_transfer_shape(region, 3, 3));
 	for (std::size_t i = 0; i < 3; ++i)

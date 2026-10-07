@@ -14,6 +14,7 @@
 #include <rexlib/em/image/exceptions/image_format_error.hpp>
 #include <rexlib/em/image/image_descriptor.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
@@ -631,7 +632,7 @@ TEST_CASE( "a header built from a shape resolves back into that shape",
 			{3, 4}, {5, 3, 4}, {5, 3, 4}, {3, 4, 3, 4}, {1, 2, 3, 4},
 			{2, 1, 3, 4}
 		};
-		const std::size_t core_ranks[] = {2, 2, 3, 3, 3, 3};
+		const std::array<std::size_t, 6> core_ranks = {2, 2, 3, 3, 3, 3};
 
 		for (std::size_t i = 0; i < shapes.size(); ++i)
 		{
@@ -662,7 +663,7 @@ TEST_CASE( "a header built from a shape resolves back into that shape",
 		// Unsigned bytes share a mode with signed ones, and are told apart
 		// by the stamp the header carries.
 		const std::vector<std::size_t> image = {3, 4};
-		const numerical_type data_types[] = {
+		const std::array<numerical_type, 5> data_types = {
 			numerical_type::int8,
 			numerical_type::uint8,
 			numerical_type::int16,

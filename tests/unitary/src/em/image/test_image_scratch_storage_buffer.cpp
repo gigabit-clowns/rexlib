@@ -10,6 +10,7 @@
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/memory/byte.hpp>
 
+#include <array>
 #include <cstddef>
 #include <memory>
 #include <trompeloeil.hpp>
@@ -22,7 +23,7 @@ TEST_CASE(
 	"[image_scratch_storage_buffer]"
 )
 {
-	byte memory[16] = {};
+	std::array<rexlib::byte, 16> memory = {};
 	const auto storage = std::make_shared<mock_image_scratch_storage>();
 	const mock_image_scratch_storage &const_storage = *storage;
 	image_scratch_storage_buffer memory_buffer(storage);
@@ -30,16 +31,16 @@ TEST_CASE(
 
 	SECTION( "its memory is that of the storage" )
 	{
-		REQUIRE_CALL(*storage, get_data()).LR_RETURN(memory);
+		REQUIRE_CALL(*storage, get_data()).LR_RETURN(memory.data());
 
-		CHECK( memory_buffer.get_host_ptr() == memory );
+		CHECK( memory_buffer.get_host_ptr() == memory.data() );
 	}
 
 	SECTION( "also when it is only read" )
 	{
-		REQUIRE_CALL(const_storage, get_data()).LR_RETURN(memory);
+		REQUIRE_CALL(const_storage, get_data()).LR_RETURN(memory.data());
 
-		CHECK( const_buffer.get_host_ptr() == memory );
+		CHECK( const_buffer.get_host_ptr() == memory.data() );
 	}
 
 	SECTION( "its size is that of the storage" )

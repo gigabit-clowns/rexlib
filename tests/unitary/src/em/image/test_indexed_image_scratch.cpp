@@ -31,6 +31,7 @@
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <boost/filesystem/operations.hpp>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
@@ -99,9 +100,9 @@ image_transfer_plan images(const std::vector<std::size_t> &indices)
 	image_transfer_plan plan(image_transfer_shape(image_extents, 3, 3));
 	for (std::size_t slot = 0; slot < indices.size(); ++slot)
 	{
-		const std::size_t file_offset[3] = {indices[slot], 0, 0};
-		const std::size_t array_offset[3] = {slot, 0, 0};
-		plan.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		const std::array<std::size_t, 3> file_offset = {indices[slot], 0, 0};
+		const std::array<std::size_t, 3> array_offset = {slot, 0, 0};
+		plan.add(make_span(file_offset), make_span(array_offset));
 	}
 
 	return plan;
@@ -111,8 +112,8 @@ image_transfer_plan images(const std::vector<std::size_t> &indices)
 image_transfer_plan whole_stack()
 {
 	image_transfer_plan plan(image_transfer_shape(stack_extents, 3, 3));
-	const std::size_t offset[3] = {0, 0, 0};
-	plan.add(make_span(offset, 3), make_span(offset, 3));
+	const std::array<std::size_t, 3> offset = {0, 0, 0};
+	plan.add(make_span(offset), make_span(offset));
 
 	return plan;
 }
@@ -174,11 +175,11 @@ TEST_CASE(
 
 	SECTION( "storage that is not aligned for 64-bit integers is refused" )
 	{
-		alignas(std::uint64_t) rexlib::byte memory[64] = {};
+		alignas(std::uint64_t) std::array<rexlib::byte, 64> memory = {};
 		const auto storage = std::make_shared<mock_image_scratch_storage>();
 		const mock_image_scratch_storage &const_storage = *storage;
-		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory + 1);
-		ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory + 1);
+		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory.data() + 1);
+		ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory.data() + 1);
 		ALLOW_CALL(*storage, get_size()).RETURN(32);
 
 		REQUIRE_THROWS_AS(
@@ -194,11 +195,11 @@ TEST_CASE(
 
 	SECTION( "storage smaller than a fingerprint is refused" )
 	{
-		alignas(std::uint64_t) rexlib::byte memory[64] = {};
+		alignas(std::uint64_t) std::array<rexlib::byte, 64> memory = {};
 		const auto storage = std::make_shared<mock_image_scratch_storage>();
 		const mock_image_scratch_storage &const_storage = *storage;
-		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory);
-		ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory);
+		ALLOW_CALL(*storage, get_data()).LR_RETURN(memory.data());
+		ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory.data());
 		ALLOW_CALL(*storage, get_size()).RETURN(4);
 
 		REQUIRE_THROWS_AS(
@@ -381,7 +382,7 @@ TEST_CASE(
 		2,
 		numerical_type::complex_float64
 	);
-	alignas(16) rexlib::byte memory[512] = {};
+	alignas(16) std::array<rexlib::byte, 512> memory = {};
 	const auto storage = std::make_shared<mock_image_scratch_storage>();
 	const mock_image_scratch_storage &const_storage = *storage;
 	const auto reader = std::make_shared<mock_image_reader>();
@@ -390,8 +391,8 @@ TEST_CASE(
 		image_location("stack.mrcs", 0)
 	};
 
-	ALLOW_CALL(*storage, get_data()).LR_RETURN(memory + 8);
-	ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory + 8);
+	ALLOW_CALL(*storage, get_data()).LR_RETURN(memory.data() + 8);
+	ALLOW_CALL(const_storage, get_data()).LR_RETURN(memory.data() + 8);
 	ALLOW_CALL(*storage, get_size()).RETURN(256);
 	ALLOW_CALL(*reader, get_descriptor())
 		.RETURN(std::ref(complex_descriptor));

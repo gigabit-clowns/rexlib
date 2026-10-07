@@ -18,6 +18,7 @@
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -137,9 +138,9 @@ image_transfer_plan images(const std::vector<std::size_t> &indices)
 	image_transfer_plan plan(image_transfer_shape(image_extents, 3, 3));
 	for (std::size_t slot = 0; slot < indices.size(); ++slot)
 	{
-		const std::size_t file_offset[3] = {indices[slot], 0, 0};
-		const std::size_t array_offset[3] = {slot, 0, 0};
-		plan.add(make_span(file_offset, 3), make_span(array_offset, 3));
+		const std::array<std::size_t, 3> file_offset = {indices[slot], 0, 0};
+		const std::array<std::size_t, 3> array_offset = {slot, 0, 0};
+		plan.add(make_span(file_offset), make_span(array_offset));
 	}
 
 	return plan;
@@ -150,9 +151,9 @@ image_transfer_plan images(const std::vector<std::size_t> &indices)
 image_transfer_plan image_range(std::size_t first, std::size_t count)
 {
 	image_transfer_plan plan(image_transfer_shape({count, 2, 2}, 3, 3));
-	const std::size_t file_offset[3] = {first, 0, 0};
-	const std::size_t array_offset[3] = {0, 0, 0};
-	plan.add(make_span(file_offset, 3), make_span(array_offset, 3));
+	const std::array<std::size_t, 3> file_offset = {first, 0, 0};
+	const std::array<std::size_t, 3> array_offset = {0, 0, 0};
+	plan.add(make_span(file_offset), make_span(array_offset));
 
 	return plan;
 }
@@ -828,9 +829,9 @@ TEST_CASE(
 
 	// The second row of image 5, into an array of one row.
 	image_transfer_plan patch(image_transfer_shape({1, 2}, 3, 2));
-	const std::size_t file_offset[3] = {5, 1, 0};
-	const std::size_t array_offset[2] = {0, 0};
-	patch.add(make_span(file_offset, 3), make_span(array_offset, 2));
+	const std::array<std::size_t, 3> file_offset = {5, 1, 0};
+	const std::array<std::size_t, 2> array_offset = {0, 0};
+	patch.add(make_span(file_offset), make_span(array_offset));
 	auto destination =
 		make_host_array<float>({1, 2}, numerical_type::float32, untouched);
 
@@ -873,9 +874,9 @@ TEST_CASE(
 
 	// A plan for a file of two axes, where the stack has three.
 	image_transfer_plan plan(image_transfer_shape(image_extents, 2, 3));
-	const std::size_t file_offset[2] = {0, 0};
-	const std::size_t array_offset[3] = {0, 0, 0};
-	plan.add(make_span(file_offset, 2), make_span(array_offset, 3));
+	const std::array<std::size_t, 2> file_offset = {0, 0};
+	const std::array<std::size_t, 3> array_offset = {0, 0, 0};
+	plan.add(make_span(file_offset), make_span(array_offset));
 	auto destination = make_batch(1);
 
 	SECTION( "storing it reads nothing" )

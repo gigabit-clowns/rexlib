@@ -4,6 +4,7 @@
 
 #include <rexlib/core/layout/index_table.hpp>
 
+#include <array>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
@@ -45,10 +46,10 @@ TEST_CASE( "an index_table reads back what it was given", "[index_table]" )
 
 	SECTION( "indices are read back in order" )
 	{
-		const std::size_t first[3] = {2, 0, 0};
-		const std::size_t second[3] = {1, 4, 7};
-		table.add(make_span(first, 3));
-		table.add(make_span(second, 3));
+		const std::array<std::size_t, 3> first = {2, 0, 0};
+		const std::array<std::size_t, 3> second = {1, 4, 7};
+		table.add(make_span(first));
+		table.add(make_span(second));
 
 		REQUIRE( table.get_index_count() == 2 );
 		REQUIRE( to_vector(table.get(0)) ==
@@ -59,8 +60,8 @@ TEST_CASE( "an index_table reads back what it was given", "[index_table]" )
 
 	SECTION( "clear drops the indices but keeps the rank" )
 	{
-		const std::size_t index[3] = {0, 0, 0};
-		table.add(make_span(index, 3));
+		const std::array<std::size_t, 3> index = {0, 0, 0};
+		table.add(make_span(index));
 		table.clear();
 
 		REQUIRE( table.get_index_count() == 0 );
@@ -72,12 +73,12 @@ TEST_CASE( "an index_table refuses an index of the wrong rank",
 	"[index_table]" )
 {
 	index_table table(3);
-	const std::size_t two[2] = {0, 0};
+	const std::array<std::size_t, 2> two = {0, 0};
 
 	SECTION( "an index of the wrong rank throws" )
 	{
 		REQUIRE_THROWS_AS(
-			table.add(make_span(two, 2)),
+			table.add(make_span(two)),
 			std::invalid_argument
 		);
 	}
@@ -85,7 +86,7 @@ TEST_CASE( "an index_table refuses an index of the wrong rank",
 	SECTION( "a refused index is not appended" )
 	{
 		REQUIRE_THROWS_AS(
-			table.add(make_span(two, 2)),
+			table.add(make_span(two)),
 			std::invalid_argument
 		);
 		REQUIRE( table.get_index_count() == 0 );
@@ -122,8 +123,8 @@ TEST_CASE( "an index_table reused across calls stops allocating",
 		table.clear();
 		for (std::size_t i = 0; i < count; ++i)
 		{
-			const std::size_t index[3] = {i, 0, 0};
-			table.add(make_span(index, 3));
+			const std::array<std::size_t, 3> index = {i, 0, 0};
+			table.add(make_span(index));
 		}
 	};
 
@@ -152,8 +153,8 @@ TEST_CASE( "an index_table reused across calls stops allocating",
 TEST_CASE( "an index_table has value semantics", "[index_table]" )
 {
 	index_table table(3);
-	const std::size_t index[3] = {2, 0, 0};
-	table.add(make_span(index, 3));
+	const std::array<std::size_t, 3> index = {2, 0, 0};
+	table.add(make_span(index));
 
 	SECTION( "a copy holds the same indices" )
 	{

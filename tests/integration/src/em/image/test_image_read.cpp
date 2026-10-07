@@ -20,6 +20,7 @@
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
 
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -60,8 +61,8 @@ void add_centre(
 	std::size_t x
 )
 {
-	const std::size_t values[3] = {z, y, x};
-	centres.add(make_span(values, 3));
+	const std::array<std::size_t, 3> values = {z, y, x};
+	centres.add(make_span(values));
 }
 
 } // anonymous namespace
