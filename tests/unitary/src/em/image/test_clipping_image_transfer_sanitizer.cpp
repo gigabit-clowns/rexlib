@@ -7,6 +7,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <array>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
@@ -36,9 +37,11 @@ void add_patch(
 	std::size_t patch_column
 )
 {
-	const std::size_t file_offset[2] = {file_row, file_column};
-	const std::size_t array_offset[3] = {slot, patch_row, patch_column};
-	regions.add(make_span(file_offset, 2), make_span(array_offset, 3));
+	const std::array<std::size_t, 2> file_offset = {file_row, file_column};
+	const std::array<std::size_t, 3> array_offset = {
+		slot, patch_row, patch_column
+	};
+	regions.add(make_span(file_offset), make_span(array_offset));
 }
 
 image_transfer_plan make_patch_plan()
@@ -302,9 +305,9 @@ TEST_CASE(
 	const std::vector<std::size_t> stack_extents = {6, 100, 100};
 	image_transfer_plan regions(image_transfer_shape(patch_extents, 3, 3));
 
-	const std::size_t file_offset[3] = {4, 95, 40};
-	const std::size_t array_offset[3] = {0, 0, 0};
-	regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+	const std::array<std::size_t, 3> file_offset = {4, 95, 40};
+	const std::array<std::size_t, 3> array_offset = {0, 0, 0};
+	regions.add(make_span(file_offset), make_span(array_offset));
 
 	const auto array_extents = make_array_extents(1);
 

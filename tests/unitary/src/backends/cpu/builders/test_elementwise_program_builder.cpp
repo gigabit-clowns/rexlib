@@ -23,6 +23,7 @@
 #include <rexlib/core/hardware/program.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/numerical/numerical_cast.hpp>
 #include <rexlib/core/span.hpp>
 
 #include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
@@ -281,7 +282,7 @@ struct coordinate_kernel
 		const multidimensional_index &index
 	) const noexcept
 	{
-		*result = static_cast<T>(10*index[0] + index[1]);
+		*result = numerical_cast<T>(10*index[0] + index[1]);
 	}
 };
 

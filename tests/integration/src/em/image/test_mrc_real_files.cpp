@@ -14,6 +14,7 @@
 #include <rexlib/functional/creation.hpp>
 #include <rexlib/tests/assets.hpp>
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <fstream>
@@ -70,11 +71,13 @@ std::vector<float> values_along_space_of(const std::string &path)
 	const std::size_t columns = static_cast<std::size_t>(field(raw, 0));
 	const std::size_t rows = static_cast<std::size_t>(field(raw, 4));
 	const std::size_t sections = static_cast<std::size_t>(field(raw, 8));
-	const std::size_t counts[3] = {columns, rows, sections};
-	const std::size_t stored_strides[3] = {1, columns, columns * rows};
+	const std::array<std::size_t, 3> counts = {columns, rows, sections};
+	const std::array<std::size_t, 3> stored_strides = {
+		1, columns, columns * rows
+	};
 
-	std::size_t extents[3] = {0, 0, 0};
-	std::size_t strides[3] = {0, 0, 0};
+	std::array<std::size_t, 3> extents = {0, 0, 0};
+	std::array<std::size_t, 3> strides = {0, 0, 0};
 	for (std::size_t stored = 0; stored < 3; ++stored)
 	{
 		const auto axis =
@@ -187,7 +190,9 @@ TEST_CASE_METHOD( cpu_execution_context_fixture,
 	const auto manager =
 		catalog.get_service_manager<image_read_format_manager>();
 
-	const std::string names[] = {"EMD-3197.map", "EMD-3001.map"};
+	const std::array<std::string, 2> names = {
+		"EMD-3197.map", "EMD-3001.map"
+	};
 	for (const auto &name : names)
 	{
 		const auto path = get_mrc_asset_path(name);

@@ -4,6 +4,7 @@
 
 #include <backends/cpu/kernels/ordering.hpp>
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -124,7 +125,7 @@ TEST_CASE(
 {
 	// The predicate answers with which of the two won, where the pair of
 	// functions above answer with the winner itself.
-	const double values[] = { -2.5, 0.0, 1.0, 7.25 };
+	const std::array<double, 4> values = { -2.5, 0.0, 1.0, 7.25 };
 
 	for (const double x : values)
 	{
