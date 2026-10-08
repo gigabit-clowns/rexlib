@@ -15,6 +15,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <cstdint>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -37,6 +38,13 @@ T reversed(T value)
 	T result;
 	std::memcpy(&result, raw, sizeof(result));
 	return result;
+}
+
+// A complex value is two values side by side, each reversed on its own.
+template <typename T>
+std::complex<T> reversed(const std::complex<T> &value)
+{
+	return std::complex<T>(reversed(value.real()), reversed(value.imag()));
 }
 
 template <typename T>
@@ -85,7 +93,127 @@ rexlib::byte* as_file(std::vector<T> &values)
 	return reinterpret_cast<rexlib::byte*>(values.data());
 }
 
+template <typename T>
+bool same_bytes(const std::vector<T> &lhs, const std::vector<T> &rhs)
+{
+	return
+		lhs.size() == rhs.size() &&
+		std::memcmp(lhs.data(), rhs.data(), lhs.size() * sizeof(T)) == 0;
+}
+
+// Writes four values into a file of their own type and reads them back, in
+// a given byte order, and checks both what the file holds and what returns.
+template <typename T>
+void check_held_in(const std::vector<T> &values, byte_order order)
+{
+	const std::vector<std::size_t> extents = {2, 2};
+	const auto strides = contiguous_strides(extents);
+	const auto type = numerical_type_of<T>::value;
+
+	image_transfer_plan regions(image_transfer_shape(extents, 2, 2));
+	regions.add(make_span(std::vector<std::size_t>{0, 0}),
+		make_span(std::vector<std::size_t>{0, 0}));
+
+	std::vector<T> file(values.size());
+	const image_region_write_walk writer(
+		regions,
+		make_span(extents), make_span(strides),
+		make_span(extents), make_span(strides),
+		0
+	);
+	write_regions(
+		writer, values.data(), type, as_file(file), type, order);
+
+	std::vector<T> expected = values;
+	if (order != get_system_byte_order())
+	{
+		std::transform(values.begin(), values.end(), expected.begin(),
+			[] (const T &value) { return reversed(value); });
+	}
+
+	REQUIRE( same_bytes(file, expected) );
+
+	std::vector<T> reread(values.size());
+	const image_region_read_walk reader(
+		regions,
+		make_span(extents), make_span(strides),
+		make_span(extents), make_span(strides),
+		0
+	);
+	read_regions(
+		reader, reread.data(), type, as_file(file), type, order);
+
+	REQUIRE( same_bytes(reread, values) );
+}
+
+template <typename T>
+void check_held(const std::vector<T> &values)
+{
+	check_held_in(values, get_system_byte_order());
+	check_held_in(values, other_byte_order());
+}
+
 } // anonymous namespace
+
+TEST_CASE( "a file holds every integer, floating point and complex type",
+	"[image_region_transfer]" )
+{
+	SECTION( "integers of one byte" )
+	{
+		check_held<std::int8_t>({-128, -1, 0, 127});
+		check_held<std::uint8_t>({0, 1, 128, 255});
+	}
+
+	SECTION( "integers of two bytes" )
+	{
+		check_held<std::int16_t>({-32768, -2, 258, 32767});
+		check_held<std::uint16_t>({0, 258, 32768, 65535});
+	}
+
+	SECTION( "integers of four bytes" )
+	{
+		check_held<std::int32_t>({-2147483647 - 1, -2, 16909060, 2147483647});
+		check_held<std::uint32_t>({0U, 16909060U, 2147483648U, 4294967295U});
+	}
+
+	SECTION( "integers of eight bytes" )
+	{
+		check_held<std::int64_t>({
+			-9223372036854775807LL - 1, -2, 72623859790382856LL,
+			9223372036854775807LL
+		});
+		check_held<std::uint64_t>({
+			0ULL, 72623859790382856ULL, 9223372036854775808ULL,
+			18446744073709551615ULL
+		});
+	}
+
+	SECTION( "floating point numbers" )
+	{
+		check_held<float16_t>({
+			float16_t(0.5F), float16_t(-1.5F), float16_t(0.0F),
+			float16_t(1024.0F)
+		});
+		check_held<float32_t>({0.5F, -1.5F, 0.0F, 16777216.0F});
+		check_held<float64_t>({0.5, -1.5, 0.0, 9007199254740993.0});
+	}
+
+	SECTION( "complex numbers" )
+	{
+		check_held<std::complex<float16_t>>({
+			{float16_t(0.5F), float16_t(-1.5F)},
+			{float16_t(0.0F), float16_t(1.0F)},
+			{float16_t(3.0F), float16_t(4.0F)},
+			{float16_t(-1.0F), float16_t(0.25F)}
+		});
+		check_held<std::complex<float32_t>>({
+			{0.5F, -1.5F}, {0.0F, 1.0F}, {3.0F, 4.0F}, {-1.0F, 0.25F}
+		});
+		check_held<std::complex<float64_t>>({
+			{0.5, -1.5}, {0.0, 1.0}, {3.0, 4.0}, {-1.0, 0.25}
+		});
+	}
+}
 
 TEST_CASE( "the operand named first is the one the axes are ordered for",
 	"[image_region_transfer]" )
@@ -461,14 +589,23 @@ TEST_CASE( "values are converted into the type asked for",
 
 	SECTION( "a file data type no transfer moves is refused" )
 	{
-		const std::vector<float64_t> file(4);
-		std::vector<float64_t> array(4);
+		const std::vector<std::uint8_t> file(4);
+		std::vector<std::uint8_t> array(4);
 
 		REQUIRE_THROWS_AS(
 			read_regions(
 			plan,
-				array.data(), numerical_type::float64,
-				as_file(file), numerical_type::float64,
+				array.data(), numerical_type::uint8,
+				as_file(file), numerical_type::boolean,
+				get_system_byte_order()
+			),
+			unsupported_operation_error
+		);
+		REQUIRE_THROWS_AS(
+			read_regions(
+			plan,
+				array.data(), numerical_type::uint8,
+				as_file(file), numerical_type::char8,
 				get_system_byte_order()
 			),
 			unsupported_operation_error

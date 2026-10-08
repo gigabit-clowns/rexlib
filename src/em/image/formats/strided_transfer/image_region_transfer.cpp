@@ -6,6 +6,7 @@
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <complex>
+#include <cstdint>
 
 namespace rexlib
 {
@@ -17,17 +18,24 @@ namespace em
 // the image_region_transfer_<type>.cpp files. Only the dispatch onto them is
 // here.
 
-// Every data type files are transferred in, which is a much shorter list than
-// every data type there is: the array side is dispatched over all of them,
-// the file side only over these.
+// Every data type files are transferred in: the integers, the floating
+// point numbers and the complex ones. A boolean and a character are left
+// out, since neither is what a sample of an image is held as.
 #define REXLIB_IMAGE_REGION_FILE_TYPES(visit) \
 	visit(int8, std::int8_t); \
 	visit(uint8, std::uint8_t); \
 	visit(int16, std::int16_t); \
 	visit(uint16, std::uint16_t); \
+	visit(int32, std::int32_t); \
+	visit(uint32, std::uint32_t); \
+	visit(int64, std::int64_t); \
+	visit(uint64, std::uint64_t); \
 	visit(float16, float16_t); \
 	visit(float32, float32_t); \
-	visit(complex_float32, std::complex<float32_t>)
+	visit(float64, float64_t); \
+	visit(complex_float16, std::complex<float16_t>); \
+	visit(complex_float32, std::complex<float32_t>); \
+	visit(complex_float64, std::complex<float64_t>)
 
 namespace
 {

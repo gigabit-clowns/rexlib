@@ -27,6 +27,8 @@ include(rexlib_add_spdlog)
 include(rexlib_add_boost)
 include(rexlib_add_pocketfft)
 include(rexlib_add_eigen)
+include(rexlib_add_zlib)
+include(rexlib_add_tiff)
 
 # ---------------------------------------------------------------------------
 # Options
@@ -48,6 +50,8 @@ option(REXLIB_USE_SYSTEM_SPDLOG "Use find_package for spdlog" OFF)
 option(REXLIB_USE_SYSTEM_HALF "Use find_package for half" OFF)
 option(REXLIB_USE_SYSTEM_POCKETFFT "Use find_package for pocketfft" OFF)
 option(REXLIB_USE_SYSTEM_EIGEN "Use find_package for Eigen" OFF)
+option(REXLIB_USE_SYSTEM_ZLIB "Use find_package for zlib" OFF)
+option(REXLIB_USE_SYSTEM_TIFF "Use find_package for libtiff" OFF)
 
 # The global switch turns all of them on, on every configure rather than only
 # seeding their defaults, so that setting it on a build directory that already
@@ -58,6 +62,8 @@ if(REXLIB_USE_SYSTEM_DEPENDENCIES)
 	set(REXLIB_USE_SYSTEM_HALF ON)
 	set(REXLIB_USE_SYSTEM_POCKETFFT ON)
 	set(REXLIB_USE_SYSTEM_EIGEN ON)
+	set(REXLIB_USE_SYSTEM_ZLIB ON)
+	set(REXLIB_USE_SYSTEM_TIFF ON)
 endif()
 
 # The default goes through a variable of its own: assigning to the cache
@@ -88,6 +94,8 @@ rexlib_add_half(VERSION 2.2.1)
 rexlib_add_spdlog(VERSION 1.17.0 MINIMUM 1.4.0)
 rexlib_add_pocketfft(COMMIT c90e55b3d529f8efa40ed01a20de22405f45fc65)
 rexlib_add_eigen(VERSION 5.0.1)
+rexlib_add_zlib(VERSION 1.3.2 MINIMUM 1.2.0)
+rexlib_add_tiff(VERSION 4.7.2 MINIMUM 4.5.0)
 
 # ---------------------------------------------------------------------------
 # The package
