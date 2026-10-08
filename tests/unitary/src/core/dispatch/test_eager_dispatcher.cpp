@@ -10,6 +10,7 @@
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/dispatch/operation_id.hpp>
 #include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
@@ -36,11 +37,13 @@
 #include "../hardware/mock/mock_memory_resource.hpp"
 #include "../hardware/mock/mock_memory_allocator.hpp"
 #include "../hardware/mock/mock_command_queue.hpp"
+#include "../hardware/mock/mock_command_timeline.hpp"
 #include "../hardware/mock/mock_buffer.hpp"
 #include "../hardware/mock/mock_program.hpp"
 
 #include <trompeloeil.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 #include <stdexcept>
@@ -59,6 +62,27 @@ array_descriptor make_descriptor(const shape_type &shape, numerical_type type)
 		strided_layout::make_contiguous_layout(make_span(shape)),
 		type
 	);
+}
+
+std::vector<std::size_t> sorted_ids_of(span<const command_token> tokens)
+{
+	std::vector<std::size_t> result;
+	for (const auto &token : tokens)
+	{
+		result.push_back(token.get_id());
+	}
+	std::sort(result.begin(), result.end());
+	return result;
+}
+
+std::vector<std::size_t> sorted_ids_to_wait_for(
+	const access_hazard_tracker &tracker,
+	access_flags access
+)
+{
+	std::vector<command_token> tokens;
+	tracker.collect(access, tokens);
+	return sorted_ids_of(make_span(tokens));
 }
 
 class eager_dispatcher_fixture
@@ -655,6 +679,202 @@ TEST_CASE_METHOD(
 		make_span(&output, 1),
 		make_span(&input, 1),
 		context
+	);
+}
+
+TEST_CASE_METHOD(
+	eager_dispatcher_fixture,
+	"eager_dispatcher dispatch makes the command depend on the commands "
+	"that still access its operands",
+	"[eager_dispatcher]"
+)
+{
+	const shape_type shape{4};
+	const auto type = numerical_type::float32;
+
+	expect_unary_operation(shape, type);
+	expect_policies_accept();
+	register_program_builder();
+	expect_program_scratch(); // No scratch required.
+
+	const auto timeline = std::make_shared<mock_command_timeline>();
+
+	// A command still writes the output and another still reads it.
+	array output(make_buffer(), make_descriptor(shape, type));
+	auto &output_tracker = *output.get_access_hazard_tracker();
+	output_tracker.add(command_token(timeline, 1), write_only);
+	output_tracker.add(command_token(timeline, 2), read_only);
+
+	// A command still writes the input and another still reads it.
+	const const_array input_owner = make_input_with_storage(shape, type);
+	const const_array_ref input = input_owner;
+	auto &input_tracker = *input.get_access_hazard_tracker();
+	input_tracker.add(command_token(timeline, 3), write_only);
+	input_tracker.add(command_token(timeline, 4), read_only);
+
+	// Reading the input does not conflict with the command that reads it.
+	const std::vector<std::size_t> expected = { 1, 2, 3 };
+	auto &queue = static_cast<mock_command_queue&>(*default_queue);
+	REQUIRE_CALL(queue, submit(ANY(command)))
+		.LR_WITH(sorted_ids_of(_1.get_dependencies()) == expected)
+		.RETURN(command_token());
+
+	eager_dispatcher->dispatch(
+		op,
+		make_span(&output, 1),
+		make_span(&input, 1),
+		context
+	);
+}
+
+TEST_CASE_METHOD(
+	eager_dispatcher_fixture,
+	"eager_dispatcher dispatch records the submitted command on its "
+	"operands",
+	"[eager_dispatcher]"
+)
+{
+	const shape_type shape{4};
+	const auto type = numerical_type::float32;
+
+	expect_unary_operation(shape, type);
+	expect_policies_accept();
+	register_program_builder();
+	expect_program_scratch(); // No scratch required.
+
+	const auto timeline = std::make_shared<mock_command_timeline>();
+
+	array output(make_buffer(), make_descriptor(shape, type));
+	auto &output_tracker = *output.get_access_hazard_tracker();
+	output_tracker.add(command_token(timeline, 1), write_only);
+	output_tracker.add(command_token(timeline, 2), read_only);
+
+	const const_array input_owner = make_input_with_storage(shape, type);
+	const const_array_ref input = input_owner;
+	auto &input_tracker = *input.get_access_hazard_tracker();
+	input_tracker.add(command_token(timeline, 3), write_only);
+
+	auto &queue = static_cast<mock_command_queue&>(*default_queue);
+	REQUIRE_CALL(queue, submit(ANY(command)))
+		.RETURN(command_token(timeline, 9));
+
+	eager_dispatcher->dispatch(
+		op,
+		make_span(&output, 1),
+		make_span(&input, 1),
+		context
+	);
+
+	// The command is the write of the output, and replaces what was there.
+	const std::vector<std::size_t> output_expected = { 9 };
+	CHECK(
+		sorted_ids_to_wait_for(output_tracker, write_only) == output_expected
+	);
+
+	// The command is one more read of the input.
+	const std::vector<std::size_t> input_expected = { 3, 9 };
+	CHECK(
+		sorted_ids_to_wait_for(input_tracker, write_only) == input_expected
+	);
+	CHECK(
+		sorted_ids_to_wait_for(input_tracker, read_only) ==
+		std::vector<std::size_t>{ 3 }
+	);
+}
+
+TEST_CASE_METHOD(
+	eager_dispatcher_fixture,
+	"eager_dispatcher dispatch records the submitted command on an output "
+	"it allocates",
+	"[eager_dispatcher]"
+)
+{
+	const shape_type shape{4};
+	const auto type = numerical_type::float32;
+
+	expect_unary_operation(shape, type);
+	register_program_builder();
+	expect_program_scratch(); // No scratch required.
+
+	const auto output_buffer = make_buffer();
+	REQUIRE_CALL(
+		*device_allocator,
+		allocate(ANY(std::size_t), ANY(std::size_t), ANY(command_queue*))
+	)
+		.RETURN(output_buffer);
+
+	const const_array input_owner = make_input_with_storage(shape, type);
+	const const_array_ref input = input_owner;
+
+	const auto timeline = std::make_shared<mock_command_timeline>();
+	auto &queue = static_cast<mock_command_queue&>(*default_queue);
+	REQUIRE_CALL(queue, submit(ANY(command)))
+		.WITH(_1.get_dependencies().empty())
+		.RETURN(command_token(timeline, 9));
+
+	array output;
+	eager_dispatcher->dispatch(
+		op,
+		make_span(&output, 1),
+		make_span(&input, 1),
+		context
+	);
+
+	REQUIRE( output.get_access_hazard_tracker() != nullptr );
+	const std::vector<std::size_t> expected = { 9 };
+	CHECK(
+		sorted_ids_to_wait_for(
+			*output.get_access_hazard_tracker(),
+			read_only
+		) == expected
+	);
+}
+
+TEST_CASE_METHOD(
+	eager_dispatcher_fixture,
+	"eager_dispatcher dispatch leaves its operands as they were when the "
+	"queue rejects the command",
+	"[eager_dispatcher]"
+)
+{
+	const shape_type shape{4};
+	const auto type = numerical_type::float32;
+
+	expect_unary_operation(shape, type);
+	expect_policies_accept();
+	register_program_builder();
+	expect_program_scratch(); // No scratch required.
+
+	const auto timeline = std::make_shared<mock_command_timeline>();
+
+	array output(make_buffer(), make_descriptor(shape, type));
+	auto &output_tracker = *output.get_access_hazard_tracker();
+	output_tracker.add(command_token(timeline, 1), write_only);
+
+	const const_array input_owner = make_input_with_storage(shape, type);
+	const const_array_ref input = input_owner;
+
+	auto &queue = static_cast<mock_command_queue&>(*default_queue);
+	REQUIRE_CALL(queue, submit(ANY(command)))
+		.THROW(std::invalid_argument("rejected"));
+
+	CHECK_THROWS_AS(
+		eager_dispatcher->dispatch(
+			op,
+			make_span(&output, 1),
+			make_span(&input, 1),
+			context
+		),
+		std::invalid_argument
+	);
+
+	const std::vector<std::size_t> expected = { 1 };
+	CHECK( sorted_ids_to_wait_for(output_tracker, read_only) == expected );
+	CHECK(
+		sorted_ids_to_wait_for(
+			*input.get_access_hazard_tracker(),
+			write_only
+		).empty()
 	);
 }
 

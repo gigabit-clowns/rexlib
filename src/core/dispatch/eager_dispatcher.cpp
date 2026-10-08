@@ -3,6 +3,7 @@
 #include "eager_dispatcher.hpp"
 
 #include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
@@ -299,6 +300,49 @@ std::vector<std::shared_ptr<buffer>> allocate_scratch(
 
 	return result;
 }
+
+std::vector<command_token> collect_dependencies(
+	span<const array> output_operands,
+	span<const const_array_ref> input_operands
+)
+{
+	std::vector<command_token> result;
+
+	for (const auto &input_operand : input_operands)
+	{
+		auto *tracker = input_operand.get_access_hazard_tracker();
+		REXLIB_ASSERT(tracker);
+		tracker->collect(read_only, result);
+	}
+
+	for (const auto &output_operand : output_operands)
+	{
+		auto *tracker = output_operand.get_access_hazard_tracker();
+		REXLIB_ASSERT(tracker);
+		tracker->collect(read_write, result);
+	}
+
+	return result;
+}
+
+void track_accesses(
+	const command_token &token,
+	span<const array> output_operands,
+	span<const const_array_ref> input_operands
+)
+{
+	for (const auto &input_operand : input_operands)
+	{
+		input_operand.get_access_hazard_tracker()->add(token, read_only);
+	}
+
+	// Recorded last: an operand that is also an input ends up written.
+	for (const auto &output_operand : output_operands)
+	{
+		output_operand.get_access_hazard_tracker()->add(token, write_only);
+	}
+}
+
 } // anonymous namespace
 
 eager_dispatcher::eager_dispatcher(
@@ -449,9 +493,13 @@ void eager_dispatcher::dispatch(
 	command cmd(std::move(prog));
 	cmd.bind_outputs(std::move(output_storages))
 		.bind_inputs(std::move(input_storages))
-		.bind_scratch(std::move(scratch));
+		.bind_scratch(std::move(scratch))
+		.bind_dependencies(
+			collect_dependencies(output_operands, input_operands)
+		);
 
-	queue->submit(std::move(cmd));
+	const auto token = queue->submit(std::move(cmd));
+	track_accesses(token, output_operands, input_operands);
 }
 
 // Declared in dispatcher.hpp.
