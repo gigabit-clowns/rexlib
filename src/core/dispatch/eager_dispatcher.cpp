@@ -322,14 +322,14 @@ std::vector<command_token> collect_dependencies(
 
 	for (const auto &input_operand : input_operands)
 	{
-		auto *tracker = input_operand.get_access_hazard_tracker();
+		const auto *tracker = input_operand.get_access_hazard_tracker();
 		REXLIB_ASSERT(tracker);
 		tracker->collect(read_only, result);
 	}
 
 	for (const auto &output_operand : output_operands)
 	{
-		auto *tracker = output_operand.get_access_hazard_tracker();
+		const auto *tracker = output_operand.get_access_hazard_tracker();
 		REXLIB_ASSERT(tracker);
 		tracker->collect(read_write, result);
 	}
