@@ -9,7 +9,10 @@
 #include <rexlib/ops/complex/angle_operation.hpp>
 #include <rexlib/ops/complex/conjugate_operation.hpp>
 
+#include <core/ndarray/array_implementation.hpp>
+
 #include <cstddef>
+#include <memory>
 #include <sstream>
 #include <stdexcept>
 #include <vector>
@@ -66,6 +69,25 @@ array_descriptor make_part_descriptor(
 	);
 }
 
+/**
+ * @brief View one part of the elements of a complex array.
+ *
+ * @param x The array to view into. Must be initialized and complex.
+ * @param part The part to view: 0 for the real one, 1 for the imaginary
+ * one.
+ * @return array The view. It shares the storage of @p x and its tracker.
+ */
+array make_part_view(const array &x, std::ptrdiff_t part)
+{
+	const auto &implementation = *x.get_implementation();
+	return array(
+		std::make_shared<const array_implementation>(
+			implementation,
+			make_part_descriptor(implementation.get_descriptor(), part)
+		)
+	);
+}
+
 } // anonymous namespace
 
 array real(array &x)
@@ -77,7 +99,7 @@ array real(array &x)
 		return x.share();
 	}
 
-	return array(x.share_storage(), make_part_descriptor(descriptor, 0));
+	return make_part_view(x, 0);
 }
 
 array imag(array &x)
@@ -94,7 +116,7 @@ array imag(array &x)
 		throw std::invalid_argument(oss.str());
 	}
 
-	return array(x.share_storage(), make_part_descriptor(descriptor, 1));
+	return make_part_view(x, 1);
 }
 
 array conjugate(

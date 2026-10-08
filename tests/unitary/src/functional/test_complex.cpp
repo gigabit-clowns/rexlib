@@ -149,3 +149,21 @@ TEST_CASE_METHOD(
 {
 	check_unary_verb<angle_operation>(angle);
 }
+
+TEST_CASE_METHOD(
+	verb_dispatch_fixture,
+	"real and imag share the access hazard tracker of their source",
+	"[array_complex]"
+)
+{
+	array x(std::make_shared<mock_buffer>(), make_descriptor({ 2, 3 },
+		numerical_type::complex_float32));
+	const auto *tracker = x.get_access_hazard_tracker();
+	REQUIRE( tracker != nullptr );
+
+	const array real_part = real(x);
+	const array imag_part = imag(x);
+
+	CHECK( real_part.get_access_hazard_tracker() == tracker );
+	CHECK( imag_part.get_access_hazard_tracker() == tracker );
+}

@@ -18,6 +18,7 @@
 #include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
+#include <core/ndarray/array_implementation.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -244,12 +245,18 @@ array empty(
 		return array(std::move(storage), std::move(descriptor));
 	}
 
-	if (
-		out->get_storage() != storage.get() ||
-		out->get_descriptor() != descriptor
-	)
+	if (out->get_storage() != storage.get())
 	{
 		*out = array(std::move(storage), std::move(descriptor));
+	}
+	else if (out->get_descriptor() != descriptor)
+	{
+		*out = array(
+			std::make_shared<const array_implementation>(
+				*out->get_implementation(),
+				std::move(descriptor)
+			)
+		);
 	}
 
 	return out->share();

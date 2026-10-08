@@ -75,4 +75,60 @@ TEST_CASE("Calling share on an array should return an array with the same conten
 	CHECK( arr1.get_storage() == arr2.get_storage() );
 	CHECK( &arr1.get_descriptor() == &arr3.get_descriptor() );
 	CHECK( arr1.get_storage() == arr3.get_storage() );
-}	
+}
+
+TEST_CASE(
+	"Default constructed array should have no access hazard tracker",
+	"[array]"
+)
+{
+	const array arr;
+	CHECK( arr.get_access_hazard_tracker() == nullptr );
+}
+
+TEST_CASE(
+	"An array should share its access hazard tracker with its aliases",
+	"[array]"
+)
+{
+	const std::vector<std::size_t> extents = {20, 50};
+	const array_descriptor descriptor(
+		strided_layout::make_contiguous_layout(make_span(extents)),
+		numerical_type::float32
+	);
+
+	array arr(std::make_shared<mock_buffer>(), descriptor);
+	const auto alias = arr.share();
+	const auto const_alias = arr.share_const();
+
+	REQUIRE( arr.get_access_hazard_tracker() != nullptr );
+	CHECK(
+		alias.get_access_hazard_tracker() ==
+		arr.get_access_hazard_tracker()
+	);
+	CHECK(
+		const_alias.get_access_hazard_tracker() ==
+		arr.get_access_hazard_tracker()
+	);
+}
+
+TEST_CASE(
+	"Arrays built separately over one buffer should have a tracker each",
+	"[array]"
+)
+{
+	const std::vector<std::size_t> extents = {20, 50};
+	const array_descriptor descriptor(
+		strided_layout::make_contiguous_layout(make_span(extents)),
+		numerical_type::float32
+	);
+
+	const auto storage = std::make_shared<mock_buffer>();
+	const array first(storage, descriptor);
+	const array second(storage, descriptor);
+
+	CHECK(
+		first.get_access_hazard_tracker() !=
+		second.get_access_hazard_tracker()
+	);
+}

@@ -61,6 +61,15 @@ const_array_ref::share_storage() const noexcept
 		nullptr;
 }
 
+access_hazard_tracker*
+const_array_ref::get_access_hazard_tracker() const noexcept
+{
+	return
+		m_implementation ?
+		m_implementation->get_access_hazard_tracker() :
+		nullptr;
+}
+
 const array_implementation*
 const_array_ref::get_implementation() const noexcept
 {

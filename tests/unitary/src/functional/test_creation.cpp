@@ -192,6 +192,7 @@ TEST_CASE_METHOD(
 		.LR_RETURN(host_resource);
 
 	array out(buffer, stale_descriptor);
+	const auto *tracker = out.get_access_hazard_tracker();
 
 	const auto result = empty(
 		descriptor,
@@ -204,6 +205,10 @@ TEST_CASE_METHOD(
 	CHECK( result.get_storage() == buffer.get() );
 	CHECK( out.get_storage() == buffer.get() );
 	CHECK( out.get_descriptor() == descriptor );
+
+	// The memory is the same, so the commands recorded on it still count.
+	CHECK( out.get_access_hazard_tracker() == tracker );
+	CHECK( result.get_access_hazard_tracker() == tracker );
 }
 
 TEST_CASE_METHOD(

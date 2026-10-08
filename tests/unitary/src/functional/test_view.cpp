@@ -277,3 +277,29 @@ TEST_CASE( "subarray keeps the axes it is not given", "[view]" )
 		REQUIRE( view.get_descriptor().get_layout().get_offset() == 0 );
 	}
 }
+
+TEST_CASE( "subarray shares the access hazard tracker of its input", "[view]" )
+{
+	subarray_fixture fixture;
+	const std::vector<dynamic_subscript> subscripts = {
+		std::ptrdiff_t(2), all(), all()
+	};
+	const auto *tracker = fixture.get_parent().get_access_hazard_tracker();
+	REQUIRE( tracker != nullptr );
+
+	SECTION( "through a mutable array" )
+	{
+		const array view = subarray(
+			fixture.get_parent(),
+			make_span(subscripts)
+		);
+		CHECK( view.get_access_hazard_tracker() == tracker );
+	}
+
+	SECTION( "through a read-only reference" )
+	{
+		const const_array_ref input(fixture.get_parent());
+		const const_array view = subarray(input, make_span(subscripts));
+		CHECK( view.get_access_hazard_tracker() == tracker );
+	}
+}

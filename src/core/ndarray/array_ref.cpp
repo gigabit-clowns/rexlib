@@ -65,6 +65,15 @@ std::shared_ptr<const buffer> array_ref::share_storage() const noexcept
 		nullptr;
 }
 
+access_hazard_tracker*
+array_ref::get_access_hazard_tracker() const noexcept
+{
+	return
+		m_implementation ?
+		m_implementation->get_access_hazard_tracker() :
+		nullptr;
+}
+
 const array_implementation* array_ref::get_implementation() const noexcept
 {
 	return m_implementation;

@@ -95,3 +95,34 @@ TEST_CASE("const_array_ref should be constructible from the whole family", "[con
 	CHECK( std::is_convertible<array_ref, const_array_ref>::value );
 	CHECK_FALSE( std::is_constructible<const_array, const_array_ref>::value );
 }
+
+TEST_CASE(
+	"Default constructed const_array_ref should have no access hazard "
+	"tracker",
+	"[const_array_ref]"
+)
+{
+	const const_array_ref ref;
+	CHECK( ref.get_access_hazard_tracker() == nullptr );
+}
+
+TEST_CASE(
+	"const_array_ref should give the access hazard tracker of its source",
+	"[const_array_ref]"
+)
+{
+	const std::vector<std::size_t> extents = {20, 50};
+	const array_descriptor descriptor(
+		strided_layout::make_contiguous_layout(make_span(extents)),
+		numerical_type::float32
+	);
+
+	const array arr(std::make_shared<mock_buffer>(), descriptor);
+	const const_array_ref ref = arr;
+
+	REQUIRE( ref.get_access_hazard_tracker() != nullptr );
+	CHECK(
+		ref.get_access_hazard_tracker() ==
+		arr.get_access_hazard_tracker()
+	);
+}

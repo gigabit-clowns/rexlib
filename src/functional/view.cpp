@@ -27,7 +27,7 @@ static std::shared_ptr<const array_implementation> make_subarray_implementation(
 
 	const auto &descriptor = parent->get_descriptor();
 	return std::make_shared<const array_implementation>(
-		parent->share_storage(),
+		*parent,
 		array_descriptor(
 			descriptor.get_layout().apply_subscripts(subscripts),
 			descriptor.get_data_type()

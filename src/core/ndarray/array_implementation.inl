@@ -9,8 +9,20 @@ inline
 array_implementation::array_implementation(
 	std::shared_ptr<buffer> storage,
 	array_descriptor descriptor
-) noexcept
+)
 	: m_storage(std::move(storage))
+	, m_tracker(std::make_shared<access_hazard_tracker>())
+	, m_descriptor(std::move(descriptor))
+{
+}
+
+inline
+array_implementation::array_implementation(
+	const array_implementation &source,
+	array_descriptor descriptor
+)
+	: m_storage(source.m_storage)
+	, m_tracker(source.m_tracker)
 	, m_descriptor(std::move(descriptor))
 {
 }
@@ -32,6 +44,13 @@ const std::shared_ptr<buffer>&
 array_implementation::share_storage() const noexcept
 {
 	return m_storage;
+}
+
+inline
+access_hazard_tracker*
+array_implementation::get_access_hazard_tracker() const noexcept
+{
+	return m_tracker.get();
 }
 
 } // namespace rexlib
