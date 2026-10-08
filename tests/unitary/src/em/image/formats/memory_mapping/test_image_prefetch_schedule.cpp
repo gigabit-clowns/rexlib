@@ -10,6 +10,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -43,9 +44,9 @@ const std::vector<std::size_t> plane = {3, 4};
 
 void add_plane(image_transfer_plan &regions, std::size_t section)
 {
-	const std::size_t file_offset[3] = {section, 0, 0};
-	const std::size_t array_offset[3] = {0, 0, 0};
-	regions.add(make_span(file_offset, 3), make_span(array_offset, 3));
+	const std::array<std::size_t, 3> file_offset = {section, 0, 0};
+	const std::array<std::size_t, 3> array_offset = {0, 0, 0};
+	regions.add(make_span(file_offset), make_span(array_offset));
 }
 
 // Where the planes named start in the file, in elements and ascending, which
@@ -257,8 +258,8 @@ TEST_CASE( "a batch is advised as the stretches it reaches",
 	{
 		const std::vector<std::size_t> empty = {0, 4};
 		image_transfer_plan regions(image_transfer_shape(empty, 3, 3));
-		const std::size_t origin[3] = {0, 0, 0};
-		regions.add(make_span(origin, 3), make_span(origin, 3));
+		const std::array<std::size_t, 3> origin = {0, 0, 0};
+		regions.add(make_span(origin), make_span(origin));
 
 		const auto advice = advise(
 			regions, plane_offsets({0}), mapped,

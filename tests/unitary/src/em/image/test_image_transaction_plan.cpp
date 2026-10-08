@@ -6,6 +6,7 @@
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
@@ -32,9 +33,9 @@ void add_element(
 	std::size_t slot
 )
 {
-	const std::size_t file_offset[3] = {index_in_stack, 0, 0};
-	const std::size_t array_offset[3] = {slot, 0, 0};
-	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
+	const std::array<std::size_t, 3> file_offset = {index_in_stack, 0, 0};
+	const std::array<std::size_t, 3> array_offset = {slot, 0, 0};
+	plan.add(file, make_span(file_offset), make_span(array_offset));
 }
 
 } // anonymous namespace
@@ -136,13 +137,13 @@ TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 	image_transaction_plan plan(image_transfer_shape(plane_extents, 3, 3));
 	const auto file = plan.add_file("stack_0.mrcs");
 
-	const std::size_t two[2] = {0, 0};
-	const std::size_t three[3] = {0, 0, 0};
+	const std::array<std::size_t, 2> two = {0, 0};
+	const std::array<std::size_t, 3> three = {0, 0, 0};
 
 	SECTION( "a file index naming no file is refused" )
 	{
 		REQUIRE_THROWS_AS(
-			plan.add(file + 1, make_span(three, 3), make_span(three, 3)),
+			plan.add(file + 1, make_span(three), make_span(three)),
 			std::out_of_range
 		);
 	}
@@ -150,7 +151,7 @@ TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 	SECTION( "the file offset must have the file rank" )
 	{
 		REQUIRE_THROWS_AS(
-			plan.add(file, make_span(two, 2), make_span(three, 3)),
+			plan.add(file, make_span(two), make_span(three)),
 			std::invalid_argument
 		);
 	}
@@ -158,7 +159,7 @@ TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 	SECTION( "the array offset must have the array rank" )
 	{
 		REQUIRE_THROWS_AS(
-			plan.add(file, make_span(three, 3), make_span(two, 2)),
+			plan.add(file, make_span(three), make_span(two)),
 			std::invalid_argument
 		);
 	}
@@ -166,11 +167,11 @@ TEST_CASE( "an image_transaction_plan refuses a region it can not hold",
 	SECTION( "a refused region is not appended" )
 	{
 		REQUIRE_THROWS_AS(
-			plan.add(file, make_span(two, 2), make_span(three, 3)),
+			plan.add(file, make_span(two), make_span(three)),
 			std::invalid_argument
 		);
 		REQUIRE_THROWS_AS(
-			plan.add(file, make_span(three, 3), make_span(two, 2)),
+			plan.add(file, make_span(three), make_span(two)),
 			std::invalid_argument
 		);
 		REQUIRE( plan.get_region_count() == 0 );

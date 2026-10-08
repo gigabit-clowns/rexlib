@@ -24,6 +24,7 @@
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 
+#include <array>
 #include <complex>
 #include <cstddef>
 #include <memory>
@@ -105,7 +106,7 @@ void check_ramp_spectrum(
 	std::ptrdiff_t stride
 )
 {
-	const complex_type expected[] = {
+	const std::array<complex_type, 4> expected = {
 		complex_type(10.0F, 0.0F),
 		complex_type(-2.0F, 2.0F),
 		complex_type(-2.0F, 0.0F),

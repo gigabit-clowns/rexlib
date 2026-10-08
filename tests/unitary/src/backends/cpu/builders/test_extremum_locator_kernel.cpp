@@ -10,6 +10,7 @@
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -47,7 +48,8 @@ const float not_a_number = std::numeric_limits<float>::quiet_NaN();
 // Drive the kernel over a run of elements the way run_reduction_loop does:
 // seed from the first, then combine the rest, then finalize.
 template <typename Kernel, typename T, std::size_t N>
-std::int64_t locate(const Kernel &kernel, const T (&values)[N])
+std::int64_t
+locate(const Kernel &kernel, const std::array<T, N> &values)
 {
 	using accumulator_type = typename type_list_element<
 		0,
@@ -125,7 +127,7 @@ TEST_CASE(
 	"[extremum_locator_kernel]"
 )
 {
-	const float values[] = { 1.0F, 9.0F, 3.0F, 2.0F };
+	const std::array<float, 4> values = { 1.0F, 9.0F, 3.0F, 2.0F };
 
 	CHECK( locate(maximum_locator(), values) == 1 );
 	CHECK( locate(minimum_locator(), values) == 0 );
@@ -136,7 +138,7 @@ TEST_CASE(
 	"[extremum_locator_kernel]"
 )
 {
-	const int values[] = { 4, 7, 7, 4 };
+	const std::array<int, 4> values = { 4, 7, 7, 4 };
 
 	CHECK( locate(maximum_locator(), values) == 1 );
 	CHECK( locate(minimum_locator(), values) == 0 );
@@ -169,7 +171,9 @@ TEST_CASE(
 	"[extremum_locator_kernel]"
 )
 {
-	const float values[] = { 1.0F, not_a_number, 3.0F, 2.0F };
+	const std::array<float, 4> values = {
+		1.0F, not_a_number, 3.0F, 2.0F
+	};
 
 	CHECK( locate(maximum_locator(), values) == 1 );
 	CHECK( locate(minimum_locator(), values) == 1 );
@@ -197,7 +201,7 @@ TEST_CASE(
 	"[extremum_locator_kernel]"
 )
 {
-	const bool values[] = { false, false, true, false };
+	const std::array<bool, 4> values = { false, false, true, false };
 
 	CHECK( locate(maximum_locator(), values) == 2 );
 	CHECK( locate(minimum_locator(), values) == 0 );

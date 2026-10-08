@@ -15,6 +15,7 @@ namespace rexlib
 
 class completion;
 class execution_context;
+class executor;
 class index_table;
 
 namespace em
@@ -22,7 +23,9 @@ namespace em
 
 class image_loader;
 class image_location;
+class image_location_grouping;
 class image_reader_provider;
+class image_scratch;
 
 /**
  * @brief Read a whole file into an array of its own.
@@ -145,6 +148,40 @@ std::shared_ptr<completion> read_patches_async(
 	array destination,
 	const image_location &location,
 	const index_table &centres
+);
+
+/**
+ * @brief Load what a grouping of locations names into a scratch object,
+ * asynchronously.
+ *
+ * A location with a stack index names that index of the first axis of its
+ * file. A location without one names the whole file.
+ *
+ * One task is submitted for each file the locations name, in the order of
+ * the grouping. A task opens its file and stores what the locations name of
+ * it into the entry of that file, which takes in what it has room for. A
+ * file the scratch has no entry for is skipped.
+ *
+ * This function returns before the files are loaded. The scratch may be
+ * read through in the meantime: a read loads what it needs and is not yet
+ * loaded.
+ *
+ * @param scratch The scratch to load.
+ * @param files Provider used to open the files. It must read the files
+ * themselves, not read them through @p scratch.
+ * @param executor Where the tasks run.
+ * @param locations The images to load, grouped by file.
+ * @return std::shared_ptr<completion> The completion, never null. It is
+ * ready once every file is loaded or has failed, and it rethrows the first
+ * failure.
+ * @throws std::invalid_argument If @p files is null.
+ */
+REXLIB_API
+std::shared_ptr<completion> prefetch_scratch_async(
+	image_scratch &scratch,
+	std::shared_ptr<image_reader_provider> files,
+	rexlib::executor &executor,
+	const image_location_grouping &locations
 );
 
 } // namespace em

@@ -8,6 +8,7 @@
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <vector>
 
@@ -33,9 +34,9 @@ void add_element(
 	std::size_t slot
 )
 {
-	const std::size_t file_offset[3] = {index_in_stack, 0, 0};
-	const std::size_t array_offset[3] = {slot, 0, 0};
-	plan.add(file, make_span(file_offset, 3), make_span(array_offset, 3));
+	const std::array<std::size_t, 3> file_offset = {index_in_stack, 0, 0};
+	const std::array<std::size_t, 3> array_offset = {slot, 0, 0};
+	plan.add(file, make_span(file_offset), make_span(array_offset));
 }
 
 } // anonymous namespace

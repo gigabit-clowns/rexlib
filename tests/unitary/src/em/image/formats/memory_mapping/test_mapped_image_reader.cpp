@@ -27,6 +27,7 @@
 #include "../../fixtures/scoped_path.hpp"
 
 #include <algorithm>
+#include <array>
 #include <complex>
 #include <cstddef>
 #include <cstdint>
@@ -268,7 +269,7 @@ TEST_CASE(
 		const std::vector<std::size_t> region = {3, 4};
 		image_transfer_plan regions(image_transfer_shape(region, 3, 3));
 
-		const std::size_t sections[3] = {2, 0, 1};
+		const std::array<std::size_t, 3> sections = {2, 0, 1};
 		for (std::size_t i = 0; i < 3; ++i)
 		{
 			regions.add(

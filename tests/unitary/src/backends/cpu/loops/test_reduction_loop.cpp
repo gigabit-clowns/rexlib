@@ -594,9 +594,9 @@ TEST_CASE(
 	// through one output.
 	const std::vector<double> values = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
-	// A plain array rather than a vector, std::vector<bool> having no
-	// elements to point at.
-	const bool mask[] = {true, false, true, true, false, true};
+	// An array rather than a vector, std::vector<bool> having no elements
+	// to point at.
+	const std::array<bool, 6> mask = {true, false, true, true, false, true};
 
 	std::vector<double> output(3, -1.0);
 
@@ -608,7 +608,7 @@ TEST_CASE(
 		std::make_tuple(output.data()),
 		std::make_tuple(
 			static_cast<const double*>(values.data()),
-			static_cast<const bool*>(mask)
+			mask.data()
 		)
 	);
 

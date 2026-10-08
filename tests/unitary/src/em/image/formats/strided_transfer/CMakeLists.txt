@@ -1,6 +1,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_image_region_copy.cpp
 		test_image_region_layout.cpp
 		test_image_region_offsets.cpp
 		test_image_region_read_walk.cpp

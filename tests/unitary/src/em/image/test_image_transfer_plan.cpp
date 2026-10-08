@@ -5,6 +5,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <array>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
@@ -52,17 +53,17 @@ TEST_CASE( "an image_transfer_plan carries offsets on both sides",
 
 	SECTION( "added regions are read back in order" )
 	{
-		const std::size_t first_file[3] = {2, 0, 0};
-		const std::size_t first_array[3] = {0, 0, 0};
-		const std::size_t second_file[3] = {1, 0, 0};
-		const std::size_t second_array[3] = {1, 0, 0};
+		const std::array<std::size_t, 3> first_file = {2, 0, 0};
+		const std::array<std::size_t, 3> first_array = {0, 0, 0};
+		const std::array<std::size_t, 3> second_file = {1, 0, 0};
+		const std::array<std::size_t, 3> second_array = {1, 0, 0};
 		regions.add(
-			make_span(first_file, 3),
-			make_span(first_array, 3)
+			make_span(first_file),
+			make_span(first_array)
 		);
 		regions.add(
-			make_span(second_file, 3),
-			make_span(second_array, 3)
+			make_span(second_file),
+			make_span(second_array)
 		);
 
 		REQUIRE( regions.get_region_count() == 2 );
@@ -78,8 +79,8 @@ TEST_CASE( "an image_transfer_plan carries offsets on both sides",
 
 	SECTION( "clear drops the regions but keeps the shape" )
 	{
-		const std::size_t origin[3] = {0, 0, 0};
-		regions.add(make_span(origin, 3), make_span(origin, 3));
+		const std::array<std::size_t, 3> origin = {0, 0, 0};
+		regions.add(make_span(origin), make_span(origin));
 		regions.clear();
 
 		REQUIRE( regions.get_region_count() == 0 );
@@ -97,11 +98,11 @@ TEST_CASE( "an image_transfer_plan lets the two sides differ in rank",
 		const std::vector<std::size_t> extents = {4, 4};
 		image_transfer_plan regions(image_transfer_shape(extents, 2, 3));
 
-		const std::size_t file_offset[2] = {10, 20};
-		const std::size_t array_offset[3] = {0, 0, 0};
+		const std::array<std::size_t, 2> file_offset = {10, 20};
+		const std::array<std::size_t, 3> array_offset = {0, 0, 0};
 		regions.add(
-			make_span(file_offset, 2),
-			make_span(array_offset, 3)
+			make_span(file_offset),
+			make_span(array_offset)
 		);
 
 		REQUIRE( regions.get_shape().get_rank() == 2 );
@@ -118,11 +119,11 @@ TEST_CASE( "an image_transfer_plan lets the two sides differ in rank",
 		const std::vector<std::size_t> extents = {3, 5};
 		image_transfer_plan regions(image_transfer_shape(extents, 3, 2));
 
-		const std::size_t file_offset[3] = {2, 0, 0};
-		const std::size_t array_offset[2] = {0, 0};
+		const std::array<std::size_t, 3> file_offset = {2, 0, 0};
+		const std::array<std::size_t, 2> array_offset = {0, 0};
 		regions.add(
-			make_span(file_offset, 3),
-			make_span(array_offset, 2)
+			make_span(file_offset),
+			make_span(array_offset)
 		);
 
 		REQUIRE( regions.get_shape().get_file_rank() == 3 );
@@ -136,13 +137,13 @@ TEST_CASE( "an image_transfer_plan refuses an offset of the wrong rank",
 	const std::vector<std::size_t> extents = {3, 5};
 	image_transfer_plan regions(image_transfer_shape(extents, 3, 3));
 
-	const std::size_t two[2] = {0, 0};
-	const std::size_t three[3] = {0, 0, 0};
+	const std::array<std::size_t, 2> two = {0, 0};
+	const std::array<std::size_t, 3> three = {0, 0, 0};
 
 	SECTION( "the file offset must have the file rank" )
 	{
 		REQUIRE_THROWS_AS(
-			regions.add(make_span(two, 2), make_span(three, 3)),
+			regions.add(make_span(two), make_span(three)),
 			std::invalid_argument
 		);
 	}
@@ -150,7 +151,7 @@ TEST_CASE( "an image_transfer_plan refuses an offset of the wrong rank",
 	SECTION( "the array offset must have the array rank" )
 	{
 		REQUIRE_THROWS_AS(
-			regions.add(make_span(three, 3), make_span(two, 2)),
+			regions.add(make_span(three), make_span(two)),
 			std::invalid_argument
 		);
 	}
@@ -158,7 +159,7 @@ TEST_CASE( "an image_transfer_plan refuses an offset of the wrong rank",
 	SECTION( "a refused region is not appended" )
 	{
 		REQUIRE_THROWS_AS(
-			regions.add(make_span(two, 2), make_span(three, 3)),
+			regions.add(make_span(two), make_span(three)),
 			std::invalid_argument
 		);
 		REQUIRE( regions.get_region_count() == 0 );
@@ -182,11 +183,11 @@ TEST_CASE( "an image_transfer_plan reused across calls stops allocating",
 		regions.clear();
 		for (std::size_t i = 0; i < count; ++i)
 		{
-			const std::size_t file_offset[3] = {i % 4, 0, 0};
-			const std::size_t array_offset[3] = {i, 0, 0};
+			const std::array<std::size_t, 3> file_offset = {i % 4, 0, 0};
+			const std::array<std::size_t, 3> array_offset = {i, 0, 0};
 			regions.add(
-				make_span(file_offset, 3),
-				make_span(array_offset, 3)
+				make_span(file_offset),
+				make_span(array_offset)
 			);
 		}
 	};
@@ -221,11 +222,11 @@ TEST_CASE( "an image_transfer_plan has value semantics",
 {
 	const std::vector<std::size_t> extents = {3, 5};
 	image_transfer_plan regions(image_transfer_shape(extents, 3, 3));
-	const std::size_t file_offset[3] = {2, 0, 0};
-	const std::size_t array_offset[3] = {1, 0, 0};
+	const std::array<std::size_t, 3> file_offset = {2, 0, 0};
+	const std::array<std::size_t, 3> array_offset = {1, 0, 0};
 	regions.add(
-		make_span(file_offset, 3),
-		make_span(array_offset, 3)
+		make_span(file_offset),
+		make_span(array_offset)
 	);
 
 	SECTION( "a copy holds the same regions" )

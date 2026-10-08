@@ -9,6 +9,7 @@
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -62,7 +63,7 @@ using counting_kernel = fold_reduction_kernel<sum_fold, nonzero_lift>;
 // Drive the kernel over a run the way run_reduction_loop does: seed from the
 // first element, then combine the rest, then finalize.
 template <typename Out, typename Kernel, typename T, std::size_t N>
-Out fold_over(const Kernel &kernel, const T (&values)[N])
+Out fold_over(const Kernel &kernel, const std::array<T, N> &values)
 {
 	using accumulator_type = typename type_list_element<
 		0,
@@ -133,7 +134,7 @@ TEST_CASE(
 	"[fold_reduction_kernel]"
 )
 {
-	const float values[] = { 1.0F, 2.0F, 3.0F, 4.0F };
+	const std::array<float, 4> values = { 1.0F, 2.0F, 3.0F, 4.0F };
 
 	CHECK( fold_over<float>(sum_kernel(), values) == 10.0F );
 	CHECK( fold_over<float>(maximum_kernel(), values) == 4.0F );
@@ -146,7 +147,7 @@ TEST_CASE(
 {
 	// An operation answering about its elements rather than with them
 	// supplies its own lift; here every non-zero counts as one.
-	const int values[] = { 0, 7, 0, -3, 5 };
+	const std::array<int, 5> values = { 0, 7, 0, -3, 5 };
 
 	CHECK( fold_over<std::int64_t>(counting_kernel(), values) == 3 );
 }

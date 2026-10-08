@@ -7,6 +7,7 @@
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 
 #include <algorithm>
+#include <array>
 #include <complex>
 #include <cstdint>
 #include <cstring>
@@ -22,12 +23,12 @@ namespace
 template <typename T>
 T reversed(const T &value)
 {
-	unsigned char raw[sizeof(T)];
-	std::memcpy(raw, &value, sizeof(raw));
-	std::reverse(raw, raw + sizeof(raw));
+	std::array<unsigned char, sizeof(T)> raw;
+	std::memcpy(raw.data(), &value, raw.size());
+	std::reverse(raw.begin(), raw.end());
 
 	T result;
-	std::memcpy(&result, raw, sizeof(result));
+	std::memcpy(&result, raw.data(), sizeof(result));
 	return result;
 }
 

@@ -9,6 +9,7 @@
 #include <rexlib/em/image/image_transfer_plan.hpp>
 #include <rexlib/em/image/image_transfer_shape.hpp>
 
+#include <array>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
@@ -35,9 +36,9 @@ void add_patch(
 	std::size_t slot
 )
 {
-	const std::size_t file_offset[2] = {file_row, file_column};
-	const std::size_t array_offset[3] = {slot, 0, 0};
-	regions.add(make_span(file_offset, 2), make_span(array_offset, 3));
+	const std::array<std::size_t, 2> file_offset = {file_row, file_column};
+	const std::array<std::size_t, 3> array_offset = {slot, 0, 0};
+	regions.add(make_span(file_offset), make_span(array_offset));
 }
 
 std::vector<image_transfer_plan> sanitize(const image_transfer_plan &regions)
@@ -132,9 +133,9 @@ TEST_CASE(
 
 	SECTION( "one the array offset pushes over the end of its slot" )
 	{
-		const std::size_t file_offset[2] = {0, 0};
-		const std::size_t array_offset[3] = {1, 4, 0};
-		regions.add(make_span(file_offset, 2), make_span(array_offset, 3));
+		const std::array<std::size_t, 2> file_offset = {0, 0};
+		const std::array<std::size_t, 3> array_offset = {1, 4, 0};
+		regions.add(make_span(file_offset), make_span(array_offset));
 
 		REQUIRE_THROWS_AS( sanitize(regions), std::out_of_range );
 	}

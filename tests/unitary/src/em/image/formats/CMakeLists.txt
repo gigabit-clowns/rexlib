@@ -1,3 +1,4 @@
 add_subdirectory(memory_mapping)
 add_subdirectory(mrc)
 add_subdirectory(strided_transfer)
+add_subdirectory(tiff)
