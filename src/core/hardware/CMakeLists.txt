@@ -4,6 +4,8 @@ target_sources(
 		buffer.cpp
 		command.cpp
 		command_queue.cpp
+		command_timeline.cpp
+		command_token.cpp
 		device.cpp
 		device_backend.cpp
 		device_context.cpp

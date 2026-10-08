@@ -165,25 +165,17 @@ resolve_output_descriptors(
 	return result;
 }
 
-template <std::size_t N>
-boost::container::small_vector<std::shared_ptr<buffer>, N>
-resolve_output_storage(
+std::vector<std::shared_ptr<buffer>> resolve_output_storage(
 	span<array> output_operands,
 	span<const array_descriptor> descriptors,
 	const device_context &device_context,
-	command_queue &queue,
-	std::integral_constant<std::size_t, N> /*small_cap_tag*/
+	command_queue &queue
 )
 {
-	using result_type = boost::container::small_vector<
-		std::shared_ptr<buffer>,
-		N
-	>;
-
 	const auto n = output_operands.size();
 	REXLIB_ASSERT(n == descriptors.size());
 
-	result_type result;
+	std::vector<std::shared_ptr<buffer>> result;
 	result.reserve(n);
 
 	const auto &session = device_context.get_device_session();
@@ -220,18 +212,11 @@ resolve_output_storage(
 	return result;
 }
 
-template <std::size_t N>
-boost::container::small_vector<std::shared_ptr<const buffer>, N>
-extract_input_storage(
-	span<const const_array_ref> operands,
-	std::integral_constant<std::size_t, N> /*small_cap_tag*/
+std::vector<std::shared_ptr<const buffer>> extract_input_storage(
+	span<const const_array_ref> operands
 )
 {
-	using result_type = boost::container::small_vector<
-		std::shared_ptr<const buffer>,
-		N
-	>;
-	result_type result(operands.size());
+	std::vector<std::shared_ptr<const buffer>> result(operands.size());
 
 	for (std::size_t i = 0; i < operands.size(); ++i)
 	{
@@ -294,21 +279,13 @@ void validate_arity(
 	}
 }
 
-template <std::size_t N>
-boost::container::small_vector<std::shared_ptr<buffer>, N>
-allocate_scratch(
+std::vector<std::shared_ptr<buffer>> allocate_scratch(
 	span<const program_scratch_requirement> requirements,
 	const device_context &device_context,
-	command_queue &queue,
-	std::integral_constant<std::size_t, N> /*small_cap_tag*/
+	command_queue &queue
 )
 {
-	using result_type = boost::container::small_vector<
-		std::shared_ptr<buffer>,
-		N
-	>;
-
-	result_type result(requirements.size());
+	std::vector<std::shared_ptr<buffer>> result(requirements.size());
 
 	for (std::size_t i = 0; i < requirements.size(); ++i)
 	{
@@ -352,8 +329,6 @@ void eager_dispatcher::dispatch(
 		std::integral_constant<std::size_t, REXLIB_SMALL_OUTPUT_OPERAND_COUNT>;
 	using small_input_size_tag =
 		std::integral_constant<std::size_t, REXLIB_SMALL_INPUT_OPERAND_COUNT>;
-	using small_scratch_size_tag =
-		std::integral_constant<std::size_t, REXLIB_SMALL_SCRATCH_OPERAND_COUNT>;
 
 	const auto &queue = device_context.get_active_queue();
 	if (!queue)
@@ -437,17 +412,13 @@ void eager_dispatcher::dispatch(
 		);
 	}
 
-	auto input_storages = extract_input_storage(
-		input_operands,
-		small_input_size_tag()
-	);
+	auto input_storages = extract_input_storage(input_operands);
 
 	auto output_storages = resolve_output_storage(
 		output_operands,
 		make_span(output_descriptors.data(), n_outputs),
 		device_context,
-		*queue,
-		small_output_size_tag()
+		*queue
 	);
 
 	auto output_signatures = create_signatures(
@@ -472,16 +443,15 @@ void eager_dispatcher::dispatch(
 	auto scratch = allocate_scratch(
 		prog->get_scratch_requirements(),
 		device_context,
-		*queue,
-		small_scratch_size_tag()
+		*queue
 	);
 
 	command cmd(std::move(prog));
-	cmd.bind_outputs(make_span(output_storages.data(), n_outputs));
-	cmd.bind_inputs(make_span(input_storages.data(), n_inputs));
-	cmd.bind_scratch(make_span(scratch.data(), scratch.size()));
+	cmd.bind_outputs(std::move(output_storages))
+		.bind_inputs(std::move(input_storages))
+		.bind_scratch(std::move(scratch));
 
-	queue->submit(cmd);
+	queue->submit(std::move(cmd));
 }
 
 // Declared in dispatcher.hpp.

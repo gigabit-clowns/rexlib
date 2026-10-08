@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 
@@ -10,16 +12,18 @@
 namespace rexlib
 {
 
-class command;
 class event;
 
 /**
  * @brief Abstract command queue belonging to a @ref device.
  *
- * A @c command_queue represents an in-order stream of programs submitted
- * to a device (kernel launches, memory transfers...). Programs submitted to the
- * same queue execute in submission order; programs in different queues may
- * execute concurrently.
+ * A @c command_queue runs the commands submitted to it on a device (kernel
+ * launches, memory transfers...). A command runs after the commands it
+ * depends on. Commands that do not depend on each other, directly or
+ * through other commands, may run in any order or at the same time,
+ * whichever queue they were submitted to.
+ *
+ * @see command::bind_dependencies
  */
 class REXLIB_API command_queue
 {
@@ -33,20 +37,24 @@ public:
 	command_queue& operator=(command_queue &&other) = delete;
 
 	/**
-	 * @brief Submit a program for execution on this queue.
+	 * @brief Submit a command for execution on this queue.
 	 *
-	 * Schedules the program in @p cmd to run at the current point of
-	 * this queue's execution timeline, operating on the supplied operands.
-	 * The call returns once the work has been recorded or completed;
-	 * execution is ordered with respect to other programs previously
-	 * submitted to the same queue, and may proceed asynchronously with
-	 * respect to the host thread depending on the backend.
+	 * Schedules the program in @p cmd to run on the supplied operands, once
+	 * every command it depends on has finished. The call returns once the
+	 * work has been recorded or completed; it may proceed asynchronously
+	 * with respect to the host thread depending on the backend.
 	 *
-	 * @param cmd The program to execute with its associated operands and
-	 * workspaces.
+	 * A dependency may stand for a command of any queue. If this queue
+	 * cannot wait for it on its device, the call blocks the calling thread
+	 * until that command has finished.
+	 *
+	 * @param cmd The program to execute with its associated operands,
+	 * workspaces and dependencies.
+	 * @return The token that stands for the submitted command. It stands
+	 * for no command if the command has finished when the call returns.
 	 * @pre @p cmd must hold a non-null program.
 	 */
-	virtual void submit(const command &cmd) = 0;
+	virtual command_token submit(command cmd) = 0;
 
 	/**
 	 * @brief Record a signal on this queue for the given event.

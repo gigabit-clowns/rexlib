@@ -3,12 +3,14 @@
 #pragma once
 
 #include "buffer.hpp"
+#include "command_token.hpp"
 #include "program.hpp"
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 
 #include <memory>
+#include <vector>
 
 namespace rexlib
 {
@@ -17,21 +19,19 @@ namespace rexlib
  * @brief Specification of work to be executed on a @ref command_queue.
  *
  * A @c command binds a @ref program to its operands (outputs, inputs, and
- * scratch buffers) and is passed to @ref command_queue::submit for execution.
- * It offers a fluent interface for binding operands, allowing all three
- * binding calls to be chained in a single expression.
+ * scratch buffers) and to the commands it has to run after, and is passed to
+ * @ref command_queue::submit for execution. It offers a fluent interface for
+ * binding them, allowing the binding calls to be chained in a single
+ * expression.
  *
- * This is a short-lived descriptor: it does not allocate memory. Instead, it
- * stores non-owning @ref span views over caller-managed buffer arrays. The
- * caller must ensure that every bound span and all buffers it references
- * remain valid for the entire lifetime of the @c command and until
- * @ref command_queue::submit returns.
+ * A command owns what is bound to it. The buffers and the tokens stay alive
+ * for as long as the command does.
  */
 class command
 {
 public:
 	/**
-	 * @brief Construct a command with no program and empty operand bindings.
+	 * @brief Construct a command with no program and empty bindings.
 	 */
 	REXLIB_API
 	command() noexcept;
@@ -39,8 +39,8 @@ public:
 	/**
 	 * @brief Construct a command associated with the given program.
 	 *
-	 * Operand bindings are initially empty; use @ref bind_outputs,
-	 * @ref bind_inputs, and @ref bind_scratch to populate them before
+	 * Bindings are initially empty; use @ref bind_outputs, @ref bind_inputs,
+	 * @ref bind_scratch and @ref bind_dependencies to populate them before
 	 * submission.
 	 *
 	 * @param program The program to execute. May be @c nullptr, but
@@ -64,28 +64,26 @@ public:
 	/**
 	 * @brief Bind the output buffers for this command.
 	 *
-	 * Stores a non-owning view of @p outputs. The caller must keep the span
-	 * contents alive until @ref command_queue::submit returns.
+	 * Replaces the output buffers bound before.
 	 *
-	 * @param outputs Span of output buffer handles. May be empty.
+	 * @param outputs The output buffer handles. May be empty.
 	 * @return Reference to @c *this to allow method chaining.
 	 */
 	REXLIB_API
 	command&
-	bind_outputs(span<const std::shared_ptr<buffer>> outputs) noexcept;
+	bind_outputs(std::vector<std::shared_ptr<buffer>> outputs) noexcept;
 
 	/**
 	 * @brief Bind the input buffers for this command.
 	 *
-	 * Stores a non-owning view of @p inputs. The caller must keep the span
-	 * contents alive until @ref command_queue::submit returns.
+	 * Replaces the input buffers bound before.
 	 *
-	 * @param inputs Span of input buffer handles. May be empty.
+	 * @param inputs The input buffer handles. May be empty.
 	 * @return Reference to @c *this to allow method chaining.
 	 */
 	REXLIB_API
 	command&
-	bind_inputs(span<const std::shared_ptr<const buffer>> inputs) noexcept;
+	bind_inputs(std::vector<std::shared_ptr<const buffer>> inputs) noexcept;
 
 	/**
 	 * @brief Bind the scratch buffers for this command.
@@ -94,16 +92,28 @@ public:
 	 * (see @ref program::get_scratch_requirements). They must be bound
 	 * in the same order as the requirements returned by that method.
 	 *
-	 * Stores a non-owning view of @p scratch. The caller must keep the span
-	 * contents alive until @ref command_queue::submit returns.
+	 * Replaces the scratch buffers bound before.
 	 *
-	 * @param scratch Span of scratch buffer handles. May be empty if the
+	 * @param scratch The scratch buffer handles. May be empty if the
 	 * program has no scratch requirements.
 	 * @return Reference to @c *this to allow method chaining.
 	 */
 	REXLIB_API
 	command&
-	bind_scratch(span<const std::shared_ptr<buffer>> scratch) noexcept;
+	bind_scratch(std::vector<std::shared_ptr<buffer>> scratch) noexcept;
+
+	/**
+	 * @brief Bind the commands this command has to run after.
+	 *
+	 * Replaces the dependencies bound before.
+	 *
+	 * @param dependencies Tokens of the commands to run after. May be empty.
+	 * A token that stands for no command is allowed and adds nothing.
+	 * @return Reference to @c *this to allow method chaining.
+	 */
+	REXLIB_API
+	command&
+	bind_dependencies(std::vector<command_token> dependencies) noexcept;
 
 	/**
 	 * @brief Get the program associated with this command.
@@ -116,8 +126,9 @@ public:
 	/**
 	 * @brief Get the bound output buffers.
 	 *
-	 * @return Non-owning span of output buffer handles; empty if none were
-	 * bound.
+	 * @return Span over the output buffer handles this command holds; empty
+	 * if none were bound. Valid until they are bound again or the command is
+	 * destroyed.
 	 */
 	REXLIB_API
 	span<const std::shared_ptr<buffer>> get_outputs() const noexcept;
@@ -125,8 +136,9 @@ public:
 	/**
 	 * @brief Get the bound input buffers.
 	 *
-	 * @return Non-owning span of input buffer handles; empty if none were
-	 * bound.
+	 * @return Span over the input buffer handles this command holds; empty
+	 * if none were bound. Valid until they are bound again or the command is
+	 * destroyed.
 	 */
 	REXLIB_API
 	span<const std::shared_ptr<const buffer>> get_inputs() const noexcept;
@@ -134,17 +146,29 @@ public:
 	/**
 	 * @brief Get the bound scratch buffers.
 	 *
-	 * @return Non-owning span of scratch buffer handles; empty if none were
-	 * bound.
+	 * @return Span over the scratch buffer handles this command holds; empty
+	 * if none were bound. Valid until they are bound again or the command is
+	 * destroyed.
 	 */
 	REXLIB_API
 	span<const std::shared_ptr<buffer>> get_scratch() const noexcept;
 
+	/**
+	 * @brief Get the bound dependencies.
+	 *
+	 * @return Span over the tokens of the commands to run after; empty if
+	 * none were bound. Valid until they are bound again or the command is
+	 * destroyed.
+	 */
+	REXLIB_API
+	span<const command_token> get_dependencies() const noexcept;
+
 private:
 	std::shared_ptr<const program> m_program;
-	span<const std::shared_ptr<buffer>> m_outputs;
-	span<const std::shared_ptr<const buffer>> m_inputs;
-	span<const std::shared_ptr<buffer>> m_scratch;
+	std::vector<std::shared_ptr<buffer>> m_outputs;
+	std::vector<std::shared_ptr<const buffer>> m_inputs;
+	std::vector<std::shared_ptr<buffer>> m_scratch;
+	std::vector<command_token> m_dependencies;
 };
 
 } // namespace rexlib

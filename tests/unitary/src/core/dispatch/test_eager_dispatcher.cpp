@@ -276,7 +276,7 @@ protected:
 	{
 		auto &queue = static_cast<mock_command_queue&>(*default_queue);
 		expectations.push_back(
-			NAMED_REQUIRE_CALL(queue, submit(ANY(const command&)))
+			NAMED_REQUIRE_CALL(queue, submit(ANY(command)))
 				.LR_WITH(_1.get_program() == program)
 				.WITH(_1.get_outputs().size() == 1)
 				.WITH(_1.get_outputs()[0] == output_buffer)
@@ -288,6 +288,7 @@ protected:
 						   _1.get_scratch()[0] == scratch_buffer)
 						: _1.get_scratch().empty()
 				)
+				.RETURN(command_token())
 		);
 	}
 
