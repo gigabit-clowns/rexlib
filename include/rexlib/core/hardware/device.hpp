@@ -7,13 +7,11 @@
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
 #include "memory_resource_affinity.hpp"
-#include "event_usage_flags.hpp"
 
 namespace rexlib 
 {
 
 class command_queue;
-class event;
 class memory_resource;
 
 /**
@@ -22,7 +20,7 @@ class memory_resource;
  * A @c device is the entry point for interacting with a backend's compute
  * resource: it advertises the memory resources reachable from the device and
  * acts as a factory for the per-device objects used by the rest of the
- * framework (queues, synchronization primitives, ...).
+ * framework (queues, ...).
  */
 class REXLIB_API device
 {
@@ -62,31 +60,12 @@ public:
 	 *
 	 * The returned queue is independent from any previously created queue on 
 	 * the same device, including the default queue and may execute its commands
-	 * concurrently with them. Ordering across queues may be established through
-	 * @ref event objects.
+	 * concurrently with them. A command of one queue is ordered after a
+	 * command of another by depending on it.
 	 *
 	 * @return Newly created queue. Never null.
 	 */
 	virtual std::shared_ptr<command_queue> create_command_queue() const = 0;
-
-	/**
-	 * @brief Create a synchronization primitive for this device.
-	 *
-	 * The returned event supports at least the operations requested in
-	 * @p usage; the backend may pick the cheapest underlying primitive that 
-	 * satisfies them, so the actually supported set (queried via
-	 * @ref event::get_supported_usage) may be a superset of @p usage. 
-	 * The event is initially in the signaled state (waiting on it returns 
-	 * immediately).
-	 *
-	 * @param usage Capabilities that the returned event must support.
-	 * @return Newly created event. Never null.
-	 *
-	 * @see event
-	 * @see event_usage_flags
-	 */
-	virtual
-	std::shared_ptr<event> create_event(event_usage_flags usage) const = 0;
 };
 
 } // namespace rexlib

@@ -37,8 +37,6 @@ public:
 	~command_queue() override = default;
 
 	command_token submit(command cmd) override;
-	void signal(event &event) override;
-	void wait(const event &event) override;
 
 	/**
 	 * @brief Get the threads this queue runs its programs over.

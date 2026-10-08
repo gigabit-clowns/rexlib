@@ -3,7 +3,6 @@
 #include <rexlib/backends/cpu/device.hpp>
 
 #include "command_queue.hpp"
-#include "event.hpp"
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
@@ -42,12 +41,6 @@ std::shared_ptr<rexlib::command_queue> device::create_command_queue() const
 	// interchangeable, and handing out a new one costs an allocation rather
 	// than the threads.
 	return std::make_shared<command_queue>(m_pool);
-}
-
-std::shared_ptr<rexlib::event>
-device::create_event(event_usage_flags /*usage*/) const
-{
-	return std::make_shared<event>();
 }
 
 const std::shared_ptr<thread_pool>& device::get_thread_pool() const noexcept

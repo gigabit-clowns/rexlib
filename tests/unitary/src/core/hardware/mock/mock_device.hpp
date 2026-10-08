@@ -25,11 +25,6 @@ public:
 		std::shared_ptr<command_queue>(),
 		override
 	);
-	MAKE_CONST_MOCK1(
-		create_event,
-		std::shared_ptr<event>(event_usage_flags usage),
-		override
-	);
 };
 
 } // namespace rexlib

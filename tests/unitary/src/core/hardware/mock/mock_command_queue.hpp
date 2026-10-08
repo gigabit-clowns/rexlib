@@ -4,7 +4,6 @@
 
 #include <rexlib/core/hardware/command_queue.hpp>
 
-#include <rexlib/core/hardware/event.hpp>
 #include <rexlib/core/hardware/command.hpp>
 
 #include <trompeloeil.hpp>
@@ -17,8 +16,6 @@ class mock_command_queue final
 {
 public:
 	MAKE_MOCK1(submit, command_token(command cmd), override);
-	MAKE_MOCK1(signal, void(event &event), override);
-	MAKE_MOCK1(wait, void(const event &event), override);
 };
 
 } // namespace rexlib

@@ -14,7 +14,6 @@ target_sources(
 		device_properties.cpp
 		device_session.cpp
 		device_type.cpp
-		event.cpp
 		memory_allocator.cpp
 		memory_allocator_table.cpp
 		memory_resource.cpp

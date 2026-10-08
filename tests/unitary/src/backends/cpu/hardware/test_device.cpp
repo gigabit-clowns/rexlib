@@ -6,12 +6,10 @@
 #include <rexlib/backends/cpu/device.hpp>
 
 #include <backends/cpu/hardware/command_queue.hpp>
-#include <backends/cpu/hardware/event.hpp>
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
-#include <rexlib/core/hardware/event.hpp>
 
 #include "../serial_pool.hpp"
 
@@ -86,35 +84,4 @@ TEST_CASE(
 
 	REQUIRE( dev.get_thread_pool() != nullptr );
 	CHECK( dev.get_thread_pool()->get_size() >= 1 );
-}
-
-TEST_CASE(
-	"cpu::device should create a non-null event",
-	"[cpu::device]"
-)
-{
-	cpu::device dev;
-	const auto evt = dev.create_event({});
-
-	REQUIRE( evt != nullptr );
-	REQUIRE( dynamic_cast<cpu::event*>(evt.get()) != nullptr );
-}
-
-TEST_CASE(
-	"cpu::device should ignore the requested event usage flags",
-	"[cpu::device]"
-)
-{
-	cpu::device dev;
-	const auto evt = dev.create_event({
-		event_usage_flag_bits::host_query,
-		event_usage_flag_bits::host_wait,
-		event_usage_flag_bits::device_wait
-	});
-
-	REQUIRE( evt != nullptr );
-	const auto usage = evt->get_supported_usage();
-	REQUIRE( usage.contains(event_usage_flag_bits::host_query) );
-	REQUIRE( usage.contains(event_usage_flag_bits::host_wait) );
-	REQUIRE( usage.contains(event_usage_flag_bits::device_wait) );
 }

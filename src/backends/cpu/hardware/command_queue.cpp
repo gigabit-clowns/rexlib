@@ -60,16 +60,6 @@ thread_pool& command_queue::get_thread_pool() const noexcept
 	return *m_pool;
 }
 
-void command_queue::signal(event &/*event*/)
-{
-	// No-op, synchronous execution.
-}
-
-void command_queue::wait(const event&)
-{
-	// No-op, synchronous execution.
-}
-
 command_queue*
 command_queue::try_cast(rexlib::command_queue &queue) noexcept
 {

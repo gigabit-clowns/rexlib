@@ -12,7 +12,6 @@
 #include "mock/mock_program.hpp"
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 #include "../../../core/hardware/mock/mock_program.hpp"
-#include "../../../core/hardware/mock/mock_event.hpp"
 #include "../../../core/hardware/mock/mock_command_queue.hpp"
 #include "../../../core/hardware/mock/mock_command_timeline.hpp"
 
@@ -186,26 +185,6 @@ TEST_CASE(
 		.IN_SEQUENCE(seq);
 
 	queue.submit(cmd);
-}
-
-TEST_CASE(
-	"cpu::command_queue::signal should return without touching the event",
-	"[cpu::command_queue]"
-)
-{
-	cpu::command_queue queue(get_serial_pool());
-	mock_event event;
-	REQUIRE_NOTHROW( queue.signal(event) );
-}
-
-TEST_CASE(
-	"cpu::command_queue::wait should return without touching the event",
-	"[cpu::command_queue]"
-)
-{
-	cpu::command_queue queue(get_serial_pool());
-	mock_event event;
-	REQUIRE_NOTHROW( queue.wait(event) );
 }
 
 TEST_CASE(
