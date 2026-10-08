@@ -554,7 +554,12 @@ TEST_CASE_METHOD(
 	const auto output_buffer = make_buffer();
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(expected_size, ANY(std::size_t), ANY(command_queue*))
+		allocate(
+			expected_size,
+			ANY(std::size_t),
+			ANY(command_queue*),
+			ANY(command_token&)
+		)
 	)
 		.RETURN(output_buffer);
 
@@ -653,14 +658,24 @@ TEST_CASE_METHOD(
 	const auto output_buffer = make_buffer();
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(output_size, ANY(std::size_t), ANY(command_queue*))
+		allocate(
+			output_size,
+			ANY(std::size_t),
+			ANY(command_queue*),
+			ANY(command_token&)
+		)
 	)
 		.RETURN(output_buffer);
 
 	const auto scratch_buffer = make_buffer();
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(scratch_size, scratch_alignment, ANY(command_queue*))
+		allocate(
+			scratch_size,
+			scratch_alignment,
+			ANY(command_queue*),
+			ANY(command_token&)
+		)
 	)
 		.RETURN(scratch_buffer);
 
@@ -799,7 +814,12 @@ TEST_CASE_METHOD(
 	const auto output_buffer = make_buffer();
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(ANY(std::size_t), ANY(std::size_t), ANY(command_queue*))
+		allocate(
+			ANY(std::size_t),
+			ANY(std::size_t),
+			ANY(command_queue*),
+			ANY(command_token&)
+		)
 	)
 		.RETURN(output_buffer);
 
@@ -875,6 +895,89 @@ TEST_CASE_METHOD(
 			*input.get_access_hazard_tracker(),
 			write_only
 		).empty()
+	);
+}
+
+TEST_CASE_METHOD(
+	eager_dispatcher_fixture,
+	"eager_dispatcher dispatch makes the command wait for the commands "
+	"that still use the memory it allocates",
+	"[eager_dispatcher]"
+)
+{
+	const shape_type shape{4};
+	const auto type = numerical_type::float32;
+	const std::size_t scratch_size = 256;
+	const std::size_t scratch_alignment = 16;
+
+	expect_unary_operation(shape, type);
+	register_program_builder();
+
+	const program_scratch_requirement scratch_requirement(
+		scratch_size,
+		scratch_alignment,
+		memory_resource_affinity::device
+	);
+	expect_program_scratch(make_span(&scratch_requirement, 1));
+
+	const auto output_size =
+		compute_storage_requirement(make_descriptor(shape, type));
+	REQUIRE( output_size != scratch_size );
+
+	// The allocator hands out memory that earlier commands still use, both
+	// for the output and for the scratch buffer.
+	const auto timeline = std::make_shared<mock_command_timeline>();
+
+	const auto output_buffer = make_buffer();
+	REQUIRE_CALL(
+		*device_allocator,
+		allocate(
+			output_size,
+			ANY(std::size_t),
+			ANY(command_queue*),
+			ANY(command_token&)
+		)
+	)
+		.LR_SIDE_EFFECT(_4 = command_token(timeline, 1))
+		.RETURN(output_buffer);
+
+	const auto scratch_buffer = make_buffer();
+	REQUIRE_CALL(
+		*device_allocator,
+		allocate(
+			scratch_size,
+			scratch_alignment,
+			ANY(command_queue*),
+			ANY(command_token&)
+		)
+	)
+		.LR_SIDE_EFFECT(_4 = command_token(timeline, 2))
+		.RETURN(scratch_buffer);
+
+	const const_array input_owner = make_input_with_storage(shape, type);
+	const const_array_ref input = input_owner;
+
+	const std::vector<std::size_t> expected = { 1, 2 };
+	auto &queue = static_cast<mock_command_queue&>(*default_queue);
+	REQUIRE_CALL(queue, submit(ANY(command)))
+		.LR_WITH(sorted_ids_of(_1.get_dependencies()) == expected)
+		.RETURN(command_token(timeline, 9));
+
+	array output;
+	eager_dispatcher->dispatch(
+		op,
+		make_span(&output, 1),
+		make_span(&input, 1),
+		context
+	);
+
+	// The submitted command is now the write of the output.
+	const std::vector<std::size_t> output_expected = { 9 };
+	CHECK(
+		sorted_ids_to_wait_for(
+			*output.get_access_hazard_tracker(),
+			read_only
+		) == output_expected
 	);
 }
 

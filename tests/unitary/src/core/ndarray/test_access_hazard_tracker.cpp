@@ -127,7 +127,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"access_hazard_tracker does not keep a token that stands for no command",
+	"access_hazard_tracker does not keep an empty token",
 	"[access_hazard_tracker]"
 )
 {

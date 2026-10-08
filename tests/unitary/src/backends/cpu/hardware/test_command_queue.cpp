@@ -124,7 +124,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::command_queue::submit returns a token for no command",
+	"cpu::command_queue::submit returns an empty token",
 	"[cpu::command_queue]"
 )
 {
@@ -145,8 +145,7 @@ TEST_CASE(
 
 	const auto token = queue.submit(cmd);
 
-	CHECK( token.get_timeline() == nullptr );
-	CHECK( token.is_complete() );
+	CHECK( token.is_empty() );
 }
 
 TEST_CASE(

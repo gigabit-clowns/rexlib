@@ -4,10 +4,12 @@
 
 #include <rexlib/functional/creation.hpp>
 
+#include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/ops/assignment/copy_operation.hpp>
 #include <rexlib/ops/assignment/fill_operation.hpp>
 
 #include "fixtures/verb_dispatch_fixture.hpp"
+#include "../core/hardware/mock/mock_command_timeline.hpp"
 
 using namespace rexlib;
 using namespace rexlib::ops;
@@ -91,7 +93,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -103,6 +105,54 @@ TEST_CASE_METHOD(
 
 	CHECK( result.get_storage() == buffer.get() );
 	CHECK( result.get_descriptor() == descriptor );
+}
+
+TEST_CASE_METHOD(
+	verb_dispatch_fixture,
+	"empty makes a new array wait for the commands that still use its "
+	"memory",
+	"[array_creation]"
+)
+{
+	const auto descriptor = make_descriptor();
+	const auto size = compute_storage_requirement(descriptor);
+	const auto buffer = std::make_shared<mock_buffer>();
+	const auto timeline = std::make_shared<mock_command_timeline>();
+
+	// The allocator hands out memory that an earlier command still uses.
+	ALLOW_CALL(*host_allocator, get_max_alignment())
+		.RETURN(std::size_t(256));
+	ALLOW_CALL(*host_allocator, get_memory_resource())
+		.LR_RETURN(host_resource);
+	REQUIRE_CALL(
+		*host_allocator,
+		allocate(size, _, default_queue.get(), _)
+	)
+		.LR_SIDE_EFFECT(_4 = command_token(timeline, 5))
+		.RETURN(buffer);
+
+	std::vector<command_token> tokens;
+
+	SECTION("when the array is returned")
+	{
+		const auto result = empty(
+			descriptor,
+			memory_resource_affinity::host,
+			context
+		);
+		result.get_access_hazard_tracker()->collect(read_only, tokens);
+	}
+
+	SECTION("when the array is written into an output without storage")
+	{
+		array out;
+		empty(descriptor, memory_resource_affinity::host, context, &out);
+		out.get_access_hazard_tracker()->collect(read_only, tokens);
+	}
+
+	REQUIRE( tokens.size() == 1 );
+	CHECK( tokens[0].get_timeline() == timeline );
+	CHECK( tokens[0].get_id() == 5u );
 }
 
 TEST_CASE_METHOD(
@@ -121,7 +171,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -228,7 +278,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -268,7 +318,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -310,7 +360,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -342,7 +392,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -382,7 +432,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(_, _, default_queue.get())
+		allocate(_, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -419,7 +469,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(_, _, default_queue.get())
+		allocate(_, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 

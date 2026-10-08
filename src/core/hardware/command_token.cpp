@@ -46,14 +46,19 @@ std::size_t command_token::get_id() const noexcept
 	return m_id;
 }
 
+bool command_token::is_empty() const noexcept
+{
+	return m_timeline == nullptr;
+}
+
 bool command_token::is_complete() const
 {
-	return !m_timeline || m_timeline->is_complete(m_id);
+	return is_empty() || m_timeline->is_complete(m_id);
 }
 
 void command_token::wait() const
 {
-	if (m_timeline)
+	if (!is_empty())
 	{
 		m_timeline->wait(m_id);
 	}

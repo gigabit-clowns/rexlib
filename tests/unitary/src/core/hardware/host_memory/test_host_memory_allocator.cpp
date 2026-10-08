@@ -10,7 +10,9 @@
 #include <rexlib/core/system/host.hpp>
 
 #include "../mock/mock_command_queue.hpp"
+#include "../mock/mock_command_timeline.hpp"
 
+#include <memory>
 #include <sstream>
 
 using namespace rexlib;
@@ -33,7 +35,8 @@ TEST_CASE( "host_memory_allocator should return a host accessible buffer", "[hos
 
 	const std::size_t size = 1024;
 	const std::size_t alignment = 64;
-	auto buffer = allocator.allocate(size, alignment, nullptr);
+	command_token pending;
+	auto buffer = allocator.allocate(size, alignment, nullptr, pending);
 
 	REQUIRE( buffer != nullptr );
 	REQUIRE( reinterpret_cast<std::uintptr_t>(buffer->get_host_ptr()) % alignment == 0 );
@@ -47,7 +50,23 @@ TEST_CASE( "host_memory_allocator should ignore the queue", "[host_memory_alloca
 	mock_command_queue queue;
 	const std::size_t size = 1024;
 	const std::size_t alignment = 64;
-	allocator.allocate(size, alignment, &queue);
+	command_token pending;
+	allocator.allocate(size, alignment, &queue, pending);
+}
+
+TEST_CASE(
+	"host_memory_allocator should hand out an empty token",
+	"[host_memory_allocator]"
+)
+{
+	host_memory_allocator allocator;
+
+	const std::size_t size = 1024;
+	const std::size_t alignment = 64;
+	command_token pending(std::make_shared<mock_command_timeline>(), 7);
+	allocator.allocate(size, alignment, nullptr, pending);
+
+	CHECK( pending.is_empty() );
 }
 
 TEST_CASE( "host_memory_resource should return the host memory resource in get_memory_resource", "[host_memory_allocator]" )
@@ -66,7 +85,8 @@ TEST_CASE( "host_buffer_allocator should allocate enough space", "[host_memory_a
 	const std::size_t alignment = 64;
 
 	host_memory_allocator allocator;
-	auto buffer = allocator.allocate(size, alignment, nullptr);
+	command_token pending;
+	auto buffer = allocator.allocate(size, alignment, nullptr, pending);
 
 	REQUIRE( buffer->get_size() >= size );
 	REQUIRE( reinterpret_cast<std::uintptr_t>(buffer->get_host_ptr()) % alignment == 0 );

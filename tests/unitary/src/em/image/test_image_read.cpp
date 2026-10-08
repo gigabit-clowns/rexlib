@@ -90,7 +90,12 @@ public:
 			.RETURN(128UL));
 		expectations.emplace_back(NAMED_ALLOW_CALL(
 			*host_allocator,
-			allocate(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+			allocate(
+				trompeloeil::_,
+				trompeloeil::_,
+				trompeloeil::_,
+				trompeloeil::_
+			)
 		)
 			.RETURN(std::make_shared<mock_buffer>()));
 

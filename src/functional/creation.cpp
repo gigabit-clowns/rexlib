@@ -11,11 +11,13 @@
 #include <rexlib/core/dispatch/execute.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
 #include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/hardware/device_context.hpp>
 #include <rexlib/core/hardware/device_session.hpp>
 #include <rexlib/core/hardware/device_properties.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 
 #include <core/logger.hpp>
 #include <core/ndarray/array_implementation.hpp>
@@ -65,7 +67,8 @@ std::shared_ptr<buffer> reuse_array_storage(
 std::shared_ptr<buffer> allocate_array_storage(
 	std::size_t size,
 	const device_context &device_context,
-	memory_allocator &allocator
+	memory_allocator &allocator,
+	command_token &pending
 )
 {
 	const auto &session = device_context.get_device_session();
@@ -79,7 +82,18 @@ std::shared_ptr<buffer> allocate_array_storage(
 	const auto base_alignment = std::min(max_alignment, preferred_alignment);
 	const auto alignment = std::min(base_alignment, bit_ceil(size));
 
-	return allocator.allocate(size, alignment, queue.get());
+	return allocator.allocate(size, alignment, queue.get(), pending);
+}
+
+array make_allocated_array(
+	std::shared_ptr<buffer> storage,
+	array_descriptor descriptor,
+	command_token pending
+)
+{
+	array result(std::move(storage), std::move(descriptor));
+	result.get_access_hazard_tracker()->add(std::move(pending), write_only);
+	return result;
 }
 
 array_descriptor make_sequence_descriptor(
@@ -235,19 +249,33 @@ array empty(
 		);
 	}
 
+	command_token pending;
 	if (!storage)
 	{
-		storage = allocate_array_storage(size, device_context, *allocator);
+		storage = allocate_array_storage(
+			size,
+			device_context,
+			*allocator,
+			pending
+		);
 	}
 
 	if (!out)
 	{
-		return array(std::move(storage), std::move(descriptor));
+		return make_allocated_array(
+			std::move(storage),
+			std::move(descriptor),
+			std::move(pending)
+		);
 	}
 
 	if (out->get_storage() != storage.get())
 	{
-		*out = array(std::move(storage), std::move(descriptor));
+		*out = make_allocated_array(
+			std::move(storage),
+			std::move(descriptor),
+			std::move(pending)
+		);
 	}
 	else if (out->get_descriptor() != descriptor)
 	{

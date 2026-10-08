@@ -201,8 +201,13 @@ std::vector<std::shared_ptr<buffer>> resolve_output_storage(
 				base_alignment,
 				bit_ceil(size)
 			);
-			storage = allocator->allocate(size, alignment, &queue);
+			command_token pending;
+			storage = allocator->allocate(size, alignment, &queue, pending);
 			output_operand = array(storage, descriptor); // Store in output.
+			output_operand.get_access_hazard_tracker()->add(
+				std::move(pending),
+				write_only
+			);
 		}
 
 		REXLIB_ASSERT(storage);
@@ -283,7 +288,8 @@ void validate_arity(
 std::vector<std::shared_ptr<buffer>> allocate_scratch(
 	span<const program_scratch_requirement> requirements,
 	const device_context &device_context,
-	command_queue &queue
+	command_queue &queue,
+	std::vector<command_token> &dependencies
 )
 {
 	std::vector<std::shared_ptr<buffer>> result(requirements.size());
@@ -295,7 +301,13 @@ std::vector<std::shared_ptr<buffer>> allocate_scratch(
 		const auto alignment = requirement.get_alignment();
 		const auto affinity = requirement.get_affinity();
 		const auto &allocator = device_context.get_allocator(affinity);
-		result[i] = allocator->allocate(size, alignment, &queue);
+
+		command_token pending;
+		result[i] = allocator->allocate(size, alignment, &queue, pending);
+		if (!pending.is_empty())
+		{
+			dependencies.push_back(std::move(pending));
+		}
 	}
 
 	return result;
@@ -484,19 +496,19 @@ void eager_dispatcher::dispatch(
 	);
 	REXLIB_ASSERT(prog);
 
+	auto dependencies = collect_dependencies(output_operands, input_operands);
 	auto scratch = allocate_scratch(
 		prog->get_scratch_requirements(),
 		device_context,
-		*queue
+		*queue,
+		dependencies
 	);
 
 	command cmd(std::move(prog));
 	cmd.bind_outputs(std::move(output_storages))
 		.bind_inputs(std::move(input_storages))
 		.bind_scratch(std::move(scratch))
-		.bind_dependencies(
-			collect_dependencies(output_operands, input_operands)
-		);
+		.bind_dependencies(std::move(dependencies));
 
 	const auto token = queue->submit(std::move(cmd));
 	track_accesses(token, output_operands, input_operands);

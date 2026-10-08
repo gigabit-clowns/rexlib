@@ -50,8 +50,7 @@ public:
 	 * replaces everything recorded before it, so the command has to wait for
 	 * the tokens that @ref collect gives a write.
 	 *
-	 * @param token The token of the command. A token that stands for no
-	 * command is not kept.
+	 * @param token The token of the command. An empty token is not kept.
 	 * @param access How the command accesses the memory.
 	 *
 	 * @throws std::invalid_argument If @p access is empty.

@@ -108,7 +108,7 @@ public:
 	 * Replaces the dependencies bound before.
 	 *
 	 * @param dependencies Tokens of the commands to run after. May be empty.
-	 * A token that stands for no command is allowed and adds nothing.
+	 * An empty token is allowed and adds nothing.
 	 * @return Reference to @c *this to allow method chaining.
 	 */
 	REXLIB_API

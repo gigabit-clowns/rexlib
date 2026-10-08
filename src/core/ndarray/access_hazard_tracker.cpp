@@ -25,11 +25,6 @@ bool is_write(const access_flags &access)
 	return writes;
 }
 
-bool stands_for_command(const command_token &token) noexcept
-{
-	return token.get_timeline() != nullptr;
-}
-
 } // anonymous namespace
 
 access_hazard_tracker::access_hazard_tracker() = default;
@@ -46,7 +41,7 @@ void access_hazard_tracker::add(command_token token, access_flags access)
 		m_reads.clear();
 		m_write = std::move(token);
 	}
-	else if (stands_for_command(token))
+	else if (!token.is_empty())
 	{
 		if (m_reads.size() == m_reads.capacity())
 		{
@@ -65,7 +60,7 @@ void access_hazard_tracker::collect(
 	const auto write = is_write(access);
 
 	const std::lock_guard<std::mutex> lock(m_mutex);
-	if (stands_for_command(m_write))
+	if (!m_write.is_empty())
 	{
 		tokens.push_back(m_write);
 	}

@@ -14,11 +14,12 @@
 using namespace rexlib;
 
 TEST_CASE(
-	"command_token default constructor produces a token for no command",
+	"command_token default constructor produces an empty token",
 	"[command_token]"
 )
 {
 	const command_token token;
+	CHECK( token.is_empty() );
 	CHECK( token.get_timeline() == nullptr );
 	CHECK( token.is_complete() );
 	REQUIRE_NOTHROW( token.wait() );
@@ -34,16 +35,18 @@ TEST_CASE(
 
 	const command_token token(timeline, id);
 
+	CHECK_FALSE( token.is_empty() );
 	CHECK( token.get_timeline() == timeline );
 	CHECK( token.get_id() == id );
 }
 
 TEST_CASE(
-	"command_token with a null timeline stands for no command",
+	"command_token with a null timeline is empty",
 	"[command_token]"
 )
 {
 	const command_token token(nullptr, 42);
+	CHECK( token.is_empty() );
 	CHECK( token.is_complete() );
 	REQUIRE_NOTHROW( token.wait() );
 }

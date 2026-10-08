@@ -111,7 +111,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(target_buffer);
 
@@ -160,7 +160,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(target_buffer);
 
@@ -296,7 +296,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(device_buffer);
 
@@ -330,7 +330,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*host_allocator,
-		allocate(size, _, default_queue.get())
+		allocate(size, _, default_queue.get(), _)
 	)
 		.RETURN(host_buffer);
 

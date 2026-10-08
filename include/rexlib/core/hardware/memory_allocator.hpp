@@ -11,6 +11,7 @@ namespace rexlib
 
 class buffer;
 class command_queue;
+class command_token;
 class memory_resource;
 
 /**
@@ -21,8 +22,9 @@ class memory_resource;
  *
  * The allocator is also in charge of tracking the asynchronous use of the 
  * buffers it produces: when a buffer's shared ownership is dropped while device 
- * work referencing it is still in flight, the allocator defers the actual 
- * release until that work has completed.
+ * work referencing it is still in flight, the allocator either defers the
+ * actual release until that work has completed, or hands the memory out
+ * again together with the token of that work.
  */
 class REXLIB_API memory_allocator
 {
@@ -65,10 +67,12 @@ public:
 	 * @param alignment Requested alignment, in bytes. Must be a power
 	 * of two and not greater than @ref get_max_alignment.
 	 * @param queue_hint Optional non-owning pointer to the queue on
-	 * which the buffer is expected to be first used. Some backends may defer 
-	 * the allocation until the current execution point is reached on this
-	 * queue. Thus, providing a queue_hint and then using the buffer on another
-	 * queue leads to undefined behavior.
+	 * which the buffer is expected to be first used. The allocator may use it
+	 * to hand out the memory that is cheapest to use there. The buffer can
+	 * be used on any other queue as well.
+	 * @param pending Output parameter that receives the token of the
+	 * commands that still use the memory handed out. The first use of the
+	 * buffer has to wait for it. It is empty when nothing uses the memory.
 	 * @return The newly allocated buffer. Never null.
 	 *
 	 * @throws std::bad_alloc (or a backend-specific exception derived
@@ -80,7 +84,8 @@ public:
 	std::shared_ptr<buffer> allocate(
 		std::size_t size,
 		std::size_t alignment,
-		command_queue *queue_hint = nullptr
+		command_queue *queue_hint,
+		command_token &pending
 	) = 0;
 };
 

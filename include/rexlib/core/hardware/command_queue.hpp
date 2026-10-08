@@ -48,8 +48,8 @@ public:
 	 *
 	 * @param cmd The program to execute with its associated operands,
 	 * workspaces and dependencies.
-	 * @return The token that stands for the submitted command. It stands
-	 * for no command if the command has finished when the call returns.
+	 * @return The token of the submitted command. It is empty if the
+	 * command has finished when the call returns.
 	 * @pre @p cmd must hold a non-null program.
 	 */
 	virtual command_token submit(command cmd) = 0;

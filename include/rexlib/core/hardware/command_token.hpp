@@ -13,20 +13,21 @@ namespace rexlib
 class command_timeline;
 
 /**
- * @brief Stands for one command submitted to a @ref command_queue.
+ * @brief Identifies a command submitted to a @ref command_queue.
  *
  * A token pairs a @ref command_timeline with the id that timeline gave to a
- * command. It is a value: it can be copied freely, and every copy stands for
+ * command. It is a value: it can be copied freely, and every copy identifies
  * the same command.
  *
- * A token without a timeline stands for no command. Such a token is always
- * complete.
+ * @par Empty state
+ * A token without a timeline is @em empty: it identifies no command. An
+ * empty token is always complete, and waiting for it returns at once.
  */
 class command_token
 {
 public:
 	/**
-	 * @brief Construct a token that stands for no command.
+	 * @brief Construct an empty token.
 	 */
 	REXLIB_API
 	command_token() noexcept;
@@ -35,7 +36,7 @@ public:
 	 * @brief Construct a token from its components.
 	 *
 	 * @param timeline The timeline that gave the id. A null timeline makes
-	 * the token stand for no command.
+	 * the token empty.
 	 * @param id The id of the command in @p timeline.
 	 */
 	REXLIB_API
@@ -59,7 +60,7 @@ public:
 	/**
 	 * @brief Get the timeline that gave the id.
 	 *
-	 * @return The timeline, or null if this stands for no command.
+	 * @return The timeline, or null if this is empty.
 	 */
 	REXLIB_API
 	const std::shared_ptr<const command_timeline>&
@@ -68,17 +69,26 @@ public:
 	/**
 	 * @brief Get the id of the command in its timeline.
 	 *
-	 * @return The id. It has no meaning if this stands for no command.
+	 * @return The id. It has no meaning if this is empty.
 	 */
 	REXLIB_API
 	std::size_t get_id() const noexcept;
+
+	/**
+	 * @brief Check whether this is empty.
+	 *
+	 * @return true This identifies no command.
+	 * @return false This identifies a command.
+	 */
+	REXLIB_API
+	bool is_empty() const noexcept;
 
 	/**
 	 * @brief Check whether the command has finished.
 	 *
 	 * Does not block the calling thread.
 	 *
-	 * @return true The command has finished, or this stands for no command.
+	 * @return true The command has finished, or this is empty.
 	 * @return false The command has not finished yet.
 	 */
 	REXLIB_API
@@ -87,7 +97,7 @@ public:
 	/**
 	 * @brief Block the calling thread until the command has finished.
 	 *
-	 * Returns immediately if this stands for no command.
+	 * Returns immediately if this is empty.
 	 */
 	REXLIB_API
 	void wait() const;
