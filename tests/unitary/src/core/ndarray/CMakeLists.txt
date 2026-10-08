@@ -8,4 +8,5 @@ target_sources(
 		test_array_ref.cpp
 		test_const_array.cpp
 		test_const_array_ref.cpp
+		test_host_access.cpp
 )

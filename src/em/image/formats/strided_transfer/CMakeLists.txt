@@ -1,7 +1,6 @@
 target_sources(
 	rexlib-em-obj
 	PRIVATE
-		image_host_access.cpp
 		image_region_layout.cpp
 		image_region_offsets.cpp
 		image_region_read_walk.cpp

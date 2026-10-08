@@ -7,4 +7,5 @@ target_sources(
 		array_ref.cpp
 		const_array.cpp
 		const_array_ref.cpp
+		host_access.cpp
 )
