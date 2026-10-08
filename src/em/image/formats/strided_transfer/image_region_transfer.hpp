@@ -19,7 +19,8 @@ namespace em
 /**
  * @brief Move every region of a walk out of a file and into an array.
  *
- * Values are converted to @p array_type, and read in @p file_order.
+ * Values are converted to @p array_type, and read in @p file_order. Files
+ * are transferred in every integer, floating point and complex data type.
  *
  * @param walk The regions and the space they are walked in.
  * @param array_data First element of the array.
