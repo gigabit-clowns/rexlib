@@ -25,7 +25,7 @@ command_queue::command_queue(std::shared_ptr<thread_pool> pool)
 	}
 }
 
-void command_queue::submit(const command &cmd)
+command_token command_queue::submit(command cmd)
 {
 	const auto& prog = cmd.get_program();
 	if (!prog)
@@ -36,31 +36,28 @@ void command_queue::submit(const command &cmd)
 		);
 	}
 
-	// Synchronous, and it has to stay that way: the command holds spans the
-	// caller owns, which stop being valid the moment this returns. Threading
-	// a program does not change that, the pool being fork-join.
 	const auto& cpu_prog = dynamic_cast<const program&>(*prog);
+
+	for (const auto &dependency : cmd.get_dependencies())
+	{
+		dependency.wait();
+	}
+
+	// Synchronous: threading a program does not change that, the pool being
+	// fork-join.
 	cpu_prog.execute(
 		cmd.get_outputs(),
 		cmd.get_inputs(),
 		cmd.get_scratch(),
 		*m_pool
 	);
+
+	return command_token();
 }
 
 thread_pool& command_queue::get_thread_pool() const noexcept
 {
 	return *m_pool;
-}
-
-void command_queue::signal(event &/*event*/)
-{
-	// No-op, synchronous execution.
-}
-
-void command_queue::wait(const event&)
-{
-	// No-op, synchronous execution.
 }
 
 command_queue*

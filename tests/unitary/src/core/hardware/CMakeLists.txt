@@ -2,6 +2,7 @@ target_sources(
 	rexlib-unitary-tests
 	PRIVATE
 		test_command.cpp
+		test_command_token.cpp
 		test_device_context.cpp
 		test_device_index.cpp
 		test_device_manager.cpp

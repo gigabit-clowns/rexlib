@@ -88,6 +88,15 @@ const_array array::share_const() const noexcept
 	return const_array(m_implementation);
 }
 
+access_hazard_tracker*
+array::get_access_hazard_tracker() const noexcept
+{
+	return
+		m_implementation ?
+		m_implementation->get_access_hazard_tracker() :
+		nullptr;
+}
+
 const array_implementation* array::get_implementation() const noexcept
 {
 	return m_implementation.get();

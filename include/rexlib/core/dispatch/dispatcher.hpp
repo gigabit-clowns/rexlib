@@ -55,6 +55,12 @@ public:
 	 * storage it is validated and reused. The resulting command is then
 	 * submitted to @p queue.
 	 *
+	 * The work runs after the commands that still access its operands: those
+	 * that write an input, and those that read or write an output. It is
+	 * then recorded on the operands itself.
+	 *
+	 * @see access_hazard_tracker
+	 *
 	 * @param operation The operation to be executed.
 	 * @param output_operands The output operands. May be modified in place to
 	 * receive freshly allocated storage and sanitized descriptors.

@@ -14,6 +14,7 @@ class buffer;
 
 class array;
 class array_descriptor;
+class access_hazard_tracker;
 class array_implementation;
 
 /**
@@ -84,6 +85,19 @@ public:
 	 */
 	REXLIB_API
 	const_array share() const noexcept;
+
+	/**
+	 * @brief Get the tracker of the commands that access the memory of
+	 * this array.
+	 *
+	 * Arrays obtained from one another share one tracker. Arrays built
+	 * separately over the same storage do not.
+	 *
+	 * @return access_hazard_tracker* The tracker. nullptr if the
+	 * const_array is not initialized.
+	 */
+	REXLIB_API
+	access_hazard_tracker* get_access_hazard_tracker() const noexcept;
 
 	/**
 	 * @brief Get a pointer to the implementation.

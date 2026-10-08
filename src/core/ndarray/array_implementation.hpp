@@ -3,6 +3,7 @@
 #pragma once
 
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 
 #include <memory>
@@ -17,7 +18,11 @@ public:
 	array_implementation(
 		std::shared_ptr<buffer> storage,
 		array_descriptor descriptor
-	) noexcept;
+	);
+	array_implementation(
+		const array_implementation &source,
+		array_descriptor descriptor
+	);
 	array_implementation(const array_implementation &other) = default;
 	array_implementation(array_implementation &&other) = default;
 	~array_implementation() = default;
@@ -33,8 +38,11 @@ public:
 
 	const std::shared_ptr<buffer>& share_storage() const noexcept;
 
+	access_hazard_tracker* get_access_hazard_tracker() const noexcept;
+
 private:
 	std::shared_ptr<buffer> m_storage;
+	std::shared_ptr<access_hazard_tracker> m_tracker;
 	array_descriptor m_descriptor;
 
 };

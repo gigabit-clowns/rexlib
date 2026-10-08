@@ -1,9 +1,11 @@
 target_sources(
 	rexlib-core-obj
 	PRIVATE
+		access_hazard_tracker.cpp
 		array.cpp
 		array_descriptor.cpp
 		array_ref.cpp
 		const_array.cpp
 		const_array_ref.cpp
+		host_access.cpp
 )

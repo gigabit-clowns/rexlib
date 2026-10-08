@@ -36,9 +36,7 @@ public:
 	explicit command_queue(std::shared_ptr<thread_pool> pool);
 	~command_queue() override = default;
 
-	void submit(const command &cmd) override;
-	void signal(event &event) override;
-	void wait(const event &event) override;
+	command_token submit(command cmd) override;
 
 	/**
 	 * @brief Get the threads this queue runs its programs over.

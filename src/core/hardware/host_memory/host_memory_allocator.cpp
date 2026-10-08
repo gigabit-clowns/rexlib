@@ -32,11 +32,14 @@ std::size_t host_memory_allocator::get_max_alignment() const noexcept
 std::shared_ptr<buffer> host_memory_allocator::allocate(
 	std::size_t size, 
 	std::size_t alignment, 
-	command_queue* /*queue_hint*/
+	command_queue* /*queue_hint*/,
+	command_token &pending
 )
 {
 	size = align_ceil(size, alignment);
-	return std::make_shared<host_buffer>(size, alignment);
+	auto result = std::make_shared<host_buffer>(size, alignment);
+	pending = command_token();
+	return result;
 }
 
 host_memory_allocator& host_memory_allocator::get()

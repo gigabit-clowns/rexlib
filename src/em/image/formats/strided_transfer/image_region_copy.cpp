@@ -2,7 +2,6 @@
 
 #include "image_region_copy.hpp"
 
-#include "image_host_access.hpp"
 #include "image_region_read_walk.hpp"
 #include "image_region_transfer.hpp"
 
@@ -11,6 +10,7 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/host_access.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 

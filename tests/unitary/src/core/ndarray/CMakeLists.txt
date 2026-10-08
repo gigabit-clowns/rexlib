@@ -1,9 +1,12 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_access_hazard_tracker.cpp
 		test_array.cpp
 		test_array_descriptor.cpp
+		test_array_implementation.cpp
 		test_array_ref.cpp
 		test_const_array.cpp
 		test_const_array_ref.cpp
+		test_host_access.cpp
 )

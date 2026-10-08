@@ -25,7 +25,8 @@ public:
 	std::shared_ptr<buffer> allocate(
 		std::size_t size, 
 		std::size_t alignment, 
-		command_queue *queue
+		command_queue *queue_hint,
+		command_token &pending
 	) override;
 
 	static host_memory_allocator& get();

@@ -50,7 +50,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(_, _, default_queue.get())
+		allocate(_, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 
@@ -89,7 +89,7 @@ TEST_CASE_METHOD(
 		.RETURN(std::size_t(256));
 	REQUIRE_CALL(
 		*device_allocator,
-		allocate(_, _, default_queue.get())
+		allocate(_, _, default_queue.get(), _)
 	)
 		.RETURN(buffer);
 

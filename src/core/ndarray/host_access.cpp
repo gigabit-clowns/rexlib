@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "image_host_access.hpp"
+#include <rexlib/core/ndarray/host_access.hpp>
 
 #include <rexlib/core/exceptions/unsupported_capability_error.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
+#include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 
 #include <stdexcept>
 
 namespace rexlib
-{
-namespace em
 {
 
 namespace
@@ -57,6 +56,7 @@ void* get_host_data(array_ref array)
 	auto *data = storage->get_host_ptr();
 	check_data(data);
 
+	array.get_access_hazard_tracker()->wait(read_write);
 	return data;
 }
 
@@ -68,8 +68,8 @@ const void* get_host_data(const_array_ref array)
 	const auto *data = storage->get_host_ptr();
 	check_data(data);
 
+	array.get_access_hazard_tracker()->wait(read_only);
 	return data;
 }
 
-} // namespace em
 } // namespace rexlib

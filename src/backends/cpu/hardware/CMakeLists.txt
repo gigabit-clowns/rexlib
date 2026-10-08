@@ -4,6 +4,5 @@ target_sources(
 		command_queue.cpp
 		device.cpp
 		device_backend.cpp
-		event.cpp
 		thread_pool.cpp
 )

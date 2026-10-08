@@ -85,3 +85,33 @@ TEST_CASE("array_ref should only be constructible from a mutable array", "[array
 	CHECK_FALSE( std::is_constructible<array_ref, const_array_ref>::value );
 	CHECK_FALSE( std::is_constructible<array, array_ref>::value );
 }
+
+TEST_CASE(
+	"Default constructed array_ref should have no access hazard tracker",
+	"[array_ref]"
+)
+{
+	const array_ref ref;
+	CHECK( ref.get_access_hazard_tracker() == nullptr );
+}
+
+TEST_CASE(
+	"array_ref should give the access hazard tracker of its array",
+	"[array_ref]"
+)
+{
+	const std::vector<std::size_t> extents = {20, 50};
+	const array_descriptor descriptor(
+		strided_layout::make_contiguous_layout(make_span(extents)),
+		numerical_type::float32
+	);
+
+	array arr(std::make_shared<mock_buffer>(), descriptor);
+	const array_ref ref = arr;
+
+	REQUIRE( ref.get_access_hazard_tracker() != nullptr );
+	CHECK(
+		ref.get_access_hazard_tracker() ==
+		arr.get_access_hazard_tracker()
+	);
+}

@@ -97,3 +97,38 @@ TEST_CASE("const_array should not be copyable nor implicitly convertible", "[con
 	CHECK_FALSE( std::is_copy_assignable<const_array>::value );
 	CHECK_FALSE( std::is_convertible<const array&, const_array>::value );
 }
+
+TEST_CASE(
+	"Default constructed const_array should have no access hazard tracker",
+	"[const_array]"
+)
+{
+	const const_array arr;
+	CHECK( arr.get_access_hazard_tracker() == nullptr );
+}
+
+TEST_CASE(
+	"A const_array should share its access hazard tracker with its aliases",
+	"[const_array]"
+)
+{
+	const std::vector<std::size_t> extents = {20, 50};
+	const array_descriptor descriptor(
+		strided_layout::make_contiguous_layout(make_span(extents)),
+		numerical_type::float32
+	);
+
+	const const_array view1(
+		std::make_shared<array_implementation>(
+			std::make_shared<mock_buffer>(),
+			descriptor
+		)
+	);
+	const auto view2 = view1.share();
+
+	REQUIRE( view1.get_access_hazard_tracker() != nullptr );
+	CHECK(
+		view2.get_access_hazard_tracker() ==
+		view1.get_access_hazard_tracker()
+	);
+}

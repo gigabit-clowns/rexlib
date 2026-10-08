@@ -6,7 +6,6 @@
 #include "tiff_region_bounds.hpp"
 #include "tiff_sample_type.hpp"
 
-#include <em/image/formats/strided_transfer/image_host_access.hpp>
 #include <em/image/formats/strided_transfer/image_region_transfer.hpp>
 #include <em/image/formats/strided_transfer/image_region_write_walk.hpp>
 
@@ -15,6 +14,7 @@
 #include <rexlib/core/memory/byte_order.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/host_access.hpp>
 #include <rexlib/core/span.hpp>
 #include <rexlib/em/image/image_transfer_plan.hpp>
 

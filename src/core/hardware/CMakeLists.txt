@@ -4,6 +4,8 @@ target_sources(
 		buffer.cpp
 		command.cpp
 		command_queue.cpp
+		command_timeline.cpp
+		command_token.cpp
 		device.cpp
 		device_backend.cpp
 		device_context.cpp
@@ -12,7 +14,6 @@ target_sources(
 		device_properties.cpp
 		device_session.cpp
 		device_type.cpp
-		event.cpp
 		memory_allocator.cpp
 		memory_allocator_table.cpp
 		memory_resource.cpp

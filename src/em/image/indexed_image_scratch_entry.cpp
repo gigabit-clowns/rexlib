@@ -2,13 +2,13 @@
 
 #include "indexed_image_scratch_entry.hpp"
 
-#include <em/image/formats/strided_transfer/image_host_access.hpp>
 #include <em/image/formats/strided_transfer/image_region_copy.hpp>
 
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/array_ref.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
+#include <rexlib/core/ndarray/host_access.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/assert.hpp>
 #include <rexlib/em/image/image_reader.hpp>

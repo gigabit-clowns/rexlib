@@ -42,9 +42,6 @@ public:
 
 	std::shared_ptr<rexlib::command_queue> create_command_queue() const override;
 
-	std::shared_ptr<rexlib::event>
-	create_event(event_usage_flags usage) const override;
-
 	/**
 	 * @brief Get the threads this device runs its programs over.
 	 *

@@ -12,15 +12,30 @@
 #include "mock/mock_program.hpp"
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 #include "../../../core/hardware/mock/mock_program.hpp"
-#include "../../../core/hardware/mock/mock_event.hpp"
 #include "../../../core/hardware/mock/mock_command_queue.hpp"
+#include "../../../core/hardware/mock/mock_command_timeline.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <typeinfo>
 #include <vector>
 
 using namespace rexlib;
 using namespace rexlib::cpu;
+
+namespace
+{
+
+template <typename T>
+bool holds(span<const T> actual, const std::vector<T> &expected)
+{
+	return std::equal(
+		actual.begin(), actual.end(),
+		expected.begin(), expected.end()
+	);
+}
+
+} // anonymous namespace
 
 TEST_CASE(
 	"cpu::command_queue should reject a null thread pool",
@@ -88,9 +103,9 @@ TEST_CASE(
 	};
 
 	command cmd(prog);
-	cmd.bind_outputs(make_span(outputs))
-	   .bind_inputs(make_span(inputs))
-	   .bind_scratch(make_span(scratch));
+	cmd.bind_outputs(outputs)
+	   .bind_inputs(inputs)
+	   .bind_scratch(scratch);
 
 	REQUIRE_CALL(
 		*prog,
@@ -101,31 +116,74 @@ TEST_CASE(
 			trompeloeil::_
 		)
 	)
-		.LR_WITH(_1.data() == outputs.data() && _1.size() == outputs.size())
-		.LR_WITH(_2.data() == inputs.data() && _2.size() == inputs.size())
-		.LR_WITH(_3.data() == scratch.data() && _3.size() == scratch.size());
+		.LR_WITH(holds(_1, outputs))
+		.LR_WITH(holds(_2, inputs))
+		.LR_WITH(holds(_3, scratch));
 
 	REQUIRE_NOTHROW( queue.submit(cmd) );
 }
 
 TEST_CASE(
-	"cpu::command_queue::signal should return without touching the event",
+	"cpu::command_queue::submit returns an empty token",
 	"[cpu::command_queue]"
 )
 {
 	cpu::command_queue queue(get_serial_pool());
-	mock_event event;
-	REQUIRE_NOTHROW( queue.signal(event) );
+
+	const auto prog = std::make_shared<cpu::mock_program>();
+	const command cmd(prog);
+
+	REQUIRE_CALL(
+		*prog,
+		execute(
+			trompeloeil::_,
+			trompeloeil::_,
+			trompeloeil::_,
+			trompeloeil::_
+		)
+	);
+
+	const auto token = queue.submit(cmd);
+
+	CHECK( token.is_empty() );
 }
 
 TEST_CASE(
-	"cpu::command_queue::wait should return without touching the event",
+	"cpu::command_queue::submit waits for its dependencies before it runs "
+	"the program",
 	"[cpu::command_queue]"
 )
 {
 	cpu::command_queue queue(get_serial_pool());
-	mock_event event;
-	REQUIRE_NOTHROW( queue.wait(event) );
+
+	const auto prog = std::make_shared<cpu::mock_program>();
+	const auto timeline = std::make_shared<mock_command_timeline>();
+	const std::vector<command_token> dependencies = {
+		command_token(timeline, 3),
+		command_token(),
+		command_token(timeline, 5)
+	};
+
+	command cmd(prog);
+	cmd.bind_dependencies(dependencies);
+
+	trompeloeil::sequence seq;
+	REQUIRE_CALL(*timeline, wait(3u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(*timeline, wait(5u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(
+		*prog,
+		execute(
+			trompeloeil::_,
+			trompeloeil::_,
+			trompeloeil::_,
+			trompeloeil::_
+		)
+	)
+		.IN_SEQUENCE(seq);
+
+	queue.submit(cmd);
 }
 
 TEST_CASE(
