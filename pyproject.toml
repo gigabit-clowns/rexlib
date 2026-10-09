@@ -1,7 +1,7 @@
 [build-system]
 requires = [
     "scikit-build-core==1.0.3",
-    "pybind11-stubgen==2.5.5",
+    "pybind11-stubgen==3.0.0",
     "numpy==2.2.6; python_version == '3.10' and platform_machine != 'ARM64'",
     "numpy==2.4.6; python_version == '3.11'",
     "numpy==2.5.3; python_version >= '3.12'",
