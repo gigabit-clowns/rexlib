@@ -81,19 +81,17 @@ them; translate only what genuinely corresponds to a Python builtin and give
 the rest types of their own; the tests under `tests/em/image/` currently
 assert `RuntimeError` and follow.
 
-## 4. Zero-copy exchange with the array ecosystem
+## 4. Assert values in the image tests
 
-`Array` can now be measured and printed, but nothing can be handed to anything
-else: there is no buffer protocol, no `__array__`, no DLPack. Loading batches
-at speed and receiving objects that cannot leave the package is a pipeline
-without an exit.
+`Array` now hands its memory out: the buffer protocol, `__array__` and DLPack
+are in, and `rexlib.from_dlpack` takes memory in. What that leaves behind is
+in the tests under `tests/em/image/`, which assert shapes, types and failures
+and never a value, because a patch clipped at a border or a batch read back
+from a stack could not be looked into from Python.
 
-It is also why the tests under `tests/em/image/` assert shapes, types and
-failures and never a value: a patch clipped at a border, or a batch read back
-from a stack, cannot be looked into from Python.
+It can now, through `numpy.asarray`. Per file: write an image whose values
+are known, read it back, and compare the array against what numpy computes
+for the same crop, border rule and conversion.
 
-Worth separating: the buffer protocol or `__array__` for host-resident arrays,
-where device-resident ones refuse rather than transfer, matching the explicit
-transfer rule the library holds everywhere else; and DLPack afterwards, if
-interoperating with torch or cupy becomes a goal, since it is the right
-protocol for device memory and the wrong place to start.
+Exchanging device memory is not here. Its shape is not settled, and
+[DECISIONS.md](DECISIONS.md) names what it waits for.

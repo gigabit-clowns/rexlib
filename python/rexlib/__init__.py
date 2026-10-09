@@ -57,6 +57,7 @@ from ._binding.ndarray import (
 	is_initialized as is_initialized,
 	make_contiguous_array_descriptor as make_contiguous_array_descriptor,
 )
+from ._ndarray import from_dlpack as from_dlpack
 from ._functional import (
 	abs as abs,
 	add as add,
@@ -102,6 +103,7 @@ __all__ = [
 	"em",
 	"empty",
 	"fill",
+	"from_dlpack",
 	"full",
 	"get_active_execution_context",
 	"get_cmake_dir",

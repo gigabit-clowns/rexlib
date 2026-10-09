@@ -38,6 +38,11 @@ target_link_libraries(
 	PRIVATE 
 		rexlib::rexlib
 )
+target_include_directories(
+	${TARGET_NAME}
+	SYSTEM PRIVATE
+		${dlpack_SOURCE_DIR}/include
+)
 if(MSVC)
 	target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
 else()

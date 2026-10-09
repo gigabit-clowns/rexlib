@@ -26,12 +26,6 @@ void define_device(device_class &c)
 			"create_command_queue",
 			&device::create_command_queue,
 			py::keep_alive<0, 1>()
-		)
-		.def(
-			"create_event",
-			&device::create_event,
-			py::arg("usage"),
-			py::keep_alive<0, 1>()
 		);
 }
 

@@ -28,6 +28,16 @@
       "packageNameTemplate": "pybind/pybind11",
       "datasourceTemplate": "github-tags",
       "extractVersionTemplate": "^v(?<version>.*)$"
+    },
+    {
+      "description": "Track dlpack, fetched by CMake FetchContent",
+      "customType": "regex",
+      "managerFilePatterns": ["**/CMakeLists.txt"],
+      "matchStrings": ["GIT_REPOSITORY https://github.com/dmlc/dlpack\\s+GIT_TAG v(?<currentValue>[^\\s]+)"],
+      "depNameTemplate": "dlpack",
+      "packageNameTemplate": "dmlc/dlpack",
+      "datasourceTemplate": "github-tags",
+      "extractVersionTemplate": "^v(?<version>.*)$"
     }
   ],
   "packageRules": [

@@ -6,8 +6,6 @@
 
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
-#include <rexlib/core/hardware/event.hpp>
-#include <rexlib/core/hardware/event_usage_flags.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 
@@ -43,16 +41,6 @@ public:
 			std::shared_ptr<command_queue>,
 			device,
 			create_command_queue,
-		);
-	}
-
-	std::shared_ptr<event> create_event(event_usage_flags usage) const override
-	{
-		PYBIND11_OVERRIDE_PURE(
-			std::shared_ptr<event>,
-			device,
-			create_event,
-			usage
 		);
 	}
 };

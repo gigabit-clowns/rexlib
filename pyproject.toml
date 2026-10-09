@@ -100,8 +100,9 @@ cmake.build-type = "Release"
 BUILD_TESTING = "OFF"
 REXLIB_PYTHON_BUILD_TESTING = "OFF"
 
-[tool.scikit-build.metadata.version]
+[[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"
+field = "version"
 input = "VERSION"
 regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
 

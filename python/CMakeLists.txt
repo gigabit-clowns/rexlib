@@ -80,6 +80,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(pybind11)
 
+# Only the header is wanted. SOURCE_SUBDIR names a directory dlpack does not
+# have, so that its own build file, which installs itself and builds a mock,
+# is not read.
+FetchContent_Declare(
+	dlpack
+	GIT_REPOSITORY https://github.com/dmlc/dlpack
+	GIT_TAG v1.3
+	SOURCE_SUBDIR header-only
+)
+FetchContent_MakeAvailable(dlpack)
+
 if(NOT TARGET rexlib::rexlib)
 	find_package(rexlib ${REXLIB_PYTHON_REXLIB_VERSION} QUIET)
 endif()

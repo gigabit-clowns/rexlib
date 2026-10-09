@@ -7,6 +7,11 @@ cmake_minimum_required(VERSION 3.18)
 # STUBS_DIR installs stubs generated elsewhere instead; they describe the
 # Python API, which does not vary by target.
 function(install_python_stubs)
+	# STUBS_DIR is passed empty where the stubs are to be generated.
+	if(POLICY CMP0174)
+		cmake_policy(SET CMP0174 NEW)
+	endif()
+
 	set(oneValueArgs MODULE DESTINATION SEARCH_PATH STUBS_DIR GENERATOR)
 	cmake_parse_arguments(PARSE_ARGV 0 arg "" "${oneValueArgs}" "")
 

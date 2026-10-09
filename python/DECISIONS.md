@@ -129,8 +129,12 @@ hands an array over or asks for one, and whoever does has it. It is a build
 requirement, since pybind11-stubgen has to import it to name it in the stubs,
 and a test requirement.
 
-**Revisit when** `Array` exchanges data with numpy, which would make numpy a
-dependency in its own right.
+`Array` exchanging memory with numpy did not change that. The buffer protocol
+and DLPack need no numpy, and `__array__` imports it when it is called, which
+only numpy does.
+
+**Revisit when** the package needs numpy to compute something rather than to
+hand something over.
 
 ### Only what the high-level functions need is bound
 
@@ -199,6 +203,106 @@ images apart from the areas that follow — metadata, particle formats — so th
 
 File formats are not that axis: EER, MRC and TIFF register with the format
 manager and arrive through the same `em.image.read` with no API change.
+
+## Exchanging memory
+
+### Two protocols, and `__array__` beside them
+
+`Array` hands its memory out through the buffer protocol and through DLPack,
+and takes memory in through DLPack. Both are needed going out:
+`numpy.asarray` and `memoryview` never ask for DLPack, and torch and JAX
+never ask for a buffer.
+
+`__array__` is there for the arrays the buffer protocol cannot describe.
+numpy asks it last, and without it would wrap such an array in an object
+array instead of failing.
+
+`__array_interface__` and `__cuda_array_interface__` are left out. The first
+reaches nothing the buffer protocol does not, and the second reaches only
+CUDA, which DLPack covers.
+
+**Revisit when** a library that matters speaks only one of the two left out.
+
+### Only host memory crosses, and nothing is moved
+
+An export refuses storage the host cannot reach instead of transferring it,
+as the image writes do. Any buffer the host can address goes out as DLPack's
+CPU device, pinned and unified memory included.
+
+`from_dlpack` takes a tensor on the CPU device and no other. It has no
+`device` argument and never passes `dl_device`, so no producer moves data to
+satisfy it. `__dlpack__` refuses a `stream`, and a `dl_device` other than the
+CPU.
+
+Device memory needs three facts no backend states yet: the DLPack identity of
+a memory resource, the device address of a buffer and the native stream of a
+queue. rexlib-cuda cannot run a program today, so their signatures would be
+guesses.
+
+**Revisit when** rexlib-cuda runs programs. A stream named by a consumer then
+becomes a queue, given a command that only waits for what the array is still
+used by.
+
+### A crossing waits; what is kept afterwards does not
+
+Every export goes through rexlib's `get_host_data`, which waits for the
+commands that still use the array. Nothing waits again after that:
+
+- A view numpy keeps is not synchronised with a command submitted later.
+  Tracking it would need an access that ends only when the view dies, and a
+  command waiting on a view held by the thread that submitted it would never
+  run.
+- An array built by `from_dlpack` is not ordered against its source, even
+  when the source is another `Array`. rexlib orders arrays that come from one
+  another, and these two only share a buffer.
+
+Neither can be observed today: the CPU backend finishes a command before
+`submit` returns.
+
+**Revisit when** a backend that runs commands later shares host memory with
+them, which pinned and unified memory do.
+
+### A read-only source is copied or refused
+
+Python has no read-only `Array`, so a source that says it is read only is
+never shared. `from_dlpack` copies it, which needs an active device since
+rexlib allocates the copy, and refuses it under `copy=False`. `copy=True`
+asks the source for a copy of its own, as the array API standard has it.
+
+A source that does not say so is shared. JAX is one: its arrays are immutable
+and it exports a tensor without a version, which has no flag to carry that.
+Writing to such an array is the caller's mistake, as it is from torch.
+
+**Revisit when** `const_array` is bound.
+
+### Memory that is not aligned is refused
+
+numpy exports an array whose data is not aligned for its type, and rexlib's
+kernels read typed memory. `from_dlpack` refuses it rather than copy it: the
+copy would be a kernel reading that memory.
+
+**Revisit when** a caller meets it with data that cannot be realigned at the
+source.
+
+### `char8` is a C `char` to a buffer, and nothing to DLPack
+
+The buffer protocol is given the format of a C `char`, so numpy sees an 8-bit
+integer whose signedness is the platform's. DLPack has no character type, and
+`char8` is refused in both directions.
+
+`complex_float16` is the reverse: DLPack names it and no buffer format does,
+so it leaves through DLPack only.
+
+**Revisit when** arrays of text are used from Python.
+
+### torch and JAX are tested where they are installed
+
+Neither is a test requirement: across five platforms and six Python versions
+they would outweigh everything else the suite installs. The tests that need
+one are skipped in CI, where numpy and a tensor built by hand cover the
+protocol.
+
+**Revisit when** a release of either breaks the exchange unnoticed.
 
 ## Build and CI
 

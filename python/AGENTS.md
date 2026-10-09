@@ -14,7 +14,7 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 51 `.cpp` and 51 `.hpp`, compiled into the `rexlib._binding` extension |
+| `src/` | The pybind11 binding, 52 `.cpp` and 52 `.hpp`, compiled into the `rexlib._binding` extension |
 | `python/rexlib/` | The Python package, 11 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
@@ -67,8 +67,8 @@ name that names them. See #143.
 | `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version`, `rexlib_binding_version` |
 | `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
 | `_binding.layout` | `src/core/layout/` | `IndexTable`, and its conversion from and to a numpy array |
-| `_binding.ndarray` | `src/core/ndarray/` | `Array`, `ArrayDescriptor` |
-| `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, events, memory resources |
+| `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, and the functions that put an array's memory in a DLPack capsule and take one out |
+| `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.concurrency` | `src/core/concurrency/` | `Executor` and its two kinds, `Completion` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
@@ -89,12 +89,20 @@ the order the declarations need.
 | `_context.py` | The execution context active on the current thread |
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
 | `_functional.py` | The operations again, with `context` defaulting to the active one |
-| `_ndarray.py` | Installs the Python operators onto `Array` |
+| `_ndarray.py` | Installs onto `Array` the Python operators, `__array__` and the two DLPack methods; holds `from_dlpack` |
 | `em/` | The electron microscopy areas, one module each; `em/image/` defaults the formats, the reader provider and the context, and assembles loaders and savers |
 
 `_paths` is imported first in `__init__.py`, and the order matters: on Windows
 nothing else imports until the bundled library is findable. `_ndarray` is
 imported for its side effect, before anything can hand out an `Array`.
+
+DLPack is split between the two sides the way everything else is. The binding
+builds a capsule and reads one, and reports the version of DLPack it was
+compiled against. `_ndarray` holds what the protocol lets either side ask
+for: the stream, the device, the version and the copy.
+
+numpy is not imported by the package. `__array__` imports it when it is
+called, and only numpy calls it.
 
 `em/image/_functions.py` takes `_resolve_context` from `_functional` rather
 than carrying one of its own, so `read` asks for an active device exactly as
@@ -162,10 +170,11 @@ CMake 3.18 is the minimum. The binding is C++20, unlike rexlib itself, which
 is C++14: nothing here has to build on the compilers rexlib supports, only on
 the ones that build wheels. `CMAKE_CXX_STANDARD_REQUIRED` is off all the same.
 
-pybind11 is fetched, pinned in `CMakeLists.txt` as a git tag. rexlib is found
-with `find_package` and only built from `external/rexlib` when none is found,
-which is what makes a source distribution installable on a machine with no
-rexlib.
+pybind11 and DLPack are fetched, each pinned in `CMakeLists.txt` as a git tag
+that Renovate follows. DLPack is one header, and only the header is taken:
+its own build file is not read. rexlib is found with `find_package` and only
+built from `external/rexlib` when none is found, which is what makes a source
+distribution installable on a machine with no rexlib.
 
 Options:
 
@@ -278,6 +287,11 @@ there would be nothing asynchronous left about the interface. pybind11 converts 
 the guard is constructed and the return value after it is destroyed, so
 nothing touches Python without it.
 
+Where only part of a function blocks, the release is a
+`py::gil_scoped_release` in a block around that part. Handing out an array's
+memory is the case: it waits for the commands that still use the array, and
+then builds a Python object.
+
 `rexlib::array` is move-only, and anything taking one by value has to be given
 `destination.share()` rather than the caller's own, or `source.share_const()`
 where it takes a `const_array`. Bound plainly, pybind11 would move the array
@@ -305,6 +319,30 @@ and thereby makes `std::complex<float16_t>` work too.
 
 `PyX` trampolines live in the header, not the source, because they are part of
 the `class_` alias callers see.
+
+### Memory that crosses the border
+
+The host reaches an array's memory through rexlib's `get_host_data`, never
+through `get_storage()->get_host_ptr()`. `get_host_data` waits for the
+commands that still use the array and refuses storage the host cannot reach.
+The buffer protocol and `to_dlpack` both go through it.
+
+Only host memory crosses, in both directions, and nothing is moved or copied
+on a caller's behalf. The one exception is a read-only source, which
+`from_dlpack` copies because an `Array` can always be written to.
+
+A capsule handed out owns a `shared_ptr` to the buffer, not a reference to the
+`Array`. Its deleter therefore touches no Python object and runs without the
+GIL, on whatever thread the consumer calls it from.
+
+Memory taken in is held by `dlpack_buffer`, a `rexlib::buffer` the binding
+implements. It is the one class in `src/` that binds nothing. rexlib has no
+call that adopts foreign memory and needs none: `buffer` is the interface,
+and whoever holds the memory implements it.
+
+A capsule is renamed once its tensor is taken, and only then. Everything that
+can refuse a tensor runs before, so a refused tensor stays with its capsule
+and is released by it.
 
 The binding builds with `-Wall -Wextra -Wpedantic`, `/W4 /WX` on MSVC.
 
@@ -351,6 +389,11 @@ They are Python tests against the installed package. There are no C++ tests:
 the binding has no logic of its own worth testing from C++, and what it does
 have is only observable from Python.
 
+`dlpack_buffer` is tested the same way, through `rexlib.from_dlpack`.
+`tests/ndarray/test_dlpack.py` builds a tensor by hand with `ctypes` for it:
+one whose releases can be counted, and which can be what a library does not
+export, such as a tensor on another device or of another version.
+
 ```
 ./scripts/run-tests.sh
 ./scripts/run-tests.sh --coverage
@@ -373,8 +416,8 @@ Tests for what `_binding` exposes at its top level stay at the root.
 | `tests/` | `Version`, `PluginManager`, `ServiceCatalog` |
 | `tests/numerical/` | `NumericalType` |
 | `tests/layout/` | `IndexTable`, and its conversion from and to a numpy array |
-| `tests/ndarray/` | `ArrayDescriptor`, and the operators installed onto `Array` |
-| `tests/hardware/` | Devices, sessions, events, memory resources, the session pool |
+| `tests/ndarray/` | `ArrayDescriptor`, the operators installed onto `Array`, the buffer protocol and DLPack |
+| `tests/hardware/` | Devices, sessions, memory resources, the session pool |
 | `tests/dispatch/` | `ExecutionContext`, the active context, `rexlib.device(...)` |
 | `tests/functional/` | The operations |
 | `tests/em/image/` | `ImageLocation`, `ImageDescriptor`, the format managers, the providers, the synchronous reads and writes and the asynchronous ones |
@@ -388,6 +431,16 @@ share them.
 `tests/CMakeLists.txt` descends into `assets/` and nothing else: the Python
 files are collected by pytest from where they are, so moving one needs no
 change to CMake.
+
+numpy is a test requirement, pinned per Python version from 2.0 to 2.5, and
+it takes and gives versioned DLPack tensors only from 2.1 on. A test that
+needs that carries the `numpy_speaks_dlpack_1` mark and is skipped on Python
+3.9. What the binding itself does with a versioned or a read-only tensor is
+tested with the hand-made one, on every version.
+
+torch and JAX are not test requirements. A test that needs one starts with
+`pytest.importorskip`, so it runs where the library is installed and is
+skipped in CI.
 
 ## Continuous integration
 

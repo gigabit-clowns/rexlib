@@ -11,8 +11,6 @@
 #include "device_properties.hpp"
 #include "device_session.hpp"
 #include "device_type.hpp"
-#include "event.hpp"
-#include "event_usage_flags.hpp"
 #include "memory_allocator.hpp"
 #include "memory_resource.hpp"
 #include "memory_resource_affinity.hpp"
@@ -34,9 +32,6 @@ void bind_hardware(pybind11::module_ &m)
 	auto device_properties = declare_device_properties(m);
 	auto device_session = declare_device_session(m);
 	auto device_type = declare_device_type(m);
-	auto event = declare_event(m);
-	auto event_usage_flag_bits = declare_event_usage_flag_bits(m);
-	auto event_usage_flags = declare_event_usage_flags(m);
 	auto memory_allocator = declare_memory_allocator(m);
 	auto memory_resource = declare_memory_resource(m);
 	auto memory_resource_affinity = declare_memory_resource_affinity(m);
@@ -51,9 +46,6 @@ void bind_hardware(pybind11::module_ &m)
 	define_device_properties(device_properties);
 	define_device_session(device_session);
 	define_device_type(device_type);
-	define_event(event);
-	define_event_usage_flag_bits(event_usage_flag_bits);
-	define_event_usage_flags(event_usage_flags);
 	define_memory_allocator(memory_allocator);
 	define_memory_resource(memory_resource, m);
 	define_memory_resource_affinity(memory_resource_affinity);

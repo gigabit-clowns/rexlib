@@ -22,9 +22,6 @@ class DeviceMock(rexlib.hardware.Device):
 		self.calls.append(('create_command_queue',))
 		return self.queue
 
-	def create_event(self, usage):
-		self.calls.append(('create_event', usage))
-
 def test_should_allow_inheriting_from_device(__setup_mock_device):
 	assert isinstance(__setup_mock_device, rexlib.hardware.Device)
 

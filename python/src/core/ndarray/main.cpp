@@ -4,6 +4,7 @@
 
 #include "array.hpp"
 #include "array_descriptor.hpp"
+#include "dlpack.hpp"
 
 namespace rexlib
 {
@@ -15,6 +16,8 @@ void bind_ndarray(pybind11::module_ &m)
 
 	define_array(array);
 	define_array_descriptor(array_descriptor, m);
+
+	bind_dlpack(m);
 }
 
 } // namespace rexlib
