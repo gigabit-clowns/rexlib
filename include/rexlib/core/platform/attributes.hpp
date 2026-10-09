@@ -120,6 +120,18 @@
 #endif
 
 /**
+ * @def REXLIB_MAY_ALIAS
+ * @brief Declares a type through which objects of any other type may be
+ * accessed, as they may through a character type
+ * 
+ */
+#if REXLIB_HAS_GCC_ATTRIBUTE(may_alias)
+	#define REXLIB_MAY_ALIAS REXLIB_GCC_ATTRIBUTE(may_alias)
+#else
+	#define REXLIB_MAY_ALIAS
+#endif
+
+/**
  * @def REXLIB_ASSUME(expr)
  * @brief Assume that a particular expression evaluates to true
  * for compiler optimizations
