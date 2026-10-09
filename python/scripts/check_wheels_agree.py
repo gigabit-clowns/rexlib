@@ -63,7 +63,7 @@ def main(directory: str) -> int:
                 print(f"  {wheel.name}: size {len(other)}, expected {len(reference)}")
                 failed = True
                 continue
-            differing = sum(a != b for a, b in zip(reference, other))
+            differing = sum(a != b for a, b in zip(reference, other, strict=True))
             verdict = "ok" if differing <= TOLERANCE else "DIFFERS"
             print(f"  {wheel.name}: {differing} byte(s) differ - {verdict}")
             failed |= differing > TOLERANCE

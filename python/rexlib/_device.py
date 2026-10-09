@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 from types import TracebackType
-from typing import Union
 
 from ._context import _set_active_execution_context, get_active_execution_context
 from ._binding import dispatch, hardware
 from ._session_pool import get_pooled_device_session
 
-DeviceSpec = Union[
-	str, hardware.DeviceIndex, hardware.DeviceSession, hardware.DeviceContext
-]
+DeviceSpec = (
+	str
+	| hardware.DeviceIndex
+	| hardware.DeviceSession
+	| hardware.DeviceContext
+)
 
 def _resolve_device_context(spec: DeviceSpec) -> hardware.DeviceContext:
 	if isinstance(spec, hardware.DeviceContext):

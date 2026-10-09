@@ -350,9 +350,12 @@ The binding builds with `-Wall -Wextra -Wpedantic`, `/W4 /WX` on MSVC.
 
 Indentation is tabs, on both sides. Lines stay within 80 columns.
 
-The package targets Python 3.9, so `from __future__ import annotations` goes
-at the top of every module that annotates anything, and `X | None` is written
-only under it.
+`from __future__ import annotations` goes at the top of every module that
+annotates anything, so that no annotation is evaluated at import. That is what
+lets one name something imported only under `TYPE_CHECKING`, as
+`em/image/_functions.py` does with numpy, which the package does not depend on
+at run time. Python 3.14 defers annotations by itself; until 3.13 is dropped,
+the import is what does it.
 
 Module-level state uses two leading underscores — `__pool`, `__default_catalog`,
 `__local`. Python mangles nothing at module scope, so this is a convention
@@ -432,11 +435,9 @@ share them.
 files are collected by pytest from where they are, so moving one needs no
 change to CMake.
 
-numpy is a test requirement, pinned per Python version from 2.0 to 2.5, and
-it takes and gives versioned DLPack tensors only from 2.1 on. A test that
-needs that carries the `numpy_speaks_dlpack_1` mark and is skipped on Python
-3.9. What the binding itself does with a versioned or a read-only tensor is
-tested with the hand-made one, on every version.
+numpy is a test requirement, pinned per Python version from 2.2 to 2.5, all of
+which take and give versioned DLPack tensors. What the binding itself does
+with a versioned or a read-only tensor is tested with the hand-made one.
 
 torch and JAX are not test requirements. A test that needs one starts with
 `pytest.importorskip`, so it runs where the library is installed and is
@@ -454,8 +455,8 @@ skipped in CI.
 `build_with_cmake` covers Linux with gcc and clang, macOS, and Windows on both
 architectures; it exists to keep the plain CMake path working and to produce
 the compilation database the scanner reads. `build_with_pip` is the one that
-runs the tests, across five platforms and Python 3.9 through 3.14, minus the
-Windows ARM entries for the versions CPython never shipped there.
+runs the tests, across five platforms and Python 3.10 through 3.14, minus
+Windows ARM on 3.10, which CPython never shipped there.
 
 Both build rexlib first, into a prefix outside the project, and point the
 build at it with `rexlib_ROOT`. It is the bulk of the wall clock, and ccache

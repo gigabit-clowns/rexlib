@@ -144,7 +144,6 @@ jobs:
         - windows-latest
         - windows-11-arm
         python-version:
-        - '3.9'
         - '3.10'
         - '3.11'
         - '3.12'
@@ -153,8 +152,6 @@ jobs:
 
         # CPython ships no Windows ARM64 build before 3.11.
         exclude:
-        - os: windows-11-arm
-          python-version: '3.9'
         - os: windows-11-arm
           python-version: '3.10'
 

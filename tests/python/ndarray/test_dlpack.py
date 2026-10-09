@@ -17,11 +17,6 @@ BRAIN_FLOAT16 = (4, 16, 1)
 FLOAT32_PAIR = (2, 32, 2)
 READ_ONLY = 1
 
-numpy_speaks_dlpack_1 = pytest.mark.skipif(
-	numpy.lib.NumpyVersion(numpy.__version__) < '2.1.0',
-	reason='numpy takes and gives versioned tensors from 2.1 on'
-)
-
 DATA_TYPES = [
 	(rexlib.NumericalType.boolean, numpy.bool_),
 	(rexlib.NumericalType.int8, numpy.int8),
@@ -220,7 +215,6 @@ def test_the_capsule_is_versioned_for_a_consumer_that_can_take_it(
 	capsule = array.__dlpack__(max_version=(1, 0))
 	assert '"dltensor_versioned"' in repr(capsule)
 
-@numpy_speaks_dlpack_1
 def test_numpy_takes_a_versioned_capsule(__setup_context):
 	array = __setup_full([2, 3], 2.5, __setup_context)
 	exported = Exported(array.__dlpack__(max_version=(1, 0)))
@@ -388,7 +382,6 @@ def test_the_source_is_asked_for_what_the_caller_wants(copy):
 	assert source.requested['max_version'][0] == 1
 	del array
 
-@numpy_speaks_dlpack_1
 def test_numpy_copies_when_asked_to():
 	source = numpy.arange(6, dtype=numpy.float32)
 	copied = numpy.asarray(rexlib.from_dlpack(source, copy=True))
@@ -424,7 +417,6 @@ def test_a_read_only_tensor_is_refused_when_no_copy_is_allowed():
 		rexlib.from_dlpack(source, copy=False)
 	assert source.released == 0
 
-@numpy_speaks_dlpack_1
 def test_a_read_only_array_of_numpy_is_copied():
 	source = numpy.arange(6, dtype=numpy.float32)
 	source.flags.writeable = False
