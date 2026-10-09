@@ -289,13 +289,11 @@ indexed_image_scratch_entry::make_load_plan(std::size_t run) const
 	std::vector<std::size_t> extents;
 	m_values.get_descriptor().get_layout().get_extents(extents);
 
+	// The first axis counts the images held. The rest are those of one.
 	const auto rank = extents.size();
+	extents.erase(extents.begin());
 	image_transfer_plan plan(
-		image_transfer_shape(
-			std::vector<std::size_t>(extents.begin() + 1, extents.end()),
-			rank,
-			rank
-		)
+		image_transfer_shape(std::move(extents), rank, rank)
 	);
 
 	const auto first_slot = run * m_run_length;
