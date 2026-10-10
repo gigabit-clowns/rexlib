@@ -2,7 +2,7 @@
 # HACK: rexlib is not set as build requirement: it is found through 
 # CMAKE_PREFIX_PATH, which CI points at the prefix it builds from 
 # external/rexlib. Add rexlib when it is published.
-requires = ["scikit-build-core==1.0.3"]
+requires = ["scikit-build-core==1.1.0"]
 build-backend = "scikit_build_core.build"
 
 [project]
