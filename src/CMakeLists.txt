@@ -117,19 +117,19 @@ target_link_libraries(
 		Eigen3::Eigen
 )
 
-rexlib_add_component(rexlib-em-obj)
-target_link_libraries(
-	rexlib-em-obj
-	PUBLIC
-		Threads::Threads
-		spdlog::spdlog_header_only
-		half::half
-		Boost::filesystem
-		Boost::container
-		Boost::container_hash
-		Boost::interprocess
-		TIFF::TIFF
-)
+# The em component has no source yet, and an object library without sources
+# does not generate. Once it has one, uncomment it here, in the two places
+# below that name it and in tests/unitary/CMakeLists.txt, and list what its
+# sources reach.
+#
+# rexlib_add_component(rexlib-em-obj)
+# target_link_libraries(
+# 	rexlib-em-obj
+# 	PUBLIC
+# 		Threads::Threads
+# 		spdlog::spdlog_header_only
+# 		half::half
+# )
 
 # The sources, one CMakeLists per directory. They come after every component
 # above, since each names the target it adds itself to.
@@ -137,7 +137,7 @@ add_subdirectory(core)
 add_subdirectory(ops)
 add_subdirectory(functional)
 add_subdirectory(backends)
-add_subdirectory(em)
+# add_subdirectory(em)
 
 # Assemble the single shared library from the component objects.
 #
@@ -160,7 +160,7 @@ target_link_libraries(
 		rexlib-ops-obj
 		rexlib-functional-obj
 		rexlib-cpu-obj
-		rexlib-em-obj
+		# rexlib-em-obj
 )
 set_target_properties(
 	rexlib
@@ -184,11 +184,11 @@ if(MSVC)
 endif()
 
 # The dependencies built as static libraries are linked whole into this one,
-# and a static library exports whatever it defines. Left exported, libtiff and
-# zlib would be resolved against any other copy the process holds, such as the
-# one a Python imaging package loads, and the other way round. Only the ELF
-# linkers take the option: a Mach-O library binds to the library a symbol was
-# linked from, and a DLL exports only what is marked.
+# and a static library exports whatever it defines. Left exported, Boost
+# would be resolved against any other copy the process holds, such as the one
+# another extension of the same Python interpreter loads, and the other way
+# round. Only the ELF linkers take the option: a Mach-O library binds to the
+# library a symbol was linked from, and a DLL exports only what is marked.
 if(UNIX AND NOT APPLE)
 	target_link_options(rexlib PRIVATE LINKER:--exclude-libs,ALL)
 endif()

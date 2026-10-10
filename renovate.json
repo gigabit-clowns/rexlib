@@ -92,24 +92,6 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_add_zlib\\(VERSION (?<currentValue>[^\\s)]+)[^)]*\\)"],
-      "depNameTemplate": "zlib",
-      "packageNameTemplate": "madler/zlib",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_add_tiff\\(VERSION (?<currentValue>[^\\s)]+)[^)]*\\)"],
-      "depNameTemplate": "libtiff",
-      "packageNameTemplate": "libtiff/libtiff",
-      "datasourceTemplate": "gitlab-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
       "matchStrings": ["rexlib_add_pocketfft\\(COMMIT (?<currentDigest>[^\\s)]+)[^)]*\\)"],
       "depNameTemplate": "pocketfft",
       "packageNameTemplate": "https://github.com/mreineck/pocketfft",

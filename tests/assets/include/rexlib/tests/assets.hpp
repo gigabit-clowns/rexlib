@@ -12,43 +12,12 @@
 	       "rexlib-test-assets-interface to consume the shared test assets."
 #endif
 
-#ifndef REXLIB_TEST_SCRATCH_ROOT
-	#error "REXLIB_TEST_SCRATCH_ROOT is not defined. Link against " \
-	       "rexlib-test-assets-interface to consume the shared test assets."
-#endif
-
 namespace rexlib
 {
 
 inline std::string get_asset_root()
 {
 	return REXLIB_TEST_ASSET_ROOT;
-}
-
-inline std::string get_scratch_root()
-{
-	return REXLIB_TEST_SCRATCH_ROOT;
-}
-
-/**
- * @brief Get a path a test may write to.
- *
- * Under the build tree rather than the working directory, so that a test
- * writes where it is meant to whatever it was run from, and beside the staged
- * assets rather than among them, so that what a test creates is never
- * mistaken for what it was given.
- *
- * The file is not created, and removing it is the caller's to do.
- */
-inline std::string get_scratch_path(const std::string &name)
-{
-	#if REXLIB_WINDOWS
-		return get_scratch_root() + "\\" + name;
-	#elif REXLIB_APPLE || REXLIB_LINUX
-		return get_scratch_root() + "/" + name;
-	#else
-		#error "Unknown platform"
-	#endif
 }
 
 inline std::string get_text_file_path()
@@ -68,28 +37,6 @@ inline std::string get_test_plugin_directory()
 		return get_asset_root() + "\\plugins";
 	#elif REXLIB_APPLE || REXLIB_LINUX
 		return get_asset_root() + "/plugins";
-	#else
-		#error "Unknown platform"
-	#endif
-}
-
-inline std::string get_mrc_asset_path(const std::string &name)
-{
-	#if REXLIB_WINDOWS
-		return get_asset_root() + "\\mrc\\" + name;
-	#elif REXLIB_APPLE || REXLIB_LINUX
-		return get_asset_root() + "/mrc/" + name;
-	#else
-		#error "Unknown platform"
-	#endif
-}
-
-inline std::string get_tiff_asset_path(const std::string &name)
-{
-	#if REXLIB_WINDOWS
-		return get_asset_root() + "\\tiff\\" + name;
-	#elif REXLIB_APPLE || REXLIB_LINUX
-		return get_asset_root() + "/tiff/" + name;
 	#else
 		#error "Unknown platform"
 	#endif

@@ -27,7 +27,7 @@ function(rexlib_add_boost)
 		# whereas the fetched build defines one target per module. Fill
 		# in the header only ones so that the names this project links
 		# do not depend on where Boost came from.
-		foreach(module container container_hash interprocess)
+		foreach(module container container_hash)
 			if(NOT TARGET Boost::${module})
 				add_library(Boost::${module} INTERFACE IMPORTED)
 				set_target_properties(
@@ -55,7 +55,6 @@ function(rexlib_add_boost)
 		container
 		container_hash
 		filesystem
-		interprocess
 	)
 	set(BOOST_CONTAINER_HEADER_ONLY ON)
 	set(BOOST_USE_STATIC_LIBS ON)
