@@ -7,7 +7,6 @@ target_sources(
 )
 
 add_subdirectory(binary)
-add_subdirectory(concurrency)
 add_subdirectory(dispatch)
 add_subdirectory(hardware)
 add_subdirectory(layout)

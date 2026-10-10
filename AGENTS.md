@@ -18,8 +18,8 @@ the same pull request that causes it.
 | `src/` | The implementation, plus headers that are not public |
 | `src/backends/cpu/` | The CPU backend: builders, kernels, loops, plans |
 | `src/core/` | Dispatch, layouts, hardware abstraction, plugin loading |
-| `src/ops/`, `src/functional/`, `src/em/` | Operation declarations and the functions that reach them |
-| `src/em/image/` | The image I/O subsystem. `formats/` holds one directory per file format, plus `strided_transfer/` and `memory_mapping/`, which hold what formats build on. The indexed scratch is built on `strided_transfer/` and `memory_mapping/` too |
+| `src/ops/`, `src/functional/` | Operation declarations and the functions that reach them |
+| `src/em/` | Reserved for the CryoEM operations. It holds no source yet, so its component target, `rexlib-em-obj`, is commented out in `src/CMakeLists.txt` and in `tests/unitary/CMakeLists.txt` |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
 | `cmake/modules/` | One `rexlib_add_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The template for the installed CMake package config |
@@ -28,12 +28,8 @@ The same top level groups appear on both sides, `core`, `backends`, `ops`,
 `functional` and `em`, but not every directory has a counterpart: a header with
 no implementation of its own lives only under `include/`.
 
-One component reaches into another's private headers. The region transfer of
-`src/em/image/formats/strided_transfer/` runs on the CPU backend's
-elementwise loop and `cpu::cast`, through
-`backends/cpu/loops/elementwise_loop.hpp` and `backends/cpu/load_store.hpp`,
-and `image_region_transfer_impl.hpp` is the one file outside
-`src/backends/cpu/` that includes them.
+Image I/O is not part of rexlib. It lives in
+[vitrio](https://github.com/gigabit-clowns/vitrio), a library of its own.
 
 Every directory holding sources carries a `CMakeLists.txt` naming them, which
 adds them to the component target its group belongs to and descends into the
@@ -103,8 +99,8 @@ left as it is because clang selects arcs differently and has never produced a
 negative, and because buying atomic counters there costs the cache.
 
 Dependencies come through one `cmake/modules/rexlib_add_*.cmake` each: boost,
-spdlog, half, pocketfft, eigen, zlib and libtiff for the library, catch2 and
-trompeloeil for the tests. Every one is fetched and built by default and can instead be taken
+spdlog, half, pocketfft and eigen for the library, catch2 and trompeloeil for
+the tests. Every one is fetched and built by default and can instead be taken
 from the system, either all at once with `REXLIB_USE_SYSTEM_DEPENDENCIES` or
 one at a time with `REXLIB_USE_SYSTEM_BOOST` and its siblings, which default to
 the value the global one had when the build directory was first configured.
@@ -118,13 +114,6 @@ points a fetch at a local checkout without either option.
 half and pocketfft ship no CMake package config anywhere, so their system path
 goes through this project's own `Findhalf.cmake` and `Findpocketfft.cmake`.
 Neither header carries a version, so neither module can check one.
-
-libtiff reads and writes the TIFF image format, and zlib is there for libtiff
-alone, as its Deflate codec. The fetched libtiff is built with the codecs it
-carries itself and that one, whatever else the machine has installed, so that
-what a default build reads does not depend on where it was built. A libtiff
-from the system comes with the codecs its packager chose and brings its own
-zlib, so `REXLIB_USE_SYSTEM_ZLIB` only matters beside a fetched libtiff.
 
 Every dependency is private and none appears in a public header, so the
 installed package asks only for `Threads` whichever way they were obtained,
@@ -176,9 +165,8 @@ An operator defined in a class body is implicitly inline and needs no
 
 The dependencies linked as static libraries do not follow that visibility on
 their own: a static library exports whatever it defines. On Linux the shared
-library is therefore linked with `--exclude-libs,ALL`, so that libtiff, zlib
-and boost stay inside it rather than being resolved against another copy the
-process holds.
+library is therefore linked with `--exclude-libs,ALL`, so that boost stays
+inside it rather than being resolved against another copy the process holds.
 
 ### Arrays and the commands that access them
 
@@ -229,7 +217,7 @@ up with `vswhere` and `vcvars` beforehand.
 
 Beside the matrix, one `ubuntu-latest` job builds against system dependencies,
 so that the `find_package` half of every `rexlib_add_*` module keeps being
-exercised. It takes boost, eigen, spdlog, libtiff and catch2 from apt and puts
+exercised. It takes boost, eigen, spdlog and catch2 from apt and puts
 the half and pocketfft headers on the include path the way a packager would,
 which is what covers `Findhalf.cmake` and `Findpocketfft.cmake`; trompeloeil,
 packaged nowhere and more than one header, stays fetched. The job also asserts

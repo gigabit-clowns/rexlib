@@ -7,7 +7,6 @@ target_sources(
 		service_catalog.cpp
 )
 
-add_subdirectory(concurrency)
 add_subdirectory(dispatch)
 add_subdirectory(hardware)
 add_subdirectory(layout)

@@ -27,7 +27,7 @@ target_link_libraries(
 		rexlib-ops-obj
 		rexlib-functional-obj
 		rexlib-cpu-obj
-		rexlib-em-obj
+		# rexlib-em-obj
 		rexlib
 		rexlib-test-assets-interface
 		Catch2::Catch2WithMain
