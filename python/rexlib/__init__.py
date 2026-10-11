@@ -12,10 +12,6 @@ sub-namespaces, matching both the C++ side, where they are in `rexlib`
 itself, and the shape of the array libraries they are used alongside.
 Device management and dispatch stay in their own modules: they are
 reached for when setting up rather than when computing.
-
-`em` is a package rather than a flat name, one module per area of
-electron microscopy, so that each area keeps its own `read` and `write`
-instead of spelling the area into the function name.
 """
 
 from __future__ import annotations
@@ -25,7 +21,6 @@ from __future__ import annotations
 from . import _paths as _paths
 
 from ._binding import (
-	concurrency as concurrency,
 	dispatch as dispatch,
 	hardware as hardware,
 	Plugin as Plugin,
@@ -37,7 +32,6 @@ from ._binding import (
 	rexlib_binding_version as rexlib_binding_version,
 	rexlib_version as rexlib_version,
 )
-from ._binding.layout import IndexTable as IndexTable
 from ._binding.numerical import NumericalType as NumericalType
 
 from ._catalog import get_default_catalog as get_default_catalog
@@ -45,7 +39,10 @@ from ._context import get_active_execution_context as get_active_execution_conte
 from ._device import device as device
 from ._paths import get_cmake_dir as get_cmake_dir, get_include as get_include
 
-from . import em as em
+# em has no area yet. Uncomment this import and the entry of em in
+# __all__ once it has one.
+#
+# from . import em as em
 
 # Imported for its effect: it installs the Python operators onto Array,
 # which has to happen before anything hands one out.
@@ -85,7 +82,6 @@ from ._functional import (
 __all__ = [
 	"Array",
 	"ArrayDescriptor",
-	"IndexTable",
 	"Plugin",
 	"PluginManager",
 	"ServiceCatalog",
@@ -95,12 +91,11 @@ __all__ = [
 	"add",
 	"cast",
 	"cast_copy",
-	"concurrency",
 	"copy",
 	"device",
 	"dispatch",
 	"divide",
-	"em",
+	# "em",
 	"empty",
 	"fill",
 	"from_dlpack",

@@ -1,11 +1,8 @@
 
 #include "core/hardware/main.hpp"
-#include "core/layout/main.hpp"
 #include "core/ndarray/main.hpp"
 #include "core/numerical/main.hpp"
-#include "core/concurrency/main.hpp"
 #include "core/dispatch/main.hpp"
-#include "em/main.hpp"
 #include "functional/main.hpp"
 
 #include "core/service_catalog.hpp"
@@ -26,9 +23,6 @@ PYBIND11_MODULE(_binding, m) {
 	auto numerical_module = m.def_submodule("numerical");
 	bind_numerical(numerical_module);
 
-	auto layout_module = m.def_submodule("layout");
-	bind_layout(layout_module);
-
 	auto ndarray_module = m.def_submodule("ndarray");
 	bind_ndarray(ndarray_module);
 
@@ -38,14 +32,8 @@ PYBIND11_MODULE(_binding, m) {
 	auto dispatch_module = m.def_submodule("dispatch");
 	bind_dispatch(dispatch_module);
 
-	auto concurrency_module = m.def_submodule("concurrency");
-	bind_concurrency(concurrency_module);
-
 	auto functional_module = m.def_submodule("functional");
 	bind_functional(functional_module);
-
-	auto em_module = m.def_submodule("em");
-	bind_em(em_module);
 
 	define_version(version, m);
 	define_plugin(plugin);

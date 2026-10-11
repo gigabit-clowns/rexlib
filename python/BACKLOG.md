@@ -59,39 +59,16 @@ go in.
 ## 3. Translate the library's exceptions
 
 There is no `py::register_exception` anywhere in `src/`, so everything rexlib
-throws arrives through pybind11's catch-all. `image_file_error`,
-`image_format_error`, `unsupported_operation_error` and
-`unsupported_capability_error` all derive from `std::runtime_error`, which
-pybind11 does not special-case, so all four land as a bare `RuntimeError`.
+throws arrives through pybind11's catch-all. `unsupported_operation_error` and
+`unsupported_capability_error` derive from `std::runtime_error`, which
+pybind11 does not special-case, so both land as a bare `RuntimeError`.
 
-rexlib now tells them apart, and the binding throws that away: a file that
-cannot be reached, a file whose contents contradict its format, a format
-nothing recognises and an array the host cannot reach are four different
-mistakes that a caller meets routinely through `em.image` and cannot tell
-apart. What already arrives well is what rexlib throws as a standard
-exception: an index past the end of a stack is an `IndexError`, and a
-destination of the wrong shape a `ValueError`.
-
-The cheapest visible win is a missing file arriving as `FileNotFoundError`. It
-is an `image_file_error` in rexlib, raised with the path at the front of its
-message, and a `RuntimeError` here.
+rexlib tells them apart, and the binding throws that away: an operation no
+backend implements and an array the host cannot reach are different mistakes
+that a caller cannot tell apart. What already arrives well is what rexlib
+throws as a standard exception: `std::invalid_argument` is a `ValueError` and
+`std::out_of_range` an `IndexError`.
 
 Register the types once where the module is built so every submodule inherits
 them; translate only what genuinely corresponds to a Python builtin and give
-the rest types of their own; the tests under `tests/em/image/` currently
-assert `RuntimeError` and follow.
-
-## 4. Assert values in the image tests
-
-`Array` now hands its memory out: the buffer protocol, `__array__` and DLPack
-are in, and `rexlib.from_dlpack` takes memory in. What that leaves behind is
-in the tests under `tests/em/image/`, which assert shapes, types and failures
-and never a value, because a patch clipped at a border or a batch read back
-from a stack could not be looked into from Python.
-
-It can now, through `numpy.asarray`. Per file: write an image whose values
-are known, read it back, and compare the array against what numpy computes
-for the same crop, border rule and conversion.
-
-Exchanging device memory is not here. Its shape is not settled, and
-[DECISIONS.md](DECISIONS.md) names what it waits for.
+the rest types of their own; the tests that assert `RuntimeError` follow.

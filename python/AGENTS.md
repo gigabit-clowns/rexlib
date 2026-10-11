@@ -14,8 +14,8 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 52 `.cpp` and 52 `.hpp`, compiled into the `rexlib._binding` extension |
-| `python/rexlib/` | The Python package, 11 `.py`: everything the binding cannot express |
+| `src/` | The pybind11 binding, 36 `.cpp` and 36 `.hpp`, compiled into the `rexlib._binding` extension |
+| `python/rexlib/` | The Python package, 9 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
 | `scripts/` | Development tools: the test runner, the stub generator and collector, the wheel check |
@@ -35,9 +35,16 @@ hold, so that the public surface is one flat namespace rather than a set of
 import paths.
 
 A public subpackage is the exception to that, and `em/` is the one: its module
-path *is* the API, `rexlib.em.image`, so the directories are named without an
-underscore and each carries an `__all__` of its own. Anything private inside
-one still takes the underscore.
+path *is* the API, so the directories are named without an underscore and each
+carries an `__all__` of its own. Anything private inside one still takes the
+underscore.
+
+`em` holds nothing at the moment. Image I/O was its one area, and it now lives
+in [vitrio](https://github.com/gigabit-clowns/vitrio), a package of its own
+that takes and gives arrays through DLPack and the buffer protocol. Until
+rexlib gains another area, `bind_em` in `src/em/main.cpp` binds nothing, and
+the lines that create the submodule in `src/main.cpp` and that import the
+package in `python/rexlib/__init__.py` are commented out.
 
 The rule that follows: if a change could be expressed in either place, it goes
 in `python/rexlib/`. C++ is the expensive side to change and the one that has
@@ -53,12 +60,12 @@ them: everything under those directories is flat in `namespace rexlib`,
 the only place rexlib separates these areas, so the paths are what the
 submodule names come from.
 
-It reaches through nesting where rexlib's directories nest. `em/image/` sits
-inside `namespace em` the way `core/hardware/` sits inside `namespace rexlib`,
-so it binds as `em.image` rather than as `em`, even though `em::read` carries
-no `image` qualifier of its own. The path is what keeps images apart from the
-areas that come after them, which is why it is the path and not the function
-name that names them. See #143.
+It reaches through nesting where rexlib's directories nest. An area under
+`em/` sits inside `namespace em` the way `core/hardware/` sits inside
+`namespace rexlib`, so it binds as `em.<area>` rather than as `em`, even where
+its functions carry no qualifier of their own. The path is what keeps the
+areas apart, which is why it is the path and not the function name that names
+them. See #143.
 
 `_binding` carries at its top level what the directories below it sit in:
 
@@ -66,18 +73,16 @@ name that names them. See #143.
 |---|---|---|
 | `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version`, `rexlib_binding_version` |
 | `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
-| `_binding.layout` | `src/core/layout/` | `IndexTable`, and its conversion from and to a numpy array |
 | `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, and the functions that put an array's memory in a DLPack capsule and take one out |
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
-| `_binding.concurrency` | `src/core/concurrency/` | `Executor` and its two kinds, `Completion` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
-| `_binding.em.image` | `src/em/image/` | `ImageLocation`, `ImageDescriptor`, the format managers, the reader and writer providers, the loader and the saver, and the functions of `image_read.hpp` and `image_write.hpp` |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the
-`bind_` function of the directory it stands for: `src/main.cpp` creates `em`
-and `src/em/main.cpp` creates `image` inside it. Each names its submodules in
-the order the declarations need.
+`bind_` function of the directory it stands for: `src/main.cpp` creates
+`hardware` and hands it to `bind_hardware`, and a directory that nests does
+the same one level down. Each names its submodules in the order the
+declarations need.
 
 ### The package's modules
 
@@ -90,7 +95,7 @@ the order the declarations need.
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
 | `_functional.py` | The operations again, with `context` defaulting to the active one |
 | `_ndarray.py` | Installs onto `Array` the Python operators, `__array__` and the two DLPack methods; holds `from_dlpack` |
-| `em/` | The electron microscopy areas, one module each; `em/image/` defaults the formats, the reader provider and the context, and assembles loaders and savers |
+| `em/` | The electron microscopy areas, one module each. None yet |
 
 `_paths` is imported first in `__init__.py`, and the order matters: on Windows
 nothing else imports until the bundled library is findable. `_ndarray` is
@@ -103,35 +108,6 @@ for: the stream, the device, the version and the copy.
 
 numpy is not imported by the package. `__array__` imports it when it is
 called, and only numpy calls it.
-
-`em/image/_functions.py` takes `_resolve_context` from `_functional` rather
-than carrying one of its own, so `read` asks for an active device exactly as
-`zeros` does and there is one place to change if that ever stops being the
-rule. Two things about those functions are rexlib's and not this package's:
-`em::read` allocates on the host whatever device is active, and the writes
-refuse storage the host cannot reach instead of transferring it. Both are
-stated in their docstrings, since a caller has no other way to find out.
-
-Only what the functions of `image_read.hpp` and `image_write.hpp` need is
-bound. A reader, a writer, a format, a transfer plan and a sanitizer have no
-Python counterpart, so `ImageLoader` and `ImageSaver` are bound without the
-`load` and `save` that take them, and `ManagedImageWriterProvider` without
-`acquire`.
-
-A collaborator the package defaults moves behind the arguments it does not:
-`em::write(arr, path, manager, descriptor)` is
-`write(array, path, descriptor, manager=None)`. A function with nothing to
-default is re-exported as the binding has it, which is how
-`read_batch_async` and `write_batch_async` arrive.
-
-The helpers that assemble collaborators are nouns: `reader_provider`,
-`writer_provider`, `loader` and `saver`. `saver` takes its writer provider
-rather than assembling one, since whoever writes keeps it to declare the
-files and to close them.
-
-`image_metadata` is not bound. rexlib declares it empty, so the parameter is
-left off the writes and off `declare` until the type has fields; adding it
-later is compatible, and publishing an empty class now would not be.
 
 ## Building
 
@@ -210,11 +186,6 @@ The extension's `.pyi` files are generated while it is built, by
 `rexlib/_binding/` beside it. They are not in the repository and there is
 nothing to run by hand.
 
-The signatures of `IndexTable` name numpy, which pybind11-stubgen has to
-import to write `import numpy` into the stub. That is why numpy is in
-`build-system.requires` although nothing is compiled against it: without it
-the stubs are still written, with the name left unresolved.
-
 Generating them imports the extension, which a cross-compiling build cannot
 do. Those builds are handed stubs made elsewhere through
 `REXLIB_PYTHON_STUBS_DIR`; stubs describe the Python API, so the same ones are
@@ -226,12 +197,12 @@ signatures is a change to the stubs, generated for free, and a change to
 `python/rexlib/` is only as typed as it was written.
 
 A submodule that holds submodules of its own becomes a directory of stubs
-rather than one file: `em` is `_binding/em/__init__.pyi` beside
-`_binding/em/image.pyi`. Every step that moves stubs has to carry that tree,
-so `scripts/collect_stubs.py` copies it and the artifact holding it is
-uploaded as a directory. A flat `*.pyi` glob at either step takes the top
-level and drops the rest, which fails nothing and publishes wheels typed
-everywhere except the area that was just added.
+rather than one file: `_binding/<name>/__init__.pyi` beside one `.pyi` for
+each it holds. None does today, and every step that moves stubs carries that
+tree all the same: `scripts/collect_stubs.py` copies it and the artifact
+holding it is uploaded as a directory. A flat `*.pyi` glob at either step
+takes the top level and drops the rest, which fails nothing and publishes
+wheels typed everywhere except the area that was just added.
 
 ## Conventions
 
@@ -274,18 +245,16 @@ signature takes a raw pointer and pybind11 will not produce one from `None`.
 
 A bound type that defines `__eq__` and no `__hash__` is unhashable, so it
 cannot be a dictionary key or go in a set. Where rexlib gives the type a
-`hash()` of its own — `array_descriptor` and `image_location` do — forward it.
+`hash()` of its own, as `array_descriptor` does, forward it.
 Where it does not, `device_index` being the one left, the hash has to be
 written, which is rexlib's to do rather than this binding's;
 `_session_pool.py` keys on a `(backend, id)` tuple in the meantime.
 
-A binding that blocks releases the GIL with
-`py::call_guard<py::gil_scoped_release>()`. `Completion.wait`, `Completion.get`
-and everything in `em.image` that reaches a file all do: held through a
-read, the GIL would freeze every other Python thread for its duration and
-there would be nothing asynchronous left about the interface. pybind11 converts the arguments before
-the guard is constructed and the return value after it is destroyed, so
-nothing touches Python without it.
+A binding that blocks releases the GIL: held through the wait, it would
+freeze every other Python thread for its duration. Where the whole function
+blocks, that is `py::call_guard<py::gil_scoped_release>()`. pybind11 converts
+the arguments before the guard is constructed and the return value after it is
+destroyed, so nothing touches Python without it.
 
 Where only part of a function blocks, the release is a
 `py::gil_scoped_release` in a block around that part. Handing out an array's
@@ -298,15 +267,11 @@ where it takes a `const_array`. Bound plainly, pybind11 would move the array
 out of the Python object and hand the caller back an empty one.
 
 A type rexlib parses from a string carries a `from_string` static method and
-no constructor that parses. `DeviceIndex` and `ImageLocation` both do, and
-`ImageLocation` is why: its constructor already gives a lone string the
-meaning "this path, whole file", so a parsing overload would be competing for
-that signature rather than adding to it. `from_string` is the inverse of
+no constructor that parses, as `DeviceIndex` does. A constructor is left free
+to give a lone string another meaning, and a parsing overload would compete
+for that signature rather than add to it. `from_string` is the inverse of
 `__str__` and raises `ValueError`, which is what the `bool` of rexlib's
 `parse_*` becomes on this side.
-
-`IndexTable.from_array` is a static method for the same reason: the
-constructor already takes a lone argument, the rank.
 
 Lifetimes are stated: `py::keep_alive` where an object borrows from another,
 `py::return_value_policy::reference_internal` where a getter hands out a
@@ -352,10 +317,9 @@ Indentation is tabs, on both sides. Lines stay within 80 columns.
 
 `from __future__ import annotations` goes at the top of every module that
 annotates anything, so that no annotation is evaluated at import. That is what
-lets one name something imported only under `TYPE_CHECKING`, as
-`em/image/_functions.py` does with numpy, which the package does not depend on
-at run time. Python 3.14 defers annotations by itself; until 3.13 is dropped,
-the import is what does it.
+lets one name something imported only under `TYPE_CHECKING`, such as a type
+of a library the package does not depend on at run time. Python 3.14 defers
+annotations by itself; until 3.13 is dropped, the import is what does it.
 
 Module-level state uses two leading underscores — `__pool`, `__default_catalog`,
 `__local`. Python mangles nothing at module scope, so this is a convention
@@ -418,12 +382,10 @@ Tests for what `_binding` exposes at its top level stay at the root.
 |---|---|
 | `tests/` | `Version`, `PluginManager`, `ServiceCatalog` |
 | `tests/numerical/` | `NumericalType` |
-| `tests/layout/` | `IndexTable`, and its conversion from and to a numpy array |
 | `tests/ndarray/` | `ArrayDescriptor`, the operators installed onto `Array`, the buffer protocol and DLPack |
 | `tests/hardware/` | Devices, sessions, memory resources, the session pool |
 | `tests/dispatch/` | `ExecutionContext`, the active context, `rexlib.device(...)` |
 | `tests/functional/` | The operations |
-| `tests/em/image/` | `ImageLocation`, `ImageDescriptor`, the format managers, the providers, the synchronous reads and writes and the asynchronous ones |
 
 There are no `__init__.py` files and no `conftest.py`. Test module names are
 therefore unique across the whole tree, and a fixture belongs to the file that
