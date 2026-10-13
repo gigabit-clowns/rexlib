@@ -160,7 +160,7 @@ Options:
 |---|---|---|
 | `REXLIB_PYTHON_BUILD_TESTING` | `BUILD_TESTING` | Builds the dummy plugins the tests need |
 | `REXLIB_PYTHON_INSTALL` | `ON` | Generates the install rules |
-| `REXLIB_PYTHON_INSTALL_DIR` | The wheel's platlib, else `Python_SITEARCH` | Where the package is installed |
+| `REXLIB_PYTHON_INSTALL_DIR` | `Python_SITEARCH`; under scikit-build-core, always the wheel's platlib | Where the package is installed |
 | `REXLIB_PYTHON_STAGE_PREFIX` | empty | A rexlib prefix to copy inside the package |
 | `REXLIB_PYTHON_STUBS_DIR` | empty | Pre-generated `.pyi` files to install instead of generating them |
 | `REXLIB_PYTHON_STABLE_ABI` | `OFF`, `ON` from `pyproject.toml` | Builds the extension against the stable ABI of Python 3.12 |

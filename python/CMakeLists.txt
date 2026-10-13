@@ -44,15 +44,15 @@ find_package(Python REQUIRED COMPONENTS ${REXLIB_PYTHON_COMPONENTS})
 # their mercy.
 option(REXLIB_PYTHON_BUILD_TESTING "Build this project's tests" ${BUILD_TESTING})
 
-# scikit-build-core stages a wheel elsewhere; a plain build installs into
-# the interpreter that CMake found. Either way the option holds the answer.
-set(DEFAULT_INSTALL_DIR "${SKBUILD_PLATLIB_DIR}")
-if(NOT DEFAULT_INSTALL_DIR)
-	set(DEFAULT_INSTALL_DIR "${Python_SITEARCH}")
+# scikit-build-core stages each wheel in a directory of its own, which this
+# build is told anew every time it is configured; a plain build installs
+# into the interpreter that CMake found.
+if(SKBUILD_PLATLIB_DIR)
+	set(REXLIB_PYTHON_INSTALL_DIR "${SKBUILD_PLATLIB_DIR}")
+else()
+	set(REXLIB_PYTHON_INSTALL_DIR "${Python_SITEARCH}" CACHE PATH
+		"Directory the Python package is installed into")
 endif()
-set(REXLIB_PYTHON_INSTALL_DIR "${DEFAULT_INSTALL_DIR}" CACHE PATH
-	"Directory the Python package is installed into")
-unset(DEFAULT_INSTALL_DIR)
 
 set(REXLIB_PYTHON_STUBS_DIR "" CACHE PATH
 	"Directory of pre-generated .pyi stubs. Empty generates them, which \
