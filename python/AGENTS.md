@@ -134,6 +134,13 @@ CMake, and the install rules are what put the package together. A CMake build
 on its own is what CI uses to get a compilation database for the scanner, not
 a way to get a working package.
 
+Installed this way the package carries no rexlib, and the extension's RPATH
+names, after the package's own library directory, the one rexlib was found
+in, so the package works where it was built. Windows has no RPATH: there the
+rexlib DLL has to be on the loader's search path. A wheel carries rexlib, as
+does any build given `REXLIB_PYTHON_STAGE_PREFIX` or one that builds
+`external/rexlib`, and names nothing outside itself.
+
 That build is thrown away with its directory, so installing twice compiles the
 binding twice. `SKBUILD_BUILD_DIR` names one to keep and is left to whoever is
 installing rather than set here — the README carries it. It is deliberately

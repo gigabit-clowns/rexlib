@@ -39,6 +39,19 @@ elseif(UNIX)
 	)
 endif()
 
+# A package that carries no rexlib also looks where this build found it.
+if(UNIX AND NOT REXLIB_PYTHON_STAGE_PREFIX)
+	get_target_property(REXLIB_IMPORTED rexlib::rexlib IMPORTED)
+	if(REXLIB_IMPORTED)
+		get_target_property(REXLIB_LOCATION rexlib::rexlib LOCATION)
+		get_filename_component(REXLIB_LIBRARY_DIR "${REXLIB_LOCATION}" DIRECTORY)
+		set_property(
+			TARGET ${TARGET_NAME}
+			APPEND PROPERTY INSTALL_RPATH "${REXLIB_LIBRARY_DIR}"
+		)
+	endif()
+endif()
+
 target_link_libraries(
 	${TARGET_NAME}
 	PRIVATE 

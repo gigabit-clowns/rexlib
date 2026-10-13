@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-import os
+import pathlib
 import uuid
 
 import pytest
@@ -73,7 +73,8 @@ def test_service_catalog_registers_plugins_without_plugins():
   assert n_plugins == 0
 
 def __get_dummy_plugin_directory() -> str:
-  # Installed beside the real plugin directory, so it is found the same
-  # way whatever prefix layout the package was built with.
-  parent = os.path.dirname(rexlib.get_default_plugin_directory())
-  return os.path.join(parent, 'rexlib-dummy-plugins')
+  # Installed in the package, in whichever library directory the prefix
+  # layout names.
+  package = pathlib.Path(rexlib.__file__).parent
+  (directory,) = package.glob('*/rexlib-dummy-plugins')
+  return str(directory)
