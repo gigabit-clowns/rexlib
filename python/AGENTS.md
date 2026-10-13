@@ -466,7 +466,7 @@ skipped in CI.
 `build_with_cmake` covers Linux with gcc and clang, macOS, and Windows on both
 architectures; it exists to keep the plain CMake path working and to produce
 the compilation database the scanner reads. `build_with_pip` is the one that
-runs the tests, across five platforms and Python 3.10 through 3.14, minus
+runs the tests, across five platforms and Python 3.10 through 3.15, minus
 Windows ARM on 3.10, which CPython never shipped there.
 
 Both build rexlib first, into a prefix outside the project, and point the
@@ -479,7 +479,7 @@ Every job moves the submodule to rexlib's `main` before building. That step is
 temporary and goes away, along with the Renovate rule holding the submodule
 back, once rexlib tags releases.
 
-Coverage is produced by one entry only, Linux on 3.14, and handed to the scan
+Coverage is produced by one entry only, Linux on 3.15, and handed to the scan
 as an artifact.
 
 ### Wheels

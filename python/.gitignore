@@ -42,6 +42,10 @@ __pycache__/
 .mypy_cache
 .ruff_cache
 
+# Coverage, written by scripts/run-tests.sh --coverage
+.coverage
+coverage.xml
+
 # Type stubs, generated when the bindings are built
 python/rexlib/_binding
 

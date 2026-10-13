@@ -149,6 +149,7 @@ jobs:
         - '3.12'
         - '3.13'
         - '3.14'
+        - '3.15'
 
         # CPython ships no Windows ARM64 build before 3.11.
         exclude:
@@ -234,20 +235,20 @@ jobs:
         run: |
           chmod +x ./scripts/run-tests.sh
           ./scripts/run-tests.sh ${{ matrix.os == 'ubuntu-latest'
-            && matrix.python-version == '3.14' && '--coverage' || '' }}
+            && matrix.python-version == '3.15' && '--coverage' || '' }}
 
       - name: Save the fetched sources
-        if: github.ref == 'refs/heads/main' && matrix.python-version == '3.14'
+        if: github.ref == 'refs/heads/main' && matrix.python-version == '3.15'
         uses: gigabit-clowns/.github/.github/composites/save-fetched@main
 
       - name: Save the compiler cache
-        if: github.ref == 'refs/heads/main' && matrix.python-version == '3.14'
+        if: github.ref == 'refs/heads/main' && matrix.python-version == '3.15'
         uses: gigabit-clowns/.github/.github/composites/save-ccache@main
         with:
           key: pip-${{ matrix.os }}
 
       - name: Upload coverage report
-        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'
+        if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.15'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: python-coverage
