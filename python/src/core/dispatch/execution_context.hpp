@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/dispatch/execution_context.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using execution_context_class = pybind11::class_<execution_context>;
+using execution_context_class = nanobind::class_<execution_context>;
 
-execution_context_class declare_execution_context(pybind11::module_ &m);
+execution_context_class declare_execution_context(nanobind::module_ &m);
 void define_execution_context(execution_context_class &c);
 
 } // namespace rexlib

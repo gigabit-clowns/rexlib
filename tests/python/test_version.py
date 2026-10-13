@@ -115,6 +115,10 @@ def test_version_to_string():
   v = rexlib.Version(1234, 567, 890)
   assert str(v) == "1234.567.890"
 
+def test_is_unhashable():
+  with pytest.raises(TypeError):
+    hash(rexlib.Version(1, 2, 3))
+
 def test_pickle():
   v = rexlib.Version(1234, 567, 890)
   pickled = pickle.dumps(v)

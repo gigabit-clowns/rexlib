@@ -27,7 +27,7 @@
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 namespace
 {
@@ -99,7 +99,7 @@ void check_version(const DLManagedTensorVersioned &managed)
 		oss << "The tensor follows version " << managed.version.major
 			<< " of DLPack, and only version " << DLPACK_MAJOR_VERSION
 			<< " is understood.";
-		throw py::buffer_error(oss.str());
+		throw nb::buffer_error(oss.str().c_str());
 	}
 }
 
@@ -135,7 +135,7 @@ DLDataType get_dlpack_data_type(numerical_type type)
 	{
 		std::ostringstream oss;
 		oss << "DLPack has no data type for " << type << ".";
-		throw py::buffer_error(oss.str());
+		throw nb::buffer_error(oss.str().c_str());
 	}
 
 	result.bits = static_cast<std::uint8_t>(8 * get_size(type));
@@ -169,7 +169,7 @@ numerical_type get_numerical_type(const DLDataType &type)
 	oss << "No array holds the data type of the tensor (code "
 		<< static_cast<int>(type.code) << ", " << static_cast<int>(type.bits)
 		<< " bits, " << type.lanes << " lanes).";
-	throw py::buffer_error(oss.str());
+	throw nb::buffer_error(oss.str().c_str());
 }
 
 /**
@@ -262,20 +262,24 @@ void destroy_capsule(PyObject *capsule)
 }
 
 template <typename Managed>
-py::capsule make_capsule(array &source, void *data, std::uint64_t flags)
+nb::capsule make_capsule(array &source, void *data, std::uint64_t flags)
 {
 	auto exported =
 		std::make_unique<dlpack_export<Managed>>(source, data, flags);
 
-	py::capsule result(
+	auto *result = PyCapsule_New(
 		exported->get_managed(),
 		get_capsule_name(static_cast<const Managed*>(nullptr)),
 		&destroy_capsule<Managed>
 	);
+	if (result == nullptr)
+	{
+		throw nb::python_error();
+	}
 
 	// The capsule owns the export from here on.
 	(void)exported.release();
-	return result;
+	return nb::steal<nb::capsule>(result);
 }
 
 /**
@@ -287,25 +291,25 @@ void check_exportable(const array &source)
 	const auto *storage = source.get_storage();
 	if (storage == nullptr)
 	{
-		throw py::buffer_error("The array is not initialized.");
+		throw nb::buffer_error("The array is not initialized.");
 	}
 
 	if (!is_host_accessible(storage->get_memory_resource().get_kind()))
 	{
-		throw py::buffer_error(
+		throw nb::buffer_error(
 			"The storage of the array can not be reached from the host, and "
 			"only host memory is exchanged through DLPack."
 		);
 	}
 }
 
-py::capsule to_dlpack(array &source, bool versioned, bool copied)
+nb::capsule to_dlpack(array &source, bool versioned, bool copied)
 {
 	check_exportable(source);
 
 	void *data = nullptr;
 	{
-		const py::gil_scoped_release release;
+		const nb::gil_scoped_release release;
 		data = get_host_data(array_ref(source));
 	}
 
@@ -321,22 +325,22 @@ py::capsule to_dlpack(array &source, bool versioned, bool copied)
 	return make_capsule<DLManagedTensor>(source, data, 0);
 }
 
-py::tuple get_dlpack_device(const array &source)
+nb::tuple get_dlpack_device(const array &source)
 {
 	check_exportable(source);
-	return py::make_tuple(static_cast<int>(kDLCPU), 0);
+	return nb::make_tuple(static_cast<int>(kDLCPU), 0);
 }
 
-py::tuple get_dlpack_version()
+nb::tuple get_dlpack_version()
 {
-	return py::make_tuple(DLPACK_MAJOR_VERSION, DLPACK_MINOR_VERSION);
+	return nb::make_tuple(DLPACK_MAJOR_VERSION, DLPACK_MINOR_VERSION);
 }
 
 void check_device(const DLTensor &tensor)
 {
 	if (tensor.device.device_type != kDLCPU)
 	{
-		throw py::buffer_error(
+		throw nb::buffer_error(
 			"The tensor is not in host memory, and only host memory is "
 			"exchanged through DLPack."
 		);
@@ -401,7 +405,7 @@ void check_alignment(const void *data, numerical_type type)
 	{
 		std::ostringstream oss;
 		oss << "The memory of the tensor is not aligned for " << type << ".";
-		throw py::buffer_error(oss.str());
+		throw nb::buffer_error(oss.str().c_str());
 	}
 }
 
@@ -433,7 +437,7 @@ array import_tensor(PyObject *capsule)
 		get_used_capsule_name(static_cast<const Managed*>(nullptr));
 	if (PyCapsule_SetName(capsule, used_name) != 0)
 	{
-		throw py::error_already_set();
+		throw nb::python_error();
 	}
 
 	return array(
@@ -442,7 +446,7 @@ array import_tensor(PyObject *capsule)
 	);
 }
 
-array from_dlpack_capsule(const py::capsule &capsule)
+array from_dlpack_capsule(const nb::capsule &capsule)
 {
 	if (holds_tensor<DLManagedTensorVersioned>(capsule.ptr()))
 	{
@@ -454,13 +458,13 @@ array from_dlpack_capsule(const py::capsule &capsule)
 		return import_tensor<DLManagedTensor>(capsule.ptr());
 	}
 
-	throw py::value_error(
+	throw nb::value_error(
 		"The capsule holds no DLPack tensor. A tensor can be taken out of "
 		"its capsule only once."
 	);
 }
 
-bool is_dlpack_capsule_read_only(const py::capsule &capsule)
+bool is_dlpack_capsule_read_only(const nb::capsule &capsule)
 {
 	// A tensor without a version has no way to say it is read only.
 	if (!holds_tensor<DLManagedTensorVersioned>(capsule.ptr()))
@@ -476,28 +480,28 @@ bool is_dlpack_capsule_read_only(const py::capsule &capsule)
 
 } // anonymous namespace
 
-void bind_dlpack(pybind11::module_ &m)
+void bind_dlpack(nb::module_ &m)
 {
 	m.def(
 		"to_dlpack",
 		&to_dlpack,
-		py::arg("array"), py::arg("versioned"), py::arg("copied")
+		nb::arg("array"), nb::arg("versioned"), nb::arg("copied")
 	);
 	m.def(
 		"get_dlpack_device",
 		&get_dlpack_device,
-		py::arg("array")
+		nb::arg("array")
 	);
 	m.def("get_dlpack_version", &get_dlpack_version);
 	m.def(
 		"from_dlpack_capsule",
 		&from_dlpack_capsule,
-		py::arg("capsule")
+		nb::arg("capsule")
 	);
 	m.def(
 		"is_dlpack_capsule_read_only",
 		&is_dlpack_capsule_read_only,
-		py::arg("capsule")
+		nb::arg("capsule")
 	);
 }
 

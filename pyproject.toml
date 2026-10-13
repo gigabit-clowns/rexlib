@@ -1,7 +1,6 @@
 [build-system]
 requires = [
     "scikit-build-core==1.1.0",
-    "pybind11-stubgen==3.0.0",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -69,6 +68,11 @@ sdist.exclude = [
 # the extension under the ordinary lib/ and include/.
 wheel.install-dir = "rexlib"
 
+# One wheel serves Python 3.12 and every later one. An older or a
+# free-threaded Python gets a wheel of its own, built without this being
+# asked for.
+wheel.py-api = "cp312"
+
 # Everything except rexlib's namelink, the unversioned librexlib.so. A wheel
 # cannot hold a symlink, so it would be stored as a second full copy of a
 # 50 MB library. "Unspecified" is this project's own rules, which name no
@@ -84,12 +88,13 @@ wheel.exclude = [
     "librexlib.*.*.*.dylib",
 ]
 
-cmake.version = ">=3.18"
+cmake.version = ">=3.26"
 cmake.args = []
 build.verbose = false
 cmake.build-type = "Release"
 
 [tool.scikit-build.cmake.define]
+REXLIB_PYTHON_STABLE_ABI = "ON"
 BUILD_TESTING = "OFF"
 REXLIB_PYTHON_BUILD_TESTING = "OFF"
 

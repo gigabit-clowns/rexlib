@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 namespace rexlib
 {
 
-void bind_creation(pybind11::module_ &m);
+void bind_creation(nanobind::module_ &m);
 
 } // namespace rexlib

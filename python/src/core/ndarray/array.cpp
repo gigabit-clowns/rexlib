@@ -8,164 +8,273 @@
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 
-#include <pybind11/complex.h>
-#include <pybind11/stl.h> // Required for std::vector binding
+#include <nanobind/stl/string.h>
 
-#include <complex>
+#include <array>
 #include <cstddef>
-#include <cstdint>
+#include <exception>
+#include <memory>
 #include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-static std::vector<std::size_t> get_extents(const array &self)
+namespace
+{
+
+/**
+ * What a Py_buffer handed out points to besides the memory itself. Owned by
+ * the view through its `internal` field.
+ */
+struct buffer_view
+{
+	std::vector<Py_ssize_t> shape;
+	std::vector<Py_ssize_t> strides;
+	std::string format;
+};
+
+std::vector<std::size_t> get_extents(const array &self)
 {
 	std::vector<std::size_t> extents;
 	self.get_descriptor().get_layout().get_extents(extents);
 	return extents;
 }
 
-static py::tuple get_shape(const array &self)
+nb::tuple get_shape(const array &self)
 {
 	const auto extents = get_extents(self);
-	py::tuple shape(extents.size());
-	for (std::size_t i = 0; i < extents.size(); ++i)
+	nb::tuple_builder shape(extents.size());
+	for (const auto extent : extents)
 	{
-		shape[i] = extents[i];
+		shape.put(extent);
 	}
-	return shape;
+	return shape.commit();
 }
 
-static numerical_type get_data_type(const array &self)
+numerical_type get_data_type(const array &self)
 {
 	return self.get_descriptor().get_data_type();
 }
 
-static std::size_t py_len(const array &self)
+std::size_t py_len(const array &self)
 {
 	const auto extents = get_extents(self);
 	if (extents.empty())
 	{
-		throw py::type_error("len() of an array with no dimensions");
+		throw nb::type_error("len() of an array with no dimensions");
 	}
 	return extents.front();
 }
 
-static std::string get_buffer_format(numerical_type type)
+const char* get_buffer_format(numerical_type type) noexcept
 {
 	switch (type)
 	{
 	case numerical_type::boolean:
-		return py::format_descriptor<bool>::format();
+		return "?";
 	case numerical_type::char8:
-		return py::format_descriptor<char>::format();
+		return std::is_signed<char>::value ? "b" : "B";
 	case numerical_type::int8:
-		return py::format_descriptor<std::int8_t>::format();
+		return "b";
 	case numerical_type::uint8:
-		return py::format_descriptor<std::uint8_t>::format();
+		return "B";
 	case numerical_type::int16:
-		return py::format_descriptor<std::int16_t>::format();
+		return "h";
 	case numerical_type::uint16:
-		return py::format_descriptor<std::uint16_t>::format();
+		return "H";
 	case numerical_type::int32:
-		return py::format_descriptor<std::int32_t>::format();
+		return "i";
 	case numerical_type::uint32:
-		return py::format_descriptor<std::uint32_t>::format();
+		return "I";
 	case numerical_type::int64:
-		return py::format_descriptor<std::int64_t>::format();
+		return "q";
 	case numerical_type::uint64:
-		return py::format_descriptor<std::uint64_t>::format();
+		return "Q";
 	case numerical_type::float16:
 		return "e";
 	case numerical_type::float32:
-		return py::format_descriptor<float>::format();
+		return "f";
 	case numerical_type::float64:
-		return py::format_descriptor<double>::format();
+		return "d";
 	case numerical_type::complex_float32:
-		return py::format_descriptor<std::complex<float>>::format();
+		return "Zf";
 	case numerical_type::complex_float64:
-		return py::format_descriptor<std::complex<double>>::format();
+		return "Zd";
 	default:
-		break;
+		return nullptr;
 	}
-
-	std::ostringstream oss;
-	oss << "The buffer protocol has no format for the data type " << type
-		<< ".";
-	throw py::buffer_error(oss.str());
 }
 
-static py::buffer_info get_buffer(array &self)
+bool is_contiguous(
+	const std::vector<Py_ssize_t> &shape,
+	const std::vector<Py_ssize_t> &strides,
+	Py_ssize_t item_size,
+	bool fortran
+) noexcept
 {
-	void *data = nullptr;
+	Py_ssize_t expected = item_size;
+	const auto rank = shape.size();
+	for (std::size_t i = 0; i < rank; ++i)
 	{
-		const py::gil_scoped_release release;
-		data = get_host_data(array_ref(self));
+		const auto axis = fortran ? i : rank - 1 - i;
+		if (shape[axis] == 0)
+		{
+			return true;
+		}
+		if (shape[axis] != 1 && strides[axis] != expected)
+		{
+			return false;
+		}
+		expected *= shape[axis];
+	}
+	return true;
+}
+
+void fill_buffer(PyObject *self, Py_buffer *view, int flags)
+{
+	auto &source = *nb::inst_ptr<array>(self);
+
+	const auto &descriptor = source.get_descriptor();
+	const auto data_type = descriptor.get_data_type();
+	const auto *format = get_buffer_format(data_type);
+	if (format == nullptr)
+	{
+		std::ostringstream oss;
+		oss << "The buffer protocol has no format for the data type "
+			<< data_type << ".";
+		throw nb::buffer_error(oss.str().c_str());
 	}
 
-	const auto &descriptor = self.get_descriptor();
+	void *data = nullptr;
+	{
+		const nb::gil_scoped_release release;
+		data = get_host_data(array_ref(source));
+	}
+
 	const auto &layout = descriptor.get_layout();
-	const auto data_type = descriptor.get_data_type();
-	const auto item_size = static_cast<py::ssize_t>(get_size(data_type));
+	const auto item_size = static_cast<Py_ssize_t>(get_size(data_type));
+
+	auto result = std::make_unique<buffer_view>();
+	result->format = format;
 
 	std::vector<std::ptrdiff_t> strides;
 	layout.get_strides(strides);
-
-	std::vector<py::ssize_t> shape;
-	for (const auto extent : get_extents(self))
+	Py_ssize_t count = 1;
+	for (const auto extent : get_extents(source))
 	{
-		shape.push_back(static_cast<py::ssize_t>(extent));
+		result->shape.push_back(static_cast<Py_ssize_t>(extent));
+		count *= static_cast<Py_ssize_t>(extent);
 	}
-
-	std::vector<py::ssize_t> byte_strides;
 	for (const auto stride : strides)
 	{
-		byte_strides.push_back(stride * item_size);
+		result->strides.push_back(stride * item_size);
 	}
 
-	const auto rank = static_cast<py::ssize_t>(shape.size());
-	auto *first = static_cast<char*>(data) + layout.get_offset() * item_size;
-	return py::buffer_info(
-		first,
-		item_size,
-		get_buffer_format(data_type),
-		rank,
-		std::move(shape),
-		std::move(byte_strides)
+	const auto c_contiguous =
+		is_contiguous(result->shape, result->strides, item_size, false);
+	const auto f_contiguous =
+		is_contiguous(result->shape, result->strides, item_size, true);
+	const auto strided = (flags & PyBUF_STRIDES) == PyBUF_STRIDES;
+	if (
+		(!strided && !c_contiguous) ||
+		((flags & PyBUF_C_CONTIGUOUS) == PyBUF_C_CONTIGUOUS &&
+			!c_contiguous) ||
+		((flags & PyBUF_F_CONTIGUOUS) == PyBUF_F_CONTIGUOUS &&
+			!f_contiguous) ||
+		((flags & PyBUF_ANY_CONTIGUOUS) == PyBUF_ANY_CONTIGUOUS &&
+			!c_contiguous && !f_contiguous)
+	)
+	{
+		throw nb::buffer_error(
+			"The array is not laid out as the consumer requires."
+		);
+	}
+
+	view->buf = static_cast<char*>(data) + layout.get_offset() * item_size;
+	view->obj = Py_NewRef(self);
+	view->len = count * item_size;
+	view->readonly = 0;
+	view->itemsize = item_size;
+	view->format =
+		(flags & PyBUF_FORMAT) == PyBUF_FORMAT
+		? result->format.data()
+		: nullptr;
+	view->ndim = static_cast<int>(result->shape.size());
+	view->shape =
+		(flags & PyBUF_ND) == PyBUF_ND ? result->shape.data() : nullptr;
+	view->strides = strided ? result->strides.data() : nullptr;
+	view->suboffsets = nullptr;
+	view->internal = result.release();
+}
+
+int get_buffer(PyObject *self, Py_buffer *view, int flags) noexcept
+{
+	view->obj = nullptr;
+	try
+	{
+		fill_buffer(self, view, flags);
+		return 0;
+	}
+	catch (nb::python_error &error)
+	{
+		error.restore();
+	}
+	catch (const nb::builtin_exception &error)
+	{
+		PyErr_SetString(PyExc_BufferError, error.what());
+	}
+	catch (const std::exception &error)
+	{
+		PyErr_SetString(PyExc_BufferError, error.what());
+	}
+	return -1;
+}
+
+void release_buffer(PyObject* /*self*/, Py_buffer *view) noexcept
+{
+	const std::unique_ptr<buffer_view> owned(
+		static_cast<buffer_view*>(view->internal)
 	);
 }
 
-static std::string to_repr(const array &self)
+const std::array<PyType_Slot, 3> array_slots = {{
+	{ Py_bf_getbuffer, reinterpret_cast<void*>(&get_buffer) },
+	{ Py_bf_releasebuffer, reinterpret_cast<void*>(&release_buffer) },
+	{ 0, nullptr }
+}};
+
+std::string to_repr(const array &self)
 {
 	std::ostringstream oss;
 	oss << "Array(descriptor="
-		<< py::str(py::cast(self.get_descriptor())).cast<std::string>() << ")";
+		<< nb::str(nb::cast(self.get_descriptor())).c_str() << ")";
 	return oss.str();
 }
 
-array_class declare_array(pybind11::module_ &m)
+} // anonymous namespace
+
+array_class declare_array(nb::module_ &m)
 {
-	return array_class(m, "Array", py::buffer_protocol());
+	return array_class(m, "Array", nb::type_slots(array_slots.data()));
 }
 
 void define_array(array_class &c)
 {
 	c
-		.def_property_readonly(
+		.def_prop_ro(
 			"descriptor",
 			&array::get_descriptor,
-			py::return_value_policy::reference_internal
+			nb::rv_policy::reference_internal
 		)
-		.def_property_readonly("shape", &get_shape)
-		.def_property_readonly("data_type", &get_data_type)
+		.def_prop_ro("shape", &get_shape)
+		.def_prop_ro("data_type", &get_data_type)
 		.def("__len__", &py_len)
-		.def("__repr__", &to_repr)
-		.def_buffer(&get_buffer);
+		.def("__repr__", &to_repr);
 }
 
 } // namespace rexlib

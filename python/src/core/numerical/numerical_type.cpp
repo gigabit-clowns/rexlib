@@ -7,9 +7,9 @@
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-numerical_type_class declare_numerical_type(pybind11::module_ &m)
+numerical_type_class declare_numerical_type(nb::module_ &m)
 {
 	return numerical_type_class(m, "NumericalType");
 }

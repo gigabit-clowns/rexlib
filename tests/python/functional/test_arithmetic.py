@@ -32,6 +32,28 @@ def test_unary_operation_returns_array(__setup_context, operation):
 	result = operation(x, __setup_context)
 	assert isinstance(result, rexlib.Array)
 
+def test_operation_writes_into_out(__setup_context):
+	x = __setup_array(__setup_context)
+	y = __setup_array(__setup_context)
+	out = __setup_array(__setup_context)
+	result = rexlib.add(x, y, __setup_context, out=out)
+	assert list(memoryview(out).cast("B").cast("f")) == [2.0] * 6
+	assert list(memoryview(result).cast("B").cast("f")) == [2.0] * 6
+
+@pytest.mark.parametrize(
+	"operand",
+	[None, [1.0, 2.0, 3.0], 1.0],
+	ids=["none", "list", "scalar"],
+)
+def test_operation_refuses_an_operand_that_is_not_an_array(
+	__setup_context, operand
+):
+	x = __setup_array(__setup_context)
+	with pytest.raises(TypeError):
+		rexlib.add(x, operand, __setup_context)
+	with pytest.raises(TypeError):
+		rexlib.negate(operand, __setup_context)
+
 def __setup_array(context):
 	descriptor = rexlib.make_contiguous_array_descriptor(
 		[2, 3], rexlib.NumericalType.float32

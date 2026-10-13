@@ -7,7 +7,13 @@ file(GLOB_RECURSE INLINE_SOURCES ${PROJECT_SOURCE_DIR}/include/*.inl)
 
 # Create the shared library
 set(TARGET_NAME "_binding")
-pybind11_add_module(${TARGET_NAME} ${SOURCES})
+# nanobind falls back to the interpreter's own ABI where the stable one
+# cannot serve: before Python 3.12, and on a free-threaded interpreter.
+set(NANOBIND_OPTIONS NB_SUPPRESS_WARNINGS)
+if(REXLIB_PYTHON_STABLE_ABI)
+	list(APPEND NANOBIND_OPTIONS STABLE_ABI)
+endif()
+nanobind_add_module(${TARGET_NAME} ${NANOBIND_OPTIONS} ${SOURCES})
 
 target_compile_definitions(
 	${TARGET_NAME}
@@ -45,6 +51,10 @@ target_include_directories(
 )
 if(MSVC)
 	target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+	target_compile_definitions(
+		${TARGET_NAME}
+		PRIVATE _SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING
+	)
 else()
 	target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()

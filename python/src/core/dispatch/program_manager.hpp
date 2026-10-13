@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/dispatch/program_manager.hpp>
 
@@ -12,9 +12,9 @@ namespace rexlib
 {
 
 using program_manager_class =
-	pybind11::class_<program_manager, std::shared_ptr<program_manager>>;
+	nanobind::class_<program_manager>;
 
-program_manager_class declare_program_manager(pybind11::module_ &m);
-void define_program_manager(pybind11::module_ &m);
+program_manager_class declare_program_manager(nanobind::module_ &m);
+void define_program_manager(nanobind::module_ &m);
 
 } // namespace rexlib

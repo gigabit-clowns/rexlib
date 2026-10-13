@@ -2,18 +2,16 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/ndarray/array.hpp>
-
-#include <memory>
 
 namespace rexlib
 {
 
-using array_class = pybind11::class_<array>;
+using array_class = nanobind::class_<array>;
 
-array_class declare_array(pybind11::module_ &m);
+array_class declare_array(nanobind::module_ &m);
 void define_array(array_class &c);
 
 } // namespace rexlib

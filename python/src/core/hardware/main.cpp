@@ -19,9 +19,9 @@
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void bind_hardware(pybind11::module_ &m)
+void bind_hardware(nb::module_ &m)
 {
 	auto command_queue = declare_command_queue(m);
 	auto device = declare_device(m);

@@ -2,7 +2,9 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/trampoline.h>
+#include <nanobind/stl/shared_ptr.h>
 
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
@@ -22,32 +24,23 @@ namespace rexlib
 class PyDevice : public device
 {
 public:
-	using device::device;
+	NB_TRAMPOLINE(device);
 
 	const memory_resource&
 	get_memory_resource(memory_resource_affinity affinity) const override
 	{
-		PYBIND11_OVERRIDE_PURE(
-			const memory_resource&,
-			device,
-			get_memory_resource,
-			affinity
-		);
+		NB_OVERRIDE_PURE(get_memory_resource, affinity);
 	}
 
 	std::shared_ptr<command_queue> create_command_queue() const override
 	{
-		PYBIND11_OVERRIDE_PURE(
-			std::shared_ptr<command_queue>,
-			device,
-			create_command_queue,
-		);
+		NB_OVERRIDE_PURE(create_command_queue);
 	}
 };
 
-using device_class = pybind11::class_<device, PyDevice, std::shared_ptr<device>>;
+using device_class = nanobind::class_<device, PyDevice>;
 
-device_class declare_device(pybind11::module_ &m);
+device_class declare_device(nanobind::module_ &m);
 void define_device(device_class &c);
 
 } // namespace rexlib

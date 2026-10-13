@@ -8,27 +8,29 @@
 #include <rexlib/core/hardware/device_backend.hpp>
 #include <rexlib/core/hardware/device_session.hpp>
 
-#include <pybind11/stl.h> // Required for std::vector binding
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 
 namespace rexlib
 {
+
+namespace nb = nanobind;
 
 static std::shared_ptr<device_manager> get_device_manager(service_catalog &catalog)
 {
 	return catalog.get_service_manager<device_manager>();
 }
 
-namespace py = pybind11;
-
-device_manager_class declare_device_manager(pybind11::module_ &m)
+device_manager_class declare_device_manager(nb::module_ &m)
 {
 	return device_manager_class(m, "DeviceManager");
 }
 
-void define_device_manager(device_manager_class &c, pybind11::module_ &m)
+void define_device_manager(device_manager_class &c, nb::module_ &m)
 {
 	c
-		.def_property_readonly(
+		.def_prop_ro(
 			"backends",
 			[](const device_manager &self)
 			{
@@ -40,10 +42,10 @@ void define_device_manager(device_manager_class &c, pybind11::module_ &m)
 		.def(
 			"get_backend",
 			&device_manager::get_backend,
-			py::arg("name"),
-			py::return_value_policy::reference_internal
+			nb::arg("name"),
+			nb::rv_policy::reference_internal
 		)
-		.def_property_readonly(
+		.def_prop_ro(
 			"devices",
 			[](const device_manager &self)
 			{
@@ -66,7 +68,7 @@ void define_device_manager(device_manager_class &c, pybind11::module_ &m)
 		.def(
 			"create_device_session",
 			&device_manager::create_device_session,
-			py::arg("index")
+			nb::arg("index")
 		);
 
 	m.def("get_device_manager", &get_device_manager);

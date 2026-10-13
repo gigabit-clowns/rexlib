@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/hardware/device_manager.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using device_manager_class = pybind11::class_<device_manager, std::shared_ptr<device_manager>>;
+using device_manager_class = nanobind::class_<device_manager>;
 
-device_manager_class declare_device_manager(pybind11::module_ &m);
-void define_device_manager(device_manager_class &c, pybind11::module_ &m);
+device_manager_class declare_device_manager(nanobind::module_ &m);
+void define_device_manager(device_manager_class &c, nanobind::module_ &m);
 
 } // namespace rexlib

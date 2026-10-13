@@ -14,7 +14,7 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The pybind11 binding, 36 `.cpp` and 36 `.hpp`, compiled into the `rexlib._binding` extension |
+| `src/` | The nanobind binding, 35 `.cpp` and 36 `.hpp`, compiled into the `rexlib._binding` extension |
 | `python/rexlib/` | The Python package, 9 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
@@ -42,9 +42,9 @@ underscore.
 `em` holds nothing at the moment. Image I/O was its one area, and it now lives
 in [vitrio](https://github.com/gigabit-clowns/vitrio), a package of its own
 that takes and gives arrays through DLPack and the buffer protocol. Until
-rexlib gains another area, `bind_em` in `src/em/main.cpp` binds nothing, and
-the lines that create the submodule in `src/main.cpp` and that import the
-package in `python/rexlib/__init__.py` are commented out.
+rexlib gains another area there is no `src/em/` and `src/main.cpp` creates no
+`em` submodule, and the import of the package in `python/rexlib/__init__.py`
+is commented out.
 
 The rule that follows: if a change could be expressed in either place, it goes
 in `python/rexlib/`. C++ is the expensive side to change and the one that has
@@ -73,7 +73,7 @@ them. See #143.
 |---|---|---|
 | `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version`, `rexlib_binding_version` |
 | `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
-| `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, and the functions that put an array's memory in a DLPack capsule and take one out |
+| `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, the functions that put an array's memory in a DLPack capsule and take one out, and the type caster that loads `const_array_ref` and `array_ref` from an `Array` |
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
@@ -142,11 +142,13 @@ cost, a CMake cache that outlives the options it was configured with, would
 fall on every user and on six wheel jobs that already hit their compiler cache
 without it.
 
-CMake 3.18 is the minimum. The binding is C++20, unlike rexlib itself, which
-is C++14: nothing here has to build on the compilers rexlib supports, only on
-the ones that build wheels. `CMAKE_CXX_STANDARD_REQUIRED` is off all the same.
+CMake 3.18 is the minimum, and 3.26 with `REXLIB_PYTHON_STABLE_ABI`, the
+first whose FindPython has `Development.SABIModule`. The binding is C++20,
+unlike rexlib itself, which is C++14: nothing here has to build on the
+compilers rexlib supports, only on the ones that build wheels.
+`CMAKE_CXX_STANDARD_REQUIRED` is off all the same.
 
-pybind11 and DLPack are fetched, each pinned in `CMakeLists.txt` as a git tag
+nanobind and DLPack are fetched, each pinned in `CMakeLists.txt` as a git tag
 that Renovate follows. DLPack is one header, and only the header is taken:
 its own build file is not read. rexlib is found with `find_package` and only
 built from `external/rexlib` when none is found, which is what makes a source
@@ -161,12 +163,20 @@ Options:
 | `REXLIB_PYTHON_INSTALL_DIR` | The wheel's platlib, else `Python_SITEARCH` | Where the package is installed |
 | `REXLIB_PYTHON_STAGE_PREFIX` | empty | A rexlib prefix to copy inside the package |
 | `REXLIB_PYTHON_STUBS_DIR` | empty | Pre-generated `.pyi` files to install instead of generating them |
-| `REXLIB_PYTHON_MODULE_SUFFIX` | `$SETUPTOOLS_EXT_SUFFIX` | The extension suffix, for cross-compiled wheels |
+| `REXLIB_PYTHON_STABLE_ABI` | `OFF`, `ON` from `pyproject.toml` | Builds the extension against the stable ABI of Python 3.12 |
 | `REXLIB_PYTHON_REXLIB_VERSION` | `0.1` | The rexlib version `find_package` asks for |
 
 `REXLIB_PYTHON_BUILD_TESTING` is separate from `BUILD_TESTING` because
 dependencies of dependencies write that one into the cache, and this project's
 tests should not be at their mercy.
+
+`REXLIB_PYTHON_STABLE_ABI` is what makes one wheel serve Python 3.12 and every
+later one, with `wheel.py-api = "cp312"` beside it in `pyproject.toml`.
+nanobind falls back to the interpreter's own ABI where the stable one cannot
+serve — before 3.12, and on a free-threaded interpreter — and
+scikit-build-core tags those wheels accordingly. The suffix of the module is
+nanobind's to choose from what scikit-build-core reports, which is the target
+interpreter's when cibuildwheel cross-compiles.
 
 `REXLIB_PYTHON_STAGE_PREFIX` is copied whole, so it has to hold rexlib and
 nothing else, and no symlinks — a wheel stores a symlink as a second full copy
@@ -182,9 +192,9 @@ decides nothing.
 ## Type stubs
 
 The extension's `.pyi` files are generated while it is built, by
-`scripts/generate_stubs.py` through pybind11-stubgen, and land in
-`rexlib/_binding/` beside it. They are not in the repository and there is
-nothing to run by hand.
+`scripts/generate_stubs.py` through nanobind's stubgen, run from the fetched
+sources, and land in `rexlib/_binding/` beside it. They are not in the
+repository and there is nothing to run by hand.
 
 Generating them imports the extension, which a cross-compiling build cannot
 do. Those builds are handed stubs made elsewhere through
@@ -195,6 +205,12 @@ fails rather than producing an untyped package.
 The package is typed — `py.typed` ships — so a change to the binding's
 signatures is a change to the stubs, generated for free, and a change to
 `python/rexlib/` is only as typed as it was written.
+
+Importing the extension imports the package first, so stubgen sees what
+`_ndarray.py` installs onto `Array` and writes it into the class with its
+annotations. It does so only for a function whose name and module are those of
+a method of `Array`; any other it renders as an import, which is not a stub.
+`_install` gives each one that name and module.
 
 A submodule that holds submodules of its own becomes a directory of stubs
 rather than one file: `_binding/<name>/__init__.pyi` beside one `.pyi` for
@@ -212,9 +228,9 @@ Every bound entity gets a `.hpp` and a `.cpp`. The header declares a class
 alias and the two functions the source defines:
 
 ```cpp
-using device_class = pybind11::class_<device, PyDevice, std::shared_ptr<device>>;
+using device_class = nanobind::class_<device, PyDevice>;
 
-device_class declare_device(pybind11::module_ &m);
+device_class declare_device(nanobind::module_ &m);
 void define_device(device_class &c);
 ```
 
@@ -225,10 +241,14 @@ of the order they appear in — a default argument, a return type, a base class.
 Splitting the two is the whole point; do not collapse them because a
 particular type happens not to need it today.
 
-`define_X` takes a second `pybind11::module_ &` when it also registers
+`define_X` takes a second `nanobind::module_ &` when it also registers
 something at module level, which is how the free functions beside a type are
 bound: `define_device_manager` adds `get_device_manager`, `define_version`
 adds the `rexlib_version` attribute.
+
+A source declares `namespace nb = nanobind;` inside `namespace rexlib` and
+writes `nb::` throughout, signatures included. A header writes `nanobind::`
+in full, since an alias there would reach every source that includes it.
 
 Managers are reached through a module-level getter taking a `ServiceCatalog`,
 never constructed: `get_device_manager(catalog)`, `get_program_manager(catalog)`.
@@ -238,33 +258,44 @@ Names follow rexlib on the C++ side — `lower_case`, `m_` on private members �
 and Python on the bound side: `CamelCase` types, `lower_case` functions and
 properties. A C++ getter pair becomes a property, not `get_x()`/`set_x()`.
 
-Every argument is named with `py::arg`. An optional out parameter is
-`std::optional<array*>` with a `py::none()` default, unwrapped by a static
-`py_` function beside the binding; that function exists because the C++
-signature takes a raw pointer and pybind11 will not produce one from `None`.
+Every argument is named with `nb::arg`. An operation is bound by pointer,
+straight from rexlib, with its optional out parameter, the `array *` rexlib
+takes, as `nb::arg("out").none() = nb::none()`; nanobind hands `None` in as
+`nullptr`. The `const_array_ref` and `array_ref` rexlib takes arrive through
+`array_ref_caster.hpp`. A function of the binding's own sits between only
+where something has to be converted, as the fill value of `full` is.
 
-A bound type that defines `__eq__` and no `__hash__` is unhashable, so it
-cannot be a dictionary key or go in a set. Where rexlib gives the type a
-`hash()` of its own, as `array_descriptor` does, forward it.
-Where it does not, `device_index` being the one left, the hash has to be
-written, which is rexlib's to do rather than this binding's;
-`_session_pool.py` keys on a `(backend, id)` tuple in the meantime.
+A type caster for a standard type — `<nanobind/stl/string.h>`,
+`shared_ptr.h`, `vector.h`, `optional.h` and the like — is included by every
+source that binds a signature carrying that type, written out or reached
+through a member pointer. Without it nanobind still compiles, taking the type
+for a bound one, and fails at run time. There are no holder types: a
+`shared_ptr` to a bound type crosses through `shared_ptr.h`.
+
+A type that defines `__eq__` and no `__hash__` should be unhashable, so that
+it cannot be a dictionary key or go in a set, as Python makes such a class.
+nanobind does not: the type would hash by identity, and two equal values would
+be two keys. Where rexlib gives the type a `hash()` of its own, as
+`array_descriptor` does, forward it. Where it does not, set `__hash__` to
+`None`, as `Version` and `DeviceIndex` do. Writing the hash is rexlib's to do
+rather than this binding's; `_session_pool.py` keys on a `(backend, id)` tuple
+in the meantime.
 
 A binding that blocks releases the GIL: held through the wait, it would
 freeze every other Python thread for its duration. Where the whole function
-blocks, that is `py::call_guard<py::gil_scoped_release>()`. pybind11 converts
+blocks, that is `nb::call_guard<nb::gil_scoped_release>()`. nanobind converts
 the arguments before the guard is constructed and the return value after it is
 destroyed, so nothing touches Python without it.
 
 Where only part of a function blocks, the release is a
-`py::gil_scoped_release` in a block around that part. Handing out an array's
+`nb::gil_scoped_release` in a block around that part. Handing out an array's
 memory is the case: it waits for the commands that still use the array, and
 then builds a Python object.
 
 `rexlib::array` is move-only, and anything taking one by value has to be given
 `destination.share()` rather than the caller's own, or `source.share_const()`
-where it takes a `const_array`. Bound plainly, pybind11 would move the array
-out of the Python object and hand the caller back an empty one.
+where it takes a `const_array`. Bound plainly, the binding would move the
+array out of the Python object and hand the caller back an empty one.
 
 A type rexlib parses from a string carries a `from_string` static method and
 no constructor that parses, as `DeviceIndex` does. A constructor is left free
@@ -273,17 +304,22 @@ for that signature rather than add to it. `from_string` is the inverse of
 `__str__` and raises `ValueError`, which is what the `bool` of rexlib's
 `parse_*` becomes on this side.
 
-Lifetimes are stated: `py::keep_alive` where an object borrows from another,
-`py::return_value_policy::reference_internal` where a getter hands out a
+Lifetimes are stated: `nb::keep_alive` where an object borrows from another,
+`nb::rv_policy::reference_internal` where a getter hands out a
 reference into its owner. Getting this wrong does not fail a test, it crashes
 a user.
 
 A rexlib type with no Python counterpart gets a `type_caster`, not a bound
-class — see `float16_caster.hpp`, which converts `float16_t` through `float`
-and thereby makes `std::complex<float16_t>` work too.
+class — see `float16_caster.hpp`, which converts `float16_t` through `float`,
+and `array_ref_caster.hpp`, which loads a reference to an array from an
+`Array` and gives it `Array`'s name in the stubs.
 
-`PyX` trampolines live in the header, not the source, because they are part of
-the `class_` alias callers see.
+`PyX` trampolines, declared with `NB_TRAMPOLINE`, live in the header, not the
+source, because they are part of the `class_` alias callers see.
+
+`Array`'s buffer protocol is a pair of type slots in `array.cpp`, nanobind
+binding no buffer of its own. They check the layout a consumer asks for, and
+keep what the view points to besides the memory in its `internal` field.
 
 ### Memory that crosses the border
 
@@ -309,7 +345,13 @@ A capsule is renamed once its tensor is taken, and only then. Everything that
 can refuse a tensor runs before, so a refused tensor stays with its capsule
 and is released by it.
 
+A capsule is created with `PyCapsule_New`, not `nb::capsule`. The cleanup of
+the latter is handed the pointer whatever the capsule's name, and would
+release a tensor a consumer has already taken.
+
 The binding builds with `-Wall -Wextra -Wpedantic`, `/W4 /WX` on MSVC.
+nanobind's headers and Python's are system headers to it
+(`NB_SUPPRESS_WARNINGS`), so the warnings are the binding's own.
 
 ### The package
 
@@ -436,7 +478,13 @@ as an artifact.
 ### Wheels
 
 `deploy.yml` generates the stubs once, in a job of its own, and hands them to
-every wheel — a cross-compiled wheel cannot make its own. The wheels then
+every wheel — a cross-compiled wheel cannot make its own.
+
+A platform gets a wheel for 3.10, one for 3.11, one abi3 wheel for 3.12 and
+every later CPython, and one for each free-threaded interpreter. cibuildwheel
+builds the abi3 one for 3.12, finds it compatible with each later interpreter,
+tests it there instead of building again, and checks it with `abi3audit`. The
+macOS x86_64 wheels target 10.14, the oldest nanobind supports. The wheels then
 build rexlib from `external/rexlib` rather than being pointed at one, so that
 cibuildwheel's architecture, deployment target and SDK apply to it too instead
 of having to be repeated to a step outside.

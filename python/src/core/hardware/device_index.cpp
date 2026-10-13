@@ -4,14 +4,19 @@
 
 #include <rexlib/core/hardware/device_index.hpp>
 
-#include <pybind11/operators.h>
+#include <nanobind/operators.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/tuple.h>
 
+#include <cstddef>
 #include <sstream>
+#include <string>
+#include <tuple>
 
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 static std::string to_string(const device_index &l)
 {
@@ -43,7 +48,7 @@ static device_index from_string(const std::string &str)
 
 
 
-device_index_class declare_device_index(pybind11::module_ &m)
+device_index_class declare_device_index(nb::module_ &m)
 {
 	return device_index_class(m, "DeviceIndex");
 }
@@ -51,36 +56,46 @@ device_index_class declare_device_index(pybind11::module_ &m)
 void define_device_index(device_index_class &c)
 {
 	c
-		.def(py::init<py::str, py::size_t>(), py::arg("backend"), py::arg("id"))
-		.def_static("from_string", &from_string, py::arg("text"))
-		.def(py::self == py::self)
-		.def(py::self != py::self)
-		.def(py::self < py::self)
-		.def(py::self <= py::self)
-		.def(py::self > py::self)
-		.def(py::self >= py::self)
+		.def(
+			nb::init<const std::string&, std::size_t>(),
+			nb::arg("backend"), nb::arg("id")
+		)
+		.def_static("from_string", &from_string, nb::arg("text"))
+		.def(nb::self == nb::self)
+		.def(nb::self != nb::self)
+		.def(nb::self < nb::self)
+		.def(nb::self <= nb::self)
+		.def(nb::self > nb::self)
+		.def(nb::self >= nb::self)
 		.def("__str__", &to_string)
 		.def("__repr__", &to_repr)
-		.def_property_readonly("backend", &device_index::get_backend_name)
-		.def_property_readonly("id", &device_index::get_device_id)
-		.def(py::pickle(
-			[](const device_index &l) // __getstate__
+		.def_prop_ro("backend", &device_index::get_backend_name)
+		.def_prop_ro("id", &device_index::get_device_id)
+		.def(
+			"__getstate__",
+			[](const device_index &l)
 			{
-				return py::make_tuple(
+				return std::make_tuple(
 					l.get_backend_name(),
 					l.get_device_id()
 				);
-}
-,
-			[](py::tuple t)  // __setstate__
+			}
+		)
+		.def(
+			"__setstate__",
+			[](
+				device_index &l,
+				const std::tuple<std::string, std::size_t> &state
+			)
 			{
-				return device_index(
-					t[0].cast<std::string>(),
-					t[1].cast<std::size_t>()
+				new (&l) device_index(
+					std::get<0>(state),
+					std::get<1>(state)
 				);
 			}
-		));
+		);
 
+	c.attr("__hash__") = nb::none();
 }
 
 } // namespace rexlib

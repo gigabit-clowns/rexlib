@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using memory_resource_affinity_class = pybind11::enum_<memory_resource_affinity>;
+using memory_resource_affinity_class = nanobind::enum_<memory_resource_affinity>;
 
-memory_resource_affinity_class declare_memory_resource_affinity(pybind11::module_ &m);
+memory_resource_affinity_class declare_memory_resource_affinity(nanobind::module_ &m);
 void define_memory_resource_affinity(memory_resource_affinity_class &c);
 
 } // namespace rexlib

@@ -5,26 +5,28 @@
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
 
+#include <nanobind/stl/shared_ptr.h>
+
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-memory_resource_class declare_memory_resource(pybind11::module_ &m)
+memory_resource_class declare_memory_resource(nb::module_ &m)
 {
 	return memory_resource_class(m, "MemoryResource");
 }
 
-void define_memory_resource(memory_resource_class &c, pybind11::module_ &m)
+void define_memory_resource(memory_resource_class &c, nb::module_ &m)
 {
 	c
-		.def_property_readonly("kind", &memory_resource::get_kind)
+		.def_prop_ro("kind", &memory_resource::get_kind)
 		.def("create_allocator", &memory_resource::create_allocator);
 
 	m.def(
 		"get_host_memory_resource",
 		&get_host_memory_resource,
-		py::return_value_policy::reference
+		nb::rv_policy::reference
 	);
 }
 

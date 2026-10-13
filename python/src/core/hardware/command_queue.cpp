@@ -7,9 +7,9 @@
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-command_queue_class declare_command_queue(pybind11::module_ &m)
+command_queue_class declare_command_queue(nb::module_ &m)
 {
 	return command_queue_class(m, "CommandQueue");
 }

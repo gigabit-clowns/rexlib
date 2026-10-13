@@ -35,8 +35,9 @@ Holes in the headers already bound: `divmod`, `floor_divide` and `sign` in
 `arithmetic`, the first two of which `__divmod__` and `__floordiv__` need; and
 `arange` and `linspace` in `creation`.
 
-Per block: a `.cpp`/`.hpp` pair with every argument required and an optional
-out parameter as `std::optional<array*>` defaulting to `py::none()`; a section
+Per block: a `.cpp`/`.hpp` pair binding rexlib's functions by pointer, with
+every argument required and the optional out parameter as
+`nb::arg("out").none() = nb::none()`; a section
 in `_functional.py` where `context` falls back to the active one; a re-export
 with `as` plus a line in `__all__`; a file under `tests/functional/`.
 
@@ -50,18 +51,19 @@ This is the ceiling of item 1 rather than work to schedule on its own. Each
 block lands, the operators it affords go in with it, and the issue closes when
 the ladder is climbed.
 
-One trap before `compare` lands: a type that defines `__eq__` and no
-`__hash__` is unhashable. `ArrayDescriptor` forwards rexlib's
-`array_descriptor::hash()` for this reason. `Array` has no such member in
-rexlib, so the comparison operators need an answer about identity before they
-go in.
+One trap before `compare` lands: installing `__eq__` onto `Array` leaves it
+hashing by identity, so two equal arrays would be two keys. `ArrayDescriptor`
+forwards rexlib's `array_descriptor::hash()` for this reason. `Array` has no
+such member in rexlib, so the comparison operators need an answer about
+identity before they go in — at the least, `__hash__` set to `None` beside
+them.
 
 ## 3. Translate the library's exceptions
 
-There is no `py::register_exception` anywhere in `src/`, so everything rexlib
-throws arrives through pybind11's catch-all. `unsupported_operation_error` and
-`unsupported_capability_error` derive from `std::runtime_error`, which
-pybind11 does not special-case, so both land as a bare `RuntimeError`.
+There is no `nb::exception` anywhere in `src/`, so everything rexlib throws
+arrives through nanobind's default translation. `unsupported_operation_error`
+and `unsupported_capability_error` derive from `std::runtime_error`, which
+nanobind does not special-case, so both land as a bare `RuntimeError`.
 
 rexlib tells them apart, and the binding throws that away: an operation no
 backend implements and an array the host cannot reach are different mistakes

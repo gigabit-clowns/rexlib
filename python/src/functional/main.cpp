@@ -10,7 +10,9 @@
 namespace rexlib
 {
 
-void bind_functional(pybind11::module_ &m)
+namespace nb = nanobind;
+
+void bind_functional(nb::module_ &m)
 {
 	bind_arithmetic(m);
 	bind_cast(m);

@@ -7,14 +7,14 @@
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 static void add_value(device_type_class &e, device_type value)
 {
 	e.value(to_string(value), value);
 }
 
-device_type_class declare_device_type(pybind11::module_ &m)
+device_type_class declare_device_type(nb::module_ &m)
 {
 	return device_type_class(m, "DeviceType");
 }

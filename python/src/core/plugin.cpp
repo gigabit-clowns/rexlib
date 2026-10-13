@@ -6,10 +6,12 @@
 
 #include <sstream>
 
+#include <nanobind/stl/string.h>
+
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 static std::string to_repr(const plugin &p)
 {
@@ -19,7 +21,7 @@ static std::string to_repr(const plugin &p)
 	return oss.str();
 }
 
-plugin_class declare_plugin(pybind11::module_ &m)
+plugin_class declare_plugin(nb::module_ &m)
 {
 	return plugin_class(m, "Plugin");
 }
@@ -27,8 +29,8 @@ plugin_class declare_plugin(pybind11::module_ &m)
 void define_plugin(plugin_class &c)
 {
 	c
-		.def_property_readonly("name", &plugin::get_name)
-		.def_property_readonly("version", &plugin::get_version)
+		.def_prop_ro("name", &plugin::get_name)
+		.def_prop_ro("version", &plugin::get_version)
 		.def("__repr__", &to_repr);
 
 	}

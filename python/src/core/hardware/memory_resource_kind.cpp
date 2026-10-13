@@ -7,9 +7,9 @@
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-memory_resource_kind_class declare_memory_resource_kind(pybind11::module_ &m)
+memory_resource_kind_class declare_memory_resource_kind(nb::module_ &m)
 {
 	return memory_resource_kind_class(m, "MemoryResourceKind");
 }

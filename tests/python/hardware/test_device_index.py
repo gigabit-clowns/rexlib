@@ -213,3 +213,7 @@ def test_pickle():
   pickled = pickle.dumps(di)
   unpickled = pickle.loads(pickled)
   assert di == unpickled
+
+def test_is_unhashable():
+  with pytest.raises(TypeError):
+    hash(rexlib.hardware.DeviceIndex("host", 0))

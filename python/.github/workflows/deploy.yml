@@ -108,11 +108,11 @@ jobs:
             architectures: "x86_64"
           - os: ubuntu-24.04-arm
             architectures: "aarch64"
-          # 10.13 is the oldest a C++17 build supports; arm64 did not
-          # exist before 11.0.
+          # The oldest macOS each architecture can target: nanobind's for
+          # x86_64, the first with arm64 for arm64.
           - os: macos-latest
             architectures: "x86_64"
-            deployment-target: "10.13"
+            deployment-target: "10.14"
           - os: macos-latest
             architectures: "arm64"
             deployment-target: "11.0"
@@ -218,6 +218,11 @@ jobs:
           # manylinux only and an Alpine install could never reach the GPU
           # backend. torch and cupy skip it for the same reason. Alpine can
           # still build from the source distribution.
+          #
+          # Every CPython is built for, and from 3.12 on the first wheel is
+          # an abi3 one: cibuildwheel finds it compatible with each later
+          # interpreter, tests it there and builds nothing more. A
+          # free-threaded interpreter has no stable ABI and builds its own.
           CIBW_SKIP: >-
             cp3??t-win*
             *-musllinux_*

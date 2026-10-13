@@ -9,7 +9,9 @@
 namespace rexlib
 {
 
-void bind_dispatch(pybind11::module_ &m)
+namespace nb = nanobind;
+
+void bind_dispatch(nb::module_ &m)
 {
 	declare_dispatcher(m);
 	auto execution_context = declare_execution_context(m);

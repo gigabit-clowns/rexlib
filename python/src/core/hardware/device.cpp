@@ -2,12 +2,14 @@
 
 #include "device.hpp"
 
+#include <nanobind/stl/shared_ptr.h>
+
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-device_class declare_device(pybind11::module_ &m)
+device_class declare_device(nb::module_ &m)
 {
 	return device_class(m, "Device");
 }
@@ -15,17 +17,17 @@ device_class declare_device(pybind11::module_ &m)
 void define_device(device_class &c)
 {
 	c
-		.def(py::init<>())
+		.def(nb::init<>())
 		.def(
 			"get_memory_resource",
 			&device::get_memory_resource,
-			py::arg("affinity"),
-			py::return_value_policy::reference_internal
+			nb::arg("affinity"),
+			nb::rv_policy::reference_internal
 		)
 		.def(
 			"create_command_queue",
 			&device::create_command_queue,
-			py::keep_alive<0, 1>()
+			nb::keep_alive<0, 1>()
 		);
 }
 

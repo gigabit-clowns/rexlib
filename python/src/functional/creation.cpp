@@ -2,6 +2,7 @@
 
 #include "creation.hpp"
 
+#include "../core/ndarray/array_ref_caster.hpp"
 #include "../core/numerical/float16_caster.hpp"
 
 #include <rexlib/functional/creation.hpp>
@@ -13,23 +14,23 @@
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
 
-#include <pybind11/stl.h>
+#include <nanobind/stl/complex.h>
+#include <nanobind/stl/string.h>
 
-#include <optional>
 #include <string>
 
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 // Kept out of the dispatch below, which would otherwise build this message
 // once per numerical type. Nothing here depends on the type being cast to.
 [[noreturn]]
-static void throw_scalar_cast_error(numerical_type type, const py::object &value)
+static void throw_scalar_cast_error(numerical_type type, const nb::object &value)
 {
 	const auto given =
-		py::str(py::type::of(value).attr("__name__")).cast<std::string>();
+		nb::cast<std::string>(value.type().attr("__name__"));
 	auto message =
 		"cannot use a '" + given + "' as a " + to_string(type) + " value";
 	if (type == numerical_type::char8)
@@ -38,122 +39,106 @@ static void throw_scalar_cast_error(numerical_type type, const py::object &value
 			"; char8 holds characters, so it takes a "
 			"single-character str or bytes";
 	}
-	throw py::type_error(message);
+	throw nb::type_error(message.c_str());
 }
 
-static scalar_value make_scalar_value(numerical_type type, const py::object &value)
+template <typename T>
+static bool load_scalar(const nb::object &value, T &result)
+{
+	return nb::try_cast(value, result);
+}
+
+// Takes, besides True and False, any number with a truth value.
+template <>
+bool load_scalar<bool>(const nb::object &value, bool &result)
+{
+	if (nb::try_cast(value, result))
+	{
+		return true;
+	}
+
+	auto *type = reinterpret_cast<PyTypeObject*>(value.type().ptr());
+	if (value.is_none() || PyType_GetSlot(type, Py_nb_bool) == nullptr)
+	{
+		return false;
+	}
+
+	const auto truth = PyObject_IsTrue(value.ptr());
+	if (truth < 0)
+	{
+		PyErr_Clear();
+		return false;
+	}
+
+	result = truth != 0;
+	return true;
+}
+
+static scalar_value make_scalar_value(numerical_type type, const nb::object &value)
 {
 	return dispatch_numerical_types(
 		[&value, type](auto tag)
 		{
 			using T = typename decltype(tag)::type;
-			try
-			{
-				return scalar_value(value.cast<T>());
-			}
-			catch (const py::cast_error&)
+			T result;
+			if (!load_scalar(value, result))
 			{
 				throw_scalar_cast_error(type, value);
 			}
+			return scalar_value(result);
 		},
 		type
-	);
-}
-
-static array py_empty(
-	array_descriptor descriptor,
-	memory_resource_affinity affinity,
-	const execution_context &context,
-	std::optional<array*> out
-)
-{
-	return rexlib::empty(
-		std::move(descriptor), affinity, context, out.value_or(nullptr)
-	);
-}
-
-static array py_zeros(
-	array_descriptor descriptor,
-	memory_resource_affinity affinity,
-	const execution_context &context,
-	std::optional<array*> out
-)
-{
-	return rexlib::zeros(
-		std::move(descriptor), affinity, context, out.value_or(nullptr)
-	);
-}
-
-static array py_ones(
-	array_descriptor descriptor,
-	memory_resource_affinity affinity,
-	const execution_context &context,
-	std::optional<array*> out
-)
-{
-	return rexlib::ones(
-		std::move(descriptor), affinity, context, out.value_or(nullptr)
 	);
 }
 
 static array py_full(
 	array_descriptor descriptor,
 	memory_resource_affinity affinity,
-	const py::object &fill_value,
+	const nb::object &fill_value,
 	const execution_context &context,
-	std::optional<array*> out
+	array *out
 )
 {
 	const auto scalar = make_scalar_value(descriptor.get_data_type(), fill_value);
-	return rexlib::full(
-		std::move(descriptor), affinity, scalar, context, out.value_or(nullptr)
-	);
+	return rexlib::full(std::move(descriptor), affinity, scalar, context, out);
 }
 
-static array py_copy(
-	const array &source,
-	const execution_context &context,
-	std::optional<array*> out
-)
-{
-	return rexlib::copy(source, context, out.value_or(nullptr));
-}
-
-static void py_fill(array &out, const py::object &fill_value, const execution_context &context)
+static void py_fill(array &out, const nb::object &fill_value, const execution_context &context)
 {
 	const auto scalar = make_scalar_value(out.get_descriptor().get_data_type(), fill_value);
 	rexlib::fill(out, scalar, context);
 }
 
-void bind_creation(pybind11::module_ &m)
+void bind_creation(nb::module_ &m)
 {
 	m.def(
-		"empty", &py_empty,
-		py::arg("descriptor"), py::arg("affinity"), py::arg("context"),
-		py::arg("out") = py::none()
+		"empty", &rexlib::empty,
+		nb::arg("descriptor"), nb::arg("affinity"), nb::arg("context"),
+		nb::arg("out").none() = nb::none()
 	);
 	m.def(
-		"zeros", &py_zeros,
-		py::arg("descriptor"), py::arg("affinity"), py::arg("context"),
-		py::arg("out") = py::none()
+		"zeros", &rexlib::zeros,
+		nb::arg("descriptor"), nb::arg("affinity"), nb::arg("context"),
+		nb::arg("out").none() = nb::none()
 	);
 	m.def(
-		"ones", &py_ones,
-		py::arg("descriptor"), py::arg("affinity"), py::arg("context"),
-		py::arg("out") = py::none()
+		"ones", &rexlib::ones,
+		nb::arg("descriptor"), nb::arg("affinity"), nb::arg("context"),
+		nb::arg("out").none() = nb::none()
 	);
 	m.def(
 		"full", &py_full,
-		py::arg("descriptor"), py::arg("affinity"), py::arg("fill_value"),
-		py::arg("context"), py::arg("out") = py::none()
+		nb::arg("descriptor"), nb::arg("affinity"), nb::arg("fill_value"),
+		nb::arg("context"), nb::arg("out").none() = nb::none()
 	);
 	m.def(
-		"copy", &py_copy,
-		py::arg("source"), py::arg("context"), py::arg("out") = py::none()
+		"copy", &rexlib::copy,
+		nb::arg("source"), nb::arg("context"),
+		nb::arg("out").none() = nb::none()
 	);
 	m.def(
 		"fill", &py_fill,
-		py::arg("out"), py::arg("fill_value"), py::arg("context")
+		nb::arg("out"), nb::arg("fill_value"), nb::arg("context")
 	);
 }
 

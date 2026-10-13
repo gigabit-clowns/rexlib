@@ -6,14 +6,16 @@
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/hardware/device_properties.hpp>
 
-#include <pybind11/stl.h> // Required for std::vector binding
+#include <nanobind/stl/shared_ptr.h>
+#include <nanobind/stl/string.h>
+#include <nanobind/stl/vector.h>
 
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-device_backend_class declare_device_backend(pybind11::module_ &m)
+device_backend_class declare_device_backend(nb::module_ &m)
 {
 	return device_backend_class(m, "DeviceBackend");
 }
@@ -21,9 +23,9 @@ device_backend_class declare_device_backend(pybind11::module_ &m)
 void define_device_backend(device_backend_class &c)
 {
 	c
-		.def_property_readonly("name", &device_backend::get_name)
-		.def_property_readonly("version", &device_backend::get_version)
-		.def_property_readonly(
+		.def_prop_ro("name", &device_backend::get_name)
+		.def_prop_ro("version", &device_backend::get_version)
+		.def_prop_ro(
 			"devices",
 			[](const device_backend &self)
 			{
@@ -42,13 +44,13 @@ void define_device_backend(device_backend_class &c)
 				}
 				return props;
 			},
-			py::arg("id")
+			nb::arg("id")
 		)
 		.def(
 			"create_device",
 			&device_backend::create_device,
-			py::arg("id"),
-			py::keep_alive<0, 1>()
+			nb::arg("id"),
+			nb::keep_alive<0, 1>()
 		);
 }
 

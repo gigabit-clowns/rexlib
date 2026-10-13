@@ -1,7 +1,7 @@
 """Fail if the wheels of one build carry different rexlib libraries.
 
 ccache reuses rexlib's objects between interpreters, which is sound only
-because rexlib names no Python: no find_package(Python), no pybind11, so its
+because rexlib names no Python: no find_package(Python), no nanobind, so its
 objects cannot depend on which one a wheel was built for. This asserts that,
 on the artefact, before anything is published.
 

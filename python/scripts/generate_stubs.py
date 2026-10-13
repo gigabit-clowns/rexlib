@@ -4,15 +4,14 @@
 """
 Generate the type stubs for the compiled extension.
 
-Runs pybind11-stubgen against an installed copy of the package and marks
-every stub as generated. Invoked from CMake during the build, and usable
+Runs nanobind's stub generator against an installed copy of the package
+and marks every stub as generated. Invoked from CMake during the build, and usable
 by hand against a development install.
 """
 
 from __future__ import annotations
 
 import argparse
-import os
 import pathlib
 import shutil
 import subprocess
@@ -38,17 +37,26 @@ def parse_arguments() -> argparse.Namespace:
 		required=True,
 		help="Directory the stubs are written to, replacing its contents.",
 	)
+	parser.add_argument(
+		"--stubgen",
+		required=True,
+		help="nanobind's stubgen.py.",
+	)
 	return parser.parse_args()
 
-def run_stubgen(module: str, search_path: str, destination: str) -> None:
-	"""Run pybind11-stubgen with the package importable from search_path."""
-	environment = dict(os.environ)
-	environment["PYTHONPATH"] = os.pathsep.join(
-		[search_path, environment.get("PYTHONPATH", "")]
-	).rstrip(os.pathsep)
+def run_stubgen(
+	stubgen: str, module: str, search_path: str, destination: str
+) -> None:
+	"""Run stubgen on module and its submodules, importing from search_path."""
 	subprocess.run(
-		[sys.executable, "-m", "pybind11_stubgen", module, "-o", destination],
-		env=environment,
+		[
+			sys.executable, stubgen,
+			"--module", module,
+			"--recursive",
+			"--import", search_path,
+			"--output-dir", destination,
+			"--quiet",
+		],
 		check=True,
 	)
 
@@ -65,15 +73,18 @@ def main() -> None:
 	output = pathlib.Path(arguments.output)
 
 	with tempfile.TemporaryDirectory() as staging:
-		run_stubgen(arguments.module, arguments.search_path, staging)
-
-		# pybind11-stubgen mirrors the module path, so rexlib._binding
-		# lands in rexlib/_binding.
-		generated = pathlib.Path(staging).joinpath(
-			*arguments.module.split(".")
+		run_stubgen(
+			arguments.stubgen,
+			arguments.module,
+			arguments.search_path,
+			staging,
 		)
+
+		# stubgen names the directory after the last component of the
+		# module path, so rexlib._binding lands in _binding.
+		generated = pathlib.Path(staging) / arguments.module.rpartition(".")[2]
 		if not generated.is_dir():
-			raise SystemExit(f"pybind11-stubgen wrote nothing to {generated}")
+			raise SystemExit(f"stubgen wrote nothing to {generated}")
 
 		mark_as_generated(generated)
 

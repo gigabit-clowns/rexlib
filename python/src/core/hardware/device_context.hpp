@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/hardware/device_context.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using device_context_class = pybind11::class_<device_context>;
+using device_context_class = nanobind::class_<device_context>;
 
-device_context_class declare_device_context(pybind11::module_ &m);
+device_context_class declare_device_context(nanobind::module_ &m);
 void define_device_context(device_context_class &c);
 
 } // namespace rexlib

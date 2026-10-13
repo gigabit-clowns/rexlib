@@ -7,15 +7,67 @@ lives in [BACKLOG.md](BACKLOG.md).
 
 Reviewed 1 Oct 2026. Nothing is currently waiting on an answer.
 
+## The binding
+
+### nanobind, not pybind11
+
+The binding moved to nanobind 3 once image I/O had left for vitrio, measured
+first on `numerical` and `ndarray` built both ways (#166). What it gives:
+
+- One wheel per platform for Python 3.12 and every later one, through the
+  stable ABI, where pybind11 needs one per interpreter.
+- Calls 1.1 to 5 times cheaper, returning an enum the most; an extension 40%
+  smaller; the binding's own sources compiling in a fifth of the time, plus
+  about 30 s once for nanobind itself.
+- Its own stub generator, so nothing outside the fetched sources is needed.
+- The tool vitrio is written with.
+
+What it costs, each answered in the binding: no buffer protocol to bind, so
+`Array` has two type slots; `nb::capsule` releasing what a consumer renamed,
+so the DLPack capsule is created by hand; types defining `__eq__` hashable by
+identity, so `__hash__` is set to `None` by hand; a stricter `bool`, so the
+fill value of a boolean array is converted by hand; and macOS 10.14 rather
+than 10.13 for the x86_64 wheel.
+
+**Revisit when** nanobind stops being maintained, or the binding needs what
+only pybind11 does — multiple inheritance among bound types, embedding an
+interpreter.
+
+### DLPack is the binding's own, not `nb::ndarray`
+
+`nb::ndarray` would take in and hand out DLPack tensors for us, and would do
+so holding a Python object: the producer's, for a tensor taken in, and an
+owner's, for one handed out. Releasing either would need the GIL on whatever
+thread the last user lets go, where today a tensor taken in is released
+through its own deleter and a capsule handed out owns a `shared_ptr` and
+touches nothing of Python. It would also take the refusals of
+[Exchanging memory](#exchanging-memory) out of the binding's hands: the
+read-only copy, the unaligned source, `char8`.
+
+**Revisit when** rexlib-cuda runs programs and device memory crosses, which
+is when the code here would have to grow streams that `nb::ndarray` may
+already carry.
+
+### The stable ABI of 3.12, not split mode
+
+nanobind's split mode builds one wheel per platform for Python 3.10 and
+every later one, against a backend published on PyPI that the package then
+depends on at run time. The binding stays in linked mode, whose stable ABI
+starts at 3.12, and 3.10 and 3.11 keep a wheel each.
+
+**Revisit when** 3.11 is dropped, which leaves one wheel per platform without
+split mode, or split mode needs no package beside this one.
+
 ## Shapes and types
 
 ### A shape is a tuple going out and any sequence coming in
 
 `shape` returns a tuple on both `Array` and `ArrayDescriptor`, as numpy, torch
-and JAX do. Anywhere extents are taken, any sequence is accepted — pybind11
-loads a `std::vector` from anything passing `isinstance<sequence>`, so a list,
-a tuple and a `range` all reach `make_contiguous_array_descriptor`. Tests pin
-both halves, including the round trip: a shape this reports is one it accepts.
+and JAX do. Anywhere extents are taken, any sequence is accepted — nanobind
+loads a `std::vector` from a sequence, so a list, a tuple and a `range` all
+reach `make_contiguous_array_descriptor`. An iterator that is not a sequence,
+a generator for one, is refused, which pybind11 had accepted. Tests pin both
+halves, including the round trip: a shape this reports is one it accepts.
 
 ### numpy is not a dependency of the package
 

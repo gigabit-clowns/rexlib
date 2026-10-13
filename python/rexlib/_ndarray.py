@@ -34,6 +34,13 @@ from ._binding.ndarray import (
 	to_dlpack,
 )
 
+def _install(name: str, function) -> None:
+	"""Install function onto Array as name, named as a method of Array."""
+	function.__name__ = name
+	function.__qualname__ = f"{Array.__qualname__}.{name}"
+	function.__module__ = Array.__module__
+	setattr(Array, name, function)
+
 def _binary_operator(function):
 	def operator(self: Array, other: Array) -> Array:
 		if not isinstance(other, Array):
@@ -132,25 +139,25 @@ def from_dlpack(source, /, *, copy: bool | None = None) -> Array:
 		)
 	return _functional.copy(from_dlpack_capsule(capsule))
 
-Array.__add__ = _binary_operator(_functional.add)
-Array.__sub__ = _binary_operator(_functional.subtract)
-Array.__mul__ = _binary_operator(_functional.multiply)
-Array.__truediv__ = _binary_operator(_functional.divide)
-Array.__mod__ = _binary_operator(_functional.modulo)
+_install("__add__", _binary_operator(_functional.add))
+_install("__sub__", _binary_operator(_functional.subtract))
+_install("__mul__", _binary_operator(_functional.multiply))
+_install("__truediv__", _binary_operator(_functional.divide))
+_install("__mod__", _binary_operator(_functional.modulo))
 
-Array.__iadd__ = _in_place_operator(_functional.add)
-Array.__isub__ = _in_place_operator(_functional.subtract)
-Array.__imul__ = _in_place_operator(_functional.multiply)
-Array.__itruediv__ = _in_place_operator(_functional.divide)
-Array.__imod__ = _in_place_operator(_functional.modulo)
+_install("__iadd__", _in_place_operator(_functional.add))
+_install("__isub__", _in_place_operator(_functional.subtract))
+_install("__imul__", _in_place_operator(_functional.multiply))
+_install("__itruediv__", _in_place_operator(_functional.divide))
+_install("__imod__", _in_place_operator(_functional.modulo))
 
-Array.__neg__ = _unary_operator(_functional.negate)
-Array.__abs__ = _unary_operator(_functional.abs)
-Array.__pos__ = _unary_operator(_functional.copy)
+_install("__neg__", _unary_operator(_functional.negate))
+_install("__abs__", _unary_operator(_functional.abs))
+_install("__pos__", _unary_operator(_functional.copy))
 
-Array.__copy__ = _unary_operator(_functional.copy)
-Array.__deepcopy__ = _deep_copy
+_install("__copy__", _unary_operator(_functional.copy))
+_install("__deepcopy__", _deep_copy)
 
-Array.__array__ = _to_numpy
-Array.__dlpack__ = _dlpack
-Array.__dlpack_device__ = _dlpack_device
+_install("__array__", _to_numpy)
+_install("__dlpack__", _dlpack)
+_install("__dlpack_device__", _dlpack_device)

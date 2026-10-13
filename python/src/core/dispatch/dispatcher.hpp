@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/dispatch/dispatcher.hpp>
 
@@ -12,9 +12,9 @@ namespace rexlib
 {
 
 using dispatcher_class =
-	pybind11::class_<dispatcher, std::shared_ptr<dispatcher>>;
+	nanobind::class_<dispatcher>;
 
-dispatcher_class declare_dispatcher(pybind11::module_ &m);
-void define_dispatcher(pybind11::module_ &m);
+dispatcher_class declare_dispatcher(nanobind::module_ &m);
+void define_dispatcher(nanobind::module_ &m);
 
 } // namespace rexlib

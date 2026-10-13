@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/hardware/memory_resource.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using memory_resource_class = pybind11::class_<memory_resource>;
+using memory_resource_class = nanobind::class_<memory_resource>;
 
-memory_resource_class declare_memory_resource(pybind11::module_ &m);
-void define_memory_resource(memory_resource_class &c, pybind11::module_ &m);
+memory_resource_class declare_memory_resource(nanobind::module_ &m);
+void define_memory_resource(memory_resource_class &c, nanobind::module_ &m);
 
 } // namespace rexlib

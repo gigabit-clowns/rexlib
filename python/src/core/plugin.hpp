@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/plugin.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using plugin_class = pybind11::class_<plugin>;
+using plugin_class = nanobind::class_<plugin>;
 
-plugin_class declare_plugin(pybind11::module_ &m);
+plugin_class declare_plugin(nanobind::module_ &m);
 void define_plugin(plugin_class &c);
 
 } // namespace rexlib

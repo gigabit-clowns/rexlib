@@ -10,11 +10,11 @@
 #include "core/plugin.hpp"
 #include "core/version.hpp"
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 using namespace rexlib;
 
-PYBIND11_MODULE(_binding, m) {
+NB_MODULE(_binding, m) {
 	auto version = declare_version(m);
 	auto plugin = declare_plugin(m);
 	auto plugin_manager = declare_plugin_manager(m);

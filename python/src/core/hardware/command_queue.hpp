@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/hardware/command_queue.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using command_queue_class = pybind11::class_<command_queue, std::shared_ptr<command_queue>>;
+using command_queue_class = nanobind::class_<command_queue>;
 
-command_queue_class declare_command_queue(pybind11::module_ &m);
+command_queue_class declare_command_queue(nanobind::module_ &m);
 void define_command_queue(command_queue_class &c);
 
 } // namespace rexlib

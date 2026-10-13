@@ -4,7 +4,7 @@
 """
 Copy an extension's type stubs out of an installed package.
 
-pybind11-stubgen renders a submodule holding submodules of its own as a
+nanobind's stubgen renders a submodule holding submodules of its own as a
 directory of stubs rather than as one file, so what it writes is a tree and
 this carries the tree. Invoked from the workflow that generates the stubs
 once and hands them to the builds that cannot generate their own.

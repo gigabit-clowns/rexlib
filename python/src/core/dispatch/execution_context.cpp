@@ -6,12 +6,14 @@
 #include <rexlib/core/dispatch/dispatcher.hpp>
 #include <rexlib/core/hardware/device_context.hpp>
 
+#include <nanobind/stl/shared_ptr.h>
+
 namespace rexlib
 {
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
-execution_context_class declare_execution_context(pybind11::module_ &m)
+execution_context_class declare_execution_context(nb::module_ &m)
 {
 	return execution_context_class(m, "ExecutionContext");
 }
@@ -19,28 +21,28 @@ execution_context_class declare_execution_context(pybind11::module_ &m)
 void define_execution_context(execution_context_class &c)
 {
 	c
-		.def(py::init<>())
+		.def(nb::init<>())
 		.def(
-			py::init<device_context, std::shared_ptr<dispatcher>>(),
-			py::arg("device_context"), py::arg("dispatcher")
+			nb::init<device_context, std::shared_ptr<dispatcher>>(),
+			nb::arg("device_context"), nb::arg("dispatcher")
 		)
-		.def_property_readonly(
+		.def_prop_ro(
 			"device_context",
 			&execution_context::get_device_context
 		)
-		.def_property_readonly(
+		.def_prop_ro(
 			"dispatcher",
 			&execution_context::get_dispatcher
 		)
 		.def(
 			"with_device_context",
 			&execution_context::with_device_context,
-			py::arg("device_context")
+			nb::arg("device_context")
 		)
 		.def(
 			"with_dispatcher",
 			&execution_context::with_dispatcher,
-			py::arg("dispatcher")
+			nb::arg("dispatcher")
 		);
 
 	}

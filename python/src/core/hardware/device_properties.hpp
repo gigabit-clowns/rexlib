@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <rexlib/core/hardware/device_properties.hpp>
 
@@ -11,9 +11,9 @@
 namespace rexlib
 {
 
-using device_properties_class = pybind11::class_<device_properties>;
+using device_properties_class = nanobind::class_<device_properties>;
 
-device_properties_class declare_device_properties(pybind11::module_ &m);
+device_properties_class declare_device_properties(nanobind::module_ &m);
 void define_device_properties(device_properties_class &c);
 
 } // namespace rexlib

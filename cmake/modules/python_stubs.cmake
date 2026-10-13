@@ -12,7 +12,7 @@ function(install_python_stubs)
 		cmake_policy(SET CMP0174 NEW)
 	endif()
 
-	set(oneValueArgs MODULE DESTINATION SEARCH_PATH STUBS_DIR GENERATOR)
+	set(oneValueArgs MODULE DESTINATION SEARCH_PATH STUBS_DIR GENERATOR STUBGEN)
 	cmake_parse_arguments(PARSE_ARGV 0 arg "" "${oneValueArgs}" "")
 
 	if(NOT arg_STUBS_DIR)
@@ -22,6 +22,7 @@ function(install_python_stubs)
 					--module \"${arg_MODULE}\"
 					--search-path \"${arg_SEARCH_PATH}\"
 					--output \"${arg_DESTINATION}\"
+					--stubgen \"${arg_STUBGEN}\"
 				RESULT_VARIABLE RESULT
 			)
 			if(NOT RESULT EQUAL 0)
