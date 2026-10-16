@@ -454,6 +454,13 @@ torch and JAX are not test requirements. A test that needs one starts with
 `pytest.importorskip`, so it runs where the library is installed and is
 skipped in CI.
 
+## Pull requests
+
+Whoever opens a pull request assigns it to themselves and gives it the label,
+among the repository's own, that matches what it changes: `bug` for a fix,
+`enhancement` for something new, `documentation` when only documentation
+changes, and so on.
+
 ## Continuous integration
 
 | Workflow | Does |
