@@ -201,6 +201,13 @@ It is still a C++ ABI boundary for everything the plugin touches: the plugin
 and the core have to agree on compiler, standard library, and on Windows the
 runtime and whether it is the debug one.
 
+## Pull requests
+
+Whoever opens a pull request assigns it to themselves and gives it the label,
+among the repository's own, that matches what it changes: `bug` for a fix,
+`enhancement` for something new, `documentation` when only documentation
+changes, and so on.
+
 ## Continuous integration
 
 | Workflow | Does |
