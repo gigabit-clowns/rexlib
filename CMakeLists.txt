@@ -86,7 +86,7 @@ find_package(Threads REQUIRED)
 rexlib_add_boost(VERSION 1.92.0 MINIMUM 1.70.0)
 rexlib_add_half(VERSION 2.2.1)
 rexlib_add_spdlog(VERSION 1.17.0 MINIMUM 1.4.0)
-rexlib_add_pocketfft(COMMIT c90e55b3d529f8efa40ed01a20de22405f45fc65)
+rexlib_add_pocketfft(COMMIT 4d865cba24359b05b37da4e75aee24498c3b78e7)
 rexlib_add_eigen(VERSION 5.0.1)
 
 # ---------------------------------------------------------------------------
