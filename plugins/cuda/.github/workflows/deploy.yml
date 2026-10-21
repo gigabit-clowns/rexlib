@@ -94,11 +94,22 @@ jobs:
           CIBW_BUILD: "cp313-manylinux*" # Python agnostic, pick any version
           CIBW_BUILD_VERBOSITY: 1
           # Based on: https://stackoverflow.com/a/77212119
-          # ccache comes from EPEL, whose mirrors fail now and then; the
-          # toolkit does not, so it is installed with EPEL left out.
+          # ccache comes from EPEL, whose mirrors fail now and then: it gets
+          # three attempts, and without it a ccache that only runs the
+          # compiler it is given stands in, so the wheel builds uncached. The
+          # toolkit needs nothing from EPEL, so it is installed with EPEL left
+          # out.
           CIBW_BEFORE_ALL: |
             set -e
-            command -v ccache || dnf install -y ccache || yum install -y ccache
+            for attempt in 1 2 3; do
+              command -v ccache > /dev/null && break
+              dnf install -y ccache || yum install -y ccache || sleep 5
+            done
+            if ! command -v ccache > /dev/null; then
+              echo "::warning::ccache could not be installed from EPEL; building without a compiler cache"
+              printf '#!/bin/sh\nexec "$@"\n' > /usr/local/bin/ccache
+              chmod +x /usr/local/bin/ccache
+            fi
             curl -fsSL --retry 3 --retry-delay 5 \
               ${{ env.RHEL8_NVIDIA_REPO }} -o /etc/yum.repos.d/cuda.repo
             yum clean all
