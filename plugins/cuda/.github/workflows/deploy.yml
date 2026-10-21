@@ -94,12 +94,16 @@ jobs:
           CIBW_BUILD: "cp313-manylinux*" # Python agnostic, pick any version
           CIBW_BUILD_VERBOSITY: 1
           # Based on: https://stackoverflow.com/a/77212119
+          # ccache comes from EPEL, whose mirrors fail now and then; the
+          # toolkit does not, so it is installed with EPEL left out.
           CIBW_BEFORE_ALL: |
-            yum install -y wget
+            set -e
             command -v ccache || dnf install -y ccache || yum install -y ccache
-            wget ${{ env.RHEL8_NVIDIA_REPO }} -O /etc/yum.repos.d/cuda.repo
+            curl -fsSL --retry 3 --retry-delay 5 \
+              ${{ env.RHEL8_NVIDIA_REPO }} -o /etc/yum.repos.d/cuda.repo
             yum clean all
-            yum -y install cuda-toolkit-${{ matrix.cuda-major.package }}
+            yum -y --disablerepo=epel install \
+              cuda-toolkit-${{ matrix.cuda-major.package }}
             python -m pip install "cmake>=3.23" ninja
             export CMAKE_GENERATOR=Ninja
             export CCACHE_DIR=/host/tmp/ccache CCACHE_BASEDIR=/ \
