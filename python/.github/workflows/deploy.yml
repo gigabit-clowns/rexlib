@@ -183,10 +183,19 @@ jobs:
           # cibuildwheel, with whatever architecture, deployment target and
           # SDK cibuildwheel chose for that wheel, rather than by a step
           # outside it that has to be told each of those separately.
-          CIBW_BEFORE_ALL_LINUX: >
-            command -v ccache ||
-            dnf install -y ccache ||
-            yum install -y ccache
+          # Up to three attempts at installing ccache. Without it, a ccache
+          # that only runs the compiler it is given stands in, and the wheel
+          # builds uncached.
+          CIBW_BEFORE_ALL_LINUX: |
+            for attempt in 1 2 3; do
+              command -v ccache > /dev/null && break
+              dnf install -y ccache || yum install -y ccache || sleep 5
+            done
+            if ! command -v ccache > /dev/null; then
+              echo "::warning::ccache could not be installed from EPEL; building without a compiler cache"
+              printf '#!/bin/sh\nexec "$@"\n' > /usr/local/bin/ccache
+              chmod +x /usr/local/bin/ccache
+            fi
           # A platform-specific value replaces the general one rather than
           # adding to it, so the shared part is repeated.
           #
