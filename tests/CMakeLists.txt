@@ -12,7 +12,7 @@ if(REXLIB_USE_SYSTEM_DEPENDENCIES)
 	set(REXLIB_USE_SYSTEM_TROMPELOEIL ON)
 endif()
 
-rexlib_add_catch2(VERSION 3.16.0 MINIMUM 3.0.1)
+rexlib_add_catch2(VERSION 3.16.1 MINIMUM 3.0.1)
 rexlib_add_trompeloeil(VERSION 49 MINIMUM 42)
 
 include(Catch)
