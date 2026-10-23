@@ -14,14 +14,6 @@ namespace rexlib
 namespace cpu
 {
 
-template <>
-struct linalg_core_ranks<ops::matmul_operation>
-{
-	static constexpr std::size_t output = 2;
-	static constexpr std::size_t left = 2;
-	static constexpr std::size_t right = 2;
-};
-
 namespace
 {
 

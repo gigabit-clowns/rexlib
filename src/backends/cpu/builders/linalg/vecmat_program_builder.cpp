@@ -14,14 +14,6 @@ namespace rexlib
 namespace cpu
 {
 
-template <>
-struct linalg_core_ranks<ops::vecmat_operation>
-{
-	static constexpr std::size_t output = 1;
-	static constexpr std::size_t left = 1;
-	static constexpr std::size_t right = 2;
-};
-
 namespace
 {
 

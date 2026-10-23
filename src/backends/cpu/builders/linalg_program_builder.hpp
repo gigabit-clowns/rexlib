@@ -14,7 +14,9 @@
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
+#include <rexlib/core/dispatch/rules/core_placement.hpp>
 #include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -27,11 +29,43 @@ namespace cpu
 /**
  * @brief How many of an operation's trailing axes, per operand, are core.
  *
- * Specialized once per operation this builder serves. Two for a matrix
- * operand, one for a vector operand.
+ * Read from the shape rule of the operation: two for a matrix operand, one
+ * for a vector operand.
+ *
+ * @tparam Op The operation type. Its shape rule must place the core axes
+ * last, and describe one output and two inputs.
  */
 template <typename Op>
-struct linalg_core_ranks;
+struct linalg_core_ranks
+{
+	using shape_rule = typename Op::shape_rule;
+
+	static_assert(
+		shape_rule::placement_type::placement == core_placement::trailing,
+		"A linalg builder walks the trailing axes of its operands, so the "
+		"operation's shape rule must place the core axes last."
+	);
+
+	static_assert(
+		shape_rule::output_count == 1 && shape_rule::input_count == 2,
+		"A linalg builder serves operations of one output and two inputs."
+	);
+
+	static REXLIB_CONST_CONSTEXPR std::size_t output = type_list_element<
+		0,
+		typename shape_rule::output_core_list
+	>::type::axis_count;
+
+	static REXLIB_CONST_CONSTEXPR std::size_t left = type_list_element<
+		0,
+		typename shape_rule::input_core_list
+	>::type::axis_count;
+
+	static REXLIB_CONST_CONSTEXPR std::size_t right = type_list_element<
+		1,
+		typename shape_rule::input_core_list
+	>::type::axis_count;
+};
 
 /**
  * @brief Generic program builder for the matmul/matvec/vecmat family.
@@ -44,8 +78,8 @@ struct linalg_core_ranks;
  * parameter rather than always the trailing one, so it implements
  * program_builder directly instead of going through this template.
  *
- * @tparam Op The operation type this builder targets. Must have a
- * linalg_core_ranks<Op> specialization.
+ * @tparam Op The operation type this builder targets. Its shape rule must
+ * place the core axes last, as linalg_core_ranks reads them.
  * @tparam KernelFactory Factory producing the per-batch-element kernel.
  * Invoked as factory(operation, output_types, input_types, plan), where the
  * type arguments are type_list-s of the resolved element types and plan is
@@ -134,8 +168,8 @@ private:
  * program builder.
  *
  * @param name Identifier of the registration object.
- * @param op The operation type. Must have a linalg_core_ranks<op>
- * specialization.
+ * @param op The operation type. Its shape rule must place the core axes
+ * last.
  * @param kernel_factory Factory producing the per-batch-element kernel.
  */
 #define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \
