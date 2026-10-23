@@ -12,9 +12,7 @@ target_sources(
 		operation_arity.cpp
 		operation_cast.cpp
 		operation_contract.cpp
-		operation_data_type_policy.cpp
 		operation_descriptor.cpp
-		operation_shape_policy.cpp
 		program_builder.cpp
 		program_builder_registry.cpp
 		program_cache.cpp

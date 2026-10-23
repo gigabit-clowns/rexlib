@@ -18,8 +18,8 @@ namespace rexlib
  *
  * Every transform states the same mapping twice:
  *
- *   * `apply` evaluates it on runtime numerical_type values. The core data
- *     type policy reads this half to deduce and check operand types.
+ *   * `apply` evaluates it on runtime numerical_type values. The type rule
+ *     interpreter reads this half to deduce and check operand types.
  *   * `apply_type` evaluates it on native C++ types. Backend type
  *     dispatchers read this half to reify the operand element types once
  *     the pivots have been resolved.

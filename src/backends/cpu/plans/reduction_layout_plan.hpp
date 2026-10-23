@@ -50,7 +50,7 @@ public:
 	 * whose locality is worth optimising.
 	 *
 	 * @param output_signatures Signatures of the outputs. All of them carry
-	 * the shape the policy deduced, so they all belong to the kept layout.
+	 * the shape the contract deduced, so they all belong to the kept layout.
 	 * @param input_signatures Signatures of the inputs. At least one is
 	 * needed.
 	 * @param axes The axes being reduced, ascending and without repetitions.

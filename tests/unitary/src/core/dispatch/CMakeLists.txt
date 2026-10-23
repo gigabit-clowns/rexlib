@@ -10,9 +10,7 @@ target_sources(
 		test_operation.cpp
 		test_operation_arity.cpp
 		test_operation_cast.cpp
-		test_operation_data_type_policy.cpp
 		test_operation_id.cpp
-		test_operation_shape_policy.cpp
 		test_parametric_operation.cpp
 		test_program_builder_registration.cpp
 		test_program_builder_registry.cpp

@@ -17,7 +17,8 @@ namespace ops
  *
  * The typing rules the operation catalog is built from. An operation names
  * one of these in its declaration and that is the whole of its typing: the
- * runtime policy and every backend type dispatcher read the same rule.
+ * type rule interpreter and every backend type dispatcher read the same
+ * rule.
  *
  * Every rule is parameterised by the domain of its element type, which is
  * how an operation states what it accepts. A rule says nothing about
