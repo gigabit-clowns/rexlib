@@ -9,8 +9,6 @@
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/dispatch/operation.hpp>
-#include <rexlib/core/dispatch/operation_shape_policy.hpp>
-#include <rexlib/core/dispatch/operation_data_type_policy.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/device_properties.hpp>

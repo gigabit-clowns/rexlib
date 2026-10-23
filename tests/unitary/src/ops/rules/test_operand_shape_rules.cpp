@@ -493,7 +493,7 @@ TEST_CASE(
 	"[operand_shape_rules]"
 )
 {
-	// No backend multiplies a vector as a matrix, so none is promoted.
+	// A vector is not promoted to a matrix.
 	using rule = matrix_multiply_shape_rule;
 	CHECK_THROWS_AS(
 		deduce_shape<rule>({ { 3 }, { 3, 4 } }),

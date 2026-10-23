@@ -82,12 +82,12 @@ reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 	span<const operand_signature> input_signatures
 ) const
 {
-	const auto &shape_policy = operation.get_shape_policy();
+	const auto &parameters = operation.get_parameters();
 	return reduction_layout_plan(
 		output_signatures,
 		input_signatures,
-		shape_policy.get_axes(),
-		shape_policy.get_keep_dimensions(),
+		parameters.get_axes(),
+		parameters.get_keep_dimensions(),
 		Indexing()
 	);
 }

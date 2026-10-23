@@ -9,9 +9,8 @@ namespace rexlib
 namespace cpu
 {
 
-// The restored extent is not a decision this builder makes: the operation
-// carries it and the shape policy deduced the output from it, so the output is
-// already the right size by the time the plan reads it.
+// The restored extent comes from the output, which the operation contract
+// sized from the extent the operation carries.
 REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(
 	irfft,
 	ops::irfft_operation,

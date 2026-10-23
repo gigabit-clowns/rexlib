@@ -26,7 +26,7 @@ namespace
  *
  * Broadcasting the inputs together before reducing is what lets one reduction
  * take an operand alongside the one being folded, such as a mask or a second
- * vector, and is what the shape policy did to deduce the output shape.
+ * vector.
  */
 std::vector<std::size_t> broadcast_input_extents(
 	span<const operand_signature> input_signatures

@@ -31,7 +31,8 @@ namespace cpu
  * share this builder; @p ShiftPolicy supplies that one difference.
  *
  * @tparam Op The operation type, declared through
- * REXLIB_DECLARE_PARAMETRIC_OPERATION with an axiswise_operation_shape_policy.
+ * REXLIB_DECLARE_PARAMETRIC_OPERATION with parameters naming the shifted axes
+ * through get_axes().
  * @tparam ShiftPolicy Provides
  * `static std::size_t shift_amount(std::size_t extent) noexcept`, the
  * distance an axis of that extent is cyclically shifted by.

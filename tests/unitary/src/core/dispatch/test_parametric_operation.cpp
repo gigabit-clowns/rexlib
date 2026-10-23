@@ -5,9 +5,11 @@
 #include <rexlib/core/dispatch/parametric_operation.hpp>
 
 #include <rexlib/ops/ops_component.hpp>
+#include <rexlib/ops/parameters/reduction_axes.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
-#include <cstddef>
+#include <stdexcept>
 #include <type_traits>
 #include <vector>
 
@@ -16,145 +18,99 @@ using namespace rexlib;
 namespace
 {
 
-// A shape policy whose deduction depends on what it was constructed with,
-// standing in for a reduction's axes. A stateless policy hands out a
-// singleton; this one cannot, which is the whole reason
-// parametric_operation exists.
-class stub_scaling_shape_policy final
-	: public operation_shape_policy
-{
-public:
-	explicit stub_scaling_shape_policy(std::size_t factor = 1) noexcept
-		: m_factor(factor)
-	{
-	}
-
-	std::size_t get_factor() const noexcept
-	{
-		return m_factor;
-	}
-
-	void deduce(
-		const operation_descriptor & /*descriptor*/,
-		span<shape_type> canonical_output_shapes,
-		span<const shape_type> input_shapes
-	) const override
-	{
-		for (auto &shape : canonical_output_shapes)
-		{
-			shape = input_shapes.empty() ? shape_type() : input_shapes[0];
-			for (auto &extent : shape)
-			{
-				extent *= m_factor;
-			}
-		}
-	}
-
-private:
-	std::size_t m_factor;
-};
-
 REXLIB_DECLARE_PARAMETRIC_OPERATION(
-	stub_scale,
+	stub_reduce,
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("value"),
-	stub_scaling_shape_policy,
+	ops::reduction_shape_rule,
+	ops::reduction_axes,
 	ops::unary_homogeneous_rule<>
 );
+
+operand_specification::shape_type deduce_shape(
+	const operation &op,
+	const operand_specification::shape_type &input_shape
+)
+{
+	const std::vector<operand_specification> inputs = {
+		operand_specification(input_shape, numerical_type::float32)
+	};
+	std::vector<operand_specification> outputs(1);
+	op.get_contract().deduce(
+		op.get_descriptor(),
+		make_span(outputs),
+		make_span(inputs)
+	);
+	return outputs[0].get_shape();
+}
 
 } // anonymous namespace
 
 TEST_CASE(
-    "a parametric operation should own its shape policy per instance",
-    "[parametric_operation]"
+	"a parametric operation should own its contract per instance",
+	"[parametric_operation]"
 )
 {
-    const stub_scale_operation doubling(2);
-    const stub_scale_operation tripling(3);
+	const stub_reduce_operation first(ops::axis_list{ 0 });
+	const stub_reduce_operation last(ops::axis_list{ 2 });
 
-    // Two instances of one operation, deducing different shapes. A shared
-    // policy could not do this, which is what separates parametric_operation
-    // from trivial_operation.
-    CHECK( &doubling.get_operation_shape_policy() !=
-           &tripling.get_operation_shape_policy() );
-
-    const std::vector<operation_shape_policy::shape_type> inputs = {
-        { 2, 3 }
-    };
-    std::vector<operation_shape_policy::shape_type> outputs(1);
-
-    doubling.get_operation_shape_policy().deduce(
-        doubling.get_descriptor(),
-        make_span(outputs),
-        make_span(inputs)
-    );
-    CHECK( outputs[0] == operation_shape_policy::shape_type{ 4, 6 } );
-
-    tripling.get_operation_shape_policy().deduce(
-        tripling.get_descriptor(),
-        make_span(outputs),
-        make_span(inputs)
-    );
-    CHECK( outputs[0] == operation_shape_policy::shape_type{ 6, 9 } );
+	CHECK( &first.get_contract() != &last.get_contract() );
+	CHECK(
+		deduce_shape(first, { 2, 3, 4 }) ==
+		operand_specification::shape_type{ 3, 4 }
+	);
+	CHECK(
+		deduce_shape(last, { 2, 3, 4 }) ==
+		operand_specification::shape_type{ 2, 3 }
+	);
 }
 
 TEST_CASE(
-    "a parametric operation should expose its policy with its own type",
-    "[parametric_operation]"
+	"a parametric operation should expose its parameters with their own type",
+	"[parametric_operation]"
 )
 {
-    const stub_scale_operation op(4);
+	const stub_reduce_operation op(ops::axis_list{ 1, 0 }, true);
 
-    // A program builder is instantiated on the operation type, so it reads
-    // the parameters back through this accessor rather than downcasting the
-    // erased policy it would otherwise get.
-    STATIC_REQUIRE( std::is_same<
-        decltype(op.get_shape_policy()),
-        const stub_scaling_shape_policy&
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		decltype(op.get_parameters()),
+		const ops::reduction_axes&
+	>::value );
 
-    CHECK( op.get_shape_policy().get_factor() == 4 );
-    CHECK( &op.get_shape_policy() == &op.get_operation_shape_policy() );
+	const auto axes = op.get_parameters().get_axes();
+	CHECK( ops::axis_list(axes.begin(), axes.end()) == ops::axis_list{ 1, 0 } );
+	CHECK( op.get_parameters().get_keep_dimensions() );
 }
 
 TEST_CASE(
-    "a parametric operation should default construct its shape policy",
-    "[parametric_operation]"
+	"a parametric operation should reject parameters its rules do not admit",
+	"[parametric_operation]"
 )
 {
-    // The constructor is variadic, so it has to keep working with no
-    // argument at all when the policy is default constructible.
-    const stub_scale_operation op;
-    CHECK( op.get_shape_policy().get_factor() == 1 );
+	CHECK_THROWS_AS(
+		stub_reduce_operation(ops::axis_list{ 1, 1 }),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
-    "a parametric operation should keep everything a declared one has",
-    "[parametric_operation]"
+	"a parametric operation should keep everything a declared one has",
+	"[parametric_operation]"
 )
 {
-    const stub_scale_operation op(2);
+	const stub_reduce_operation op(ops::axis_list{ 0 });
 
-    // Identity, description and typing come from basic_operation just as
-    // they do for a trivially declared operation, so the program builders
-    // reading them need no special case.
-    CHECK( op.get_name() == "stub_scale" );
-    CHECK( op.get_arity() == operation_arity::unary() );
-    CHECK( op.get_id() == operation_id::of<stub_scale_operation>() );
-    STATIC_REQUIRE( stub_scale_operation::output_operand_count == 1 );
-    STATIC_REQUIRE( stub_scale_operation::input_operand_count == 1 );
-    STATIC_REQUIRE( std::is_final<stub_scale_operation>::value );
-    STATIC_REQUIRE(
-        std::is_base_of<operation, stub_scale_operation>::value
-    );
+	CHECK( op.get_name() == "stub_reduce" );
+	CHECK( op.get_arity() == operation_arity::unary() );
+	CHECK( op.get_id() == operation_id::of<stub_reduce_operation>() );
+	STATIC_REQUIRE( stub_reduce_operation::output_operand_count == 1 );
+	STATIC_REQUIRE( stub_reduce_operation::input_operand_count == 1 );
+	STATIC_REQUIRE( std::is_final<stub_reduce_operation>::value );
+	STATIC_REQUIRE(
+		std::is_base_of<operation, stub_reduce_operation>::value
+	);
 
-    // The data type policy stays the shared one derived from the rule: a
-    // shape parameter does not change the typing.
-    const stub_scale_operation other(7);
-    CHECK( &op.get_operation_data_type_policy() ==
-           &other.get_operation_data_type_policy() );
-
-    // The description is shared too, being static.
-    CHECK( &op.get_descriptor() == &other.get_descriptor() );
+	const stub_reduce_operation other(ops::axis_list{ 1 });
+	CHECK( &op.get_descriptor() == &other.get_descriptor() );
 }

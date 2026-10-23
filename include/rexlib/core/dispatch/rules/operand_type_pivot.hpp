@@ -49,8 +49,8 @@ enum class pivot_source
  * tell a free pivot from a fixed one.
  *
  * @tparam Source Where the pivot value comes from.
- * @tparam Index Index of the operand supplying it, or of the value supplied
- * by the operation when @p Source is pivot_source::operation.
+ * @tparam Index Index of the operand supplying it. Unused when @p Source
+ * is pivot_source::operation.
  * @tparam Domain Tag naming the set of types the pivot may take. It is
  * intersected with the domain of every transform reading this pivot, so it
  * only ever narrows.
@@ -58,6 +58,10 @@ enum class pivot_source
  * pivot_source::output. When non negative, the index of the pivot whose
  * value this one adopts if the user did not pre-allocate the output. When
  * negative, the canonical type is left unknown for `accept` to resolve.
+ * @tparam Accessor Only meaningful when @p Source is
+ * pivot_source::operation. Type reading the value from the parameters of
+ * the operation instance, through a static `get(const Parameters&)`
+ * template. void otherwise.
  *
  * @see operand_type_rule
  */
@@ -65,7 +69,8 @@ template <
 	pivot_source Source,
 	std::size_t Index,
 	typename Domain,
-	std::ptrdiff_t DefaultPivot = -1
+	std::ptrdiff_t DefaultPivot = -1,
+	typename Accessor = void
 >
 struct operand_type_pivot
 {
@@ -74,6 +79,7 @@ struct operand_type_pivot
 	static REXLIB_CONST_CONSTEXPR std::ptrdiff_t default_pivot = DefaultPivot;
 
 	using domain_type = Domain;
+	using accessor_type = Accessor;
 };
 
 /**
@@ -105,13 +111,15 @@ using pivot_from_output =
  * @brief Pivot supplied by the operation instance.
  *
  * Models operations that carry a type as a parameter, such as a cast to a
- * requested data type.
+ * requested data type. The values the operation supplies are taken in the
+ * order the pivots that read them are declared.
  *
- * @tparam I Index of the value among those the operation supplies.
+ * @tparam Accessor Type reading the value from the parameters of the
+ * operation instance.
  * @tparam Domain Tag naming the admissible types.
  */
-template <std::size_t I = 0, typename Domain = any_type_domain>
+template <typename Accessor, typename Domain = any_type_domain>
 using pivot_from_operation =
-	operand_type_pivot<pivot_source::operation, I, Domain>;
+	operand_type_pivot<pivot_source::operation, 0, Domain, -1, Accessor>;
 
 } // namespace rexlib

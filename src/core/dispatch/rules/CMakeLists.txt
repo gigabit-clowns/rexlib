@@ -3,7 +3,7 @@ target_sources(
 	PRIVATE
 		operand_type_resolution.cpp
 		operand_type_rule_engine.cpp
-		rule_operation_data_type_policy.cpp
 		shape_rule_interpreter.cpp
 		shape_rule_resolution.cpp
+		type_rule_interpreter.cpp
 )

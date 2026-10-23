@@ -20,7 +20,7 @@
 #include <rexlib/core/span.hpp>
 
 #include <rexlib/ops/fourier/fft_operation.hpp>
-#include <rexlib/ops/policies/axis_list.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 

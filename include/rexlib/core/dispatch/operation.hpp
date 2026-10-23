@@ -2,11 +2,10 @@
 
 #pragma once
 
+#include "operation_contract.hpp"
 #include "operation_descriptor.hpp"
 #include "operation_id.hpp"
 #include "operation_arity.hpp"
-#include "operation_shape_policy.hpp"
-#include "operation_data_type_policy.hpp"
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
@@ -83,22 +82,13 @@ public:
 	operation_arity get_arity() const noexcept = 0;
 
 	/**
-	 * @brief Get the shape policy for the operation.
+	 * @brief Get the contract deciding the shape and data type of the
+	 * operands of this operation.
 	 *
-	 * @return const operation_shape_policy& The shape policy.
+	 * @return const operation_contract& The contract.
 	 */
 	virtual
-	const operation_shape_policy&
-	get_operation_shape_policy() const noexcept = 0;
-
-	/**
-	 * @brief Get the data type policy for the operation.
-	 *
-	 * @return const operation_data_type_policy& The data type policy.
-	 */
-	virtual
-	const operation_data_type_policy&
-	get_operation_data_type_policy() const noexcept = 0;
+	const operation_contract& get_contract() const noexcept = 0;
 };
 
 } // namespace rexlib

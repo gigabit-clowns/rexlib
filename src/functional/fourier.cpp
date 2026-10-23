@@ -6,7 +6,7 @@
 #include <rexlib/core/layout/index.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/ops/policies/axis_list.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
 #include <rexlib/ops/fourier/fft_operation.hpp>
 #include <rexlib/ops/fourier/fftshift_operation.hpp>
 #include <rexlib/ops/fourier/ifft_operation.hpp>

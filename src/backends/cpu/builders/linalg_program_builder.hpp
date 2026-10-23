@@ -72,10 +72,8 @@ public:
 	/**
 	 * @brief Whether every operand reaches the rank its core needs.
 	 *
-	 * A rank smaller than the core it is asked to supply means the operand
-	 * was promoted by the shape policy (matmul's vector promotion): this
-	 * builder does not implement that, and declines rather than misreading
-	 * a batch axis as a core one.
+	 * A rank smaller than the core it is asked to supply is declined rather
+	 * than a batch axis being misread as a core one.
 	 *
 	 * @param output_signatures The output operand signatures.
 	 * @param input_signatures The input operand signatures.

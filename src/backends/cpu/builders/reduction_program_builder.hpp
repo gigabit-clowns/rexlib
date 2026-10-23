@@ -37,8 +37,9 @@ namespace cpu
  * whole of that split is decided once here and the program that results holds
  * no decision left to make per element.
  *
- * @tparam Op The operation type this builder targets. Must carry a
- * reduction_operation_shape_policy.
+ * @tparam Op The operation type this builder targets. Its parameters must
+ * name the reduced axes through get_axes() and whether they are kept through
+ * get_keep_dimensions().
  * @tparam KernelFactory Factory producing the reduction kernel. Invoked as
  * factory(operation, output_types, input_types), where operation is the
  * concrete @p Op and the type arguments are type_list-s of the resolved

@@ -7,7 +7,7 @@
 
 #include <rexlib/core/dispatch/basic_operation.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <stdexcept>
@@ -23,7 +23,7 @@ REXLIB_DECLARE_OPERATION_TRAITS(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("value"),
-	ops::elementwise_operation_shape_policy,
+	ops::unary_elementwise_shape_rule,
 	ops::unary_homogeneous_rule<>
 );
 
@@ -54,7 +54,7 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("value"),
-	ops::elementwise_operation_shape_policy,
+	ops::unary_elementwise_shape_rule,
 	ops::unary_homogeneous_rule<>
 );
 

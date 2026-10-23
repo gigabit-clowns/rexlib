@@ -6,7 +6,8 @@
 #include <rexlib/core/numerical/scalar_value.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/sequence_operation_shape_policy.hpp>
+#include <rexlib/ops/parameters/sequence_length.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <cstddef>
@@ -16,12 +17,13 @@ namespace rexlib
 namespace ops
 {
 
-REXLIB_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
 	linspace,
 	ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS(),
-	sequence_operation_shape_policy,
+	sequence_shape_rule,
+	sequence_length,
 	nullary_free_rule<inexact_type_domain>
 );
 

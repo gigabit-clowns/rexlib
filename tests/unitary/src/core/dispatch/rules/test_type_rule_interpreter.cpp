@@ -3,13 +3,15 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
-#include <rexlib/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/rules/type_rule_interpreter.hpp>
 
 #include <rexlib/core/dispatch/operation_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
-#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
+#include <cstddef>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -20,6 +22,12 @@ namespace
 {
 
 using type_vector = std::vector<numerical_type>;
+
+// Names the data type an operation would supply. The tests pass the values
+// themselves, so it is never invoked.
+struct test_target_type
+{
+};
 
 /**
  * @brief A description for the rules under test to name in diagnostics.
@@ -49,6 +57,47 @@ type_vector all_concrete_types()
     return result;
 }
 
+template <typename Rule>
+type_rule_interpreter interpreter_of()
+{
+    return type_rule_interpreter(
+        pivot_descriptor_table<typename Rule::pivot_list>::get(),
+        slot_descriptor_table<typename Rule::output_slot_list>::get(),
+        slot_descriptor_table<typename Rule::input_slot_list>::get()
+    );
+}
+
+std::vector<operand_specification> make_operands(const type_vector &types)
+{
+    std::vector<operand_specification> result;
+    for (const auto type : types)
+    {
+        result.emplace_back(operand_specification::shape_type(), type);
+    }
+    return result;
+}
+
+void deduce_types(
+    const type_rule_interpreter &rule,
+    type_vector &outputs,
+    const type_vector &inputs,
+    const type_vector &operation_pivots = type_vector()
+)
+{
+    auto output_operands = make_operands(outputs);
+    const auto input_operands = make_operands(inputs);
+    rule.deduce(
+        rule_descriptor(),
+        make_span(operation_pivots),
+        make_span(output_operands),
+        make_span(input_operands)
+    );
+    for (std::size_t i = 0; i < outputs.size(); ++i)
+    {
+        outputs[i] = output_operands[i].get_data_type();
+    }
+}
+
 struct deduce_outcome
 {
     bool rejected = false;
@@ -56,7 +105,7 @@ struct deduce_outcome
 };
 
 deduce_outcome run_deduce(
-    const operation_data_type_policy &policy,
+    const type_rule_interpreter &rule,
     const type_vector &inputs,
     std::size_t output_count
 )
@@ -66,7 +115,7 @@ deduce_outcome run_deduce(
 
     try
     {
-        policy.deduce(rule_descriptor(), make_span(outcome.outputs), make_span(inputs));
+        deduce_types(rule, outcome.outputs, inputs);
     }
     catch (const std::invalid_argument&)
     {
@@ -77,26 +126,23 @@ deduce_outcome run_deduce(
 }
 
 bool run_accept(
-    const operation_data_type_policy &policy,
+    const type_rule_interpreter &rule,
     const type_vector &user_outputs,
     const type_vector &inputs
 )
 {
-    // The canonical types are whatever deduce produced, which is how the
-    // dispatcher calls accept.
-    const auto canonical = run_deduce(policy, inputs, user_outputs.size());
-    if (canonical.rejected)
+    if (run_deduce(rule, inputs, user_outputs.size()).rejected)
     {
         return true;
     }
 
     try
     {
-        policy.accept(
+        rule.accept(
             rule_descriptor(),
-            make_span(user_outputs),
-            make_span(canonical.outputs),
-            make_span(inputs)
+            span<const numerical_type>(),
+            make_span(make_operands(user_outputs)),
+            make_span(make_operands(inputs))
         );
     }
     catch (const std::invalid_argument&)
@@ -111,11 +157,10 @@ bool run_accept(
 
 TEST_CASE(
     "binary_homogeneous_rule should require one shared element type",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule =
-        rule_data_type_policy<ops::binary_homogeneous_rule<>>::get();
+    const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
 
     for (const auto left : all_concrete_types())
     {
@@ -146,12 +191,12 @@ TEST_CASE(
 
 TEST_CASE(
     "unary_real_of_rule should type the abs operation",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule = rule_data_type_policy<
+    const auto rule = interpreter_of<
         ops::unary_real_of_rule<arithmetic_type_domain>
-    >::get();
+    >();
 
     for (const auto input : all_concrete_types())
     {
@@ -189,10 +234,10 @@ TEST_CASE(
 
 TEST_CASE(
     "converting_rule should type the copy operation",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule = rule_data_type_policy<ops::converting_rule<>>::get();
+    const auto rule = interpreter_of<ops::converting_rule<>>();
 
     for (const auto input : all_concrete_types())
     {
@@ -216,11 +261,10 @@ TEST_CASE(
 
 TEST_CASE(
     "nullary_free_rule should leave the element type to the output",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule =
-        rule_data_type_policy<ops::nullary_free_rule<>>::get();
+    const auto rule = interpreter_of<ops::nullary_free_rule<>>();
 
     const type_vector no_inputs;
 
@@ -239,12 +283,12 @@ TEST_CASE(
 
 TEST_CASE(
     "a rule should reject inputs outside its declared domain",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule = rule_data_type_policy<
+    const auto rule = interpreter_of<
         ops::binary_homogeneous_rule<real_arithmetic_type_domain>
-    >::get();
+    >();
 
     type_vector outputs(1, numerical_type::unknown);
 
@@ -253,18 +297,18 @@ TEST_CASE(
         numerical_type::int32
     };
     CHECK_NOTHROW(
-        rule.deduce(rule_descriptor(), make_span(outputs), make_span(accepted))
+        deduce_types(rule, outputs, accepted)
     );
 
     // This is the drift the declarative rules exist to remove: a domain the
     // operation declares once, rather than a backend predicate silently
-    // narrowing what the policy already accepted.
+    // narrowing what the rule already accepted.
     const type_vector rejected = {
         numerical_type::complex_float32,
         numerical_type::complex_float32
     };
     CHECK_THROWS_AS(
-        rule.deduce(rule_descriptor(), make_span(outputs), make_span(rejected)),
+        deduce_types(rule, outputs, rejected),
         std::invalid_argument
     );
 
@@ -273,18 +317,17 @@ TEST_CASE(
         numerical_type::boolean
     };
     CHECK_THROWS_AS(
-        rule.deduce(rule_descriptor(), make_span(outputs), make_span(booleans)),
+        deduce_types(rule, outputs, booleans),
         std::invalid_argument
     );
 }
 
 TEST_CASE(
     "a rule should produce a boolean output for a predicate",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule =
-        rule_data_type_policy<ops::binary_predicate_rule<>>::get();
+    const auto rule = interpreter_of<ops::binary_predicate_rule<>>();
 
     type_vector outputs(1, numerical_type::unknown);
     const type_vector inputs = {
@@ -292,17 +335,16 @@ TEST_CASE(
         numerical_type::float64
     };
 
-    rule.deduce(rule_descriptor(), make_span(outputs), make_span(inputs));
+    deduce_types(rule, outputs, inputs);
     CHECK( outputs[0] == numerical_type::boolean );
 }
 
 TEST_CASE(
     "a rule should name the offending operand and the expected type",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule =
-        rule_data_type_policy<ops::binary_homogeneous_rule<>>::get();
+    const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
 
     type_vector outputs(1, numerical_type::unknown);
     const type_vector mismatched = {
@@ -312,7 +354,7 @@ TEST_CASE(
 
     try
     {
-        rule.deduce(rule_descriptor(), make_span(outputs), make_span(mismatched));
+        deduce_types(rule, outputs, mismatched);
         FAIL( "expected the mismatching operands to be rejected" );
     }
     catch (const std::invalid_argument &error)
@@ -330,19 +372,19 @@ TEST_CASE(
 
 TEST_CASE(
     "a rule should report the admissible types when a domain is violated",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
-    const auto &rule = rule_data_type_policy<
+    const auto rule = interpreter_of<
         ops::unary_homogeneous_rule<floating_point_type_domain>
-    >::get();
+    >();
 
     type_vector outputs(1, numerical_type::unknown);
     const type_vector inputs = { numerical_type::int32 };
 
     try
     {
-        rule.deduce(rule_descriptor(), make_span(outputs), make_span(inputs));
+        deduce_types(rule, outputs, inputs);
         FAIL( "expected the input to be rejected" );
     }
     catch (const std::invalid_argument &error)
@@ -356,28 +398,110 @@ TEST_CASE(
 
 TEST_CASE(
     "an operation supplied pivot should fix the output type",
-    "[rule_operation_data_type_policy]"
+    "[type_rule_interpreter]"
 )
 {
     // The astype shape: the output type is a parameter of the operation
-    // instance rather than a property of the operands, so the policy is
-    // owned by the operation instead of shared.
+    // instance rather than a property of the operands.
     using astype_rule = operand_type_rule<
-        type_list<pivot_from_operation<0>, pivot_from_input<0>>,
+        type_list<pivot_from_operation<test_target_type>, pivot_from_input<0>>,
         type_list<slot_same_as<0>>,
         type_list<slot_same_as<1>>
     >;
-
-    const rule_operation_data_type_policy policy(
-        pivot_descriptor_table<astype_rule::pivot_list>::get(),
-        slot_descriptor_table<astype_rule::output_slot_list>::get(),
-        slot_descriptor_table<astype_rule::input_slot_list>::get(),
-        { numerical_type::float64 }
-    );
+    const auto rule = interpreter_of<astype_rule>();
 
     type_vector outputs(1, numerical_type::unknown);
-    const type_vector inputs = { numerical_type::int32 };
-
-    policy.deduce(rule_descriptor(), make_span(outputs), make_span(inputs));
+    deduce_types(
+        rule,
+        outputs,
+        type_vector{ numerical_type::int32 },
+        type_vector{ numerical_type::float64 }
+    );
     CHECK( outputs[0] == numerical_type::float64 );
+}
+
+TEST_CASE(
+    "operation supplied pivots should take their values in declaration order",
+    "[type_rule_interpreter]"
+)
+{
+    using pair_rule = operand_type_rule<
+        type_list<
+            pivot_from_operation<test_target_type>,
+            pivot_from_input<0>,
+            pivot_from_operation<test_target_type>
+        >,
+        type_list<slot_same_as<2>, slot_same_as<0>>,
+        type_list<slot_same_as<1>>
+    >;
+    const auto rule = interpreter_of<pair_rule>();
+
+    type_vector outputs(2, numerical_type::unknown);
+    deduce_types(
+        rule,
+        outputs,
+        type_vector{ numerical_type::int8 },
+        type_vector{ numerical_type::float32, numerical_type::uint16 }
+    );
+    CHECK( outputs[0] == numerical_type::uint16 );
+    CHECK( outputs[1] == numerical_type::float32 );
+}
+
+TEST_CASE(
+    "type_rule_interpreter should check the data types the operation "
+    "supplies",
+    "[type_rule_interpreter]"
+)
+{
+    using astype_rule = operand_type_rule<
+        type_list<
+            pivot_from_operation<test_target_type, inexact_type_domain>,
+            pivot_from_input<0>
+        >,
+        type_list<slot_same_as<0>>,
+        type_list<slot_same_as<1>>
+    >;
+    const auto rule = interpreter_of<astype_rule>();
+
+    const type_vector admitted = { numerical_type::float32 };
+    CHECK_NOTHROW(
+        rule.check_instance(rule_descriptor(), make_span(admitted))
+    );
+
+    const type_vector outside = { numerical_type::int32 };
+    CHECK_THROWS_AS(
+        rule.check_instance(rule_descriptor(), make_span(outside)),
+        std::invalid_argument
+    );
+
+    const type_vector missing;
+    CHECK_THROWS_AS(
+        rule.check_instance(rule_descriptor(), make_span(missing)),
+        std::invalid_argument
+    );
+}
+
+TEST_CASE(
+    "type_rule_interpreter should leave shapes alone",
+    "[type_rule_interpreter]"
+)
+{
+    const auto rule = interpreter_of<ops::unary_homogeneous_rule<>>();
+
+    std::vector<operand_specification> outputs = {
+        operand_specification({ 3, 4 }, numerical_type::unknown)
+    };
+    const std::vector<operand_specification> inputs = {
+        operand_specification({ 7 }, numerical_type::int16)
+    };
+    rule.deduce(
+        rule_descriptor(),
+        span<const numerical_type>(),
+        make_span(outputs),
+        make_span(inputs)
+    );
+    CHECK(
+        outputs[0] ==
+        operand_specification({ 3, 4 }, numerical_type::int16)
+    );
 }

@@ -443,7 +443,7 @@ protected:
 			record.inspect = [&seen] (const operation &op)
 			{
 				const auto &typed = dynamic_cast<const Op&>(op);
-				const auto resolved = typed.get_shape_policy().get_axes();
+				const auto resolved = typed.get_parameters().get_axes();
 				seen.assign(resolved.begin(), resolved.end());
 			};
 			REQUIRE_CALL(*dispatcher, dispatch(
@@ -475,7 +475,7 @@ protected:
 			record.inspect = [&seen] (const operation &op)
 			{
 				const auto &typed = dynamic_cast<const Op&>(op);
-				const auto resolved = typed.get_shape_policy().get_axes();
+				const auto resolved = typed.get_parameters().get_axes();
 				seen.assign(resolved.begin(), resolved.end());
 			};
 			REQUIRE_CALL(*dispatcher, dispatch(

@@ -4,7 +4,8 @@
 
 #include <rexlib/core/dispatch/parametric_operation.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rexlib/ops/parameters/reduction_axes.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 namespace rexlib
@@ -23,7 +24,8 @@ REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("value"),
-	reduction_operation_shape_policy,
+	reduction_shape_rule,
+	reduction_axes,
 	unary_predicate_rule<>
 );
 

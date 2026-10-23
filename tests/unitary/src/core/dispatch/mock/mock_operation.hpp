@@ -22,16 +22,10 @@ public:
 	MAKE_CONST_MOCK0(get_name, std::string(), override);
 	MAKE_CONST_MOCK0(get_arity, operation_arity(), noexcept override);
 	MAKE_CONST_MOCK0(
-		get_operation_shape_policy,
-		const operation_shape_policy&(),
+		get_contract,
+		const operation_contract&(),
 		noexcept override
 	);
-	MAKE_CONST_MOCK0(
-		get_operation_data_type_policy,
-		const operation_data_type_policy&(),
-		noexcept override
-	);
-
 };
 
 } // namespace rexlib

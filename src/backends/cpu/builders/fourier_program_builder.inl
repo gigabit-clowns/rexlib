@@ -74,7 +74,7 @@ fourier_program_builder<Op, Transform, TypeDispatcher>::make_plan(
 	return fourier_layout_plan(
 		output_signatures[0],
 		input_signatures[0],
-		operation.get_shape_policy().get_axes(),
+		operation.get_parameters().get_axes(),
 		Transform::get_kind()
 	);
 }

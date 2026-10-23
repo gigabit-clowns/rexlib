@@ -6,7 +6,7 @@
 #include <rexlib/core/layout/index.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/ops/policies/reduction_operation_shape_policy.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
 #include <rexlib/ops/reduction/all_operation.hpp>
 #include <rexlib/ops/reduction/amax_operation.hpp>
 #include <rexlib/ops/reduction/amin_operation.hpp>
@@ -42,14 +42,14 @@ std::size_t get_rank(const const_array_ref &x)
  * where the array and therefore its rank are at hand, rather than being
  * carried into the operation to be interpreted later.
  */
-ops::reduction_operation_shape_policy::axis_list_type resolve_axes(
+ops::axis_list resolve_axes(
 	const const_array_ref &x,
 	span<const std::ptrdiff_t> axes
 )
 {
 	const auto rank = get_rank(x);
 
-	ops::reduction_operation_shape_policy::axis_list_type result;
+	ops::axis_list result;
 	result.reserve(axes.size());
 	for (const auto axis : axes)
 	{
@@ -65,11 +65,11 @@ ops::reduction_operation_shape_policy::axis_list_type resolve_axes(
  * Reducing over all of them is spelled out here rather than left as a mode
  * of the operation, because it only means something once a rank is known.
  */
-ops::reduction_operation_shape_policy::axis_list_type every_axis(
+ops::axis_list every_axis(
 	const const_array_ref &x
 )
 {
-	ops::reduction_operation_shape_policy::axis_list_type result(get_rank(x));
+	ops::axis_list result(get_rank(x));
 	std::iota(result.begin(), result.end(), std::size_t(0));
 	return result;
 }

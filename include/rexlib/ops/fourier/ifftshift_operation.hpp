@@ -4,7 +4,8 @@
 
 #include <rexlib/core/dispatch/parametric_operation.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/axiswise_operation_shape_policy.hpp>
+#include <rexlib/ops/parameters/axis_selection.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 namespace rexlib
@@ -23,7 +24,8 @@ REXLIB_DECLARE_PARAMETRIC_OPERATION(
 	ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("value"),
-	axiswise_operation_shape_policy,
+	axiswise_shape_rule,
+	axis_selection,
 	unary_homogeneous_rule<>
 );
 

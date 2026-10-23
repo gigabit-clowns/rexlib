@@ -14,6 +14,7 @@
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/dispatch/operation.hpp>
 #include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/dispatch/rules/operation_pivots.hpp>
 #include <rexlib/core/dispatch/program_builder_registration.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
@@ -132,11 +133,15 @@ public:
 		std::array<numerical_type, input_count> input_types;
 		extract_data_types(output_types, output_signatures);
 		extract_data_types(input_types, input_signatures);
+		const auto operation_pivots = get_operation_pivots(
+			operation_cast<ops::cross_operation>(operation)
+		);
 
 		const auto supported =
 			detail::dispatcher_support_query<cross_type_dispatcher>::is_supported(
 				make_span(output_types.data(), output_count),
-				make_span(input_types.data(), input_count)
+				make_span(input_types.data(), input_count),
+				make_span(operation_pivots.data(), operation_pivots.size())
 			);
 		if (!supported)
 		{
@@ -174,12 +179,13 @@ public:
 
 		const auto &typed_operation =
 			operation_cast<ops::cross_operation>(operation);
-		const auto axis = typed_operation.get_shape_policy().get_axis();
+		const auto axis = typed_operation.get_parameters().get_axes()[0];
 
 		std::array<numerical_type, output_count> output_types;
 		std::array<numerical_type, input_count> input_types;
 		extract_data_types(output_types, output_signatures);
 		extract_data_types(input_types, input_signatures);
+		const auto operation_pivots = get_operation_pivots(typed_operation);
 
 		auto plan = linalg_core_layout_plan::for_named_axis(
 			output_signatures, input_signatures, axis
@@ -210,7 +216,8 @@ public:
 				);
 			},
 			output_types,
-			input_types
+			input_types,
+			make_span(operation_pivots.data(), operation_pivots.size())
 		);
 	}
 };

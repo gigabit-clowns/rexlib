@@ -40,9 +40,8 @@ public:
 	/**
 	 * @brief Plan the iteration of a reduction over a set of axes.
 	 *
-	 * The inputs are broadcast together to obtain the iteration space,
-	 * exactly as the reduction shape policy does when deducing the output
-	 * shape, and the axes then split that space in two.
+	 * The inputs are broadcast together to obtain the iteration space, and
+	 * the axes then split that space in two.
 	 *
 	 * The inputs are added to the kept layout before the outputs, inverting
 	 * the order an elementwise operation uses. The first operand decides the

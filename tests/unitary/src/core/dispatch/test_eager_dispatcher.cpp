@@ -30,8 +30,7 @@
 #include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
 #include "mock/mock_operation.hpp"
-#include "mock/mock_operation_shape_policy.hpp"
-#include "mock/mock_operation_data_type_policy.hpp"
+#include "mock/mock_operation_contract.hpp"
 #include "mock/mock_program_builder.hpp"
 #include "../hardware/mock/mock_device.hpp"
 #include "../hardware/mock/mock_memory_resource.hpp"
@@ -54,7 +53,7 @@ using namespace rexlib;
 namespace
 {
 
-using shape_type = operation_shape_policy::shape_type;
+using shape_type = operand_specification::shape_type;
 
 array_descriptor make_descriptor(const shape_type &shape, numerical_type type)
 {
@@ -133,8 +132,8 @@ public:
 	}
 
 protected:
-	// The dispatcher hands the operation's description to the policies, so
-	// that whichever of them rejects a launch can name the operand.
+	// The dispatcher hands the operation's description to the contract, so
+	// that it can name the operand when it rejects a launch.
 	static const operation_descriptor& mock_descriptor()
 	{
 		static REXLIB_CONST_CONSTEXPR auto outputs =
@@ -146,7 +145,7 @@ protected:
 		return instance;
 	}
 
-	// Set up @ref op as a unary operation whose policies deduce the given
+	// Set up @ref op as a unary operation whose contract deduces the given
 	// output shape and data type from its single input.
 	void expect_unary_operation(shape_type out_shape, numerical_type out_type)
 	{
@@ -159,62 +158,37 @@ protected:
 				.LR_RETURN(mock_descriptor())
 		);
 		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_operation_shape_policy())
-				.LR_RETURN(shape_policy)
-		);
-		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_operation_data_type_policy())
-				.LR_RETURN(dtype_policy)
+			NAMED_ALLOW_CALL(op, get_contract())
+				.LR_RETURN(contract)
 		);
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
-				shape_policy,
+				contract,
 				deduce(
 					ANY(const operation_descriptor&),
-					ANY(span<shape_type>),
-					ANY(span<const shape_type>)
+					ANY(span<operand_specification>),
+					ANY(span<const operand_specification>)
 				)
 			)
-				.SIDE_EFFECT(_2[0] = out_shape)
-		);
-		expectations.push_back(
-			NAMED_REQUIRE_CALL(
-				dtype_policy,
-				deduce(
-					ANY(const operation_descriptor&),
-					ANY(span<numerical_type>),
-					ANY(span<const numerical_type>)
+				.SIDE_EFFECT(
+					_2[0] = operand_specification(out_shape, out_type)
 				)
-			)
-				.SIDE_EFFECT(_2[0] = out_type)
 		);
 	}
 
-	// Expect both policies to be queried for admissibility. This only happens
-	// when at least one output is pre-allocated; the dispatcher delegates the
-	// decision to the policies, so the mocks simply accept (they do not throw)
-	// regardless of the arguments.
-	void expect_policies_accept()
+	// Expect the contract to be queried for admissibility. This only happens
+	// when at least one output is pre-allocated; the mock accepts whatever
+	// it is given.
+	void expect_contract_accept()
 	{
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
-				shape_policy,
+				contract,
 				accept(
 					ANY(const operation_descriptor&),
-					ANY(span<const shape_type>),
-					ANY(span<const shape_type>),
-					ANY(span<const shape_type>)
-				)
-			)
-		);
-		expectations.push_back(
-			NAMED_REQUIRE_CALL(
-				dtype_policy,
-				accept(
-					ANY(const operation_descriptor&),
-					ANY(span<const numerical_type>),
-					ANY(span<const numerical_type>),
-					ANY(span<const numerical_type>)
+					ANY(span<const operand_specification>),
+					ANY(span<const operand_specification>),
+					ANY(span<const operand_specification>)
 				)
 			)
 		);
@@ -329,8 +303,7 @@ protected:
 	std::shared_ptr<mock_program> program;
 
 	mock_operation op;
-	mock_operation_shape_policy shape_policy;
-	mock_operation_data_type_policy dtype_policy;
+	mock_operation_contract contract;
 
 	// Keep mock buffers alive, and hold the named expectations so that they are
 	// torn down (unlinked from their mocks) before the mocks they reference.
@@ -425,8 +398,8 @@ TEST_CASE_METHOD(
 )
 {
 	// The operation deduces a contiguous {4} float32 output. A pre-allocated
-	// output that differs in shape or data type is forwarded to the policies'
-	// accept(), which decide its admissibility; here they admit it.
+	// output that differs in shape or data type is forwarded to the contract's
+	// accept(), which decides its admissibility; here it admits it.
 	shape_type user_shape;
 	numerical_type user_type;
 	std::tie(user_shape, user_type) = GENERATE(
@@ -438,33 +411,25 @@ TEST_CASE_METHOD(
 
 	expect_unary_operation(shape_type{4}, numerical_type::float32);
 
-	// The policies are queried with the user-supplied descriptor alongside the
-	// canonical one deduced above, and accept it.
-	expectations.push_back(
-		NAMED_REQUIRE_CALL(
-			shape_policy,
-			accept(
-				ANY(const operation_descriptor&),
-				ANY(span<const shape_type>),
-				ANY(span<const shape_type>),
-				ANY(span<const shape_type>)
-			)
-		)
-			.WITH(_2.size() == 1 && _2[0] == user_shape)       // User output.
-			.WITH(_3.size() == 1 && _3[0] == shape_type{4})    // Canonical.
+	// The contract is queried with the user-supplied output alongside the
+	// canonical one deduced above, and accepts it.
+	const operand_specification user_output(user_shape, user_type);
+	const operand_specification canonical_output(
+		shape_type{4},
+		numerical_type::float32
 	);
 	expectations.push_back(
 		NAMED_REQUIRE_CALL(
-			dtype_policy,
+			contract,
 			accept(
 				ANY(const operation_descriptor&),
-				ANY(span<const numerical_type>),
-				ANY(span<const numerical_type>),
-				ANY(span<const numerical_type>)
+				ANY(span<const operand_specification>),
+				ANY(span<const operand_specification>),
+				ANY(span<const operand_specification>)
 			)
 		)
-			.WITH(_2.size() == 1 && _2[0] == user_type)               // User.
-			.WITH(_3.size() == 1 && _3[0] == numerical_type::float32) // Canonical.
+			.WITH(_2.size() == 1 && _2[0] == user_output)
+			.WITH(_3.size() == 1 && _3[0] == canonical_output)
 	);
 
 	register_program_builder();
@@ -597,7 +562,7 @@ TEST_CASE_METHOD(
 	);
 
 	expect_unary_operation(out_shape, out_type);
-	expect_policies_accept();
+	expect_contract_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -708,7 +673,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_policies_accept();
+	expect_contract_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -753,7 +718,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_policies_accept();
+	expect_contract_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -861,7 +826,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_policies_accept();
+	expect_contract_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 

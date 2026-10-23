@@ -11,6 +11,8 @@
 #include "../serial_pool.hpp"
 
 #include <rexlib/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/dispatch/parametric_operation.hpp>
+#include <rexlib/core/dispatch/rules/operand_type_rule.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/dispatch/operation.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>
@@ -20,7 +22,7 @@
 #include <rexlib/core/span.hpp>
 
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
@@ -45,7 +47,7 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("value"),
-	ops::elementwise_operation_shape_policy,
+	ops::unary_elementwise_shape_rule,
 	ops::unary_homogeneous_rule<>
 );
 
@@ -153,6 +155,90 @@ public:
 	{
 		using out_t = typename type_list_element<0, type_list<Outs...>>::type;
 		return probe_functor<out_t>(plan);
+	}
+};
+
+// An operation whose output type is one of its parameters.
+class target_type
+{
+public:
+	explicit target_type(numerical_type type) noexcept
+		: m_type(type)
+	{
+	}
+
+	numerical_type get_type() const noexcept
+	{
+		return m_type;
+	}
+
+private:
+	numerical_type m_type;
+};
+
+struct type_of
+{
+	template <typename Parameters>
+	static numerical_type get(const Parameters &parameters) noexcept
+	{
+		return parameters.get_type();
+	}
+};
+
+REXLIB_DECLARE_PARAMETRIC_OPERATION(
+	astype_probe,
+	ops::ops_component,
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("value"),
+	ops::unary_elementwise_shape_rule,
+	target_type,
+	operand_type_rule<
+		type_list<pivot_from_operation<type_of>, pivot_from_input<0>>,
+		type_list<slot_same_as<0>>,
+		type_list<slot_same_as<1>>
+	>
+);
+
+template <typename Out, typename In>
+class converting_probe_functor
+{
+public:
+	void operator()(
+		std::tuple<Out*>,
+		std::tuple<const In*>,
+		std::tuple<>,
+		thread_pool&
+	) const
+	{
+	}
+};
+
+class astype_probe_program_builder final
+	: public dispatched_program_builder<
+		astype_probe_program_builder,
+		astype_probe_operation,
+		rule_type_dispatcher<typename astype_probe_operation::type_rule>
+	>
+{
+public:
+	probe_plan make_plan(
+		const astype_probe_operation&,
+		span<const operand_signature>,
+		span<const operand_signature>
+	) const
+	{
+		return probe_plan();
+	}
+
+	template <typename Out, typename In>
+	converting_probe_functor<Out, In> make_loop_functor(
+		const astype_probe_operation&,
+		probe_plan&,
+		type_list<Out>,
+		type_list<In>
+	) const
+	{
+		return converting_probe_functor<Out, In>();
 	}
 };
 
@@ -367,4 +453,67 @@ TEST_CASE(
 		CHECK( message.find("probe") != std::string::npos );
 		CHECK( message.find("output") != std::string::npos );
 	}
+}
+
+TEST_CASE(
+	"dispatched_program_builder resolves the data types the operation "
+	"supplies",
+	"[dispatched_program_builder]"
+)
+{
+	mock_memory_resource host_resource;
+	ALLOW_CALL(host_resource, get_kind())
+		.RETURN(memory_resource_kind::host);
+
+	const astype_probe_program_builder builder;
+	cpu::command_queue queue(get_serial_pool());
+
+	const std::vector<operand_signature> outputs {
+		make_signature(&host_resource, numerical_type::float64)
+	};
+	const std::vector<operand_signature> inputs {
+		make_signature(&host_resource, numerical_type::int32)
+	};
+
+	const astype_probe_operation matching(numerical_type::float64);
+	CHECK(
+		builder.get_suitability(
+			matching, make_span(outputs), make_span(inputs), queue
+		) != backend_priority::unsupported
+	);
+
+	const astype_probe_operation other(numerical_type::float32);
+	CHECK(
+		builder.get_suitability(
+			other, make_span(outputs), make_span(inputs), queue
+		) == backend_priority::unsupported
+	);
+}
+
+TEST_CASE(
+	"dispatched_program_builder builds with the data types the operation "
+	"supplies",
+	"[dispatched_program_builder]"
+)
+{
+	const astype_probe_program_builder builder;
+	const astype_probe_operation operation(numerical_type::float64);
+	cpu::command_queue queue(get_serial_pool());
+
+	const std::vector<operand_signature> outputs {
+		make_signature(nullptr, numerical_type::float64)
+	};
+	const std::vector<operand_signature> inputs {
+		make_signature(nullptr, numerical_type::int32)
+	};
+
+	const auto program = builder.build(
+		operation,
+		make_span(outputs),
+		make_span(inputs),
+		queue,
+		nullptr
+	);
+
+	CHECK( program != nullptr );
 }

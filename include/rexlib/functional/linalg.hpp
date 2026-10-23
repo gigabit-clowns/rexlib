@@ -22,8 +22,8 @@ class execution_context;
  * @return array The array holding the product.
  *
  * @note The last two axes of each input are the matrix and the rest are a stack
- * of them, broadcast between the inputs. A one dimensional input is
- * promoted for the duration and the axis added is dropped again.
+ * of them, broadcast between the inputs. Both inputs must have at least two
+ * axes: a vector is not promoted to a matrix.
  */
 REXLIB_API
 array matmul(

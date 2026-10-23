@@ -8,7 +8,7 @@
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <rexlib/core/dispatch/rules/rule_operation_data_type_policy.hpp>
+#include <rexlib/core/dispatch/rules/type_rule_interpreter.hpp>
 #include <rexlib/core/numerical/numerical_type_dispatch.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
@@ -58,9 +58,10 @@ struct to_numerical_types<type_list<Ts...>>
 /**
  * @brief Assert that both interpreters of a rule produce the same types.
  *
- * The runtime policy validates operand types and the backend dispatchers
- * reify them into template arguments. If the two ever disagreed, a program
- * would be built for element types the policy never approved. Only single
+ * The runtime interpreter validates operand types and the backend
+ * dispatchers reify them into template arguments. If the two ever
+ * disagreed, a program would be built for element types the interpreter
+ * never approved. Only single
  * pivot rules are covered, which is every rule a backend can dispatch from
  * one operand type.
  *
@@ -74,9 +75,13 @@ void check_rule_agreement()
 		"This check drives the rule from a single pivot value."
 	);
 
-	const auto &policy = rule_data_type_policy<Rule>::get();
 	const auto pivots =
 		pivot_descriptor_table<typename Rule::pivot_list>::get();
+	const type_rule_interpreter interpreter(
+		pivots,
+		slot_descriptor_table<typename Rule::output_slot_list>::get(),
+		slot_descriptor_table<typename Rule::input_slot_list>::get()
+	);
 	const auto &domain = pivots[0].get_domain();
 
 	const auto count = static_cast<int>(numerical_type::count);
@@ -109,12 +114,24 @@ void check_rule_agreement()
 		);
 
 		// The value level half, as the dispatcher would run it.
-		type_vector deduced(Rule::output_count, numerical_type::unknown);
-		policy.deduce(
+		std::vector<operand_specification> inputs;
+		for (const auto type : reified.second)
+		{
+			inputs.emplace_back(operand_specification::shape_type(), type);
+		}
+		std::vector<operand_specification> outputs(Rule::output_count);
+		interpreter.deduce(
 			rule_descriptor(),
-			make_span(deduced),
-			make_span(reified.second)
+			span<const numerical_type>(),
+			make_span(outputs),
+			make_span(inputs)
 		);
+
+		type_vector deduced;
+		for (const auto &output : outputs)
+		{
+			deduced.push_back(output.get_data_type());
+		}
 
 		INFO( "pivot " << pivot );
 		CHECK( deduced == reified.first );

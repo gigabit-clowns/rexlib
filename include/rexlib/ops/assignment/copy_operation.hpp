@@ -4,7 +4,7 @@
 
 #include <rexlib/core/dispatch/basic_operation.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 namespace rexlib
@@ -24,7 +24,7 @@ REXLIB_DECLARE_OPERATION(
 	ops_component,
 	REXLIB_OPERANDS("destination"),
 	REXLIB_OPERANDS("source"),
-	elementwise_operation_shape_policy,
+	unary_elementwise_shape_rule,
 	converting_rule<>
 );
 

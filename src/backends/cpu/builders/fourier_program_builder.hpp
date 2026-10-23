@@ -39,7 +39,7 @@ namespace cpu
  * results holds nothing left to decide.
  *
  * @tparam Op The operation this builder targets. It must take one operand and
- * produce one, and carry a shape policy naming the transformed axes through
+ * produce one, and its parameters must name the transformed axes through
  * get_axes().
  * @tparam Transform The transform to perform. It is built from the scaling
  * convention the operation carries, names which domain each operand lives in

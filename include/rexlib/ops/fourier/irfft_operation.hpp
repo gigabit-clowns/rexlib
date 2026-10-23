@@ -7,8 +7,9 @@
 #include <rexlib/core/dispatch/parametric_operation.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/axis_list.hpp>
-#include <rexlib/ops/policies/inverse_real_fourier_transform_shape_policy.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
+#include <rexlib/ops/parameters/restored_signal_axes.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <cstddef>
@@ -18,12 +19,13 @@ namespace rexlib
 namespace ops
 {
 
-REXLIB_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
 	irfft,
 	ops_component,
 	REXLIB_OPERANDS("signal"),
 	REXLIB_OPERANDS("spectrum"),
-	inverse_real_fourier_transform_shape_policy,
+	inverse_real_fourier_transform_shape_rule,
+	restored_signal_axes,
 	unary_real_of_rule<complex_type_domain>
 );
 

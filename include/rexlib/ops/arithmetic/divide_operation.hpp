@@ -4,7 +4,7 @@
 
 #include <rexlib/core/dispatch/basic_operation.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 namespace rexlib
@@ -22,7 +22,7 @@ REXLIB_DECLARE_OPERATION(
 	ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("dividend", "divisor"),
-	elementwise_operation_shape_policy,
+	binary_elementwise_shape_rule,
 	binary_homogeneous_rule<
 		domain_difference<any_type_domain, boolean_type_domain>
 	>

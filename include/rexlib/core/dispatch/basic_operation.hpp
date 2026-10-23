@@ -7,7 +7,7 @@
 #include "operation_arity.hpp"
 #include "operation_descriptor.hpp"
 
-#include "rules/rule_operation_data_type_policy.hpp"
+#include "rules/shared_rule_contract.hpp"
 
 #include "../platform/constexpr.hpp"
 #include "../platform/dynamic_shared_object.h"
@@ -22,14 +22,14 @@ namespace rexlib
  * @brief CRTP base supplying the static description of an operation.
  *
  * Implements everything an operation can state once and for all: its name,
- * its arity and the names of its operands, all read from @p Traits. Both
- * policy getters are left pure, so an operation that owns a stateful policy
- * derives from this one and the compiler enforces that it provides them.
+ * its arity and the names of its operands, all read from @p Traits. The
+ * contract getter is left pure, so that an operation owning its contract
+ * derives from this one and the compiler enforces that it provides it.
  *
  * The operand counts are exposed as compile time constants, which is what a
  * backend builder needs to size its operand arrays. They come from the
- * operation's typing rule and are checked against the operand name list, so
- * the arity cannot drift from either.
+ * operation's typing rule and are checked against the operand name list and
+ * the shape rule, so the arity cannot drift from any of them.
  *
  * @tparam Derived The concrete operation type. It keeps the base class type
  * distinct per operation, so that two operations sharing a rule do not
@@ -39,9 +39,11 @@ namespace rexlib
  *   - `static const char* get_name() noexcept`
  *   - `static const operand_names<N>& get_output_names() noexcept`
  *   - `static const operand_names<M>& get_input_names() noexcept`
+ *   - `using shape_rule = ...`
  *   - `using type_rule = ...`
  *
  * @see trivial_operation
+ * @see operand_shape_rule
  * @see operand_type_rule
  */
 template <typename Derived, typename Traits>
@@ -50,6 +52,7 @@ class basic_operation
 {
 public:
 	using traits_type = Traits;
+	using shape_rule = typename Traits::shape_rule;
 	using type_rule = typename Traits::type_rule;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t output_operand_count =
@@ -71,6 +74,13 @@ public:
 		>::value,
 		"The operation declares a different number of input operand names "
 		"than its typing rule has input slots."
+	);
+
+	static_assert(
+		output_operand_count == shape_rule::output_count &&
+		input_operand_count == shape_rule::input_count,
+		"The operation's shape rule describes a different number of "
+		"operands than its typing rule."
 	);
 
 	/**
@@ -106,35 +116,31 @@ public:
 /**
  * @brief CRTP base for operations that are trivially declared.
  *
- * Adds the shared policy accessors named by @p Traits, so that the body of
- * the derived class is usually empty.
+ * Returns the contract shared by every operation following the rules
+ * named by @p Traits, so that the body of the derived class is usually
+ * empty.
  *
  * "Trivial" refers to the declaration and not to the C++ notion of a
  * trivial type: every operation has a virtual destructor, and the operation
- * may still carry parameters of its own. What is trivial is that nothing
- * about its dispatch has to be written by hand.
+ * may still carry values its contract does not read. What is trivial is
+ * that nothing about its dispatch has to be written by hand.
  *
  * @tparam Derived The concrete operation type.
- * @tparam Traits The static description. In addition to what
- * basic_operation requires, it must provide `using shape_policy_type = ...`
- * naming a type with a static `get()` returning an operation_shape_policy.
- * The data type policy is derived from the typing rule and needs no
- * declaration of its own.
+ * @tparam Traits The static description, as basic_operation requires. Its
+ * rules must read nothing from the operation instance.
  *
  * @see basic_operation
+ * @see shared_rule_contract
  */
 template <typename Derived, typename Traits>
 class trivial_operation
 	: public basic_operation<Derived, Traits>
 {
 public:
+	using typename basic_operation<Derived, Traits>::shape_rule;
 	using typename basic_operation<Derived, Traits>::type_rule;
 
-	const operation_shape_policy&
-	get_operation_shape_policy() const noexcept override;
-
-	const operation_data_type_policy&
-	get_operation_data_type_policy() const noexcept override;
+	const operation_contract& get_contract() const noexcept override;
 };
 
 } // namespace rexlib
@@ -149,6 +155,34 @@ public:
 	::rexlib::make_operand_names(__VA_ARGS__)
 
 /**
+ * @brief Members every operation traits type declares.
+ *
+ * Shared by the traits declaration macros, which only add to it.
+ */
+#define REXLIB_DETAIL_OPERATION_TRAITS_MEMBERS( \
+	op, outputs, inputs, shape, ... \
+) \
+	using shape_rule = shape; \
+	using type_rule = __VA_ARGS__; \
+	\
+	static const char* get_name() noexcept \
+	{ \
+		return #op; \
+	} \
+	\
+	static const auto& get_output_names() noexcept \
+	{ \
+		static REXLIB_CONST_CONSTEXPR auto names = outputs; \
+		return names; \
+	} \
+	\
+	static const auto& get_input_names() noexcept \
+	{ \
+		static REXLIB_CONST_CONSTEXPR auto names = inputs; \
+		return names; \
+	}
+
+/**
  * @brief Declare the static description of an operation.
  *
  * Generates a traits type named `<op>_operation_traits`, deriving the
@@ -156,44 +190,28 @@ public:
  * cannot disagree.
  *
  * Use this directly, together with a hand written class, for an operation
- * that carries parameters or owns a stateful policy. Use
+ * that carries values its contract does not read. Use
  * @ref REXLIB_DECLARE_OPERATION for the usual case.
  *
  * @param op The operation verb, such as `add`. The generated class is named
- * `<op>_operation`. 
+ * `<op>_operation`.
  * @param component_traits A type providing `get_component()`, naming the
  * component the operation belongs to.
  * @param outputs Output operand names, as @ref REXLIB_OPERANDS.
  * @param inputs Input operand names, as @ref REXLIB_OPERANDS.
- * @param shape_policy Type with a static `get()` returning the shape policy.
+ * @param shape The operand shape rule, written without commas.
  * @param ... The operand typing rule. It comes last so that the commas in
  * its template arguments do not split the macro arguments.
  */
 #define REXLIB_DECLARE_OPERATION_TRAITS( \
-	op, component_traits, outputs, inputs, shape_policy, ... \
+	op, component_traits, outputs, inputs, shape, ... \
 ) \
 	struct op##_operation_traits \
 		: component_traits \
 	{ \
-		using shape_policy_type = shape_policy; \
-		using type_rule = __VA_ARGS__; \
-		\
-		static const char* get_name() noexcept \
-		{ \
-			return #op; \
-		} \
-		\
-		static const auto& get_output_names() noexcept \
-		{ \
-			static REXLIB_CONST_CONSTEXPR auto names = outputs; \
-			return names; \
-		} \
-		\
-		static const auto& get_input_names() noexcept \
-		{ \
-			static REXLIB_CONST_CONSTEXPR auto names = inputs; \
-			return names; \
-		} \
+		REXLIB_DETAIL_OPERATION_TRAITS_MEMBERS( \
+			op, outputs, inputs, shape, __VA_ARGS__ \
+		) \
 	}
 
 /**
@@ -208,16 +226,16 @@ public:
  * @param component_traits A type providing `get_component()`.
  * @param outputs Output operand names, as @ref REXLIB_OPERANDS.
  * @param inputs Input operand names, as @ref REXLIB_OPERANDS.
- * @param shape_policy Type with a static `get()` returning the shape policy.
+ * @param shape The operand shape rule, written without commas.
  * @param ... The operand typing rule.
  *
  * @see REXLIB_DECLARE_OPERATION_TRAITS
  */
 #define REXLIB_DECLARE_OPERATION( \
-	op, component_traits, outputs, inputs, shape_policy, ... \
+	op, component_traits, outputs, inputs, shape, ... \
 ) \
 	REXLIB_DECLARE_OPERATION_TRAITS( \
-		op, component_traits, outputs, inputs, shape_policy, __VA_ARGS__ \
+		op, component_traits, outputs, inputs, shape, __VA_ARGS__ \
 	); \
 	\
 	REXLIB_BEGIN_TEMPLATE_BASE \

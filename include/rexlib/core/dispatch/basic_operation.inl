@@ -51,20 +51,10 @@ basic_operation<Derived, Traits>::get_arity() const noexcept
 
 template <typename Derived, typename Traits>
 inline
-const operation_shape_policy&
-trivial_operation<Derived, Traits>
-::get_operation_shape_policy() const noexcept
+const operation_contract&
+trivial_operation<Derived, Traits>::get_contract() const noexcept
 {
-	return Traits::shape_policy_type::get();
-}
-
-template <typename Derived, typename Traits>
-inline
-const operation_data_type_policy&
-trivial_operation<Derived, Traits>
-::get_operation_data_type_policy() const noexcept
-{
-	return rule_data_type_policy<type_rule>::get();
+	return shared_rule_contract<shape_rule, type_rule>::get();
 }
 
 } // namespace rexlib

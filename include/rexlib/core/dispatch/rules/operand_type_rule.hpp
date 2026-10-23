@@ -68,9 +68,9 @@ struct rule_has_operation_pivot<type_list<Head, Tail...>>
  * truth for an operation's typing: two interpreters read this very same
  * declaration, and neither restates it.
  *
- *   * rule_operation_data_type_policy evaluates it on runtime
- *     numerical_type values, to deduce the canonical output types and to
- *     accept or reject user supplied ones.
+ *   * type_rule_interpreter evaluates it on runtime numerical_type
+ *     values, to deduce the canonical output types and to accept or reject
+ *     user supplied ones.
  *   * The backend rule type dispatchers evaluate it on native C++ types, to
  *     reify the operand element types of the program being built. Because
  *     they dispatch the pivots rather than the operands, the number of

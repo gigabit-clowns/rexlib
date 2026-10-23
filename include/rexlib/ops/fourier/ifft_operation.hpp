@@ -7,8 +7,9 @@
 #include <rexlib/core/dispatch/parametric_operation.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/axis_list.hpp>
-#include <rexlib/ops/policies/axiswise_operation_shape_policy.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
+#include <rexlib/ops/parameters/axis_selection.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 namespace rexlib
@@ -16,12 +17,13 @@ namespace rexlib
 namespace ops
 {
 
-REXLIB_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
 	ifft,
 	ops_component,
 	REXLIB_OPERANDS("signal"),
 	REXLIB_OPERANDS("spectrum"),
-	axiswise_operation_shape_policy,
+	fourier_transform_shape_rule,
+	axis_selection,
 	unary_homogeneous_rule<complex_type_domain>
 );
 
@@ -40,8 +42,8 @@ public:
 	/**
 	 * @brief Construct an inverse transform.
 	 *
-	 * @param axes The transformed axes. Sorted on construction. The
-	 * remaining axes are batch dimensions.
+	 * @param axes The transformed axes. The remaining axes are batch
+	 * dimensions.
 	 * @param normalization Which of the transform pair carries the scaling.
 	 * An inverse transform divides by the number of samples under the
 	 * default one, which is what undoes the forward transform.

@@ -605,8 +605,8 @@ shape_type broadcast_batches(
 {
 	const auto trailing = rule.get_placement() == core_placement::trailing;
 
-	// The rank of every input the frame aligns, which leaves the core axes
-	// out under trailing placement since they lie after the batch ones.
+	// The rank of every input aligned in the frame, its core axes left out
+	// under trailing placement.
 	std::vector<std::size_t> aligned_ranks;
 	aligned_ranks.reserve(inputs.size());
 	for (std::size_t i = 0; i < inputs.size(); ++i)

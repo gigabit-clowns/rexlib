@@ -26,7 +26,7 @@
 #include <rexlib/core/numerical/numerical_cast.hpp>
 #include <rexlib/core/span.hpp>
 
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
@@ -52,7 +52,7 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("left", "right"),
-	ops::elementwise_operation_shape_policy,
+	ops::binary_elementwise_shape_rule,
 	ops::binary_homogeneous_rule<>
 );
 
@@ -269,7 +269,7 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS(),
-	ops::elementwise_operation_shape_policy,
+	ops::nullary_elementwise_shape_rule,
 	ops::nullary_free_rule<real_arithmetic_type_domain>
 );
 

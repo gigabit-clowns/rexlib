@@ -87,7 +87,7 @@ roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_plan(
 	span<const operand_signature> input_signatures
 ) const
 {
-	const auto axes = operation.get_shape_policy().get_axes();
+	const auto axes = operation.get_parameters().get_axes();
 
 	const auto &output_layout = output_signatures[0].get_layout();
 	const auto &input_layout = input_signatures[0].get_layout();

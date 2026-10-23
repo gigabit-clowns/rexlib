@@ -6,7 +6,7 @@
 
 #include <rexlib/core/numerical/scalar_value.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 #include <array>
@@ -27,7 +27,17 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("left", "right"),
-	ops::elementwise_operation_shape_policy,
+	ops::binary_elementwise_shape_rule,
+	ops::binary_homogeneous_rule<>
+);
+
+// Another operation following the same rules.
+REXLIB_DECLARE_OPERATION(
+	stub_subtract,
+	ops::ops_component,
+	REXLIB_OPERANDS("result"),
+	REXLIB_OPERANDS("left", "right"),
+	ops::binary_elementwise_shape_rule,
 	ops::binary_homogeneous_rule<>
 );
 
@@ -39,7 +49,7 @@ REXLIB_DECLARE_OPERATION_TRAITS(
 	ops::ops_component,
 	REXLIB_OPERANDS("destination"),
 	REXLIB_OPERANDS(),
-	ops::elementwise_operation_shape_policy,
+	ops::nullary_elementwise_shape_rule,
 	ops::nullary_free_rule<>
 );
 
@@ -132,27 +142,37 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "a declared operation should carry the policies of its declaration",
+    "a declared operation should carry the contract of its rules",
     "[basic_operation]"
 )
 {
     const stub_add_operation op;
 
-    CHECK( &op.get_operation_shape_policy() ==
-           &ops::elementwise_operation_shape_policy::get() );
-
-    const std::vector<numerical_type> inputs = {
-        numerical_type::float32,
-        numerical_type::float32
+    const std::vector<operand_specification> inputs = {
+        operand_specification({ 4 }, numerical_type::float32),
+        operand_specification({ 1 }, numerical_type::float32)
     };
-    std::vector<numerical_type> outputs(1, numerical_type::unknown);
+    std::vector<operand_specification> outputs(1);
 
-    op.get_operation_data_type_policy().deduce(
+    op.get_contract().deduce(
         op.get_descriptor(),
         make_span(outputs),
         make_span(inputs)
     );
-    CHECK( outputs[0] == numerical_type::float32 );
+    CHECK(
+        outputs[0] == operand_specification({ 4 }, numerical_type::float32)
+    );
+}
+
+TEST_CASE(
+    "operations following the same rules should share one contract",
+    "[basic_operation]"
+)
+{
+    const stub_add_operation add;
+    const stub_subtract_operation subtract;
+
+    CHECK( &add.get_contract() == &subtract.get_contract() );
 }
 
 TEST_CASE(
@@ -162,14 +182,14 @@ TEST_CASE(
 {
     const stub_add_operation op;
 
-    const std::vector<numerical_type> mismatched = {
-        numerical_type::float32,
-        numerical_type::int32
+    const std::vector<operand_specification> mismatched = {
+        operand_specification({ 4 }, numerical_type::float32),
+        operand_specification({ 4 }, numerical_type::int32)
     };
-    std::vector<numerical_type> outputs(1, numerical_type::unknown);
+    std::vector<operand_specification> outputs(1);
 
     CHECK_THROWS_AS(
-        op.get_operation_data_type_policy().deduce(
+        op.get_contract().deduce(
             op.get_descriptor(),
             make_span(outputs),
             make_span(mismatched)
@@ -179,7 +199,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "an operation with parameters should keep its declaration",
+    "an operation with values its contract does not read should keep its "
+    "declaration",
     "[basic_operation]"
 )
 {
@@ -191,13 +212,14 @@ TEST_CASE(
 
     // With no input to fix it, the element type is left for the user
     // supplied output to determine.
-    std::vector<numerical_type> outputs(1, numerical_type::float64);
-    op.get_operation_data_type_policy().deduce(
+    std::vector<operand_specification> outputs(1);
+    op.get_contract().deduce(
         op.get_descriptor(),
         make_span(outputs),
-        span<const numerical_type>()
+        span<const operand_specification>()
     );
-    CHECK( outputs[0] == numerical_type::unknown );
+    CHECK( outputs[0].get_data_type() == numerical_type::unknown );
+    CHECK( outputs[0].get_shape().empty() );
 }
 
 TEST_CASE(

@@ -13,6 +13,8 @@
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <type_traits>
+#include <utility>
 
 namespace rexlib
 {
@@ -155,8 +157,41 @@ private:
 	const char *m_relation;
 };
 
+namespace detail
+{
+
+template <std::size_t Position, typename PivotList>
+struct operation_pivot_position;
+
+template <std::size_t Position>
+struct operation_pivot_position<Position, type_list<>>
+	: std::integral_constant<std::size_t, 0>
+{
+};
+
+template <std::size_t Position, typename Head, typename... Tail>
+struct operation_pivot_position<Position, type_list<Head, Tail...>>
+	: std::integral_constant<
+		std::size_t,
+		Position == 0
+			? 0
+			: (Head::source == pivot_source::operation ? 1 : 0) +
+				operation_pivot_position<
+					(Position == 0 ? 0 : Position - 1),
+					type_list<Tail...>
+				>::value
+	>
+{
+};
+
+} // namespace detail
+
 /**
  * @brief Lower a rule's pivot list into a table of descriptors.
+ *
+ * A pivot supplied by the operation is given the position of its value
+ * among those the operation supplies, which follow the order the pivots
+ * are declared in.
  *
  * @tparam PivotList type_list of operand_type_pivot declarations.
  */
@@ -168,11 +203,25 @@ struct pivot_descriptor_table<type_list<Pivots...>>
 {
 	static span<const pivot_descriptor> get() noexcept
 	{
+		return lower(std::index_sequence_for<Pivots...>());
+	}
+
+private:
+	template <std::size_t... Positions>
+	static span<const pivot_descriptor> lower(
+		std::index_sequence<Positions...>
+	) noexcept
+	{
 		static const std::array<pivot_descriptor, sizeof...(Pivots)> table =
 		{{
 			pivot_descriptor(
 				Pivots::source,
-				Pivots::index,
+				Pivots::source == pivot_source::operation
+					? detail::operation_pivot_position<
+						Positions,
+						type_list<Pivots...>
+					>::value
+					: Pivots::index,
 				Pivots::default_pivot,
 				Pivots::domain_type::get()
 			)...

@@ -6,7 +6,7 @@
 #include <rexlib/core/numerical/scalar_value.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
+#include <rexlib/ops/rules/operand_shape_rules.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
 namespace rexlib
@@ -19,7 +19,7 @@ REXLIB_DECLARE_OPERATION_TRAITS(
 	ops_component,
 	REXLIB_OPERANDS("destination"),
 	REXLIB_OPERANDS(),
-	elementwise_operation_shape_policy,
+	nullary_elementwise_shape_rule,
 	nullary_free_rule<>
 );
 

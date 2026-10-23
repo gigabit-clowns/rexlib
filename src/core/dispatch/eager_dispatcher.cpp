@@ -7,6 +7,7 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_specification.hpp>
 #include <rexlib/core/dispatch/operation.hpp>
 #include <rexlib/core/dispatch/program_manager.hpp>
 #include <rexlib/core/hardware/program.hpp>
@@ -52,60 +53,19 @@ extract_input_descriptors(
 	return result;
 }
 template <std::size_t N>
-boost::container::small_vector<numerical_type, N>
-extract_data_types(
+boost::container::small_vector<operand_specification, N>
+make_specifications(
 	span<const array_descriptor> descriptors,
 	std::integral_constant<std::size_t, N> /*small_cap_tag*/
 )
 {
-	boost::container::small_vector<numerical_type, N> result;
+	boost::container::small_vector<operand_specification, N> result;
 	result.reserve(descriptors.size());
-	for (const auto &d : descriptors)
+	for (const auto &descriptor : descriptors)
 	{
-		result.push_back(d.get_data_type());
+		result.push_back(operand_specification::from_descriptor(descriptor));
 	}
 	return result;
-}
-
-template <std::size_t N>
-boost::container::small_vector<operation_shape_policy::shape_type, N>
-extract_shapes(
-	span<const array_descriptor> descriptors,
-	std::integral_constant<std::size_t, N> /*small_cap_tag*/
-)
-{
-	boost::container::small_vector<operation_shape_policy::shape_type, N>
-		result;
-	result.reserve(descriptors.size());
-	for (const auto &d : descriptors)
-	{
-		operation_shape_policy::shape_type shape;
-		d.get_layout().get_extents(shape);
-		result.push_back(std::move(shape));
-	}
-	return result;
-}
-
-template <std::size_t N>
-boost::container::small_vector<operation_shape_policy::shape_type, N>
-make_empty_shapes(
-	std::size_t count,
-	std::integral_constant<std::size_t, N> /*small_cap_tag*/
-)
-{
-	return boost::container::small_vector<
-		operation_shape_policy::shape_type, N
-	>(count);
-}
-
-template <std::size_t N>
-boost::container::small_vector<numerical_type, N>
-make_empty_data_types(
-	std::size_t count,
-	std::integral_constant<std::size_t, N> /*small_cap_tag*/
-)
-{
-	return boost::container::small_vector<numerical_type, N>(count);
 }
 
 template <std::size_t N>
@@ -113,15 +73,13 @@ boost::container::small_vector<array_descriptor, N>
 resolve_output_descriptors(
 	const operation_descriptor &descriptor,
 	span<const array> output_operands,
-	span<const operation_shape_policy::shape_type> canonical_shapes,
-	span<const numerical_type> canonical_data_types,
+	span<const operand_specification> canonical_outputs,
 	bool &needs_acceptance,
 	std::integral_constant<std::size_t, N> /*small_cap_tag*/
 )
 {
 	const auto n = output_operands.size();
-	REXLIB_ASSERT(canonical_shapes.size() == n);
-	REXLIB_ASSERT(canonical_data_types.size() == n);
+	REXLIB_ASSERT(canonical_outputs.size() == n);
 
 	boost::container::small_vector<array_descriptor, N> result;
 	result.reserve(n);
@@ -136,14 +94,13 @@ resolve_output_descriptors(
 		}
 		else
 		{
-			const auto &canonical_shape = canonical_shapes[i];
-			const auto canonical_data_type = canonical_data_types[i];
+			const auto &canonical_output = canonical_outputs[i];
 
 			// A rule whose output type is free leaves it undetermined for a
 			// user supplied output to settle. With nothing supplied there is
 			// nothing to settle it, and sizing a buffer from an unknown type
 			// would allocate whatever get_size() happens to return.
-			if (canonical_data_type == numerical_type::unknown)
+			if (canonical_output.get_data_type() == numerical_type::unknown)
 			{
 				std::ostringstream oss;
 				oss << descriptor << ": the data type of output operand "
@@ -155,9 +112,9 @@ resolve_output_descriptors(
 
 			result.emplace_back(
 				strided_layout::make_contiguous_layout(
-					make_span(canonical_shape)
+					make_span(canonical_output.get_shape())
 				),
-				canonical_data_type
+				canonical_output.get_data_type()
 			);
 		}
 	}
@@ -405,66 +362,44 @@ void eager_dispatcher::dispatch(
 		input_operands,
 		small_input_size_tag()
 	);
-	auto input_shapes = extract_shapes(
-		make_span(input_descriptors.data(), n_inputs),
-		small_input_size_tag()
-	);
-	auto input_data_types = extract_data_types(
+	const auto inputs = make_specifications(
 		make_span(input_descriptors.data(), n_inputs),
 		small_input_size_tag()
 	);
 
-	const auto &shape_policy = op.get_operation_shape_policy();
-	const auto &data_type_policy = op.get_operation_data_type_policy();
+	const auto &contract = op.get_contract();
 	const auto &descriptor = op.get_descriptor();
 
-	auto canonical_output_shapes =
-		make_empty_shapes(n_outputs, small_output_size_tag());
-	auto canonical_output_data_types =
-		make_empty_data_types(n_outputs, small_output_size_tag());
-	shape_policy.deduce(
+	boost::container::small_vector<
+		operand_specification,
+		REXLIB_SMALL_OUTPUT_OPERAND_COUNT
+	> canonical_outputs(n_outputs);
+	contract.deduce(
 		descriptor,
-		make_span(canonical_output_shapes.data(), n_outputs),
-		make_span(input_shapes.data(), n_inputs)
-	);
-	data_type_policy.deduce(
-		descriptor,
-		make_span(canonical_output_data_types.data(), n_outputs),
-		make_span(input_data_types.data(), n_inputs)
+		make_span(canonical_outputs.data(), n_outputs),
+		make_span(inputs.data(), n_inputs)
 	);
 
 	bool needs_acceptance = false;
 	auto output_descriptors = resolve_output_descriptors(
 		descriptor,
 		output_operands,
-		make_span(canonical_output_shapes.data(), n_outputs),
-		make_span(canonical_output_data_types.data(), n_outputs),
+		make_span(canonical_outputs.data(), n_outputs),
 		needs_acceptance,
 		small_output_size_tag()
 	);
 
 	if (needs_acceptance)
 	{
-		auto output_shapes = extract_shapes(
+		const auto outputs = make_specifications(
 			make_span(output_descriptors.data(), n_outputs),
 			small_output_size_tag()
 		);
-		auto output_data_types = extract_data_types(
-			make_span(output_descriptors.data(), n_outputs),
-			small_output_size_tag()
-		);
-
-		shape_policy.accept(
+		contract.accept(
 			descriptor,
-			make_span(output_shapes.data(), n_outputs),
-			make_span(canonical_output_shapes.data(), n_outputs),
-			make_span(input_shapes.data(), n_inputs)
-		);
-		data_type_policy.accept(
-			descriptor,
-			make_span(output_data_types.data(), n_outputs),
-			make_span(canonical_output_data_types.data(), n_outputs),
-			make_span(input_data_types.data(), n_inputs)
+			make_span(outputs.data(), n_outputs),
+			make_span(canonical_outputs.data(), n_outputs),
+			make_span(inputs.data(), n_inputs)
 		);
 	}
 

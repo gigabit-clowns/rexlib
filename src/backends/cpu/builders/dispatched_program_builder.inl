@@ -4,6 +4,7 @@
 
 #include <rexlib/core/dispatch/operation.hpp>
 #include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/dispatch/rules/operation_pivots.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
@@ -84,13 +85,16 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	std::array<numerical_type, input_count> input_types;
 	extract_data_types(output_types, output_signatures);
 	extract_data_types(input_types, input_signatures);
+	const auto operation_pivots =
+		get_operation_pivots(operation_cast<Op>(operation));
 
 	// Reporting an unsupported element type here, rather than throwing from
 	// build(), is what lets the manager fall through to another backend.
 	const auto supported =
 		detail::dispatcher_support_query<TypeDispatcher>::is_supported(
 			make_span(output_types.data(), output_count),
-			make_span(input_types.data(), input_count)
+			make_span(input_types.data(), input_count),
+			make_span(operation_pivots.data(), operation_pivots.size())
 		);
 	if (!supported)
 	{
@@ -138,6 +142,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	std::array<numerical_type, input_count> input_types;
 	extract_data_types(output_types, output_signatures);
 	extract_data_types(input_types, input_signatures);
+	const auto operation_pivots = get_operation_pivots(typed_operation);
 
 	// The whole partition of the iteration space is settled here, once per
 	// program rather than once per element.
@@ -165,7 +170,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 			);
 		},
 		output_types,
-		input_types
+		input_types,
+		make_span(operation_pivots.data(), operation_pivots.size())
 	);
 }
 
