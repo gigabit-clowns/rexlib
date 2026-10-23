@@ -1,0 +1,9 @@
+target_sources(
+	rexlib-unitary-tests
+	PRIVATE
+		test_axes_of.cpp
+		test_count_of.cpp
+		test_extent_of.cpp
+		test_keep_dimensions_of.cpp
+		test_operand_shape_rules.cpp
+)

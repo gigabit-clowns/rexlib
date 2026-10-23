@@ -3,6 +3,7 @@
 #pragma once
 
 #include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 
@@ -13,15 +14,6 @@ namespace rexlib
 {
 namespace ops
 {
-
-/**
- * @brief The axes an operation acts along.
- *
- * Explicit and non negative. An operation is a rigid description of the
- * work to be done, so an axis referred from the end is resolved by whoever
- * holds the array, the rank being needed to resolve it at all.
- */
-using axis_list = std::vector<std::size_t>;
 
 /**
  * @brief Put an axis list in the order every reader expects.
