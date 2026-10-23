@@ -5,7 +5,7 @@
 #include "operand_type_descriptor.hpp"
 #include "operand_type_resolution.hpp"
 
-#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/attributes.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>

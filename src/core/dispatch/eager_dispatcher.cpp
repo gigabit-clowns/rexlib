@@ -7,8 +7,8 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/dispatch/operand_specification.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/operation/contract/operand_specification.hpp>
+#include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/dispatch/program_manager.hpp>
 #include <rexlib/core/hardware/program.hpp>
 #include <rexlib/core/hardware/command.hpp>

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "operation_id.hpp"
+#include <rexlib/core/operation/operation_id.hpp>
 
 #include "../platform/dynamic_shared_object.h"
 #include "../span.hpp"

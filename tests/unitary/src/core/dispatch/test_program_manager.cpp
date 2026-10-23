@@ -7,7 +7,7 @@
 
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
-#include "mock/mock_operation.hpp"
+#include "../operation/mock/mock_operation.hpp"
 #include "mock/mock_program_builder.hpp"
 #include "../hardware/mock/mock_program.hpp"
 #include "../hardware/mock/mock_command_queue.hpp"

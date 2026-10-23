@@ -4,11 +4,11 @@
 
 #include <rexlib/core/backend_priority.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
 #include <rexlib/core/dispatch/program_builder.hpp>
 #include <rexlib/core/dispatch/program_manager.hpp>
 
-#include "../mock/mock_operation.hpp"
+#include "../../operation/mock/mock_operation.hpp"
 #include "../../hardware/mock/mock_command_queue.hpp"
 #include "../../hardware/mock/mock_program.hpp"
 

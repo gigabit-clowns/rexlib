@@ -16,14 +16,12 @@ target_sources(
 		test_operation_pivots.cpp
 		test_positive_extent_domain.cpp
 		test_rule_operand_types.cpp
-		test_rule_operation_contract.cpp
 		test_same_extent_transform.cpp
 		test_shape_rule_accessors.cpp
 		test_shape_rule_descriptor.cpp
 		test_shape_rule_descriptor_of.cpp
 		test_shape_rule_interpreter.cpp
 		test_shape_rule_resolution.cpp
-		test_shared_rule_contract.cpp
 		test_type_rule_accessors.cpp
 		test_type_rule_interpreter.cpp
 )

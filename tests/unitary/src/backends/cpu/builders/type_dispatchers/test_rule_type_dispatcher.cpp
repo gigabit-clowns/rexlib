@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 
-#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>

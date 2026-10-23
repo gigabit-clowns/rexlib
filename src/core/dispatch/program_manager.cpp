@@ -4,8 +4,8 @@
 
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/dispatch/program_builder.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
-#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
 
 #include <core/find_most_suitable_backend.hpp>
 #include <core/dispatch/core_program_builder_registry.hpp>

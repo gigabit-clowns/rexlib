@@ -5,7 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <rexlib/core/dispatch/execution_context.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>

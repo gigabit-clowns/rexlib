@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <rexlib/core/dispatch/operand_names.hpp>
-#include <rexlib/core/dispatch/operand_specification.hpp>
-#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/operation/operand_names.hpp>
+#include <rexlib/core/operation/contract/operand_specification.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/dispatch/rules/shape_rule_descriptor_of.hpp>
 #include <rexlib/core/dispatch/rules/shape_rule_interpreter.hpp>
 #include <rexlib/core/platform/constexpr.hpp>

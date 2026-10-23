@@ -9,7 +9,7 @@
 #include <rexlib/core/hardware/device_context.hpp>
 
 #include "mock/mock_dispatcher.hpp"
-#include "mock/mock_operation.hpp"
+#include "../operation/mock/mock_operation.hpp"
 
 #include <memory>
 #include <stdexcept>

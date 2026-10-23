@@ -1,0 +1,18 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <rexlib/core/operation/operation.hpp>
+
+#include <sstream>
+
+namespace rexlib
+{
+
+operation::operation() noexcept = default;
+operation::~operation() = default;
+
+operation_id operation::get_id() const noexcept
+{
+	return operation_id(typeid(*this));
+}
+
+} // namespace rexlib

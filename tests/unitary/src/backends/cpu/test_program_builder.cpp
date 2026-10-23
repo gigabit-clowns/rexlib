@@ -9,13 +9,13 @@
 
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
-#include <rexlib/core/dispatch/operation_id.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>
 #include <rexlib/core/backend_priority.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/span.hpp>
 
-#include "../../core/dispatch/mock/mock_operation.hpp"
+#include "../../core/operation/mock/mock_operation.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"
 #include "../../core/hardware/mock/mock_command_queue.hpp"
 

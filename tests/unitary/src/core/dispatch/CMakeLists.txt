@@ -1,17 +1,10 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_basic_operation.cpp
 		test_eager_dispatcher.cpp
 		test_execute.cpp
 		test_execution_context.cpp
 		test_operand_signature.cpp
-		test_operand_specification.cpp
-		test_operation.cpp
-		test_operation_arity.cpp
-		test_operation_cast.cpp
-		test_operation_id.cpp
-		test_parametric_operation.cpp
 		test_program_builder_registration.cpp
 		test_program_builder_registry.cpp
 		test_program_cache.cpp

@@ -5,7 +5,7 @@
 
 #include <rexlib/core/dispatch/rules/type_rule_interpreter.hpp>
 
-#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
 #include <rexlib/core/dispatch/rules/operand_type_rule.hpp>

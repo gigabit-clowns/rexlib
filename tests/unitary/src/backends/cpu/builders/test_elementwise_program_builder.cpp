@@ -10,9 +10,9 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <rexlib/core/dispatch/basic_operation.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
-#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/backends/cpu/program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
@@ -30,7 +30,7 @@
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
-#include "../../../core/dispatch/mock/mock_operation.hpp"
+#include "../../../core/operation/mock/mock_operation.hpp"
 
 #include <array>
 #include <cstddef>

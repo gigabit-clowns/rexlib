@@ -4,7 +4,7 @@
 
 #include "fourier_normalization.hpp"
 
-#include <rexlib/core/dispatch/parametric_operation.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/parameters/axis_list.hpp>

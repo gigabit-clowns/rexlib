@@ -36,7 +36,7 @@ public:
 	 * @brief Plan operands whose core axes are their trailing axes.
 	 *
 	 * The output's own extents, minus its trailing @p output_core_rank
-	 * axes, are trusted as the canonical batch shape: the operation contract
+	 * axes, are trusted as the canonical batch shape: the operand contract
 	 * already broadcast and validated it.
 	 * Every operand's remaining batch prefix is then handed to a
 	 * joint_layout_builder, which broadcasts it to that shape.

@@ -4,7 +4,7 @@
 
 #include <rexlib/core/dispatch/dispatcher.hpp>
 
-#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/core/hardware/device_context.hpp>

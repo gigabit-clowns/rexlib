@@ -8,8 +8,8 @@
 #include <rexlib/core/dispatch/program_manager.hpp>
 #include <rexlib/core/dispatch/program_cache.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/dispatch/operation_id.hpp>
-#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
@@ -29,8 +29,8 @@
 #include <rexlib/core/hardware/program.hpp>
 #include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
-#include "mock/mock_operation.hpp"
-#include "mock/mock_operation_contract.hpp"
+#include "../operation/mock/mock_operation.hpp"
+#include "../operation/contract/mock/mock_operand_contract.hpp"
 #include "mock/mock_program_builder.hpp"
 #include "../hardware/mock/mock_device.hpp"
 #include "../hardware/mock/mock_memory_resource.hpp"
@@ -303,7 +303,7 @@ protected:
 	std::shared_ptr<mock_program> program;
 
 	mock_operation op;
-	mock_operation_contract contract;
+	mock_operand_contract contract;
 
 	// Keep mock buffers alive, and hold the named expectations so that they are
 	// torn down (unlinked from their mocks) before the mocks they reference.

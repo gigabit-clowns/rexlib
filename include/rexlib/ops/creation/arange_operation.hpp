@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/core/dispatch/parametric_operation.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/numerical/scalar_value.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>

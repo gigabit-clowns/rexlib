@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
 #include <rexlib/core/dispatch/rules/operand_type_resolution.hpp>
 #include <rexlib/core/dispatch/rules/rule_operand_types.hpp>

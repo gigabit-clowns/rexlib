@@ -4,8 +4,8 @@
 
 #include "shape_rule_descriptor.hpp"
 
-#include <rexlib/core/dispatch/operand_specification.hpp>
-#include <rexlib/core/dispatch/operation_descriptor.hpp>
+#include <rexlib/core/operation/contract/operand_specification.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 

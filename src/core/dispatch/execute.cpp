@@ -8,7 +8,7 @@
 #include <rexlib/core/ndarray/const_array_ref.hpp>
 #include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/device_properties.hpp>

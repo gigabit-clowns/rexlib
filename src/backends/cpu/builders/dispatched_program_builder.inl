@@ -2,8 +2,8 @@
 
 #include "dispatched_program_builder.hpp"
 
-#include <rexlib/core/dispatch/operation.hpp>
-#include <rexlib/core/dispatch/operation_cast.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_cast.hpp>
 #include <rexlib/core/dispatch/rules/operation_pivots.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
