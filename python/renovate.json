@@ -60,11 +60,6 @@
       "constraintsFiltering": "strict"
     },
     {
-      "description": "Security advisories bypass the 14-day delay",
-      "matchJsonata": ["$exists(vulnerabilityFixVersion)"],
-      "minimumReleaseAge": "0 days"
-    },
-    {
       "description": "rexlib is first-party and every job here builds it from source, so a commit need not settle before being bumped.",
       "matchManagers": ["git-submodules"],
       "minimumReleaseAge": "0 days"
