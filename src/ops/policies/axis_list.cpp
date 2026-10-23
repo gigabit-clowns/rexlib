@@ -27,20 +27,28 @@ axis_list make_sorted_axis_list(axis_list axes)
 	return axes;
 }
 
+axis_list make_distinct_axis_list(axis_list axes)
+{
+	make_sorted_axis_list(axes);
+	return axes;
+}
+
 void check_axes_within_rank(
 	const operation_descriptor &descriptor,
 	span<const std::size_t> axes,
 	std::size_t rank
 )
 {
-	// Sorted, so only the last one can be out of range.
-	if (!axes.empty() && axes.back() >= rank)
+	for (const auto axis : axes)
 	{
-		std::ostringstream oss;
-		oss << descriptor << ": axis " << axes.back()
-			<< " was named, but the operands only have " << rank
-			<< " of them.";
-		throw std::out_of_range(oss.str());
+		if (axis >= rank)
+		{
+			std::ostringstream oss;
+			oss << descriptor << ": axis " << axis
+				<< " was named, but the operands only have " << rank
+				<< " of them.";
+			throw std::out_of_range(oss.str());
+		}
 	}
 }
 

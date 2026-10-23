@@ -41,13 +41,27 @@ REXLIB_API
 axis_list make_sorted_axis_list(axis_list axes);
 
 /**
+ * @brief Check that no axis is named twice, keeping the order given.
+ *
+ * For an operation that gives one of its axes a role of its own, such as
+ * the last one named.
+ *
+ * @param axes The axes to be checked.
+ * @return axis_list The axes, in the order given.
+ *
+ * @throws std::invalid_argument When an axis is repeated.
+ */
+REXLIB_API
+axis_list make_distinct_axis_list(axis_list axes);
+
+/**
  * @brief Check that every axis names one of the operand's.
  *
  * Separate from @ref make_sorted_axis_list because the rank is not known
  * until the operands arrive, which is long after the operation was built.
  *
  * @param descriptor The operation description, for the diagnostic.
- * @param axes The axes, in ascending order.
+ * @param axes The axes, in any order.
  * @param rank The rank of the operand.
  *
  * @throws std::out_of_range When an axis lies beyond @p rank.

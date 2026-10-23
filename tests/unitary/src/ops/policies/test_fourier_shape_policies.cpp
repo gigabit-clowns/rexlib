@@ -100,16 +100,40 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"real_fourier_transform_shape_policy should halve the last axis "
-	"whatever order the axes were given in",
+	"real_fourier_transform_shape_policy should halve the last axis named "
+	"rather than the highest numbered",
 	"[fourier_shape_policy]"
 )
 {
-	// The axes are sorted on construction, so the halved one is the
-	// highest numbered rather than the last one written.
 	const real_fourier_transform_shape_policy policy({ 2, 0 });
+	CHECK( policy.get_axes()[0] == 2 );
+	CHECK( policy.get_axes()[1] == 0 );
 	CHECK( deduce_one(policy, shape_type{ 8, 4, 16 }) ==
-	       shape_type{ 8, 4, 9 } );
+	       shape_type{ 5, 4, 16 } );
+}
+
+TEST_CASE(
+	"real_fourier_transform_shape_policy should reject an axis named twice",
+	"[fourier_shape_policy]"
+)
+{
+	CHECK_THROWS_AS(
+		real_fourier_transform_shape_policy({ 1, 0, 1 }),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
+	"real_fourier_transform_shape_policy should reject an axis beyond the "
+	"rank wherever it is named",
+	"[fourier_shape_policy]"
+)
+{
+	const real_fourier_transform_shape_policy policy({ 3, 0 });
+	CHECK_THROWS_AS(
+		deduce_one(policy, shape_type{ 4, 8 }),
+		std::out_of_range
+	);
 }
 
 TEST_CASE(
@@ -138,6 +162,16 @@ TEST_CASE(
 
 	const inverse_real_fourier_transform_shape_policy odd({ 1 }, 17);
 	CHECK( deduce_one(odd, shape_type{ 4, 9 }) == shape_type{ 4, 17 } );
+}
+
+TEST_CASE(
+	"inverse_real_fourier_transform_shape_policy should restore the last "
+	"axis named rather than the highest numbered",
+	"[fourier_shape_policy]"
+)
+{
+	const inverse_real_fourier_transform_shape_policy policy({ 1, 0 }, 8);
+	CHECK( deduce_one(policy, shape_type{ 5, 6 }) == shape_type{ 8, 6 } );
 }
 
 TEST_CASE(

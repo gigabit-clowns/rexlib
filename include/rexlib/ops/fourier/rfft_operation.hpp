@@ -29,8 +29,8 @@ REXLIB_DECLARE_OPERATION_TRAITS(
  * @brief Transform a real array to the frequency domain.
  *
  * The spectrum of a real signal is conjugate symmetric, so only the half
- * that is not redundant is stored: the last transformed axis holds
- * n / 2 + 1 coefficients, and every other keeps its extent.
+ * that is not redundant is stored: the last axis named holds n / 2 + 1
+ * coefficients, and every other keeps its extent.
  *
  * Complex operands are not admitted. Their spectra have no symmetry to
  * exploit, and storing half of one would lose information.
@@ -43,8 +43,8 @@ public:
 	/**
 	 * @brief Construct a forward transform of a real signal.
 	 *
-	 * @param axes The transformed axes. Sorted on construction. The last of
-	 * them is the halved one, and the remaining axes are batch dimensions.
+	 * @param axes The transformed axes. The last one named is the halved
+	 * one, and the remaining axes are batch dimensions.
 	 * @param normalization Which of the transform pair carries the scaling.
 	 * It is measured against the real signal, not against the coefficients
 	 * actually stored.

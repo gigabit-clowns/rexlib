@@ -287,6 +287,59 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	fourier_verb_fixture,
+	"rfft halves the last axis named, wherever it lies",
+	"[array_fourier][cpu]"
+)
+{
+	// Naming the axes back to front halves the first one, which has two
+	// samples and so keeps both of its coefficients.
+	auto signal = make_operand<float32_t>(
+		{ 2, 4 },
+		{ 1, 2, 3, 4, 5, 6, 7, 8 }
+	);
+	const const_array_ref signal_ref = signal;
+
+	const std::vector<std::ptrdiff_t> axes = { -1, -2 };
+	check_values<std::complex<float32_t>>(
+		rexlib::rfft(signal_ref, make_span(axes), context, nullptr),
+		{ 2, 4 },
+		{
+			element_value(36.0),
+			element_value(-4.0, 4.0),
+			element_value(-4.0),
+			element_value(-4.0, -4.0),
+			element_value(-16.0),
+			0,
+			0,
+			0
+		}
+	);
+}
+
+TEST_CASE_METHOD(
+	fourier_verb_fixture,
+	"irfft restores the last axis named, wherever it lies",
+	"[array_fourier][cpu]"
+)
+{
+	const std::vector<element_value> samples = { 1, 2, 3, 4, 5, 6, 7, 8 };
+	auto signal = make_operand<float32_t>({ 2, 4 }, samples);
+	const const_array_ref signal_ref = signal;
+
+	const std::vector<std::ptrdiff_t> axes = { -1, -2 };
+	const auto spectrum =
+		rexlib::rfft(signal_ref, make_span(axes), context, nullptr);
+	const const_array_ref spectrum_ref = spectrum;
+
+	check_values<float32_t>(
+		rexlib::irfft(spectrum_ref, make_span(axes), 2, context, nullptr),
+		{ 2, 4 },
+		samples
+	);
+}
+
+TEST_CASE_METHOD(
+	fourier_verb_fixture,
 	"irfft restores the signal rfft came from",
 	"[array_fourier][cpu]"
 )

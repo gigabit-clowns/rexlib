@@ -42,8 +42,8 @@ public:
 	/**
 	 * @brief Construct an inverse transform of a real signal.
 	 *
-	 * @param axes The transformed axes. Sorted on construction. The last of
-	 * them is the restored one, and the remaining axes are batch dimensions.
+	 * @param axes The transformed axes. The last one named is the restored
+	 * one, and the remaining axes are batch dimensions.
 	 * @param extent The number of samples along the restored axis. The
 	 * spectrum must hold extent / 2 + 1 coefficients along it.
 	 * @param normalization Which of the transform pair carries the scaling.

@@ -16,7 +16,7 @@ namespace ops
 real_fourier_transform_shape_policy::real_fourier_transform_shape_policy(
 	axis_list axes
 )
-	: m_axes(make_sorted_axis_list(std::move(axes)))
+	: m_axes(make_distinct_axis_list(std::move(axes)))
 {
 	if (m_axes.empty())
 	{

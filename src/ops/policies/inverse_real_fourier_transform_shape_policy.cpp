@@ -18,7 +18,7 @@ inverse_real_fourier_transform_shape_policy
 	axis_list axes,
 	std::size_t extent
 )
-	: m_axes(make_sorted_axis_list(std::move(axes)))
+	: m_axes(make_distinct_axis_list(std::move(axes)))
 	, m_extent(extent)
 {
 	if (m_axes.empty())

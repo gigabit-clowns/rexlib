@@ -32,8 +32,8 @@ public:
 	/**
 	 * @brief Construct a policy transforming along a set of axes.
 	 *
-	 * @param axes The transformed axes. Sorted on construction. The last
-	 * of them is the restored one.
+	 * @param axes The transformed axes. The last one named is the restored
+	 * one.
 	 * @param extent The number of samples along the restored axis.
 	 *
 	 * @throws std::invalid_argument When an axis is repeated, when no
@@ -45,7 +45,7 @@ public:
 	);
 
 	/**
-	 * @brief Get the transformed axes, in ascending order.
+	 * @brief Get the transformed axes, in the order they were named.
 	 *
 	 * @return span<const std::size_t> The axes.
 	 */

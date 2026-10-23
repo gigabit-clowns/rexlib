@@ -386,8 +386,8 @@ array ifft3(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  *
- * @note Only the half that is not redundant is stored: the last transformed
- * axis holds n / 2 + 1 coefficients. Complex arrays are not accepted.
+ * @note Only the half that is not redundant is stored: the last axis named
+ * holds n / 2 + 1 coefficients. Complex arrays are not accepted.
  */
 REXLIB_API
 array rfft(
@@ -408,8 +408,8 @@ array rfft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  *
- * @note Only the half that is not redundant is stored: the last transformed
- * axis holds n / 2 + 1 coefficients. Complex arrays are not accepted.
+ * @note Only the half that is not redundant is stored: the last axis named
+ * holds n / 2 + 1 coefficients. Complex arrays are not accepted.
  *
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.

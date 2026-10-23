@@ -38,8 +38,8 @@ public:
 	/**
 	 * @brief Construct a policy transforming along a set of axes.
 	 *
-	 * @param axes The transformed axes. Sorted on construction. The last
-	 * of them is the halved one.
+	 * @param axes The transformed axes. The last one named is the halved
+	 * one.
 	 *
 	 * @throws std::invalid_argument When an axis is repeated, or when no
 	 * axis is given.
@@ -47,7 +47,7 @@ public:
 	explicit real_fourier_transform_shape_policy(axis_list axes);
 
 	/**
-	 * @brief Get the transformed axes, in ascending order.
+	 * @brief Get the transformed axes, in the order they were named.
 	 *
 	 * @return span<const std::size_t> The axes.
 	 */
