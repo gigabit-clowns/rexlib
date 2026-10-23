@@ -1,7 +1,22 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_any_extent_domain.cpp
+		test_axis_slot_descriptor.cpp
+		test_axis_slot_descriptor_table.cpp
+		test_core_dimensions.cpp
+		test_core_dimensions_descriptor.cpp
+		test_core_dimensions_descriptor_table.cpp
+		test_extent_descriptor.cpp
+		test_extent_descriptor_table.cpp
+		test_extent_domain.cpp
+		test_half_spectrum_extent_transform.cpp
+		test_operand_shape_rule.cpp
 		test_operand_type_transform.cpp
+		test_positive_extent_domain.cpp
 		test_rule_operand_types.cpp
 		test_rule_operation_data_type_policy.cpp
+		test_same_extent_transform.cpp
+		test_shape_rule_descriptor.cpp
+		test_shape_rule_descriptor_of.cpp
 )
