@@ -19,4 +19,6 @@ target_sources(
 		test_same_extent_transform.cpp
 		test_shape_rule_descriptor.cpp
 		test_shape_rule_descriptor_of.cpp
+		test_shape_rule_interpreter.cpp
+		test_shape_rule_resolution.cpp
 )

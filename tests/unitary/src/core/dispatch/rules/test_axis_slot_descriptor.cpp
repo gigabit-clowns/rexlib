@@ -22,6 +22,7 @@ TEST_CASE(
 		2,
 		&half_spectrum_extent_transform::apply,
 		half_spectrum_extent_transform::get_relation(),
+		false,
 		make_extent_domain<any_extent_domain>()
 	);
 	CHECK( descriptor.get_kind() == axis_slot_kind::extent );
@@ -31,6 +32,7 @@ TEST_CASE(
 		std::string(descriptor.get_relation()) ==
 		half_spectrum_extent_transform::get_relation()
 	);
+	CHECK_FALSE( descriptor.determines_extent() );
 	CHECK( descriptor.get_domain().contains(0) );
 }
 
@@ -44,6 +46,7 @@ TEST_CASE(
 		0,
 		&half_spectrum_extent_transform::apply,
 		half_spectrum_extent_transform::get_relation(),
+		false,
 		make_extent_domain<positive_extent_domain>()
 	);
 	CHECK( descriptor.get_kind() == axis_slot_kind::run );

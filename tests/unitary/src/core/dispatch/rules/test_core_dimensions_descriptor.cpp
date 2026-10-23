@@ -22,6 +22,7 @@ axis_slot_descriptor make_slot(axis_slot_kind kind)
 		0,
 		&same_extent_transform::apply,
 		same_extent_transform::get_relation(),
+		true,
 		make_extent_domain<any_extent_domain>()
 	);
 }

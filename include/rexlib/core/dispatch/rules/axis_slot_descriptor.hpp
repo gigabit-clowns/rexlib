@@ -33,6 +33,8 @@ public:
 	 * null.
 	 * @param relation Fragment naming the transform, for diagnostics. Must
 	 * not be null and must have static storage duration.
+	 * @param determines_extent Whether the extent of the axis is the extent
+	 * of the variable itself, so that the axis can bind it.
 	 * @param domain The extents the axes of a run may take.
 	 */
 	axis_slot_descriptor(
@@ -40,6 +42,7 @@ public:
 		std::size_t index,
 		transform_function apply,
 		const char *relation,
+		bool determines_extent,
 		const extent_domain &domain
 	) noexcept;
 
@@ -73,6 +76,14 @@ public:
 	const char* get_relation() const noexcept;
 
 	/**
+	 * @brief Check whether the axis can bind the extent variable it names.
+	 *
+	 * @return true The extent of the axis is the extent of the variable.
+	 * @return false The extent of the axis is derived from the variable.
+	 */
+	bool determines_extent() const noexcept;
+
+	/**
 	 * @brief Get the extents the axes of a run may take.
 	 *
 	 * @return const extent_domain& The domain.
@@ -84,6 +95,7 @@ private:
 	std::size_t m_index;
 	transform_function m_apply;
 	const char *m_relation;
+	bool m_determines_extent;
 	extent_domain m_domain;
 };
 

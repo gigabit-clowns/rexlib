@@ -11,12 +11,14 @@ axis_slot_descriptor::axis_slot_descriptor(
 	std::size_t index,
 	transform_function apply,
 	const char *relation,
+	bool determines_extent,
 	const extent_domain &domain
 ) noexcept
 	: m_kind(kind)
 	, m_index(index)
 	, m_apply(apply)
 	, m_relation(relation)
+	, m_determines_extent(determines_extent)
 	, m_domain(domain)
 {
 }
@@ -43,6 +45,12 @@ inline
 const char* axis_slot_descriptor::get_relation() const noexcept
 {
 	return m_relation;
+}
+
+inline
+bool axis_slot_descriptor::determines_extent() const noexcept
+{
+	return m_determines_extent;
 }
 
 inline

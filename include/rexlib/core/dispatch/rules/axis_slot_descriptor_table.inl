@@ -2,7 +2,10 @@
 
 #include "axis_slot_descriptor_table.hpp"
 
+#include "same_extent_transform.hpp"
+
 #include <array>
+#include <type_traits>
 
 namespace rexlib
 {
@@ -26,6 +29,10 @@ axis_slot_descriptor_table<type_list<Slots...>>::get() noexcept
 			Slots::index,
 			&Slots::transform_type::apply,
 			Slots::transform_type::get_relation(),
+			std::is_same<
+				typename Slots::transform_type,
+				same_extent_transform
+			>::value,
 			make_extent_domain<typename Slots::domain_type>()
 		)...
 	}};
