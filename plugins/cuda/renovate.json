@@ -24,11 +24,6 @@
       "description": "A placeholder that select_cuda_major.py rewrites once per wheel, not a version this project follows",
       "matchDepNames": ["cuda-toolkit"],
       "enabled": false
-    },
-    {
-      "description": "Security advisories bypass the 14-day delay",
-      "matchJsonata": ["$exists(vulnerabilityFixVersion)"],
-      "minimumReleaseAge": "0 days"
     }
   ],
   "customManagers": [
