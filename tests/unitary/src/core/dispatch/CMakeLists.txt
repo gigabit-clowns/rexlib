@@ -6,6 +6,7 @@ target_sources(
 		test_execute.cpp
 		test_execution_context.cpp
 		test_operand_signature.cpp
+		test_operand_specification.cpp
 		test_operation.cpp
 		test_operation_arity.cpp
 		test_operation_cast.cpp

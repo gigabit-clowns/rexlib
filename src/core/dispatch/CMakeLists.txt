@@ -7,9 +7,11 @@ target_sources(
 		execute.cpp
 		execution_context.cpp
 		operand_signature.cpp
+		operand_specification.cpp
 		operation.cpp
 		operation_arity.cpp
 		operation_cast.cpp
+		operation_contract.cpp
 		operation_data_type_policy.cpp
 		operation_descriptor.cpp
 		operation_shape_policy.cpp
