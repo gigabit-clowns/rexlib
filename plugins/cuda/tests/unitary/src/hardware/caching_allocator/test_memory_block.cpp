@@ -6,8 +6,10 @@
 
 #include <hardware/caching_allocator/memory_heap.hpp>
 
+#include "../mock/mock_command_timeline.hpp"
 #include "mock/mock_memory_source.hpp"
-#include "test_queue.hpp"
+
+#include <rexlib/core/hardware/command_token.hpp>
 
 #include <boost/intrusive/set.hpp>
 
@@ -69,11 +71,14 @@ TEST_CASE(
 )
 {
 	heap_fixture heap;
-	const auto queue = cuda::make_test_queue(0);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
 
-	const cuda::memory_block block(queue, 1024, &heap.get(), 256);
+	const cuda::memory_block block(
+		command_token(timeline, 7), 1024, &heap.get(), 256
+	);
 
-	CHECK( block.get_queue() == queue );
+	CHECK( block.get_pending().get_timeline() == timeline );
+	CHECK( block.get_pending().get_id() == 7 );
 	CHECK( block.get_size() == 1024 );
 	CHECK( block.get_heap() == &heap.get() );
 	CHECK( block.get_offset() == 256 );
@@ -86,9 +91,7 @@ TEST_CASE(
 {
 	heap_fixture heap;
 
-	const cuda::memory_block block(
-		cuda::queue_handle(), 1024, &heap.get(), 768
-	);
+	const cuda::memory_block block(command_token(), 1024, &heap.get(), 768);
 
 	const auto base = reinterpret_cast<std::uintptr_t>(heap.get().get_data());
 	const auto data = reinterpret_cast<std::uintptr_t>(block.get_data());
@@ -96,22 +99,22 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a memory_block should be re-homed, resized and moved within its heap",
+	"a memory_block should take a new token, size and place in its heap",
 	"[memory_block]"
 )
 {
 	heap_fixture heap;
-	cuda::memory_block block(cuda::queue_handle(), 1024, &heap.get(), 0);
+	cuda::memory_block block(command_token(), 1024, &heap.get(), 0);
 
-	// Splitting a block and taking one over from another queue both rewrite it
-	// in place rather than building a new one, so all three have to be
-	// settable.
-	const auto queue = cuda::make_test_queue(1);
-	block.set_queue(queue);
+	// Splitting a block and taking one back from a buffer both rewrite it in
+	// place rather than building a new one, so all three have to be settable.
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
+	block.set_pending(command_token(timeline, 3));
 	block.set_size(512);
 	block.set_offset(256);
 
-	CHECK( block.get_queue() == queue );
+	CHECK( block.get_pending().get_timeline() == timeline );
+	CHECK( block.get_pending().get_id() == 3 );
 	CHECK( block.get_size() == 512 );
 	CHECK( block.get_offset() == 256 );
 	CHECK( block.get_heap() == &heap.get() );
@@ -144,7 +147,7 @@ TEST_CASE(
 	>;
 
 	heap_fixture heap;
-	cuda::memory_block block(cuda::queue_handle(), 1024, &heap.get(), 0);
+	cuda::memory_block block(command_token(), 1024, &heap.get(), 0);
 
 	// Being free is not a flag that can drift out of step with where the block
 	// actually is; it is that membership.
@@ -165,10 +168,8 @@ TEST_CASE(
 {
 	heap_fixture heap;
 
-	const cuda::memory_block block(cuda::queue_handle(), 1024, &heap.get(), 0);
-	const cuda::memory_block same_span(
-		cuda::queue_handle(), 1024, &heap.get(), 0
-	);
+	const cuda::memory_block block(command_token(), 1024, &heap.get(), 0);
+	const cuda::memory_block same_span(command_token(), 1024, &heap.get(), 0);
 
 	// Two blocks never describe the same span, so comparing their fields would
 	// only ever hide a bug.

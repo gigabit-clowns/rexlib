@@ -6,16 +6,18 @@
 
 #include <hardware/caching_allocator/caching_memory_allocator.hpp>
 
+#include "../mock/mock_command_timeline.hpp"
 #include "mock/mock_buffer.hpp"
 #include "test_caching_allocator.hpp"
-#include "test_queue.hpp"
 
 #include <config.hpp>
 
-#include <algorithm>
+#include <rexlib/core/hardware/command_token.hpp>
+
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <thread>
 
 using namespace rexlib;
 
@@ -29,135 +31,227 @@ constexpr std::size_t min_heap =
 
 cuda::buffer& allocate_buffer(
 	cuda::caching_allocator_fixture &fixture,
-	const cuda::queue_handle &queue,
+	std::size_t size,
 	std::shared_ptr<rexlib::buffer> &owner
 )
 {
-	owner = fixture.get().allocate(1024, alignment, queue);
+	command_token pending;
+	owner = fixture.get().allocate_for_timeline(
+		size, alignment, nullptr, pending
+	);
 	return cuda::buffer::cast(*owner);
 }
 
 } // anonymous namespace
 
 TEST_CASE(
-	"a fresh buffer should have no queues recorded against it",
+	"a fresh buffer should have no commands recorded against it",
 	"[buffer]"
 )
 {
 	cuda::caching_allocator_fixture fixture;
 	std::shared_ptr<rexlib::buffer> owner;
-	auto &buf = allocate_buffer(fixture, cuda::make_test_queue(0), owner);
+	auto &buf = allocate_buffer(fixture, 1024, owner);
 
-	CHECK( buf.get_recorded_queues().empty() );
+	CHECK( buf.get_recorded_uses().empty() );
 }
 
 TEST_CASE(
-	"a buffer should record the queues that could still be using it",
+	"a buffer over a block that a command still uses should give it back "
+	"carrying that token",
 	"[buffer]"
 )
 {
 	cuda::caching_allocator_fixture fixture;
-	const auto own = cuda::make_test_queue(0);
-	const auto first = cuda::make_test_queue(1);
-	const auto second = cuda::make_test_queue(2);
+	const auto &timeline = fixture.get_blocks().get_timeline(0);
+
+	// A whole heap, dropped while a command still uses it.
+	{
+		std::shared_ptr<rexlib::buffer> owner;
+		allocate_buffer(fixture, min_heap, owner)
+			.record_use(command_token(timeline, 6));
+	}
+
+	// Handed out again and dropped without ever being used. The command is
+	// still running against that memory all the same.
+	{
+		std::shared_ptr<rexlib::buffer> owner;
+		const auto &buf = allocate_buffer(fixture, min_heap, owner);
+
+		const auto uses = buf.get_recorded_uses();
+		REQUIRE( uses.size() == 1 );
+		CHECK( uses[0].get_timeline() == timeline );
+		CHECK( uses[0].get_id() == 6 );
+	}
+
+	command_token pending;
+	auto last = fixture.get().allocate_for_timeline(
+		min_heap, alignment, nullptr, pending
+	);
+
+	CHECK( pending.get_timeline() == timeline );
+	CHECK( pending.get_id() == 6 );
+}
+
+TEST_CASE(
+	"a buffer should remember the last command of each timeline that uses it",
+	"[buffer]"
+)
+{
+	cuda::caching_allocator_fixture fixture;
+	const auto &first = fixture.get_blocks().get_timeline(0);
+	const auto &second = fixture.get_blocks().get_timeline(1);
 
 	std::shared_ptr<rexlib::buffer> owner;
-	auto &buf = allocate_buffer(fixture, own, owner);
+	auto &buf = allocate_buffer(fixture, 1024, owner);
 
-	SECTION( "one entry per queue" )
+	SECTION( "one token per timeline" )
 	{
-		buf.record_use(first);
-		buf.record_use(second);
+		buf.record_use(command_token(first, 1));
+		buf.record_use(command_token(second, 1));
 
-		const auto queues = buf.get_recorded_queues();
-		REQUIRE( queues.size() == 2 );
-		CHECK( std::count(queues.begin(), queues.end(), first) == 1 );
-		CHECK( std::count(queues.begin(), queues.end(), second) == 1 );
+		const auto uses = buf.get_recorded_uses();
+		REQUIRE( uses.size() == 2 );
+		CHECK( uses[0].get_timeline() == first );
+		CHECK( uses[1].get_timeline() == second );
 	}
 
-	SECTION( "counting a queue only once however often it is given work" )
+	SECTION( "keeping the later one, in whatever order they are recorded" )
 	{
-		buf.record_use(first);
-		buf.record_use(first);
-		buf.record_use(first);
+		// A stream finishes its commands in order, so waiting for the later
+		// one is waiting for all of them.
+		buf.record_use(command_token(first, 1));
+		buf.record_use(command_token(first, 5));
+		buf.record_use(command_token(first, 3));
 
-		const auto queues = buf.get_recorded_queues();
-		REQUIRE( queues.size() == 1 );
-		CHECK( queues[0] == first );
+		const auto uses = buf.get_recorded_uses();
+		REQUIRE( uses.size() == 1 );
+		CHECK( uses[0].get_timeline() == first );
+		CHECK( uses[0].get_id() == 5 );
 	}
 
-	SECTION( "but never its own, which it is already ordered against" )
+	SECTION( "and nothing for a command that had finished on submission" )
 	{
-		buf.record_use(own);
+		buf.record_use(command_token());
 
-		// That queue runs in order, so whatever it is given after this cannot
-		// overlap with the work being dropped. Waiting for it would be waiting
-		// for nothing.
-		CHECK( buf.get_recorded_queues().empty() );
+		CHECK( buf.get_recorded_uses().empty() );
 	}
 }
 
 TEST_CASE(
-	"a buffer used on another queue should not be handed out again until that "
-	"queue has caught up",
+	"a buffer should take uses recorded from several threads at once",
 	"[buffer]"
 )
 {
 	cuda::caching_allocator_fixture fixture;
-	const auto own = cuda::make_test_queue(0);
-	const auto other = cuda::make_test_queue(1);
+	const auto &first = fixture.get_blocks().get_timeline(0);
+	const auto &second = fixture.get_blocks().get_timeline(1);
 
-	// Nothing counts as finished until a test says so.
-	fixture.get_blocks().set_reached_by_default(false);
+	std::shared_ptr<rexlib::buffer> owner;
+	auto &buf = allocate_buffer(fixture, 1024, owner);
+
+	const std::size_t count = 1000;
+	const auto record = [&buf, count] (
+		const std::shared_ptr<cuda::mock_command_timeline> &timeline
+	)
+	{
+		for (std::size_t id = 1; id <= count; ++id)
+		{
+			buf.record_use(command_token(timeline, id));
+		}
+	};
+
+	// Two queues may read one buffer at the same time.
+	std::thread first_thread(record, first);
+	std::thread second_thread(record, second);
+	first_thread.join();
+	second_thread.join();
+
+	const auto uses = buf.get_recorded_uses();
+	REQUIRE( uses.size() == 2 );
+	CHECK( uses[0].get_id() == count );
+	CHECK( uses[1].get_id() == count );
+}
+
+TEST_CASE(
+	"a buffer that commands of several timelines still use should not be "
+	"handed out again until one of them is left",
+	"[buffer]"
+)
+{
+	cuda::caching_allocator_fixture fixture;
+	auto &allocator = fixture.get();
+	const auto &first = fixture.get_blocks().get_timeline(0);
+	const auto &second = fixture.get_blocks().get_timeline(1);
 
 	// A whole heap at a time, so that the block being held back is the only
 	// thing that could serve the next request.
 	void *first_data = nullptr;
 	{
-		auto owner = fixture.get().allocate(min_heap, alignment, own);
-		first_data = cuda::buffer::cast(*owner).get_device_ptr();
-		cuda::buffer::cast(*owner).record_use(other);
+		std::shared_ptr<rexlib::buffer> owner;
+		auto &buf = allocate_buffer(fixture, min_heap, owner);
+		first_data = buf.get_device_ptr();
+		buf.record_use(command_token(first, 1));
+		buf.record_use(command_token(second, 1));
 	}
 
 	// Held back rather than given straight to the pool, so the next request
 	// has to be served out of memory taken from the driver instead.
-	auto second = fixture.get().allocate(min_heap, alignment, own);
-	CHECK( cuda::buffer::cast(*second).get_device_ptr() != first_data );
+	command_token pending;
+	auto other =
+		allocator.allocate_for_timeline(min_heap, alignment, nullptr, pending);
+	CHECK( cuda::buffer::cast(*other).get_device_ptr() != first_data );
 	CHECK( fixture.get_blocks().get_arena().get_used_bytes() == 2 * min_heap );
 
-	// Once the queue that was using it has caught up, it goes back into the
-	// pool like any other block.
-	second.reset();
-	fixture.get_blocks().reach(1);
-
+	// Once one of the two commands has finished, the block goes back into
+	// the pool carrying the token of the other.
+	other.reset();
+	ALLOW_CALL(*first, is_complete(1u))
+		.RETURN(true);
 	FORBID_CALL(fixture.get_blocks().get_source(), allocate(trompeloeil::_));
-	auto third = fixture.get().allocate(min_heap, alignment, own);
-	auto fourth = fixture.get().allocate(min_heap, alignment, own);
+
+	command_token unused_pending;
+	auto unused = allocator.allocate_for_timeline(
+		min_heap, alignment, nullptr, unused_pending
+	);
+	command_token held_pending;
+	auto held = allocator.allocate_for_timeline(
+		min_heap, alignment, nullptr, held_pending
+	);
+
+	// The memory nothing uses is handed out first.
+	CHECK( unused_pending.is_empty() );
+	CHECK( cuda::buffer::cast(*held).get_device_ptr() == first_data );
+	CHECK( held_pending.get_timeline() == second );
+	CHECK( held_pending.get_id() == 1 );
 }
 
 TEST_CASE(
-	"a buffer used only on its own queue should go straight back",
+	"a buffer that a single command still uses should go straight back",
 	"[buffer]"
 )
 {
 	cuda::caching_allocator_fixture fixture;
-	const auto own = cuda::make_test_queue(0);
-
-	fixture.get_blocks().set_reached_by_default(false);
-
-	// Nothing has to be waited for, so nothing is captured.
-	FORBID_CALL(fixture.get_blocks().get_recorder(), record(trompeloeil::_));
+	const auto &timeline = fixture.get_blocks().get_timeline(0);
 
 	void *first_data = nullptr;
 	{
 		std::shared_ptr<rexlib::buffer> owner;
-		auto &buf = allocate_buffer(fixture, own, owner);
+		auto &buf = allocate_buffer(fixture, 1024, owner);
 		first_data = buf.get_device_ptr();
-		buf.record_use(own);
+		buf.record_use(command_token(timeline, 2));
 	}
 
-	auto second = fixture.get().allocate(1024, alignment, own);
+	// A queue waits for its own commands by running in order, so the block
+	// is its to have again at once.
+	command_token pending;
+	auto second = fixture.get().allocate_for_timeline(
+		1024, alignment, timeline.get(), pending
+	);
+
 	CHECK( cuda::buffer::cast(*second).get_device_ptr() == first_data );
+	CHECK( pending.get_timeline() == timeline );
+	CHECK( pending.get_id() == 2 );
 }
 
 TEST_CASE(
@@ -167,7 +261,7 @@ TEST_CASE(
 {
 	cuda::caching_allocator_fixture fixture;
 	std::shared_ptr<rexlib::buffer> owner;
-	auto &buf = allocate_buffer(fixture, cuda::make_test_queue(0), owner);
+	auto &buf = allocate_buffer(fixture, 1024, owner);
 
 	CHECK( &cuda::buffer::cast(*owner) == &buf );
 

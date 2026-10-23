@@ -6,13 +6,15 @@
 
 #include <hardware/caching_allocator/memory_heap.hpp>
 
+#include "../mock/mock_command_timeline.hpp"
 #include "mock/mock_memory_source.hpp"
-#include "test_queue.hpp"
 
-#include <algorithm>
+#include <rexlib/core/hardware/command_token.hpp>
+
 #include <cstddef>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 using namespace rexlib;
@@ -119,11 +121,23 @@ std::vector<cuda::memory_block*> partition_evenly(
 	return result;
 }
 
+/// Hand a free block out and take it straight back carrying a token, which
+/// is what a buffer dropped while a command still uses it does.
+void give_back_with(
+	cuda::memory_block_pool &pool,
+	cuda::memory_block &block,
+	command_token pending
+)
+{
+	pool.acquire(block);
+	pool.release(block, std::move(pending));
+}
+
 } // anonymous namespace
 
 TEST_CASE(
 	"a heap taken into a memory_block_pool should arrive as one free block "
-	"belonging to no queue",
+	"carrying an empty token",
 	"[memory_block_pool]"
 )
 {
@@ -138,7 +152,7 @@ TEST_CASE(
 
 	// Nothing has ever run against memory the driver has only just handed
 	// over, so any queue can take it without waiting.
-	CHECK_FALSE( static_cast<bool>(block->get_queue()) );
+	CHECK( block->get_pending().is_empty() );
 
 	CHECK( fixture.get().get_size() == 4096 );
 	CHECK( fixture.get().get_acquired_block_count() == 0 );
@@ -164,161 +178,169 @@ TEST_CASE(
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto queue = cuda::make_test_queue(0);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
 
-	// One heap each, so that binding them to a queue cannot turn the four
-	// candidates back into one.
+	// One heap each, so that carrying tokens of one timeline cannot turn the
+	// four candidates back into one.
 	for (const std::size_t size : {256, 512, 768, 1024})
 	{
-		auto *block = fixture.add_heap(size);
-		pool.acquire(*block, queue);
-		pool.release(*block);
+		give_back_with(
+			pool, *fixture.add_heap(size), command_token(timeline, 1)
+		);
 	}
 
 	SECTION( "when one is an exact fit" )
 	{
-		auto *found = pool.find_suitable_block(512, queue);
+		auto *found = pool.find_suitable_block(512, timeline.get());
 		REQUIRE( found != nullptr );
 		CHECK( found->get_size() == 512 );
 	}
 
 	SECTION( "when none is an exact fit" )
 	{
-		auto *found = pool.find_suitable_block(600, queue);
+		auto *found = pool.find_suitable_block(600, timeline.get());
 		REQUIRE( found != nullptr );
 		CHECK( found->get_size() == 768 );
 	}
 
 	SECTION( "and nothing when none is big enough" )
 	{
-		CHECK( pool.find_suitable_block(4096, queue) == nullptr );
+		CHECK( pool.find_suitable_block(4096, timeline.get()) == nullptr );
 	}
 }
 
 TEST_CASE(
-	"memory_block_pool should only hand a queue what it can use without "
-	"waiting",
+	"memory_block_pool should only hand a queue what it can use at no cost",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto own = cuda::make_test_queue(0);
-	const auto other = cuda::make_test_queue(1);
+	const auto own = std::make_shared<cuda::mock_command_timeline>();
+	const auto other = std::make_shared<cuda::mock_command_timeline>();
 
-	// One block per queue, and one still belonging to none.
+	// One block per timeline, and one that nothing uses.
 	auto *own_block = fixture.add_heap(1024);
-	auto *unbound_block = fixture.add_heap(1024);
+	auto *unused_block = fixture.add_heap(1024);
 	auto *other_block = fixture.add_heap(1024);
-	pool.acquire(*own_block, own);
-	pool.release(*own_block);
-	pool.acquire(*other_block, other);
-	pool.release(*other_block);
+	give_back_with(pool, *own_block, command_token(own, 1));
+	give_back_with(pool, *other_block, command_token(other, 1));
 
-	SECTION( "its own blocks, whose work it is already ordered against" )
+	SECTION( "blocks of its own timeline, which it waits for by running" )
 	{
-		auto *found = pool.find_suitable_block(1024, own);
+		auto *found = pool.find_suitable_block(1024, own.get());
 		REQUIRE( found != nullptr );
-		CHECK( found->get_queue() == own );
+		CHECK( found->get_pending().get_timeline() == own );
 	}
 
-	SECTION( "and unbound blocks, which nothing is running against" )
+	SECTION( "and blocks with an empty token, which nothing runs against" )
 	{
-		pool.acquire(*own_block, own);
+		pool.acquire(*own_block);
 
-		auto *found = pool.find_suitable_block(1024, own);
+		auto *found = pool.find_suitable_block(1024, own.get());
 		REQUIRE( found != nullptr );
-		CHECK_FALSE( static_cast<bool>(found->get_queue()) );
+		CHECK( found->get_pending().is_empty() );
 
-		pool.release(*own_block);
+		pool.release(*own_block, command_token(own, 1));
 	}
 
-	SECTION( "but never another queue's, which may still be in use" )
+	SECTION( "but never one of another timeline, which may still be in use" )
 	{
-		pool.acquire(*own_block, own);
-		pool.acquire(*unbound_block, own);
+		pool.acquire(*own_block);
+		pool.acquire(*unused_block);
 
-		CHECK( pool.find_suitable_block(1024, own) == nullptr );
+		CHECK( pool.find_suitable_block(1024, own.get()) == nullptr );
 
-		pool.release(*own_block);
-		pool.release(*unbound_block);
+		pool.release(*own_block, command_token(own, 1));
+		pool.release(*unused_block, command_token());
+	}
+
+	SECTION( "and only blocks with an empty token when it names no timeline" )
+	{
+		auto *found = pool.find_suitable_block(1024, nullptr);
+		REQUIRE( found != nullptr );
+		CHECK( found == unused_block );
 	}
 }
 
 TEST_CASE(
-	"memory_block_pool should offer another queue's smallest suitable block",
+	"memory_block_pool should offer the smallest suitable block of another "
+	"timeline",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto own = cuda::make_test_queue(0);
-	const auto second = cuda::make_test_queue(1);
-	const auto third = cuda::make_test_queue(2);
+	const auto own = std::make_shared<cuda::mock_command_timeline>();
+	const auto second = std::make_shared<cuda::mock_command_timeline>();
+	const auto third = std::make_shared<cuda::mock_command_timeline>();
 
 	// One heap each, so that neighbouring blocks cannot merge into one.
-	auto *own_block = fixture.add_heap(512);
-	auto *second_block = fixture.add_heap(1024);
-	auto *third_block = fixture.add_heap(2048);
-	fixture.add_heap(512); // Left belonging to no queue.
+	give_back_with(pool, *fixture.add_heap(512), command_token(own, 1));
+	give_back_with(pool, *fixture.add_heap(1024), command_token(second, 1));
+	give_back_with(pool, *fixture.add_heap(2048), command_token(third, 1));
+	fixture.add_heap(512); // Left with an empty token.
 
-	pool.acquire(*own_block, own);
-	pool.release(*own_block);
-	pool.acquire(*second_block, second);
-	pool.release(*second_block);
-	pool.acquire(*third_block, third);
-	pool.release(*third_block);
-
-	SECTION( "picking the tightest fit across every other queue" )
+	SECTION( "picking the tightest fit across every other timeline" )
 	{
-		auto *found = pool.find_foreign_block(768, own);
+		auto *found = pool.find_foreign_block(768, own.get());
 		REQUIRE( found != nullptr );
-		CHECK( found->get_queue() == second );
+		CHECK( found->get_pending().get_timeline() == second );
 		CHECK( found->get_size() == 1024 );
 	}
 
-	SECTION( "never its own, which it would not have to wait for" )
+	SECTION( "never one of its own, which costs it nothing" )
 	{
-		auto *found = pool.find_foreign_block(256, own);
+		auto *found = pool.find_foreign_block(256, own.get());
 		REQUIRE( found != nullptr );
-		CHECK( found->get_queue() != own );
+		CHECK( found->get_pending().get_timeline() != own );
 	}
 
-	SECTION( "never an unbound one, which it would not have to wait for" )
+	SECTION( "never one with an empty token, which costs it nothing" )
 	{
-		auto *found = pool.find_foreign_block(512, own);
+		auto *found = pool.find_foreign_block(512, own.get());
 		REQUIRE( found != nullptr );
-		CHECK( static_cast<bool>(found->get_queue()) );
+		CHECK_FALSE( found->get_pending().is_empty() );
+	}
+
+	SECTION( "one of any timeline when it names none" )
+	{
+		auto *found = pool.find_foreign_block(256, nullptr);
+		REQUIRE( found != nullptr );
+		CHECK( found->get_pending().get_timeline() == own );
 	}
 
 	SECTION( "and nothing when none is big enough" )
 	{
-		CHECK( pool.find_foreign_block(4096, own) == nullptr );
+		CHECK( pool.find_foreign_block(4096, own.get()) == nullptr );
 	}
 }
 
 TEST_CASE(
-	"acquiring a block from a memory_block_pool should bind it to the queue "
-	"that took it",
+	"a block acquired from a memory_block_pool should keep its token until "
+	"it is given back",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto queue = cuda::make_test_queue(0);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
 
 	auto *block = fixture.add_heap(1024);
-	pool.acquire(*block, queue);
+	give_back_with(pool, *block, command_token(timeline, 4));
+	pool.acquire(*block);
 
+	// The token is what whoever was handed the block has to wait for.
 	CHECK_FALSE( block->is_free() );
-	CHECK( block->get_queue() == queue );
-	CHECK( pool.find_suitable_block(1, queue) == nullptr );
+	CHECK( block->get_pending().get_timeline() == timeline );
+	CHECK( block->get_pending().get_id() == 4 );
+	CHECK( pool.find_suitable_block(1, timeline.get()) == nullptr );
 	CHECK( pool.get_acquired_block_count() == 1 );
 
-	pool.release(*block);
+	pool.release(*block, command_token(timeline, 9));
 
 	CHECK( block->is_free() );
-	CHECK( block->get_queue() == queue );
+	CHECK( block->get_pending().get_id() == 9 );
 	CHECK( pool.get_acquired_block_count() == 0 );
 }
 
@@ -329,11 +351,10 @@ TEST_CASE(
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto queue = cuda::make_test_queue(0);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
 
 	auto *block = fixture.add_heap(1024);
-	pool.acquire(*block, queue);
-	pool.release(*block);
+	give_back_with(pool, *block, command_token(timeline, 4));
 
 	const auto halves = pool.partition_block(*block, 256, 768);
 
@@ -344,12 +365,14 @@ TEST_CASE(
 	CHECK( halves.first->get_offset() == 0 );
 	CHECK( halves.first->get_size() == 256 );
 	CHECK( halves.first->is_free() );
-	CHECK( halves.first->get_queue() == queue );
+	CHECK( halves.first->get_pending().get_timeline() == timeline );
+	CHECK( halves.first->get_pending().get_id() == 4 );
 
 	CHECK( halves.second->get_offset() == 256 );
 	CHECK( halves.second->get_size() == 768 );
 	CHECK( halves.second->is_free() );
-	CHECK( halves.second->get_queue() == queue );
+	CHECK( halves.second->get_pending().get_timeline() == timeline );
+	CHECK( halves.second->get_pending().get_id() == 4 );
 
 	CHECK( halves.first->get_heap() == halves.second->get_heap() );
 }
@@ -362,56 +385,57 @@ TEST_CASE(
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto queue = cuda::make_test_queue(0);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
+	const command_token token(timeline, 1);
 
 	auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 4);
 	for (auto *block : blocks)
 	{
-		pool.acquire(*block, queue);
+		pool.acquire(*block);
 	}
 
 	SECTION( "not at all when both neighbours are still in use" )
 	{
-		pool.release(*blocks[1]);
+		pool.release(*blocks[1], token);
 
 		CHECK( blocks[1]->get_size() == 256 );
 		CHECK( blocks[1]->get_offset() == 256 );
 
-		pool.release(*blocks[0]);
-		pool.release(*blocks[2]);
-		pool.release(*blocks[3]);
+		pool.release(*blocks[0], token);
+		pool.release(*blocks[2], token);
+		pool.release(*blocks[3], token);
 	}
 
 	SECTION( "forwards" )
 	{
-		pool.release(*blocks[2]);
-		pool.release(*blocks[1]);
+		pool.release(*blocks[2], token);
+		pool.release(*blocks[1], token);
 
 		CHECK( blocks[1]->get_size() == 512 );
 		CHECK( blocks[1]->get_offset() == 256 );
 
-		pool.release(*blocks[0]);
-		pool.release(*blocks[3]);
+		pool.release(*blocks[0], token);
+		pool.release(*blocks[3], token);
 	}
 
 	SECTION( "backwards" )
 	{
-		pool.release(*blocks[0]);
-		pool.release(*blocks[1]);
+		pool.release(*blocks[0], token);
+		pool.release(*blocks[1], token);
 
 		CHECK( blocks[1]->get_size() == 512 );
 		CHECK( blocks[1]->get_offset() == 0 );
 
-		pool.release(*blocks[2]);
-		pool.release(*blocks[3]);
+		pool.release(*blocks[2], token);
+		pool.release(*blocks[3], token);
 	}
 
 	SECTION( "both ways at once" )
 	{
-		pool.release(*blocks[0]);
-		pool.release(*blocks[2]);
-		pool.release(*blocks[3]);
-		pool.release(*blocks[1]);
+		pool.release(*blocks[0], token);
+		pool.release(*blocks[2], token);
+		pool.release(*blocks[3], token);
+		pool.release(*blocks[1], token);
 
 		CHECK( blocks[1]->get_size() == 1024 );
 		CHECK( blocks[1]->get_offset() == 0 );
@@ -419,24 +443,77 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a memory_block_pool should not merge blocks a queue would have to wait "
-	"for",
+	"blocks merged by a memory_block_pool should carry the later of their "
+	"tokens",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto first_queue = cuda::make_test_queue(0);
-	const auto second_queue = cuda::make_test_queue(1);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
 
 	const auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 2);
-	pool.acquire(*blocks[0], first_queue);
-	pool.acquire(*blocks[1], second_queue);
+	pool.acquire(*blocks[0]);
+	pool.acquire(*blocks[1]);
 
-	// Neighbours in one heap, but what has to have finished before each can be
-	// handed out is different, so one block out of the two would be a lie.
-	pool.release(*blocks[1]);
-	pool.release(*blocks[0]);
+	// A stream finishes its commands in order, so waiting for the later one
+	// is waiting for both.
+	SECTION( "when the later one comes back last" )
+	{
+		pool.release(*blocks[0], command_token(timeline, 3));
+		pool.release(*blocks[1], command_token(timeline, 7));
+
+		CHECK( blocks[1]->get_size() == 1024 );
+		CHECK( blocks[1]->get_pending().get_id() == 7 );
+	}
+
+	SECTION( "when the later one comes back first" )
+	{
+		pool.release(*blocks[1], command_token(timeline, 7));
+		pool.release(*blocks[0], command_token(timeline, 3));
+
+		CHECK( blocks[0]->get_size() == 1024 );
+		CHECK( blocks[0]->get_pending().get_id() == 7 );
+	}
+
+	SECTION( "and none when neither has one" )
+	{
+		pool.release(*blocks[0], command_token());
+		pool.release(*blocks[1], command_token());
+
+		CHECK( blocks[1]->get_size() == 1024 );
+		CHECK( blocks[1]->get_pending().is_empty() );
+	}
+}
+
+TEST_CASE(
+	"a memory_block_pool should not merge blocks that a single token could "
+	"not speak for",
+	"[memory_block_pool]"
+)
+{
+	pool_fixture fixture;
+	auto &pool = fixture.get();
+	const auto first = std::make_shared<cuda::mock_command_timeline>();
+	const auto second = std::make_shared<cuda::mock_command_timeline>();
+
+	const auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 2);
+	pool.acquire(*blocks[0]);
+	pool.acquire(*blocks[1]);
+
+	// Neighbours in one heap, but what has to have finished before each can
+	// be used is different, so one block out of the two would be a lie.
+	SECTION( "when their tokens are of different timelines" )
+	{
+		pool.release(*blocks[1], command_token(second, 1));
+		pool.release(*blocks[0], command_token(first, 1));
+	}
+
+	SECTION( "when only one of them is still in use" )
+	{
+		pool.release(*blocks[1], command_token());
+		pool.release(*blocks[0], command_token(first, 1));
+	}
 
 	CHECK( blocks[0]->get_size() == 512 );
 	CHECK( blocks[1]->get_size() == 512 );
@@ -453,11 +530,10 @@ TEST_CASE(
 	auto *first = fixture.add_heap(512);
 	auto *second = fixture.add_heap(512);
 
-	const auto queue = cuda::make_test_queue(0);
-	pool.acquire(*first, queue);
-	pool.acquire(*second, queue);
-	pool.release(*second);
-	pool.release(*first);
+	pool.acquire(*first);
+	pool.acquire(*second);
+	pool.release(*second, command_token());
+	pool.release(*first, command_token());
 
 	// Two heaps are two calls to the driver and have to be given back as
 	// such, whatever the addresses happen to look like.
@@ -466,65 +542,66 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"resetting the queues of a memory_block_pool should unbind and merge what "
-	"the queues kept apart",
+	"emptying the tokens of a memory_block_pool should merge what the "
+	"timelines kept apart",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto first_queue = cuda::make_test_queue(0);
-	const auto second_queue = cuda::make_test_queue(1);
+	const auto first = std::make_shared<cuda::mock_command_timeline>();
+	const auto second = std::make_shared<cuda::mock_command_timeline>();
 
 	const auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 4);
-	pool.acquire(*blocks[0], first_queue);
-	pool.acquire(*blocks[1], second_queue);
-	pool.acquire(*blocks[2], first_queue);
-	pool.acquire(*blocks[3], second_queue);
-	for (auto *block : blocks)
-	{
-		pool.release(*block);
-	}
+	give_back_with(pool, *blocks[0], command_token(first, 1));
+	give_back_with(pool, *blocks[1], command_token(second, 1));
+	give_back_with(pool, *blocks[2], command_token(first, 2));
+	give_back_with(pool, *blocks[3], command_token(second, 2));
 
-	pool.reset_queues();
+	pool.reset_pending();
 
 	// Once nothing is running any more, the four blocks are just the heap
 	// again, and any queue can have it.
-	auto *found = pool.find_suitable_block(1024, first_queue);
+	auto *found = pool.find_suitable_block(1024, first.get());
 	REQUIRE( found != nullptr );
 	CHECK( found->get_size() == 1024 );
 	CHECK( found->get_offset() == 0 );
-	CHECK_FALSE( static_cast<bool>(found->get_queue()) );
+	CHECK( found->get_pending().is_empty() );
 }
 
 TEST_CASE(
-	"resetting the queues of a memory_block_pool should leave the blocks in "
+	"emptying the tokens of a memory_block_pool should leave the blocks in "
 	"use alone",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto queue = cuda::make_test_queue(0);
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
 
-	const auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 4);
+	auto *heap = fixture.add_heap(1024);
+	give_back_with(pool, *heap, command_token(timeline, 2));
+
+	const auto blocks = partition_evenly(pool, *heap, 4);
 	for (auto *block : blocks)
 	{
-		pool.acquire(*block, queue);
+		pool.acquire(*block);
 	}
-	pool.release(*blocks[0]);
-	pool.release(*blocks[3]);
+	pool.release(*blocks[0], command_token(timeline, 5));
+	pool.release(*blocks[3], command_token(timeline, 5));
 
-	pool.reset_queues();
+	pool.reset_pending();
 
 	CHECK( pool.get_acquired_block_count() == 2 );
-	CHECK( blocks[1]->get_queue() == queue );
-	CHECK( blocks[2]->get_queue() == queue );
+	CHECK( blocks[1]->get_pending().get_timeline() == timeline );
+	CHECK( blocks[2]->get_pending().get_timeline() == timeline );
+	CHECK( blocks[0]->get_pending().is_empty() );
+	CHECK( blocks[3]->get_pending().is_empty() );
 	CHECK( blocks[0]->get_size() == 256 );
 	CHECK( blocks[3]->get_size() == 256 );
 
-	pool.release(*blocks[1]);
-	pool.release(*blocks[2]);
+	pool.release(*blocks[1], command_token());
+	pool.release(*blocks[2], command_token());
 }
 
 TEST_CASE(
@@ -534,7 +611,6 @@ TEST_CASE(
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto queue = cuda::make_test_queue(0);
 
 	SECTION( "when a heap is one whole free block" )
 	{
@@ -542,70 +618,78 @@ TEST_CASE(
 
 		CHECK( pool.release_unused_heaps() == 1024 );
 		CHECK( pool.get_size() == 0 );
-		CHECK( pool.find_suitable_block(1, queue) == nullptr );
+		CHECK( pool.find_suitable_block(1, nullptr) == nullptr );
 	}
 
 	SECTION( "but not while any of it is in use" )
 	{
 		auto *block = fixture.add_heap(1024);
-		pool.acquire(*block, queue);
+		pool.acquire(*block);
 
 		CHECK( pool.release_unused_heaps() == 0 );
 		CHECK( pool.get_size() == 1024 );
 
-		pool.release(*block);
+		pool.release(*block, command_token());
 	}
 
 	SECTION( "but not while it is still cut up" )
 	{
 		const auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 2);
-		pool.acquire(*blocks[0], queue);
+		pool.acquire(*blocks[0]);
 
 		CHECK( pool.release_unused_heaps() == 0 );
 		CHECK( pool.get_size() == 1024 );
 
-		pool.release(*blocks[0]);
+		pool.release(*blocks[0], command_token());
 	}
 
 	SECTION( "and only the ones that are done with" )
 	{
 		auto *kept = fixture.add_heap(1024);
 		fixture.add_heap(512);
-		pool.acquire(*kept, queue);
+		pool.acquire(*kept);
 
 		CHECK( pool.release_unused_heaps() == 512 );
 		CHECK( pool.get_size() == 1024 );
 
-		pool.release(*kept);
+		pool.release(*kept, command_token());
 	}
 }
 
 TEST_CASE(
-	"a memory_block_pool should report the queues its free blocks belong to",
+	"a memory_block_pool should report what its free blocks are still used "
+	"by",
 	"[memory_block_pool]"
 )
 {
 	pool_fixture fixture;
 	auto &pool = fixture.get();
-	const auto first_queue = cuda::make_test_queue(0);
-	const auto second_queue = cuda::make_test_queue(1);
+	const auto first = std::make_shared<cuda::mock_command_timeline>();
+	const auto second = std::make_shared<cuda::mock_command_timeline>();
 
-	const auto blocks = partition_evenly(pool, *fixture.add_heap(1024), 4);
-	pool.acquire(*blocks[0], first_queue);
-	pool.release(*blocks[0]);
-	pool.acquire(*blocks[2], second_queue);
-	pool.release(*blocks[2]);
+	// One heap each, so that the two blocks of the first timeline stay two.
+	give_back_with(pool, *fixture.add_heap(256), command_token(first, 8));
+	give_back_with(pool, *fixture.add_heap(512), command_token(first, 5));
+	give_back_with(pool, *fixture.add_heap(256), command_token(second, 2));
+	fixture.add_heap(256); // Left with an empty token.
 
-	std::vector<cuda::queue_handle> queues;
-	pool.enumerate_queues(queues);
+	std::vector<command_token> pending;
+	pool.enumerate_pending(pending);
 
-	// The unbound blocks are not listed: there is nothing to wait for on a
-	// queue that does not exist.
-	REQUIRE( queues.size() == 2 );
-	CHECK(
-		std::count(queues.cbegin(), queues.cend(), first_queue) == 1
-	);
-	CHECK(
-		std::count(queues.cbegin(), queues.cend(), second_queue) == 1
-	);
+	// One token per timeline, the latest, since it speaks for the others. A
+	// block that nothing uses has nothing to report.
+	REQUIRE( pending.size() == 2 );
+	for (const auto &token : pending)
+	{
+		if (token.get_timeline() == first)
+		{
+			CHECK( token.get_id() == 8 );
+		}
+		else
+		{
+			CHECK( token.get_timeline() == second );
+			CHECK( token.get_id() == 2 );
+		}
+	}
+	CHECK( pending[0].get_timeline() != pending[1].get_timeline() );
 }

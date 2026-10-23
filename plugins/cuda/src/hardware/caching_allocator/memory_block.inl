@@ -6,6 +6,8 @@
 
 #include <rexlib/core/memory/align.hpp>
 
+#include <utility>
+
 namespace rexlib
 {
 namespace cuda
@@ -13,12 +15,12 @@ namespace cuda
 
 inline
 memory_block::memory_block(
-	const queue_handle &queue,
+	command_token pending,
 	std::size_t size,
 	memory_heap *heap,
 	std::size_t offset
 ) noexcept
-	: m_queue(queue)
+	: m_pending(std::move(pending))
 	, m_size(size)
 	, m_heap(heap)
 	, m_offset(offset)
@@ -26,15 +28,15 @@ memory_block::memory_block(
 }
 
 inline
-void memory_block::set_queue(const queue_handle &queue) noexcept
+void memory_block::set_pending(command_token pending) noexcept
 {
-	m_queue = queue;
+	m_pending = std::move(pending);
 }
 
 inline
-const queue_handle& memory_block::get_queue() const noexcept
+const command_token& memory_block::get_pending() const noexcept
 {
-	return m_queue;
+	return m_pending;
 }
 
 inline

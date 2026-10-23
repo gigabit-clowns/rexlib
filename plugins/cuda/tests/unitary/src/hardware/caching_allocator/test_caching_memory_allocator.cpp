@@ -5,15 +5,21 @@
 #include <hardware/caching_allocator/caching_memory_allocator.hpp>
 
 #include <hardware/caching_allocator/buffer.hpp>
+#include <hardware/command_queue.hpp>
+#include <hardware/pooled_event_recorder.hpp>
+#include <hardware/stream_timeline.hpp>
 
+#include "../mock/mock_command_queue.hpp"
+#include "../mock/mock_command_timeline.hpp"
+#include "../test_driver.hpp"
+#include "../test_stream_blocker.hpp"
 #include "mock/mock_memory_resource.hpp"
 #include "test_caching_allocator.hpp"
-#include "test_queue.hpp"
 
 #include <config.hpp>
 
 #include <rexlib/core/hardware/buffer.hpp>
-#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/memory/align.hpp>
 
 #include <cstddef>
@@ -64,45 +70,31 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a caching_memory_allocator should work out the queue a hint names",
+	"a caching_memory_allocator should allocate whatever the hint is",
 	"[caching_memory_allocator]"
 )
 {
 	cuda::caching_allocator_fixture fixture;
+	command_token pending;
 
-	SECTION( "taking no hint to mean no queue in particular" )
+	SECTION( "when there is none" )
 	{
-		// A buffer that named no queue can be handed to any of them, so what
-		// is handed out belongs to none.
-		FORBID_CALL(
-			fixture.get_blocks().get_recorder(),
-			record(trompeloeil::_)
-		);
+		auto buf = fixture.get().allocate(1024, alignment, nullptr, pending);
 
-		auto buf = fixture.get().allocate(1024, alignment, nullptr);
 		REQUIRE( buf != nullptr );
-
-		auto other = fixture.get().allocate(1024, alignment, nullptr);
-		REQUIRE( other != nullptr );
+		CHECK( pending.is_empty() );
 	}
 
-	SECTION( "and refusing a queue this backend did not make" )
+	SECTION( "when it is a queue this backend did not make" )
 	{
-		class foreign_queue final : public rexlib::command_queue
-		{
-		public:
-			void submit(const rexlib::command&) override {}
-			void signal(rexlib::event&) override {}
-			void wait(const rexlib::event&) override {}
-		};
+		// A hint only says where the buffer is expected to be used first. A
+		// queue with nothing to prefer is still a queue the buffer can be
+		// used on.
+		cuda::mock_command_queue queue;
+		auto buf = fixture.get().allocate(1024, alignment, &queue, pending);
 
-		// There is no stream behind it, so there is nothing to order the
-		// buffer against and nothing to record a point on.
-		foreign_queue queue;
-		CHECK_THROWS_AS(
-			fixture.get().allocate(1024, alignment, &queue),
-			std::invalid_argument
-		);
+		REQUIRE( buf != nullptr );
+		CHECK( pending.is_empty() );
 	}
 }
 
@@ -114,7 +106,8 @@ TEST_CASE(
 {
 	cuda::caching_allocator_fixture fixture;
 
-	auto buf = fixture.get().allocate(1000, alignment, cuda::make_test_queue(0));
+	command_token pending;
+	auto buf = fixture.get().allocate(1000, alignment, nullptr, pending);
 
 	REQUIRE( buf != nullptr );
 	CHECK( &buf->get_memory_resource() == &fixture.get_resource() );
@@ -131,13 +124,13 @@ TEST_CASE(
 	"[caching_memory_allocator]"
 )
 {
-	const auto queue = cuda::make_test_queue(0);
+	command_token pending;
 
 	SECTION( "not when it is device local" )
 	{
 		cuda::caching_allocator_fixture fixture(false);
 
-		auto buf = fixture.get().allocate(1024, alignment, queue);
+		auto buf = fixture.get().allocate(1024, alignment, nullptr, pending);
 		CHECK( buf->get_host_ptr() == nullptr );
 		CHECK( cuda::buffer::cast(*buf).get_device_ptr() != nullptr );
 	}
@@ -146,7 +139,7 @@ TEST_CASE(
 	{
 		cuda::caching_allocator_fixture fixture(true);
 
-		auto buf = fixture.get().allocate(1024, alignment, queue);
+		auto buf = fixture.get().allocate(1024, alignment, nullptr, pending);
 		CHECK( buf->get_host_ptr() != nullptr );
 		CHECK(
 			buf->get_host_ptr() == cuda::buffer::cast(*buf).get_device_ptr()
@@ -160,19 +153,175 @@ TEST_CASE(
 )
 {
 	cuda::caching_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
+	command_token pending;
 
 	void *first = nullptr;
 	{
-		auto buf = fixture.get().allocate(min_heap, alignment, queue);
+		auto buf =
+			fixture.get().allocate(min_heap, alignment, nullptr, pending);
 		first = cuda::buffer::cast(*buf).get_device_ptr();
 	}
 
 	// Only reachable again if dropping the buffer put the block back, since a
 	// whole heap's worth leaves nothing else to cut this out of.
 	FORBID_CALL(fixture.get_blocks().get_source(), allocate(trompeloeil::_));
-	auto second = fixture.get().allocate(min_heap, alignment, queue);
+	auto second =
+		fixture.get().allocate(min_heap, alignment, nullptr, pending);
 	CHECK( cuda::buffer::cast(*second).get_device_ptr() == first );
+}
+
+TEST_CASE(
+	"a caching_memory_allocator should hand out the token of what still uses "
+	"the memory",
+	"[caching_memory_allocator]"
+)
+{
+	cuda::caching_allocator_fixture fixture;
+	auto &allocator = fixture.get();
+	const auto &timeline = fixture.get_blocks().get_timeline(0);
+
+	// A whole heap, dropped while a command still uses it.
+	void *data = nullptr;
+	{
+		command_token pending;
+		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
+
+		// Nothing has ever run against new memory.
+		CHECK( pending.is_empty() );
+
+		data = cuda::buffer::cast(*buf).get_device_ptr();
+		cuda::buffer::cast(*buf).record_use(command_token(timeline, 6));
+	}
+
+	SECTION( "while that command is running" )
+	{
+		command_token pending;
+		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
+
+		CHECK( cuda::buffer::cast(*buf).get_device_ptr() == data );
+		CHECK( pending.get_timeline() == timeline );
+		CHECK( pending.get_id() == 6 );
+	}
+
+	SECTION( "and an empty one once it has finished" )
+	{
+		ALLOW_CALL(*timeline, is_complete(6u))
+			.RETURN(true);
+
+		command_token pending;
+		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
+
+		CHECK( cuda::buffer::cast(*buf).get_device_ptr() == data );
+		CHECK( pending.is_empty() );
+	}
+
+	SECTION( "keeping it on the block when the command cannot be asked about" )
+	{
+		command_token pending;
+		{
+			ALLOW_CALL(*timeline, is_complete(6u))
+				.THROW(std::runtime_error("no answer"));
+
+			CHECK_THROWS_AS(
+				allocator.allocate(min_heap, alignment, nullptr, pending),
+				std::runtime_error
+			);
+		}
+
+		// The block went back with what it was carrying, rather than as
+		// memory nothing uses.
+		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
+
+		CHECK( cuda::buffer::cast(*buf).get_device_ptr() == data );
+		CHECK( pending.get_timeline() == timeline );
+		CHECK( pending.get_id() == 6 );
+	}
+}
+
+TEST_CASE(
+	"a caching_memory_allocator should prefer the memory the named timeline "
+	"can use at no cost",
+	"[caching_memory_allocator]"
+)
+{
+	cuda::caching_allocator_fixture fixture;
+	auto &allocator = fixture.get();
+	const auto &first = fixture.get_blocks().get_timeline(0);
+	const auto &second = fixture.get_blocks().get_timeline(1);
+
+	// Two halves of one heap, each dropped while a command of another
+	// timeline still uses it.
+	void *second_data = nullptr;
+	{
+		command_token pending;
+		auto first_buffer =
+			allocator.allocate(min_heap / 2, alignment, nullptr, pending);
+		auto second_buffer =
+			allocator.allocate(min_heap / 2, alignment, nullptr, pending);
+
+		second_data = cuda::buffer::cast(*second_buffer).get_device_ptr();
+		cuda::buffer::cast(*first_buffer).record_use(command_token(first, 1));
+		cuda::buffer::cast(*second_buffer).record_use(command_token(second, 1));
+	}
+
+	command_token pending;
+	auto buf = allocator.allocate_for_timeline(
+		min_heap / 2, alignment, second.get(), pending
+	);
+
+	CHECK( cuda::buffer::cast(*buf).get_device_ptr() == second_data );
+	CHECK( pending.get_timeline() == second );
+}
+
+TEST_CASE(
+	"a caching_memory_allocator should prefer the memory the hinted queue "
+	"can use at no cost",
+	"[caching_memory_allocator]"
+)
+{
+	if (!cuda::has_test_device())
+	{
+		SKIP( "No CUDA capable device is available." );
+	}
+
+	cuda::caching_allocator_fixture fixture;
+	auto &allocator = fixture.get();
+	const auto &other = fixture.get_blocks().get_timeline(0);
+
+	cuda::command_queue queue(
+		0,
+		std::make_shared<cuda::pooled_event_recorder>(0)
+	);
+
+	// Declared after the allocator, so that the stream is let go before the
+	// allocator waits for it on its way out.
+	cuda::stream_blocker blocker(queue.get_handle());
+	const command_token own(
+		queue.get_timeline(),
+		queue.get_timeline()->record(queue.get_handle())
+	);
+
+	// Two halves of one heap, one dropped while a command of the queue still
+	// uses it and the other while a command of another timeline does.
+	void *own_data = nullptr;
+	{
+		command_token pending;
+		auto other_buffer =
+			allocator.allocate(min_heap / 2, alignment, nullptr, pending);
+		auto own_buffer =
+			allocator.allocate(min_heap / 2, alignment, nullptr, pending);
+
+		own_data = cuda::buffer::cast(*own_buffer).get_device_ptr();
+		cuda::buffer::cast(*other_buffer).record_use(command_token(other, 1));
+		cuda::buffer::cast(*own_buffer).record_use(own);
+	}
+
+	command_token pending;
+	auto buf = allocator.allocate(min_heap / 2, alignment, &queue, pending);
+
+	CHECK( cuda::buffer::cast(*buf).get_device_ptr() == own_data );
+	CHECK( pending.get_timeline() == queue.get_timeline() );
+	CHECK( pending.get_id() == own.get_id() );
 }
 
 TEST_CASE(
@@ -182,7 +331,8 @@ TEST_CASE(
 {
 	cuda::caching_allocator_fixture fixture;
 
-	fixture.get().allocate(1024, alignment, cuda::make_test_queue(0));
+	command_token pending;
+	fixture.get().allocate(1024, alignment, nullptr, pending);
 	REQUIRE( fixture.get_blocks().get_arena().get_used_bytes() == min_heap );
 
 	CHECK( fixture.get().trim() == min_heap );

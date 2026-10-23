@@ -12,13 +12,15 @@ namespace cuda
 {
 
 class device_memory_resource;
+class event_recorder;
 
 /**
  * @brief CUDA implementation of @ref rexlib::device.
  *
- * The handle is a thin wrapper around a device ordinal: it owns no driver
- * resource of its own, so several handles may refer to the same physical
- * device without interfering with each other.
+ * The handle is a thin wrapper around a device ordinal, so several handles
+ * may refer to the same physical device without interfering with each other.
+ * The one driver resource it holds is the pool of events its queues capture
+ * their commands with, which fills as they are needed.
  */
 class device final
 	: public rexlib::device
@@ -47,11 +49,11 @@ public:
 
 	std::shared_ptr<rexlib::command_queue> create_command_queue() const override;
 
-	std::shared_ptr<rexlib::event>
-	create_event(event_usage_flags usage) const override;
-
 private:
 	int m_ordinal;
+
+	/// Shared with the queues, whose timelines may outlive this.
+	std::shared_ptr<event_recorder> m_events;
 
 	/// Null where the device shares the host's memory, since there is then no
 	/// such thing as memory local to it.

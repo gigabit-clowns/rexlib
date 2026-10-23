@@ -2,23 +2,19 @@
 
 #pragma once
 
-#include "queue_handle.hpp"
-
 #include "../../config.hpp"
 
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/span.hpp>
 
 #include <memory>
+#include <mutex>
 
-#include <boost/container/flat_set.hpp>
 #include <boost/container/small_vector.hpp>
 
 namespace rexlib
 {
-
-class command_queue;
-
 namespace cuda
 {
 
@@ -31,17 +27,18 @@ class memory_block_allocator;
  * Owns a block of a @ref memory_block_allocator for as long as it lives, and
  * gives it back when it dies. Holding the block allocator rather than the
  * @ref caching_memory_allocator it came from is what lets the memory outlive
- * that allocator, and keeps giving a block back off the public interface. It also keeps track of which queues besides the
- * one it was allocated for have been given work referencing it, since that is
- * what the allocator has to wait for before the block can be handed out again.
+ * that allocator, and keeps giving a block back off the public interface.
+ *
+ * It also remembers the commands that use its memory: the last one of each
+ * timeline, starting with the one its block came with. A buffer may die while
+ * they are still running, and they are what the next user of the block has to
+ * wait for.
  *
  * The device pointer is not part of the @ref rexlib::buffer interface, so
  * reaching it means downcasting through @ref cast.
  *
- * @note Recording a use is not synchronized against other uses of the same
- * buffer, or against its destruction. A buffer submitted from several threads
- * at once needs the same external synchronization it already needs to be
- * shared at all.
+ * @note Recording a use is synchronized against other uses of the same
+ * buffer, but not against its destruction.
  */
 class buffer final
 	: public rexlib::buffer
@@ -53,7 +50,8 @@ public:
 	 * @param allocator The allocator the block belongs to. Held for as long as
 	 * this lives, so that the block can always be given back. Can not be
 	 * nullptr.
-	 * @param block The block. Must have been handed out by @p allocator.
+	 * @param block The block. Must have been handed out by @p allocator. A
+	 * non empty token on it is recorded as a use.
 	 * @param resource The resource the memory is said to come from. Must
 	 * outlive this.
 	 * @param host_data Where the host can reach the block's memory, or nullptr
@@ -95,40 +93,29 @@ public:
 	const void* get_device_ptr() const noexcept;
 
 	/**
-	 * @brief Record that a queue has been given work referencing this buffer.
+	 * @brief Record that a command uses this buffer.
 	 *
-	 * Work on the queue the buffer was allocated for needs no recording: that
-	 * queue runs in order, so anything it is given later is already ordered
-	 * after it. Any other queue has to be waited for before the memory can be
-	 * handed out again, and this is how the allocator finds out about it.
+	 * Only the last command of each timeline is kept, so the timeline of
+	 * @p token must finish its commands in the order of their ids. An empty
+	 * token is ignored.
 	 *
-	 * @param queue The queue the work was given to.
+	 * A command that only reads the buffer uses it as well, so this can be
+	 * called on a buffer that cannot be written.
 	 *
-	 * @throws std::invalid_argument If the queue was not created by the CUDA
-	 * backend.
+	 * Thread safe.
+	 *
+	 * @param token The token of the command.
 	 */
-	void record_use(const rexlib::command_queue &queue);
+	void record_use(const command_token &token) const;
 
 	/**
-	 * @brief Record that a queue that is already resolved has been given work
-	 * referencing this buffer.
+	 * @brief Get the commands that were recorded as using this buffer.
 	 *
-	 * What @ref record_use does once it has worked out which queue it was
-	 * handed. Callers inside this backend usually hold a CUDA queue already,
-	 * and this spares them the downcast.
+	 * Not synchronized against @ref record_use.
 	 *
-	 * @param queue The queue the work was given to.
+	 * @return span<const command_token> One token per timeline.
 	 */
-	void record_use(const queue_handle &queue);
-
-	/**
-	 * @brief Get the queues that were recorded as using this buffer.
-	 *
-	 * The queue the buffer was allocated for is never among them.
-	 *
-	 * @return span<const queue_handle> The queues.
-	 */
-	span<const queue_handle> get_recorded_queues() const noexcept;
+	span<const command_token> get_recorded_uses() const noexcept;
 
 	/**
 	 * @brief Downcast a buffer to this backend's implementation.
@@ -153,22 +140,19 @@ public:
 	static const buffer& cast(const rexlib::buffer &buf);
 
 private:
-	/// Sorted and deduplicated, and inline for as many queues as a buffer is
-	/// ever likely to be handed to.
-	using queue_set_type = boost::container::flat_set<
-		queue_handle,
-		std::less<queue_handle>,
-		boost::container::small_vector<
-			queue_handle,
-			REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
-		>
+	/// One token per timeline, inline for as many queues as a buffer is ever
+	/// likely to be handed to.
+	using token_vector_type = boost::container::small_vector<
+		command_token,
+		REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
 	>;
 
 	std::shared_ptr<memory_block_allocator> m_allocator;
 	memory_block *m_block;
 	const memory_resource *m_resource;
 	void *m_host_data;
-	queue_set_type m_queues;
+	mutable std::mutex m_mutex;
+	mutable token_vector_type m_uses;
 };
 
 } // namespace cuda

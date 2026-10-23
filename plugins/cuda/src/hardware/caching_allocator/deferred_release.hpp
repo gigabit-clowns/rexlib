@@ -2,14 +2,13 @@
 
 #pragma once
 
-#include "event_ticket.hpp"
-#include "queue_handle.hpp"
-
 #include "../../config.hpp"
 
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/span.hpp>
 
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 #include <boost/container/small_vector.hpp>
@@ -19,21 +18,18 @@ namespace rexlib
 namespace cuda
 {
 
-class event_recorder;
 class memory_block;
 class memory_block_pool;
 
 /**
- * @brief Holds back the blocks that work is still running against.
+ * @brief Holds back the blocks that several commands are still running
+ * against.
  *
- * A block goes back to its pool the moment nothing needs it any more, which
- * for a block used only on the queue it belongs to is as soon as its buffer
- * dies: that queue runs in order, so whatever it is handed to next is already
- * ordered after the work being dropped.
- *
- * A block that was also used on other queues has no such guarantee. This is
- * where those wait, one captured point per queue that touched them, until
- * every one of those points has been reached.
+ * A free block carries one token, which is what its next user waits for. A
+ * block whose buffer dies while commands of several queues still use it
+ * would need one token per queue. This is where such a block waits, until at
+ * most one of those commands is still running. It then goes back to its pool
+ * carrying that token, or an empty one.
  *
  * Blocks wait here without being free, which is what keeps a neighbour coming
  * back to the pool from merging with a block that is still in use.
@@ -53,43 +49,36 @@ public:
 	deferred_release& operator=(deferred_release &&other) = delete;
 
 	/**
-	 * @brief Hold a block back until the queues that used it have caught up.
+	 * @brief Hold a block back until at most one of the commands that use it
+	 * is still running.
 	 *
-	 * @param recorder The recorder capturing the points to wait for. Must
-	 * outlive this, since the points captured here are given back to it as
-	 * they are reached.
 	 * @param block The block to hold back. Must have been handed out, and must
 	 * not already be held back.
-	 * @param queues The queues that used the block besides the one it belongs
-	 * to. Can not be empty, and none of them may stand for no queue.
+	 * @param pending The tokens of the commands that still use the block.
+	 * There must be at least two.
 	 *
-	 * @throws std::invalid_argument If @p queues is empty or names no queue.
-	 * @throws error If a point of one of the queues could not be captured. The
-	 * block is then not held back, and is still not free.
+	 * @throws std::invalid_argument If @p pending holds fewer than two tokens.
+	 * The block is then not held back, and is still not free.
 	 */
-	void defer(
-		event_recorder &recorder,
-		memory_block &block,
-		span<const queue_handle> queues
-	);
+	void defer(memory_block &block, span<const command_token> pending);
 
 	/**
-	 * @brief Give back every block whose queues have caught up.
+	 * @brief Give back every block that at most one command still uses.
 	 *
 	 * Does not block the calling thread.
 	 *
 	 * @param pool The pool the blocks came from.
 	 *
-	 * @throws error If a captured point could not be queried.
+	 * @throws std::exception If a token could not be queried.
 	 */
 	void process(memory_block_pool &pool);
 
 	/**
-	 * @brief Give back every block, waiting for the queues that used them.
+	 * @brief Give back every block, waiting for the commands that use them.
 	 *
 	 * @param pool The pool the blocks came from.
 	 *
-	 * @throws error If a captured point could not be waited for.
+	 * @throws std::exception If a token could not be waited for.
 	 */
 	void wait_all(memory_block_pool &pool);
 
@@ -101,12 +90,13 @@ public:
 	std::size_t get_pending_count() const noexcept;
 
 private:
-	/// One block and the points that have to be reached before it can go back.
-	using pending_release = std::pair<memory_block*, std::vector<event_ticket>>;
+	/// One block and the tokens of the commands that still use it.
+	using pending_release =
+		std::pair<memory_block*, std::vector<command_token>>;
 
-	/// Whether each of one block's points has been reached. As long as how
-	/// many queues touched a single buffer, which is a handful.
-	using reached_point_flags = boost::container::small_vector<
+	/// Whether each of one block's commands has finished. As long as how many
+	/// queues touched a single buffer, which is a handful.
+	using completion_flags = boost::container::small_vector<
 		bool,
 		REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
 	>;
@@ -114,17 +104,14 @@ private:
 	std::vector<pending_release> m_pending;
 
 	/**
-	 * @brief Give back the tickets of the points that have been reached.
+	 * @brief Forget the tokens of the commands that have finished.
 	 *
-	 * A block with no tickets left is one that nothing is running against any
-	 * more.
+	 * @param item The block to check the tokens of.
 	 *
-	 * @param item The block to check the points of.
-	 *
-	 * @throws error If a captured point could not be queried. The block is
-	 * then left waiting for exactly the points it was waiting for.
+	 * @throws std::exception If a token could not be queried. The block is
+	 * then left waiting for exactly the tokens it was waiting for.
 	 */
-	static void drop_reached_points(pending_release &item);
+	static void drop_complete_tokens(pending_release &item);
 };
 
 } // namespace cuda

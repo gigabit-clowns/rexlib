@@ -8,9 +8,11 @@
 #include <hardware/caching_allocator/memory_block_pool.hpp>
 #include <hardware/caching_allocator/memory_heap.hpp>
 
-#include "mock/mock_event_recorder.hpp"
+#include "../mock/mock_command_timeline.hpp"
 #include "mock/mock_memory_source.hpp"
-#include "test_queue.hpp"
+
+#include <rexlib/core/hardware/command_token.hpp>
+#include <rexlib/core/span.hpp>
 
 #include <array>
 #include <cstddef>
@@ -54,18 +56,14 @@ public:
 	 * @brief Take a whole heap's worth of block out of the pool.
 	 *
 	 * @param size Size of the heap, in bytes.
-	 * @param queue The queue the block is handed to.
 	 * @return cuda::memory_block& The block.
 	 */
-	cuda::memory_block& acquire_block(
-		std::size_t size,
-		const cuda::queue_handle &queue
-	)
+	cuda::memory_block& acquire_block(std::size_t size)
 	{
 		auto *block = m_pool.register_heap(
 			std::make_unique<cuda::memory_heap>(m_source, size, 256)
 		);
-		m_pool.acquire(*block, queue);
+		m_pool.acquire(*block);
 		return *block;
 	}
 
@@ -93,35 +91,26 @@ private:
 
 /**
  * @brief A deferred release over a pool of blocks that exist only as
- * addresses.
+ * addresses, and two timelines whose commands use them.
  *
  * Stands in for the owner a deferred release expects, draining it while there
- * is still a pool to give the blocks back to. Waiting and giving tickets back
- * are allowed throughout, since that drain causes both and every test would
- * otherwise have to say so. A test that is about those calls says so itself,
- * which takes precedence.
+ * is still a pool to give the blocks back to. Waiting is allowed throughout,
+ * since that drain causes it and every test would otherwise have to say so.
+ * A test that is about those calls says so itself, which takes precedence.
  */
 class deferred_fixture
 {
 public:
 	deferred_fixture()
-		: m_wait_expectation(
-			NAMED_ALLOW_CALL(m_recorder, wait(trompeloeil::_))
+		: m_first(std::make_shared<cuda::mock_command_timeline>())
+		, m_second(std::make_shared<cuda::mock_command_timeline>())
+		, m_first_wait_expectation(
+			NAMED_ALLOW_CALL(*m_first, wait(trompeloeil::_))
 		)
-		, m_release_expectation(
-			NAMED_ALLOW_CALL(m_recorder, release(trompeloeil::_))
+		, m_second_wait_expectation(
+			NAMED_ALLOW_CALL(*m_second, wait(trompeloeil::_))
 		)
 	{
-	}
-
-	cuda::deferred_release& get() noexcept
-	{
-		return m_deferred;
-	}
-
-	cuda::mock_event_recorder& get_recorder() noexcept
-	{
-		return m_recorder;
 	}
 
 	~deferred_fixture()
@@ -129,27 +118,42 @@ public:
 		m_deferred.wait_all(m_pool.get());
 	}
 
+	cuda::deferred_release& get() noexcept
+	{
+		return m_deferred;
+	}
+
 	cuda::memory_block_pool& get_pool() noexcept
 	{
 		return m_pool.get();
 	}
 
-	cuda::memory_block& acquire_block(
-		std::size_t size,
-		const cuda::queue_handle &queue
-	)
+	const std::shared_ptr<cuda::mock_command_timeline>&
+	get_first_timeline() const noexcept
 	{
-		return m_pool.acquire_block(size, queue);
+		return m_first;
+	}
+
+	const std::shared_ptr<cuda::mock_command_timeline>&
+	get_second_timeline() const noexcept
+	{
+		return m_second;
+	}
+
+	cuda::memory_block& acquire_block(std::size_t size)
+	{
+		return m_pool.acquire_block(size);
 	}
 
 private:
 	pool_fixture m_pool;
-	cuda::mock_event_recorder m_recorder;
+	std::shared_ptr<cuda::mock_command_timeline> m_first;
+	std::shared_ptr<cuda::mock_command_timeline> m_second;
 
 	// Declared before the deferred release, so that they are destroyed after
 	// it and are still around while it drains.
-	std::unique_ptr<trompeloeil::expectation> m_wait_expectation;
-	std::unique_ptr<trompeloeil::expectation> m_release_expectation;
+	std::unique_ptr<trompeloeil::expectation> m_first_wait_expectation;
+	std::unique_ptr<trompeloeil::expectation> m_second_wait_expectation;
 
 	cuda::deferred_release m_deferred;
 };
@@ -157,35 +161,31 @@ private:
 } // anonymous namespace
 
 TEST_CASE(
-	"deferred_release should hold a block back until every queue that used it "
-	"has caught up",
+	"deferred_release should hold a block back until at most one of the "
+	"commands that use it is still running",
 	"[deferred_release]"
 )
 {
 	deferred_fixture fixture;
-	auto &recorder = fixture.get_recorder();
 	auto &deferred = fixture.get();
+	const auto &first = fixture.get_first_timeline();
+	const auto &second = fixture.get_second_timeline();
+	auto &block = fixture.acquire_block(1024);
 
-	const auto own = cuda::make_test_queue(0);
-	const auto first = cuda::make_test_queue(1);
-	const auto second = cuda::make_test_queue(2);
-	auto &block = fixture.acquire_block(1024, own);
-
-	// One point per queue that touched the block besides its own.
-	REQUIRE_CALL(recorder, record(first))
-		.RETURN(1);
-	REQUIRE_CALL(recorder, record(second))
-		.RETURN(2);
-
-	const std::array<cuda::queue_handle, 2> queues = {first, second};
-	deferred.defer(recorder, block, make_span(queues));
+	const std::array<command_token, 2> tokens = {
+		command_token(first, 1),
+		command_token(second, 1)
+	};
+	deferred.defer(block, make_span(tokens));
 
 	CHECK( deferred.get_pending_count() == 1 );
 	CHECK_FALSE( block.is_free() );
 
-	SECTION( "staying held while neither has" )
+	SECTION( "staying held while both are" )
 	{
-		ALLOW_CALL(recorder, is_complete(trompeloeil::_))
+		ALLOW_CALL(*first, is_complete(1u))
+			.RETURN(false);
+		ALLOW_CALL(*second, is_complete(1u))
 			.RETURN(false);
 
 		deferred.process(fixture.get_pool());
@@ -194,34 +194,35 @@ TEST_CASE(
 		CHECK_FALSE( block.is_free() );
 	}
 
-	SECTION( "staying held while only one has" )
+	SECTION( "going back with the token of the one that is left" )
 	{
-		ALLOW_CALL(recorder, is_complete(1u))
+		ALLOW_CALL(*first, is_complete(1u))
 			.RETURN(true);
-		ALLOW_CALL(recorder, is_complete(2u))
+		ALLOW_CALL(*second, is_complete(1u))
 			.RETURN(false);
-
-		// The point that has been reached is given back straight away rather
-		// than being queried again on every sweep.
-		REQUIRE_CALL(recorder, release(1u));
 
 		deferred.process(fixture.get_pool());
 
-		CHECK( deferred.get_pending_count() == 1 );
-		CHECK_FALSE( block.is_free() );
+		// A free block carries one token, and one is all that is left to
+		// wait for.
+		CHECK( deferred.get_pending_count() == 0 );
+		CHECK( block.is_free() );
+		CHECK( block.get_pending().get_timeline() == second );
+		CHECK( block.get_pending().get_id() == 1 );
 	}
 
-	SECTION( "and going back once both have" )
+	SECTION( "and going back with an empty token once both have finished" )
 	{
-		ALLOW_CALL(recorder, is_complete(trompeloeil::_))
+		ALLOW_CALL(*first, is_complete(1u))
 			.RETURN(true);
-		REQUIRE_CALL(recorder, release(1u));
-		REQUIRE_CALL(recorder, release(2u));
+		ALLOW_CALL(*second, is_complete(1u))
+			.RETURN(true);
 
 		deferred.process(fixture.get_pool());
 
 		CHECK( deferred.get_pending_count() == 0 );
 		CHECK( block.is_free() );
+		CHECK( block.get_pending().is_empty() );
 	}
 }
 
@@ -231,27 +232,28 @@ TEST_CASE(
 )
 {
 	deferred_fixture fixture;
-	auto &recorder = fixture.get_recorder();
 	auto &deferred = fixture.get();
 	auto &pool = fixture.get_pool();
+	const auto &first = fixture.get_first_timeline();
+	const auto &second = fixture.get_second_timeline();
 
-	const auto own = cuda::make_test_queue(0);
-	const auto other = cuda::make_test_queue(1);
-
-	auto &whole = fixture.acquire_block(1024, own);
-	pool.release(whole);
+	auto &whole = fixture.acquire_block(1024);
+	pool.release(whole, command_token());
 	const auto halves = pool.partition_block(whole, 512, 512);
-	pool.acquire(*halves.first, own);
-	pool.acquire(*halves.second, own);
-	pool.release(*halves.second);
+	pool.acquire(*halves.first);
+	pool.acquire(*halves.second);
+	pool.release(*halves.second, command_token());
 
-	ALLOW_CALL(recorder, record(other))
-		.RETURN(1);
-	ALLOW_CALL(recorder, is_complete(1u))
+	ALLOW_CALL(*first, is_complete(1u))
+		.RETURN(true);
+	ALLOW_CALL(*second, is_complete(1u))
 		.RETURN(true);
 
-	const std::array<cuda::queue_handle, 1> queues = {other};
-	deferred.defer(recorder, *halves.first, make_span(queues));
+	const std::array<command_token, 2> tokens = {
+		command_token(first, 1),
+		command_token(second, 1)
+	};
+	deferred.defer(*halves.first, make_span(tokens));
 
 	// While it waits it is not free, so the neighbour that came back before it
 	// could not have swallowed it.
@@ -269,58 +271,58 @@ TEST_CASE(
 )
 {
 	deferred_fixture fixture;
-	auto &recorder = fixture.get_recorder();
 	auto &deferred = fixture.get();
+	const auto &first = fixture.get_first_timeline();
+	const auto &second = fixture.get_second_timeline();
 
-	const auto own = cuda::make_test_queue(0);
-	const auto other = cuda::make_test_queue(1);
-	auto &first = fixture.acquire_block(1024, own);
-	auto &second = fixture.acquire_block(1024, own);
+	auto &first_block = fixture.acquire_block(1024);
+	auto &second_block = fixture.acquire_block(1024);
 
-	ALLOW_CALL(recorder, record(other))
-		.RETURN(1);
+	const std::array<command_token, 2> tokens = {
+		command_token(first, 1),
+		command_token(second, 1)
+	};
+	deferred.defer(first_block, make_span(tokens));
+	deferred.defer(second_block, make_span(tokens));
 
-	const std::array<cuda::queue_handle, 1> queues = {other};
-	deferred.defer(recorder, first, make_span(queues));
-	deferred.defer(recorder, second, make_span(queues));
-
-	REQUIRE_CALL(recorder, wait(1u))
+	REQUIRE_CALL(*first, wait(1u))
 		.TIMES(2);
-	REQUIRE_CALL(recorder, release(1u))
+	REQUIRE_CALL(*second, wait(1u))
 		.TIMES(2);
 
 	deferred.wait_all(fixture.get_pool());
 
+	// Everything has been waited for, so there is nothing left to carry.
 	CHECK( deferred.get_pending_count() == 0 );
-	CHECK( first.is_free() );
-	CHECK( second.is_free() );
+	CHECK( first_block.is_free() );
+	CHECK( second_block.is_free() );
+	CHECK( first_block.get_pending().is_empty() );
+	CHECK( second_block.get_pending().is_empty() );
 }
 
 TEST_CASE(
-	"a deferred_release should wait for what it is still holding when it dies",
+	"a deferred_release should be drained by its owner before it dies",
 	"[deferred_release]"
 )
 {
 	pool_fixture pool;
-	cuda::mock_event_recorder recorder;
-
-	const auto own = cuda::make_test_queue(0);
-	const auto other = cuda::make_test_queue(1);
-	auto &block = pool.acquire_block(1024, own);
-
-	ALLOW_CALL(recorder, record(other))
-		.RETURN(1);
+	const auto first = std::make_shared<cuda::mock_command_timeline>();
+	const auto second = std::make_shared<cuda::mock_command_timeline>();
+	auto &block = pool.acquire_block(1024);
 
 	// Letting the pool go while a queue may still be reading from one of its
 	// heaps would hand that memory back to the driver underneath it.
-	REQUIRE_CALL(recorder, wait(1u));
-	REQUIRE_CALL(recorder, release(1u));
+	REQUIRE_CALL(*first, wait(1u));
+	REQUIRE_CALL(*second, wait(1u));
 
 	{
 		cuda::deferred_release deferred;
 
-		const std::array<cuda::queue_handle, 1> queues = {other};
-		deferred.defer(recorder, block, make_span(queues));
+		const std::array<command_token, 2> tokens = {
+			command_token(first, 1),
+			command_token(second, 1)
+		};
+		deferred.defer(block, make_span(tokens));
 
 		// Draining is the owner's to do, while it still has the pool to give
 		// the blocks back to.
@@ -331,76 +333,38 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"deferred_release should refuse to hold a block back for nothing",
+	"deferred_release should refuse a block that a single token can speak "
+	"for",
 	"[deferred_release]"
 )
 {
 	deferred_fixture fixture;
-	auto &recorder = fixture.get_recorder();
 	auto &deferred = fixture.get();
+	auto &block = fixture.acquire_block(1024);
 
-	const auto own = cuda::make_test_queue(0);
-	auto &block = fixture.acquire_block(1024, own);
-
-	FORBID_CALL(recorder, record(trompeloeil::_));
-
-	SECTION( "when no queue is named" )
+	SECTION( "when no command uses it" )
 	{
 		CHECK_THROWS_AS(
-			deferred.defer(recorder, block, span<const cuda::queue_handle>()),
+			deferred.defer(block, span<const command_token>()),
 			std::invalid_argument
 		);
 	}
 
-	SECTION( "when a queue that does not exist is named" )
+	SECTION( "when one command uses it" )
 	{
-		const std::array<cuda::queue_handle, 1> queues =
-			{cuda::queue_handle()};
+		const std::array<command_token, 1> tokens = {
+			command_token(fixture.get_first_timeline(), 1)
+		};
 		CHECK_THROWS_AS(
-			deferred.defer(recorder, block, make_span(queues)),
+			deferred.defer(block, make_span(tokens)),
 			std::invalid_argument
 		);
 	}
-
-	CHECK( deferred.get_pending_count() == 0 );
-
-	fixture.get_pool().release(block);
-}
-
-TEST_CASE(
-	"a deferred_release should give back what it captured when capturing "
-	"fails part way through",
-	"[deferred_release]"
-)
-{
-	deferred_fixture fixture;
-	auto &recorder = fixture.get_recorder();
-	auto &deferred = fixture.get();
-
-	const auto own = cuda::make_test_queue(0);
-	const auto first = cuda::make_test_queue(1);
-	const auto second = cuda::make_test_queue(2);
-	auto &block = fixture.acquire_block(1024, own);
-
-	REQUIRE_CALL(recorder, record(first))
-		.RETURN(1);
-	REQUIRE_CALL(recorder, record(second))
-		.THROW(std::runtime_error("no more events"));
-
-	// Half a wait is worse than none: the block would look like it only ever
-	// needed the one queue to catch up.
-	REQUIRE_CALL(recorder, release(1u));
-
-	const std::array<cuda::queue_handle, 2> queues = {first, second};
-	CHECK_THROWS_AS(
-		deferred.defer(recorder, block, make_span(queues)),
-		std::runtime_error
-	);
 
 	CHECK( deferred.get_pending_count() == 0 );
 	CHECK_FALSE( block.is_free() );
 
-	fixture.get_pool().release(block);
+	fixture.get_pool().release(block, command_token());
 }
 
 TEST_CASE(
@@ -410,104 +374,94 @@ TEST_CASE(
 )
 {
 	pool_fixture pool;
-	cuda::mock_event_recorder recorder;
-
-	const auto own = cuda::make_test_queue(0);
-	const auto other = cuda::make_test_queue(1);
+	const auto first = std::make_shared<cuda::mock_command_timeline>();
+	const auto second = std::make_shared<cuda::mock_command_timeline>();
 
 	// One heap each, so that the one that goes back cannot merge into the one
 	// that does not and stop being a block of its own.
-	auto &first = pool.acquire_block(1024, own);
-	auto &second = pool.acquire_block(1024, own);
-
-	trompeloeil::sequence sequence;
-	REQUIRE_CALL(recorder, record(other))
-		.RETURN(1)
-		.IN_SEQUENCE(sequence);
-	REQUIRE_CALL(recorder, record(other))
-		.RETURN(2)
-		.IN_SEQUENCE(sequence);
-	ALLOW_CALL(recorder, release(trompeloeil::_));
+	auto &first_block = pool.acquire_block(1024);
+	auto &second_block = pool.acquire_block(1024);
 
 	cuda::deferred_release deferred;
-	const std::array<cuda::queue_handle, 1> queues = {other};
-	deferred.defer(recorder, first, make_span(queues));
-	deferred.defer(recorder, second, make_span(queues));
+	const std::array<command_token, 2> first_tokens = {
+		command_token(first, 1),
+		command_token(second, 1)
+	};
+	const std::array<command_token, 2> second_tokens = {
+		command_token(first, 2),
+		command_token(second, 2)
+	};
+	deferred.defer(first_block, make_span(first_tokens));
+	deferred.defer(second_block, make_span(second_tokens));
 
-	// The first block's queue catches up; the second one's cannot be waited
-	// for at all.
-	ALLOW_CALL(recorder, wait(1u));
-	ALLOW_CALL(recorder, wait(2u))
-		.THROW(std::runtime_error("no answer"));
+	// The commands of the first block finish; one of the second block's
+	// cannot be waited for at all.
+	ALLOW_CALL(*first, wait(trompeloeil::_));
+	ALLOW_CALL(*second, wait(1u));
+	{
+		ALLOW_CALL(*second, wait(2u))
+			.THROW(std::runtime_error("no answer"));
 
-	CHECK_THROWS_AS(
-		deferred.wait_all(pool.get()),
-		std::runtime_error
-	);
+		CHECK_THROWS_AS(
+			deferred.wait_all(pool.get()),
+			std::runtime_error
+		);
+	}
 
 	// The one that made it back is no longer held back, so the drain the owner
 	// still has to do cannot hand it to the pool a second time.
-	CHECK( first.is_free() );
-	CHECK_FALSE( second.is_free() );
+	CHECK( first_block.is_free() );
+	CHECK_FALSE( second_block.is_free() );
 	CHECK( deferred.get_pending_count() == 1 );
 
-	ALLOW_CALL(recorder, wait(2u));
+	ALLOW_CALL(*second, wait(2u));
 	deferred.wait_all(pool.get());
 
-	CHECK( second.is_free() );
+	CHECK( second_block.is_free() );
 	CHECK( deferred.get_pending_count() == 0 );
 }
 
 TEST_CASE(
-	"a deferred_release should leave a block waiting for every point it was "
+	"a deferred_release should leave a block waiting for every token it was "
 	"waiting for when one cannot be queried",
 	"[deferred_release]"
 )
 {
 	deferred_fixture fixture;
-	auto &recorder = fixture.get_recorder();
 	auto &deferred = fixture.get();
+	const auto &first = fixture.get_first_timeline();
+	const auto &second = fixture.get_second_timeline();
+	auto &block = fixture.acquire_block(1024);
 
-	const auto own = cuda::make_test_queue(0);
-	const auto first = cuda::make_test_queue(1);
-	const auto second = cuda::make_test_queue(2);
-	auto &block = fixture.acquire_block(1024, own);
-
-	ALLOW_CALL(recorder, record(first))
-		.RETURN(1);
-	ALLOW_CALL(recorder, record(second))
-		.RETURN(2);
-
-	const std::array<cuda::queue_handle, 2> queues = {first, second};
-	deferred.defer(recorder, block, make_span(queues));
+	const std::array<command_token, 2> tokens = {
+		command_token(first, 1),
+		command_token(second, 1)
+	};
+	deferred.defer(block, make_span(tokens));
 
 	{
-		// The first point has been reached, the second cannot be asked about.
-		ALLOW_CALL(recorder, is_complete(1u))
+		// The first command has finished, the second cannot be asked about.
+		ALLOW_CALL(*first, is_complete(1u))
 			.RETURN(true);
-		ALLOW_CALL(recorder, is_complete(2u))
+		ALLOW_CALL(*second, is_complete(1u))
 			.THROW(std::runtime_error("no answer"));
-
-		// Giving the reached one back here would leave the block waiting for a
-		// subset of what it was waiting for.
-		FORBID_CALL(recorder, release(trompeloeil::_));
 
 		CHECK_THROWS_AS(
 			deferred.process(fixture.get_pool()),
 			std::runtime_error
 		);
 
+		// Forgetting the finished one here would have the block go back
+		// carrying a token nobody was able to ask about.
 		CHECK( deferred.get_pending_count() == 1 );
 		CHECK_FALSE( block.is_free() );
 	}
 
-	// Both points are still there to be asked about once the driver answers.
-	REQUIRE_CALL(recorder, is_complete(1u))
+	// Both tokens are still there to be asked about once the driver answers.
+	REQUIRE_CALL(*first, is_complete(1u))
 		.RETURN(true);
-	REQUIRE_CALL(recorder, is_complete(2u))
+	REQUIRE_CALL(*second, is_complete(1u))
 		.RETURN(true);
-	REQUIRE_CALL(recorder, release(1u));
-	REQUIRE_CALL(recorder, release(2u));
 
 	deferred.process(fixture.get_pool());
 

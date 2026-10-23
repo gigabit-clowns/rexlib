@@ -6,18 +6,17 @@
 
 #include <hardware/caching_allocator/memory_block.hpp>
 
-#include "mock/mock_event_recorder.hpp"
+#include "../mock/mock_command_timeline.hpp"
 #include "mock/mock_memory_source.hpp"
 #include "test_block_allocator.hpp"
-#include "test_event_recorder_reference.hpp"
-#include "test_memory_source_reference.hpp"
-#include "test_queue.hpp"
 
 #include <config.hpp>
 
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/memory/align.hpp>
 #include <rexlib/core/span.hpp>
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -51,7 +50,7 @@ public:
 	{
 		for (auto *block : m_blocks)
 		{
-			m_allocator->recycle(*block, span<const cuda::queue_handle>());
+			m_allocator->recycle(*block, span<const command_token>());
 		}
 	}
 
@@ -60,10 +59,10 @@ public:
 
 	cuda::memory_block& take(
 		std::size_t size,
-		const cuda::queue_handle &queue
+		const command_timeline *timeline = nullptr
 	)
 	{
-		auto &result = m_allocator->allocate(size, alignment, queue);
+		auto &result = m_allocator->allocate(size, alignment, timeline);
 		m_blocks.push_back(&result);
 		return result;
 	}
@@ -100,34 +99,15 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"memory_block_allocator should refuse to be built without what it needs",
+	"memory_block_allocator should refuse to be built without a memory "
+	"source",
 	"[memory_block_allocator]"
 )
 {
-	cuda::mock_memory_source source;
-	cuda::mock_event_recorder recorder;
-
-	SECTION( "when it is given no memory source" )
-	{
-		CHECK_THROWS_AS(
-			cuda::memory_block_allocator(
-				nullptr,
-				std::make_unique<cuda::event_recorder_reference>(recorder)
-			),
-			std::invalid_argument
-		);
-	}
-
-	SECTION( "when it is given no event recorder" )
-	{
-		CHECK_THROWS_AS(
-			cuda::memory_block_allocator(
-				std::make_unique<cuda::memory_source_reference>(source),
-				nullptr
-			),
-			std::invalid_argument
-		);
-	}
+	CHECK_THROWS_AS(
+		cuda::memory_block_allocator(nullptr),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
@@ -136,14 +116,13 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
 
 	FORBID_CALL(fixture.get_source(), allocate(trompeloeil::_));
 
 	SECTION( "when it is stricter than the maximum" )
 	{
 		CHECK_THROWS_AS(
-			fixture.get().allocate(1024, 2 * alignment, queue),
+			fixture.get().allocate(1024, 2 * alignment, nullptr),
 			std::invalid_argument
 		);
 	}
@@ -151,7 +130,7 @@ TEST_CASE(
 	SECTION( "when it is not a power of two" )
 	{
 		CHECK_THROWS_AS(
-			fixture.get().allocate(1024, 24, queue),
+			fixture.get().allocate(1024, 24, nullptr),
 			std::invalid_argument
 		);
 	}
@@ -159,7 +138,7 @@ TEST_CASE(
 	SECTION( "when it is zero" )
 	{
 		CHECK_THROWS_AS(
-			fixture.get().allocate(1024, 0, queue),
+			fixture.get().allocate(1024, 0, nullptr),
 			std::invalid_argument
 		);
 	}
@@ -174,7 +153,7 @@ TEST_CASE(
 	cuda::block_allocator_fixture fixture;
 	held_blocks blocks(fixture.get());
 
-	auto &block = blocks.take(1000, cuda::make_test_queue(0));
+	auto &block = blocks.take(1000);
 
 	CHECK( is_aligned(block.get_data(), alignment) );
 
@@ -184,23 +163,36 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"a block of new memory from a memory_block_allocator should carry an "
+	"empty token",
+	"[memory_block_allocator]"
+)
+{
+	cuda::block_allocator_fixture fixture;
+	held_blocks blocks(fixture.get());
+
+	CHECK( blocks.take(1024).get_pending().is_empty() );
+}
+
+TEST_CASE(
 	"a memory_block_allocator should stop reaching the driver once it has "
 	"memory of its own",
 	"[memory_block_allocator]"
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
+	const command_token token(fixture.get_timeline(0), 1);
 
 	REQUIRE_CALL(fixture.get_source(), allocate(min_heap))
 		.LR_RETURN(fixture.get_arena().take(_1));
 
-	const auto *first = fixture.allocate_and_drop(1024, queue);
+	const auto *first = fixture.allocate_and_drop(1024, token);
 	for (std::size_t i = 0; i < 1000; ++i)
 	{
-		// Handed straight back to the queue it came from, whose own work it is
-		// already ordered against, so it lands in the same place every time.
-		CHECK( fixture.allocate_and_drop(1024, queue) == first );
+		// Handed straight back to the queue whose command still uses it,
+		// which waits for it by running in order, so it lands in the same
+		// place every time.
+		CHECK( fixture.allocate_and_drop(1024, token) == first );
 	}
 }
 
@@ -211,7 +203,6 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
 
 	REQUIRE_CALL(fixture.get_source(), allocate(min_heap))
 		.LR_RETURN(fixture.get_arena().take(_1));
@@ -219,7 +210,7 @@ TEST_CASE(
 	held_blocks blocks(fixture.get());
 	for (std::size_t i = 0; i < 4; ++i)
 	{
-		blocks.take(1024, queue);
+		blocks.take(1024);
 	}
 
 	// Consecutive, since each one is cut off the front of what the last one
@@ -240,7 +231,6 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
 
 	trompeloeil::sequence sequence;
 
@@ -258,9 +248,9 @@ TEST_CASE(
 
 	// Held, so that each request has to be served out of new memory.
 	held_blocks blocks(fixture.get());
-	blocks.take(min_heap, queue);
-	blocks.take(min_heap, queue);
-	blocks.take(2 * min_heap, queue);
+	blocks.take(min_heap);
+	blocks.take(min_heap);
+	blocks.take(2 * min_heap);
 }
 
 TEST_CASE(
@@ -271,10 +261,9 @@ TEST_CASE(
 	// Enough for the request, but nowhere near what growing by doubling would
 	// like to take.
 	cuda::block_allocator_fixture fixture(3 * min_heap);
-	const auto queue = cuda::make_test_queue(0);
 
 	held_blocks blocks(fixture.get());
-	blocks.take(2 * min_heap, queue);
+	blocks.take(2 * min_heap);
 
 	trompeloeil::sequence sequence;
 
@@ -287,7 +276,7 @@ TEST_CASE(
 		.LR_RETURN(fixture.get_arena().take(_1))
 		.IN_SEQUENCE(sequence);
 
-	CHECK( blocks.take(min_heap, queue).get_size() >= min_heap );
+	CHECK( blocks.take(min_heap).get_size() >= min_heap );
 }
 
 TEST_CASE(
@@ -296,16 +285,15 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture(2 * min_heap);
-	const auto queue = cuda::make_test_queue(0);
 
 	// Taken and dropped, so the allocator is holding a heap it is not using.
-	fixture.allocate_and_drop(min_heap, queue);
+	fixture.allocate_and_drop(min_heap, command_token());
 	REQUIRE( fixture.get_arena().get_used_bytes() == min_heap );
 
 	// More than what is left, but not more than the device has. The only way
 	// through is to hand the idle heap back first.
 	held_blocks blocks(fixture.get());
-	CHECK( blocks.take(2 * min_heap, queue).get_size() >= 2 * min_heap );
+	CHECK( blocks.take(2 * min_heap).get_size() >= 2 * min_heap );
 	CHECK( fixture.get_arena().get_region_count() == 1 );
 }
 
@@ -315,14 +303,13 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture(min_heap);
-	const auto queue = cuda::make_test_queue(0);
 
 	// Held, so there is nothing idle to hand back.
 	held_blocks blocks(fixture.get());
-	blocks.take(min_heap, queue);
+	blocks.take(min_heap);
 
 	CHECK_THROWS_AS(
-		fixture.get().allocate(min_heap, alignment, queue),
+		fixture.get().allocate(min_heap, alignment, nullptr),
 		std::bad_alloc
 	);
 }
@@ -333,7 +320,6 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
 	const std::size_t size =
 		REXLIB_CUDA_CACHING_ALLOCATOR_LARGE_ALLOCATION_BYTES;
 
@@ -343,53 +329,125 @@ TEST_CASE(
 		.LR_RETURN(fixture.get_arena().take(_1));
 
 	held_blocks blocks(fixture.get());
-	CHECK( blocks.take(size, queue).get_size() == size );
+	CHECK( blocks.take(size).get_size() == size );
 }
 
 TEST_CASE(
-	"a memory_block_allocator should take a block over from another queue "
-	"rather than grow",
+	"a memory_block_allocator should hand out a block that a command still "
+	"uses rather than grow",
 	"[memory_block_allocator]"
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto first = cuda::make_test_queue(0);
-	const auto second = cuda::make_test_queue(1);
+	const auto &first = fixture.get_timeline(0);
+	const auto &second = fixture.get_timeline(1);
 
-	// Taken by one queue and dropped, so it belongs to that queue's timeline.
+	// Taken and dropped while a command of the first timeline still uses it.
 	REQUIRE_CALL(fixture.get_source(), allocate(min_heap))
 		.LR_RETURN(fixture.get_arena().take(_1));
-	const auto *data = fixture.allocate_and_drop(min_heap, first);
+	const auto *data =
+		fixture.allocate_and_drop(min_heap, command_token(first, 4));
 
-	// Reusing it costs a wait on the device rather than a call to the driver,
-	// which is the whole point of knowing which queue a block belongs to.
-	REQUIRE_CALL(fixture.get_recorder(), record(first))
-		.LR_RETURN(1);
-	REQUIRE_CALL(fixture.get_recorder(), enqueue_wait(second, 1u));
-	FORBID_CALL(fixture.get_recorder(), wait(trompeloeil::_));
+	// Whoever uses the block next waits for that command, through the token
+	// the block carries. The allocator itself waits for nothing.
+	FORBID_CALL(*first, wait(trompeloeil::_));
 
 	held_blocks blocks(fixture.get());
-	CHECK( blocks.take(min_heap, second).get_data() == data );
+
+	SECTION( "to a queue of another timeline" )
+	{
+		auto &block = blocks.take(min_heap, second.get());
+
+		CHECK( block.get_data() == data );
+		CHECK( block.get_pending().get_timeline() == first );
+		CHECK( block.get_pending().get_id() == 4 );
+	}
+
+	SECTION( "and to an allocation that named no queue" )
+	{
+		auto &block = blocks.take(min_heap, nullptr);
+
+		CHECK( block.get_data() == data );
+		CHECK( block.get_pending().get_timeline() == first );
+		CHECK( block.get_pending().get_id() == 4 );
+	}
 }
 
 TEST_CASE(
-	"a memory_block_allocator should not take a block over for an allocation "
-	"that named no queue",
+	"a memory_block_allocator should prefer the block its queue can use at "
+	"no cost",
 	"[memory_block_allocator]"
 )
 {
 	cuda::block_allocator_fixture fixture;
+	auto &allocator = fixture.get();
+	const command_token first(fixture.get_timeline(0), 1);
+	const command_token second(fixture.get_timeline(1), 1);
 
-	fixture.allocate_and_drop(min_heap, cuda::make_test_queue(0));
-
-	// There is nowhere to put the wait that taking the block over would need,
-	// so the only way to serve this is out of memory nothing is running
-	// against.
-	REQUIRE_CALL(fixture.get_source(), allocate(trompeloeil::_))
-		.LR_RETURN(fixture.get_arena().take(_1));
+	// Two halves of one heap, dropped while commands of different timelines
+	// still use them.
+	auto &first_block = allocator.allocate(min_heap / 2, alignment, nullptr);
+	auto &second_block = allocator.allocate(min_heap / 2, alignment, nullptr);
+	const auto *first_data = first_block.get_data();
+	const auto *second_data = second_block.get_data();
+	allocator.recycle(first_block, make_span(&first, 1));
+	allocator.recycle(second_block, make_span(&second, 1));
 
 	held_blocks blocks(fixture.get());
-	blocks.take(min_heap, cuda::queue_handle());
+
+	SECTION( "the one of the first timeline" )
+	{
+		auto &block = blocks.take(min_heap / 2, first.get_timeline().get());
+		CHECK( block.get_data() == first_data );
+	}
+
+	SECTION( "the one of the second timeline" )
+	{
+		auto &block = blocks.take(min_heap / 2, second.get_timeline().get());
+		CHECK( block.get_data() == second_data );
+	}
+}
+
+TEST_CASE(
+	"a memory_block_allocator should hold back a block that commands of "
+	"several timelines still use",
+	"[memory_block_allocator]"
+)
+{
+	cuda::block_allocator_fixture fixture;
+	auto &allocator = fixture.get();
+	const auto &first = fixture.get_timeline(0);
+	const auto &second = fixture.get_timeline(1);
+
+	auto &dropped = allocator.allocate(min_heap, alignment, nullptr);
+	const auto *data = dropped.get_data();
+
+	const std::array<command_token, 2> tokens = {
+		command_token(first, 1),
+		command_token(second, 1)
+	};
+	allocator.recycle(dropped, make_span(tokens));
+
+	held_blocks blocks(fixture.get());
+
+	SECTION( "while both are running" )
+	{
+		// A block carries a single token, so this one cannot be handed out,
+		// and the request is served out of new memory.
+		CHECK( blocks.take(min_heap).get_data() != data );
+	}
+
+	SECTION( "until one of them is left" )
+	{
+		ALLOW_CALL(*first, is_complete(1u))
+			.RETURN(true);
+
+		auto &block = blocks.take(min_heap);
+
+		CHECK( block.get_data() == data );
+		CHECK( block.get_pending().get_timeline() == second );
+		CHECK( block.get_pending().get_id() == 1 );
+	}
 }
 
 TEST_CASE(
@@ -398,11 +456,10 @@ TEST_CASE(
 )
 {
 	cuda::block_allocator_fixture fixture;
-	const auto queue = cuda::make_test_queue(0);
 
 	SECTION( "all of it when nothing is in use" )
 	{
-		fixture.allocate_and_drop(1024, queue);
+		fixture.allocate_and_drop(1024, command_token());
 		REQUIRE( fixture.get_arena().get_used_bytes() == min_heap );
 
 		CHECK( fixture.get().trim() == min_heap );
@@ -412,7 +469,7 @@ TEST_CASE(
 	SECTION( "and none of it while a block is out" )
 	{
 		held_blocks blocks(fixture.get());
-		blocks.take(1024, queue);
+		blocks.take(1024);
 
 		CHECK( fixture.get().trim() == 0 );
 		CHECK( fixture.get_arena().get_used_bytes() == min_heap );
@@ -420,24 +477,41 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"trimming a memory_block_allocator should merge back what the queues kept "
-	"apart",
+	"trimming a memory_block_allocator should merge back what the timelines "
+	"kept apart",
 	"[memory_block_allocator]"
 )
 {
 	cuda::block_allocator_fixture fixture;
+	const auto &first = fixture.get_timeline(0);
+	const auto &second = fixture.get_timeline(1);
 
-	// Two halves of one heap, dropped while belonging to different queues, so
-	// neither can absorb the other.
-	fixture.allocate_and_drop(min_heap / 2, cuda::make_test_queue(0));
-	fixture.allocate_and_drop(min_heap / 2, cuda::make_test_queue(1));
+	// Two halves of one heap, dropped while commands of different timelines
+	// still use them, so neither can absorb the other.
+	fixture.allocate_and_drop(min_heap / 2, command_token(first, 1));
+	fixture.allocate_and_drop(min_heap / 2, command_token(second, 1));
 	REQUIRE( fixture.get_arena().get_used_bytes() == min_heap );
 
-	// Waiting for both queues makes the two answers to "when is this safe" the
-	// same one, and the halves add back up to the heap they came from.
-	REQUIRE_CALL(fixture.get_recorder(), wait(trompeloeil::_))
-		.TIMES(2);
+	// Waiting for both commands leaves nothing to wait for, and the halves
+	// add back up to the heap they came from.
+	REQUIRE_CALL(*first, wait(1u));
+	REQUIRE_CALL(*second, wait(1u));
 
 	CHECK( fixture.get().trim() == min_heap );
 	CHECK( fixture.get_arena().get_region_count() == 0 );
+}
+
+TEST_CASE(
+	"a memory_block_allocator should wait for what still uses its memory "
+	"before giving it back to the driver",
+	"[memory_block_allocator]"
+)
+{
+	// Declared before the allocator, so that it is still there to be asked
+	// when the allocator dies.
+	const auto timeline = std::make_shared<cuda::mock_command_timeline>();
+	REQUIRE_CALL(*timeline, wait(3u));
+
+	cuda::block_allocator_fixture fixture;
+	fixture.allocate_and_drop(1024, command_token(timeline, 3));
 }

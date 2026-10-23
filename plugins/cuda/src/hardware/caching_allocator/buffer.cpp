@@ -5,8 +5,7 @@
 #include "memory_block.hpp"
 #include "memory_block_allocator.hpp"
 
-#include "../command_queue.hpp"
-
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
 
@@ -33,11 +32,18 @@ buffer::buffer(
 			"to."
 		);
 	}
+
+	// A buffer that is never used still has to give the block back carrying
+	// what it came with.
+	if (!block.get_pending().is_empty())
+	{
+		m_uses.push_back(block.get_pending());
+	}
 }
 
 buffer::~buffer()
 {
-	m_allocator->recycle(*m_block, get_recorded_queues());
+	m_allocator->recycle(*m_block, get_recorded_uses());
 }
 
 void* buffer::get_host_ptr() noexcept
@@ -70,30 +76,37 @@ const void* buffer::get_device_ptr() const noexcept
 	return m_block->get_data();
 }
 
-void buffer::record_use(const rexlib::command_queue &queue)
+void buffer::record_use(const command_token &token) const
 {
-	record_use(queue_handle(command_queue::cast(queue)));
-}
-
-void buffer::record_use(const queue_handle &queue)
-{
-	// The queue the block belongs to runs its work in order, so what it is
-	// given after this is already ordered after it. Recording it would only
-	// make the allocator wait for something it does not have to.
-	if (queue != m_block->get_queue())
+	if (token.is_empty())
 	{
-		m_queues.insert(queue);
+		return;
+	}
+
+	const std::lock_guard<std::mutex> lock(m_mutex);
+
+	const auto ite = std::find_if(
+		m_uses.begin(), m_uses.end(),
+		[&token] (const command_token &use) noexcept
+		{
+			return use.get_timeline() == token.get_timeline();
+		}
+	);
+
+	if (ite == m_uses.end())
+	{
+		m_uses.push_back(token);
+	}
+	else if (token.get_id() > ite->get_id())
+	{
+		// Two threads may record on one timeline out of order.
+		*ite = token;
 	}
 }
 
-span<const queue_handle> buffer::get_recorded_queues() const noexcept
+span<const command_token> buffer::get_recorded_uses() const noexcept
 {
-	if (m_queues.empty())
-	{
-		return span<const queue_handle>();
-	}
-
-	return make_span(&(*m_queues.begin()), m_queues.size());
+	return make_span(m_uses.data(), m_uses.size());
 }
 
 buffer& buffer::cast(rexlib::buffer &buf)

@@ -3,10 +3,10 @@
 #include "device.hpp"
 
 #include "command_queue.hpp"
-#include "event.hpp"
 
 #include "device_memory_resource.hpp"
 #include "pinned_memory_resource.hpp"
+#include "pooled_event_recorder.hpp"
 
 #include <stdexcept>
 
@@ -17,6 +17,7 @@ namespace cuda
 
 device::device(int ordinal)
 	: m_ordinal(ordinal)
+	, m_events(std::make_shared<pooled_event_recorder>(ordinal))
 {
 	// Where the host and the device are the same physical memory, a device
 	// local pool would be a second name for the page locked one plus a copy
@@ -62,13 +63,7 @@ device::get_memory_resource(memory_resource_affinity affinity) const
 
 std::shared_ptr<rexlib::command_queue> device::create_command_queue() const
 {
-	return std::make_shared<command_queue>(m_ordinal);
-}
-
-std::shared_ptr<rexlib::event>
-device::create_event(event_usage_flags /*usage*/) const
-{
-	return std::make_shared<event>(m_ordinal);
+	return std::make_shared<command_queue>(m_ordinal, m_events);
 }
 
 } // namespace cuda

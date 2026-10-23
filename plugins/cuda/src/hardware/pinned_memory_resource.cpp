@@ -5,7 +5,6 @@
 #include "caching_allocator/caching_memory_allocator.hpp"
 #include "caching_allocator/memory_block_allocator.hpp"
 #include "caching_allocator/pinned_memory_source.hpp"
-#include "caching_allocator/pooled_event_recorder.hpp"
 
 #include <cuda_runtime.h>
 
@@ -69,8 +68,7 @@ pinned_memory_resource::create_allocator() const
 	return std::make_shared<caching_memory_allocator>(
 		*this,
 		std::make_shared<memory_block_allocator>(
-			std::make_unique<pinned_memory_source>(mapped),
-			std::make_unique<pooled_event_recorder>()
+			std::make_unique<pinned_memory_source>(mapped)
 		)
 	);
 }

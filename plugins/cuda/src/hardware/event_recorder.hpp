@@ -4,27 +4,26 @@
 
 #include <cstddef>
 
+#include <cuda_runtime.h>
+
 namespace rexlib
 {
 namespace cuda
 {
 
-class queue_handle;
-
 /**
- * @brief Captures points in a queue's timeline so that they can be waited on.
+ * @brief Captures points of streams so that they can be waited on.
  *
- * The caching allocators need to know when work submitted before a given
- * moment has finished, so that the memory it referenced can be handed out
- * again. This is the only thing they need synchronization primitives for, and
- * it is deliberately the whole of what they can ask for.
+ * A point stands for the work issued on a stream before it was captured. It
+ * is reached once all of that work has finished.
  *
  * Points are handed out as tickets, which must be given back with
- * @ref release once the caller is done with them. @ref event_ticket does that
- * automatically and is what callers should hold.
+ * @ref release once the caller is done with them. Implementations recycle the
+ * underlying primitives, so a ticket that was given back may be handed out
+ * again by a later @ref record.
  *
- * Implementations recycle the underlying primitives, so a released ticket may
- * be handed out again by a later @ref record.
+ * Thread safe. A point can be waited for while others are captured, queried
+ * or given back.
  */
 class event_recorder
 {
@@ -44,15 +43,14 @@ public:
 	event_recorder& operator=(event_recorder &&other) = delete;
 
 	/**
-	 * @brief Capture the current point of a queue's timeline.
+	 * @brief Capture the current point of a stream.
 	 *
-	 * @param queue The queue whose current point is captured.
+	 * @param stream The stream whose current point is captured.
 	 * @return ticket Handle to the captured point. Never @ref no_ticket.
 	 *
 	 * @throws error If the point could not be captured.
-	 * @pre @p queue must refer to a queue.
 	 */
-	virtual ticket record(const queue_handle &queue) = 0;
+	virtual ticket record(cudaStream_t stream) = 0;
 
 	/**
 	 * @brief Give a ticket obtained from @ref record back.
@@ -76,25 +74,26 @@ public:
 	/**
 	 * @brief Block the calling thread until a captured point is reached.
 	 *
-	 * @param ticket The ticket to wait for.
+	 * @param ticket The ticket to wait for. It must not be given back while
+	 * the call is waiting.
 	 *
 	 * @throws error If the point could not be waited for.
 	 */
 	virtual void wait(ticket ticket) = 0;
 
 	/**
-	 * @brief Defer further work on a queue until a captured point is reached.
+	 * @brief Defer further work on a stream until a captured point is
+	 * reached.
 	 *
-	 * Does not block the calling thread. The point may belong to a queue on
+	 * Does not block the calling thread. The point may belong to a stream of
 	 * another device.
 	 *
-	 * @param queue The queue whose further work is deferred.
+	 * @param stream The stream whose further work is deferred.
 	 * @param ticket The ticket to wait for.
 	 *
 	 * @throws error If the wait could not be scheduled.
-	 * @pre @p queue must refer to a queue.
 	 */
-	virtual void enqueue_wait(const queue_handle &queue, ticket ticket) = 0;
+	virtual void enqueue_wait(cudaStream_t stream, ticket ticket) = 0;
 };
 
 } // namespace cuda

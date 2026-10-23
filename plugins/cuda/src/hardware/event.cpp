@@ -5,8 +5,6 @@
 #include "device_guard.hpp"
 #include "error.hpp"
 
-#include <stdexcept>
-
 namespace rexlib
 {
 namespace cuda
@@ -44,16 +42,6 @@ int event::get_ordinal() const noexcept
 	return m_ordinal;
 }
 
-event_usage_flags event::get_supported_usage() const noexcept
-{
-	return {
-		event_usage_flag_bits::host_query,
-		event_usage_flag_bits::host_wait,
-		event_usage_flag_bits::device_wait,
-		event_usage_flag_bits::cross_device_wait
-	};
-}
-
 void event::wait() const
 {
 	REXLIB_CUDA_CHECK( cudaEventSynchronize(m_event) );
@@ -80,32 +68,6 @@ bool event::is_signaled() const
 		break;
 	}
 	return result;
-}
-
-event& event::cast(rexlib::event &ev)
-{
-	auto *result = dynamic_cast<event*>(&ev);
-	if (!result)
-	{
-		throw std::invalid_argument(
-			"The provided event was not created by the CUDA backend."
-		);
-	}
-
-	return *result;
-}
-
-const event& event::cast(const rexlib::event &ev)
-{
-	const auto *result = dynamic_cast<const event*>(&ev);
-	if (!result)
-	{
-		throw std::invalid_argument(
-			"The provided event was not created by the CUDA backend."
-		);
-	}
-
-	return *result;
 }
 
 } // namespace cuda

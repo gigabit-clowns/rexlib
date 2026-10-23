@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <rexlib/core/hardware/event.hpp>
-
 #include <cuda_runtime.h>
 
 namespace rexlib
@@ -12,20 +10,28 @@ namespace cuda
 {
 
 /**
- * @brief CUDA implementation of @ref rexlib::event, backed by a cudaEvent_t.
+ * @brief Owns a cudaEvent_t.
  *
- * Supports every @ref event_usage_flag_bits value.
+ * An event marks a point of a stream once it is recorded on it. The host
+ * can ask whether that point has been reached, or wait for it.
  */
 class event final
-	: public rexlib::event
 {
 public:
 	using handle = cudaEvent_t;
 
+	/**
+	 * @brief Create an event on a device.
+	 *
+	 * @param ordinal Ordinal of the device. The event can only be recorded
+	 * on streams of that device.
+	 *
+	 * @throws error If the event could not be created.
+	 */
 	explicit event(int ordinal);
 	event(const event &other) = delete;
 	event(event &&other) = delete;
-	~event() override;
+	~event();
 
 	event& operator=(const event &other) = delete;
 	event& operator=(event &&other) = delete;
@@ -33,32 +39,26 @@ public:
 	handle get_handle() const noexcept;
 	int get_ordinal() const noexcept;
 
-	event_usage_flags get_supported_usage() const noexcept override;
-
-	void wait() const override;
-	bool is_signaled() const override;
+	/**
+	 * @brief Block the calling thread until the recorded point is reached.
+	 *
+	 * Returns immediately if the event was never recorded.
+	 *
+	 * @throws error If the point could not be waited for.
+	 */
+	void wait() const;
 
 	/**
-	 * @brief Downcast an event to this backend's implementation.
+	 * @brief Check whether the recorded point has been reached, without
+	 * blocking.
 	 *
-	 * @param ev The event to be cast.
-	 * @return event& The same event, as a CUDA event.
+	 * @return true The point has been reached, or the event was never
+	 * recorded.
+	 * @return false The point has not been reached yet.
 	 *
-	 * @throws std::invalid_argument If the event was not created by this
-	 * backend.
+	 * @throws error If the point could not be queried.
 	 */
-	static event& cast(rexlib::event &ev);
-
-	/**
-	 * @brief Downcast an event to this backend's implementation.
-	 *
-	 * @param ev The event to be cast.
-	 * @return const event& The same event, as a CUDA event.
-	 *
-	 * @throws std::invalid_argument If the event was not created by this
-	 * backend.
-	 */
-	static const event& cast(const rexlib::event &ev);
+	bool is_signaled() const;
 
 private:
 	handle m_event;

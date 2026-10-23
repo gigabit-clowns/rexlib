@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "queue_handle.hpp"
+#include <rexlib/core/hardware/command_token.hpp>
 
 #include <cstddef>
 
@@ -24,10 +24,9 @@ class memory_heap;
  * makes coalescing a neighbour lookup, and one set of the free ones only, which
  * is what makes finding a candidate a lower bound.
  *
- * A block belongs to the timeline of the queue it was last handed out to. Work
- * submitted to that queue runs in order, so a block that came back from it can
- * be handed out to it again without synchronizing at all. Reaching it from any
- * other queue is what costs.
+ * A block carries the token of the last command that used its memory. Whoever
+ * is handed the block next has to wait for that command, and the token is what
+ * lets it do so. A block that nothing uses carries an empty token.
  */
 class memory_block
 {
@@ -43,13 +42,14 @@ public:
 	/**
 	 * @brief Construct a block from its components.
 	 *
-	 * @param queue Queue whose timeline the block belongs to.
+	 * @param pending Token of the last command that used the memory. Empty
+	 * if nothing uses it.
 	 * @param size Number of bytes spanned.
 	 * @param heap Non owning pointer to the heap the span belongs to.
 	 * @param offset Offset of the span into the heap, in bytes.
 	 */
 	memory_block(
-		const queue_handle &queue,
+		command_token pending,
 		std::size_t size,
 		memory_heap *heap,
 		std::size_t offset
@@ -63,18 +63,19 @@ public:
 	memory_block& operator=(memory_block &&other) = default;
 
 	/**
-	 * @brief Set the queue whose timeline this block belongs to.
+	 * @brief Set the token of the last command that used the memory.
 	 *
-	 * @param queue The new queue.
+	 * @param pending The new token. Empty if nothing uses the memory.
 	 */
-	void set_queue(const queue_handle &queue) noexcept;
+	void set_pending(command_token pending) noexcept;
 
 	/**
-	 * @brief Get the queue whose timeline this block belongs to.
+	 * @brief Get the token of the last command that used the memory.
 	 *
-	 * @return const queue_handle& The queue.
+	 * @return const command_token& The token. Empty if nothing uses the
+	 * memory.
 	 */
-	const queue_handle& get_queue() const noexcept;
+	const command_token& get_pending() const noexcept;
 
 	/**
 	 * @brief Set the number of bytes spanned by this block.
@@ -146,7 +147,7 @@ public:
 	}
 
 private:
-	queue_handle m_queue;
+	command_token m_pending;
 	std::size_t m_size;
 	memory_heap *m_heap;
 	std::size_t m_offset;

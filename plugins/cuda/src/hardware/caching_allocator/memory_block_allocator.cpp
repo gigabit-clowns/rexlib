@@ -2,8 +2,6 @@
 
 #include "memory_block_allocator.hpp"
 
-#include "event_recorder.hpp"
-#include "event_ticket.hpp"
 #include "memory_block.hpp"
 #include "memory_heap.hpp"
 #include "memory_source.hpp"
@@ -26,11 +24,9 @@ namespace cuda
 {
 
 memory_block_allocator::memory_block_allocator(
-	std::unique_ptr<memory_source> source,
-	std::unique_ptr<event_recorder> recorder
+	std::unique_ptr<memory_source> source
 )
 	: m_source(std::move(source))
-	, m_recorder(std::move(recorder))
 {
 	if (!m_source)
 	{
@@ -39,32 +35,24 @@ memory_block_allocator::memory_block_allocator(
 			"required."
 		);
 	}
-
-	if (!m_recorder)
-	{
-		throw std::invalid_argument(
-			"memory_block_allocator::memory_block_allocator: An event recorder "
-			"is required."
-		);
-	}
 }
 
 memory_block_allocator::~memory_block_allocator()
 {
 	try
 	{
-		// The blocks still waiting on a queue have to go back while there is
-		// still a pool to put them in, and the queues have to be done with them
-		// before the heaps under them are handed to the driver.
-		m_deferred.wait_all(m_pool);
+		// The blocks that are held back have to go back while there is still
+		// a pool to put them in, and every command has to be done with a
+		// block before the heap under it is handed to the driver.
+		trim_locked();
 	}
 	catch (...)
 	{
 		// Can not throw from a destructor. The blocks stay out of the pool,
 		// which then reports them as never released.
 		REXLIB_CUDA_LOG_ERROR(
-			"An exception occurred waiting for the queues still using memory "
-			"in ~memory_block_allocator()."
+			"An exception occurred waiting for the commands still using "
+			"memory in ~memory_block_allocator()."
 		);
 	}
 }
@@ -83,7 +71,7 @@ bool memory_block_allocator::is_host_accessible() const noexcept
 memory_block& memory_block_allocator::allocate(
 	std::size_t size,
 	std::size_t alignment,
-	const queue_handle &queue
+	const command_timeline *timeline
 )
 {
 	if (!has_single_bit(alignment))
@@ -113,25 +101,30 @@ memory_block& memory_block_allocator::allocate(
 	// before deciding that nothing fits.
 	m_deferred.process(m_pool);
 
-	return acquire_block(size, queue);
+	return acquire_block(size, timeline);
 }
 
 void memory_block_allocator::recycle(
 	memory_block &block,
-	span<const queue_handle> queues
+	span<const command_token> pending
 ) noexcept
 {
 	const std::lock_guard<std::mutex> lock(m_mutex);
 
-	if (queues.empty())
+	// A free block carries one token, so a block that a single command still
+	// uses can go straight back.
+	if (pending.size() < 2)
 	{
-		m_pool.release(block);
+		m_pool.release(
+			block,
+			pending.empty() ? command_token() : pending.front()
+		);
 		return;
 	}
 
 	try
 	{
-		m_deferred.defer(*m_recorder, block, queues);
+		m_deferred.defer(block, pending);
 	}
 	catch (...)
 	{
@@ -139,7 +132,7 @@ void memory_block_allocator::recycle(
 		// block stays out of the pool, which is a leak, but handing out memory
 		// a queue may still be reading from would be worse.
 		REXLIB_CUDA_LOG_ERROR(
-			"Could not hold a block back for the queues that used it. The "
+			"Could not hold a block back for the commands that use it. The "
 			"block is lost."
 		);
 	}
@@ -153,14 +146,16 @@ std::size_t memory_block_allocator::trim()
 
 memory_block& memory_block_allocator::acquire_block(
 	std::size_t size,
-	const queue_handle &queue
+	const command_timeline *timeline
 )
 {
-	auto *block = m_pool.find_suitable_block(size, queue);
+	auto *block = m_pool.find_suitable_block(size, timeline);
 
 	if (!block)
 	{
-		block = take_over_foreign_block(size, queue);
+		// Its user has to wait for another queue, which the token it carries
+		// lets it do. That is still cheaper than reaching the driver.
+		block = m_pool.find_foreign_block(size, timeline);
 	}
 
 	if (!block)
@@ -180,10 +175,11 @@ memory_block& memory_block_allocator::acquire_block(
 			// driver could have handed over instead.
 			trim_locked();
 
-			// Trimming also merges back together what belonging to different
-			// queues was keeping apart, so a request that did not fit
-			// anywhere before may fit now without taking anything more.
-			block = m_pool.find_suitable_block(size, queue);
+			// Trimming also merges back together what carrying tokens of
+			// different timelines was keeping apart, so a request that did
+			// not fit anywhere before may fit now without taking anything
+			// more.
+			block = m_pool.find_suitable_block(size, timeline);
 			if (!block)
 			{
 				block = &grow(size);
@@ -199,37 +195,8 @@ memory_block& memory_block_allocator::acquire_block(
 		block = m_pool.partition_block(*block, size, remainder).first;
 	}
 
-	m_pool.acquire(*block, queue);
+	m_pool.acquire(*block);
 	return *block;
-}
-
-memory_block* memory_block_allocator::take_over_foreign_block(
-	std::size_t size,
-	const queue_handle &queue
-)
-{
-	// A block of another queue can only be taken over by deferring this
-	// queue's work until that one has caught up, and an allocation made
-	// without naming a queue has nowhere to put that wait.
-	if (!queue)
-	{
-		return nullptr;
-	}
-
-	auto *block = m_pool.find_foreign_block(size, queue);
-	if (!block)
-	{
-		return nullptr;
-	}
-
-	// Captured now rather than when the block was given back: the point a
-	// queue is at now is necessarily past the work that was using this block,
-	// so it says the same thing and costs one capture per takeover instead of
-	// one per release.
-	const event_ticket ticket(*m_recorder, block->get_queue());
-	ticket.enqueue_wait(queue);
-
-	return block;
 }
 
 memory_block& memory_block_allocator::grow(std::size_t size)
@@ -298,23 +265,22 @@ memory_block_allocator::get_heap_size(std::size_t size) const noexcept
 
 std::size_t memory_block_allocator::trim_locked()
 {
-	// Blocks still waiting on a queue are not free, so nothing can be merged
+	// Blocks that are held back are not free, so nothing can be merged
 	// around them and no heap holding one can be given back.
 	m_deferred.wait_all(m_pool);
 
-	// What each free block belongs to only says when it can be handed out.
-	// Once every one of those queues is idle the answer is "now" for all of
-	// them, and blocks that were kept apart by belonging to different queues
-	// add back up to whole heaps.
-	std::vector<queue_handle> queues;
-	m_pool.enumerate_queues(queues);
-	for (const auto &queue : queues)
+	// The token of a free block only says what its next user has to wait
+	// for. Once every one of those commands has finished there is nothing to
+	// wait for, and blocks that were kept apart by the timelines of their
+	// tokens add back up to whole heaps.
+	std::vector<command_token> pending;
+	m_pool.enumerate_pending(pending);
+	for (const auto &token : pending)
 	{
-		const event_ticket ticket(*m_recorder, queue);
-		ticket.wait();
+		token.wait();
 	}
 
-	m_pool.reset_queues();
+	m_pool.reset_pending();
 	return m_pool.release_unused_heaps();
 }
 

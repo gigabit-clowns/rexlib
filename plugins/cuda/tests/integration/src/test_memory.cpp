@@ -1,24 +1,22 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
+
+#include "test_fixture.hpp"
 
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/hardware/device.hpp>
-#include <rexlib/core/hardware/device_backend.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>
-#include <rexlib/core/platform/operating_system.h>
-#include <rexlib/core/plugin_manager.hpp>
-#include <rexlib/core/service_catalog.hpp>
 
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <string>
-#include <vector>
 
 #include <cuda_runtime.h>
 
@@ -26,72 +24,6 @@ using namespace rexlib;
 
 namespace
 {
-
-std::string get_cuda_plugin_path()
-{
-	#if REXLIB_WINDOWS
-		return "rexlib-cuda.dll";
-	#elif REXLIB_LINUX
-		return "./librexlib-cuda.so";
-	#elif REXLIB_APPLE
-		return "./librexlib-cuda.dylib";
-	#else
-		#error "Unknown platform"
-	#endif
-}
-
-/// Everything needed to reach a CUDA device through the loaded plugin.
-class cuda_fixture
-{
-public:
-	cuda_fixture()
-	{
-		if (!m_manager.load_plugin(get_cuda_plugin_path()))
-		{
-			return;
-		}
-		register_all_plugins_at(m_manager, m_catalog);
-
-		const auto device_manager =
-			m_catalog.get_service_manager<rexlib::device_manager>();
-		auto *backend = device_manager->get_backend("cuda");
-		if (!backend)
-		{
-			return;
-		}
-
-		std::vector<std::size_t> ids;
-		backend->enumerate_devices(ids);
-		if (ids.empty())
-		{
-			return;
-		}
-
-		m_device = backend->create_device(ids.front());
-	}
-
-	bool has_device() const noexcept
-	{
-		return m_device != nullptr;
-	}
-
-	rexlib::device& get_device() const noexcept
-	{
-		return *m_device;
-	}
-
-	std::shared_ptr<memory_allocator> create_allocator(
-		memory_resource_affinity affinity
-	) const
-	{
-		return m_device->get_memory_resource(affinity).create_allocator();
-	}
-
-private:
-	plugin_manager m_manager;
-	service_catalog m_catalog;
-	std::shared_ptr<rexlib::device> m_device;
-};
 
 /// Ask the driver what it thinks a pointer is.
 cudaPointerAttributes query(const void *data)
@@ -108,7 +40,7 @@ TEST_CASE(
 	"[cuda][memory]"
 )
 {
-	const cuda_fixture fixture;
+	const cuda::cuda_fixture fixture;
 	if (!fixture.has_device())
 	{
 		SKIP( "No CUDA capable device is available." );
@@ -144,7 +76,7 @@ TEST_CASE(
 	"[cuda][memory]"
 )
 {
-	const cuda_fixture fixture;
+	const cuda::cuda_fixture fixture;
 	if (!fixture.has_device())
 	{
 		SKIP( "No CUDA capable device is available." );
@@ -152,6 +84,7 @@ TEST_CASE(
 
 	const std::size_t size = 4096;
 	const std::size_t alignment = 256;
+	command_token pending;
 
 	SECTION( "device local memory the host cannot address" )
 	{
@@ -159,7 +92,7 @@ TEST_CASE(
 			fixture.create_allocator(memory_resource_affinity::device);
 		REQUIRE( allocator != nullptr );
 
-		auto buf = allocator->allocate(size, alignment);
+		auto buf = allocator->allocate(size, alignment, nullptr, pending);
 		REQUIRE( buf != nullptr );
 		CHECK( buf->get_size() >= size );
 
@@ -174,7 +107,7 @@ TEST_CASE(
 			fixture.create_allocator(memory_resource_affinity::host);
 		REQUIRE( allocator != nullptr );
 
-		auto buf = allocator->allocate(size, alignment);
+		auto buf = allocator->allocate(size, alignment, nullptr, pending);
 		REQUIRE( buf != nullptr );
 		CHECK( buf->get_size() >= size );
 
@@ -197,11 +130,73 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"a CUDA allocator should hand out new memory with nothing to wait for",
+	"[cuda][memory]"
+)
+{
+	const cuda::cuda_fixture fixture;
+	if (!fixture.has_device())
+	{
+		SKIP( "No CUDA capable device is available." );
+	}
+
+	const auto affinity = GENERATE(
+		memory_resource_affinity::device,
+		memory_resource_affinity::host
+	);
+	auto allocator = fixture.create_allocator(affinity);
+	REQUIRE( allocator != nullptr );
+
+	command_token pending;
+	auto buf = allocator->allocate(4096, 256, nullptr, pending);
+
+	REQUIRE( buf != nullptr );
+	CHECK( pending.is_empty() );
+}
+
+TEST_CASE(
+	"a CUDA allocator should allocate whatever queue it is hinted",
+	"[cuda][memory]"
+)
+{
+	const cuda::cuda_fixture fixture;
+	if (!fixture.has_device())
+	{
+		SKIP( "No CUDA capable device is available." );
+	}
+
+	auto allocator = fixture.create_allocator(memory_resource_affinity::device);
+	REQUIRE( allocator != nullptr );
+	command_token pending;
+
+	SECTION( "a queue of its device" )
+	{
+		const auto queue = fixture.get_device().create_command_queue();
+
+		auto buf = allocator->allocate(4096, 256, queue.get(), pending);
+
+		REQUIRE( buf != nullptr );
+		CHECK( pending.is_empty() );
+	}
+
+	SECTION( "a queue of another backend" )
+	{
+		// The hint only says where the buffer is expected to be used first.
+		const auto queue = fixture.create_foreign_queue();
+
+		auto buf = allocator->allocate(4096, 256, queue.get(), pending);
+
+		REQUIRE( buf != nullptr );
+		CHECK( pending.is_empty() );
+	}
+}
+
+TEST_CASE(
 	"a CUDA allocator should hand the same memory out again",
 	"[cuda][memory]"
 )
 {
-	const cuda_fixture fixture;
+	const cuda::cuda_fixture fixture;
 	if (!fixture.has_device())
 	{
 		SKIP( "No CUDA capable device is available." );
@@ -212,15 +207,16 @@ TEST_CASE(
 
 	const std::size_t size = 4096;
 	const std::size_t alignment = 256;
+	command_token pending;
 
 	void *first = nullptr;
 	{
-		auto buf = allocator->allocate(size, alignment);
+		auto buf = allocator->allocate(size, alignment, nullptr, pending);
 		first = buf->get_host_ptr();
 	}
 
 	// Caching is the whole point: the second request never reaches the driver.
-	auto second = allocator->allocate(size, alignment);
+	auto second = allocator->allocate(size, alignment, nullptr, pending);
 	CHECK( second->get_host_ptr() == first );
 }
 
@@ -229,7 +225,7 @@ TEST_CASE(
 	"[cuda][memory]"
 )
 {
-	const cuda_fixture fixture;
+	const cuda::cuda_fixture fixture;
 	if (!fixture.has_device())
 	{
 		SKIP( "No CUDA capable device is available." );
@@ -249,5 +245,8 @@ TEST_CASE(
 		)
 	);
 
-	CHECK_THROWS( allocator->allocate(1024, 2 * max_alignment) );
+	command_token pending;
+	CHECK_THROWS(
+		allocator->allocate(1024, 2 * max_alignment, nullptr, pending)
+	);
 }

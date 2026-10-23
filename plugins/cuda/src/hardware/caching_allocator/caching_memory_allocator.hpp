@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include "queue_handle.hpp"
-
 #include <rexlib/core/hardware/memory_allocator.hpp>
 
 #include <cstddef>
@@ -11,6 +9,9 @@
 
 namespace rexlib
 {
+
+class command_timeline;
+
 namespace cuda
 {
 
@@ -21,8 +22,8 @@ class memory_block_allocator;
  *
  * Turns the blocks a @ref memory_block_allocator hands out into buffers, and
  * is what the rest of the framework sees. All the caching, and the knowledge
- * of what has to have finished before a block can be handed out again, live in
- * the block allocator underneath.
+ * of what still uses a block that is handed out again, live in the block
+ * allocator underneath.
  *
  * Buffers hold that block allocator rather than this, so they keep the memory
  * they were cut from alive whatever becomes of the allocator they came from.
@@ -62,31 +63,35 @@ public:
 	std::shared_ptr<rexlib::buffer> allocate(
 		std::size_t size,
 		std::size_t alignment,
-		rexlib::command_queue *queue_hint = nullptr
+		rexlib::command_queue *queue_hint,
+		command_token &pending
 	) override;
 
 	/**
-	 * @brief Allocate a buffer for a queue that is already resolved.
+	 * @brief Allocate a buffer for a timeline that is already resolved.
 	 *
-	 * What @ref allocate does once it has worked out which queue the hint
-	 * names. Callers inside this backend usually hold a CUDA queue already,
-	 * and this spares them the downcast.
+	 * What @ref allocate does once it has worked out which timeline the hint
+	 * names. It has a name of its own because a null hint and a null
+	 * timeline could not be told apart.
 	 *
 	 * @param size Requested minimum size, in bytes.
 	 * @param alignment Requested alignment, in bytes. Must be a power of two
 	 * and not greater than @ref get_max_alignment.
-	 * @param queue The queue the buffer is expected to be used on. May stand
-	 * for no queue, in which case the buffer can be used on any of them.
+	 * @param timeline The timeline of the queue the buffer is expected to be
+	 * used on first. May be nullptr.
+	 * @param pending Receives the token of the command that still uses the
+	 * memory handed out. Empty when nothing uses it.
 	 * @return std::shared_ptr<rexlib::buffer> The buffer. Never null.
 	 *
 	 * @throws std::bad_alloc If the device had no memory left.
 	 * @throws std::invalid_argument If @p alignment is not a valid power of
 	 * two within @ref get_max_alignment.
 	 */
-	std::shared_ptr<rexlib::buffer> allocate(
+	std::shared_ptr<rexlib::buffer> allocate_for_timeline(
 		std::size_t size,
 		std::size_t alignment,
-		const queue_handle &queue
+		const command_timeline *timeline,
+		command_token &pending
 	);
 
 	/**
@@ -94,7 +99,7 @@ public:
 	 *
 	 * @return std::size_t Number of bytes given back.
 	 *
-	 * @throws error If a queue could not be waited for.
+	 * @throws std::exception If a command could not be waited for.
 	 */
 	std::size_t trim();
 

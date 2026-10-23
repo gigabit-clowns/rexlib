@@ -15,6 +15,9 @@
 
 namespace rexlib
 {
+
+class command_timeline;
+
 namespace cuda
 {
 
@@ -24,17 +27,21 @@ class memory_heap;
  * @brief The cache of a caching allocator: heaps, and the blocks they are cut
  * into.
  *
- * Free blocks are kept sorted by the queue they belong to first and by their
- * size second, which makes finding the best fit for a queue a lower bound.
- * Every block, free or not, is also kept in address order, which makes
- * coalescing a look at the neighbours.
+ * Free blocks are kept sorted by the timeline of the token they carry first
+ * and by their size second, which makes finding the best fit for a queue a
+ * lower bound. Every block, free or not, is also kept in address order, which
+ * makes coalescing a look at the neighbours.
  *
- * Blocks belonging to no queue are the cheapest to hand out, since nothing can
- * still be running against them. A heap starts out that way and only becomes
- * bound to a queue once it has been handed to one.
+ * Blocks carrying an empty token are the cheapest to hand out, since nothing
+ * can still be running against them. A heap starts out that way.
  *
- * The pool never talks to a device. Whatever the caller has to wait for before
- * taking a block over from another queue is the caller's to arrange.
+ * Two free neighbours whose tokens are of one timeline become one block that
+ * carries the token with the greater id. The pool therefore requires that a
+ * timeline finishes its commands in the order of their ids, which is what a
+ * stream does.
+ *
+ * The pool never talks to a device and never waits. Waiting for the token of
+ * a block it hands out is the caller's to arrange.
  */
 class memory_block_pool
 {
@@ -48,59 +55,62 @@ public:
 	memory_block_pool& operator=(memory_block_pool &&other) = delete;
 
 	/**
-	 * @brief Find the best free block a queue can take without waiting.
+	 * @brief Find the best free block a queue can use at no cost.
 	 *
-	 * Considers the blocks belonging to @p queue, whose work is ordered
-	 * against anything the queue submits next, and the blocks belonging to no
-	 * queue, which nothing is running against at all.
+	 * Considers the blocks whose token is of @p timeline, which a queue
+	 * waits for by running in order, and the blocks whose token is empty,
+	 * which nothing is running against at all.
 	 *
 	 * @param size Minimum size of the block, in bytes.
-	 * @param queue The queue that would use the block.
+	 * @param timeline The timeline of the queue that would use the block.
+	 * May be nullptr, in which case only blocks with an empty token are
+	 * considered.
 	 * @return memory_block* The smallest suitable block, or nullptr if there
 	 * is none.
 	 */
 	memory_block* find_suitable_block(
 		std::size_t size,
-		const queue_handle &queue
+		const command_timeline *timeline
 	) noexcept;
 
 	/**
-	 * @brief Find the best free block belonging to some other queue.
-	 *
-	 * The caller must defer its own work until the returned block's queue has
-	 * caught up before handing the block out, since work submitted to that
-	 * queue may still be running against it.
+	 * @brief Find the best free block whose token is of some other timeline.
 	 *
 	 * @param size Minimum size of the block, in bytes.
-	 * @param queue The queue that would take the block over.
-	 * @return memory_block* The smallest suitable block belonging to another
-	 * queue, or nullptr if there is none.
+	 * @param timeline The timeline whose blocks are left out. May be
+	 * nullptr.
+	 * @return memory_block* The smallest suitable block carrying a token of
+	 * another timeline, or nullptr if there is none.
 	 */
 	memory_block* find_foreign_block(
 		std::size_t size,
-		const queue_handle &queue
+		const command_timeline *timeline
 	) noexcept;
 
 	/**
-	 * @brief Hand a block out, binding it to a queue.
+	 * @brief Hand a block out.
+	 *
+	 * The block keeps the token it carries, which is what its next user has
+	 * to wait for.
 	 *
 	 * @param block The block to hand out. Must be free.
-	 * @param queue The queue the block is handed to.
 	 */
-	void acquire(memory_block &block, const queue_handle &queue) noexcept;
+	void acquire(memory_block &block) noexcept;
 
 	/**
 	 * @brief Take a block back, merging it with its free neighbours.
 	 *
 	 * @param block The block to take back. Must have been handed out.
+	 * @param pending Token of the last command that used the block. Empty if
+	 * nothing uses it.
 	 */
-	void release(memory_block &block) noexcept;
+	void release(memory_block &block, command_token pending) noexcept;
 
 	/**
 	 * @brief Cut a free block in two.
 	 *
-	 * Both halves are left free and belonging to the same queue as the block
-	 * they came from.
+	 * Both halves are left free and carrying the token of the block they
+	 * came from.
 	 *
 	 * @param block The block to cut. Must be free.
 	 * @param first_size Size of the first half, in bytes.
@@ -120,8 +130,8 @@ public:
 	/**
 	 * @brief Take a new heap into the pool.
 	 *
-	 * The heap arrives as one free block belonging to no queue, since nothing
-	 * has ever run against it.
+	 * The heap arrives as one free block carrying an empty token, since
+	 * nothing has ever run against it.
 	 *
 	 * @param heap The heap to take in. Can not be nullptr.
 	 * @return memory_block* The block spanning the whole heap.
@@ -131,26 +141,26 @@ public:
 	memory_block* register_heap(std::unique_ptr<memory_heap> heap);
 
 	/**
-	 * @brief List the queues that free blocks currently belong to.
+	 * @brief List what the free blocks are still used by.
 	 *
-	 * The queue standing for no queue is not listed, since there is nothing to
-	 * wait for on it.
+	 * Lists one token per timeline: the one with the greatest id among the
+	 * free blocks of that timeline. Empty tokens are not listed.
 	 *
-	 * @param queues Overwritten with the queues.
+	 * @param pending Overwritten with the tokens.
 	 */
-	void enumerate_queues(std::vector<queue_handle> &queues) const;
+	void enumerate_pending(std::vector<command_token> &pending) const;
 
 	/**
-	 * @brief Unbind every free block from its queue, merging what that allows.
+	 * @brief Empty the token of every free block, merging what that allows.
 	 *
-	 * Turns blocks scattered across per-queue sets back into whatever
-	 * contiguous runs they add up to, which is what makes a heap releasable
-	 * again after the pool has been used from several queues.
+	 * Turns blocks kept apart by the timelines of their tokens back into
+	 * whatever contiguous runs they add up to, which is what makes a heap
+	 * releasable again after the pool has been used from several queues.
 	 *
-	 * @pre The work of every queue reported by @ref enumerate_queues must have
+	 * @pre Every command reported by @ref enumerate_pending must have
 	 * finished, otherwise a block may be handed out while it is still in use.
 	 */
-	void reset_queues() noexcept;
+	void reset_pending() noexcept;
 
 	/**
 	 * @brief Give back every heap that is not cut up or in use.
@@ -176,18 +186,35 @@ public:
 
 private:
 	/**
-	 * @brief Orders free blocks by queue first and by size second.
+	 * @brief Orders free blocks by the timeline of their token first and by
+	 * size second.
 	 *
-	 * Grouping by queue is what turns "the best fit this queue can have for
-	 * free" into a single lower bound.
+	 * Grouping by timeline is what turns "the best fit this queue can have
+	 * for free" into a single lower bound.
 	 */
 	class free_memory_block_compare
 	{
 	public:
+		/// What a free block is sorted by, for searching without a block.
+		using key_type = std::pair<const command_timeline*, std::size_t>;
+
 		bool operator()(
 			const memory_block &lhs,
 			const memory_block &rhs
 		) const noexcept;
+		bool operator()(
+			const memory_block &lhs,
+			const key_type &rhs
+		) const noexcept;
+		bool operator()(
+			const key_type &lhs,
+			const memory_block &rhs
+		) const noexcept;
+
+	private:
+		static key_type get_key(const memory_block &block) noexcept;
+		static bool
+		is_less(const key_type &lhs, const key_type &rhs) noexcept;
 	};
 
 	using memory_block_list_type = boost::intrusive::list<
@@ -217,10 +244,12 @@ private:
 	heap_map_type m_heaps;
 	std::size_t m_size;
 
-	memory_block* find_in_queue(
+	memory_block* find_in_timeline(
 		std::size_t size,
-		const queue_handle &queue
+		const command_timeline *timeline
 	) noexcept;
+	free_memory_block_set_type::const_iterator
+	find_next_timeline(const command_timeline *timeline) const noexcept;
 
 	void consider_merging_block(memory_block &block) noexcept;
 	void consider_merging_forwards(memory_block &block) noexcept;
@@ -229,6 +258,8 @@ private:
 		const memory_block &block,
 		const memory_block &neighbour
 	) const noexcept;
+	static void
+	keep_later_pending(memory_block &block, const memory_block &other) noexcept;
 	bool is_partition(const memory_block &block) const noexcept;
 };
 
