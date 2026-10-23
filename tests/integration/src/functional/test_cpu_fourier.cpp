@@ -331,6 +331,25 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	fourier_verb_fixture,
+	"irfft turns away an extent the coefficients do not come from",
+	"[array_fourier][cpu]"
+)
+{
+	// Four samples store three coefficients, and ten would store six.
+	auto signal = make_operand<float32_t>({ 4 }, ramp);
+	const const_array_ref signal_ref = signal;
+
+	const auto spectrum = rexlib::rfft(signal_ref, context, nullptr);
+	const const_array_ref spectrum_ref = spectrum;
+
+	CHECK_THROWS_AS(
+		rexlib::irfft(spectrum_ref, 10, context, nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	fourier_verb_fixture,
 	"the transforms compute in double precision when the operand does",
 	"[array_fourier][cpu]"
 )

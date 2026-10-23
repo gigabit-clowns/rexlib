@@ -11,10 +11,10 @@ namespace ops
 
 irfft_operation::irfft_operation(
 	axis_list axes,
-	signal_parity parity,
+	std::size_t extent,
 	fourier_normalization normalization
 )
-	: parametric_operation(std::move(axes), parity)
+	: parametric_operation(std::move(axes), extent)
 	, m_normalization(normalization)
 {
 }

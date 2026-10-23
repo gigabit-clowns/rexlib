@@ -455,13 +455,10 @@ array irfft(
 	array *out
 )
 {
-	// An operation carries the parity, that being the whole of what the
-	// restoration needs. Naming an extent instead is a convenience, and
-	// this is where the two meet.
 	return execute_unary(
 		ops::irfft_operation(
 			resolve_axes(x, axes),
-			ops::get_signal_parity(extent),
+			extent,
 			normalization
 		),
 		x,
@@ -499,7 +496,7 @@ array irfft(
 	return execute_unary(
 		ops::irfft_operation(
 			last_axes(x, 1),
-			ops::get_signal_parity(extent),
+			extent,
 			normalization
 		),
 		x,
@@ -535,7 +532,7 @@ array irfft2(
 	return execute_unary(
 		ops::irfft_operation(
 			last_axes(x, 2),
-			ops::get_signal_parity(extent),
+			extent,
 			normalization
 		),
 		x,
@@ -571,7 +568,7 @@ array irfft3(
 	return execute_unary(
 		ops::irfft_operation(
 			last_axes(x, 3),
-			ops::get_signal_parity(extent),
+			extent,
 			normalization
 		),
 		x,

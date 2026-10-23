@@ -11,6 +11,8 @@
 #include <rexlib/ops/policies/inverse_real_fourier_transform_shape_policy.hpp>
 #include <rexlib/ops/rules/operand_type_rules.hpp>
 
+#include <cstddef>
+
 namespace rexlib
 {
 namespace ops
@@ -28,9 +30,9 @@ REXLIB_DECLARE_OPERATION_TRAITS(
 /**
  * @brief Transform a half spectrum back into a real array.
  *
- * The inverse of rfft. The extent of the restored axis is recovered from
- * the parity the operation carries, an axis of m coefficients coming
- * from either 2*(m - 1) or 2*m - 1 samples.
+ * The inverse of rfft. An axis of m coefficients comes from either
+ * 2*(m - 1) or 2*m - 1 samples, so the operation carries the extent of the
+ * restored axis.
  */
 REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API irfft_operation final
@@ -42,18 +44,18 @@ public:
 	 *
 	 * @param axes The transformed axes. Sorted on construction. The last of
 	 * them is the restored one, and the remaining axes are batch dimensions.
-	 * @param parity The parity the restored axis had before it was
-	 * transformed.
+	 * @param extent The number of samples along the restored axis. The
+	 * spectrum must hold extent / 2 + 1 coefficients along it.
 	 * @param normalization Which of the transform pair carries the scaling.
 	 * It is measured against the restored real signal, not against the
 	 * coefficients the spectrum actually holds.
 	 *
-	 * @throws std::invalid_argument When an axis is repeated, or when no
-	 * axis is given.
+	 * @throws std::invalid_argument When an axis is repeated, when no axis
+	 * is given, or when @p extent is zero.
 	 */
 	irfft_operation(
 		axis_list axes,
-		signal_parity parity,
+		std::size_t extent,
 		fourier_normalization normalization = fourier_normalization::backward
 	);
 

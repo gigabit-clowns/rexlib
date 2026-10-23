@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include <rexlib/ops/policies/axiswise_operation_shape_policy.hpp>
 #include <rexlib/ops/policies/inverse_real_fourier_transform_shape_policy.hpp>
@@ -10,6 +11,7 @@
 #include <rexlib/core/dispatch/operation_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
+#include <cstddef>
 #include <stdexcept>
 #include <vector>
 
@@ -125,20 +127,16 @@ TEST_CASE(
 
 TEST_CASE(
 	"inverse_real_fourier_transform_shape_policy should restore the axis "
-	"according to its parity",
+	"to the extent it is given",
 	"[fourier_shape_policy]"
 )
 {
 	// The same operand restores to two different extents, which is why the
-	// parity has to be carried rather than worked out.
-	const inverse_real_fourier_transform_shape_policy even(
-		{ 1 }, signal_parity::even
-	);
+	// extent has to be carried rather than worked out.
+	const inverse_real_fourier_transform_shape_policy even({ 1 }, 16);
 	CHECK( deduce_one(even, shape_type{ 4, 9 }) == shape_type{ 4, 16 } );
 
-	const inverse_real_fourier_transform_shape_policy odd(
-		{ 1 }, signal_parity::odd
-	);
+	const inverse_real_fourier_transform_shape_policy odd({ 1 }, 17);
 	CHECK( deduce_one(odd, shape_type{ 4, 9 }) == shape_type{ 4, 17 } );
 }
 
@@ -148,10 +146,50 @@ TEST_CASE(
 	"[fourier_shape_policy]"
 )
 {
-	const inverse_real_fourier_transform_shape_policy policy(
-		{ 0, 1 }, signal_parity::even
-	);
+	const inverse_real_fourier_transform_shape_policy policy({ 0, 1 }, 16);
 	CHECK( deduce_one(policy, shape_type{ 8, 9 }) == shape_type{ 8, 16 } );
+}
+
+TEST_CASE(
+	"inverse_real_fourier_transform_shape_policy should reject a spectrum "
+	"that does not hold the coefficients of its extent",
+	"[fourier_shape_policy]"
+)
+{
+	const auto stored = GENERATE(
+		std::size_t(0),
+		std::size_t(5),
+		std::size_t(7)
+	);
+
+	// A signal of 10 samples has 6 coefficients.
+	const inverse_real_fourier_transform_shape_policy policy({ 0 }, 10);
+	CHECK_THROWS_AS(
+		deduce_one(policy, shape_type{ stored }),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
+	"inverse_real_fourier_transform_shape_policy should reject restoring "
+	"an axis with no samples",
+	"[fourier_shape_policy]"
+)
+{
+	CHECK_THROWS_AS(
+		inverse_real_fourier_transform_shape_policy({ 0 }, 0),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
+	"inverse_real_fourier_transform_shape_policy should return the extent "
+	"it was given",
+	"[fourier_shape_policy]"
+)
+{
+	const inverse_real_fourier_transform_shape_policy policy({ 0 }, 17);
+	CHECK( policy.get_extent() == 17 );
 }
 
 TEST_CASE(
@@ -169,25 +207,10 @@ TEST_CASE(
 
 		const inverse_real_fourier_transform_shape_policy backward(
 			{ 0 },
-			get_signal_parity(extent)
+			extent
 		);
 
 		INFO( "extent " << extent );
 		CHECK( deduce_one(backward, stored) == shape_type{ extent } );
 	}
-}
-
-TEST_CASE(
-	"signal parity should be readable and printable",
-	"[fourier_shape_policy]"
-)
-{
-	CHECK( get_signal_parity(16) == signal_parity::even );
-	CHECK( get_signal_parity(17) == signal_parity::odd );
-
-	const inverse_real_fourier_transform_shape_policy policy(
-		{ 0 }, signal_parity::odd
-	);
-	CHECK( policy.get_parity() == signal_parity::odd );
-	CHECK( std::string(to_string(signal_parity::even)) == "even" );
 }

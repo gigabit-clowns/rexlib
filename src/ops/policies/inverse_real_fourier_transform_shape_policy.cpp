@@ -13,45 +13,13 @@ namespace rexlib
 namespace ops
 {
 
-const char* to_string(signal_parity parity) noexcept
-{
-	switch (parity)
-	{
-	case signal_parity::even: return "even";
-	case signal_parity::odd: return "odd";
-	default: return "";
-	}
-}
-
-std::ostream& operator<<(std::ostream &os, signal_parity parity)
-{
-	return os << to_string(parity);
-}
-
-std::size_t compute_real_signal_extent(
-	std::size_t stored,
-	signal_parity parity
-) noexcept
-{
-	// The halved axis holds n/2 + 1 coefficients, which inverts to one of
-	// two extents depending on how the rounding went.
-	return parity == signal_parity::even
-		? 2*(stored - 1)
-		: 2*stored - 1;
-}
-
-signal_parity get_signal_parity(std::size_t extent) noexcept
-{
-	return (extent % 2) == 0 ? signal_parity::even : signal_parity::odd;
-}
-
 inverse_real_fourier_transform_shape_policy
 ::inverse_real_fourier_transform_shape_policy(
 	axis_list axes,
-	signal_parity parity
+	std::size_t extent
 )
 	: m_axes(make_sorted_axis_list(std::move(axes)))
-	, m_parity(parity)
+	, m_extent(extent)
 {
 	if (m_axes.empty())
 	{
@@ -59,6 +27,14 @@ inverse_real_fourier_transform_shape_policy
 			"inverse_real_fourier_transform_shape_policy: at least one "
 			"axis must be transformed, the restored one being the last of "
 			"them."
+		);
+	}
+
+	if (m_extent == 0)
+	{
+		throw std::invalid_argument(
+			"inverse_real_fourier_transform_shape_policy: the restored "
+			"axis must hold at least one sample."
 		);
 	}
 }
@@ -69,10 +45,10 @@ inverse_real_fourier_transform_shape_policy::get_axes() const noexcept
 	return make_span(m_axes.data(), m_axes.size());
 }
 
-signal_parity
-inverse_real_fourier_transform_shape_policy::get_parity() const noexcept
+std::size_t
+inverse_real_fourier_transform_shape_policy::get_extent() const noexcept
 {
-	return m_parity;
+	return m_extent;
 }
 
 void inverse_real_fourier_transform_shape_policy::deduce(
@@ -92,19 +68,19 @@ void inverse_real_fourier_transform_shape_policy::deduce(
 	shape_type shape = input_shapes[0];
 	check_axes_within_rank(descriptor, get_axes(), shape.size());
 
-	// Only the halved axis is restored. The others were never reduced, so
-	// they already have the extent the samples had.
 	const auto restored = m_axes.back();
 	const auto stored = shape[restored];
-	if (stored == 0)
+	const auto expected = m_extent / 2 + 1;
+	if (stored != expected)
 	{
 		std::ostringstream oss;
-		oss << descriptor << ": axis " << restored
-			<< " holds no coefficients, so there is no signal to restore.";
+		oss << descriptor << ": axis " << restored << " holds " << stored
+			<< " coefficients, but a signal of " << m_extent
+			<< " samples has " << expected << " of them.";
 		throw std::invalid_argument(oss.str());
 	}
 
-	shape[restored] = compute_real_signal_extent(stored, m_parity);
+	shape[restored] = m_extent;
 
 	assign_output_shapes(canonical_output_shapes, std::move(shape));
 }
