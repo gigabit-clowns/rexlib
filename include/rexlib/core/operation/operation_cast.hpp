@@ -3,6 +3,7 @@
 #pragma once
 
 #include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/operation/operation_id.hpp>
 
 #include <rexlib/core/platform/attributes.hpp>
@@ -16,11 +17,22 @@ namespace rexlib
 /**
  * @brief Report an operation that is not of the expected type.
  *
- * Defined out of line so that a downcast does not emit a throw site per
- * instantiation, of which there is one per operation and backend.
+ * @param got The operation that was passed.
+ * @param expected Description of the operation that was expected.
+ * @throws std::invalid_argument Always.
+ */
+REXLIB_NORETURN REXLIB_API
+void throw_unexpected_operation(
+	const operation &got,
+	const operation_descriptor &expected
+);
+
+/**
+ * @brief Report an operation that is not of the expected type, which has
+ * no static description.
  *
  * @param got The operation that was passed.
- * @param expected Name of the operation that was expected.
+ * @param expected Name of the type that was expected.
  * @throws std::invalid_argument Always.
  */
 REXLIB_NORETURN REXLIB_API
@@ -33,7 +45,7 @@ namespace detail
 {
 
 template <typename Op, typename = void>
-struct operation_type_name
+struct expected_operation
 {
 	static const char* get() noexcept
 	{
@@ -42,14 +54,14 @@ struct operation_type_name
 };
 
 template <typename Op>
-struct operation_type_name<
+struct expected_operation<
 	Op,
 	decltype(void(Op::get_static_descriptor()))
 >
 {
-	static const char* get() noexcept
+	static const operation_descriptor& get() noexcept
 	{
-		return Op::get_static_descriptor().get_name();
+		return Op::get_static_descriptor();
 	}
 };
 
@@ -76,7 +88,7 @@ const Op& operation_cast(const operation &op)
 	{
 		throw_unexpected_operation(
 			op,
-			detail::operation_type_name<Op>::get()
+			detail::expected_operation<Op>::get()
 		);
 	}
 

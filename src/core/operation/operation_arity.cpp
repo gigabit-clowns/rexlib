@@ -29,24 +29,4 @@ std::size_t operation_arity::get_input_count() const noexcept
 	return m_input_count;
 }
 
-operation_arity operation_arity::nullary() noexcept
-{
-	return operation_arity(1, 0);
-}
-
-operation_arity operation_arity::unary() noexcept
-{
-	return operation_arity(1, 1);
-}
-
-operation_arity operation_arity::binary() noexcept
-{
-	return operation_arity(1, 2);
-}
-
-operation_arity operation_arity::ternary() noexcept
-{
-	return operation_arity(1, 3);
-}
-
 } // namespace rexlib

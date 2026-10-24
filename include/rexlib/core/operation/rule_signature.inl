@@ -91,7 +91,6 @@ inline
 void rule_signature<ShapeRule, TypeRule, Parameters>::accept(
 	const operation_descriptor &descriptor,
 	span<const operand_specification> user_outputs,
-	span<const operand_specification> /*canonical_outputs*/,
 	span<const operand_specification> inputs
 ) const
 {
@@ -117,6 +116,14 @@ void rule_signature<ShapeRule, TypeRule, Parameters>::accept(
 		user_outputs,
 		inputs
 	);
+}
+
+template <typename ShapeRule, typename TypeRule, typename Parameters>
+inline
+operation_arity
+rule_signature<ShapeRule, TypeRule, Parameters>::get_arity() const noexcept
+{
+	return operation_arity(TypeRule::output_count, TypeRule::input_count);
 }
 
 template <typename ShapeRule, typename TypeRule, typename Parameters>

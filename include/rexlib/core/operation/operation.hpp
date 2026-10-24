@@ -2,15 +2,11 @@
 
 #pragma once
 
-#include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/operation/operation_id.hpp>
 #include <rexlib/core/operation/operation_signature.hpp>
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
-
-#include <ostream>
-#include <string>
 
 namespace rexlib
 {
@@ -61,25 +57,6 @@ public:
 	 */
 	virtual
 	const operation_descriptor& get_descriptor() const noexcept = 0;
-
-	/**
-	 * @brief Get a human readable identifier of the operation.
-	 *
-	 * This representation should not encode the parameters of the operation,
-	 * i.e., it should be the same for all instances of a given operation class.
-	 *
-	 * @return std::string The human readable representation.
-	 */
-	virtual
-	std::string get_name() const = 0;
-
-	/**
-	 * @brief Get the input and output count of the operation.
-	 *
-	 * @return operation_arity The input and output count.
-	 */
-	virtual
-	operation_arity get_arity() const noexcept = 0;
 
 	/**
 	 * @brief Get the signature deciding the shape and data type of the

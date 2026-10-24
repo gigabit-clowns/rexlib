@@ -150,16 +150,16 @@ protected:
 	void expect_unary_operation(shape_type out_shape, numerical_type out_type)
 	{
 		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_arity())
-				.RETURN(operation_arity::unary())
-		);
-		expectations.push_back(
 			NAMED_ALLOW_CALL(op, get_descriptor())
 				.LR_RETURN(mock_descriptor())
 		);
 		expectations.push_back(
 			NAMED_ALLOW_CALL(op, get_signature())
 				.LR_RETURN(signature)
+		);
+		expectations.push_back(
+			NAMED_ALLOW_CALL(signature, get_arity())
+				.RETURN(operation_arity(1, 1))
 		);
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
@@ -186,7 +186,6 @@ protected:
 				signature,
 				accept(
 					ANY(const operation_descriptor&),
-					ANY(span<const operand_specification>),
 					ANY(span<const operand_specification>),
 					ANY(span<const operand_specification>)
 				)
@@ -349,8 +348,10 @@ TEST_CASE_METHOD(
 	"[eager_dispatcher]"
 )
 {
-	REQUIRE_CALL(op, get_arity())
-		.RETURN(operation_arity::unary()); // Expects one output and one input.
+	ALLOW_CALL(op, get_signature())
+		.LR_RETURN(signature);
+	REQUIRE_CALL(signature, get_arity())
+		.RETURN(operation_arity(1, 1));
 
 	array output;
 	const const_array_ref input;
@@ -411,25 +412,18 @@ TEST_CASE_METHOD(
 
 	expect_unary_operation(shape_type{4}, numerical_type::float32);
 
-	// The signature is queried with the user-supplied output alongside the
-	// canonical one deduced above, and accepts it.
+	// The signature is queried with the user-supplied output and accepts it.
 	const operand_specification user_output(user_shape, user_type);
-	const operand_specification canonical_output(
-		shape_type{4},
-		numerical_type::float32
-	);
 	expectations.push_back(
 		NAMED_REQUIRE_CALL(
 			signature,
 			accept(
 				ANY(const operation_descriptor&),
 				ANY(span<const operand_specification>),
-				ANY(span<const operand_specification>),
 				ANY(span<const operand_specification>)
 			)
 		)
 			.WITH(_2.size() == 1 && _2[0] == user_output)
-			.WITH(_3.size() == 1 && _3[0] == canonical_output)
 	);
 
 	register_program_builder();

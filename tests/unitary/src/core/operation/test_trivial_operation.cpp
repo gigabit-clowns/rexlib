@@ -138,8 +138,8 @@ TEST_CASE(
 {
     const stub_fill_operation op(scalar_value(3.0F));
 
-    CHECK( op.get_name() == "stub_fill" );
-    CHECK( op.get_arity() == operation_arity(1, 0) );
+    CHECK( std::string(op.get_descriptor().get_name()) == "stub_fill" );
+    CHECK( op.get_signature().get_arity() == operation_arity(1, 0) );
     CHECK( op.get_fill_value().get<float32_t>() == 3.0F );
 
     // With no input to fix it, the element type is left for the user

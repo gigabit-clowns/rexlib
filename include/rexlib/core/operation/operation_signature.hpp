@@ -3,6 +3,7 @@
 #pragma once
 
 #include <rexlib/core/operation/operand_specification.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
@@ -68,7 +69,6 @@ public:
 	 * @param descriptor Description of the operation, used to name the
 	 * operation and its operands when reporting a rejection.
 	 * @param user_outputs The output operands supplied in advance.
-	 * @param canonical_outputs The output operands `deduce` computed.
 	 * @param inputs The input operands.
 	 *
 	 * @throws std::invalid_argument When an output is not admissible.
@@ -78,9 +78,16 @@ public:
 	virtual void accept(
 		const operation_descriptor &descriptor,
 		span<const operand_specification> user_outputs,
-		span<const operand_specification> canonical_outputs,
 		span<const operand_specification> inputs
 	) const = 0;
+
+	/**
+	 * @brief Get the number of output and input operands.
+	 *
+	 * @return operation_arity The operand counts `deduce` and `accept`
+	 * take.
+	 */
+	virtual operation_arity get_arity() const noexcept = 0;
 };
 
 } // namespace rexlib

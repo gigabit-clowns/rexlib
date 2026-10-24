@@ -30,14 +30,6 @@ const char* operation_descriptor::get_name() const noexcept
 	return m_name;
 }
 
-operation_arity operation_descriptor::get_arity() const noexcept
-{
-	return operation_arity(
-		m_output_operand_names.size(),
-		m_input_operand_names.size()
-	);
-}
-
 span<const char* const>
 operation_descriptor::get_output_operand_names() const noexcept
 {

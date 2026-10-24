@@ -49,9 +49,8 @@ TEST_CASE(
 {
     const stub_add_operation op;
 
-    CHECK( op.get_name() == "stub_add" );
-    CHECK( op.get_arity() == operation_arity(1, 2) );
-    CHECK( op.get_arity() == operation_arity::binary() );
+    CHECK( std::string(op.get_descriptor().get_name()) == "stub_add" );
+    CHECK( op.get_signature().get_arity() == operation_arity(1, 2) );
 }
 
 TEST_CASE(
@@ -121,7 +120,7 @@ TEST_CASE(
     STATIC_REQUIRE( std::is_base_of<operation, stub_add_operation>::value );
     STATIC_REQUIRE( std::is_final<stub_add_operation>::value );
 
-    CHECK( op.get_name() == "stub_add" );
-    CHECK( op.get_arity() == operation_arity::binary() );
+    CHECK( std::string(op.get_descriptor().get_name()) == "stub_add" );
+    CHECK( op.get_signature().get_arity() == operation_arity(1, 2) );
     CHECK( op.get_id() == operation_id::of<stub_add_operation>() );
 }

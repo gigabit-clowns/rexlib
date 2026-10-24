@@ -355,7 +355,7 @@ void eager_dispatcher::dispatch(
 	const auto n_inputs = input_operands.size();
 	validate_arity(
 		operation_arity(n_outputs, n_inputs),
-		op.get_arity()
+		op.get_signature().get_arity()
 	);
 
 	auto input_descriptors = extract_input_descriptors(
@@ -398,7 +398,6 @@ void eager_dispatcher::dispatch(
 		signature.accept(
 			descriptor,
 			make_span(outputs.data(), n_outputs),
-			make_span(canonical_outputs.data(), n_outputs),
 			make_span(inputs.data(), n_inputs)
 		);
 	}

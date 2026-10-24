@@ -34,19 +34,4 @@ operation_id basic_operation<Derived, Traits>::get_id() const noexcept
 	return operation_id::of<Derived>();
 }
 
-template <typename Derived, typename Traits>
-inline
-std::string basic_operation<Derived, Traits>::get_name() const
-{
-	return Traits::get_name();
-}
-
-template <typename Derived, typename Traits>
-inline
-operation_arity
-basic_operation<Derived, Traits>::get_arity() const noexcept
-{
-	return get_static_descriptor().get_arity();
-}
-
 } // namespace rexlib

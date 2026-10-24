@@ -37,6 +37,13 @@ class rule_signature final
 public:
 	using parameters_type = Parameters;
 
+	static_assert(
+		ShapeRule::output_count == TypeRule::output_count &&
+		ShapeRule::input_count == TypeRule::input_count,
+		"The shape rule describes a different number of operands than the "
+		"typing rule."
+	);
+
 	/**
 	 * @brief Construct the signature by constructing its parameters.
 	 *
@@ -81,9 +88,10 @@ public:
 	void accept(
 		const operation_descriptor &descriptor,
 		span<const operand_specification> user_outputs,
-		span<const operand_specification> canonical_outputs,
 		span<const operand_specification> inputs
 	) const override;
+
+	operation_arity get_arity() const noexcept override;
 
 private:
 	Parameters m_parameters;

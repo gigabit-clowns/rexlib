@@ -40,17 +40,6 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"operation_descriptor should take its arity from its operand names",
-	"[operation_descriptor]"
-)
-{
-	const auto arity = test_descriptor().get_arity();
-
-	CHECK( arity.get_output_count() == 2 );
-	CHECK( arity.get_input_count() == 3 );
-}
-
-TEST_CASE(
 	"operation_descriptor should name its operands",
 	"[operation_descriptor]"
 )

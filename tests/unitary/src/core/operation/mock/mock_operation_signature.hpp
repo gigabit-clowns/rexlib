@@ -22,16 +22,16 @@ public:
 		),
 		override
 	);
-	MAKE_CONST_MOCK4(
+	MAKE_CONST_MOCK3(
 		accept,
 		void(
 			const operation_descriptor&,
 			span<const operand_specification> user_outputs,
-			span<const operand_specification> canonical_outputs,
 			span<const operand_specification> inputs
 		),
 		override
 	);
+	MAKE_CONST_MOCK0(get_arity, operation_arity(), noexcept override);
 };
 
 } // namespace rexlib

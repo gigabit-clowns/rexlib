@@ -98,3 +98,12 @@ TEST_CASE(
 		operand_specification({ 4, 3 }, numerical_type::float32)
 	);
 }
+
+TEST_CASE(
+	"shared_rule_signature should take its arity from its rules",
+	"[shared_rule_signature]"
+)
+{
+	CHECK( binary_signature::get().get_arity() == operation_arity(1, 2) );
+	CHECK( unary_signature::get().get_arity() == operation_arity(1, 1) );
+}

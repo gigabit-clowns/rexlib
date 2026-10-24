@@ -45,11 +45,3 @@ TEST_CASE("Copying an operation_arity should preserve its operand counts", "[ope
 	CHECK( copy.get_output_count() == 4 );
 	CHECK( copy.get_input_count() == 5 );
 }
-
-TEST_CASE("operation_arity presets should have one output and the expected input count", "[operation_arity]")
-{
-	CHECK( operation_arity::nullary() == operation_arity(1, 0) );
-	CHECK( operation_arity::unary()   == operation_arity(1, 1) );
-	CHECK( operation_arity::binary()  == operation_arity(1, 2) );
-	CHECK( operation_arity::ternary() == operation_arity(1, 3) );
-}

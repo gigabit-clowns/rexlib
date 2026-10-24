@@ -19,8 +19,6 @@ public:
 		const operation_descriptor&(),
 		noexcept override
 	);
-	MAKE_CONST_MOCK0(get_name, std::string(), override);
-	MAKE_CONST_MOCK0(get_arity, operation_arity(), noexcept override);
 	MAKE_CONST_MOCK0(
 		get_signature,
 		const operation_signature&(),

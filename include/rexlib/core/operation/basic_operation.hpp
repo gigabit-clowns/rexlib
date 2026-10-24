@@ -4,14 +4,12 @@
 
 #include <rexlib/core/operation/operand_names.hpp>
 #include <rexlib/core/operation/operation.hpp>
-#include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
 #include <cstddef>
-#include <string>
 
 namespace rexlib
 {
@@ -75,13 +73,6 @@ public:
 		"than its typing rule has input slots."
 	);
 
-	static_assert(
-		output_operand_count == shape_rule::output_count &&
-		input_operand_count == shape_rule::input_count,
-		"The operation's shape rule describes a different number of "
-		"operands than its typing rule."
-	);
-
 	/**
 	 * @brief Get the description shared by every instance.
 	 *
@@ -106,10 +97,6 @@ public:
 	 * @return operation_id The operation id.
 	 */
 	operation_id get_id() const noexcept override;
-
-	std::string get_name() const override;
-
-	operation_arity get_arity() const noexcept override;
 };
 
 } // namespace rexlib

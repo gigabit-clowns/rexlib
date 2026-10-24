@@ -10,6 +10,7 @@
 #include <rexlib/ops/rules/type_rules.hpp>
 
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -101,8 +102,8 @@ TEST_CASE(
 {
 	const stub_reduce_operation op(ops::axis_list{ 0 });
 
-	CHECK( op.get_name() == "stub_reduce" );
-	CHECK( op.get_arity() == operation_arity::unary() );
+	CHECK( std::string(op.get_descriptor().get_name()) == "stub_reduce" );
+	CHECK( op.get_signature().get_arity() == operation_arity(1, 1) );
 	CHECK( op.get_id() == operation_id::of<stub_reduce_operation>() );
 	STATIC_REQUIRE( stub_reduce_operation::output_operand_count == 1 );
 	STATIC_REQUIRE( stub_reduce_operation::input_operand_count == 1 );

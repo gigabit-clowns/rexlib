@@ -3,7 +3,6 @@
 #pragma once
 
 #include <rexlib/core/operation/operand_names.hpp>
-#include <rexlib/core/operation/operation_arity.hpp>
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
@@ -20,8 +19,7 @@ namespace rexlib
  *
  * Holds everything that is the same for every instance of a given
  * operation: the component it belongs to, its name, and the name of each of
- * its operands. The operand names also fix the arity, so an operation
- * cannot report an arity that disagrees with the operands it declares.
+ * its operands.
  *
  * Nothing here is owned. Every string and every name list must have static
  * storage duration, which the declaration macros guarantee.
@@ -75,14 +73,6 @@ public:
 	 */
 	REXLIB_API
 	const char* get_name() const noexcept;
-
-	/**
-	 * @brief Get the operand counts of the operation.
-	 *
-	 * @return operation_arity The arity.
-	 */
-	REXLIB_API
-	operation_arity get_arity() const noexcept;
 
 	/**
 	 * @brief Get the names of the output operands.

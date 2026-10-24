@@ -56,50 +56,6 @@ public:
 	REXLIB_API
 	std::size_t get_input_count() const noexcept;
 
-	/**
-	 * @brief Create the arity of a nullary operation.
-	 *
-	 * A nullary operation consumes no input operands and produces one output
-	 * operand.
-	 *
-	 * @return operation_arity Arity with one output and no inputs.
-	 */
-	REXLIB_API
-	static operation_arity nullary() noexcept;
-
-	/**
-	 * @brief Create the arity of a unary operation.
-	 *
-	 * A unary operation consumes one input operand and produces one output
-	 * operand.
-	 *
-	 * @return operation_arity Arity with one output and one input.
-	 */
-	REXLIB_API
-	static operation_arity unary() noexcept;
-
-	/**
-	 * @brief Create the arity of a binary operation.
-	 *
-	 * A binary operation consumes two input operands and produces one output
-	 * operand.
-	 *
-	 * @return operation_arity Arity with one output and two inputs.
-	 */
-	REXLIB_API
-	static operation_arity binary() noexcept;
-
-	/**
-	 * @brief Create the arity of a ternary operation.
-	 *
-	 * A ternary operation consumes three input operands and produces one
-	 * output operand.
-	 *
-	 * @return operation_arity Arity with one output and three inputs.
-	 */
-	REXLIB_API
-	static operation_arity ternary() noexcept;
-
 	friend bool operator==(
 		const operation_arity &lhs,
 		const operation_arity &rhs

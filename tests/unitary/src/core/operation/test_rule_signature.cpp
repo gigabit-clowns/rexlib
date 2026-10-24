@@ -118,7 +118,6 @@ TEST_CASE(
 		signature.accept(
 			shape_rule_test_descriptor(),
 			make_span(canonical),
-			make_span(canonical),
 			make_span(inputs)
 		)
 	);
@@ -128,7 +127,6 @@ TEST_CASE(
 		signature.accept(
 			shape_rule_test_descriptor(),
 			make_span(wrong_shape),
-			make_span(canonical),
 			make_span(inputs)
 		),
 		std::invalid_argument
@@ -141,7 +139,6 @@ TEST_CASE(
 		signature.accept(
 			shape_rule_test_descriptor(),
 			make_span(wrong_type),
-			make_span(canonical),
 			make_span(inputs)
 		),
 		std::invalid_argument
@@ -185,4 +182,14 @@ TEST_CASE(
 		outputs[0] ==
 		operand_specification({ 4 }, numerical_type::float64)
 	);
+}
+
+TEST_CASE(
+	"rule_signature should take its arity from its rules",
+	"[rule_signature]"
+)
+{
+	const reduction_signature signature(ops::axis_list{ 0 }, true);
+
+	CHECK( signature.get_arity() == operation_arity(1, 1) );
 }

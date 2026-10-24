@@ -13,9 +13,12 @@
 #include <rexlib/backends/cpu/program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/operation/operand_names.hpp>
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/operation/operation_declaration_macros.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include "../serial_pool.hpp"
 
@@ -176,7 +179,17 @@ TEST_CASE(
 
 	// The rejection names the operation it was handed, so the mock has to
 	// be able to answer that much.
-	ALLOW_CALL(operation, get_name()).RETURN("mock");
+	static REXLIB_CONST_CONSTEXPR auto output_names =
+		make_operand_names("result");
+	static REXLIB_CONST_CONSTEXPR auto input_names =
+		make_operand_names("left", "right");
+	static const operation_descriptor descriptor = make_operation_descriptor(
+		"rexlib.test",
+		"mock",
+		output_names,
+		input_names
+	);
+	ALLOW_CALL(operation, get_descriptor()).LR_RETURN(descriptor);
 
 	const std::vector<operand_descriptor> outputs {
 		make_float32_signature(4)
