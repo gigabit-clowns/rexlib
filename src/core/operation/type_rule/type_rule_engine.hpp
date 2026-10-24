@@ -9,7 +9,6 @@
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/platform/attributes.hpp>
-#include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/core/span.hpp>
 
 namespace rexlib
@@ -39,7 +38,6 @@ namespace rexlib
  * @param operation_data_types Data types the operation instance supplies.
  * @return type_rule_resolution The resolution.
  */
-REXLIB_API
 type_rule_resolution resolve_pivots(
 	span<const type_pivot_descriptor> pivots,
 	span<const numerical_type> input_types,
@@ -57,7 +55,6 @@ type_rule_resolution resolve_pivots(
  * @param user_output_types Data types of the user supplied outputs.
  * @return type_rule_resolution The resolution with every pivot bound.
  */
-REXLIB_API
 type_rule_resolution bind_free_pivots(
 	span<const type_pivot_descriptor> pivots,
 	const type_rule_resolution &partial,
@@ -73,7 +70,6 @@ type_rule_resolution bind_free_pivots(
  * @return type_rule_resolution A successful resolution, or the reason a
  * transform could not be evaluated.
  */
-REXLIB_API
 type_rule_resolution evaluate_slots(
 	span<const type_slot_descriptor> slots,
 	const type_rule_resolution &resolution,
@@ -92,7 +88,6 @@ type_rule_resolution evaluate_slots(
  * @return type_rule_resolution A successful resolution, or the reason an
  * operand was rejected.
  */
-REXLIB_API
 type_rule_resolution check_slots(
 	span<const type_slot_descriptor> slots,
 	const type_rule_resolution &resolution,
@@ -111,7 +106,7 @@ type_rule_resolution check_slots(
  * @param pivots The rule's pivot table.
  * @throws std::invalid_argument Always.
  */
-REXLIB_NORETURN REXLIB_API
+REXLIB_NORETURN
 void throw_type_rule_error(
 	const operation_descriptor &descriptor,
 	const type_rule_resolution &resolution,

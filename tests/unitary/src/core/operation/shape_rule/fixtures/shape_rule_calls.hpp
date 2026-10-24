@@ -2,9 +2,11 @@
 
 #pragma once
 
+#include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/operation/operand_names.hpp>
 #include <rexlib/core/operation/operand_specification.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
+#include <rexlib/core/operation/shape_rule/extent_pivot_source.hpp>
 #include <rexlib/core/operation/shape_rule/shape_rule_descriptor_of.hpp>
 #include <rexlib/core/operation/shape_rule/shape_rule_interpreter.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
@@ -12,6 +14,7 @@
 
 #include <cstddef>
 #include <initializer_list>
+#include <type_traits>
 #include <vector>
 
 namespace rexlib
@@ -57,6 +60,110 @@ std::vector<operand_specification> make_shaped_operands(
 	return result;
 }
 
+namespace detail
+{
+
+template <typename Pivots>
+struct supplied_extents_of;
+
+template <>
+struct supplied_extents_of<type_list<>>
+{
+	static void append(extent_list&, const extent_list&, std::size_t&)
+	{
+	}
+};
+
+template <typename Head, typename... Tail>
+struct supplied_extents_of<type_list<Head, Tail...>>
+{
+	static void append(
+		extent_list &result,
+		const extent_list &instance_extents,
+		std::size_t &next
+	)
+	{
+		append_one(
+			result,
+			instance_extents,
+			next,
+			std::integral_constant<extent_pivot_source, Head::source>()
+		);
+		supplied_extents_of<type_list<Tail...>>::append(
+			result,
+			instance_extents,
+			next
+		);
+	}
+
+private:
+	static void append_one(
+		extent_list&,
+		const extent_list&,
+		std::size_t&,
+		std::integral_constant<extent_pivot_source, extent_pivot_source::inputs>
+	)
+	{
+	}
+
+	static void append_one(
+		extent_list &result,
+		const extent_list &instance_extents,
+		std::size_t &next,
+		std::integral_constant<
+			extent_pivot_source,
+			extent_pivot_source::operation
+		>
+	)
+	{
+		if (next < instance_extents.size())
+		{
+			result.push_back(instance_extents[next++]);
+		}
+	}
+
+	static void append_one(
+		extent_list &result,
+		const extent_list&,
+		std::size_t&,
+		std::integral_constant<extent_pivot_source, extent_pivot_source::fixed>
+	)
+	{
+		result.push_back(Head::accessor_type::get(0));
+	}
+};
+
+} // namespace detail
+
+/**
+ * @brief Interleave the extents a rule fixes with those an instance
+ * supplies, in the order the rule declares them.
+ *
+ * Instance extents the rule does not read are appended, so that a count
+ * mismatch still reaches the interpreter.
+ *
+ * @tparam Rule The operand_shape_rule.
+ * @param instance_extents The extents the operation instance supplies.
+ * @return extent_list Every extent the operation supplies.
+ */
+template <typename Rule>
+extent_list make_supplied_extents(const extent_list &instance_extents)
+{
+	extent_list result;
+	std::size_t next = 0;
+	detail::supplied_extents_of<typename Rule::pivot_list>::append(
+		result,
+		instance_extents,
+		next
+	);
+	result.insert(
+		result.end(),
+		instance_extents.begin() + static_cast<std::ptrdiff_t>(next),
+		instance_extents.end()
+	);
+	return result;
+}
+
 template <typename Rule>
 shape_rule_interpreter make_shape_rule_interpreter()
 {
@@ -72,7 +179,7 @@ std::vector<shape_type> deduce_shapes(
 	std::initializer_list<shape_type> input_shapes,
 	const extent_list &named_axes = extent_list(),
 	bool keep_dimensions = false,
-	const extent_list &operation_extents = extent_list()
+	const extent_list &instance_extents = extent_list()
 )
 {
 	const auto inputs = make_shaped_operands(input_shapes);
@@ -81,7 +188,7 @@ std::vector<shape_type> deduce_shapes(
 		shape_rule_test_descriptor(),
 		make_span(named_axes),
 		keep_dimensions,
-		make_span(operation_extents),
+		make_span(make_supplied_extents<Rule>(instance_extents)),
 		make_span(outputs),
 		make_span(inputs)
 	);
@@ -102,7 +209,7 @@ shape_type deduce_shape(
 	std::initializer_list<shape_type> input_shapes,
 	const extent_list &named_axes = extent_list(),
 	bool keep_dimensions = false,
-	const extent_list &operation_extents = extent_list()
+	const extent_list &instance_extents = extent_list()
 )
 {
 	return deduce_shapes<Rule>(
@@ -110,7 +217,7 @@ shape_type deduce_shape(
 		input_shapes,
 		named_axes,
 		keep_dimensions,
-		operation_extents
+		instance_extents
 	)[0];
 }
 
@@ -123,7 +230,7 @@ void accept_shapes(
 	std::initializer_list<shape_type> input_shapes,
 	const extent_list &named_axes = extent_list(),
 	bool keep_dimensions = false,
-	const extent_list &operation_extents = extent_list()
+	const extent_list &instance_extents = extent_list()
 )
 {
 	const auto outputs = make_shaped_operands(output_shapes);
@@ -132,7 +239,7 @@ void accept_shapes(
 		shape_rule_test_descriptor(),
 		make_span(named_axes),
 		keep_dimensions,
-		make_span(operation_extents),
+		make_span(make_supplied_extents<Rule>(instance_extents)),
 		make_span(outputs),
 		make_span(inputs)
 	);
@@ -144,13 +251,13 @@ void accept_shapes(
 template <typename Rule>
 void check_shape_instance(
 	const extent_list &named_axes,
-	const extent_list &operation_extents = extent_list()
+	const extent_list &instance_extents = extent_list()
 )
 {
 	make_shape_rule_interpreter<Rule>().check_instance(
 		shape_rule_test_descriptor(),
 		make_span(named_axes),
-		make_span(operation_extents)
+		make_span(make_supplied_extents<Rule>(instance_extents))
 	);
 }
 

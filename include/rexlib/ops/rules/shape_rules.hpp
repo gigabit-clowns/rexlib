@@ -9,10 +9,11 @@
 #include <rexlib/ops/rules/keep_dimensions_of.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/operation/shape_rule/axis_run.hpp>
 #include <rexlib/core/operation/shape_rule/core_dimensions.hpp>
 #include <rexlib/core/operation/shape_rule/extent_pivot.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot.hpp>
 #include <rexlib/core/operation/shape_rule/named_core.hpp>
-#include <rexlib/core/operation/shape_rule/operand_axis_slot.hpp>
 #include <rexlib/core/operation/shape_rule/operand_shape_rule.hpp>
 #include <rexlib/core/operation/shape_rule/output_batch.hpp>
 #include <rexlib/core/operation/shape_rule/positive_extent_domain.hpp>
@@ -156,11 +157,11 @@ using vector_dot_shape_rule = operand_shape_rule<
  * axis the operation names.
  */
 using cross_product_shape_rule = operand_shape_rule<
-	type_list<>,
-	type_list<core_dimensions<axis_fixed<3>>>,
+	type_list<extent_fixed<3>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
 	type_list<
-		core_dimensions<axis_fixed<3>>,
-		core_dimensions<axis_fixed<3>>
+		core_dimensions<axis_same_as<0>>,
+		core_dimensions<axis_same_as<0>>
 	>,
 	named_core<axes_of>
 >;

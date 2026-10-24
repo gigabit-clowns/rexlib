@@ -2,7 +2,7 @@
 
 #include "core_dimensions_descriptor_table.hpp"
 
-#include <rexlib/core/operation/shape_rule/axis_slot_descriptor_table.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot_descriptor_table.hpp>
 
 #include <array>
 
@@ -25,7 +25,9 @@ core_dimensions_descriptor_table<type_list<Cores...>>::get() noexcept
 	table =
 	{{
 		core_dimensions_descriptor(
-			axis_slot_descriptor_table<typename Cores::slot_list>::get()
+			extent_slot_descriptor_table<typename Cores::slot_list>::get(),
+			Cores::has_run,
+			make_extent_domain<typename Cores::run_domain_type>()
 		)...
 	}};
 

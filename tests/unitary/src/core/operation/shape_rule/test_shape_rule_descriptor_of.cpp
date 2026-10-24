@@ -35,9 +35,9 @@ TEST_CASE(
 {
 	const auto &descriptor = shape_rule_descriptor_of<vector_dot_rule>::get();
 
-	REQUIRE( descriptor.get_extents().size() == 1 );
+	REQUIRE( descriptor.get_pivots().size() == 1 );
 	CHECK(
-		descriptor.get_extents()[0].get_source() ==
+		descriptor.get_pivots()[0].get_source() ==
 		extent_pivot_source::inputs
 	);
 
@@ -46,7 +46,9 @@ TEST_CASE(
 
 	REQUIRE( descriptor.get_input_cores().size() == 2 );
 	CHECK( descriptor.get_input_cores()[0].get_slots().size() == 1 );
-	CHECK( descriptor.get_input_cores()[1].get_slots()[0].get_index() == 0 );
+	CHECK(
+		descriptor.get_input_cores()[1].get_slots()[0].get_pivot_index() == 0
+	);
 
 	CHECK( descriptor.get_placement() == core_placement::named );
 	CHECK( descriptor.get_output_batch() == output_batch::exact );

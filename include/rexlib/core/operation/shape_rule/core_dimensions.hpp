@@ -2,7 +2,9 @@
 
 #pragma once
 
-#include <rexlib/core/operation/shape_rule/operand_axis_slot.hpp>
+#include <rexlib/core/operation/shape_rule/any_extent_domain.hpp>
+#include <rexlib/core/operation/shape_rule/axis_run.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
@@ -16,21 +18,44 @@ namespace rexlib
 namespace detail
 {
 
-template <typename... Slots>
-struct run_slot_count;
-
-template <>
-struct run_slot_count<>
-	: std::integral_constant<std::size_t, 0>
+template <typename T>
+struct is_axis_run
+	: std::false_type
 {
 };
 
-template <typename Head, typename... Tail>
-struct run_slot_count<Head, Tail...>
-	: std::integral_constant<
-		std::size_t,
-		(Head::kind == axis_slot_kind::run ? 1 : 0) +
-		run_slot_count<Tail...>::value
+template <typename Domain>
+struct is_axis_run<axis_run<Domain>>
+	: std::true_type
+{
+};
+
+template <typename... Slots>
+struct core_run_split
+{
+	static REXLIB_CONST_CONSTEXPR bool has_run = false;
+
+	using run_domain_type = any_extent_domain;
+	using slot_list = type_list<Slots...>;
+};
+
+template <typename Domain, typename... Slots>
+struct core_run_split<axis_run<Domain>, Slots...>
+{
+	static REXLIB_CONST_CONSTEXPR bool has_run = true;
+
+	using run_domain_type = Domain;
+	using slot_list = type_list<Slots...>;
+};
+
+template <typename Slots>
+struct slots_without_run;
+
+template <typename... Slots>
+struct slots_without_run<type_list<Slots...>>
+	: std::is_same<
+		type_list<std::false_type, typename is_axis_run<Slots>::type...>,
+		type_list<typename is_axis_run<Slots>::type..., std::false_type>
 	>
 {
 };
@@ -43,26 +68,27 @@ struct run_slot_count<Head, Tail...>
  * Every axis of an operand that is not core is a batch axis, broadcast
  * across the operands.
  *
- * @tparam Slots operand_axis_slot declarations, one per core axis, in the
- * order the axes are laid out.
+ * @tparam Slots An optional leading axis_run, followed by one extent_slot
+ * per further core axis, in the order the axes are laid out.
  *
  * @see operand_shape_rule
  */
 template <typename... Slots>
 struct core_dimensions
 {
-	using slot_list = type_list<Slots...>;
+	using slot_list = typename detail::core_run_split<Slots...>::slot_list;
+	using run_domain_type =
+		typename detail::core_run_split<Slots...>::run_domain_type;
 
-	static REXLIB_CONST_CONSTEXPR std::size_t slot_count = sizeof...(Slots);
-	static REXLIB_CONST_CONSTEXPR std::size_t run_count =
-		detail::run_slot_count<Slots...>::value;
+	static REXLIB_CONST_CONSTEXPR bool has_run =
+		detail::core_run_split<Slots...>::has_run;
 	static REXLIB_CONST_CONSTEXPR std::size_t axis_count =
-		slot_count - run_count;
+		type_list_size<slot_list>::value;
 
 	static_assert(
-		run_count <= 1,
-		"The core dimensions declare more than one run, so the axes of one "
-		"cannot be told from those of the other."
+		detail::slots_without_run<slot_list>::value,
+		"A run may only lead the core dimensions, so the axes of one cannot "
+		"be told from those of the other."
 	);
 };
 

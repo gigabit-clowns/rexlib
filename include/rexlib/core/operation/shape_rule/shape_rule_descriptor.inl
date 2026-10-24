@@ -7,13 +7,13 @@ namespace rexlib
 
 inline
 shape_rule_descriptor::shape_rule_descriptor(
-	span<const extent_pivot_descriptor> extents,
+	span<const extent_pivot_descriptor> pivots,
 	span<const core_dimensions_descriptor> output_cores,
 	span<const core_dimensions_descriptor> input_cores,
 	core_placement placement,
 	output_batch batch
 ) noexcept
-	: m_extents(extents)
+	: m_pivots(pivots)
 	, m_output_cores(output_cores)
 	, m_input_cores(input_cores)
 	, m_placement(placement)
@@ -23,9 +23,9 @@ shape_rule_descriptor::shape_rule_descriptor(
 
 inline
 span<const extent_pivot_descriptor>
-shape_rule_descriptor::get_extents() const noexcept
+shape_rule_descriptor::get_pivots() const noexcept
 {
-	return m_extents;
+	return m_pivots;
 }
 
 inline

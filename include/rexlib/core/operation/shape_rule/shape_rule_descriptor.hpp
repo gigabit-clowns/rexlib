@@ -29,14 +29,14 @@ public:
 	 *
 	 * Nothing is owned: every table must outlive the descriptor.
 	 *
-	 * @param extents The extent variables.
+	 * @param pivots The extent variables.
 	 * @param output_cores The core axes of every output, in signature order.
 	 * @param input_cores The core axes of every input, in signature order.
 	 * @param placement Where the core axes lie.
 	 * @param batch Which batch axes an output supplied in advance may have.
 	 */
 	shape_rule_descriptor(
-		span<const extent_pivot_descriptor> extents,
+		span<const extent_pivot_descriptor> pivots,
 		span<const core_dimensions_descriptor> output_cores,
 		span<const core_dimensions_descriptor> input_cores,
 		core_placement placement,
@@ -48,7 +48,7 @@ public:
 	 *
 	 * @return span<const extent_pivot_descriptor> The extent variables.
 	 */
-	span<const extent_pivot_descriptor> get_extents() const noexcept;
+	span<const extent_pivot_descriptor> get_pivots() const noexcept;
 
 	/**
 	 * @brief Get the core axes of every output.
@@ -79,7 +79,7 @@ public:
 	output_batch get_output_batch() const noexcept;
 
 private:
-	span<const extent_pivot_descriptor> m_extents;
+	span<const extent_pivot_descriptor> m_pivots;
 	span<const core_dimensions_descriptor> m_output_cores;
 	span<const core_dimensions_descriptor> m_input_cores;
 	core_placement m_placement;

@@ -4,6 +4,7 @@
 
 #include <rexlib/core/operation/shape_rule/any_extent_domain.hpp>
 #include <rexlib/core/operation/shape_rule/extent_pivot_source.hpp>
+#include <rexlib/core/operation/shape_rule/fixed_extent.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 
@@ -67,5 +68,22 @@ using extent_from_inputs =
 template <typename Accessor, typename Domain = any_extent_domain>
 using extent_from_operation =
 	extent_pivot<extent_pivot_source::operation, Accessor, Domain>;
+
+/**
+ * @brief Extent variable fixed by the declaration of the operation.
+ *
+ * Models core axes of a fixed length, such as the three components of a
+ * cross product. The value reaches the interpreter with the extents the
+ * operation instance supplies, so a rule reading only fixed extents needs
+ * no parameters.
+ *
+ * @tparam N The extent.
+ */
+template <std::size_t N>
+using extent_fixed = extent_pivot<
+	extent_pivot_source::fixed,
+	fixed_extent<N>,
+	any_extent_domain
+>;
 
 } // namespace rexlib

@@ -6,6 +6,9 @@
 
 #include "shape_rule/fixtures/shape_rule_calls.hpp"
 
+#include <rexlib/core/operation/shape_rule/core_dimensions.hpp>
+#include <rexlib/core/operation/shape_rule/extent_pivot.hpp>
+#include <rexlib/core/operation/shape_rule/operand_shape_rule.hpp>
 #include <rexlib/ops/rules/shape_rules.hpp>
 #include <rexlib/ops/rules/type_rules.hpp>
 
@@ -25,6 +28,17 @@ using binary_signature = shared_rule_signature<
 
 using unary_signature = shared_rule_signature<
 	ops::unary_elementwise_shape_rule,
+	ops::unary_homogeneous_rule<>
+>;
+
+using fixed_extent_shape_rule = operand_shape_rule<
+	type_list<extent_fixed<3>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<core_dimensions<>>
+>;
+
+using fixed_extent_signature = shared_rule_signature<
+	fixed_extent_shape_rule,
 	ops::unary_homogeneous_rule<>
 >;
 
@@ -61,5 +75,26 @@ TEST_CASE(
 	CHECK(
 		outputs[0] ==
 		operand_specification({ 4, 3 }, numerical_type::int16)
+	);
+}
+
+TEST_CASE(
+	"shared_rule_signature should read an extent its shape rule fixes",
+	"[shared_rule_signature]"
+)
+{
+	const std::vector<operand_specification> inputs = {
+		operand_specification({ 4 }, numerical_type::float32)
+	};
+	std::vector<operand_specification> outputs(1);
+
+	fixed_extent_signature::get().deduce(
+		shape_rule_test_descriptor(),
+		make_span(outputs),
+		make_span(inputs)
+	);
+	CHECK(
+		outputs[0] ==
+		operand_specification({ 4, 3 }, numerical_type::float32)
 	);
 }

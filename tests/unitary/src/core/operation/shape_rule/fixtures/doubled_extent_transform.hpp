@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include <rexlib/core/operation/shape_rule/any_extent_domain.hpp>
-#include <rexlib/core/operation/shape_rule/operand_axis_slot.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot.hpp>
 
 #include <cstddef>
 
@@ -34,12 +33,7 @@ struct doubled_extent_transform
  * @tparam E Index of the extent variable.
  */
 template <std::size_t E>
-using axis_doubled_of = operand_axis_slot<
-	axis_slot_kind::extent,
-	E,
-	doubled_extent_transform,
-	any_extent_domain
->;
+using axis_doubled_of = extent_slot<E, doubled_extent_transform>;
 
 } // namespace test
 } // namespace rexlib

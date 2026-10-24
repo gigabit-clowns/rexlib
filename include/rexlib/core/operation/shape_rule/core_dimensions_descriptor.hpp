@@ -2,11 +2,10 @@
 
 #pragma once
 
-#include <rexlib/core/operation/shape_rule/axis_slot_descriptor.hpp>
+#include <rexlib/core/operation/shape_rule/extent_domain.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot_descriptor.hpp>
 
 #include <rexlib/core/span.hpp>
-
-#include <cstddef>
 
 namespace rexlib
 {
@@ -20,48 +19,45 @@ class core_dimensions_descriptor
 {
 public:
 	/**
-	 * @brief Construct a descriptor of the core axes of an operand.
+	 * @brief Construct a core dimensions descriptor.
 	 *
-	 * @param slots The slots of the core axes, in the order the axes are
-	 * laid out. They must outlive the descriptor and hold at most one run.
+	 * @param slots The slot of every core axis after the run. The table must
+	 * outlive the descriptor.
+	 * @param has_run Whether a run leads the core axes.
+	 * @param run_domain The extents every axis of the run may take.
 	 */
-	explicit core_dimensions_descriptor(
-		span<const axis_slot_descriptor> slots
+	core_dimensions_descriptor(
+		span<const extent_slot_descriptor> slots,
+		bool has_run,
+		const extent_domain &run_domain
 	) noexcept;
 
 	/**
-	 * @brief Get the slots of the core axes.
+	 * @brief Get the slot of every core axis after the run.
 	 *
-	 * @return span<const axis_slot_descriptor> The slots.
+	 * @return span<const extent_slot_descriptor> One entry per axis.
 	 */
-	span<const axis_slot_descriptor> get_slots() const noexcept;
+	span<const extent_slot_descriptor> get_slots() const noexcept;
 
 	/**
-	 * @brief Check whether one of the slots is a run.
+	 * @brief Check whether a run leads the core axes.
 	 *
-	 * @return true A slot is a run.
-	 * @return false No slot is a run.
+	 * @return true A run leads them.
+	 * @return false There is no run.
 	 */
 	bool has_run() const noexcept;
 
 	/**
-	 * @brief Get the position of the run among the slots.
+	 * @brief Get the extents every axis of the run may take.
 	 *
-	 * @return std::size_t The position, or the number of slots when there
-	 * is no run.
+	 * @return const extent_domain& The domain.
 	 */
-	std::size_t get_run_position() const noexcept;
-
-	/**
-	 * @brief Get the number of slots that are not a run.
-	 *
-	 * @return std::size_t The number of slots standing for one axis each.
-	 */
-	std::size_t get_axis_count() const noexcept;
+	const extent_domain& get_run_domain() const noexcept;
 
 private:
-	span<const axis_slot_descriptor> m_slots;
-	std::size_t m_run_position;
+	span<const extent_slot_descriptor> m_slots;
+	bool m_has_run;
+	extent_domain m_run_domain;
 };
 
 } // namespace rexlib

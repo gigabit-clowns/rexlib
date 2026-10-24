@@ -70,13 +70,31 @@ using matrix_product_rule = operand_shape_rule<
 >;
 
 using cross_product_rule = operand_shape_rule<
-	type_list<>,
-	type_list<core_dimensions<axis_fixed<3>>>,
+	type_list<extent_fixed<3>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
 	type_list<
-		core_dimensions<axis_fixed<3>>,
-		core_dimensions<axis_fixed<3>>
+		core_dimensions<axis_same_as<0>>,
+		core_dimensions<axis_same_as<0>>
 	>,
 	named_core<test_axes>
+>;
+
+using fixed_output_rule = operand_shape_rule<
+	type_list<extent_fixed<3>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<core_dimensions<>>
+>;
+
+using doubled_fixed_rule = operand_shape_rule<
+	type_list<extent_fixed<3>>,
+	type_list<core_dimensions<>>,
+	type_list<core_dimensions<test::axis_doubled_of<0>>>
+>;
+
+using supplied_extent_rule = operand_shape_rule<
+	type_list<extent_from_operation<test_extent>>,
+	type_list<core_dimensions<>>,
+	type_list<core_dimensions<axis_same_as<0>>>
 >;
 
 using reduction_rule = operand_shape_rule<
@@ -538,4 +556,43 @@ TEST_CASE(
 	);
 	CHECK( outputs[0].get_data_type() == numerical_type::int8 );
 	CHECK( outputs[1].get_data_type() == numerical_type::unknown );
+}
+
+TEST_CASE(
+	"shape_rule_interpreter should give an output an extent its rule fixes",
+	"[shape_rule_interpreter]"
+)
+{
+	CHECK(
+		deduce_shape<fixed_output_rule>({ { 4 } }) == shape_type{ 4, 3 }
+	);
+}
+
+TEST_CASE(
+	"shape_rule_interpreter should name the relation to a fixed extent it "
+	"transforms",
+	"[shape_rule_interpreter]"
+)
+{
+	CHECK(
+		deduce_shape<doubled_fixed_rule>({ { 4, 6 } }) == shape_type{ 4 }
+	);
+	CHECK_THROWS_WITH(
+		deduce_shape<doubled_fixed_rule>({ { 4, 5 } }),
+		ContainsSubstring("'left' has extent 5 along axis 1, but this "
+			"operation requires 6, twice the extent of 3.")
+	);
+}
+
+TEST_CASE(
+	"shape_rule_interpreter should not restate an extent the operation "
+	"supplies as it is",
+	"[shape_rule_interpreter]"
+)
+{
+	CHECK_THROWS_WITH(
+		deduce_shape<supplied_extent_rule>({ { 4, 5 } }, {}, false, { 6 }),
+		ContainsSubstring("'left' has extent 5 along axis 1, but this "
+			"operation requires 6, which the operation fixes.")
+	);
 }

@@ -44,6 +44,12 @@ using sequence_rule = operand_shape_rule<
 	type_list<>
 >;
 
+using fixed_rule = operand_shape_rule<
+	type_list<extent_fixed<3>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<core_dimensions<axis_same_as<0>>>
+>;
+
 using elementwise_rule = operand_shape_rule<
 	type_list<>,
 	type_list<core_dimensions<>>,
@@ -59,11 +65,11 @@ TEST_CASE(
 	"[operand_shape_rule]"
 )
 {
-	STATIC_CHECK( matrix_product_rule::extent_count == 3 );
+	STATIC_CHECK( matrix_product_rule::pivot_count == 3 );
 	STATIC_CHECK( matrix_product_rule::output_count == 1 );
 	STATIC_CHECK( matrix_product_rule::input_count == 2 );
 
-	STATIC_CHECK( sequence_rule::extent_count == 1 );
+	STATIC_CHECK( sequence_rule::pivot_count == 1 );
 	STATIC_CHECK( sequence_rule::input_count == 0 );
 }
 
@@ -95,4 +101,14 @@ TEST_CASE(
 	STATIC_CHECK_FALSE( elementwise_rule::requires_parameters );
 	STATIC_CHECK( reduction_rule::requires_parameters );
 	STATIC_CHECK( sequence_rule::requires_parameters );
+}
+
+TEST_CASE(
+	"operand_shape_rule should not require parameters for an extent its "
+	"declaration fixes",
+	"[operand_shape_rule]"
+)
+{
+	STATIC_CHECK( fixed_rule::pivot_count == 1 );
+	STATIC_CHECK_FALSE( fixed_rule::requires_parameters );
 }

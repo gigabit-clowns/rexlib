@@ -34,7 +34,7 @@ struct operation_extent_list<type_list<Head, Tail...>>
 {
 	using tail_type = typename operation_extent_list<type_list<Tail...>>::type;
 	using type = typename std::conditional<
-		Head::source == extent_pivot_source::operation,
+		Head::source != extent_pivot_source::inputs,
 		typename type_list_prepend<Head, tail_type>::type,
 		tail_type
 	>::type;
@@ -55,7 +55,7 @@ template <typename Rule>
 struct shape_rule_accessors
 {
 	using operation_extent_list = typename detail::operation_extent_list<
-		typename Rule::extent_list
+		typename Rule::pivot_list
 	>::type;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t operation_extent_count =
@@ -86,7 +86,8 @@ struct shape_rule_accessors
 	static bool get_keep_dimensions(const Parameters &parameters) noexcept;
 
 	/**
-	 * @brief Read every extent the operation supplies.
+	 * @brief Read every extent the operation supplies, whether its instance
+	 * supplies it or its declaration fixes it.
 	 *
 	 * @tparam Parameters The parameter type of the operation.
 	 * @param parameters The parameters of the operation instance.

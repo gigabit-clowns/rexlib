@@ -102,6 +102,16 @@ using extent_rule = operand_shape_rule<
 	type_list<core_dimensions<axis_same_as<1>>>
 >;
 
+using fixed_rule = operand_shape_rule<
+	type_list<
+		extent_from_inputs<>,
+		extent_fixed<4>,
+		extent_from_operation<test_first>
+	>,
+	type_list<core_dimensions<axis_same_as<1>, axis_same_as<2>>>,
+	type_list<core_dimensions<axis_same_as<0>>>
+>;
+
 } // anonymous namespace
 
 TEST_CASE(
@@ -164,4 +174,21 @@ TEST_CASE(
 		shape_rule_accessors<extent_rule>::get_operation_extents(parameters);
 	CHECK( extents[0] == 5 );
 	CHECK( extents[1] == 7 );
+}
+
+TEST_CASE(
+	"shape_rule_accessors should read a fixed extent with the operation "
+	"extents, in declaration order",
+	"[shape_rule_accessors]"
+)
+{
+	STATIC_CHECK(
+		shape_rule_accessors<fixed_rule>::operation_extent_count == 2
+	);
+
+	const test_parameters parameters;
+	const auto extents =
+		shape_rule_accessors<fixed_rule>::get_operation_extents(parameters);
+	CHECK( extents[0] == 4 );
+	CHECK( extents[1] == 5 );
 }

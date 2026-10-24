@@ -13,7 +13,7 @@ inline
 const shape_rule_descriptor& shape_rule_descriptor_of<Rule>::get() noexcept
 {
 	static const shape_rule_descriptor descriptor(
-		extent_pivot_descriptor_table<typename Rule::extent_list>::get(),
+		extent_pivot_descriptor_table<typename Rule::pivot_list>::get(),
 		core_dimensions_descriptor_table<
 			typename Rule::output_core_list
 		>::get(),

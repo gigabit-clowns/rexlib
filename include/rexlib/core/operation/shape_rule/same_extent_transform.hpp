@@ -13,7 +13,7 @@ namespace rexlib
  * Models core axes that operands share, such as the inner extent of a
  * matrix multiplication.
  *
- * @see operand_axis_slot
+ * @see extent_slot
  */
 struct same_extent_transform
 {

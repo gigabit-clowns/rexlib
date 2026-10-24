@@ -17,30 +17,42 @@ TEST_CASE(
 	"[shape_rule_descriptor]"
 )
 {
-	const std::array<extent_pivot_descriptor, 1> extents = {{
+	const std::array<extent_pivot_descriptor, 1> pivots = {{
 		extent_pivot_descriptor(
 			extent_pivot_source::inputs,
 			make_extent_domain<any_extent_domain>()
 		)
 	}};
 	const std::array<core_dimensions_descriptor, 1> outputs = {{
-		core_dimensions_descriptor(span<const axis_slot_descriptor>())
+		core_dimensions_descriptor(
+			span<const extent_slot_descriptor>(),
+			false,
+			make_extent_domain<any_extent_domain>()
+		)
 	}};
 	const std::array<core_dimensions_descriptor, 2> inputs = {{
-		core_dimensions_descriptor(span<const axis_slot_descriptor>()),
-		core_dimensions_descriptor(span<const axis_slot_descriptor>())
+		core_dimensions_descriptor(
+			span<const extent_slot_descriptor>(),
+			false,
+			make_extent_domain<any_extent_domain>()
+		),
+		core_dimensions_descriptor(
+			span<const extent_slot_descriptor>(),
+			false,
+			make_extent_domain<any_extent_domain>()
+		)
 	}};
 
 	const shape_rule_descriptor descriptor(
-		make_span(extents),
+		make_span(pivots),
 		make_span(outputs),
 		make_span(inputs),
 		core_placement::named,
 		output_batch::broadcast_target
 	);
 
-	CHECK( descriptor.get_extents().data() == extents.data() );
-	CHECK( descriptor.get_extents().size() == 1 );
+	CHECK( descriptor.get_pivots().data() == pivots.data() );
+	CHECK( descriptor.get_pivots().size() == 1 );
 	CHECK( descriptor.get_output_cores().data() == outputs.data() );
 	CHECK( descriptor.get_output_cores().size() == 1 );
 	CHECK( descriptor.get_input_cores().data() == inputs.data() );

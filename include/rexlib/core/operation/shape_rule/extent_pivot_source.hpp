@@ -18,7 +18,12 @@ enum class extent_pivot_source
 	/**
 	 * @brief Supplied by the operation instance.
 	 */
-	operation
+	operation,
+
+	/**
+	 * @brief Fixed by the declaration of the operation.
+	 */
+	fixed
 };
 
 } // namespace rexlib

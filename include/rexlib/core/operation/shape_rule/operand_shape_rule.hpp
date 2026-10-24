@@ -5,7 +5,7 @@
 #include <rexlib/core/operation/shape_rule/core_dimensions.hpp>
 #include <rexlib/core/operation/shape_rule/core_placement.hpp>
 #include <rexlib/core/operation/shape_rule/extent_pivot.hpp>
-#include <rexlib/core/operation/shape_rule/operand_axis_slot.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot.hpp>
 #include <rexlib/core/operation/shape_rule/output_batch.hpp>
 #include <rexlib/core/operation/shape_rule/same_extent_transform.hpp>
 #include <rexlib/core/operation/shape_rule/trailing_core.hpp>
@@ -41,42 +41,50 @@ struct shape_rule_any_of
 {
 };
 
-template <std::size_t ExtentCount, typename Core>
-struct core_names_declared_extents;
+template <std::size_t PivotCount, typename SlotList>
+struct slots_name_declared_pivots;
 
-template <std::size_t ExtentCount, typename... Slots>
-struct core_names_declared_extents<ExtentCount, core_dimensions<Slots...>>
-	: shape_rule_all_of<(
-		Slots::kind != axis_slot_kind::extent ||
-		Slots::index < ExtentCount
-	)...>
+template <std::size_t PivotCount, typename... Slots>
+struct slots_name_declared_pivots<PivotCount, type_list<Slots...>>
+	: shape_rule_all_of<(Slots::pivot_index < PivotCount)...>
 {
 };
 
-template <std::size_t ExtentCount, typename Cores>
+template <std::size_t PivotCount, typename Core>
+struct core_names_declared_extents
+	: slots_name_declared_pivots<PivotCount, typename Core::slot_list>
+{
+};
+
+template <std::size_t PivotCount, typename Cores>
 struct cores_name_declared_extents;
 
-template <std::size_t ExtentCount, typename... Cores>
-struct cores_name_declared_extents<ExtentCount, type_list<Cores...>>
+template <std::size_t PivotCount, typename... Cores>
+struct cores_name_declared_extents<PivotCount, type_list<Cores...>>
 	: shape_rule_all_of<
-		core_names_declared_extents<ExtentCount, Cores>::value...
+		core_names_declared_extents<PivotCount, Cores>::value...
 	>
 {
 };
 
-template <std::size_t Extent, typename Core>
-struct core_binds_extent;
+template <std::size_t Extent, typename SlotList>
+struct slots_bind_extent;
 
 template <std::size_t Extent, typename... Slots>
-struct core_binds_extent<Extent, core_dimensions<Slots...>>
+struct slots_bind_extent<Extent, type_list<Slots...>>
 	: shape_rule_any_of<(
-		Slots::kind == axis_slot_kind::extent &&
-		Slots::index == Extent &&
+		Slots::pivot_index == Extent &&
 		std::is_same<
 			typename Slots::transform_type,
 			same_extent_transform
 		>::value
 	)...>
+{
+};
+
+template <std::size_t Extent, typename Core>
+struct core_binds_extent
+	: slots_bind_extent<Extent, typename Core::slot_list>
 {
 };
 
@@ -119,7 +127,7 @@ struct cores_without_run;
 
 template <typename... Cores>
 struct cores_without_run<type_list<Cores...>>
-	: shape_rule_all_of<(Cores::run_count == 0)...>
+	: shape_rule_all_of<(!Cores::has_run)...>
 {
 };
 
@@ -128,7 +136,7 @@ struct cores_empty;
 
 template <typename... Cores>
 struct cores_empty<type_list<Cores...>>
-	: shape_rule_all_of<(Cores::slot_count == 0)...>
+	: shape_rule_all_of<(Cores::axis_count == 0 && !Cores::has_run)...>
 {
 };
 
@@ -137,18 +145,18 @@ struct cores_not_empty;
 
 template <typename... Cores>
 struct cores_not_empty<type_list<Cores...>>
-	: shape_rule_all_of<(Cores::slot_count > 0)...>
+	: shape_rule_all_of<(Cores::axis_count > 0 || Cores::has_run)...>
 {
 };
 
-template <std::size_t AxisCount, std::size_t RunCount, typename Cores>
+template <std::size_t AxisCount, bool HasRun, typename Cores>
 struct cores_empty_or_alike;
 
-template <std::size_t AxisCount, std::size_t RunCount, typename... Cores>
-struct cores_empty_or_alike<AxisCount, RunCount, type_list<Cores...>>
+template <std::size_t AxisCount, bool HasRun, typename... Cores>
+struct cores_empty_or_alike<AxisCount, HasRun, type_list<Cores...>>
 	: shape_rule_all_of<(
-		Cores::slot_count == 0 ||
-		(Cores::axis_count == AxisCount && Cores::run_count == RunCount)
+		(Cores::axis_count == 0 && !Cores::has_run) ||
+		(Cores::axis_count == AxisCount && Cores::has_run == HasRun)
 	)...>
 {
 };
@@ -165,12 +173,12 @@ struct named_cores_alike<type_list<First, Rest...>, Outputs>
 		bool,
 		cores_empty_or_alike<
 			First::axis_count,
-			First::run_count,
+			First::has_run,
 			type_list<First, Rest...>
 		>::value &&
 		cores_empty_or_alike<
 			First::axis_count,
-			First::run_count,
+			First::has_run,
 			Outputs
 		>::value
 	>
@@ -192,7 +200,7 @@ struct named_cores_alike<type_list<First, Rest...>, Outputs>
  * operation. Values that depend on the operation instance, such as the axes
  * it names, are read through the accessors the rule declares.
  *
- * @tparam Extents type_list of extent_pivot declarations.
+ * @tparam Pivots type_list of extent_pivot declarations.
  * @tparam Outputs type_list of core_dimensions, one per output operand, in
  * signature order.
  * @tparam Inputs type_list of core_dimensions, one per input operand, in
@@ -204,7 +212,7 @@ struct named_cores_alike<type_list<First, Rest...>, Outputs>
  * @see core_dimensions
  */
 template <
-	typename Extents,
+	typename Pivots,
 	typename Outputs,
 	typename Inputs,
 	typename Placement = trailing_core,
@@ -212,15 +220,15 @@ template <
 >
 struct operand_shape_rule
 {
-	using extent_list = Extents;
+	using pivot_list = Pivots;
 	using output_core_list = Outputs;
 	using input_core_list = Inputs;
 	using placement_type = Placement;
 
 	static REXLIB_CONST_CONSTEXPR output_batch batch = Batch;
 
-	static REXLIB_CONST_CONSTEXPR std::size_t extent_count =
-		type_list_size<Extents>::value;
+	static REXLIB_CONST_CONSTEXPR std::size_t pivot_count =
+		type_list_size<Pivots>::value;
 	static REXLIB_CONST_CONSTEXPR std::size_t output_count =
 		type_list_size<Outputs>::value;
 	static REXLIB_CONST_CONSTEXPR std::size_t input_count =
@@ -231,25 +239,25 @@ struct operand_shape_rule
 	 */
 	static REXLIB_CONST_CONSTEXPR bool requires_parameters =
 		Placement::placement == core_placement::named ||
-		detail::extents_from_operation<Extents>::value;
+		detail::extents_from_operation<Pivots>::value;
 
 	static_assert(
-		extent_count <= max_extent_pivot_count,
+		pivot_count <= max_extent_pivot_count,
 		"A shape rule declares more extent variables than a resolution can "
 		"hold. Raise max_extent_pivot_count if this is genuinely needed."
 	);
 
 	static_assert(
-		detail::cores_name_declared_extents<extent_count, Outputs>::value &&
-		detail::cores_name_declared_extents<extent_count, Inputs>::value,
+		detail::cores_name_declared_extents<pivot_count, Outputs>::value &&
+		detail::cores_name_declared_extents<pivot_count, Inputs>::value,
 		"A core axis names an extent variable the rule does not declare."
 	);
 
 	static_assert(
 		detail::input_extents_bound<
-			Extents,
+			Pivots,
 			Inputs,
-			std::make_index_sequence<extent_count>
+			std::make_index_sequence<pivot_count>
 		>::value,
 		"An extent variable bound by the inputs is not carried untransformed "
 		"by any input axis, so nothing determines it."

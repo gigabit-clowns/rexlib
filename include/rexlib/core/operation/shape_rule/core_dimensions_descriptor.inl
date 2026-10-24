@@ -2,37 +2,23 @@
 
 #include "core_dimensions_descriptor.hpp"
 
-#include <algorithm>
-#include <iterator>
-
 namespace rexlib
 {
 
 inline
 core_dimensions_descriptor::core_dimensions_descriptor(
-	span<const axis_slot_descriptor> slots
+	span<const extent_slot_descriptor> slots,
+	bool has_run,
+	const extent_domain &run_domain
 ) noexcept
 	: m_slots(slots)
-	, m_run_position(
-		static_cast<std::size_t>(
-			std::distance(
-				slots.begin(),
-				std::find_if(
-					slots.begin(),
-					slots.end(),
-					[] (const axis_slot_descriptor &slot)
-					{
-						return slot.get_kind() == axis_slot_kind::run;
-					}
-				)
-			)
-		)
-	)
+	, m_has_run(has_run)
+	, m_run_domain(run_domain)
 {
 }
 
 inline
-span<const axis_slot_descriptor>
+span<const extent_slot_descriptor>
 core_dimensions_descriptor::get_slots() const noexcept
 {
 	return m_slots;
@@ -41,19 +27,14 @@ core_dimensions_descriptor::get_slots() const noexcept
 inline
 bool core_dimensions_descriptor::has_run() const noexcept
 {
-	return m_run_position < m_slots.size();
+	return m_has_run;
 }
 
 inline
-std::size_t core_dimensions_descriptor::get_run_position() const noexcept
+const extent_domain&
+core_dimensions_descriptor::get_run_domain() const noexcept
 {
-	return m_run_position;
-}
-
-inline
-std::size_t core_dimensions_descriptor::get_axis_count() const noexcept
-{
-	return has_run() ? m_slots.size() - 1 : m_slots.size();
+	return m_run_domain;
 }
 
 } // namespace rexlib

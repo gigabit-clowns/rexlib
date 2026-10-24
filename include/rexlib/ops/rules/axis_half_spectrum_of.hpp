@@ -4,8 +4,7 @@
 
 #include <rexlib/ops/rules/half_spectrum_extent_transform.hpp>
 
-#include <rexlib/core/operation/shape_rule/any_extent_domain.hpp>
-#include <rexlib/core/operation/shape_rule/operand_axis_slot.hpp>
+#include <rexlib/core/operation/shape_rule/extent_slot.hpp>
 
 #include <cstddef>
 
@@ -20,12 +19,7 @@ namespace ops
  * @tparam E Index of the extent variable.
  */
 template <std::size_t E>
-using axis_half_spectrum_of = operand_axis_slot<
-	axis_slot_kind::extent,
-	E,
-	half_spectrum_extent_transform,
-	any_extent_domain
->;
+using axis_half_spectrum_of = extent_slot<E, half_spectrum_extent_transform>;
 
 } // namespace ops
 } // namespace rexlib

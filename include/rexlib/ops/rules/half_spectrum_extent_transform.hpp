@@ -16,7 +16,7 @@ namespace ops
  * An axis of n samples holds n / 2 + 1 coefficients once transformed, the
  * other half being redundant.
  *
- * @see operand_axis_slot
+ * @see extent_slot
  */
 struct half_spectrum_extent_transform
 {
