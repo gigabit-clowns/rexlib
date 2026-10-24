@@ -10,6 +10,8 @@
 #include <rexlib/core/operation/operation_signature.hpp>
 #include <rexlib/core/span.hpp>
 
+#include <type_traits>
+
 namespace rexlib
 {
 
@@ -43,11 +45,18 @@ public:
 	);
 
 	/**
-	 * @brief Construct the signature of an operation instance.
+	 * @brief Construct the signature by constructing its parameters.
 	 *
-	 * @param parameters The parameters of the operation instance.
+	 * @tparam Args Constructor argument types of the parameters.
+	 * @param args Forwarded to the parameters.
 	 */
-	explicit rule_signature(Parameters parameters);
+	template <
+		typename... Args,
+		typename = typename std::enable_if<
+			std::is_constructible<Parameters, Args...>::value
+		>::type
+	>
+	explicit rule_signature(Args&&... args);
 
 	/**
 	 * @brief Get the parameters of the operation instance.

@@ -9,7 +9,7 @@ template <typename Derived, typename Traits>
 template <typename... Args, typename>
 inline
 parametric_operation<Derived, Traits>::parametric_operation(Args&&... args)
-	: m_signature(parameters_type(std::forward<Args>(args)...))
+	: m_signature(std::forward<Args>(args)...)
 {
 	m_signature.check_parameters(
 		basic_operation<Derived, Traits>::get_static_descriptor()

@@ -13,10 +13,11 @@ namespace rexlib
 {
 
 template <typename ShapeRule, typename TypeRule, typename Parameters>
+template <typename... Args, typename>
 inline
 rule_signature<ShapeRule, TypeRule, Parameters>
-::rule_signature(Parameters parameters)
-	: m_parameters(std::move(parameters))
+::rule_signature(Args&&... args)
+	: m_parameters(std::forward<Args>(args)...)
 {
 }
 
