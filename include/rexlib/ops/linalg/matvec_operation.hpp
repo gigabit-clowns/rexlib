@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rexlib/core/dispatch/basic_operation.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/matrix_vector_shape_policy.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 namespace rexlib
 {
@@ -17,8 +17,8 @@ namespace ops
  *
  * The matrix's last axis is contracted with the vector's last axis, and
  * everything before is a stack broadcast between the operands, as with
- * matmul. Unlike matmul, neither operand is promoted: the matrix must
- * already have rank two or more and the vector rank one or more.
+ * matmul. The matrix must have rank two or more and the vector rank one or
+ * more.
  *
  * @see vecmat
  * @see matmul
@@ -28,7 +28,7 @@ REXLIB_DECLARE_OPERATION(
 	ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("left", "right"),
-	matrix_vector_shape_policy,
+	matrix_vector_shape_rule,
 	binary_homogeneous_rule<arithmetic_type_domain>
 );
 

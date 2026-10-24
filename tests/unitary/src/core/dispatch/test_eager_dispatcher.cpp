@@ -5,33 +5,32 @@
 
 #include <rexlib/core/dispatch/dispatcher.hpp>
 
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_cache.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/dispatch/operation_id.hpp>
-#include <rexlib/core/dispatch/operation_arity.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
-#include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
 
-#include <rexlib/core/hardware/device_context.hpp>
-#include <rexlib/core/hardware/device_session.hpp>
-#include <rexlib/core/hardware/device.hpp>
-#include <rexlib/core/hardware/device_properties.hpp>
-#include <rexlib/core/hardware/memory_allocator.hpp>
-#include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/program.hpp>
 #include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
-#include "mock/mock_operation.hpp"
-#include "mock/mock_operation_shape_policy.hpp"
-#include "mock/mock_operation_data_type_policy.hpp"
+#include "../operation/mock/mock_operation.hpp"
+#include "../operation/mock/mock_operation_signature.hpp"
 #include "mock/mock_program_builder.hpp"
 #include "../hardware/mock/mock_device.hpp"
 #include "../hardware/mock/mock_memory_resource.hpp"
@@ -54,7 +53,7 @@ using namespace rexlib;
 namespace
 {
 
-using shape_type = operation_shape_policy::shape_type;
+using shape_type = operand_specification::shape_type;
 
 array_descriptor make_descriptor(const shape_type &shape, numerical_type type)
 {
@@ -133,8 +132,8 @@ public:
 	}
 
 protected:
-	// The dispatcher hands the operation's description to the policies, so
-	// that whichever of them rejects a launch can name the operand.
+	// The dispatcher hands the operation's description to the signature, so
+	// that it can name the operand when it rejects a launch.
 	static const operation_descriptor& mock_descriptor()
 	{
 		static REXLIB_CONST_CONSTEXPR auto outputs =
@@ -146,75 +145,49 @@ protected:
 		return instance;
 	}
 
-	// Set up @ref op as a unary operation whose policies deduce the given
+	// Set up @ref op as a unary operation whose signature deduces the given
 	// output shape and data type from its single input.
 	void expect_unary_operation(shape_type out_shape, numerical_type out_type)
 	{
-		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_arity())
-				.RETURN(operation_arity::unary())
-		);
 		expectations.push_back(
 			NAMED_ALLOW_CALL(op, get_descriptor())
 				.LR_RETURN(mock_descriptor())
 		);
 		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_operation_shape_policy())
-				.LR_RETURN(shape_policy)
+			NAMED_ALLOW_CALL(op, get_signature())
+				.LR_RETURN(signature)
 		);
 		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_operation_data_type_policy())
-				.LR_RETURN(dtype_policy)
-		);
-		expectations.push_back(
-			NAMED_REQUIRE_CALL(
-				shape_policy,
-				deduce(
-					ANY(const operation_descriptor&),
-					ANY(span<shape_type>),
-					ANY(span<const shape_type>)
-				)
-			)
-				.SIDE_EFFECT(_2[0] = out_shape)
+			NAMED_ALLOW_CALL(signature, get_arity())
+				.RETURN(operation_arity(1, 1))
 		);
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
-				dtype_policy,
+				signature,
 				deduce(
 					ANY(const operation_descriptor&),
-					ANY(span<numerical_type>),
-					ANY(span<const numerical_type>)
+					ANY(span<operand_specification>),
+					ANY(span<const operand_specification>)
 				)
 			)
-				.SIDE_EFFECT(_2[0] = out_type)
+				.SIDE_EFFECT(
+					_2[0] = operand_specification(out_shape, out_type)
+				)
 		);
 	}
 
-	// Expect both policies to be queried for admissibility. This only happens
-	// when at least one output is pre-allocated; the dispatcher delegates the
-	// decision to the policies, so the mocks simply accept (they do not throw)
-	// regardless of the arguments.
-	void expect_policies_accept()
+	// Expect the signature to be queried for admissibility. This only happens
+	// when at least one output is pre-allocated; the mock accepts whatever
+	// it is given.
+	void expect_signature_accept()
 	{
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
-				shape_policy,
+				signature,
 				accept(
 					ANY(const operation_descriptor&),
-					ANY(span<const shape_type>),
-					ANY(span<const shape_type>),
-					ANY(span<const shape_type>)
-				)
-			)
-		);
-		expectations.push_back(
-			NAMED_REQUIRE_CALL(
-				dtype_policy,
-				accept(
-					ANY(const operation_descriptor&),
-					ANY(span<const numerical_type>),
-					ANY(span<const numerical_type>),
-					ANY(span<const numerical_type>)
+					ANY(span<const operand_specification>),
+					ANY(span<const operand_specification>)
 				)
 			)
 		);
@@ -234,8 +207,8 @@ protected:
 				*builder,
 				get_suitability(
 					ANY(const operation&),
-					ANY(span<const operand_signature>),
-					ANY(span<const operand_signature>),
+					ANY(span<const operand_descriptor>),
+					ANY(span<const operand_descriptor>),
 					ANY(command_queue&)
 				)
 			)
@@ -246,8 +219,8 @@ protected:
 				*builder,
 				build(
 					ANY(const operation&),
-					ANY(span<const operand_signature>),
-					ANY(span<const operand_signature>),
+					ANY(span<const operand_descriptor>),
+					ANY(span<const operand_descriptor>),
 					ANY(command_queue&),
 					ANY(program_cache*)
 				)
@@ -329,8 +302,7 @@ protected:
 	std::shared_ptr<mock_program> program;
 
 	mock_operation op;
-	mock_operation_shape_policy shape_policy;
-	mock_operation_data_type_policy dtype_policy;
+	mock_operation_signature signature;
 
 	// Keep mock buffers alive, and hold the named expectations so that they are
 	// torn down (unlinked from their mocks) before the mocks they reference.
@@ -376,8 +348,10 @@ TEST_CASE_METHOD(
 	"[eager_dispatcher]"
 )
 {
-	REQUIRE_CALL(op, get_arity())
-		.RETURN(operation_arity::unary()); // Expects one output and one input.
+	ALLOW_CALL(op, get_signature())
+		.LR_RETURN(signature);
+	REQUIRE_CALL(signature, get_arity())
+		.RETURN(operation_arity(1, 1));
 
 	array output;
 	const const_array_ref input;
@@ -425,8 +399,8 @@ TEST_CASE_METHOD(
 )
 {
 	// The operation deduces a contiguous {4} float32 output. A pre-allocated
-	// output that differs in shape or data type is forwarded to the policies'
-	// accept(), which decide its admissibility; here they admit it.
+	// output that differs in shape or data type is forwarded to the signature's
+	// accept(), which decides its admissibility; here it admits it.
 	shape_type user_shape;
 	numerical_type user_type;
 	std::tie(user_shape, user_type) = GENERATE(
@@ -438,33 +412,18 @@ TEST_CASE_METHOD(
 
 	expect_unary_operation(shape_type{4}, numerical_type::float32);
 
-	// The policies are queried with the user-supplied descriptor alongside the
-	// canonical one deduced above, and accept it.
+	// The signature is queried with the user-supplied output and accepts it.
+	const operand_specification user_output(user_shape, user_type);
 	expectations.push_back(
 		NAMED_REQUIRE_CALL(
-			shape_policy,
+			signature,
 			accept(
 				ANY(const operation_descriptor&),
-				ANY(span<const shape_type>),
-				ANY(span<const shape_type>),
-				ANY(span<const shape_type>)
+				ANY(span<const operand_specification>),
+				ANY(span<const operand_specification>)
 			)
 		)
-			.WITH(_2.size() == 1 && _2[0] == user_shape)       // User output.
-			.WITH(_3.size() == 1 && _3[0] == shape_type{4})    // Canonical.
-	);
-	expectations.push_back(
-		NAMED_REQUIRE_CALL(
-			dtype_policy,
-			accept(
-				ANY(const operation_descriptor&),
-				ANY(span<const numerical_type>),
-				ANY(span<const numerical_type>),
-				ANY(span<const numerical_type>)
-			)
-		)
-			.WITH(_2.size() == 1 && _2[0] == user_type)               // User.
-			.WITH(_3.size() == 1 && _3[0] == numerical_type::float32) // Canonical.
+			.WITH(_2.size() == 1 && _2[0] == user_output)
 	);
 
 	register_program_builder();
@@ -597,7 +556,7 @@ TEST_CASE_METHOD(
 	);
 
 	expect_unary_operation(out_shape, out_type);
-	expect_policies_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -708,7 +667,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_policies_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -753,7 +712,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_policies_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -861,7 +820,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_policies_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 

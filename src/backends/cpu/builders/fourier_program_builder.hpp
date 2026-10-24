@@ -39,7 +39,7 @@ namespace cpu
  * results holds nothing left to decide.
  *
  * @tparam Op The operation this builder targets. It must take one operand and
- * produce one, and carry a shape policy naming the transformed axes through
+ * produce one, and its parameters must name the transformed axes through
  * get_axes().
  * @tparam Transform The transform to perform. It is built from the scaling
  * convention the operation carries, names which domain each operand lives in
@@ -57,7 +57,7 @@ template <
 	typename Op,
 	typename Transform,
 	typename TypeDispatcher = rule_type_dispatcher<
-		typename Op::type_rule,
+		typename Op::type_rule_type,
 		fourier_transform_support
 	>
 >
@@ -87,14 +87,14 @@ public:
 	 * settled here, once per program rather than once per run.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return fourier_layout_plan The planned transform.
 	 */
 	fourier_layout_plan make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**

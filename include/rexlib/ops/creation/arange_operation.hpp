@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include <rexlib/core/dispatch/parametric_operation.hpp>
 #include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/sequence_operation_shape_policy.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/parameters/sequence_length.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 #include <cstddef>
 
@@ -16,12 +17,13 @@ namespace rexlib
 namespace ops
 {
 
-REXLIB_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
 	arange,
 	ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS(),
-	sequence_operation_shape_policy,
+	sequence_shape_rule,
+	sequence_length,
 	nullary_free_rule<real_arithmetic_type_domain>
 );
 

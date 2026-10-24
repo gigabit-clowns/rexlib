@@ -2,7 +2,7 @@
 
 #include "reduction_program_builder.hpp"
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
@@ -78,16 +78,16 @@ reduction_layout_plan
 reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 ::make_plan(
 	const Op &operation,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
 ) const
 {
-	const auto &shape_policy = operation.get_shape_policy();
+	const auto &parameters = operation.get_parameters();
 	return reduction_layout_plan(
-		output_signatures,
-		input_signatures,
-		shape_policy.get_axes(),
-		shape_policy.get_keep_dimensions(),
+		output_descriptors,
+		input_descriptors,
+		parameters.get_axes(),
+		parameters.get_keep_dimensions(),
 		Indexing()
 	);
 }

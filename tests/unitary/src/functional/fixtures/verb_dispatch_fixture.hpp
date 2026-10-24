@@ -5,7 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <rexlib/core/dispatch/execution_context.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
+#include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
@@ -443,7 +443,7 @@ protected:
 			record.inspect = [&seen] (const operation &op)
 			{
 				const auto &typed = dynamic_cast<const Op&>(op);
-				const auto resolved = typed.get_shape_policy().get_axes();
+				const auto resolved = typed.get_parameters().get_axes();
 				seen.assign(resolved.begin(), resolved.end());
 			};
 			REQUIRE_CALL(*dispatcher, dispatch(
@@ -475,7 +475,7 @@ protected:
 			record.inspect = [&seen] (const operation &op)
 			{
 				const auto &typed = dynamic_cast<const Op&>(op);
-				const auto resolved = typed.get_shape_policy().get_axes();
+				const auto resolved = typed.get_parameters().get_axes();
 				seen.assign(resolved.begin(), resolved.end());
 			};
 			REQUIRE_CALL(*dispatcher, dispatch(

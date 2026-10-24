@@ -32,7 +32,7 @@ const scalar_value& linspace_operation::get_stop() const noexcept
 
 std::size_t linspace_operation::get_count() const noexcept
 {
-	return get_shape_policy().get_count();
+	return get_parameters().get_count();
 }
 
 bool linspace_operation::get_endpoint() const noexcept

@@ -12,7 +12,7 @@
 namespace rexlib
 {
 
-class operand_signature;
+class operand_descriptor;
 
 namespace cpu
 {
@@ -40,9 +40,8 @@ public:
 	/**
 	 * @brief Plan the iteration of a reduction over a set of axes.
 	 *
-	 * The inputs are broadcast together to obtain the iteration space,
-	 * exactly as the reduction shape policy does when deducing the output
-	 * shape, and the axes then split that space in two.
+	 * The inputs are broadcast together to obtain the iteration space, and
+	 * the axes then split that space in two.
 	 *
 	 * The inputs are added to the kept layout before the outputs, inverting
 	 * the order an elementwise operation uses. The first operand decides the
@@ -50,9 +49,10 @@ public:
 	 * element for every single output write, so the inputs are the operands
 	 * whose locality is worth optimising.
 	 *
-	 * @param output_signatures Signatures of the outputs. All of them carry
-	 * the shape the policy deduced, so they all belong to the kept layout.
-	 * @param input_signatures Signatures of the inputs. At least one is
+	 * @param output_descriptors Descriptors of the outputs. All of them carry
+	 * the shape the operation signature deduced, so they all belong to the
+	 * kept layout.
+	 * @param input_descriptors Descriptors of the inputs. At least one is
 	 * needed.
 	 * @param axes The axes being reduced, ascending and without repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes with
@@ -66,8 +66,8 @@ public:
 	 * rank.
 	 */
 	reduction_layout_plan(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		span<const std::size_t> axes,
 		bool keep_dimensions,
 		no_index_tag indexing = no_index_tag()
@@ -81,8 +81,8 @@ public:
 	 * added to the reduced layout after the inputs. The reduced axes, in
 	 * ascending order, are the axes of its index space.
 	 *
-	 * @param output_signatures Signatures of the outputs.
-	 * @param input_signatures Signatures of the inputs. At least one is
+	 * @param output_descriptors Descriptors of the outputs.
+	 * @param input_descriptors Descriptors of the inputs. At least one is
 	 * needed.
 	 * @param axes The axes being reduced, ascending and without repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes.
@@ -95,8 +95,8 @@ public:
 	 * rank.
 	 */
 	reduction_layout_plan(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		span<const std::size_t> axes,
 		bool keep_dimensions,
 		linear_index_tag indexing
@@ -110,8 +110,8 @@ public:
 	 * reduced axis added to the reduced layout after the inputs, in ascending
 	 * axis order.
 	 *
-	 * @param output_signatures Signatures of the outputs.
-	 * @param input_signatures Signatures of the inputs. At least one is
+	 * @param output_descriptors Descriptors of the outputs.
+	 * @param input_descriptors Descriptors of the inputs. At least one is
 	 * needed.
 	 * @param axes The axes being reduced, ascending and without repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes.
@@ -124,8 +124,8 @@ public:
 	 * rank.
 	 */
 	reduction_layout_plan(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		span<const std::size_t> axes,
 		bool keep_dimensions,
 		multidimensional_index_tag indexing
@@ -177,8 +177,8 @@ public:
 private:
 	template <typename Indexing>
 	void plan(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		span<const std::size_t> axes,
 		bool keep_dimensions,
 		Indexing indexing

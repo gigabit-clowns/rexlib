@@ -153,7 +153,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&kept] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const sum_operation&>(op);
-		kept = typed.get_shape_policy().get_keep_dimensions();
+		kept = typed.get_parameters().get_keep_dimensions();
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(
 		trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_

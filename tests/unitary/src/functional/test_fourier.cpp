@@ -48,7 +48,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const fft_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -77,7 +77,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const fft_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -126,7 +126,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const ifft_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -155,7 +155,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const ifft_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -204,7 +204,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const rfft_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -233,7 +233,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const rfft_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -266,7 +266,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,
-	"irfft turns the extent it is given into the parity it carries",
+	"irfft hands the extent it is given to the operation",
 	"[array_fourier]"
 )
 {
@@ -278,21 +278,19 @@ TEST_CASE_METHOD(
 	const std::vector<std::ptrdiff_t> axes = { -1 };
 
 	test::dispatch_record record;
-	signal_parity seen = signal_parity::even;
+	std::size_t seen = 0;
 	record.inspect = [&seen] (const operation &op)
 	{
 		seen = dynamic_cast<const irfft_operation&>(op)
-			.get_shape_policy().get_parity();
+			.get_parameters().get_extent();
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
 		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
 
-	// An operation carries the parity, that being all the restoration
-	// needs. Naming an extent is the convenience spelling of it.
 	irfft(x, make_span(axes), 17, context, nullptr);
 
 	check_record<irfft_operation>(record, 1);
-	CHECK( seen == signal_parity::odd );
+	CHECK( seen == 17 );
 }
 
 TEST_CASE_METHOD(
@@ -310,7 +308,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const fftshift_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -339,7 +337,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto &typed = dynamic_cast<const ifftshift_operation&>(op);
-		const auto axes = typed.get_shape_policy().get_axes();
+		const auto axes = typed.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))

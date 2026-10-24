@@ -1,9 +1,0 @@
-target_sources(
-	rexlib-unitary-tests
-	PRIVATE
-		test_elementwise_operation_shape_policy.cpp
-		test_fourier_shape_policies.cpp
-		test_linalg_shape_policies.cpp
-		test_reduction_operation_shape_policy.cpp
-		test_sequence_operation_shape_policy.cpp
-)

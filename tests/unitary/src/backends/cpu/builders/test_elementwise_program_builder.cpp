@@ -10,27 +10,30 @@
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <rexlib/core/dispatch/basic_operation.hpp>
-#include <rexlib/core/dispatch/operation.hpp>
-#include <rexlib/core/dispatch/operation_arity.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
 #include <rexlib/backends/cpu/program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/operation/operand_names.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include "../serial_pool.hpp"
 
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/program.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
-#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/numerical/numerical_cast.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/span.hpp>
 
-#include <rexlib/ops/policies/elementwise_operation_shape_policy.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
-#include "../../../core/dispatch/mock/mock_operation.hpp"
+#include "../../../core/operation/mock/mock_operation.hpp"
 
 #include <array>
 #include <cstddef>
@@ -52,7 +55,7 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS("left", "right"),
-	ops::elementwise_operation_shape_policy,
+	ops::binary_elementwise_shape_rule,
 	ops::binary_homogeneous_rule<>
 );
 
@@ -71,10 +74,10 @@ using test_builder = elementwise_program_builder<
 	default_kernel_factory<sum_kernel>
 >;
 
-operand_signature make_float32_signature(std::size_t count)
+operand_descriptor make_float32_signature(std::size_t count)
 {
 	const std::array<std::size_t, 1> extents { count };
-	return operand_signature(
+	return operand_descriptor(
 		strided_layout::make_contiguous_layout(make_span(extents)),
 		numerical_type::float32,
 		nullptr
@@ -112,10 +115,10 @@ TEST_CASE(
 	cpu::command_queue queue(get_serial_pool());
 
 	const std::size_t count = 4;
-	const std::vector<operand_signature> outputs {
+	const std::vector<operand_descriptor> outputs {
 		make_float32_signature(count)
 	};
-	const std::vector<operand_signature> inputs {
+	const std::vector<operand_descriptor> inputs {
 		make_float32_signature(count),
 		make_float32_signature(count)
 	};
@@ -176,12 +179,22 @@ TEST_CASE(
 
 	// The rejection names the operation it was handed, so the mock has to
 	// be able to answer that much.
-	ALLOW_CALL(operation, get_name()).RETURN("mock");
+	static REXLIB_CONST_CONSTEXPR auto output_names =
+		make_operand_names("result");
+	static REXLIB_CONST_CONSTEXPR auto input_names =
+		make_operand_names("left", "right");
+	static const operation_descriptor descriptor = make_operation_descriptor(
+		"rexlib.test",
+		"mock",
+		output_names,
+		input_names
+	);
+	ALLOW_CALL(operation, get_descriptor()).LR_RETURN(descriptor);
 
-	const std::vector<operand_signature> outputs {
+	const std::vector<operand_descriptor> outputs {
 		make_float32_signature(4)
 	};
-	const std::vector<operand_signature> inputs {
+	const std::vector<operand_descriptor> inputs {
 		make_float32_signature(4),
 		make_float32_signature(4)
 	};
@@ -199,7 +212,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"elementwise_program_builder::build throws on a wrong output signature "
+	"elementwise_program_builder::build throws on a wrong output descriptor "
 	"count",
 	"[elementwise_program_builder]"
 )
@@ -209,11 +222,11 @@ TEST_CASE(
 	cpu::command_queue queue(get_serial_pool());
 
 	// The operation expects exactly one output.
-	const std::vector<operand_signature> outputs {
+	const std::vector<operand_descriptor> outputs {
 		make_float32_signature(4),
 		make_float32_signature(4)
 	};
-	const std::vector<operand_signature> inputs {
+	const std::vector<operand_descriptor> inputs {
 		make_float32_signature(4),
 		make_float32_signature(4)
 	};
@@ -231,7 +244,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"elementwise_program_builder::build throws on a wrong input signature "
+	"elementwise_program_builder::build throws on a wrong input descriptor "
 	"count",
 	"[elementwise_program_builder]"
 )
@@ -240,11 +253,11 @@ TEST_CASE(
 	const test_binary_operation operation;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
+	const std::vector<operand_descriptor> outputs {
 		make_float32_signature(4)
 	};
 	// The operation expects exactly two inputs.
-	const std::vector<operand_signature> inputs {
+	const std::vector<operand_descriptor> inputs {
 		make_float32_signature(4)
 	};
 
@@ -269,7 +282,7 @@ REXLIB_DECLARE_OPERATION(
 	ops::ops_component,
 	REXLIB_OPERANDS("result"),
 	REXLIB_OPERANDS(),
-	ops::elementwise_operation_shape_policy,
+	ops::nullary_elementwise_shape_rule,
 	ops::nullary_free_rule<real_arithmetic_type_domain>
 );
 
@@ -306,8 +319,8 @@ TEST_CASE(
 	// Element (i, j) of a 2x3 output stored column by column sits at i + 2j.
 	const std::array<std::size_t, 2> extents { 2, 3 };
 	const std::array<std::ptrdiff_t, 2> strides { 1, 2 };
-	const std::vector<operand_signature> outputs {
-		operand_signature(
+	const std::vector<operand_descriptor> outputs {
+		operand_descriptor(
 			strided_layout::make_custom_layout(
 				make_span(extents),
 				make_span(strides)
@@ -316,7 +329,7 @@ TEST_CASE(
 			nullptr
 		)
 	};
-	const std::vector<operand_signature> inputs;
+	const std::vector<operand_descriptor> inputs;
 
 	const auto program = builder.build(
 		operation,

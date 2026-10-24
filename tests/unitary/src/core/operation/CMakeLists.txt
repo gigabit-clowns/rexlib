@@ -1,0 +1,19 @@
+target_sources(
+	rexlib-unitary-tests
+	PRIVATE
+		test_basic_operation.cpp
+		test_operand_names.cpp
+		test_operand_specification.cpp
+		test_operation.cpp
+		test_operation_arity.cpp
+		test_operation_cast.cpp
+		test_operation_descriptor.cpp
+		test_operation_id.cpp
+		test_parametric_operation.cpp
+		test_rule_signature.cpp
+		test_shared_rule_signature.cpp
+		test_trivial_operation.cpp
+)
+
+add_subdirectory(shape_rule)
+add_subdirectory(type_rule)

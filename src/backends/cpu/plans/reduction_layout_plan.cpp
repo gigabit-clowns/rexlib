@@ -4,7 +4,7 @@
 
 #include <backends/cpu/plans/index_operands.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/broadcast.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
@@ -26,19 +26,19 @@ namespace
  *
  * Broadcasting the inputs together before reducing is what lets one reduction
  * take an operand alongside the one being folded, such as a mask or a second
- * vector, and is what the shape policy did to deduce the output shape.
+ * vector.
  */
 std::vector<std::size_t> broadcast_input_extents(
-	span<const operand_signature> input_signatures
+	span<const operand_descriptor> input_descriptors
 )
 {
 	std::vector<std::size_t> extents;
-	input_signatures[0].get_layout().get_extents(extents);
+	input_descriptors[0].get_layout().get_extents(extents);
 
 	std::vector<std::size_t> other;
-	for (std::size_t i = 1; i < input_signatures.size(); ++i)
+	for (std::size_t i = 1; i < input_descriptors.size(); ++i)
 	{
-		input_signatures[i].get_layout().get_extents(other);
+		input_descriptors[i].get_layout().get_extents(other);
 		broadcast_extents_accumulate(extents, make_span(other));
 	}
 
@@ -110,39 +110,57 @@ std::vector<std::ptrdiff_t> map_output_strides(
 } // anonymous namespace
 
 reduction_layout_plan::reduction_layout_plan(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	span<const std::size_t> axes,
 	bool keep_dimensions,
 	no_index_tag indexing
 )
 	: m_reduction_count(0)
 {
-	plan(output_signatures, input_signatures, axes, keep_dimensions, indexing);
+	plan(
+		output_descriptors,
+		input_descriptors,
+		axes,
+		keep_dimensions,
+		indexing
+	);
 }
 
 reduction_layout_plan::reduction_layout_plan(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	span<const std::size_t> axes,
 	bool keep_dimensions,
 	linear_index_tag indexing
 )
 	: m_reduction_count(0)
 {
-	plan(output_signatures, input_signatures, axes, keep_dimensions, indexing);
+	plan(
+		output_descriptors,
+		input_descriptors,
+		axes,
+		keep_dimensions,
+		indexing
+	);
 }
 
 reduction_layout_plan::reduction_layout_plan(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	span<const std::size_t> axes,
 	bool keep_dimensions,
 	multidimensional_index_tag indexing
 )
 	: m_reduction_count(0)
 {
-	plan(output_signatures, input_signatures, axes, keep_dimensions, indexing);
+	plan(
+		output_descriptors,
+		input_descriptors,
+		axes,
+		keep_dimensions,
+		indexing
+	);
 }
 
 const joint_layout&
@@ -165,14 +183,14 @@ reduction_layout_plan::get_reduction_count() const noexcept
 
 template <typename Indexing>
 void reduction_layout_plan::plan(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	span<const std::size_t> axes,
 	bool keep_dimensions,
 	Indexing indexing
 )
 {
-	if (input_signatures.empty())
+	if (input_descriptors.empty())
 	{
 		throw std::invalid_argument(
 			"reduction_layout_plan: A reduction needs at least one input "
@@ -180,7 +198,7 @@ void reduction_layout_plan::plan(
 		);
 	}
 
-	const auto extents = broadcast_input_extents(input_signatures);
+	const auto extents = broadcast_input_extents(input_descriptors);
 	const auto rank = extents.size();
 
 	std::vector<bool> is_reduced(rank, false);
@@ -222,10 +240,10 @@ void reduction_layout_plan::plan(
 	// axis ordering: a reduction walks its inputs once per folded element for
 	// every single output write.
 	std::vector<std::ptrdiff_t> strides;
-	for (const auto &signature : input_signatures)
+	for (const auto &descriptor : input_descriptors)
 	{
 		const auto layout =
-			signature.get_layout().broadcast_to(make_span(extents));
+			descriptor.get_layout().broadcast_to(make_span(extents));
 		layout.get_strides(strides);
 
 		const auto kept_strides = select_axes(strides, kept_axes);
@@ -246,9 +264,9 @@ void reduction_layout_plan::plan(
 	}
 	add_index_operands(reduced_builder, make_span(reduced_extents), indexing);
 
-	for (const auto &signature : output_signatures)
+	for (const auto &descriptor : output_descriptors)
 	{
-		const auto &layout = signature.get_layout();
+		const auto &layout = descriptor.get_layout();
 		const auto output_strides = map_output_strides(
 			layout,
 			kept_axes,
