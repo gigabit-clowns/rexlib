@@ -18,15 +18,13 @@ TEST_CASE(
 	const auto &domain = complex_type_transform::domain_type::get();
 	const type_slot_descriptor descriptor(
 		3,
-		&complex_type_transform::apply,
-		domain,
-		complex_type_transform::get_relation()
+		make_type_transform<complex_type_transform>()
 	);
 
 	CHECK( descriptor.get_pivot_index() == 3 );
-	CHECK( descriptor.apply(numerical_type::float32) ==
+	CHECK( descriptor.get_transform().apply(numerical_type::float32) ==
 	       numerical_type::complex_float32 );
-	CHECK( &descriptor.get_transform_domain() == &domain );
-	CHECK( std::string(descriptor.get_relation()) ==
+	CHECK( &descriptor.get_transform().get_domain() == &domain );
+	CHECK( std::string(descriptor.get_transform().get_relation()) ==
 	       "the complex counterpart of" );
 }

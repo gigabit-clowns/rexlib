@@ -10,7 +10,7 @@ namespace detail
 
 template <typename Parameters, typename... Pivots>
 inline
-std::array<numerical_type, sizeof...(Pivots)> read_operation_pivots(
+std::array<numerical_type, sizeof...(Pivots)> read_operation_data_types(
 	const Parameters &parameters,
 	type_list<Pivots...>
 ) noexcept
@@ -28,11 +28,11 @@ std::array<
 	numerical_type,
 	type_rule_accessors<Rule>::operation_pivot_count
 >
-type_rule_accessors<Rule>::get_operation_pivots(
+type_rule_accessors<Rule>::get_operation_data_types(
 	const Parameters &parameters
 ) noexcept
 {
-	return detail::read_operation_pivots(
+	return detail::read_operation_data_types(
 		parameters,
 		operation_pivot_list()
 	);

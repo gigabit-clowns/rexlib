@@ -43,13 +43,13 @@ struct dispatcher_support_query<
 	static bool is_supported(
 		span<const numerical_type> output_types,
 		span<const numerical_type> input_types,
-		span<const numerical_type> operation_pivots
+		span<const numerical_type> operation_data_types
 	) noexcept
 	{
 		return Dispatcher::is_supported(
 			output_types,
 			input_types,
-			operation_pivots
+			operation_data_types
 		);
 	}
 };

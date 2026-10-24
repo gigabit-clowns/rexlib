@@ -40,7 +40,15 @@ enum class type_rule_status
 	/**
 	 * @brief A free pivot could not be determined from the operands.
 	 */
-	unresolved_pivot
+	unresolved_pivot,
+
+	/**
+	 * @brief An operand kind has more or fewer operands than slots.
+	 *
+	 * The failure is attributed to the first operand without a slot, or to
+	 * the first slot without an operand.
+	 */
+	operand_count_mismatch
 };
 
 /**

@@ -10,7 +10,7 @@ namespace rexlib
 {
 
 /**
- * @defgroup type_transform Type transforms
+ * @defgroup type_transforms Type transforms
  *
  * A transform maps the type of a rule's pivot onto the type of one operand.
  *
@@ -46,7 +46,7 @@ namespace rexlib
  *
  * Models operations whose operands all share one type, such as `add`.
  *
- * @ingroup type_transform
+ * @ingroup type_transforms
  */
 struct same_type_transform
 {

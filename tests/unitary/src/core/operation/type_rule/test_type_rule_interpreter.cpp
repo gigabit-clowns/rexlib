@@ -7,8 +7,7 @@
 
 #include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/operation/type_rule/operand_type_rule.hpp>
-#include <rexlib/core/operation/type_rule/type_pivot_descriptor_table.hpp>
-#include <rexlib/core/operation/type_rule/type_slot_descriptor_table.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_descriptor_of.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/ops/rules/type_rules.hpp>
 
@@ -61,11 +60,7 @@ type_vector all_concrete_types()
 template <typename Rule>
 type_rule_interpreter interpreter_of()
 {
-    return type_rule_interpreter(
-        type_pivot_descriptor_table<typename Rule::pivot_list>::get(),
-        type_slot_descriptor_table<typename Rule::output_slot_list>::get(),
-        type_slot_descriptor_table<typename Rule::input_slot_list>::get()
-    );
+    return type_rule_interpreter(type_rule_descriptor_of<Rule>::get());
 }
 
 std::vector<operand_specification> make_operands(const type_vector &types)
@@ -82,14 +77,14 @@ void deduce_types(
     const type_rule_interpreter &rule,
     type_vector &outputs,
     const type_vector &inputs,
-    const type_vector &operation_pivots = type_vector()
+    const type_vector &operation_data_types = type_vector()
 )
 {
     auto output_operands = make_operands(outputs);
     const auto input_operands = make_operands(inputs);
     rule.deduce(
         rule_descriptor(),
-        make_span(operation_pivots),
+        make_span(operation_data_types),
         make_span(output_operands),
         make_span(input_operands)
     );
@@ -505,4 +500,128 @@ TEST_CASE(
         outputs[0] ==
         operand_specification({ 3, 4 }, numerical_type::int16)
     );
+}
+
+TEST_CASE(
+	"type_rule_interpreter::resolve should bind every pivot from the "
+	"operands",
+	"[type_rule_interpreter]"
+)
+{
+	const auto rule = interpreter_of<ops::converting_rule<>>();
+	const type_vector outputs = { numerical_type::int16 };
+	const type_vector inputs = { numerical_type::float32 };
+
+	const auto resolution = rule.resolve(
+		span<const numerical_type>(),
+		make_span(outputs),
+		make_span(inputs)
+	);
+
+	REQUIRE( resolution );
+	CHECK( resolution.get_pivot(0) == numerical_type::int16 );
+	CHECK( resolution.get_pivot(1) == numerical_type::float32 );
+}
+
+TEST_CASE(
+	"type_rule_interpreter::resolve should report a rejection without "
+	"throwing",
+	"[type_rule_interpreter]"
+)
+{
+	const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
+	const type_vector outputs = { numerical_type::float32 };
+	const type_vector inputs = {
+		numerical_type::float32,
+		numerical_type::float64
+	};
+
+	const auto resolution = rule.resolve(
+		span<const numerical_type>(),
+		make_span(outputs),
+		make_span(inputs)
+	);
+
+	CHECK( resolution.get_status() == type_rule_status::slot_mismatch );
+	CHECK( resolution.get_operand_index() == 1 );
+	CHECK_FALSE( resolution.is_output_operand() );
+	CHECK_THROWS_WITH(
+		rule.throw_error(rule_descriptor(), resolution),
+		Catch::Matchers::ContainsSubstring(
+			"rexlib.test.probe: input operand 'right' has data type "
+			"float64, but this operation requires float32."
+		)
+	);
+}
+
+TEST_CASE(
+	"type_rule_interpreter::resolve should name the operand a count "
+	"mismatch leaves without a slot",
+	"[type_rule_interpreter]"
+)
+{
+	using Catch::Matchers::ContainsSubstring;
+
+	const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
+	const type_vector one = { numerical_type::float32 };
+	const type_vector two = {
+		numerical_type::float32,
+		numerical_type::float32
+	};
+	const type_vector three = {
+		numerical_type::float32,
+		numerical_type::float32,
+		numerical_type::float32
+	};
+
+	const auto missing = rule.resolve(
+		span<const numerical_type>(),
+		make_span(one),
+		make_span(one)
+	);
+	CHECK( missing.get_status() == type_rule_status::operand_count_mismatch );
+	CHECK( missing.get_operand_index() == 1 );
+	CHECK_FALSE( missing.is_output_operand() );
+	CHECK_THROWS_WITH(
+		rule.throw_error(rule_descriptor(), missing),
+		ContainsSubstring("input operand 'right' is missing. The typing rule "
+			"describes 2 input operands.")
+	);
+
+	const auto extra_input = rule.resolve(
+		span<const numerical_type>(),
+		make_span(one),
+		make_span(three)
+	);
+	CHECK( extra_input.get_operand_index() == 2 );
+	CHECK_THROWS_WITH(
+		rule.throw_error(rule_descriptor(), extra_input),
+		ContainsSubstring("input operand 'third' is not expected.")
+	);
+
+	const auto extra_output = rule.resolve(
+		span<const numerical_type>(),
+		make_span(two),
+		make_span(two)
+	);
+	CHECK( extra_output.is_output_operand() );
+	CHECK_THROWS_WITH(
+		rule.throw_error(rule_descriptor(), extra_output),
+		ContainsSubstring("output operand 'second_result' is not expected. "
+			"The typing rule describes 1 output operand.")
+	);
+}
+
+TEST_CASE(
+	"type_rule_interpreter should reject a count mismatch when deducing",
+	"[type_rule_interpreter]"
+)
+{
+	const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
+	type_vector outputs = { numerical_type::unknown };
+
+	CHECK_THROWS_WITH(
+		deduce_types(rule, outputs, type_vector{ numerical_type::float32 }),
+		Catch::Matchers::ContainsSubstring("input operand 'right' is missing.")
+	);
 }

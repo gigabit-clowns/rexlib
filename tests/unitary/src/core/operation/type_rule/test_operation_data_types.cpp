@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/core/operation/type_rule/operation_pivots.hpp>
+#include <rexlib/core/operation/type_rule/operation_data_types.hpp>
 
 #include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/operation/type_rule/operand_type_rule.hpp>
@@ -67,22 +67,22 @@ REXLIB_DECLARE_OPERATION(
 } // anonymous namespace
 
 TEST_CASE(
-	"get_operation_pivots should read the data types an operation supplies",
-	"[operation_pivots]"
+	"get_operation_data_types should read the data types an operation supplies",
+	"[operation_data_types]"
 )
 {
 	const pivot_astype_operation operation(numerical_type::float64);
-	const auto pivots = get_operation_pivots(operation);
+	const auto pivots = get_operation_data_types(operation);
 	REQUIRE( pivots.size() == 1 );
 	CHECK( pivots[0] == numerical_type::float64 );
 }
 
 TEST_CASE(
-	"get_operation_pivots should read nothing from an operation whose rule "
+	"get_operation_data_types should read nothing from an operation whose rule "
 	"has no operation supplied pivot",
-	"[operation_pivots]"
+	"[operation_data_types]"
 )
 {
 	const pivot_negate_operation operation;
-	CHECK( get_operation_pivots(operation).empty() );
+	CHECK( get_operation_data_types(operation).empty() );
 }

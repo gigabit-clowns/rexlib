@@ -20,11 +20,8 @@ namespace rexlib
  *
  * Runtime interpretation of a typing rule, lowered to descriptor tables.
  *
- * Every function here reports failures rather than throwing, so that a
- * backend can ask whether it supports a launch configuration without
- * paying for an exception and without an unsupported combination
- * surfacing as an error deep inside program construction. Turning a
- * failure into a diagnostic is a separate, explicit step.
+ * Every function here reports a failure as a type_rule_resolution.
+ * throw_type_rule_error turns one into an exception.
  *
  * @{
  */
@@ -39,14 +36,14 @@ namespace rexlib
  *
  * @param pivots The rule's pivot table.
  * @param input_types Data types of the input operands.
- * @param operation_pivots Values supplied by the operation instance.
+ * @param operation_data_types Data types the operation instance supplies.
  * @return type_rule_resolution The resolution.
  */
 REXLIB_API
 type_rule_resolution resolve_pivots(
 	span<const type_pivot_descriptor> pivots,
 	span<const numerical_type> input_types,
-	span<const numerical_type> operation_pivots
+	span<const numerical_type> operation_data_types
 ) noexcept;
 
 /**

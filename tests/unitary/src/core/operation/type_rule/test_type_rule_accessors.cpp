@@ -62,15 +62,15 @@ using input_rule = operand_type_rule<
 } // anonymous namespace
 
 TEST_CASE(
-	"type_rule_accessors should read the operation pivots in declaration "
-	"order",
+	"type_rule_accessors should read the data types the operation supplies "
+	"in declaration order",
 	"[type_rule_accessors]"
 )
 {
 	STATIC_CHECK( type_rule_accessors<pair_rule>::operation_pivot_count == 2 );
 
 	const auto pivots =
-		type_rule_accessors<pair_rule>::get_operation_pivots(test_parameters());
+		type_rule_accessors<pair_rule>::get_operation_data_types(test_parameters());
 	CHECK( pivots[0] == numerical_type::float32 );
 	CHECK( pivots[1] == numerical_type::int8 );
 }
@@ -82,7 +82,7 @@ TEST_CASE(
 {
 	STATIC_CHECK( type_rule_accessors<input_rule>::operation_pivot_count == 0 );
 	CHECK(
-		type_rule_accessors<input_rule>::get_operation_pivots(
+		type_rule_accessors<input_rule>::get_operation_data_types(
 			test_parameters()
 		).empty()
 	);

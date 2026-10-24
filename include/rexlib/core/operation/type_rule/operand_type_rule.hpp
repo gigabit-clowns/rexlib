@@ -89,7 +89,7 @@ struct rule_has_operation_pivot<type_list<Head, Tail...>>
  *
  * @see type_pivot
  * @see type_slot
- * @see type_transform
+ * @see type_transforms
  */
 template <typename Pivots, typename Outputs, typename Inputs>
 struct operand_type_rule
@@ -104,6 +104,12 @@ struct operand_type_rule
 		type_list_size<Outputs>::value;
 	static REXLIB_CONST_CONSTEXPR std::size_t input_count =
 		type_list_size<Inputs>::value;
+
+	/**
+	 * @brief Whether the rule reads values of the operation instance.
+	 */
+	static REXLIB_CONST_CONSTEXPR bool requires_parameters =
+		detail::rule_has_operation_pivot<Pivots>::value;
 
 	static_assert(
 		pivot_count > 0,

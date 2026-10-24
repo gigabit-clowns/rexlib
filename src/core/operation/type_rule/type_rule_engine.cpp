@@ -82,7 +82,7 @@ const numerical_type_domain* find_operand_domain(
 type_rule_resolution resolve_pivots(
 	span<const type_pivot_descriptor> pivots,
 	span<const numerical_type> input_types,
-	span<const numerical_type> operation_pivots
+	span<const numerical_type> operation_data_types
 ) noexcept
 {
 	type_rule_resolution result;
@@ -116,7 +116,7 @@ type_rule_resolution resolve_pivots(
 
 		case type_pivot_source::operation:
 		{
-			if (pivot.get_index() >= operation_pivots.size())
+			if (pivot.get_index() >= operation_data_types.size())
 			{
 				return result.fail(
 					type_rule_status::unresolved_pivot,
@@ -126,7 +126,7 @@ type_rule_resolution resolve_pivots(
 				);
 			}
 
-			const auto type = operation_pivots[pivot.get_index()];
+			const auto type = operation_data_types[pivot.get_index()];
 			if (!check_pivot_value(pivot, type, status))
 			{
 				return result.fail(
@@ -161,7 +161,9 @@ type_rule_resolution resolve_pivots(
 		const auto source_index =
 			static_cast<std::size_t>(pivot.get_default_pivot());
 		REXLIB_ASSERT(source_index < pivots.size());
-		REXLIB_ASSERT(pivots[source_index].get_source() != type_pivot_source::output);
+		REXLIB_ASSERT(
+			pivots[source_index].get_source() != type_pivot_source::output
+		);
 
 		const auto type = result.get_pivot(source_index);
 		auto status = type_rule_status::ok;
@@ -246,7 +248,7 @@ type_rule_resolution evaluate_slots(
 			continue;
 		}
 
-		if (!slot.get_transform_domain().contains(pivot))
+		if (!slot.get_transform().get_domain().contains(pivot))
 		{
 			return resolution.fail(
 				type_rule_status::undefined_transform,
@@ -256,7 +258,7 @@ type_rule_resolution evaluate_slots(
 			);
 		}
 
-		types[i] = slot.apply(pivot);
+		types[i] = slot.get_transform().apply(pivot);
 	}
 
 	return resolution;
@@ -287,7 +289,7 @@ type_rule_resolution check_slots(
 			);
 		}
 
-		if (!slot.get_transform_domain().contains(pivot))
+		if (!slot.get_transform().get_domain().contains(pivot))
 		{
 			return resolution.fail(
 				type_rule_status::undefined_transform,
@@ -297,7 +299,7 @@ type_rule_resolution check_slots(
 			);
 		}
 
-		if (types[i] != slot.apply(pivot))
+		if (types[i] != slot.get_transform().apply(pivot))
 		{
 			return resolution.fail(
 				type_rule_status::slot_mismatch,
@@ -358,8 +360,9 @@ void throw_type_rule_error(
 
 		if (index < slots.size())
 		{
-			oss << " It must be " << slots[index].get_relation()
-				<< " one of: " << slots[index].get_transform_domain() << ".";
+			const auto &transform = slots[index].get_transform();
+			oss << " It must be " << transform.get_relation() << " one of: "
+				<< transform.get_domain() << ".";
 		}
 		break;
 	}
@@ -379,8 +382,9 @@ void throw_type_rule_error(
 		if (has_expected)
 		{
 			const auto &slot = slots[index];
+			const auto pivot = resolution.get_pivot(slot.get_pivot_index());
 			oss << ", but this operation requires "
-				<< slot.apply(resolution.get_pivot(slot.get_pivot_index()));
+				<< slot.get_transform().apply(pivot);
 		}
 
 		oss << ".";
@@ -391,6 +395,19 @@ void throw_type_rule_error(
 		oss << "the data type of " << kind << " operand " << operand
 			<< " is not determined by the inputs. Supply a pre-allocated "
 			<< "output to fix it.";
+		break;
+
+	case type_rule_status::operand_count_mismatch:
+		if (index < slots.size())
+		{
+			oss << kind << " operand " << operand << " is missing.";
+		}
+		else
+		{
+			oss << kind << " operand " << operand << " is not expected.";
+		}
+		oss << " The typing rule describes " << slots.size() << " " << kind
+			<< (slots.size() == 1 ? " operand." : " operands.");
 		break;
 
 	case type_rule_status::ok:

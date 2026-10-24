@@ -17,7 +17,7 @@ namespace rexlib
  *
  * @tparam Type The produced numerical type.
  *
- * @ingroup type_transform
+ * @ingroup type_transforms
  */
 template <numerical_type Type>
 struct fixed_type_transform

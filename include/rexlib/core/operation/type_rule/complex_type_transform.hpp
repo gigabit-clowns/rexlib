@@ -17,7 +17,7 @@ namespace rexlib
  * Only floating point and complex types have one, hence the restricted
  * domain. Models operations that introduce an imaginary part.
  *
- * @ingroup type_transform
+ * @ingroup type_transforms
  */
 struct complex_type_transform
 {

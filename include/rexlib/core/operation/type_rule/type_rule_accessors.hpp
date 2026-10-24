@@ -70,7 +70,7 @@ struct type_rule_accessors
 	 */
 	template <typename Parameters>
 	static std::array<numerical_type, operation_pivot_count>
-	get_operation_pivots(const Parameters &parameters) noexcept;
+	get_operation_data_types(const Parameters &parameters) noexcept;
 };
 
 } // namespace rexlib

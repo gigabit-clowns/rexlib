@@ -4,7 +4,7 @@
 
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_cast.hpp>
-#include <rexlib/core/operation/type_rule/operation_pivots.hpp>
+#include <rexlib/core/operation/type_rule/operation_data_types.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
@@ -88,8 +88,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	std::array<numerical_type, input_count> input_types;
 	extract_data_types(output_types, output_descriptors);
 	extract_data_types(input_types, input_descriptors);
-	const auto operation_pivots =
-		get_operation_pivots(operation_cast<Op>(operation));
+	const auto operation_data_types =
+		get_operation_data_types(operation_cast<Op>(operation));
 
 	// Reporting an unsupported element type here, rather than throwing from
 	// build(), is what lets the manager fall through to another backend.
@@ -97,7 +97,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		detail::dispatcher_support_query<TypeDispatcher>::is_supported(
 			make_span(output_types.data(), output_count),
 			make_span(input_types.data(), input_count),
-			make_span(operation_pivots.data(), operation_pivots.size())
+			make_span(operation_data_types.data(), operation_data_types.size())
 		);
 	if (!supported)
 	{
@@ -145,7 +145,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	std::array<numerical_type, input_count> input_types;
 	extract_data_types(output_types, output_descriptors);
 	extract_data_types(input_types, input_descriptors);
-	const auto operation_pivots = get_operation_pivots(typed_operation);
+	const auto operation_data_types = get_operation_data_types(typed_operation);
 
 	// The whole partition of the iteration space is settled here, once per
 	// program rather than once per element.
@@ -174,7 +174,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 		},
 		output_types,
 		input_types,
-		make_span(operation_pivots.data(), operation_pivots.size())
+		make_span(operation_data_types.data(), operation_data_types.size())
 	);
 }
 

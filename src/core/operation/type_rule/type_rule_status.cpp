@@ -21,6 +21,8 @@ const char* to_string(type_rule_status status) noexcept
 		return "slot mismatch";
 	case type_rule_status::unresolved_pivot:
 		return "unresolved pivot";
+	case type_rule_status::operand_count_mismatch:
+		return "operand count mismatch";
 	}
 
 	return "unknown";

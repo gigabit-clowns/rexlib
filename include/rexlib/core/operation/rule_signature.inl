@@ -4,9 +4,8 @@
 
 #include <rexlib/core/operation/shape_rule/shape_rule_accessors.hpp>
 #include <rexlib/core/operation/shape_rule/shape_rule_descriptor_of.hpp>
-#include <rexlib/core/operation/type_rule/type_pivot_descriptor_table.hpp>
 #include <rexlib/core/operation/type_rule/type_rule_accessors.hpp>
-#include <rexlib/core/operation/type_rule/type_slot_descriptor_table.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_descriptor_of.hpp>
 
 #include <utility>
 
@@ -47,10 +46,11 @@ void rule_signature<ShapeRule, TypeRule, Parameters>
 		make_span(extents.data(), extents.size())
 	);
 
-	const auto pivots = type_accessors::get_operation_pivots(m_parameters);
+	const auto data_types =
+		type_accessors::get_operation_data_types(m_parameters);
 	get_type_interpreter().check_instance(
 		descriptor,
-		make_span(pivots.data(), pivots.size())
+		make_span(data_types.data(), data_types.size())
 	);
 }
 
@@ -76,10 +76,11 @@ void rule_signature<ShapeRule, TypeRule, Parameters>::deduce(
 		inputs
 	);
 
-	const auto pivots = type_accessors::get_operation_pivots(m_parameters);
+	const auto data_types =
+		type_accessors::get_operation_data_types(m_parameters);
 	get_type_interpreter().deduce(
 		descriptor,
-		make_span(pivots.data(), pivots.size()),
+		make_span(data_types.data(), data_types.size()),
 		canonical_outputs,
 		inputs
 	);
@@ -108,10 +109,11 @@ void rule_signature<ShapeRule, TypeRule, Parameters>::accept(
 		inputs
 	);
 
-	const auto pivots = type_accessors::get_operation_pivots(m_parameters);
+	const auto data_types =
+		type_accessors::get_operation_data_types(m_parameters);
 	get_type_interpreter().accept(
 		descriptor,
-		make_span(pivots.data(), pivots.size()),
+		make_span(data_types.data(), data_types.size()),
 		user_outputs,
 		inputs
 	);
@@ -132,11 +134,7 @@ type_rule_interpreter
 rule_signature<ShapeRule, TypeRule, Parameters>
 ::get_type_interpreter() noexcept
 {
-	return type_rule_interpreter(
-		type_pivot_descriptor_table<typename TypeRule::pivot_list>::get(),
-		type_slot_descriptor_table<typename TypeRule::output_slot_list>::get(),
-		type_slot_descriptor_table<typename TypeRule::input_slot_list>::get()
-	);
+	return type_rule_interpreter(type_rule_descriptor_of<TypeRule>::get());
 }
 
 } // namespace rexlib

@@ -23,9 +23,7 @@ type_slot_descriptor_table<type_list<Slots...>>::get() noexcept
 	{{
 		type_slot_descriptor(
 			Slots::pivot_index,
-			&Slots::transform_type::apply,
-			Slots::transform_type::domain_type::get(),
-			Slots::transform_type::get_relation()
+			make_type_transform<typename Slots::transform_type>()
 		)...
 	}};
 

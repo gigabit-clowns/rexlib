@@ -28,8 +28,8 @@ std::array<
 	numerical_type,
 	type_rule_accessors<typename Op::type_rule>::operation_pivot_count
 >
-get_operation_pivots(const Op &operation) noexcept;
+get_operation_data_types(const Op &operation) noexcept;
 
 } // namespace rexlib
 
-#include "operation_pivots.inl"
+#include "operation_data_types.inl"

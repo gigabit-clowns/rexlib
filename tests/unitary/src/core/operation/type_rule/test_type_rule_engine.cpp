@@ -466,3 +466,42 @@ TEST_CASE(
 		ContainsSubstring("is not determined by the inputs")
 	);
 }
+
+TEST_CASE(
+	"throw_type_rule_error should name the operand a count mismatch "
+	"leaves without a slot",
+	"[type_rule_engine]"
+)
+{
+	const auto slots = slots_of<slot_same_as<0>>();
+
+	CHECK_THROWS_WITH(
+		throw_type_rule_error(
+			engine_descriptor(),
+			type_rule_resolution::failure(
+				type_rule_status::operand_count_mismatch,
+				0,
+				false,
+				numerical_type::unknown
+			),
+			slots,
+			pivots_of<input_pivot>()
+		),
+		ContainsSubstring("input operand 'value' is missing. The typing "
+			"rule describes 1 input operand.")
+	);
+	CHECK_THROWS_WITH(
+		throw_type_rule_error(
+			engine_descriptor(),
+			type_rule_resolution::failure(
+				type_rule_status::operand_count_mismatch,
+				1,
+				true,
+				numerical_type::unknown
+			),
+			slots,
+			pivots_of<input_pivot>()
+		),
+		ContainsSubstring("output operand 1 is not expected.")
+	);
+}

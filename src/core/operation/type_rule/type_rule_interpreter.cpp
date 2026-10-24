@@ -6,7 +6,7 @@
 
 #include <boost/container/small_vector.hpp>
 
-#include <cstddef>
+#include <algorithm>
 #include <sstream>
 #include <stdexcept>
 
@@ -39,48 +39,46 @@ span<const numerical_type> view(const data_type_buffer &types) noexcept
 } // anonymous namespace
 
 type_rule_interpreter::type_rule_interpreter(
-	span<const type_pivot_descriptor> pivots,
-	span<const type_slot_descriptor> output_slots,
-	span<const type_slot_descriptor> input_slots
+	const type_rule_descriptor &rule
 ) noexcept
-	: m_pivots(pivots)
-	, m_output_slots(output_slots)
-	, m_input_slots(input_slots)
+	: m_rule(&rule)
 {
 }
 
 void type_rule_interpreter::check_instance(
 	const operation_descriptor &descriptor,
-	span<const numerical_type> operation_pivots
+	span<const numerical_type> operation_data_types
 ) const
 {
-	std::size_t read_count = 0;
-	for (const auto &pivot : m_pivots)
-	{
-		if (pivot.get_source() == type_pivot_source::operation)
-		{
-			++read_count;
-		}
-	}
+	const auto pivots = m_rule->get_pivots();
 
-	if (operation_pivots.size() != read_count)
+	const auto read_count = static_cast<std::size_t>(std::count_if(
+		pivots.begin(),
+		pivots.end(),
+		[] (const type_pivot_descriptor &pivot)
+		{
+			return pivot.get_source() == type_pivot_source::operation;
+		}
+	));
+
+	if (operation_data_types.size() != read_count)
 	{
 		std::ostringstream oss;
 		oss << descriptor << ": the operation supplies "
-			<< operation_pivots.size() << " data types, but its typing rule "
-			<< "reads " << read_count << ".";
+			<< operation_data_types.size() << " data types, but its typing "
+			<< "rule reads " << read_count << ".";
 		throw std::invalid_argument(oss.str());
 	}
 
 	std::size_t supplied = 0;
-	for (const auto &pivot : m_pivots)
+	for (const auto &pivot : pivots)
 	{
 		if (pivot.get_source() != type_pivot_source::operation)
 		{
 			continue;
 		}
 
-		const auto type = operation_pivots[supplied++];
+		const auto type = operation_data_types[supplied++];
 		if (!is_domain_representable(type) ||
 			!pivot.get_domain().contains(type))
 		{
@@ -95,12 +93,17 @@ void type_rule_interpreter::check_instance(
 
 void type_rule_interpreter::deduce(
 	const operation_descriptor &descriptor,
-	span<const numerical_type> operation_pivots,
+	span<const numerical_type> operation_data_types,
 	span<operand_specification> canonical_outputs,
 	span<const operand_specification> inputs
 ) const
 {
-	check_operand_counts(descriptor, canonical_outputs.size(), inputs.size());
+	auto resolution =
+		check_operand_counts(canonical_outputs.size(), inputs.size());
+	if (!resolution)
+	{
+		throw_error(descriptor, resolution);
+	}
 
 	const auto input_types = gather_data_types(inputs);
 	data_type_buffer output_types(
@@ -108,53 +111,32 @@ void type_rule_interpreter::deduce(
 		numerical_type::unknown
 	);
 
-	auto resolution = resolve_pivots(
-		m_pivots,
+	resolution = resolve_pivots(
+		m_rule->get_pivots(),
 		view(input_types),
-		operation_pivots
+		operation_data_types
 	);
-	if (!resolution)
+	if (resolution)
 	{
-		throw_type_rule_error(
-			descriptor,
+		resolution = check_slots(
+			m_rule->get_input_slots(),
 			resolution,
-			get_slots_for_report(resolution.is_output_operand()),
-			m_pivots
+			view(input_types),
+			false
 		);
 	}
-
-	// Enforce the relation the rule declares between the inputs. For a
-	// homogeneous rule this is what rejects mismatching operands.
-	resolution = check_slots(
-		m_input_slots,
-		resolution,
-		view(input_types),
-		false
-	);
-	if (!resolution)
+	if (resolution)
 	{
-		throw_type_rule_error(
-			descriptor,
+		resolution = evaluate_slots(
+			m_rule->get_output_slots(),
 			resolution,
-			m_input_slots,
-			m_pivots
+			make_span(output_types.data(), output_types.size()),
+			true
 		);
 	}
-
-	resolution = evaluate_slots(
-		m_output_slots,
-		resolution,
-		make_span(output_types.data(), output_types.size()),
-		true
-	);
 	if (!resolution)
 	{
-		throw_type_rule_error(
-			descriptor,
-			resolution,
-			m_output_slots,
-			m_pivots
-		);
+		throw_error(descriptor, resolution);
 	}
 
 	for (std::size_t i = 0; i < canonical_outputs.size(); ++i)
@@ -165,103 +147,109 @@ void type_rule_interpreter::deduce(
 
 void type_rule_interpreter::accept(
 	const operation_descriptor &descriptor,
-	span<const numerical_type> operation_pivots,
+	span<const numerical_type> operation_data_types,
 	span<const operand_specification> user_outputs,
 	span<const operand_specification> inputs
 ) const
 {
-	check_operand_counts(descriptor, user_outputs.size(), inputs.size());
-
+	const auto output_types = gather_data_types(user_outputs);
 	const auto input_types = gather_data_types(inputs);
-	const auto user_output_types = gather_data_types(user_outputs);
 
-	auto resolution = resolve_pivots(
-		m_pivots,
-		view(input_types),
-		operation_pivots
+	const auto resolution = resolve(
+		operation_data_types,
+		view(output_types),
+		view(input_types)
 	);
 	if (!resolution)
 	{
-		throw_type_rule_error(
-			descriptor,
-			resolution,
-			get_slots_for_report(resolution.is_output_operand()),
-			m_pivots
-		);
-	}
-
-	resolution = bind_free_pivots(
-		m_pivots,
-		resolution,
-		view(user_output_types)
-	);
-	if (!resolution)
-	{
-		throw_type_rule_error(
-			descriptor,
-			resolution,
-			m_output_slots,
-			m_pivots
-		);
-	}
-
-	resolution = check_slots(
-		m_input_slots,
-		resolution,
-		view(input_types),
-		false
-	);
-	if (!resolution)
-	{
-		throw_type_rule_error(
-			descriptor,
-			resolution,
-			m_input_slots,
-			m_pivots
-		);
-	}
-
-	resolution = check_slots(
-		m_output_slots,
-		resolution,
-		view(user_output_types),
-		true
-	);
-	if (!resolution)
-	{
-		throw_type_rule_error(
-			descriptor,
-			resolution,
-			m_output_slots,
-			m_pivots
-		);
+		throw_error(descriptor, resolution);
 	}
 }
 
-span<const type_slot_descriptor>
-type_rule_interpreter::get_slots_for_report(
-	bool output_operands
+type_rule_resolution type_rule_interpreter::resolve(
+	span<const numerical_type> operation_data_types,
+	span<const numerical_type> output_types,
+	span<const numerical_type> input_types
 ) const noexcept
 {
-	return output_operands ? m_output_slots : m_input_slots;
+	auto resolution =
+		check_operand_counts(output_types.size(), input_types.size());
+	if (!resolution)
+	{
+		return resolution;
+	}
+
+	const auto pivots = m_rule->get_pivots();
+
+	resolution = resolve_pivots(pivots, input_types, operation_data_types);
+	if (resolution)
+	{
+		resolution = bind_free_pivots(pivots, resolution, output_types);
+	}
+	if (resolution)
+	{
+		resolution = check_slots(
+			m_rule->get_input_slots(),
+			resolution,
+			input_types,
+			false
+		);
+	}
+	if (resolution)
+	{
+		resolution = check_slots(
+			m_rule->get_output_slots(),
+			resolution,
+			output_types,
+			true
+		);
+	}
+	return resolution;
 }
 
-void type_rule_interpreter::check_operand_counts(
+void type_rule_interpreter::throw_error(
 	const operation_descriptor &descriptor,
-	std::size_t output_count,
-	std::size_t input_count
+	const type_rule_resolution &resolution
 ) const
 {
-	if (output_count != m_output_slots.size() ||
-		input_count != m_input_slots.size())
+	throw_type_rule_error(
+		descriptor,
+		resolution,
+		resolution.is_output_operand()
+			? m_rule->get_output_slots()
+			: m_rule->get_input_slots(),
+		m_rule->get_pivots()
+	);
+}
+
+type_rule_resolution type_rule_interpreter::check_operand_counts(
+	std::size_t output_count,
+	std::size_t input_count
+) const noexcept
+{
+	const auto output_slot_count = m_rule->get_output_slots().size();
+	if (output_count != output_slot_count)
 	{
-		std::ostringstream oss;
-		oss << descriptor << ": the typing rule describes "
-			<< m_output_slots.size() << " outputs and "
-			<< m_input_slots.size() << " inputs, but " << output_count
-			<< " and " << input_count << " were given.";
-		throw std::invalid_argument(oss.str());
+		return type_rule_resolution::failure(
+			type_rule_status::operand_count_mismatch,
+			std::min(output_count, output_slot_count),
+			true,
+			numerical_type::unknown
+		);
 	}
+
+	const auto input_slot_count = m_rule->get_input_slots().size();
+	if (input_count != input_slot_count)
+	{
+		return type_rule_resolution::failure(
+			type_rule_status::operand_count_mismatch,
+			std::min(input_count, input_slot_count),
+			false,
+			numerical_type::unknown
+		);
+	}
+
+	return type_rule_resolution();
 }
 
 } // namespace rexlib

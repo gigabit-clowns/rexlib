@@ -2,9 +2,9 @@
 
 #include "rule_type_dispatcher.hpp"
 
-#include <core/operation/type_rule/type_rule_engine.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/numerical_type_dispatch.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_descriptor_of.hpp>
 
 #include <stdexcept>
 
@@ -14,52 +14,10 @@ namespace cpu
 {
 
 template <typename Rule, template <typename...> class Support>
-type_rule_resolution
-rule_type_dispatcher<Rule, Support>::resolve(
-	span<const numerical_type> output_types,
-	span<const numerical_type> input_types,
-	span<const numerical_type> operation_pivots
-) noexcept
+type_rule_interpreter
+rule_type_dispatcher<Rule, Support>::get_interpreter() noexcept
 {
-	const auto pivots =
-		type_pivot_descriptor_table<typename Rule::pivot_list>::get();
-	const auto output_slots =
-		type_slot_descriptor_table<typename Rule::output_slot_list>::get();
-	const auto input_slots =
-		type_slot_descriptor_table<typename Rule::input_slot_list>::get();
-
-	if (output_types.size() != output_slots.size() ||
-	    input_types.size() != input_slots.size())
-	{
-		return type_rule_resolution::failure(
-			type_rule_status::unresolved_pivot,
-			0,
-			false,
-			numerical_type::unknown
-		);
-	}
-
-	auto resolution = resolve_pivots(pivots, input_types, operation_pivots);
-	if (!resolution)
-	{
-		return resolution;
-	}
-
-	// The outputs are already concrete by the time a program is built, so
-	// they bind whatever the inputs left free.
-	resolution = bind_free_pivots(pivots, resolution, output_types);
-	if (!resolution)
-	{
-		return resolution;
-	}
-
-	resolution = check_slots(input_slots, resolution, input_types, false);
-	if (!resolution)
-	{
-		return resolution;
-	}
-
-	return check_slots(output_slots, resolution, output_types, true);
+	return type_rule_interpreter(type_rule_descriptor_of<Rule>::get());
 }
 
 template <typename Rule, template <typename...> class Support>
@@ -84,11 +42,14 @@ template <typename Rule, template <typename...> class Support>
 bool rule_type_dispatcher<Rule, Support>::is_supported(
 	span<const numerical_type> output_types,
 	span<const numerical_type> input_types,
-	span<const numerical_type> operation_pivots
+	span<const numerical_type> operation_data_types
 ) noexcept
 {
-	const auto resolution =
-		resolve(output_types, input_types, operation_pivots);
+	const auto resolution = get_interpreter().resolve(
+		operation_data_types,
+		output_types,
+		input_types
+	);
 	if (!resolution)
 	{
 		return false;
@@ -175,7 +136,7 @@ rule_type_dispatcher<Rule, Support>::dispatch(
 	F &&factory,
 	const std::array<numerical_type, OutputCount> &output_types,
 	const std::array<numerical_type, InputCount> &input_types,
-	span<const numerical_type> operation_pivots
+	span<const numerical_type> operation_data_types
 )
 {
 	static_assert(
@@ -187,25 +148,15 @@ rule_type_dispatcher<Rule, Support>::dispatch(
 		"The operand arrays do not match the input arity of the rule."
 	);
 
-	const auto resolution = resolve(
+	const auto interpreter = get_interpreter();
+	const auto resolution = interpreter.resolve(
+		operation_data_types,
 		make_span(output_types.data(), OutputCount),
-		make_span(input_types.data(), InputCount),
-		operation_pivots
+		make_span(input_types.data(), InputCount)
 	);
 	if (!resolution)
 	{
-		throw_type_rule_error(
-			descriptor,
-			resolution,
-			resolution.is_output_operand()
-				? type_slot_descriptor_table<
-					typename Rule::output_slot_list
-				>::get()
-				: type_slot_descriptor_table<
-					typename Rule::input_slot_list
-				>::get(),
-			type_pivot_descriptor_table<typename Rule::pivot_list>::get()
-		);
+		interpreter.throw_error(descriptor, resolution);
 	}
 
 	return dispatch_pivots(

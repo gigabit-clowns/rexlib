@@ -26,7 +26,7 @@ namespace rexlib
  * @tparam Transform Transform applied to the pivot type.
  *
  * @see operand_type_rule
- * @see type_transform
+ * @see type_transforms
  */
 template <std::size_t PivotIndex, typename Transform = same_type_transform>
 struct type_slot

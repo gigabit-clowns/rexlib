@@ -17,7 +17,7 @@ namespace rexlib
  * Non complex types are left untouched, so this is defined on every type.
  * Models operations that drop the imaginary part, such as `abs` or `real`.
  *
- * @ingroup type_transform
+ * @ingroup type_transforms
  */
 struct real_type_transform
 {

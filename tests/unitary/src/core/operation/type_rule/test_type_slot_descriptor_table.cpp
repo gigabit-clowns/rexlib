@@ -35,19 +35,20 @@ TEST_CASE(
 	REQUIRE( slots.size() == 3 );
 
 	CHECK( slots[0].get_pivot_index() == 0 );
-	CHECK( slots[0].apply(numerical_type::int8) == numerical_type::int8 );
-	CHECK( std::string(slots[0].get_relation()) == "the same type as" );
+	const auto &same = slots[0].get_transform();
+	CHECK( same.apply(numerical_type::int8) == numerical_type::int8 );
+	CHECK( std::string(same.get_relation()) == "the same type as" );
 
 	CHECK( slots[1].get_pivot_index() == 1 );
-	CHECK( slots[1].apply(numerical_type::complex_float64) ==
+	const auto &real = slots[1].get_transform();
+	CHECK( real.apply(numerical_type::complex_float64) ==
 	       numerical_type::float64 );
-	CHECK( std::string(slots[1].get_relation()) ==
-	       "the real counterpart of" );
+	CHECK( std::string(real.get_relation()) == "the real counterpart of" );
 
 	CHECK( slots[2].get_pivot_index() == 0 );
-	CHECK( slots[2].apply(numerical_type::float32) ==
-	       numerical_type::boolean );
-	CHECK( std::string(slots[2].get_relation()) == "independent of" );
+	const auto &fixed = slots[2].get_transform();
+	CHECK( fixed.apply(numerical_type::float32) == numerical_type::boolean );
+	CHECK( std::string(fixed.get_relation()) == "independent of" );
 
 	CHECK( table::get().data() == slots.data() );
 }

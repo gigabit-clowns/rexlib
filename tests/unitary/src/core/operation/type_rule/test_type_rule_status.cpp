@@ -24,4 +24,8 @@ TEST_CASE(
 	       "slot mismatch" );
 	CHECK( std::string(to_string(type_rule_status::unresolved_pivot)) ==
 	       "unresolved pivot" );
+	CHECK(
+		std::string(to_string(type_rule_status::operand_count_mismatch)) ==
+		"operand count mismatch"
+	);
 }

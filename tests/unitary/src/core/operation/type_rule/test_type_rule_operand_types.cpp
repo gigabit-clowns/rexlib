@@ -8,9 +8,8 @@
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <rexlib/core/numerical/numerical_type_dispatch.hpp>
-#include <rexlib/core/operation/type_rule/type_pivot_descriptor_table.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_descriptor_of.hpp>
 #include <rexlib/core/operation/type_rule/type_rule_interpreter.hpp>
-#include <rexlib/core/operation/type_rule/type_slot_descriptor_table.hpp>
 #include <rexlib/ops/rules/type_rules.hpp>
 
 #include "fixtures/safe_numerical_type_of.hpp"
@@ -76,14 +75,9 @@ void check_rule_agreement()
 		"This check drives the rule from a single pivot value."
 	);
 
-	const auto pivots =
-		type_pivot_descriptor_table<typename Rule::pivot_list>::get();
-	const type_rule_interpreter interpreter(
-		pivots,
-		type_slot_descriptor_table<typename Rule::output_slot_list>::get(),
-		type_slot_descriptor_table<typename Rule::input_slot_list>::get()
-	);
-	const auto &domain = pivots[0].get_domain();
+	const auto &rule = type_rule_descriptor_of<Rule>::get();
+	const type_rule_interpreter interpreter(rule);
+	const auto &domain = rule.get_pivots()[0].get_domain();
 
 	const auto count = static_cast<int>(numerical_type::count);
 	for (int i = 0; i < count; ++i)

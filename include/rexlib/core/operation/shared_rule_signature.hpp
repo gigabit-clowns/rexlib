@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <rexlib/core/operation/type_rule/operand_type_rule.hpp>
-
 #include <rexlib/core/operation/operation_signature.hpp>
 
 namespace rexlib
@@ -34,9 +32,7 @@ struct shared_rule_signature
 	);
 
 	static_assert(
-		!detail::rule_has_operation_pivot<
-			typename TypeRule::pivot_list
-		>::value,
+		!TypeRule::requires_parameters,
 		"A typing rule with an operation supplied pivot cannot be shared. "
 		"Own a rule_signature holding the parameters instead."
 	);

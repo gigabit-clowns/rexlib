@@ -21,7 +21,7 @@ namespace rexlib
  * This is the one transform that decides a type rather than deriving it: an
  * integral operand yields float64, and no exact type would do.
  *
- * @ingroup type_transform
+ * @ingroup type_transforms
  */
 struct inexact_type_transform
 {

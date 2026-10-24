@@ -3,9 +3,7 @@
 #pragma once
 
 #include <rexlib/core/operation/basic_operation.hpp>
-
 #include <rexlib/core/operation/rule_signature.hpp>
-#include <rexlib/core/operation/type_rule/operand_type_rule.hpp>
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
@@ -54,10 +52,7 @@ public:
 	>;
 
 	static_assert(
-		shape_rule::requires_parameters ||
-		detail::rule_has_operation_pivot<
-			typename type_rule::pivot_list
-		>::value,
+		shape_rule::requires_parameters || type_rule::requires_parameters,
 		"The rules of a parametric operation read nothing from its "
 		"parameters. Declare it as a trivial operation instead."
 	);

@@ -5,11 +5,10 @@
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
-#include <rexlib/core/operation/type_rule/type_pivot_descriptor_table.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_interpreter.hpp>
 #include <rexlib/core/operation/type_rule/type_rule_operand_types.hpp>
 #include <rexlib/core/operation/type_rule/type_rule_pivots_in_domain.hpp>
 #include <rexlib/core/operation/type_rule/type_rule_resolution.hpp>
-#include <rexlib/core/operation/type_rule/type_slot_descriptor_table.hpp>
 #include <rexlib/core/platform/attributes.hpp>
 #include <rexlib/core/span.hpp>
 
@@ -73,15 +72,15 @@ public:
 	 *
 	 * @param output_types Runtime data type of each output operand.
 	 * @param input_types Runtime data type of each input operand.
-	 * @param operation_pivots Pivot values supplied by the operation, for
-	 * rules that take one. Empty otherwise.
+	 * @param operation_data_types The data types the operation supplies,
+	 * for rules that read some. Empty otherwise.
 	 * @return true The operand types resolve and are supported.
 	 * @return false They do not.
 	 */
 	static bool is_supported(
 		span<const numerical_type> output_types,
 		span<const numerical_type> input_types,
-		span<const numerical_type> operation_pivots =
+		span<const numerical_type> operation_data_types =
 			span<const numerical_type>()
 	) noexcept;
 
@@ -95,7 +94,7 @@ public:
 	 * element types.
 	 * @param output_types Runtime data type of each output operand.
 	 * @param input_types Runtime data type of each input operand.
-	 * @param operation_pivots Pivot values supplied by the operation.
+	 * @param operation_data_types The data types the operation supplies.
 	 * @return std::shared_ptr<rexlib::program> The program built by the
 	 * factory.
 	 * @throws std::invalid_argument When the operand types do not resolve
@@ -107,7 +106,7 @@ public:
 		F &&factory,
 		const std::array<numerical_type, OutputCount> &output_types,
 		const std::array<numerical_type, InputCount> &input_types,
-		span<const numerical_type> operation_pivots =
+		span<const numerical_type> operation_data_types =
 			span<const numerical_type>()
 	);
 
@@ -137,11 +136,7 @@ private:
 	{
 	};
 
-	static type_rule_resolution resolve(
-		span<const numerical_type> output_types,
-		span<const numerical_type> input_types,
-		span<const numerical_type> operation_pivots
-	) noexcept;
+	static type_rule_interpreter get_interpreter() noexcept;
 
 	template <typename F, std::size_t... PivotIndices>
 	static std::shared_ptr<rexlib::program> dispatch_pivots(
