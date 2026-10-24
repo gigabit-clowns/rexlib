@@ -2,6 +2,7 @@ target_sources(
 	rexlib-functional-obj
 	PRIVATE
 		arithmetic.cpp
+		array_axes.cpp
 		bitwise.cpp
 		cast.cpp
 		compare.cpp

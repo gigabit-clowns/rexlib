@@ -709,48 +709,57 @@ std::vector<bool> mark_named_positions(
 }
 
 /**
- * @brief Report two inputs whose batch axes do not broadcast together.
+ * @brief Find the first input before another whose batch axis at a
+ * position of the frame has an extent.
  *
- * Reported against the first input before @p input holding @p held at
- * @p position.
+ * @return std::size_t The input, or no_index when none has.
+ */
+std::size_t find_batch_origin(
+	span<const operand_specification> inputs,
+	const std::vector<std::size_t> &aligned_ranks,
+	std::size_t frame,
+	std::size_t position,
+	std::size_t extent,
+	std::size_t before
+) noexcept
+{
+	for (std::size_t other = 0; other < before; ++other)
+	{
+		const auto axis = find_batch_axis(
+			aligned_ranks[other],
+			frame - aligned_ranks[other],
+			position
+		);
+		if (axis != no_index && inputs[other].get_shape()[axis] == extent)
+		{
+			return other;
+		}
+	}
+	return no_index;
+}
+
+/**
+ * @brief Report two inputs whose batch axes do not broadcast together.
  */
 REXLIB_NORETURN
 void throw_batch_mismatch(
 	const operation_descriptor &descriptor,
 	span<const operand_specification> inputs,
-	const std::vector<std::size_t> &aligned_ranks,
-	std::size_t frame,
-	std::size_t position,
-	std::size_t held,
-	std::size_t input,
-	std::size_t axis
+	std::size_t first,
+	std::size_t first_axis,
+	std::size_t second,
+	std::size_t second_axis
 )
 {
-	std::size_t other = 0;
-	std::size_t other_axis = no_index;
-	for (; other < input; ++other)
-	{
-		other_axis = find_batch_axis(
-			aligned_ranks[other],
-			frame - aligned_ranks[other],
-			position
-		);
-		if (other_axis != no_index &&
-			inputs[other].get_shape()[other_axis] == held)
-		{
-			break;
-		}
-	}
-	REXLIB_ASSERT(other < input);
-
 	std::ostringstream oss;
 	oss << descriptor << ": input operands "
-		<< describe_operand(descriptor, other, false) << " and "
-		<< describe_operand(descriptor, input, false)
-		<< " do not broadcast together: axis " << other_axis
-		<< " of the first has extent " << held
-		<< " and axis " << axis << " of the second has extent "
-		<< inputs[input].get_shape()[axis] << ".";
+		<< describe_operand(descriptor, first, false) << " and "
+		<< describe_operand(descriptor, second, false)
+		<< " do not broadcast together: axis " << first_axis
+		<< " of the first has extent "
+		<< inputs[first].get_shape()[first_axis]
+		<< " and axis " << second_axis << " of the second has extent "
+		<< inputs[second].get_shape()[second_axis] << ".";
 	throw std::invalid_argument(oss.str());
 }
 
@@ -791,13 +800,24 @@ shape_type broadcast_batches(
 
 			if (extents[position] != 1)
 			{
-				throw_batch_mismatch(
-					descriptor,
+				const auto origin = find_batch_origin(
 					inputs,
 					aligned_ranks,
 					frame,
 					position,
 					extents[position],
+					i
+				);
+				REXLIB_ASSERT(origin != no_index);
+				throw_batch_mismatch(
+					descriptor,
+					inputs,
+					origin,
+					find_batch_axis(
+						aligned_ranks[origin],
+						frame - aligned_ranks[origin],
+						position
+					),
 					i,
 					q
 				);

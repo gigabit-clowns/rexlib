@@ -2,10 +2,9 @@
 
 #include <rexlib/functional/reduction.hpp>
 
+#include "array_axes.hpp"
+
 #include <rexlib/core/dispatch/execute.hpp>
-#include <rexlib/core/layout/index.hpp>
-#include <rexlib/core/layout/strided_layout.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/ops/parameters/axis_list.hpp>
 #include <rexlib/ops/reduction/all_operation.hpp>
 #include <rexlib/ops/reduction/amax_operation.hpp>
@@ -18,63 +17,8 @@
 #include <rexlib/ops/reduction/product_operation.hpp>
 #include <rexlib/ops/reduction/sum_operation.hpp>
 
-#include <numeric>
-#include <vector>
-
 namespace rexlib
 {
-
-namespace
-{
-
-std::size_t get_rank(const const_array_ref &x)
-{
-	std::vector<std::size_t> extents;
-	x.get_descriptor().get_layout().get_extents(extents);
-	return extents.size();
-}
-
-/**
- * @brief Turn the axes a caller gave into the ones an operation holds.
- *
- * Negative axes are referred from the end. An operation is a rigid
- * description of the work to be done, so this resolution happens here,
- * where the array and therefore its rank are at hand, rather than being
- * carried into the operation to be interpreted later.
- */
-ops::axis_list resolve_axes(
-	const const_array_ref &x,
-	span<const std::ptrdiff_t> axes
-)
-{
-	const auto rank = get_rank(x);
-
-	ops::axis_list result;
-	result.reserve(axes.size());
-	for (const auto axis : axes)
-	{
-		result.push_back(sanitize_index(axis, rank));
-	}
-
-	return result;
-}
-
-/**
- * @brief Name every axis of an array.
- *
- * Reducing over all of them is spelled out here rather than left as a mode
- * of the operation, because it only means something once a rank is known.
- */
-ops::axis_list every_axis(
-	const const_array_ref &x
-)
-{
-	ops::axis_list result(get_rank(x));
-	std::iota(result.begin(), result.end(), std::size_t(0));
-	return result;
-}
-
-} // anonymous namespace
 
 array sum(
 	const_array_ref x,

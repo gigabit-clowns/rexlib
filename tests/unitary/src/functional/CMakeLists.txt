@@ -2,6 +2,7 @@ target_sources(
 	rexlib-unitary-tests
 	PRIVATE
 		test_arithmetic.cpp
+		test_array_axes.cpp
 		test_bitwise.cpp
 		test_cast.cpp
 		test_compare.cpp
