@@ -5,8 +5,8 @@
 #include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/parameters/reduction_axes.hpp>
-#include <rexlib/ops/rules/operand_shape_rules.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 namespace rexlib
 {

@@ -1,9 +1,0 @@
-target_sources(
-	rexlib-core-obj
-	PRIVATE
-		operand_type_resolution.cpp
-		operand_type_rule_engine.cpp
-		shape_rule_interpreter.cpp
-		shape_rule_resolution.cpp
-		type_rule_interpreter.cpp
-)

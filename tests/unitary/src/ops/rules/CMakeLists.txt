@@ -4,6 +4,7 @@ target_sources(
 		test_axes_of.cpp
 		test_count_of.cpp
 		test_extent_of.cpp
+		test_half_spectrum_extent_transform.cpp
 		test_keep_dimensions_of.cpp
-		test_operand_shape_rules.cpp
+		test_shape_rules.cpp
 )

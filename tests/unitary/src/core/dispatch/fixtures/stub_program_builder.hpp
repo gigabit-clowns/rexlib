@@ -3,10 +3,10 @@
 #pragma once
 
 #include <rexlib/core/backend_priority.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/operation/operation_id.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_builder.hpp>
 #include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
 
 #include "../../operation/mock/mock_operation.hpp"
 #include "../../hardware/mock/mock_command_queue.hpp"
@@ -48,8 +48,8 @@ public:
 
 	backend_priority get_suitability(
 		const operation&,
-		span<const operand_signature>,
-		span<const operand_signature>,
+		span<const operand_descriptor>,
+		span<const operand_descriptor>,
 		command_queue&
 	) const override
 	{
@@ -58,8 +58,8 @@ public:
 
 	std::shared_ptr<program> build(
 		const operation&,
-		span<const operand_signature>,
-		span<const operand_signature>,
+		span<const operand_descriptor>,
+		span<const operand_descriptor>,
 		command_queue&,
 		program_cache*
 	) const override
@@ -88,14 +88,14 @@ inline std::shared_ptr<program>
 build_stub_operation(const program_manager &manager)
 {
 	const stub_operation op;
-	const std::array<operand_signature, 1> output_signatures;
-	const std::array<operand_signature, 0> input_signatures;
+	const std::array<operand_descriptor, 1> output_descriptors;
+	const std::array<operand_descriptor, 0> input_descriptors;
 	mock_command_queue queue;
 
 	return manager.build(
 		op,
-		make_span(output_signatures),
-		make_span(input_signatures),
+		make_span(output_descriptors),
+		make_span(input_descriptors),
 		queue
 	);
 }

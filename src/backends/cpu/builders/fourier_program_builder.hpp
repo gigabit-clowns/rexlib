@@ -87,14 +87,14 @@ public:
 	 * settled here, once per program rather than once per run.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return fourier_layout_plan The planned transform.
 	 */
 	fourier_layout_plan make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**

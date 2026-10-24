@@ -5,32 +5,32 @@
 
 #include <rexlib/core/dispatch/dispatcher.hpp>
 
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_cache.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/operation/operation_id.hpp>
-#include <rexlib/core/operation/operation_arity.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
+#include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/ndarray/const_array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
-#include <rexlib/core/ndarray/array_descriptor.hpp>
-#include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
-#include <rexlib/core/backend_priority.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
+#include <rexlib/core/operation/operation_id.hpp>
 
-#include <rexlib/core/hardware/device_context.hpp>
-#include <rexlib/core/hardware/device_session.hpp>
-#include <rexlib/core/hardware/device.hpp>
-#include <rexlib/core/hardware/device_properties.hpp>
-#include <rexlib/core/hardware/memory_allocator.hpp>
-#include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/program.hpp>
 #include <rexlib/core/hardware/program_scratch_requirement.hpp>
 
 #include "../operation/mock/mock_operation.hpp"
-#include "../operation/contract/mock/mock_operand_contract.hpp"
+#include "../operation/mock/mock_operation_signature.hpp"
 #include "mock/mock_program_builder.hpp"
 #include "../hardware/mock/mock_device.hpp"
 #include "../hardware/mock/mock_memory_resource.hpp"
@@ -132,7 +132,7 @@ public:
 	}
 
 protected:
-	// The dispatcher hands the operation's description to the contract, so
+	// The dispatcher hands the operation's description to the signature, so
 	// that it can name the operand when it rejects a launch.
 	static const operation_descriptor& mock_descriptor()
 	{
@@ -145,7 +145,7 @@ protected:
 		return instance;
 	}
 
-	// Set up @ref op as a unary operation whose contract deduces the given
+	// Set up @ref op as a unary operation whose signature deduces the given
 	// output shape and data type from its single input.
 	void expect_unary_operation(shape_type out_shape, numerical_type out_type)
 	{
@@ -158,12 +158,12 @@ protected:
 				.LR_RETURN(mock_descriptor())
 		);
 		expectations.push_back(
-			NAMED_ALLOW_CALL(op, get_contract())
-				.LR_RETURN(contract)
+			NAMED_ALLOW_CALL(op, get_signature())
+				.LR_RETURN(signature)
 		);
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
-				contract,
+				signature,
 				deduce(
 					ANY(const operation_descriptor&),
 					ANY(span<operand_specification>),
@@ -176,14 +176,14 @@ protected:
 		);
 	}
 
-	// Expect the contract to be queried for admissibility. This only happens
+	// Expect the signature to be queried for admissibility. This only happens
 	// when at least one output is pre-allocated; the mock accepts whatever
 	// it is given.
-	void expect_contract_accept()
+	void expect_signature_accept()
 	{
 		expectations.push_back(
 			NAMED_REQUIRE_CALL(
-				contract,
+				signature,
 				accept(
 					ANY(const operation_descriptor&),
 					ANY(span<const operand_specification>),
@@ -208,8 +208,8 @@ protected:
 				*builder,
 				get_suitability(
 					ANY(const operation&),
-					ANY(span<const operand_signature>),
-					ANY(span<const operand_signature>),
+					ANY(span<const operand_descriptor>),
+					ANY(span<const operand_descriptor>),
 					ANY(command_queue&)
 				)
 			)
@@ -220,8 +220,8 @@ protected:
 				*builder,
 				build(
 					ANY(const operation&),
-					ANY(span<const operand_signature>),
-					ANY(span<const operand_signature>),
+					ANY(span<const operand_descriptor>),
+					ANY(span<const operand_descriptor>),
 					ANY(command_queue&),
 					ANY(program_cache*)
 				)
@@ -303,7 +303,7 @@ protected:
 	std::shared_ptr<mock_program> program;
 
 	mock_operation op;
-	mock_operand_contract contract;
+	mock_operation_signature signature;
 
 	// Keep mock buffers alive, and hold the named expectations so that they are
 	// torn down (unlinked from their mocks) before the mocks they reference.
@@ -398,7 +398,7 @@ TEST_CASE_METHOD(
 )
 {
 	// The operation deduces a contiguous {4} float32 output. A pre-allocated
-	// output that differs in shape or data type is forwarded to the contract's
+	// output that differs in shape or data type is forwarded to the signature's
 	// accept(), which decides its admissibility; here it admits it.
 	shape_type user_shape;
 	numerical_type user_type;
@@ -411,7 +411,7 @@ TEST_CASE_METHOD(
 
 	expect_unary_operation(shape_type{4}, numerical_type::float32);
 
-	// The contract is queried with the user-supplied output alongside the
+	// The signature is queried with the user-supplied output alongside the
 	// canonical one deduced above, and accepts it.
 	const operand_specification user_output(user_shape, user_type);
 	const operand_specification canonical_output(
@@ -420,7 +420,7 @@ TEST_CASE_METHOD(
 	);
 	expectations.push_back(
 		NAMED_REQUIRE_CALL(
-			contract,
+			signature,
 			accept(
 				ANY(const operation_descriptor&),
 				ANY(span<const operand_specification>),
@@ -562,7 +562,7 @@ TEST_CASE_METHOD(
 	);
 
 	expect_unary_operation(out_shape, out_type);
-	expect_contract_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -673,7 +673,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_contract_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -718,7 +718,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_contract_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 
@@ -826,7 +826,7 @@ TEST_CASE_METHOD(
 	const auto type = numerical_type::float32;
 
 	expect_unary_operation(shape, type);
-	expect_contract_accept();
+	expect_signature_accept();
 	register_program_builder();
 	expect_program_scratch(); // No scratch required.
 

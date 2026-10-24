@@ -10,19 +10,19 @@
 
 #include "../serial_pool.hpp"
 
-#include <rexlib/core/operation/operation_declaration_macros.hpp>
-#include <rexlib/core/dispatch/rules/operand_type_rule.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
+#include <rexlib/core/operation/type_rule/operand_type_rule.hpp>
 #include <rexlib/core/span.hpp>
 
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/rules/operand_shape_rules.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 #include "../../../core/hardware/mock/mock_memory_resource.hpp"
 
@@ -81,7 +81,7 @@ private:
 /**
  * @brief A minimal family, to exercise the base rather than any real one.
  *
- * @tparam Accepts What its accepts_signatures answers, so that both the
+ * @tparam Accepts What its accepts_descriptors answers, so that both the
  * accepting and the declining branch can be reached.
  */
 template <bool Accepts>
@@ -93,9 +93,9 @@ class probe_program_builder final
 	>
 {
 public:
-	bool accepts_signatures(
-		span<const operand_signature>,
-		span<const operand_signature>
+	bool accepts_descriptors(
+		span<const operand_descriptor>,
+		span<const operand_descriptor>
 	) const noexcept
 	{
 		return Accepts;
@@ -103,12 +103,12 @@ public:
 
 	probe_plan make_plan(
 		const probe_operation&,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature>
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor>
 	) const
 	{
 		probe_plan plan;
-		plan.rank = output_signatures[0].get_layout().get_rank();
+		plan.rank = output_descriptors[0].get_layout().get_rank();
 		return plan;
 	}
 
@@ -126,7 +126,7 @@ public:
 };
 
 // A family that says nothing beyond its operand counts and typing rule, so
-// that the base's own accepts_signatures is the one answering.
+// that the base's own accepts_descriptors is the one answering.
 class silent_program_builder final
 	: public dispatched_program_builder<
 		silent_program_builder,
@@ -137,8 +137,8 @@ class silent_program_builder final
 public:
 	probe_plan make_plan(
 		const probe_operation&,
-		span<const operand_signature>,
-		span<const operand_signature>
+		span<const operand_descriptor>,
+		span<const operand_descriptor>
 	) const
 	{
 		return probe_plan();
@@ -222,8 +222,8 @@ class astype_probe_program_builder final
 public:
 	probe_plan make_plan(
 		const astype_probe_operation&,
-		span<const operand_signature>,
-		span<const operand_signature>
+		span<const operand_descriptor>,
+		span<const operand_descriptor>
 	) const
 	{
 		return probe_plan();
@@ -241,13 +241,13 @@ public:
 	}
 };
 
-operand_signature make_signature(
+operand_descriptor make_operand_descriptor(
 	const memory_resource *resource,
 	numerical_type type = numerical_type::float32
 )
 {
 	const std::array<std::size_t, 1> extents { 4 };
-	return operand_signature(
+	return operand_descriptor(
 		strided_layout::make_contiguous_layout(make_span(extents)),
 		type,
 		resource
@@ -272,7 +272,7 @@ TEST_CASE(
 )
 {
 	// A family whose whole requirement its operand counts and typing rule
-	// already state does not hide accepts_signatures, and the base's own
+	// already state does not hide accepts_descriptors, and the base's own
 	// answer lets the operands through.
 	mock_memory_resource host_resource;
 	ALLOW_CALL(host_resource, get_kind())
@@ -282,11 +282,11 @@ TEST_CASE(
 	const probe_operation operation;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(&host_resource)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(&host_resource)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(&host_resource)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(&host_resource)
 	};
 
 	CHECK(
@@ -298,7 +298,7 @@ TEST_CASE(
 
 TEST_CASE(
 	"dispatched_program_builder declines when the family declines the "
-	"signatures",
+	"descriptors",
 	"[dispatched_program_builder]"
 )
 {
@@ -309,11 +309,11 @@ TEST_CASE(
 	const probe_operation operation;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(&host_resource)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(&host_resource)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(&host_resource)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(&host_resource)
 	};
 
 	// The same operands, differing only in what the family says about them.
@@ -346,12 +346,12 @@ TEST_CASE(
 	cpu::command_queue queue(get_serial_pool());
 
 	// The operation takes exactly one input.
-	const std::vector<operand_signature> outputs {
-		make_signature(&host_resource)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(&host_resource)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(&host_resource),
-		make_signature(&host_resource)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(&host_resource),
+		make_operand_descriptor(&host_resource)
 	};
 
 	CHECK(
@@ -374,11 +374,11 @@ TEST_CASE(
 	const probe_operation operation;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(&device_resource)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(&device_resource)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(&device_resource)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(&device_resource)
 	};
 
 	CHECK(
@@ -397,11 +397,11 @@ TEST_CASE(
 	const probe_operation operation;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(nullptr)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(nullptr)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(nullptr)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(nullptr)
 	};
 
 	const auto program = builder.build(
@@ -425,12 +425,12 @@ TEST_CASE(
 	const probe_operation operation;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(nullptr),
-		make_signature(nullptr)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(nullptr),
+		make_operand_descriptor(nullptr)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(nullptr)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(nullptr)
 	};
 
 	// One base serves every family, so the message says which operation was
@@ -467,11 +467,11 @@ TEST_CASE(
 	const astype_probe_program_builder builder;
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(&host_resource, numerical_type::float64)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(&host_resource, numerical_type::float64)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(&host_resource, numerical_type::int32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(&host_resource, numerical_type::int32)
 	};
 
 	const astype_probe_operation matching(numerical_type::float64);
@@ -499,11 +499,11 @@ TEST_CASE(
 	const astype_probe_operation operation(numerical_type::float64);
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(nullptr, numerical_type::float64)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(nullptr, numerical_type::float64)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(nullptr, numerical_type::int32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(nullptr, numerical_type::int32)
 	};
 
 	const auto program = builder.build(

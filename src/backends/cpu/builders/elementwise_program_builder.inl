@@ -2,7 +2,7 @@
 
 #include "elementwise_program_builder.hpp"
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
@@ -99,20 +99,20 @@ joint_layout
 elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 ::make_plan(
 	const Op& /*operation*/,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
 ) const
 {
 	joint_layout_builder layout_builder;
-	for (const auto &signature : output_signatures)
+	for (const auto &descriptor : output_descriptors)
 	{
-		layout_builder.add_operand(signature.get_layout());
+		layout_builder.add_operand(descriptor.get_layout());
 	}
-	for (const auto &signature : input_signatures)
+	for (const auto &descriptor : input_descriptors)
 	{
-		layout_builder.add_operand(signature.get_layout());
+		layout_builder.add_operand(descriptor.get_layout());
 	}
-	append_index_operands(layout_builder, output_signatures, Indexing());
+	append_index_operands(layout_builder, output_descriptors, Indexing());
 
 	return layout_builder.build();
 }
@@ -157,7 +157,7 @@ void
 elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 ::append_index_operands(
 	joint_layout_builder& /*layout_builder*/,
-	span<const operand_signature> /*output_signatures*/,
+	span<const operand_descriptor> /*output_descriptors*/,
 	no_index_tag
 ) const noexcept
 {
@@ -174,12 +174,12 @@ void
 elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 ::append_index_operands(
 	joint_layout_builder &layout_builder,
-	span<const operand_signature> output_signatures,
+	span<const operand_descriptor> output_descriptors,
 	IndexTag indexing
 ) const
 {
 	std::vector<std::size_t> extents;
-	output_signatures[0].get_layout().get_extents(extents);
+	output_descriptors[0].get_layout().get_extents(extents);
 	add_index_operands(layout_builder, make_span(extents), indexing);
 }
 

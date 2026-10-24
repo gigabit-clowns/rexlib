@@ -2,12 +2,14 @@
 
 #pragma once
 
-#include <rexlib/core/operation/operation_descriptor.hpp>
-#include <rexlib/core/dispatch/rules/operand_type_descriptor.hpp>
-#include <rexlib/core/dispatch/rules/operand_type_resolution.hpp>
-#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
+#include <rexlib/core/operation/operation_descriptor.hpp>
+#include <rexlib/core/operation/type_rule/type_pivot_descriptor_table.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_operand_types.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_pivots_in_domain.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_resolution.hpp>
+#include <rexlib/core/operation/type_rule/type_slot_descriptor_table.hpp>
 #include <rexlib/core/platform/attributes.hpp>
 #include <rexlib/core/span.hpp>
 
@@ -126,7 +128,7 @@ private:
 	struct is_admissible
 		: std::integral_constant<
 			bool,
-			rule_pivots_in_domain<
+			type_rule_pivots_in_domain<
 				typename Rule::pivot_list,
 				type_list<Pivots...>
 			>::value &&

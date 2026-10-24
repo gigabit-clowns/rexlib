@@ -80,14 +80,14 @@ public:
 	 * holds no decision left to make per element.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return reduction_layout_plan The planned iteration.
 	 */
 	reduction_layout_plan make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**

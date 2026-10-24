@@ -9,8 +9,8 @@
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/parameters/axis_list.hpp>
 #include <rexlib/ops/parameters/axis_selection.hpp>
-#include <rexlib/ops/rules/operand_shape_rules.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 namespace rexlib
 {

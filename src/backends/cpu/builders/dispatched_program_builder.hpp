@@ -4,7 +4,7 @@
 
 #include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 
 #include <backends/cpu/builders/operand_data_types.hpp>
@@ -34,7 +34,7 @@ namespace cpu
  * @code
  * // The description of the iteration, settled once per program. Any type;
  * // it is handed straight back to make_loop_functor.
- * Plan make_plan(const Op &, output_signatures, input_signatures) const;
+ * Plan make_plan(const Op &, output_descriptors, input_descriptors) const;
  *
  * // The functor the program runs, for one resolved set of element types.
  * // The plan is passed by mutable reference so it can be moved from.
@@ -43,7 +43,10 @@ namespace cpu
  *
  * // Admissibility beyond operand counts and element types, such as a rank
  * // an operand must reach. Accepts by default.
- * bool accepts_signatures(output_signatures, input_signatures) const noexcept;
+ * bool accepts_descriptors(
+ *     output_descriptors,
+ *     input_descriptors
+ * ) const noexcept;
  * @endcode
  *
  * These are the contract between a family and this base rather than part of
@@ -69,15 +72,15 @@ public:
 
 	backend_priority get_suitability(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		rexlib::command_queue &queue
 	) const override;
 
 	std::shared_ptr<rexlib::program> build(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		rexlib::command_queue &queue,
 		program_cache *cache
 	) const override;
@@ -90,13 +93,13 @@ public:
 	 * operand counts and the typing rule already state. A family with more to
 	 * ask, such as a rank an operand must reach, hides this.
 	 *
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return bool True.
 	 */
-	bool accepts_signatures(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+	bool accepts_descriptors(
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const noexcept;
 
 private:

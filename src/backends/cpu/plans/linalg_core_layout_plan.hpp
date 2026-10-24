@@ -4,7 +4,7 @@
 
 #include "linalg_operand_core.hpp"
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/span.hpp>
 
@@ -36,13 +36,13 @@ public:
 	 * @brief Plan operands whose core axes are their trailing axes.
 	 *
 	 * The output's own extents, minus its trailing @p output_core_rank
-	 * axes, are trusted as the canonical batch shape: the operand contract
+	 * axes, are trusted as the canonical batch shape: the operation signature
 	 * already broadcast and validated it.
 	 * Every operand's remaining batch prefix is then handed to a
 	 * joint_layout_builder, which broadcasts it to that shape.
 	 *
-	 * @param output_signatures Exactly one output signature.
-	 * @param input_signatures Exactly two input signatures (left, right).
+	 * @param output_descriptors Exactly one output descriptor.
+	 * @param input_descriptors Exactly two input descriptors (left, right).
 	 * @param output_core_rank Number of trailing axes of the output that
 	 * are core.
 	 * @param left_core_rank Number of trailing axes of `left` that are
@@ -54,8 +54,8 @@ public:
 	 * its declared core rank.
 	 */
 	static linalg_core_layout_plan for_trailing_core(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		std::size_t output_core_rank,
 		std::size_t left_core_rank,
 		std::size_t right_core_rank
@@ -74,8 +74,8 @@ public:
 	 * the same index for every operand.
 	 */
 	static linalg_core_layout_plan for_named_axis(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		std::size_t core_axis
 	);
 

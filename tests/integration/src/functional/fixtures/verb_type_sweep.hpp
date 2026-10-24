@@ -13,7 +13,6 @@
 
 #include <rexlib/functional/creation.hpp>
 
-#include <rexlib/core/dispatch/rules/rule_operand_types.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/meta/type_tag.hpp>
@@ -25,6 +24,8 @@
 #include <rexlib/core/numerical/numerical_type_domain_tags.hpp>
 #include <rexlib/core/numerical/numerical_type_traits.hpp>
 #include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_operand_types.hpp>
+#include <rexlib/core/operation/type_rule/type_rule_pivots_in_domain.hpp>
 
 #include <complex>
 #include <cstddef>
@@ -301,12 +302,12 @@ struct operand_element_types
 		"their combinations."
 	);
 
-	using outputs = rule_operand_types_t<
+	using outputs = type_rule_operand_types_t<
 		typename rule_type::output_slot_list,
 		type_list<Pivot>
 	>;
 
-	using inputs = rule_operand_types_t<
+	using inputs = type_rule_operand_types_t<
 		typename rule_type::input_slot_list,
 		type_list<Pivot>
 	>;
@@ -326,7 +327,7 @@ struct operand_element_types
  */
 template <typename Op, typename Pivot>
 struct operation_admits
-	: rule_pivots_in_domain<
+	: type_rule_pivots_in_domain<
 		typename Op::type_rule::pivot_list,
 		type_list<Pivot>
 	>

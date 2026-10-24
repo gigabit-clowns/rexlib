@@ -4,7 +4,7 @@
 
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
@@ -20,26 +20,26 @@ using namespace rexlib::cpu;
 namespace
 {
 
-operand_signature make_signature(
+operand_descriptor make_operand_descriptor(
 	std::vector<std::size_t> extents,
 	numerical_type data_type
 )
 {
-	return operand_signature(
+	return operand_descriptor(
 		strided_layout::make_contiguous_layout(make_span(extents)),
 		data_type,
 		nullptr
 	);
 }
 
-operand_signature make_custom_signature(
+operand_descriptor make_custom_operand_descriptor(
 	std::vector<std::size_t> extents,
 	std::vector<std::ptrdiff_t> strides,
 	std::ptrdiff_t offset,
 	numerical_type data_type
 )
 {
-	return operand_signature(
+	return operand_descriptor(
 		strided_layout::make_custom_layout(
 			make_span(extents),
 			make_span(strides),
@@ -57,13 +57,13 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto signature =
-		make_signature({ 2, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 2, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 1 };
 
 	const fourier_layout_plan plan(
-		signature,
-		signature,
+		descriptor,
+		descriptor,
 		make_span(transformed_axes),
 		fourier_transform_kind::complex_to_complex
 	);
@@ -81,13 +81,13 @@ TEST_CASE(
 	// pocketfft counts in bytes so that it can transform an operand whose
 	// elements are interleaved with something else, and a layout counts in
 	// elements, so the element size is what stands between the two.
-	const auto signature =
-		make_signature({ 2, 4 }, numerical_type::complex_float64);
+	const auto descriptor =
+		make_operand_descriptor({ 2, 4 }, numerical_type::complex_float64);
 	const std::vector<std::size_t> transformed_axes = { 1 };
 
 	const fourier_layout_plan plan(
-		signature,
-		signature,
+		descriptor,
+		descriptor,
 		make_span(transformed_axes),
 		fourier_transform_kind::complex_to_complex
 	);
@@ -105,13 +105,13 @@ TEST_CASE(
 	// A transform is not confined to operands laid out one after another, so
 	// the strides are read off the layout rather than derived from the
 	// extents.
-	const auto input = make_custom_signature(
+	const auto input = make_custom_operand_descriptor(
 		{ 4 },
 		{ 3 },
 		5,
 		numerical_type::complex_float32
 	);
-	const auto output = make_custom_signature(
+	const auto output = make_custom_operand_descriptor(
 		{ 4 },
 		{ 2 },
 		7,
@@ -140,13 +140,13 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto signature =
-		make_signature({ 2, 3, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 2, 3, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 1, 2 };
 
 	const fourier_layout_plan plan(
-		signature,
-		signature,
+		descriptor,
+		descriptor,
 		make_span(transformed_axes),
 		fourier_transform_kind::complex_to_complex
 	);
@@ -161,13 +161,13 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto signature =
-		make_signature({ 2, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 2, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes;
 
 	const fourier_layout_plan plan(
-		signature,
-		signature,
+		descriptor,
+		descriptor,
 		make_span(transformed_axes),
 		fourier_transform_kind::complex_to_complex
 	);
@@ -183,13 +183,13 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto signature =
-		make_signature({ 2, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 2, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 1 };
 
 	const fourier_layout_plan plan(
-		signature,
-		signature,
+		descriptor,
+		descriptor,
 		make_span(transformed_axes),
 		fourier_transform_kind::complex_to_complex
 	);
@@ -206,9 +206,9 @@ TEST_CASE(
 )
 {
 	const auto output =
-		make_signature({ 2, 3 }, numerical_type::complex_float32);
+		make_operand_descriptor({ 2, 3 }, numerical_type::complex_float32);
 	const auto input =
-		make_signature({ 2, 4 }, numerical_type::complex_float32);
+		make_operand_descriptor({ 2, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 1 };
 
 	CHECK_THROWS_AS(
@@ -227,9 +227,10 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto input = make_signature({ 3, 8 }, numerical_type::float32);
+	const auto input =
+		make_operand_descriptor({ 3, 8 }, numerical_type::float32);
 	const auto output =
-		make_signature({ 3, 5 }, numerical_type::complex_float32);
+		make_operand_descriptor({ 3, 5 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 1 };
 
 	const fourier_layout_plan plan(
@@ -253,9 +254,10 @@ TEST_CASE(
 	// The symmetry of a real signal's spectrum relates a coefficient to the
 	// one at the negated index along every transformed axis at once, so it
 	// can only be exploited once.
-	const auto input = make_signature({ 4, 6 }, numerical_type::float64);
+	const auto input =
+		make_operand_descriptor({ 4, 6 }, numerical_type::float64);
 	const auto output =
-		make_signature({ 4, 4 }, numerical_type::complex_float64);
+		make_operand_descriptor({ 4, 4 }, numerical_type::complex_float64);
 	const std::vector<std::size_t> transformed_axes = { 0, 1 };
 
 	const fourier_layout_plan plan(
@@ -276,8 +278,9 @@ TEST_CASE(
 {
 	// Both 2*(m - 1) and 2*m - 1 samples store m coefficients, which is why
 	// an inverse transform has to be told which of the two it came from.
-	const auto input = make_signature({ 7 }, numerical_type::float32);
-	const auto output = make_signature({ 4 }, numerical_type::complex_float32);
+	const auto input = make_operand_descriptor({ 7 }, numerical_type::float32);
+	const auto output =
+		make_operand_descriptor({ 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 0 };
 
 	const fourier_layout_plan plan(
@@ -296,8 +299,9 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto input = make_signature({ 8 }, numerical_type::float32);
-	const auto output = make_signature({ 8 }, numerical_type::complex_float32);
+	const auto input = make_operand_descriptor({ 8 }, numerical_type::float32);
+	const auto output =
+		make_operand_descriptor({ 8 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 0 };
 
 	CHECK_THROWS_AS(
@@ -319,8 +323,9 @@ TEST_CASE(
 {
 	// The signal is the output here, so the restored extent is what both the
 	// halving and the normalisation are measured against.
-	const auto input = make_signature({ 5 }, numerical_type::complex_float32);
-	const auto output = make_signature({ 8 }, numerical_type::float32);
+	const auto input =
+		make_operand_descriptor({ 5 }, numerical_type::complex_float32);
+	const auto output = make_operand_descriptor({ 8 }, numerical_type::float32);
 	const std::vector<std::size_t> transformed_axes = { 0 };
 
 	const fourier_layout_plan plan(
@@ -339,8 +344,9 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto input = make_signature({ 5 }, numerical_type::complex_float32);
-	const auto output = make_signature({ 9 }, numerical_type::float32);
+	const auto input =
+		make_operand_descriptor({ 5 }, numerical_type::complex_float32);
+	const auto output = make_operand_descriptor({ 9 }, numerical_type::float32);
 	const std::vector<std::size_t> transformed_axes = { 0 };
 
 	const fourier_layout_plan plan(
@@ -361,8 +367,9 @@ TEST_CASE(
 {
 	// There is nothing to halve, so there is no telling what shape the
 	// spectrum would have.
-	const auto input = make_signature({ 8 }, numerical_type::float32);
-	const auto output = make_signature({ 5 }, numerical_type::complex_float32);
+	const auto input = make_operand_descriptor({ 8 }, numerical_type::float32);
+	const auto output =
+		make_operand_descriptor({ 5 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes;
 
 	CHECK_THROWS_AS(
@@ -381,14 +388,14 @@ TEST_CASE(
 	"[fourier_layout_plan]"
 )
 {
-	const auto signature =
-		make_signature({ 2, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 2, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 2 };
 
 	CHECK_THROWS_AS(
 		fourier_layout_plan(
-			signature,
-			signature,
+			descriptor,
+			descriptor,
 			make_span(transformed_axes),
 			fourier_transform_kind::complex_to_complex
 		),
@@ -404,14 +411,14 @@ TEST_CASE(
 	// There is nothing to read along it, and a half spectrum of an empty axis
 	// still holds one coefficient, so there would be an output value with
 	// nothing to put in it.
-	const auto signature =
-		make_signature({ 0, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 0, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 0 };
 
 	CHECK_THROWS_AS(
 		fourier_layout_plan(
-			signature,
-			signature,
+			descriptor,
+			descriptor,
 			make_span(transformed_axes),
 			fourier_transform_kind::complex_to_complex
 		),
@@ -426,13 +433,13 @@ TEST_CASE(
 {
 	// A batch dimension with nothing in it asks for no transform rather than
 	// for an impossible one.
-	const auto signature =
-		make_signature({ 0, 4 }, numerical_type::complex_float32);
+	const auto descriptor =
+		make_operand_descriptor({ 0, 4 }, numerical_type::complex_float32);
 	const std::vector<std::size_t> transformed_axes = { 1 };
 
 	const fourier_layout_plan plan(
-		signature,
-		signature,
+		descriptor,
+		descriptor,
 		make_span(transformed_axes),
 		fourier_transform_kind::complex_to_complex
 	);

@@ -22,8 +22,8 @@ public:
 	MAKE_CONST_MOCK0(get_name, std::string(), override);
 	MAKE_CONST_MOCK0(get_arity, operation_arity(), noexcept override);
 	MAKE_CONST_MOCK0(
-		get_contract,
-		const operand_contract&(),
+		get_signature,
+		const operation_signature&(),
 		noexcept override
 	);
 };

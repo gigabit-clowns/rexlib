@@ -11,7 +11,7 @@
 namespace rexlib
 {
 
-class operand_signature;
+class operand_descriptor;
 
 namespace cpu
 {
@@ -41,7 +41,7 @@ enum class fourier_transform_kind
  *
  * The transform itself is delegated to pocketfft, which asks for the shape of
  * the signal, the strides of both operands **in bytes** and the axes to
- * transform along. All three are read off the operand signatures once here,
+ * transform along. All three are read off the operand descriptors once here,
  * rather than every time the program runs, and are held in the very types
  * pocketfft takes them in so that running the program only has to hand them
  * over.
@@ -59,8 +59,8 @@ public:
 	/**
 	 * @brief Plan the transform of one operand into another.
 	 *
-	 * @param output_signature Signature of the transformed operand.
-	 * @param input_signature Signature of the operand being transformed.
+	 * @param output_descriptor Descriptor of the transformed operand.
+	 * @param input_descriptor Descriptor of the operand being transformed.
 	 * @param axes The transformed axes, ascending and without repetitions.
 	 * The last of them is the one a half spectrum is stored along.
 	 * @param kind Which domain each operand lives in.
@@ -72,8 +72,8 @@ public:
 	 * operands.
 	 */
 	fourier_layout_plan(
-		const operand_signature &output_signature,
-		const operand_signature &input_signature,
+		const operand_descriptor &output_descriptor,
+		const operand_descriptor &input_descriptor,
 		span<const std::size_t> axes,
 		fourier_transform_kind kind
 	);

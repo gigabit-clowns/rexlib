@@ -6,12 +6,10 @@ target_sources(
 		eager_dispatcher.cpp
 		execute.cpp
 		execution_context.cpp
-		operand_signature.cpp
+		operand_descriptor.cpp
 		program_builder.cpp
 		program_builder_registry.cpp
 		program_cache.cpp
 		program_cache_key.cpp
 		program_manager.cpp
 )
-
-add_subdirectory(rules)

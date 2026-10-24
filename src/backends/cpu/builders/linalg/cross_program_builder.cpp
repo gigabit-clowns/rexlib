@@ -11,12 +11,12 @@
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
 #include <rexlib/backends/cpu/program_builder.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/operation/operation.hpp>
-#include <rexlib/core/operation/operation_cast.hpp>
-#include <rexlib/core/dispatch/rules/operation_pivots.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_builder_registration.hpp>
 #include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_cast.hpp>
+#include <rexlib/core/operation/type_rule/operation_pivots.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
 
@@ -107,8 +107,8 @@ public:
 
 	backend_priority get_suitability(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		rexlib::command_queue &queue
 	) const override
 	{
@@ -116,23 +116,23 @@ public:
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
 		const auto base = program_builder::get_suitability(
-			operation, output_signatures, input_signatures, queue
+			operation, output_descriptors, input_descriptors, queue
 		);
 		if (base == backend_priority::unsupported)
 		{
 			return base;
 		}
 
-		if (output_signatures.size() != output_count ||
-		    input_signatures.size() != input_count)
+		if (output_descriptors.size() != output_count ||
+		    input_descriptors.size() != input_count)
 		{
 			return backend_priority::unsupported;
 		}
 
 		std::array<numerical_type, output_count> output_types;
 		std::array<numerical_type, input_count> input_types;
-		extract_data_types(output_types, output_signatures);
-		extract_data_types(input_types, input_signatures);
+		extract_data_types(output_types, output_descriptors);
+		extract_data_types(input_types, input_descriptors);
 		const auto operation_pivots = get_operation_pivots(
 			operation_cast<ops::cross_operation>(operation)
 		);
@@ -153,8 +153,8 @@ public:
 
 	std::shared_ptr<rexlib::program> build(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		rexlib::command_queue& /*queue*/,
 		program_cache* /*cache*/
 	) const override
@@ -162,17 +162,17 @@ public:
 		constexpr auto output_count = ops::cross_operation::output_operand_count;
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
-		if (output_signatures.size() != output_count)
+		if (output_descriptors.size() != output_count)
 		{
 			throw std::invalid_argument(
-				"cross_program_builder::build: Unexpected output signature "
+				"cross_program_builder::build: Unexpected output descriptor "
 				"count."
 			);
 		}
-		if (input_signatures.size() != input_count)
+		if (input_descriptors.size() != input_count)
 		{
 			throw std::invalid_argument(
-				"cross_program_builder::build: Unexpected input signature "
+				"cross_program_builder::build: Unexpected input descriptor "
 				"count."
 			);
 		}
@@ -183,12 +183,12 @@ public:
 
 		std::array<numerical_type, output_count> output_types;
 		std::array<numerical_type, input_count> input_types;
-		extract_data_types(output_types, output_signatures);
-		extract_data_types(input_types, input_signatures);
+		extract_data_types(output_types, output_descriptors);
+		extract_data_types(input_types, input_descriptors);
 		const auto operation_pivots = get_operation_pivots(typed_operation);
 
 		auto plan = linalg_core_layout_plan::for_named_axis(
-			output_signatures, input_signatures, axis
+			output_descriptors, input_descriptors, axis
 		);
 
 		return cross_type_dispatcher::dispatch(

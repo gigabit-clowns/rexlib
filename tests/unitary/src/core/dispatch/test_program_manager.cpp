@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/core/dispatch/program_manager.hpp>
 #include <rexlib/core/dispatch/program_cache.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
 
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
@@ -84,8 +84,8 @@ TEST_CASE(
 	program_manager manager;
 
 	const mock_operation_a op;
-	const std::array<operand_signature, 2> output_signatures;
-	const std::array<operand_signature, 4> input_signatures;
+	const std::array<operand_descriptor, 2> output_descriptors;
+	const std::array<operand_descriptor, 4> input_descriptors;
 	mock_command_queue queue;
 
 	auto builder1 = std::make_unique<mock_program_builder>();
@@ -98,8 +98,8 @@ TEST_CASE(
 		*builder1,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -111,8 +111,8 @@ TEST_CASE(
 		*builder2,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -121,8 +121,8 @@ TEST_CASE(
 		*builder2,
 		build(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&),
 			ANY(program_cache*)
 		)
@@ -135,8 +135,8 @@ TEST_CASE(
 	CHECK(
 		manager.build(
 			op,
-			make_span(output_signatures),
-			make_span(input_signatures),
+			make_span(output_descriptors),
+			make_span(input_descriptors),
 			queue
 		) == prog
 	);
@@ -150,8 +150,8 @@ TEST_CASE(
 	program_manager manager;
 
 	const mock_operation_a op;
-	const std::array<operand_signature, 2> output_signatures;
-	const std::array<operand_signature, 4> input_signatures;
+	const std::array<operand_descriptor, 2> output_descriptors;
+	const std::array<operand_descriptor, 4> input_descriptors;
 	mock_command_queue queue;
 
 	auto builder_a = std::make_unique<mock_program_builder>();
@@ -164,8 +164,8 @@ TEST_CASE(
 		*builder_a,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -174,8 +174,8 @@ TEST_CASE(
 		*builder_a,
 		build(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&),
 			ANY(program_cache*)
 		)
@@ -192,8 +192,8 @@ TEST_CASE(
 	CHECK(
 		manager.build(
 			op,
-			make_span(output_signatures),
-			make_span(input_signatures),
+			make_span(output_descriptors),
+			make_span(input_descriptors),
 			queue
 		) == prog
 	);
@@ -207,8 +207,8 @@ TEST_CASE(
 	program_manager manager;
 
 	const mock_operation_a op;
-	const std::array<operand_signature, 2> output_signatures;
-	const std::array<operand_signature, 4> input_signatures;
+	const std::array<operand_descriptor, 2> output_descriptors;
+	const std::array<operand_descriptor, 4> input_descriptors;
 	mock_command_queue queue;
 
 	auto builder = std::make_unique<mock_program_builder>();
@@ -220,8 +220,8 @@ TEST_CASE(
 		*builder,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -230,8 +230,8 @@ TEST_CASE(
 		*builder,
 		build(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&),
 			ANY(program_cache*)
 		)
@@ -244,8 +244,8 @@ TEST_CASE(
 	CHECK(
 		manager.build(
 			op,
-			make_span(output_signatures),
-			make_span(input_signatures),
+			make_span(output_descriptors),
+			make_span(input_descriptors),
 			queue
 		) == prog
 	);
@@ -260,8 +260,8 @@ TEST_CASE(
 	program_manager manager;
 
 	const mock_operation_a op;
-	const std::array<operand_signature, 2> output_signatures;
-	const std::array<operand_signature, 4> input_signatures;
+	const std::array<operand_descriptor, 2> output_descriptors;
+	const std::array<operand_descriptor, 4> input_descriptors;
 	program_cache cache(4);
 	mock_command_queue queue;
 
@@ -274,8 +274,8 @@ TEST_CASE(
 		*builder,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -284,8 +284,8 @@ TEST_CASE(
 		*builder,
 		build(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&),
 			ANY(program_cache*)
 		)
@@ -298,8 +298,8 @@ TEST_CASE(
 	CHECK(
 		manager.build(
 			op,
-			make_span(output_signatures),
-			make_span(input_signatures),
+			make_span(output_descriptors),
+			make_span(input_descriptors),
 			queue,
 			&cache
 		) == prog
@@ -315,8 +315,8 @@ TEST_CASE(
 	program_manager manager;
 
 	const mock_operation_b op;
-	const std::array<operand_signature, 2> output_signatures;
-	const std::array<operand_signature, 4> input_signatures;
+	const std::array<operand_descriptor, 2> output_descriptors;
+	const std::array<operand_descriptor, 4> input_descriptors;
 	mock_command_queue queue;
 
 	auto builder = std::make_unique<mock_program_builder>();
@@ -328,8 +328,8 @@ TEST_CASE(
 	REQUIRE_THROWS_AS(
 		manager.build(
 			op,
-			make_span(output_signatures),
-			make_span(input_signatures),
+			make_span(output_descriptors),
+			make_span(input_descriptors),
 			queue
 		),
 		unsupported_operation_error
@@ -345,8 +345,8 @@ TEST_CASE(
 	program_manager manager;
 
 	const mock_operation_a op;
-	const std::array<operand_signature, 2> output_signatures;
-	const std::array<operand_signature, 4> input_signatures;
+	const std::array<operand_descriptor, 2> output_descriptors;
+	const std::array<operand_descriptor, 4> input_descriptors;
 	mock_command_queue queue;
 
 	auto builder1 = std::make_unique<mock_program_builder>();
@@ -358,8 +358,8 @@ TEST_CASE(
 		*builder1,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -371,8 +371,8 @@ TEST_CASE(
 		*builder2,
 		get_suitability(
 			ANY(const operation&),
-			ANY(span<const operand_signature>),
-			ANY(span<const operand_signature>),
+			ANY(span<const operand_descriptor>),
+			ANY(span<const operand_descriptor>),
 			ANY(command_queue&)
 		)
 	)
@@ -384,8 +384,8 @@ TEST_CASE(
 	REQUIRE_THROWS_AS(
 		manager.build(
 			op,
-			make_span(output_signatures),
-			make_span(input_signatures),
+			make_span(output_descriptors),
+			make_span(input_descriptors),
 			queue
 		),
 		unsupported_operation_error

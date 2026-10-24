@@ -1,0 +1,21 @@
+target_sources(
+	rexlib-unitary-tests
+	PRIVATE
+		test_complex_type_transform.cpp
+		test_fixed_type_transform.cpp
+		test_inexact_type_transform.cpp
+		test_operation_pivots.cpp
+		test_real_type_transform.cpp
+		test_same_type_transform.cpp
+		test_type_pivot_descriptor.cpp
+		test_type_pivot_descriptor_table.cpp
+		test_type_rule_accessors.cpp
+		test_type_rule_engine.cpp
+		test_type_rule_interpreter.cpp
+		test_type_rule_operand_types.cpp
+		test_type_rule_pivots_in_domain.cpp
+		test_type_rule_resolution.cpp
+		test_type_rule_status.cpp
+		test_type_slot_descriptor.cpp
+		test_type_slot_descriptor_table.cpp
+)

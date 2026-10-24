@@ -2,8 +2,8 @@
 
 #include <rexlib/core/dispatch/program_manager.hpp>
 
-#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/dispatch/program_builder.hpp>
+#include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_id.hpp>
 
@@ -31,8 +31,8 @@ public:
 
 	program_builder* get_most_suitable_builder(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		command_queue &queue
 	) const
 	{
@@ -47,13 +47,13 @@ public:
 		const auto ite2 = find_most_suitable_backend(
 			available_backends.begin(),
 			available_backends.end(),
-			[&operation, &output_signatures, &input_signatures, &queue]
+			[&operation, &output_descriptors, &input_descriptors, &queue]
 			(const auto &item)
 			{
 				return item->get_suitability(
 					operation,
-					output_signatures,
-					input_signatures,
+					output_descriptors,
+					input_descriptors,
 					queue
 				);
 			}
@@ -69,16 +69,16 @@ public:
 
 	std::shared_ptr<program> build(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		command_queue &queue,
 		program_cache *cache
 	) const
 	{
 		const auto *builder = get_most_suitable_builder(
 			operation,
-			output_signatures,
-			input_signatures,
+			output_descriptors,
+			input_descriptors,
 			queue
 		);
 
@@ -92,8 +92,8 @@ public:
 
 		return builder->build(
 			operation,
-			output_signatures,
-			input_signatures,
+			output_descriptors,
+			input_descriptors,
 			queue,
 			cache
 		);
@@ -130,16 +130,16 @@ bool program_manager::register_builder(
 std::shared_ptr<program>
 program_manager::build(
 	const operation &operation,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	command_queue &queue,
 	program_cache *cache
 ) const
 {
 	return get_implementation().build(
 		operation,
-		output_signatures,
-		input_signatures,
+		output_descriptors,
+		input_descriptors,
 		queue,
 		cache
 	);

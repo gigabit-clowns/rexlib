@@ -3,22 +3,22 @@
 #include "eager_dispatcher.hpp"
 
 #include <rexlib/core/binary/bit.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/command.hpp>
+#include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/device_context.hpp>
+#include <rexlib/core/hardware/device_properties.hpp>
+#include <rexlib/core/hardware/device_session.hpp>
+#include <rexlib/core/hardware/memory_allocator.hpp>
+#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/hardware/program_scratch_requirement.hpp>
 #include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/const_array_ref.hpp>
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/operation/contract/operand_specification.hpp>
+#include <rexlib/core/operation/operand_specification.hpp>
 #include <rexlib/core/operation/operation.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
-#include <rexlib/core/hardware/program.hpp>
-#include <rexlib/core/hardware/command.hpp>
-#include <rexlib/core/hardware/command_queue.hpp>
-#include <rexlib/core/hardware/program_scratch_requirement.hpp>
-#include <rexlib/core/hardware/memory_allocator.hpp>
-#include <rexlib/core/hardware/device_session.hpp>
-#include <rexlib/core/hardware/device_properties.hpp>
-#include <rexlib/core/hardware/device_context.hpp>
-#include <rexlib/core/hardware/buffer.hpp>
 
 #include <core/logger.hpp>
 #include <core/config.hpp>
@@ -198,8 +198,8 @@ std::vector<std::shared_ptr<const buffer>> extract_input_storage(
 }
 
 template <typename Ptr, std::size_t N>
-boost::container::small_vector<operand_signature, N>
-create_signatures(
+boost::container::small_vector<operand_descriptor, N>
+make_operand_descriptors(
 	boost::container::small_vector<array_descriptor, N> &&descriptors,
 	span<Ptr> storages
 )
@@ -207,11 +207,11 @@ create_signatures(
 	const auto n = descriptors.size();
 	REXLIB_ASSERT(n == storages.size());
 
-	boost::container::small_vector<operand_signature, N> result(n);
+	boost::container::small_vector<operand_descriptor, N> result(n);
 	for (std::size_t i = 0; i < n; ++i)
 	{
 		REXLIB_ASSERT(storages[i]);
-		result[i] = operand_signature(
+		result[i] = operand_descriptor(
 			std::move(descriptors[i]), // Steal descriptors
 			&(storages[i]->get_memory_resource())
 		);
@@ -367,14 +367,14 @@ void eager_dispatcher::dispatch(
 		small_input_size_tag()
 	);
 
-	const auto &contract = op.get_contract();
+	const auto &signature = op.get_signature();
 	const auto &descriptor = op.get_descriptor();
 
 	boost::container::small_vector<
 		operand_specification,
 		REXLIB_SMALL_OUTPUT_OPERAND_COUNT
 	> canonical_outputs(n_outputs);
-	contract.deduce(
+	signature.deduce(
 		descriptor,
 		make_span(canonical_outputs.data(), n_outputs),
 		make_span(inputs.data(), n_inputs)
@@ -395,7 +395,7 @@ void eager_dispatcher::dispatch(
 			make_span(output_descriptors.data(), n_outputs),
 			small_output_size_tag()
 		);
-		contract.accept(
+		signature.accept(
 			descriptor,
 			make_span(outputs.data(), n_outputs),
 			make_span(canonical_outputs.data(), n_outputs),
@@ -412,11 +412,11 @@ void eager_dispatcher::dispatch(
 		*queue
 	);
 
-	auto output_signatures = create_signatures(
+	auto output_operand_descriptors = make_operand_descriptors(
 		std::move(output_descriptors), // No longer needed.
 		make_span(output_storages.data(), n_outputs)
 	);
-	auto input_signatures = create_signatures(
+	auto input_operand_descriptors = make_operand_descriptors(
 		std::move(input_descriptors),  // No longer needed.
 		make_span(input_storages.data(), n_inputs)
 	);
@@ -424,8 +424,8 @@ void eager_dispatcher::dispatch(
 	REXLIB_ASSERT(m_program_manager);
 	auto prog = m_program_manager->build(
 		op,
-		make_span(output_signatures.data(), n_outputs),
-		make_span(input_signatures.data(), n_inputs),
+		make_span(output_operand_descriptors.data(), n_outputs),
+		make_span(input_operand_descriptors.data(), n_inputs),
 		*queue,
 		&m_program_cache
 	);

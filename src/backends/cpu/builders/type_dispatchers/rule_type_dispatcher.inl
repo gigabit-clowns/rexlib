@@ -2,7 +2,7 @@
 
 #include "rule_type_dispatcher.hpp"
 
-#include <rexlib/core/dispatch/rules/operand_type_rule_engine.hpp>
+#include <core/operation/type_rule/type_rule_engine.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/numerical_type_dispatch.hpp>
 
@@ -22,11 +22,11 @@ rule_type_dispatcher<Rule, Support>::resolve(
 ) noexcept
 {
 	const auto pivots =
-		pivot_descriptor_table<typename Rule::pivot_list>::get();
+		type_pivot_descriptor_table<typename Rule::pivot_list>::get();
 	const auto output_slots =
-		slot_descriptor_table<typename Rule::output_slot_list>::get();
+		type_slot_descriptor_table<typename Rule::output_slot_list>::get();
 	const auto input_slots =
-		slot_descriptor_table<typename Rule::input_slot_list>::get();
+		type_slot_descriptor_table<typename Rule::input_slot_list>::get();
 
 	if (output_types.size() != output_slots.size() ||
 	    input_types.size() != input_slots.size())
@@ -116,8 +116,8 @@ rule_type_dispatcher<Rule, Support>::invoke_if(
 )
 {
 	return std::forward<F>(factory)(
-		rule_operand_types_t<typename Rule::output_slot_list, Pivots>(),
-		rule_operand_types_t<typename Rule::input_slot_list, Pivots>()
+		type_rule_operand_types_t<typename Rule::output_slot_list, Pivots>(),
+		type_rule_operand_types_t<typename Rule::input_slot_list, Pivots>()
 	);
 }
 
@@ -198,13 +198,13 @@ rule_type_dispatcher<Rule, Support>::dispatch(
 			descriptor,
 			resolution,
 			resolution.is_output_operand()
-				? slot_descriptor_table<
+				? type_slot_descriptor_table<
 					typename Rule::output_slot_list
 				>::get()
-				: slot_descriptor_table<
+				: type_slot_descriptor_table<
 					typename Rule::input_slot_list
 				>::get(),
-			pivot_descriptor_table<typename Rule::pivot_list>::get()
+			type_pivot_descriptor_table<typename Rule::pivot_list>::get()
 		);
 	}
 

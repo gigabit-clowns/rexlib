@@ -11,11 +11,11 @@
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
+#include <rexlib/core/hardware/memory_resource_kind.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/fixed_width_float.hpp>
-#include <rexlib/core/hardware/memory_resource_kind.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/span.hpp>
 
@@ -45,7 +45,7 @@ using fft_builder = fourier_program_builder<
 	forward_complex_fourier_transform
 >;
 
-operand_signature make_signature(
+operand_descriptor make_operand_descriptor(
 	std::vector<std::size_t> extents,
 	std::vector<std::ptrdiff_t> strides,
 	std::ptrdiff_t offset,
@@ -53,7 +53,7 @@ operand_signature make_signature(
 	const memory_resource *resource = nullptr
 )
 {
-	return operand_signature(
+	return operand_descriptor(
 		strided_layout::make_custom_layout(
 			make_span(extents),
 			make_span(strides),
@@ -121,8 +121,8 @@ void check_ramp_spectrum(
 	}
 }
 
-// The signature of the transform every case below performs: four samples
-// along the only axis there is.
+// The extents every case below transforms: four samples along the only
+// axis there is.
 const std::vector<std::size_t> unit_extents = { 4 };
 
 } // anonymous namespace
@@ -151,11 +151,16 @@ TEST_CASE(
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(unit_extents, { 1 }, 2, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ 1 },
+			2,
+			numerical_type::complex_float32
+		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(unit_extents, { 1 }, 3, numerical_type::float32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(unit_extents, { 1 }, 3, numerical_type::float32)
 	};
 
 	const auto program = builder.build(
@@ -208,11 +213,16 @@ TEST_CASE(
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(unit_extents, { 2 }, 1, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ 2 },
+			1,
+			numerical_type::complex_float32
+		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(unit_extents, { 2 }, 0, numerical_type::float32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(unit_extents, { 2 }, 0, numerical_type::float32)
 	};
 
 	const auto program = builder.build(
@@ -257,11 +267,21 @@ TEST_CASE(
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ 1 },
+			0,
+			numerical_type::complex_float32
+		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ 1 },
+			0,
+			numerical_type::complex_float32
+		)
 	};
 
 	const auto program = builder.build(
@@ -307,14 +327,14 @@ TEST_CASE(
 	ALLOW_CALL(host_resource, get_kind())
 		.RETURN(memory_resource_kind::host);
 
-	const std::vector<operand_signature> outputs {
-		make_signature(
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
 			unit_extents, { 1 }, 0,
 			numerical_type::complex_float16, &host_resource
 		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(
 			unit_extents, { 1 }, 0,
 			numerical_type::float16, &host_resource
 		)
@@ -343,14 +363,14 @@ TEST_CASE(
 	ALLOW_CALL(host_resource, get_kind())
 		.RETURN(memory_resource_kind::host);
 
-	const std::vector<operand_signature> outputs {
-		make_signature(
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
 			unit_extents, { 1 }, 0,
 			numerical_type::complex_float64, &host_resource
 		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(
 			unit_extents, { 1 }, 0,
 			numerical_type::float64, &host_resource
 		)
@@ -376,12 +396,22 @@ TEST_CASE(
 	cpu::command_queue queue(get_serial_pool());
 
 	// A transform produces exactly one operand.
-	const std::vector<operand_signature> outputs {
-		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32),
-		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ 1 },
+			0,
+			numerical_type::complex_float32
+		),
+		make_operand_descriptor(
+			unit_extents,
+			{ 1 },
+			0,
+			numerical_type::complex_float32
+		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(unit_extents, { 1 }, 0, numerical_type::float32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(unit_extents, { 1 }, 0, numerical_type::float32)
 	};
 
 	CHECK_THROWS_AS(
@@ -408,11 +438,21 @@ TEST_CASE(
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
 	cpu::command_queue queue(get_serial_pool());
 
-	const std::vector<operand_signature> outputs {
-		make_signature(unit_extents, { 1 }, 0, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ 1 },
+			0,
+			numerical_type::complex_float32
+		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(unit_extents, { -1 }, 3, numerical_type::float32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(
+			unit_extents,
+			{ -1 },
+			3,
+			numerical_type::float32
+		)
 	};
 
 	const auto program = builder.build(
@@ -473,11 +513,21 @@ TEST_CASE(
 		1
 	};
 
-	const std::vector<operand_signature> outputs {
-		make_signature(extents, strides, 0, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> outputs {
+		make_operand_descriptor(
+			extents,
+			strides,
+			0,
+			numerical_type::complex_float32
+		)
 	};
-	const std::vector<operand_signature> inputs {
-		make_signature(extents, strides, 0, numerical_type::complex_float32)
+	const std::vector<operand_descriptor> inputs {
+		make_operand_descriptor(
+			extents,
+			strides,
+			0,
+			numerical_type::complex_float32
+		)
 	};
 
 	const auto program = builder.build(

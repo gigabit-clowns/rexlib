@@ -10,7 +10,7 @@ namespace cpu
 {
 
 // Only the last transformed axis is halved, every other one keeping its
-// extent, which is the shape the operation's contract deduced and the one
+// extent, which is the shape the operation's signature deduced and the one
 // pocketfft writes.
 REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER(
 	rfft,

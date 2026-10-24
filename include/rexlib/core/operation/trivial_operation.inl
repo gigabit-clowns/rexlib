@@ -7,10 +7,10 @@ namespace rexlib
 
 template <typename Derived, typename Traits>
 inline
-const operand_contract&
-trivial_operation<Derived, Traits>::get_contract() const noexcept
+const operation_signature&
+trivial_operation<Derived, Traits>::get_signature() const noexcept
 {
-	return shared_rule_contract<shape_rule, type_rule>::get();
+	return shared_rule_signature<shape_rule, type_rule>::get();
 }
 
 } // namespace rexlib

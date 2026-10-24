@@ -78,15 +78,15 @@ public:
 	 * @brief Join the operand layouts into the one the loop walks.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return joint_layout The layout every operand is walked through,
 	 * followed by the index operands of @p Indexing.
 	 */
 	joint_layout make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**
@@ -113,14 +113,14 @@ private:
 
 	void append_index_operands(
 		joint_layout_builder &layout_builder,
-		span<const operand_signature> output_signatures,
+		span<const operand_descriptor> output_descriptors,
 		no_index_tag indexing
 	) const noexcept;
 
 	template <typename IndexTag>
 	void append_index_operands(
 		joint_layout_builder &layout_builder,
-		span<const operand_signature> output_signatures,
+		span<const operand_descriptor> output_descriptors,
 		IndexTag indexing
 	) const;
 

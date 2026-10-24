@@ -6,8 +6,8 @@
 
 #include <rexlib/core/numerical/scalar_value.hpp>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/rules/operand_shape_rules.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 #include <array>
 #include <sstream>
@@ -74,7 +74,7 @@ private:
 } // anonymous namespace
 
 TEST_CASE(
-    "a declared operation should carry the contract of its rules",
+    "a declared operation should carry the signature of its rules",
     "[trivial_operation]"
 )
 {
@@ -86,7 +86,7 @@ TEST_CASE(
     };
     std::vector<operand_specification> outputs(1);
 
-    op.get_contract().deduce(
+    op.get_signature().deduce(
         op.get_descriptor(),
         make_span(outputs),
         make_span(inputs)
@@ -97,14 +97,14 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "operations following the same rules should share one contract",
+    "operations following the same rules should share one signature",
     "[trivial_operation]"
 )
 {
     const stub_add_operation add;
     const stub_subtract_operation subtract;
 
-    CHECK( &add.get_contract() == &subtract.get_contract() );
+    CHECK( &add.get_signature() == &subtract.get_signature() );
 }
 
 TEST_CASE(
@@ -121,7 +121,7 @@ TEST_CASE(
     std::vector<operand_specification> outputs(1);
 
     CHECK_THROWS_AS(
-        op.get_contract().deduce(
+        op.get_signature().deduce(
             op.get_descriptor(),
             make_span(outputs),
             make_span(mismatched)
@@ -131,7 +131,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-    "an operation with values its contract does not read should keep its "
+    "an operation with values its signature does not read should keep its "
     "declaration",
     "[trivial_operation]"
 )
@@ -145,7 +145,7 @@ TEST_CASE(
     // With no input to fix it, the element type is left for the user
     // supplied output to determine.
     std::vector<operand_specification> outputs(1);
-    op.get_contract().deduce(
+    op.get_signature().deduce(
         op.get_descriptor(),
         make_span(outputs),
         span<const operand_specification>()

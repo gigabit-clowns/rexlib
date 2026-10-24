@@ -4,7 +4,7 @@
 
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_cast.hpp>
-#include <rexlib/core/dispatch/rules/operation_pivots.hpp>
+#include <rexlib/core/operation/type_rule/operation_pivots.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
@@ -29,9 +29,9 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>
 
 template <typename Derived, typename Op, typename TypeDispatcher>
 bool
-dispatched_program_builder<Derived, Op, TypeDispatcher>::accepts_signatures(
-	span<const operand_signature> /*output_signatures*/,
-	span<const operand_signature> /*input_signatures*/
+dispatched_program_builder<Derived, Op, TypeDispatcher>::accepts_descriptors(
+	span<const operand_descriptor> /*output_descriptors*/,
+	span<const operand_descriptor> /*input_descriptors*/
 ) const noexcept
 {
 	return true;
@@ -49,8 +49,8 @@ template <typename Derived, typename Op, typename TypeDispatcher>
 backend_priority
 dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	const operation &operation,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	rexlib::command_queue &queue
 ) const
 {
@@ -61,8 +61,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 
 	const auto base = program_builder::get_suitability(
 		operation,
-		output_signatures,
-		input_signatures,
+		output_descriptors,
+		input_descriptors,
 		queue
 	);
 	if (base == backend_priority::unsupported)
@@ -70,21 +70,24 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		return base;
 	}
 
-	if (output_signatures.size() != output_count ||
-	    input_signatures.size() != input_count)
+	if (output_descriptors.size() != output_count ||
+	    input_descriptors.size() != input_count)
 	{
 		return backend_priority::unsupported;
 	}
 
-	if (!get_derived().accepts_signatures(output_signatures, input_signatures))
+	if (!get_derived().accepts_descriptors(
+		output_descriptors,
+		input_descriptors
+	))
 	{
 		return backend_priority::unsupported;
 	}
 
 	std::array<numerical_type, output_count> output_types;
 	std::array<numerical_type, input_count> input_types;
-	extract_data_types(output_types, output_signatures);
-	extract_data_types(input_types, input_signatures);
+	extract_data_types(output_types, output_descriptors);
+	extract_data_types(input_types, input_descriptors);
 	const auto operation_pivots =
 		get_operation_pivots(operation_cast<Op>(operation));
 
@@ -108,8 +111,8 @@ template <typename Derived, typename Op, typename TypeDispatcher>
 std::shared_ptr<rexlib::program>
 dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	const operation &operation,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	rexlib::command_queue& /*queue*/,
 	program_cache* /*cache*/
 ) const
@@ -123,25 +126,25 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 
 	// The operation names itself, so the message says which one was asked
 	// for rather than which family was asked.
-	if (output_signatures.size() != output_count)
+	if (output_descriptors.size() != output_count)
 	{
 		throw std::invalid_argument(
 			std::string(Op::get_static_descriptor().get_name()) +
-			": Unexpected output signature count."
+			": Unexpected output descriptor count."
 		);
 	}
-	if (input_signatures.size() != input_count)
+	if (input_descriptors.size() != input_count)
 	{
 		throw std::invalid_argument(
 			std::string(Op::get_static_descriptor().get_name()) +
-			": Unexpected input signature count."
+			": Unexpected input descriptor count."
 		);
 	}
 
 	std::array<numerical_type, output_count> output_types;
 	std::array<numerical_type, input_count> input_types;
-	extract_data_types(output_types, output_signatures);
-	extract_data_types(input_types, input_signatures);
+	extract_data_types(output_types, output_descriptors);
+	extract_data_types(input_types, input_descriptors);
 	const auto operation_pivots = get_operation_pivots(typed_operation);
 
 	// The whole partition of the iteration space is settled here, once per
@@ -149,8 +152,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	const Derived &derived = get_derived();
 	auto plan = derived.make_plan(
 		typed_operation,
-		output_signatures,
-		input_signatures
+		output_descriptors,
+		input_descriptors
 	);
 
 	return TypeDispatcher::dispatch(

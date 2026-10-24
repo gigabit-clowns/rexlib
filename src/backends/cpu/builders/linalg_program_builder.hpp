@@ -14,8 +14,8 @@
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <rexlib/core/dispatch/rules/core_placement.hpp>
 #include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/operation/shape_rule/core_placement.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
@@ -109,27 +109,27 @@ public:
 	 * A rank smaller than the core it is asked to supply is declined rather
 	 * than a batch axis being misread as a core one.
 	 *
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return bool True if every operand is at least as deep as its core.
 	 */
-	bool accepts_signatures(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+	bool accepts_descriptors(
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const noexcept;
 
 	/**
 	 * @brief Split every operand into its batch axes and its core.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return linalg_core_layout_plan The planned iteration.
 	 */
 	linalg_core_layout_plan make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**

@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <rexlib/core/operation/contract/operand_contract.hpp>
+#include <rexlib/core/operation/operation_arity.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/operation/operation_id.hpp>
-#include <rexlib/core/operation/operation_arity.hpp>
+#include <rexlib/core/operation/operation_signature.hpp>
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
@@ -82,13 +82,13 @@ public:
 	operation_arity get_arity() const noexcept = 0;
 
 	/**
-	 * @brief Get the contract deciding the shape and data type of the
+	 * @brief Get the signature deciding the shape and data type of the
 	 * operands of this operation.
 	 *
-	 * @return const operand_contract& The contract.
+	 * @return const operation_signature& The signature.
 	 */
 	virtual
-	const operand_contract& get_contract() const noexcept = 0;
+	const operation_signature& get_signature() const noexcept = 0;
 };
 
 } // namespace rexlib

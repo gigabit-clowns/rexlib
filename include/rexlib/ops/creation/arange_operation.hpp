@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/numerical/scalar_value.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/parameters/sequence_length.hpp>
-#include <rexlib/ops/rules/operand_shape_rules.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 #include <cstddef>
 

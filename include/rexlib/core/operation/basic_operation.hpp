@@ -21,7 +21,7 @@ namespace rexlib
  *
  * Implements everything an operation can state once and for all: its name,
  * its arity and the names of its operands, all read from @p Traits. The
- * contract getter is left pure, so that an operation owning its contract
+ * signature getter is left pure, so that an operation owning its signature
  * derives from this one and the compiler enforces that it provides it.
  *
  * The operand counts are exposed as compile time constants, which is what a

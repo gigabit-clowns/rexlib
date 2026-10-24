@@ -2,7 +2,7 @@
 
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
@@ -141,18 +141,18 @@ std::size_t count_samples(
 } // anonymous namespace
 
 fourier_layout_plan::fourier_layout_plan(
-	const operand_signature &output_signature,
-	const operand_signature &input_signature,
+	const operand_descriptor &output_descriptor,
+	const operand_descriptor &input_descriptor,
 	span<const std::size_t> axes,
 	fourier_transform_kind kind
 )
 	: m_axes(axes.begin(), axes.end())
-	, m_input_offset(input_signature.get_layout().get_offset())
-	, m_output_offset(output_signature.get_layout().get_offset())
+	, m_input_offset(input_descriptor.get_layout().get_offset())
+	, m_output_offset(output_descriptor.get_layout().get_offset())
 	, m_sample_count(1)
 {
-	const auto &output_layout = output_signature.get_layout();
-	const auto &input_layout = input_signature.get_layout();
+	const auto &output_layout = output_descriptor.get_layout();
+	const auto &input_layout = input_descriptor.get_layout();
 
 	std::vector<std::size_t> output_extents;
 	std::vector<std::size_t> input_extents;
@@ -196,11 +196,11 @@ fourier_layout_plan::fourier_layout_plan(
 
 	m_input_strides = to_byte_strides(
 		input_strides,
-		get_size(input_signature.get_data_type())
+		get_size(input_descriptor.get_data_type())
 	);
 	m_output_strides = to_byte_strides(
 		output_strides,
-		get_size(output_signature.get_data_type())
+		get_size(output_descriptor.get_data_type())
 	);
 	m_sample_count = count_samples(m_shape, axes);
 

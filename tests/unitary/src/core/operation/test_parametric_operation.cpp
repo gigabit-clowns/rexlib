@@ -6,8 +6,8 @@
 
 #include <rexlib/ops/ops_component.hpp>
 #include <rexlib/ops/parameters/reduction_axes.hpp>
-#include <rexlib/ops/rules/operand_shape_rules.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
 
 #include <stdexcept>
 #include <type_traits>
@@ -37,7 +37,7 @@ operand_specification::shape_type deduce_shape(
 		operand_specification(input_shape, numerical_type::float32)
 	};
 	std::vector<operand_specification> outputs(1);
-	op.get_contract().deduce(
+	op.get_signature().deduce(
 		op.get_descriptor(),
 		make_span(outputs),
 		make_span(inputs)
@@ -48,14 +48,14 @@ operand_specification::shape_type deduce_shape(
 } // anonymous namespace
 
 TEST_CASE(
-	"a parametric operation should own its contract per instance",
+	"a parametric operation should own its signature per instance",
 	"[parametric_operation]"
 )
 {
 	const stub_reduce_operation first(ops::axis_list{ 0 });
 	const stub_reduce_operation last(ops::axis_list{ 2 });
 
-	CHECK( &first.get_contract() != &last.get_contract() );
+	CHECK( &first.get_signature() != &last.get_signature() );
 	CHECK(
 		deduce_shape(first, { 2, 3, 4 }) ==
 		operand_specification::shape_type{ 3, 4 }

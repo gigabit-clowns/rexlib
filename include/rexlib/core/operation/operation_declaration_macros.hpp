@@ -53,7 +53,7 @@
  * cannot disagree.
  *
  * Use this directly, together with a hand written class, for an operation
- * that carries values its contract does not read. Use
+ * that carries values its signature does not read. Use
  * @ref REXLIB_DECLARE_OPERATION for the usual case.
  *
  * @param op The operation verb, such as `add`. The generated class is named
@@ -148,7 +148,7 @@
  * defined across shared object boundaries.
  *
  * Use @ref REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS with a hand written
- * class instead when the operation carries values its contract does not
+ * class instead when the operation carries values its signature does not
  * read.
  *
  * @param op The operation verb, such as `sum`.
