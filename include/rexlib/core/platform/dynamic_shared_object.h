@@ -117,12 +117,15 @@
 
 /**
  * @def REXLIB_BEGIN_TEMPLATE_BASE
- * @brief Silence MSVC warning C4275 for a class deriving from a template.
+ * @brief Silence MSVC warnings C4275 and C4251 for a class deriving from a
+ * template.
  *
  * C4275 fires when a dll-interface class (see @ref REXLIB_API) derives
  * from a class template specialization, which is never itself a
- * dll-interface. This is safe as long as the template is header only, so
- * every module instantiates the same definition.
+ * dll-interface. C4251 fires for the data members of that specialization
+ * whose types are not dll-interfaces either. Both are safe as long as the
+ * templates are header only, so every module instantiates the same
+ * definition.
  *
  * Unlike @ref REXLIB_STD_BASE_INTERFACE this comes as a pair, because the
  * class head and its base-clause cannot be kept on a single line while
@@ -134,7 +137,8 @@
 #if defined(_MSC_VER)
 	#define REXLIB_BEGIN_TEMPLATE_BASE \
 		__pragma(warning(push)) \
-		__pragma(warning(disable: 4275))
+		__pragma(warning(disable: 4275)) \
+		__pragma(warning(disable: 4251))
 #else
 	#define REXLIB_BEGIN_TEMPLATE_BASE
 #endif

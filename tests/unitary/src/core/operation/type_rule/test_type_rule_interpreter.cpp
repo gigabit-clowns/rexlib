@@ -63,6 +63,21 @@ type_rule_interpreter interpreter_of()
     return type_rule_interpreter(type_rule_descriptor_of<Rule>::get());
 }
 
+std::string rejection_of(
+    const type_rule_interpreter &rule,
+    const type_rule_resolution &resolution
+)
+{
+    try
+    {
+        rule.throw_error(rule_descriptor(), resolution);
+    }
+    catch (const std::invalid_argument &error)
+    {
+        return error.what();
+    }
+}
+
 std::vector<operand_specification> make_operands(
     const data_type_vector_type &types
 )
@@ -553,8 +568,8 @@ TEST_CASE(
 	CHECK( resolution.get_status() == type_rule_status::slot_mismatch );
 	CHECK( resolution.get_operand_index() == 1 );
 	CHECK_FALSE( resolution.is_output_operand() );
-	CHECK_THROWS_WITH(
-		rule.throw_error(rule_descriptor(), resolution),
+	CHECK_THAT(
+		rejection_of(rule, resolution),
 		Catch::Matchers::ContainsSubstring(
 			"rexlib.test.probe: input operand 'right' has data type "
 			"float64, but this operation requires float32."
@@ -590,8 +605,8 @@ TEST_CASE(
 	CHECK( missing.get_status() == type_rule_status::operand_count_mismatch );
 	CHECK( missing.get_operand_index() == 1 );
 	CHECK_FALSE( missing.is_output_operand() );
-	CHECK_THROWS_WITH(
-		rule.throw_error(rule_descriptor(), missing),
+	CHECK_THAT(
+		rejection_of(rule, missing),
 		ContainsSubstring("input operand 'right' is missing. The typing rule "
 			"describes 2 input operands.")
 	);
@@ -602,8 +617,8 @@ TEST_CASE(
 		make_span(three)
 	);
 	CHECK( extra_input.get_operand_index() == 2 );
-	CHECK_THROWS_WITH(
-		rule.throw_error(rule_descriptor(), extra_input),
+	CHECK_THAT(
+		rejection_of(rule, extra_input),
 		ContainsSubstring("input operand 'third' is not expected.")
 	);
 
@@ -613,8 +628,8 @@ TEST_CASE(
 		make_span(two)
 	);
 	CHECK( extra_output.is_output_operand() );
-	CHECK_THROWS_WITH(
-		rule.throw_error(rule_descriptor(), extra_output),
+	CHECK_THAT(
+		rejection_of(rule, extra_output),
 		ContainsSubstring("output operand 'second_result' is not expected. "
 			"The typing rule describes 1 output operand.")
 	);

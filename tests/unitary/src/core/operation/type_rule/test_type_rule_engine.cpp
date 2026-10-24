@@ -16,6 +16,7 @@
 
 #include <array>
 #include <stdexcept>
+#include <string>
 
 using namespace rexlib;
 using Catch::Matchers::ContainsSubstring;
@@ -56,6 +57,22 @@ const operation_descriptor& engine_descriptor()
 	static const operation_descriptor instance =
 		make_operation_descriptor("rexlib.test", "engine", outputs, inputs);
 	return instance;
+}
+
+std::string rejection_of(
+	const type_rule_resolution &resolution,
+	span<const type_slot_descriptor> slots,
+	span<const type_pivot_descriptor> pivots
+)
+{
+	try
+	{
+		throw_type_rule_error(engine_descriptor(), resolution, slots, pivots);
+	}
+	catch (const std::invalid_argument &error)
+	{
+		return error.what();
+	}
 }
 
 type_rule_resolution resolve_inputs(numerical_type type)
@@ -367,9 +384,8 @@ TEST_CASE(
 	"[type_rule_engine]"
 )
 {
-	CHECK_THROWS_WITH(
-		throw_type_rule_error(
-			engine_descriptor(),
+	CHECK_THAT(
+		rejection_of(
 			resolve_inputs(numerical_type::int32),
 			span<const type_slot_descriptor>(),
 			pivots_of<input_pivot>()
@@ -394,9 +410,8 @@ TEST_CASE(
 		true
 	);
 
-	CHECK_THROWS_WITH(
-		throw_type_rule_error(
-			engine_descriptor(),
+	CHECK_THAT(
+		rejection_of(
 			resolution,
 			slots,
 			pivots_of<input_pivot>()
@@ -420,9 +435,8 @@ TEST_CASE(
 		true
 	);
 
-	CHECK_THROWS_WITH(
-		throw_type_rule_error(
-			engine_descriptor(),
+	CHECK_THAT(
+		rejection_of(
 			resolution,
 			slots,
 			pivots_of<free_pivots>()
@@ -447,18 +461,8 @@ TEST_CASE(
 		true
 	);
 
-	CHECK_THROWS_AS(
-		throw_type_rule_error(
-			engine_descriptor(),
-			resolution,
-			slots,
-			pivots_of<free_pivots>()
-		),
-		std::invalid_argument
-	);
-	CHECK_THROWS_WITH(
-		throw_type_rule_error(
-			engine_descriptor(),
+	CHECK_THAT(
+		rejection_of(
 			resolution,
 			slots,
 			pivots_of<free_pivots>()
@@ -475,9 +479,8 @@ TEST_CASE(
 {
 	const auto slots = slots_of<slot_same_as<0>>();
 
-	CHECK_THROWS_WITH(
-		throw_type_rule_error(
-			engine_descriptor(),
+	CHECK_THAT(
+		rejection_of(
 			type_rule_resolution::failure(
 				type_rule_status::operand_count_mismatch,
 				0,
@@ -490,9 +493,8 @@ TEST_CASE(
 		ContainsSubstring("input operand 'value' is missing. The typing "
 			"rule describes 1 input operand.")
 	);
-	CHECK_THROWS_WITH(
-		throw_type_rule_error(
-			engine_descriptor(),
+	CHECK_THAT(
+		rejection_of(
 			type_rule_resolution::failure(
 				type_rule_status::operand_count_mismatch,
 				1,
