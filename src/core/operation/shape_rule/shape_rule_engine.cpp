@@ -3,6 +3,8 @@
 #include "shape_rule_engine.hpp"
 
 #include <rexlib/core/layout/broadcast.hpp>
+#include <rexlib/core/platform/assert.hpp>
+#include <rexlib/core/platform/attributes.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <algorithm>
@@ -274,6 +276,7 @@ std::size_t compute_run_length(
 	return core.has_run() ? core_axis_count - core.get_slots().size() : 0;
 }
 
+REXLIB_NORETURN
 void throw_extent_outside_domain(
 	const operation_descriptor &descriptor,
 	std::size_t input,
@@ -430,6 +433,7 @@ void write_expected_origin(
 	}
 }
 
+REXLIB_NORETURN
 void throw_core_mismatch(
 	const operation_descriptor &descriptor,
 	std::size_t input,
@@ -445,6 +449,122 @@ void throw_core_mismatch(
 		<< extent << " along axis " << axis
 		<< ", but this operation requires " << expected << origin << ".";
 	throw std::invalid_argument(oss.str());
+}
+
+/**
+ * @brief Take the extents of the run from the first input carrying it.
+ */
+void bind_run(
+	const operation_descriptor &descriptor,
+	std::size_t input,
+	const shape_type &shape,
+	span<const std::size_t> run_axes,
+	const extent_domain &domain,
+	shape_type &run_extents,
+	axis_list_type &run_origin_axes
+)
+{
+	for (const auto axis : run_axes)
+	{
+		if (!domain.contains(shape[axis]))
+		{
+			throw_extent_outside_domain(
+				descriptor,
+				input,
+				axis,
+				shape[axis],
+				domain
+			);
+		}
+		run_extents.push_back(shape[axis]);
+		run_origin_axes.push_back(axis);
+	}
+}
+
+/**
+ * @brief Check the run of an input against the run of the first input
+ * carrying one.
+ */
+void check_run(
+	const operation_descriptor &descriptor,
+	std::size_t input,
+	const shape_type &shape,
+	span<const std::size_t> run_axes,
+	const shape_type &run_extents,
+	const axis_list_type &run_origin_axes,
+	std::size_t run_origin
+)
+{
+	for (std::size_t k = 0; k < run_axes.size(); ++k)
+	{
+		const auto extent = shape[run_axes[k]];
+		if (extent == run_extents[k])
+		{
+			continue;
+		}
+
+		std::ostringstream origin;
+		origin << ", the extent of axis " << run_origin_axes[k]
+			<< " of input operand "
+			<< describe_operand(descriptor, run_origin, false);
+		throw_core_mismatch(
+			descriptor,
+			input,
+			run_axes[k],
+			extent,
+			run_extents[k],
+			origin.str()
+		);
+	}
+}
+
+/**
+ * @brief Check the core axes of an input after the run against their
+ * slots.
+ */
+void check_input_slots(
+	const operation_descriptor &descriptor,
+	const shape_rule_descriptor &rule,
+	const shape_type &values,
+	const std::vector<axis_list_type> &input_cores,
+	std::size_t input,
+	const shape_type &shape
+)
+{
+	const auto core = rule.get_input_cores()[input];
+	const auto run_length =
+		compute_run_length(core, input_cores[input].size());
+	const auto slots = core.get_slots();
+
+	for (std::size_t j = 0; j < slots.size(); ++j)
+	{
+		const auto &slot = slots[j];
+		const auto axis = input_cores[input][run_length + j];
+		const auto expected =
+			slot.get_transform().apply(values[slot.get_pivot_index()]);
+		if (shape[axis] == expected)
+		{
+			continue;
+		}
+
+		std::ostringstream origin;
+		write_expected_origin(
+			origin,
+			descriptor,
+			rule,
+			values,
+			input_cores,
+			slot
+		);
+		throw_core_mismatch(
+			descriptor,
+			input,
+			axis,
+			shape[axis],
+			expected,
+			origin.str()
+		);
+	}
 }
 
 /**
@@ -469,80 +589,38 @@ shape_type check_input_cores(
 	{
 		const auto core = rule.get_input_cores()[i];
 		const auto &shape = inputs[i].get_shape();
-		const auto run_length =
-			compute_run_length(core, input_cores[i].size());
+		const auto run_axes = make_span(
+			input_cores[i].data(),
+			compute_run_length(core, input_cores[i].size())
+		);
 
-		const auto binds_run = core.has_run() && run_origin == no_index;
-		for (std::size_t k = 0; k < run_length; ++k)
+		if (core.has_run() && run_origin == no_index)
 		{
-			const auto axis = input_cores[i][k];
-			const auto extent = shape[axis];
-			if (binds_run)
-			{
-				if (!core.get_run_domain().contains(extent))
-				{
-					throw_extent_outside_domain(
-						descriptor,
-						i,
-						axis,
-						extent,
-						core.get_run_domain()
-					);
-				}
-				run_extents.push_back(extent);
-				run_origin_axes.push_back(axis);
-			}
-			else if (extent != run_extents[k])
-			{
-				std::ostringstream origin;
-				origin << ", the extent of axis " << run_origin_axes[k]
-					<< " of input operand "
-					<< describe_operand(descriptor, run_origin, false);
-				throw_core_mismatch(
-					descriptor,
-					i,
-					axis,
-					extent,
-					run_extents[k],
-					origin.str()
-				);
-			}
-		}
-		if (binds_run)
-		{
-			run_origin = i;
-		}
-
-		const auto slots = core.get_slots();
-		for (std::size_t j = 0; j < slots.size(); ++j)
-		{
-			const auto &slot = slots[j];
-			const auto axis = input_cores[i][run_length + j];
-			const auto expected =
-				slot.get_transform().apply(values[slot.get_pivot_index()]);
-			if (shape[axis] == expected)
-			{
-				continue;
-			}
-
-			std::ostringstream origin;
-			write_expected_origin(
-				origin,
-				descriptor,
-				rule,
-				values,
-				input_cores,
-				slot
-			);
-			throw_core_mismatch(
+			bind_run(
 				descriptor,
 				i,
-				axis,
-				shape[axis],
-				expected,
-				origin.str()
+				shape,
+				run_axes,
+				core.get_run_domain(),
+				run_extents,
+				run_origin_axes
+			);
+			run_origin = i;
+		}
+		else if (core.has_run())
+		{
+			check_run(
+				descriptor,
+				i,
+				shape,
+				run_axes,
+				run_extents,
+				run_origin_axes,
+				run_origin
 			);
 		}
+
+		check_input_slots(descriptor, rule, values, input_cores, i, shape);
 	}
 
 	return run_extents;
@@ -566,6 +644,117 @@ std::size_t find_batch_axis(
 }
 
 /**
+ * @brief Get the rank of every input aligned in the batch frame.
+ *
+ * Under trailing placement the core axes are left out.
+ */
+std::vector<std::size_t> align_batch_ranks(
+	const shape_rule_descriptor &rule,
+	span<const operand_specification> inputs,
+	const std::vector<axis_list_type> &input_cores
+)
+{
+	const auto trailing = rule.get_placement() == core_placement::trailing;
+
+	std::vector<std::size_t> result;
+	result.reserve(inputs.size());
+	for (std::size_t i = 0; i < inputs.size(); ++i)
+	{
+		const auto rank = inputs[i].get_shape().size();
+		result.push_back(trailing ? rank - input_cores[i].size() : rank);
+	}
+	return result;
+}
+
+/**
+ * @brief Get the rank of the batch frame.
+ */
+std::size_t compute_batch_frame(
+	const shape_rule_descriptor &rule,
+	const std::vector<std::size_t> &aligned_ranks,
+	std::size_t frame_rank
+)
+{
+	if (rule.get_placement() != core_placement::trailing)
+	{
+		return frame_rank;
+	}
+
+	if (aligned_ranks.empty())
+	{
+		return 0;
+	}
+
+	return *std::max_element(aligned_ranks.begin(), aligned_ranks.end());
+}
+
+/**
+ * @brief Mark the positions of the batch frame the named axes take.
+ */
+std::vector<bool> mark_named_positions(
+	const shape_rule_descriptor &rule,
+	span<const std::size_t> named_axes,
+	std::size_t frame
+)
+{
+	std::vector<bool> result(frame, false);
+	if (rule.get_placement() == core_placement::named)
+	{
+		for (const auto axis : named_axes)
+		{
+			result[axis] = true;
+		}
+	}
+	return result;
+}
+
+/**
+ * @brief Report two inputs whose batch axes do not broadcast together.
+ *
+ * Reported against the first input before @p input holding @p held at
+ * @p position.
+ */
+REXLIB_NORETURN
+void throw_batch_mismatch(
+	const operation_descriptor &descriptor,
+	span<const operand_specification> inputs,
+	const std::vector<std::size_t> &aligned_ranks,
+	std::size_t frame,
+	std::size_t position,
+	std::size_t held,
+	std::size_t input,
+	std::size_t axis
+)
+{
+	std::size_t other = 0;
+	std::size_t other_axis = no_index;
+	for (; other < input; ++other)
+	{
+		other_axis = find_batch_axis(
+			aligned_ranks[other],
+			frame - aligned_ranks[other],
+			position
+		);
+		if (other_axis != no_index &&
+			inputs[other].get_shape()[other_axis] == held)
+		{
+			break;
+		}
+	}
+	REXLIB_ASSERT(other < input);
+
+	std::ostringstream oss;
+	oss << descriptor << ": input operands "
+		<< describe_operand(descriptor, other, false) << " and "
+		<< describe_operand(descriptor, input, false)
+		<< " do not broadcast together: axis " << other_axis
+		<< " of the first has extent " << held
+		<< " and axis " << axis << " of the second has extent "
+		<< inputs[input].get_shape()[axis] << ".";
+	throw std::invalid_argument(oss.str());
+}
+
+/**
  * @brief Broadcast the batch axes of every input together.
  *
  * The batch axes are aligned in a frame: the last axes before the core ones
@@ -581,32 +770,9 @@ shape_type broadcast_batches(
 	std::size_t frame_rank
 )
 {
-	const auto trailing = rule.get_placement() == core_placement::trailing;
-
-	// The rank of every input aligned in the frame, its core axes left out
-	// under trailing placement.
-	std::vector<std::size_t> aligned_ranks;
-	aligned_ranks.reserve(inputs.size());
-	for (std::size_t i = 0; i < inputs.size(); ++i)
-	{
-		const auto rank = inputs[i].get_shape().size();
-		aligned_ranks.push_back(trailing ? rank - input_cores[i].size() : rank);
-	}
-
-	const auto frame = trailing
-		? (aligned_ranks.empty()
-			? 0
-			: *std::max_element(aligned_ranks.begin(), aligned_ranks.end()))
-		: frame_rank;
-
-	std::vector<bool> named(frame, false);
-	if (!trailing)
-	{
-		for (const auto axis : named_axes)
-		{
-			named[axis] = true;
-		}
-	}
+	const auto aligned_ranks = align_batch_ranks(rule, inputs, input_cores);
+	const auto frame = compute_batch_frame(rule, aligned_ranks, frame_rank);
+	const auto named = mark_named_positions(rule, named_axes, frame);
 
 	shape_type extents(frame, 1);
 	for (std::size_t i = 0; i < inputs.size(); ++i)
@@ -618,46 +784,25 @@ shape_type broadcast_batches(
 		{
 			const auto position = q + offset;
 			const auto extent = shape[q];
-			if (named[position] || extent == 1)
+			if (named[position] || extent == 1 || extent == extents[position])
 			{
 				continue;
 			}
 
-			if (extents[position] == 1)
+			if (extents[position] != 1)
 			{
-				extents[position] = extent;
-				continue;
-			}
-
-			if (extents[position] == extent)
-			{
-				continue;
-			}
-
-			// Reported against the first input holding the other extent.
-			for (std::size_t other = 0; other < i; ++other)
-			{
-				const auto other_axis = find_batch_axis(
-					aligned_ranks[other],
-					frame - aligned_ranks[other],
-					position
+				throw_batch_mismatch(
+					descriptor,
+					inputs,
+					aligned_ranks,
+					frame,
+					position,
+					extents[position],
+					i,
+					q
 				);
-				if (other_axis == no_index ||
-					inputs[other].get_shape()[other_axis] != extents[position])
-				{
-					continue;
-				}
-
-				std::ostringstream oss;
-				oss << descriptor << ": input operands "
-					<< describe_operand(descriptor, other, false) << " and "
-					<< describe_operand(descriptor, i, false)
-					<< " do not broadcast together: axis " << other_axis
-					<< " of the first has extent " << extents[position]
-					<< " and axis " << q << " of the second has extent "
-					<< extent << ".";
-				throw std::invalid_argument(oss.str());
 			}
+			extents[position] = extent;
 		}
 	}
 

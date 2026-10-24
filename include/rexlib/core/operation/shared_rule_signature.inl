@@ -18,7 +18,7 @@ shared_rule_signature<ShapeRule, TypeRule>::get() noexcept
 		ShapeRule,
 		TypeRule,
 		no_parameters
-	> instance{};
+	> instance{ no_parameters() };
 	return instance;
 }
 

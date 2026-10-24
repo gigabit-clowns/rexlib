@@ -78,7 +78,9 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const reduction_signature signature(ops::axis_list{ 1, 0 }, true);
+	const reduction_signature signature(
+		ops::reduction_axes(ops::axis_list{ 1, 0 }, true)
+	);
 	const auto axes = signature.get_parameters().get_axes();
 	CHECK( ops::axis_list(axes.begin(), axes.end()) == ops::axis_list{ 1, 0 } );
 	CHECK( signature.get_parameters().get_keep_dimensions() );
@@ -90,7 +92,9 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const reduction_signature signature(ops::axis_list{ 0 }, true);
+	const reduction_signature signature(
+		ops::reduction_axes(ops::axis_list{ 0 }, true)
+	);
 	const auto inputs = one_float32({ 2, 3 });
 	std::vector<operand_specification> outputs(1);
 
@@ -110,7 +114,9 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const reduction_signature signature(ops::axis_list{ 0 }, true);
+	const reduction_signature signature(
+		ops::reduction_axes(ops::axis_list{ 0 }, true)
+	);
 	const auto inputs = one_float32({ 2, 3 });
 	const auto canonical = one_float32({ 1, 3 });
 
@@ -150,10 +156,14 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const reduction_signature admitted(ops::axis_list{ 0, 1 });
+	const reduction_signature admitted(
+		ops::reduction_axes(ops::axis_list{ 0, 1 })
+	);
 	CHECK_NOTHROW( admitted.check_parameters(shape_rule_test_descriptor()) );
 
-	const reduction_signature repeated(ops::axis_list{ 1, 1 });
+	const reduction_signature repeated(
+		ops::reduction_axes(ops::axis_list{ 1, 1 })
+	);
 	CHECK_THROWS_AS(
 		repeated.check_parameters(shape_rule_test_descriptor()),
 		std::invalid_argument
@@ -166,7 +176,9 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const astype_signature signature(numerical_type::float64);
+	const astype_signature signature(
+		target_type_parameters(numerical_type::float64)
+	);
 	CHECK_NOTHROW( signature.check_parameters(shape_rule_test_descriptor()) );
 
 	const std::vector<operand_specification> inputs = {
@@ -189,7 +201,9 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const reduction_signature signature(ops::axis_list{ 0 }, true);
+	const reduction_signature signature(
+		ops::reduction_axes(ops::axis_list{ 0 }, true)
+	);
 
 	CHECK( signature.get_arity() == operation_arity(1, 1) );
 }
