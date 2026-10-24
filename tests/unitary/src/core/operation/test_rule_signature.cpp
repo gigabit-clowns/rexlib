@@ -176,9 +176,9 @@ TEST_CASE(
 	"[rule_signature]"
 )
 {
-	const astype_signature signature(
+	const astype_signature signature{
 		target_type_parameters(numerical_type::float64)
-	);
+	};
 	CHECK_NOTHROW( signature.check_parameters(shape_rule_test_descriptor()) );
 
 	const std::vector<operand_specification> inputs = {
