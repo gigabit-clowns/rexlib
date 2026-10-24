@@ -77,7 +77,7 @@ void check_rule_agreement()
 
 	const auto &rule = type_rule_descriptor_of<Rule>::get();
 	const type_rule_interpreter interpreter(rule);
-	const auto &domain = rule.get_pivots()[0].get_domain();
+	const auto domain = rule.get_pivots()[0].get_domain();
 
 	const auto count = static_cast<int>(numerical_type::count);
 	for (int i = 0; i < count; ++i)

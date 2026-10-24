@@ -160,7 +160,7 @@ void check_named_axes(
 		throw std::invalid_argument(oss.str());
 	}
 
-	const auto &core = rule.get_input_cores()[0];
+	const auto core = rule.get_input_cores()[0];
 	const auto required = core.get_slots().size();
 	const auto admissible = core.has_run()
 		? named_axes.size() >= required
@@ -315,7 +315,7 @@ shape_type bind_extents(
 
 	for (std::size_t i = 0; i < inputs.size(); ++i)
 	{
-		const auto &core = rule.get_input_cores()[i];
+		const auto core = rule.get_input_cores()[i];
 		const auto &shape = inputs[i].get_shape();
 		const auto slots = core.get_slots();
 		const auto run_length =
@@ -374,7 +374,7 @@ void write_binding_axis(
 {
 	for (std::size_t i = 0; i < input_cores.size(); ++i)
 	{
-		const auto &core = rule.get_input_cores()[i];
+		const auto core = rule.get_input_cores()[i];
 		const auto slots = core.get_slots();
 		const auto run_length =
 			compute_run_length(core, input_cores[i].size());
@@ -467,7 +467,7 @@ shape_type check_input_cores(
 
 	for (std::size_t i = 0; i < inputs.size(); ++i)
 	{
-		const auto &core = rule.get_input_cores()[i];
+		const auto core = rule.get_input_cores()[i];
 		const auto &shape = inputs[i].get_shape();
 		const auto run_length =
 			compute_run_length(core, input_cores[i].size());
@@ -829,7 +829,7 @@ operand_specification::shape_type make_output_shape(
 	std::size_t output
 )
 {
-	const auto &core = rule.get_output_cores()[output];
+	const auto core = rule.get_output_cores()[output];
 
 	shape_type core_extents;
 	if (core.has_run())
