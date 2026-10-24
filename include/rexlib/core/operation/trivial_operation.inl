@@ -10,7 +10,7 @@ inline
 const operation_signature&
 trivial_operation<Derived, Traits>::get_signature() const noexcept
 {
-	return shared_rule_signature<shape_rule, type_rule>::get();
+	return shared_rule_signature<shape_rule_type, type_rule_type>::get();
 }
 
 } // namespace rexlib

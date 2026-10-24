@@ -10,9 +10,9 @@ namespace rexlib
 {
 
 shape_rule_resolution::shape_rule_resolution(
-	extent_list batch,
-	extent_list extents,
-	extent_list run_extents
+	extent_list_type batch,
+	extent_list_type extents,
+	extent_list_type run_extents
 ) noexcept
 	: m_batch(std::move(batch))
 	, m_extents(std::move(extents))
@@ -20,7 +20,7 @@ shape_rule_resolution::shape_rule_resolution(
 {
 }
 
-const shape_rule_resolution::extent_list&
+const shape_rule_resolution::extent_list_type&
 shape_rule_resolution::get_batch() const noexcept
 {
 	return m_batch;
@@ -32,7 +32,7 @@ std::size_t shape_rule_resolution::get_extent(std::size_t index) const noexcept
 	return m_extents[index];
 }
 
-const shape_rule_resolution::extent_list&
+const shape_rule_resolution::extent_list_type&
 shape_rule_resolution::get_run_extents() const noexcept
 {
 	return m_run_extents;

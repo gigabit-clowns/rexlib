@@ -33,8 +33,8 @@ class trivial_operation
 	: public basic_operation<Derived, Traits>
 {
 public:
-	using typename basic_operation<Derived, Traits>::shape_rule;
-	using typename basic_operation<Derived, Traits>::type_rule;
+	using typename basic_operation<Derived, Traits>::shape_rule_type;
+	using typename basic_operation<Derived, Traits>::type_rule_type;
 
 	const operation_signature& get_signature() const noexcept override;
 };

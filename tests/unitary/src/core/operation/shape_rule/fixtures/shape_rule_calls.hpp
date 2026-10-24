@@ -23,7 +23,7 @@ namespace test
 {
 
 using shape_type = operand_specification::shape_type;
-using extent_list = std::vector<std::size_t>;
+using extent_list_type = std::vector<std::size_t>;
 
 /**
  * @brief Description of an operation with two outputs and two inputs.
@@ -69,7 +69,7 @@ struct supplied_extents_of;
 template <>
 struct supplied_extents_of<type_list<>>
 {
-	static void append(extent_list&, const extent_list&, std::size_t&)
+	static void append(extent_list_type&, const extent_list_type&, std::size_t&)
 	{
 	}
 };
@@ -78,8 +78,8 @@ template <typename Head, typename... Tail>
 struct supplied_extents_of<type_list<Head, Tail...>>
 {
 	static void append(
-		extent_list &result,
-		const extent_list &instance_extents,
+		extent_list_type &result,
+		const extent_list_type &instance_extents,
 		std::size_t &next
 	)
 	{
@@ -98,8 +98,8 @@ struct supplied_extents_of<type_list<Head, Tail...>>
 
 private:
 	static void append_one(
-		extent_list&,
-		const extent_list&,
+		extent_list_type&,
+		const extent_list_type&,
 		std::size_t&,
 		std::integral_constant<extent_pivot_source, extent_pivot_source::inputs>
 	)
@@ -107,8 +107,8 @@ private:
 	}
 
 	static void append_one(
-		extent_list &result,
-		const extent_list &instance_extents,
+		extent_list_type &result,
+		const extent_list_type &instance_extents,
 		std::size_t &next,
 		std::integral_constant<
 			extent_pivot_source,
@@ -123,8 +123,8 @@ private:
 	}
 
 	static void append_one(
-		extent_list &result,
-		const extent_list&,
+		extent_list_type &result,
+		const extent_list_type&,
 		std::size_t&,
 		std::integral_constant<extent_pivot_source, extent_pivot_source::fixed>
 	)
@@ -144,14 +144,14 @@ private:
  *
  * @tparam Rule The operand_shape_rule.
  * @param instance_extents The extents the operation instance supplies.
- * @return extent_list Every extent the operation supplies.
+ * @return extent_list_type Every extent the operation supplies.
  */
 template <typename Rule>
-extent_list make_supplied_extents(const extent_list &instance_extents)
+extent_list_type make_supplied_extents(const extent_list_type &instance_extents)
 {
-	extent_list result;
+	extent_list_type result;
 	std::size_t next = 0;
-	detail::supplied_extents_of<typename Rule::pivot_list>::append(
+	detail::supplied_extents_of<typename Rule::pivot_list_type>::append(
 		result,
 		instance_extents,
 		next
@@ -177,9 +177,9 @@ template <typename Rule>
 std::vector<shape_type> deduce_shapes(
 	std::size_t output_count,
 	std::initializer_list<shape_type> input_shapes,
-	const extent_list &named_axes = extent_list(),
+	const extent_list_type &named_axes = extent_list_type(),
 	bool keep_dimensions = false,
-	const extent_list &instance_extents = extent_list()
+	const extent_list_type &instance_extents = extent_list_type()
 )
 {
 	const auto inputs = make_shaped_operands(input_shapes);
@@ -207,9 +207,9 @@ std::vector<shape_type> deduce_shapes(
 template <typename Rule>
 shape_type deduce_shape(
 	std::initializer_list<shape_type> input_shapes,
-	const extent_list &named_axes = extent_list(),
+	const extent_list_type &named_axes = extent_list_type(),
 	bool keep_dimensions = false,
-	const extent_list &instance_extents = extent_list()
+	const extent_list_type &instance_extents = extent_list_type()
 )
 {
 	return deduce_shapes<Rule>(
@@ -228,9 +228,9 @@ template <typename Rule>
 void accept_shapes(
 	std::initializer_list<shape_type> output_shapes,
 	std::initializer_list<shape_type> input_shapes,
-	const extent_list &named_axes = extent_list(),
+	const extent_list_type &named_axes = extent_list_type(),
 	bool keep_dimensions = false,
-	const extent_list &instance_extents = extent_list()
+	const extent_list_type &instance_extents = extent_list_type()
 )
 {
 	const auto outputs = make_shaped_operands(output_shapes);
@@ -250,8 +250,8 @@ void accept_shapes(
  */
 template <typename Rule>
 void check_shape_instance(
-	const extent_list &named_axes,
-	const extent_list &instance_extents = extent_list()
+	const extent_list_type &named_axes,
+	const extent_list_type &instance_extents = extent_list_type()
 )
 {
 	make_shape_rule_interpreter<Rule>().check_instance(

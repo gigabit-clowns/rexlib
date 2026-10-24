@@ -52,7 +52,7 @@ struct slots_name_declared_pivots<PivotCount, type_list<Slots...>>
 
 template <std::size_t PivotCount, typename Core>
 struct core_names_declared_extents
-	: slots_name_declared_pivots<PivotCount, typename Core::slot_list>
+	: slots_name_declared_pivots<PivotCount, typename Core::slot_list_type>
 {
 };
 
@@ -84,7 +84,7 @@ struct slots_bind_extent<Extent, type_list<Slots...>>
 
 template <std::size_t Extent, typename Core>
 struct core_binds_extent
-	: slots_bind_extent<Extent, typename Core::slot_list>
+	: slots_bind_extent<Extent, typename Core::slot_list_type>
 {
 };
 
@@ -220,9 +220,9 @@ template <
 >
 struct operand_shape_rule
 {
-	using pivot_list = Pivots;
-	using output_core_list = Outputs;
-	using input_core_list = Inputs;
+	using pivot_list_type = Pivots;
+	using output_core_list_type = Outputs;
+	using input_core_list_type = Inputs;
 	using placement_type = Placement;
 
 	static REXLIB_CONST_CONSTEXPR output_batch batch = Batch;

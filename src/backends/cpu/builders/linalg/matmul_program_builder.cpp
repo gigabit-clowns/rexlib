@@ -85,7 +85,7 @@ REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	ops::matmul_operation,
 	matmul_kernel_factory,
 	rule_type_dispatcher<
-		ops::matmul_operation::type_rule,
+		ops::matmul_operation::type_rule_type,
 		eigen_scalar_support
 	>
 );

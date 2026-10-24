@@ -21,7 +21,7 @@ public:
 	/**
 	 * @brief The mapping of an extent.
 	 */
-	using apply_function = std::size_t (*)(std::size_t);
+	using apply_function_type = std::size_t (*)(std::size_t);
 
 	/**
 	 * @brief Construct an extent transform.
@@ -32,7 +32,7 @@ public:
 	 * @param identity Whether the mapping is the identity.
 	 */
 	extent_transform(
-		apply_function apply,
+		apply_function_type apply,
 		const char *relation,
 		bool identity
 	) noexcept;
@@ -61,7 +61,7 @@ public:
 	bool is_identity() const noexcept;
 
 private:
-	apply_function m_apply;
+	apply_function_type m_apply;
 	const char *m_relation;
 	bool m_identity;
 };

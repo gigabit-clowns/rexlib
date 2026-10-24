@@ -43,7 +43,7 @@ namespace cpu
 template <
 	typename Op,
 	typename ShiftPolicy,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>
+	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>
 >
 class roll_program_builder final
 	: public dispatched_program_builder<

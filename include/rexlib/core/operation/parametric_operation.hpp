@@ -42,17 +42,18 @@ class parametric_operation
 	: public basic_operation<Derived, Traits>
 {
 public:
-	using typename basic_operation<Derived, Traits>::shape_rule;
-	using typename basic_operation<Derived, Traits>::type_rule;
+	using typename basic_operation<Derived, Traits>::shape_rule_type;
+	using typename basic_operation<Derived, Traits>::type_rule_type;
 	using parameters_type = typename Traits::parameters_type;
 	using signature_type = rule_signature<
-		shape_rule,
-		type_rule,
+		shape_rule_type,
+		type_rule_type,
 		parameters_type
 	>;
 
 	static_assert(
-		shape_rule::requires_parameters || type_rule::requires_parameters,
+		shape_rule_type::requires_parameters ||
+		type_rule_type::requires_parameters,
 		"The rules of a parametric operation read nothing from its "
 		"parameters. Declare it as a trivial operation instead."
 	);

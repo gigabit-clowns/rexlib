@@ -38,32 +38,32 @@ namespace cpu
 template <typename Op>
 struct linalg_core_ranks
 {
-	using shape_rule = typename Op::shape_rule;
+	using shape_rule_type = typename Op::shape_rule_type;
 
 	static_assert(
-		shape_rule::placement_type::placement == core_placement::trailing,
+		shape_rule_type::placement_type::placement == core_placement::trailing,
 		"A linalg builder walks the trailing axes of its operands, so the "
 		"operation's shape rule must place the core axes last."
 	);
 
 	static_assert(
-		shape_rule::output_count == 1 && shape_rule::input_count == 2,
+		shape_rule_type::output_count == 1 && shape_rule_type::input_count == 2,
 		"A linalg builder serves operations of one output and two inputs."
 	);
 
 	static REXLIB_CONST_CONSTEXPR std::size_t output = type_list_element<
 		0,
-		typename shape_rule::output_core_list
+		typename shape_rule_type::output_core_list_type
 	>::type::axis_count;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t left = type_list_element<
 		0,
-		typename shape_rule::input_core_list
+		typename shape_rule_type::input_core_list_type
 	>::type::axis_count;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t right = type_list_element<
 		1,
-		typename shape_rule::input_core_list
+		typename shape_rule_type::input_core_list_type
 	>::type::axis_count;
 };
 
@@ -91,7 +91,7 @@ struct linalg_core_ranks
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>
+	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>
 >
 class linalg_program_builder final
 	: public dispatched_program_builder<

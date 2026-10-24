@@ -54,12 +54,15 @@ struct operation_extent_list<type_list<Head, Tail...>>
 template <typename Rule>
 struct shape_rule_accessors
 {
-	using operation_extent_list = typename detail::operation_extent_list<
-		typename Rule::pivot_list
+	using operation_extent_list_type = typename detail::operation_extent_list<
+		typename Rule::pivot_list_type
 	>::type;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t operation_extent_count =
-		type_list_size<operation_extent_list>::value;
+		type_list_size<operation_extent_list_type>::value;
+
+	using operation_extent_array_type =
+		std::array<std::size_t, operation_extent_count>;
 
 	/**
 	 * @brief Read the axes the core axes lie along.
@@ -91,12 +94,13 @@ struct shape_rule_accessors
 	 *
 	 * @tparam Parameters The parameter type of the operation.
 	 * @param parameters The parameters of the operation instance.
-	 * @return std::array<std::size_t, operation_extent_count> The extents,
-	 * in the order their variables are declared.
+	 * @return operation_extent_array_type The extents, in the order their
+	 * variables are declared.
 	 */
 	template <typename Parameters>
-	static std::array<std::size_t, operation_extent_count>
-	get_operation_extents(const Parameters &parameters) noexcept;
+	static operation_extent_array_type get_operation_extents(
+		const Parameters &parameters
+	) noexcept;
 };
 
 } // namespace rexlib

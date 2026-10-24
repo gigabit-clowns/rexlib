@@ -24,10 +24,9 @@ namespace rexlib
  * @return The data types, in the order their pivots are declared.
  */
 template <typename Op>
-std::array<
-	numerical_type,
-	type_rule_accessors<typename Op::type_rule>::operation_pivot_count
->
+typename type_rule_accessors<
+	typename Op::type_rule_type
+>::operation_data_type_array_type
 get_operation_data_types(const Op &operation) noexcept;
 
 } // namespace rexlib

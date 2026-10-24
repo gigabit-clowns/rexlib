@@ -24,7 +24,7 @@ public:
 	/**
 	 * @brief Value level half of a transform.
 	 */
-	using apply_function = numerical_type (*)(numerical_type);
+	using apply_function_type = numerical_type (*)(numerical_type);
 
 	/**
 	 * @brief Construct a type transform.
@@ -37,7 +37,7 @@ public:
 	 * not be null and must outlive the transform.
 	 */
 	type_transform(
-		apply_function apply,
+		apply_function_type apply,
 		const numerical_type_domain &domain,
 		const char *relation
 	) noexcept;
@@ -65,7 +65,7 @@ public:
 	const char* get_relation() const noexcept;
 
 private:
-	apply_function m_apply;
+	apply_function_type m_apply;
 	std::reference_wrapper<const numerical_type_domain> m_domain;
 	const char *m_relation;
 };

@@ -94,9 +94,9 @@ struct rule_has_operation_pivot<type_list<Head, Tail...>>
 template <typename Pivots, typename Outputs, typename Inputs>
 struct operand_type_rule
 {
-	using pivot_list = Pivots;
-	using output_slot_list = Outputs;
-	using input_slot_list = Inputs;
+	using pivot_list_type = Pivots;
+	using output_slot_list_type = Outputs;
+	using input_slot_list_type = Inputs;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t pivot_count =
 		type_list_size<Pivots>::value;

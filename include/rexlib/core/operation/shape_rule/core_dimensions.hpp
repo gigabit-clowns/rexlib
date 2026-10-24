@@ -36,7 +36,7 @@ struct core_run_split
 	static REXLIB_CONST_CONSTEXPR bool has_run = false;
 
 	using run_domain_type = any_extent_domain;
-	using slot_list = type_list<Slots...>;
+	using slot_list_type = type_list<Slots...>;
 };
 
 template <typename Domain, typename... Slots>
@@ -45,7 +45,7 @@ struct core_run_split<axis_run<Domain>, Slots...>
 	static REXLIB_CONST_CONSTEXPR bool has_run = true;
 
 	using run_domain_type = Domain;
-	using slot_list = type_list<Slots...>;
+	using slot_list_type = type_list<Slots...>;
 };
 
 template <typename Slots>
@@ -76,17 +76,18 @@ struct slots_without_run<type_list<Slots...>>
 template <typename... Slots>
 struct core_dimensions
 {
-	using slot_list = typename detail::core_run_split<Slots...>::slot_list;
+	using slot_list_type =
+		typename detail::core_run_split<Slots...>::slot_list_type;
 	using run_domain_type =
 		typename detail::core_run_split<Slots...>::run_domain_type;
 
 	static REXLIB_CONST_CONSTEXPR bool has_run =
 		detail::core_run_split<Slots...>::has_run;
 	static REXLIB_CONST_CONSTEXPR std::size_t axis_count =
-		type_list_size<slot_list>::value;
+		type_list_size<slot_list_type>::value;
 
 	static_assert(
-		detail::slots_without_run<slot_list>::value,
+		detail::slots_without_run<slot_list_type>::value,
 		"A run may only lead the core dimensions, so the axes of one cannot "
 		"be told from those of the other."
 	);

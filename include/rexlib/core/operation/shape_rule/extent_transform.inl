@@ -12,7 +12,7 @@ namespace rexlib
 
 inline
 extent_transform::extent_transform(
-	apply_function apply,
+	apply_function_type apply,
 	const char *relation,
 	bool identity
 ) noexcept

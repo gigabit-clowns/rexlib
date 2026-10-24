@@ -35,19 +35,19 @@ inline
 void rule_signature<ShapeRule, TypeRule, Parameters>
 ::check_parameters(const operation_descriptor &descriptor) const
 {
-	using shape_accessors = shape_rule_accessors<ShapeRule>;
-	using type_accessors = type_rule_accessors<TypeRule>;
+	using shape_accessors_type = shape_rule_accessors<ShapeRule>;
+	using type_accessors_type = type_rule_accessors<TypeRule>;
 
 	const auto extents =
-		shape_accessors::get_operation_extents(m_parameters);
+		shape_accessors_type::get_operation_extents(m_parameters);
 	get_shape_interpreter().check_instance(
 		descriptor,
-		shape_accessors::get_named_axes(m_parameters),
+		shape_accessors_type::get_named_axes(m_parameters),
 		make_span(extents.data(), extents.size())
 	);
 
 	const auto data_types =
-		type_accessors::get_operation_data_types(m_parameters);
+		type_accessors_type::get_operation_data_types(m_parameters);
 	get_type_interpreter().check_instance(
 		descriptor,
 		make_span(data_types.data(), data_types.size())
@@ -62,22 +62,22 @@ void rule_signature<ShapeRule, TypeRule, Parameters>::deduce(
 	span<const operand_specification> inputs
 ) const
 {
-	using shape_accessors = shape_rule_accessors<ShapeRule>;
-	using type_accessors = type_rule_accessors<TypeRule>;
+	using shape_accessors_type = shape_rule_accessors<ShapeRule>;
+	using type_accessors_type = type_rule_accessors<TypeRule>;
 
 	const auto extents =
-		shape_accessors::get_operation_extents(m_parameters);
+		shape_accessors_type::get_operation_extents(m_parameters);
 	get_shape_interpreter().deduce(
 		descriptor,
-		shape_accessors::get_named_axes(m_parameters),
-		shape_accessors::get_keep_dimensions(m_parameters),
+		shape_accessors_type::get_named_axes(m_parameters),
+		shape_accessors_type::get_keep_dimensions(m_parameters),
 		make_span(extents.data(), extents.size()),
 		canonical_outputs,
 		inputs
 	);
 
 	const auto data_types =
-		type_accessors::get_operation_data_types(m_parameters);
+		type_accessors_type::get_operation_data_types(m_parameters);
 	get_type_interpreter().deduce(
 		descriptor,
 		make_span(data_types.data(), data_types.size()),
@@ -94,22 +94,22 @@ void rule_signature<ShapeRule, TypeRule, Parameters>::accept(
 	span<const operand_specification> inputs
 ) const
 {
-	using shape_accessors = shape_rule_accessors<ShapeRule>;
-	using type_accessors = type_rule_accessors<TypeRule>;
+	using shape_accessors_type = shape_rule_accessors<ShapeRule>;
+	using type_accessors_type = type_rule_accessors<TypeRule>;
 
 	const auto extents =
-		shape_accessors::get_operation_extents(m_parameters);
+		shape_accessors_type::get_operation_extents(m_parameters);
 	get_shape_interpreter().accept(
 		descriptor,
-		shape_accessors::get_named_axes(m_parameters),
-		shape_accessors::get_keep_dimensions(m_parameters),
+		shape_accessors_type::get_named_axes(m_parameters),
+		shape_accessors_type::get_keep_dimensions(m_parameters),
 		make_span(extents.data(), extents.size()),
 		user_outputs,
 		inputs
 	);
 
 	const auto data_types =
-		type_accessors::get_operation_data_types(m_parameters);
+		type_accessors_type::get_operation_data_types(m_parameters);
 	get_type_interpreter().accept(
 		descriptor,
 		make_span(data_types.data(), data_types.size()),

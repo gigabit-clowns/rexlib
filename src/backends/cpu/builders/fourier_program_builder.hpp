@@ -57,7 +57,7 @@ template <
 	typename Op,
 	typename Transform,
 	typename TypeDispatcher = rule_type_dispatcher<
-		typename Op::type_rule,
+		typename Op::type_rule_type,
 		fourier_transform_support
 	>
 >

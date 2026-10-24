@@ -25,8 +25,8 @@
 #define REXLIB_DETAIL_OPERATION_TRAITS_MEMBERS( \
 	op, outputs, inputs, shape, ... \
 ) \
-	using shape_rule = shape; \
-	using type_rule = __VA_ARGS__; \
+	using shape_rule_type = shape; \
+	using type_rule_type = __VA_ARGS__; \
 	\
 	static const char* get_name() noexcept \
 	{ \

@@ -25,7 +25,7 @@ core_dimensions_descriptor_table<type_list<Cores...>>::get() noexcept
 	table =
 	{{
 		core_dimensions_descriptor(
-			extent_slot_descriptor_table<typename Cores::slot_list>::get(),
+			extent_slot_descriptor_table<typename Cores::slot_list_type>::get(),
 			Cores::has_run,
 			make_extent_domain<typename Cores::run_domain_type>()
 		)...

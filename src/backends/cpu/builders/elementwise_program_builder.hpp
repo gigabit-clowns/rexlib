@@ -56,7 +56,7 @@ namespace cpu
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>,
+	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>,
 	typename Indexing = no_index_tag
 >
 class elementwise_program_builder final
@@ -139,7 +139,7 @@ using linear_indexed_elementwise_program_builder =
 	elementwise_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule>,
+		rule_type_dispatcher<typename Op::type_rule_type>,
 		linear_index_tag
 	>;
 
@@ -155,7 +155,7 @@ using multidimensional_indexed_elementwise_program_builder =
 	elementwise_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule>,
+		rule_type_dispatcher<typename Op::type_rule_type>,
 		multidimensional_index_tag
 	>;
 

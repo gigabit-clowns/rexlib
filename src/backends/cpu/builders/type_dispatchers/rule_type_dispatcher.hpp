@@ -128,7 +128,7 @@ private:
 		: std::integral_constant<
 			bool,
 			type_rule_pivots_in_domain<
-				typename Rule::pivot_list,
+				typename Rule::pivot_list_type,
 				type_list<Pivots...>
 			>::value &&
 			Support<Pivots...>::value

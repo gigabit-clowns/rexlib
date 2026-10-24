@@ -20,7 +20,7 @@ TEST_CASE(
 	using core = core_dimensions<>;
 	STATIC_CHECK_FALSE( core::has_run );
 	STATIC_CHECK( core::axis_count == 0 );
-	STATIC_CHECK( std::is_same<core::slot_list, type_list<>>::value );
+	STATIC_CHECK( std::is_same<core::slot_list_type, type_list<>>::value );
 }
 
 TEST_CASE(
@@ -33,7 +33,7 @@ TEST_CASE(
 	STATIC_CHECK( core::axis_count == 2 );
 	STATIC_CHECK(
 		std::is_same<
-			core::slot_list,
+			core::slot_list_type,
 			type_list<axis_same_as<1>, test::axis_doubled_of<0>>
 		>::value
 	);
@@ -51,7 +51,7 @@ TEST_CASE(
 	STATIC_CHECK( core::has_run );
 	STATIC_CHECK( core::axis_count == 1 );
 	STATIC_CHECK(
-		std::is_same<core::slot_list, type_list<axis_same_as<0>>>::value
+		std::is_same<core::slot_list_type, type_list<axis_same_as<0>>>::value
 	);
 	STATIC_CHECK(
 		std::is_same<

@@ -13,12 +13,12 @@ inline
 const shape_rule_descriptor& shape_rule_descriptor_of<Rule>::get() noexcept
 {
 	static const shape_rule_descriptor descriptor(
-		extent_pivot_descriptor_table<typename Rule::pivot_list>::get(),
+		extent_pivot_descriptor_table<typename Rule::pivot_list_type>::get(),
 		core_dimensions_descriptor_table<
-			typename Rule::output_core_list
+			typename Rule::output_core_list_type
 		>::get(),
 		core_dimensions_descriptor_table<
-			typename Rule::input_core_list
+			typename Rule::input_core_list_type
 		>::get(),
 		Rule::placement_type::placement,
 		Rule::batch

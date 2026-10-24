@@ -83,7 +83,10 @@ private:
 };
 
 using cross_type_dispatcher =
-	rule_type_dispatcher<ops::cross_operation::type_rule, eigen_scalar_support>;
+	rule_type_dispatcher<
+		ops::cross_operation::type_rule_type,
+		eigen_scalar_support
+	>;
 
 /**
  * @brief CPU program builder for cross.

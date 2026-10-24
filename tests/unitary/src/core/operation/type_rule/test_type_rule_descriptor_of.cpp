@@ -30,17 +30,21 @@ TEST_CASE(
 
 	CHECK(
 		rule.get_pivots().data() ==
-		type_pivot_descriptor_table<test_rule::pivot_list>::get().data()
+		type_pivot_descriptor_table<test_rule::pivot_list_type>::get().data()
 	);
 	CHECK( rule.get_pivots().size() == 2 );
 	CHECK(
 		rule.get_output_slots().data() ==
-		type_slot_descriptor_table<test_rule::output_slot_list>::get().data()
+		type_slot_descriptor_table<
+			test_rule::output_slot_list_type
+		>::get().data()
 	);
 	CHECK( rule.get_output_slots().size() == 1 );
 	CHECK(
 		rule.get_input_slots().data() ==
-		type_slot_descriptor_table<test_rule::input_slot_list>::get().data()
+		type_slot_descriptor_table<
+			test_rule::input_slot_list_type
+		>::get().data()
 	);
 	CHECK( rule.get_input_slots().size() == 2 );
 }

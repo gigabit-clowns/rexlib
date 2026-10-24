@@ -22,7 +22,7 @@ namespace
 {
 
 using shape_type = operand_specification::shape_type;
-using axis_list = std::vector<std::size_t>;
+using axis_list_type = std::vector<std::size_t>;
 
 REXLIB_CONST_CONSTEXPR std::size_t no_index =
 	std::numeric_limits<std::size_t>::max();
@@ -141,7 +141,7 @@ void check_named_axes(
 		return;
 	}
 
-	axis_list sorted(named_axes.begin(), named_axes.end());
+	axis_list_type sorted(named_axes.begin(), named_axes.end());
 	std::sort(sorted.begin(), sorted.end());
 	const auto repeated = std::adjacent_find(sorted.begin(), sorted.end());
 	if (repeated != sorted.end())
@@ -211,10 +211,10 @@ void check_named_axes_in_frame(
 /**
  * @brief Find the core axes of an input.
  *
- * @return axis_list The axis of the input holding every core axis, the run
+ * @return axis_list_type The axis of the input holding every core axis, the run
  * first.
  */
-axis_list locate_input_core(
+axis_list_type locate_input_core(
 	const operation_descriptor &descriptor,
 	const shape_rule_descriptor &rule,
 	std::size_t input,
@@ -224,7 +224,7 @@ axis_list locate_input_core(
 )
 {
 	const auto rank = shape.size();
-	axis_list result;
+	axis_list_type result;
 
 	if (rule.get_placement() == core_placement::trailing)
 	{
@@ -296,7 +296,7 @@ shape_type bind_extents(
 	const shape_rule_descriptor &rule,
 	span<const std::size_t> operation_extents,
 	span<const operand_specification> inputs,
-	const std::vector<axis_list> &input_cores
+	const std::vector<axis_list_type> &input_cores
 )
 {
 	const auto pivots = rule.get_pivots();
@@ -368,7 +368,7 @@ void write_binding_axis(
 	std::ostream &os,
 	const operation_descriptor &descriptor,
 	const shape_rule_descriptor &rule,
-	const std::vector<axis_list> &input_cores,
+	const std::vector<axis_list_type> &input_cores,
 	std::size_t pivot
 )
 {
@@ -404,7 +404,7 @@ void write_expected_origin(
 	const operation_descriptor &descriptor,
 	const shape_rule_descriptor &rule,
 	const shape_type &values,
-	const std::vector<axis_list> &input_cores,
+	const std::vector<axis_list_type> &input_cores,
 	const extent_slot_descriptor &slot
 )
 {
@@ -458,12 +458,12 @@ shape_type check_input_cores(
 	const shape_rule_descriptor &rule,
 	const shape_type &values,
 	span<const operand_specification> inputs,
-	const std::vector<axis_list> &input_cores
+	const std::vector<axis_list_type> &input_cores
 )
 {
 	shape_type run_extents;
 	std::size_t run_origin = no_index;
-	axis_list run_origin_axes;
+	axis_list_type run_origin_axes;
 
 	for (std::size_t i = 0; i < inputs.size(); ++i)
 	{
@@ -576,7 +576,7 @@ shape_type broadcast_batches(
 	const operation_descriptor &descriptor,
 	const shape_rule_descriptor &rule,
 	span<const operand_specification> inputs,
-	const std::vector<axis_list> &input_cores,
+	const std::vector<axis_list_type> &input_cores,
 	span<const std::size_t> named_axes,
 	std::size_t frame_rank
 )
@@ -775,7 +775,7 @@ shape_rule_resolution resolve_shape_rule(
 	const auto frame_rank = compute_frame_rank(inputs);
 	check_named_axes_in_frame(descriptor, named_axes, frame_rank);
 
-	std::vector<axis_list> input_cores;
+	std::vector<axis_list_type> input_cores;
 	input_cores.reserve(inputs.size());
 	for (std::size_t i = 0; i < inputs.size(); ++i)
 	{

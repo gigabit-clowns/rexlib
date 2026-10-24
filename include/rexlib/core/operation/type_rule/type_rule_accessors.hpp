@@ -53,24 +53,28 @@ struct operation_pivot_list<type_list<Head, Tail...>>
 template <typename Rule>
 struct type_rule_accessors
 {
-	using operation_pivot_list = typename detail::operation_pivot_list<
-		typename Rule::pivot_list
+	using operation_pivot_list_type = typename detail::operation_pivot_list<
+		typename Rule::pivot_list_type
 	>::type;
 
 	static REXLIB_CONST_CONSTEXPR std::size_t operation_pivot_count =
-		type_list_size<operation_pivot_list>::value;
+		type_list_size<operation_pivot_list_type>::value;
+
+	using operation_data_type_array_type =
+		std::array<numerical_type, operation_pivot_count>;
 
 	/**
 	 * @brief Read every data type the operation supplies.
 	 *
 	 * @tparam Parameters The parameter type of the operation.
 	 * @param parameters The parameters of the operation instance.
-	 * @return std::array<numerical_type, operation_pivot_count> The data
-	 * types, in the order their pivots are declared.
+	 * @return operation_data_type_array_type The data types, in the order their
+	 * pivots are declared.
 	 */
 	template <typename Parameters>
-	static std::array<numerical_type, operation_pivot_count>
-	get_operation_data_types(const Parameters &parameters) noexcept;
+	static operation_data_type_array_type get_operation_data_types(
+		const Parameters &parameters
+	) noexcept;
 };
 
 } // namespace rexlib

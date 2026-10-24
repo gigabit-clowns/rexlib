@@ -24,17 +24,14 @@ std::array<numerical_type, sizeof...(Pivots)> read_operation_data_types(
 template <typename Rule>
 template <typename Parameters>
 inline
-std::array<
-	numerical_type,
-	type_rule_accessors<Rule>::operation_pivot_count
->
+typename type_rule_accessors<Rule>::operation_data_type_array_type
 type_rule_accessors<Rule>::get_operation_data_types(
 	const Parameters &parameters
 ) noexcept
 {
 	return detail::read_operation_data_types(
 		parameters,
-		operation_pivot_list()
+		operation_pivot_list_type()
 	);
 }
 

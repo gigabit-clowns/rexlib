@@ -293,7 +293,7 @@ struct element_checker<std::complex<T>>
 template <typename Op, typename Pivot>
 struct operand_element_types
 {
-	using rule_type = typename Op::type_rule;
+	using rule_type = typename Op::type_rule_type;
 
 	static_assert(
 		rule_type::pivot_count == 1,
@@ -303,12 +303,12 @@ struct operand_element_types
 	);
 
 	using outputs = type_rule_operand_types_t<
-		typename rule_type::output_slot_list,
+		typename rule_type::output_slot_list_type,
 		type_list<Pivot>
 	>;
 
 	using inputs = type_rule_operand_types_t<
-		typename rule_type::input_slot_list,
+		typename rule_type::input_slot_list_type,
 		type_list<Pivot>
 	>;
 
@@ -328,7 +328,7 @@ struct operand_element_types
 template <typename Op, typename Pivot>
 struct operation_admits
 	: type_rule_pivots_in_domain<
-		typename Op::type_rule::pivot_list,
+		typename Op::type_rule_type::pivot_list_type,
 		type_list<Pivot>
 	>
 {

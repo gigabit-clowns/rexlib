@@ -97,17 +97,14 @@ bool shape_rule_accessors<Rule>::get_keep_dimensions(
 template <typename Rule>
 template <typename Parameters>
 inline
-std::array<
-	std::size_t,
-	shape_rule_accessors<Rule>::operation_extent_count
->
+typename shape_rule_accessors<Rule>::operation_extent_array_type
 shape_rule_accessors<Rule>::get_operation_extents(
 	const Parameters &parameters
 ) noexcept
 {
 	return detail::read_operation_extents(
 		parameters,
-		operation_extent_list()
+		operation_extent_list_type()
 	);
 }
 

@@ -7,7 +7,7 @@ namespace rexlib
 
 inline
 extent_domain::extent_domain(
-	contains_function contains,
+	contains_function_type contains,
 	const char *description
 ) noexcept
 	: m_contains(contains)

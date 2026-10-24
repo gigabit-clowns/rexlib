@@ -77,8 +77,14 @@ rule_type_dispatcher<Rule, Support>::invoke_if(
 )
 {
 	return std::forward<F>(factory)(
-		type_rule_operand_types_t<typename Rule::output_slot_list, Pivots>(),
-		type_rule_operand_types_t<typename Rule::input_slot_list, Pivots>()
+		type_rule_operand_types_t<
+			typename Rule::output_slot_list_type,
+			Pivots
+		>(),
+		type_rule_operand_types_t<
+			typename Rule::input_slot_list_type,
+			Pivots
+		>()
 	);
 }
 

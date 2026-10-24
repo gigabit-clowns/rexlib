@@ -9,7 +9,7 @@ using namespace rexlib;
 namespace
 {
 
-using extent_list = shape_rule_resolution::extent_list;
+using extent_list_type = shape_rule_resolution::extent_list_type;
 
 } // anonymous namespace
 
@@ -19,13 +19,13 @@ TEST_CASE(
 )
 {
 	const shape_rule_resolution resolution(
-		extent_list{ 4, 1 },
-		extent_list{ 3, 8 },
-		extent_list{ 5, 6 }
+		extent_list_type{ 4, 1 },
+		extent_list_type{ 3, 8 },
+		extent_list_type{ 5, 6 }
 	);
 
-	CHECK( resolution.get_batch() == extent_list{ 4, 1 } );
+	CHECK( resolution.get_batch() == extent_list_type{ 4, 1 } );
 	CHECK( resolution.get_extent(0) == 3 );
 	CHECK( resolution.get_extent(1) == 8 );
-	CHECK( resolution.get_run_extents() == extent_list{ 5, 6 } );
+	CHECK( resolution.get_run_extents() == extent_list_type{ 5, 6 } );
 }

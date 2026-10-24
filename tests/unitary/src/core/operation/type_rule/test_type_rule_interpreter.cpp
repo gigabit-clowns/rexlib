@@ -21,7 +21,7 @@ using namespace rexlib;
 namespace
 {
 
-using type_vector = std::vector<numerical_type>;
+using data_type_vector_type = std::vector<numerical_type>;
 
 // Names the data type an operation would supply. The tests pass the values
 // themselves, so it is never invoked.
@@ -46,9 +46,9 @@ const operation_descriptor& rule_descriptor()
 	return instance;
 }
 
-type_vector all_concrete_types()
+data_type_vector_type all_concrete_types()
 {
-    type_vector result;
+    data_type_vector_type result;
     const auto count = static_cast<int>(numerical_type::count);
     for (int i = 0; i < count; ++i)
     {
@@ -63,7 +63,9 @@ type_rule_interpreter interpreter_of()
     return type_rule_interpreter(type_rule_descriptor_of<Rule>::get());
 }
 
-std::vector<operand_specification> make_operands(const type_vector &types)
+std::vector<operand_specification> make_operands(
+    const data_type_vector_type &types
+)
 {
     std::vector<operand_specification> result;
     for (const auto type : types)
@@ -75,9 +77,9 @@ std::vector<operand_specification> make_operands(const type_vector &types)
 
 void deduce_types(
     const type_rule_interpreter &rule,
-    type_vector &outputs,
-    const type_vector &inputs,
-    const type_vector &operation_data_types = type_vector()
+    data_type_vector_type &outputs,
+    const data_type_vector_type &inputs,
+    const data_type_vector_type &operation_data_types = data_type_vector_type()
 )
 {
     auto output_operands = make_operands(outputs);
@@ -97,12 +99,12 @@ void deduce_types(
 struct deduce_outcome
 {
     bool rejected = false;
-    type_vector outputs;
+    data_type_vector_type outputs;
 };
 
 deduce_outcome run_deduce(
     const type_rule_interpreter &rule,
-    const type_vector &inputs,
+    const data_type_vector_type &inputs,
     std::size_t output_count
 )
 {
@@ -123,8 +125,8 @@ deduce_outcome run_deduce(
 
 bool run_accept(
     const type_rule_interpreter &rule,
-    const type_vector &user_outputs,
-    const type_vector &inputs
+    const data_type_vector_type &user_outputs,
+    const data_type_vector_type &inputs
 )
 {
     if (run_deduce(rule, inputs, user_outputs.size()).rejected)
@@ -162,14 +164,14 @@ TEST_CASE(
     {
         for (const auto right : all_concrete_types())
         {
-            const type_vector inputs = { left, right };
+            const data_type_vector_type inputs = { left, right };
             const auto outcome = run_deduce(rule, inputs, 1);
 
             INFO( "deduce(" << left << ", " << right << ")" );
             if (left == right)
             {
                 CHECK( !outcome.rejected );
-                CHECK( outcome.outputs == type_vector{ left } );
+                CHECK( outcome.outputs == data_type_vector_type{ left } );
             }
             else
             {
@@ -179,7 +181,7 @@ TEST_CASE(
             // The inputs fix the output, so only the matching one is
             // admitted.
             INFO( "accept(" << left << ")" );
-            CHECK( run_accept(rule, type_vector{ left }, inputs) ==
+            CHECK( run_accept(rule, data_type_vector_type{ left }, inputs) ==
                    (left != right) );
         }
     }
@@ -196,7 +198,7 @@ TEST_CASE(
 
     for (const auto input : all_concrete_types())
     {
-        const type_vector inputs = { input };
+        const data_type_vector_type inputs = { input };
         const auto outcome = run_deduce(rule, inputs, 1);
 
         INFO( "deduce(" << input << ")" );
@@ -205,7 +207,10 @@ TEST_CASE(
             // Complex inputs lose their imaginary part; everything else is
             // left alone.
             CHECK( !outcome.rejected );
-            CHECK( outcome.outputs == type_vector{ make_real(input) } );
+            CHECK(
+                outcome.outputs ==
+                data_type_vector_type{ make_real(input) }
+            );
         }
         else
         {
@@ -218,13 +223,13 @@ TEST_CASE(
     // other type is refused.
     CHECK( !run_accept(
         rule,
-        type_vector{ numerical_type::float32 },
-        type_vector{ numerical_type::complex_float32 }
+        data_type_vector_type{ numerical_type::float32 },
+        data_type_vector_type{ numerical_type::complex_float32 }
     ) );
     CHECK( run_accept(
         rule,
-        type_vector{ numerical_type::complex_float32 },
-        type_vector{ numerical_type::complex_float32 }
+        data_type_vector_type{ numerical_type::complex_float32 },
+        data_type_vector_type{ numerical_type::complex_float32 }
     ) );
 }
 
@@ -237,20 +242,20 @@ TEST_CASE(
 
     for (const auto input : all_concrete_types())
     {
-        const type_vector inputs = { input };
+        const data_type_vector_type inputs = { input };
 
         // With no output supplied, the destination adopts the source type.
         const auto outcome = run_deduce(rule, inputs, 1);
         INFO( "deduce(" << input << ")" );
         CHECK( !outcome.rejected );
-        CHECK( outcome.outputs == type_vector{ input } );
+        CHECK( outcome.outputs == data_type_vector_type{ input } );
 
         // With one supplied, any concrete type is admitted: that is what
         // makes a converting copy possible without a separate operation.
         for (const auto output : all_concrete_types())
         {
             INFO( "accept(" << output << ", " << input << ")" );
-            CHECK( !run_accept(rule, type_vector{ output }, inputs) );
+            CHECK( !run_accept(rule, data_type_vector_type{ output }, inputs) );
         }
     }
 }
@@ -262,18 +267,21 @@ TEST_CASE(
 {
     const auto rule = interpreter_of<ops::nullary_free_rule<>>();
 
-    const type_vector no_inputs;
+    const data_type_vector_type no_inputs;
 
     // With no input to fix it, the element type stays undetermined until
     // the caller supplies an output carrying one.
     const auto outcome = run_deduce(rule, no_inputs, 1);
     CHECK( !outcome.rejected );
-    CHECK( outcome.outputs == type_vector{ numerical_type::unknown } );
+    CHECK(
+        outcome.outputs ==
+        data_type_vector_type{ numerical_type::unknown }
+    );
 
     for (const auto output : all_concrete_types())
     {
         INFO( "accept(" << output << ")" );
-        CHECK( !run_accept(rule, type_vector{ output }, no_inputs) );
+        CHECK( !run_accept(rule, data_type_vector_type{ output }, no_inputs) );
     }
 }
 
@@ -286,9 +294,9 @@ TEST_CASE(
         ops::binary_homogeneous_rule<real_arithmetic_type_domain>
     >();
 
-    type_vector outputs(1, numerical_type::unknown);
+    data_type_vector_type outputs(1, numerical_type::unknown);
 
-    const type_vector accepted = {
+    const data_type_vector_type accepted = {
         numerical_type::int32,
         numerical_type::int32
     };
@@ -299,7 +307,7 @@ TEST_CASE(
     // This is the drift the declarative rules exist to remove: a domain the
     // operation declares once, rather than a backend predicate silently
     // narrowing what the rule already accepted.
-    const type_vector rejected = {
+    const data_type_vector_type rejected = {
         numerical_type::complex_float32,
         numerical_type::complex_float32
     };
@@ -308,7 +316,7 @@ TEST_CASE(
         std::invalid_argument
     );
 
-    const type_vector booleans = {
+    const data_type_vector_type booleans = {
         numerical_type::boolean,
         numerical_type::boolean
     };
@@ -325,8 +333,8 @@ TEST_CASE(
 {
     const auto rule = interpreter_of<ops::binary_predicate_rule<>>();
 
-    type_vector outputs(1, numerical_type::unknown);
-    const type_vector inputs = {
+    data_type_vector_type outputs(1, numerical_type::unknown);
+    const data_type_vector_type inputs = {
         numerical_type::float64,
         numerical_type::float64
     };
@@ -342,8 +350,8 @@ TEST_CASE(
 {
     const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
 
-    type_vector outputs(1, numerical_type::unknown);
-    const type_vector mismatched = {
+    data_type_vector_type outputs(1, numerical_type::unknown);
+    const data_type_vector_type mismatched = {
         numerical_type::float32,
         numerical_type::float64
     };
@@ -375,8 +383,8 @@ TEST_CASE(
         ops::unary_homogeneous_rule<floating_point_type_domain>
     >();
 
-    type_vector outputs(1, numerical_type::unknown);
-    const type_vector inputs = { numerical_type::int32 };
+    data_type_vector_type outputs(1, numerical_type::unknown);
+    const data_type_vector_type inputs = { numerical_type::int32 };
 
     try
     {
@@ -406,12 +414,12 @@ TEST_CASE(
     >;
     const auto rule = interpreter_of<astype_rule>();
 
-    type_vector outputs(1, numerical_type::unknown);
+    data_type_vector_type outputs(1, numerical_type::unknown);
     deduce_types(
         rule,
         outputs,
-        type_vector{ numerical_type::int32 },
-        type_vector{ numerical_type::float64 }
+        data_type_vector_type{ numerical_type::int32 },
+        data_type_vector_type{ numerical_type::float64 }
     );
     CHECK( outputs[0] == numerical_type::float64 );
 }
@@ -432,12 +440,12 @@ TEST_CASE(
     >;
     const auto rule = interpreter_of<pair_rule>();
 
-    type_vector outputs(2, numerical_type::unknown);
+    data_type_vector_type outputs(2, numerical_type::unknown);
     deduce_types(
         rule,
         outputs,
-        type_vector{ numerical_type::int8 },
-        type_vector{ numerical_type::float32, numerical_type::uint16 }
+        data_type_vector_type{ numerical_type::int8 },
+        data_type_vector_type{ numerical_type::float32, numerical_type::uint16 }
     );
     CHECK( outputs[0] == numerical_type::uint16 );
     CHECK( outputs[1] == numerical_type::float32 );
@@ -459,18 +467,18 @@ TEST_CASE(
     >;
     const auto rule = interpreter_of<astype_rule>();
 
-    const type_vector admitted = { numerical_type::float32 };
+    const data_type_vector_type admitted = { numerical_type::float32 };
     CHECK_NOTHROW(
         rule.check_instance(rule_descriptor(), make_span(admitted))
     );
 
-    const type_vector outside = { numerical_type::int32 };
+    const data_type_vector_type outside = { numerical_type::int32 };
     CHECK_THROWS_AS(
         rule.check_instance(rule_descriptor(), make_span(outside)),
         std::invalid_argument
     );
 
-    const type_vector missing;
+    const data_type_vector_type missing;
     CHECK_THROWS_AS(
         rule.check_instance(rule_descriptor(), make_span(missing)),
         std::invalid_argument
@@ -509,8 +517,8 @@ TEST_CASE(
 )
 {
 	const auto rule = interpreter_of<ops::converting_rule<>>();
-	const type_vector outputs = { numerical_type::int16 };
-	const type_vector inputs = { numerical_type::float32 };
+	const data_type_vector_type outputs = { numerical_type::int16 };
+	const data_type_vector_type inputs = { numerical_type::float32 };
 
 	const auto resolution = rule.resolve(
 		span<const numerical_type>(),
@@ -530,8 +538,8 @@ TEST_CASE(
 )
 {
 	const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
-	const type_vector outputs = { numerical_type::float32 };
-	const type_vector inputs = {
+	const data_type_vector_type outputs = { numerical_type::float32 };
+	const data_type_vector_type inputs = {
 		numerical_type::float32,
 		numerical_type::float64
 	};
@@ -563,12 +571,12 @@ TEST_CASE(
 	using Catch::Matchers::ContainsSubstring;
 
 	const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
-	const type_vector one = { numerical_type::float32 };
-	const type_vector two = {
+	const data_type_vector_type one = { numerical_type::float32 };
+	const data_type_vector_type two = {
 		numerical_type::float32,
 		numerical_type::float32
 	};
-	const type_vector three = {
+	const data_type_vector_type three = {
 		numerical_type::float32,
 		numerical_type::float32,
 		numerical_type::float32
@@ -618,10 +626,14 @@ TEST_CASE(
 )
 {
 	const auto rule = interpreter_of<ops::binary_homogeneous_rule<>>();
-	type_vector outputs = { numerical_type::unknown };
+	data_type_vector_type outputs = { numerical_type::unknown };
 
 	CHECK_THROWS_WITH(
-		deduce_types(rule, outputs, type_vector{ numerical_type::float32 }),
+		deduce_types(
+			rule,
+			outputs,
+			data_type_vector_type{ numerical_type::float32 }
+		),
 		Catch::Matchers::ContainsSubstring("input operand 'right' is missing.")
 	);
 }

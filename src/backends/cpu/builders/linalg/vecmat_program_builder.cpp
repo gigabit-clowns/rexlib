@@ -84,7 +84,7 @@ REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	ops::vecmat_operation,
 	vecmat_kernel_factory,
 	rule_type_dispatcher<
-		ops::vecmat_operation::type_rule,
+		ops::vecmat_operation::type_rule_type,
 		eigen_scalar_support
 	>
 );

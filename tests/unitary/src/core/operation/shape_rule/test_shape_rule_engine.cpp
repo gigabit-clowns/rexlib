@@ -20,7 +20,7 @@ using Catch::Matchers::ContainsSubstring;
 namespace
 {
 
-using test::extent_list;
+using test::extent_list_type;
 using test::make_shaped_operands;
 using test::shape_rule_test_descriptor;
 using test::shape_type;
@@ -58,9 +58,9 @@ TEST_CASE(
 	"[shape_rule_engine]"
 )
 {
-	const extent_list axes = { 1 };
-	const extent_list none;
-	const extent_list fixed = { 3 };
+	const extent_list_type axes = { 1 };
+	const extent_list_type none;
+	const extent_list_type fixed = { 3 };
 
 	CHECK_NOTHROW(
 		check_shape_rule_instance(
@@ -87,8 +87,8 @@ TEST_CASE(
 	"[shape_rule_engine]"
 )
 {
-	const extent_list axes = { 1 };
-	const extent_list fixed = { 3 };
+	const extent_list_type axes = { 1 };
+	const extent_list_type fixed = { 3 };
 	const auto inputs = make_shaped_operands({ { 4, 3 }, { 1, 3 } });
 
 	const auto resolution = resolve_shape_rule(
@@ -116,7 +116,7 @@ TEST_CASE(
 )
 {
 	const auto &rule = shape_rule_descriptor_of<reduction_rule>::get();
-	const extent_list axes = { 0, 2 };
+	const extent_list_type axes = { 0, 2 };
 	const auto inputs = make_shaped_operands({ { 5, 6, 7 } });
 
 	const auto resolution = resolve_shape_rule(
@@ -141,8 +141,8 @@ TEST_CASE(
 	"[shape_rule_engine]"
 )
 {
-	const extent_list axes = { 1 };
-	const extent_list fixed = { 3 };
+	const extent_list_type axes = { 1 };
+	const extent_list_type fixed = { 3 };
 	const auto inputs = make_shaped_operands({ { 4, 3 }, { 4, 3 } });
 	const auto resolution = resolve_shape_rule(
 		shape_rule_test_descriptor(),

@@ -18,7 +18,7 @@ namespace rexlib
 class shape_rule_resolution
 {
 public:
-	using extent_list = std::vector<std::size_t>;
+	using extent_list_type = std::vector<std::size_t>;
 
 	/**
 	 * @brief Construct a resolution.
@@ -31,18 +31,18 @@ public:
 	 * they are laid out. Empty when the rule declares no run.
 	 */
 	shape_rule_resolution(
-		extent_list batch,
-		extent_list extents,
-		extent_list run_extents
+		extent_list_type batch,
+		extent_list_type extents,
+		extent_list_type run_extents
 	) noexcept;
 
 	/**
 	 * @brief Get the extents of the batch axes.
 	 *
-	 * @return const extent_list& The extents, in the order they are laid
+	 * @return const extent_list_type& The extents, in the order they are laid
 	 * out.
 	 */
-	const extent_list& get_batch() const noexcept;
+	const extent_list_type& get_batch() const noexcept;
 
 	/**
 	 * @brief Get the extent of an extent variable.
@@ -56,15 +56,15 @@ public:
 	/**
 	 * @brief Get the extents of the axes of the run.
 	 *
-	 * @return const extent_list& The extents, in the order they are laid
+	 * @return const extent_list_type& The extents, in the order they are laid
 	 * out.
 	 */
-	const extent_list& get_run_extents() const noexcept;
+	const extent_list_type& get_run_extents() const noexcept;
 
 private:
-	extent_list m_batch;
-	extent_list m_extents;
-	extent_list m_run_extents;
+	extent_list_type m_batch;
+	extent_list_type m_extents;
+	extent_list_type m_run_extents;
 };
 
 } // namespace rexlib

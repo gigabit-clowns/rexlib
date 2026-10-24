@@ -9,7 +9,7 @@ namespace rexlib
 
 inline
 type_transform::type_transform(
-	apply_function apply,
+	apply_function_type apply,
 	const numerical_type_domain &domain,
 	const char *relation
 ) noexcept

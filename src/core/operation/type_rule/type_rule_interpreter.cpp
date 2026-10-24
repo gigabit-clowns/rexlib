@@ -16,13 +16,13 @@ namespace rexlib
 namespace
 {
 
-using data_type_buffer = boost::container::small_vector<numerical_type, 4>;
+using data_type_buffer_type = boost::container::small_vector<numerical_type, 4>;
 
-data_type_buffer gather_data_types(
+data_type_buffer_type gather_data_types(
 	span<const operand_specification> operands
 )
 {
-	data_type_buffer result;
+	data_type_buffer_type result;
 	result.reserve(operands.size());
 	for (const auto &operand : operands)
 	{
@@ -31,7 +31,7 @@ data_type_buffer gather_data_types(
 	return result;
 }
 
-span<const numerical_type> view(const data_type_buffer &types) noexcept
+span<const numerical_type> view(const data_type_buffer_type &types) noexcept
 {
 	return make_span(types.data(), types.size());
 }
@@ -106,7 +106,7 @@ void type_rule_interpreter::deduce(
 	}
 
 	const auto input_types = gather_data_types(inputs);
-	data_type_buffer output_types(
+	data_type_buffer_type output_types(
 		canonical_outputs.size(),
 		numerical_type::unknown
 	);

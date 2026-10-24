@@ -89,7 +89,7 @@ class probe_program_builder final
 	: public dispatched_program_builder<
 		probe_program_builder<Accepts>,
 		probe_operation,
-		rule_type_dispatcher<typename probe_operation::type_rule>
+		rule_type_dispatcher<typename probe_operation::type_rule_type>
 	>
 {
 public:
@@ -131,7 +131,7 @@ class silent_program_builder final
 	: public dispatched_program_builder<
 		silent_program_builder,
 		probe_operation,
-		rule_type_dispatcher<typename probe_operation::type_rule>
+		rule_type_dispatcher<typename probe_operation::type_rule_type>
 	>
 {
 public:
@@ -216,7 +216,7 @@ class astype_probe_program_builder final
 	: public dispatched_program_builder<
 		astype_probe_program_builder,
 		astype_probe_operation,
-		rule_type_dispatcher<typename astype_probe_operation::type_rule>
+		rule_type_dispatcher<typename astype_probe_operation::type_rule_type>
 	>
 {
 public:

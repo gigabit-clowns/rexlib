@@ -26,7 +26,7 @@ using test::accept_shapes;
 using test::check_shape_instance;
 using test::deduce_shape;
 using test::deduce_shapes;
-using test::extent_list;
+using test::extent_list_type;
 using test::make_shape_rule_interpreter;
 using test::make_shaped_operands;
 using test::shape_rule_test_descriptor;

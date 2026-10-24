@@ -24,7 +24,7 @@ using rexlib::test::safe_numerical_type_of;
 namespace
 {
 
-using type_vector = std::vector<numerical_type>;
+using data_type_vector_type = std::vector<numerical_type>;
 
 /**
  * @brief A description for the rules under test to name in diagnostics.
@@ -49,9 +49,9 @@ struct to_numerical_types;
 template <typename... Ts>
 struct to_numerical_types<type_list<Ts...>>
 {
-	static type_vector get()
+	static data_type_vector_type get()
 	{
-		return type_vector{ safe_numerical_type_of<Ts>::value... };
+		return data_type_vector_type{ safe_numerical_type_of<Ts>::value... };
 	}
 };
 
@@ -96,11 +96,11 @@ void check_rule_agreement()
 
 				return std::make_pair(
 					to_numerical_types<type_rule_operand_types_t<
-						typename Rule::output_slot_list,
+						typename Rule::output_slot_list_type,
 						pivot_types
 					>>::get(),
 					to_numerical_types<type_rule_operand_types_t<
-						typename Rule::input_slot_list,
+						typename Rule::input_slot_list_type,
 						pivot_types
 					>>::get()
 				);
@@ -122,7 +122,7 @@ void check_rule_agreement()
 			make_span(inputs)
 		);
 
-		type_vector deduced;
+		data_type_vector_type deduced;
 		for (const auto &output : outputs)
 		{
 			deduced.push_back(output.get_data_type());
@@ -144,7 +144,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::output_slot_list,
+            rule::output_slot_list_type,
             type_list<std::complex<float32_t>>
         >,
         type_list<float32_t>
@@ -152,7 +152,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::input_slot_list,
+            rule::input_slot_list_type,
             type_list<std::complex<float32_t>>
         >,
         type_list<std::complex<float32_t>>
@@ -167,7 +167,10 @@ TEST_CASE(
     using rule = ops::binary_homogeneous_rule<>;
 
     STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<rule::input_slot_list, type_list<float64_t>>,
+        type_rule_operand_types_t<
+            rule::input_slot_list_type,
+            type_list<float64_t>
+        >,
         type_list<float64_t, float64_t>
     >::value );
 }
@@ -180,7 +183,10 @@ TEST_CASE(
     using rule = ops::nullary_free_rule<>;
 
     STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<rule::input_slot_list, type_list<float32_t>>,
+        type_rule_operand_types_t<
+            rule::input_slot_list_type,
+            type_list<float32_t>
+        >,
         type_list<>
     >::value );
 }
@@ -193,7 +199,10 @@ TEST_CASE(
     using rule = ops::binary_predicate_rule<>;
 
     STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<rule::output_slot_list, type_list<float32_t>>,
+        type_rule_operand_types_t<
+            rule::output_slot_list_type,
+            type_list<float32_t>
+        >,
         type_list<bool>
     >::value );
 }
@@ -209,7 +218,10 @@ TEST_CASE(
     using rule = ops::masked_unary_homogeneous_rule<>;
 
     STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<rule::input_slot_list, type_list<float32_t>>,
+        type_rule_operand_types_t<
+            rule::input_slot_list_type,
+            type_list<float32_t>
+        >,
         type_list<float32_t, bool>
     >::value );
 }
@@ -228,7 +240,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::input_slot_list,
+            rule::input_slot_list_type,
             type_list<std::int32_t>
         >,
         type_list<bool, std::int32_t, std::int32_t>
@@ -236,7 +248,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::output_slot_list,
+            rule::output_slot_list_type,
             type_list<std::int32_t>
         >,
         type_list<std::int32_t>
@@ -255,7 +267,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::output_slot_list,
+            rule::output_slot_list_type,
             type_list<std::int64_t>
         >,
         type_list<std::int64_t, std::int64_t>
@@ -277,7 +289,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::input_slot_list,
+            rule::input_slot_list_type,
             type_list<float32_t, std::int32_t>
         >,
         type_list<float32_t, std::int32_t>
@@ -285,7 +297,7 @@ TEST_CASE(
 
     STATIC_REQUIRE( std::is_same<
         type_rule_operand_types_t<
-            rule::output_slot_list,
+            rule::output_slot_list_type,
             type_list<float32_t, std::int32_t>
         >,
         type_list<float32_t>

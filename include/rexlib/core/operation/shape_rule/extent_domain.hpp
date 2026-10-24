@@ -20,7 +20,7 @@ public:
 	/**
 	 * @brief Membership test of a domain.
 	 */
-	using contains_function = bool (*)(std::size_t);
+	using contains_function_type = bool (*)(std::size_t);
 
 	/**
 	 * @brief Construct a domain.
@@ -31,7 +31,7 @@ public:
 	 * duration.
 	 */
 	extent_domain(
-		contains_function contains,
+		contains_function_type contains,
 		const char *description
 	) noexcept;
 
@@ -52,7 +52,7 @@ public:
 	const char* get_description() const noexcept;
 
 private:
-	contains_function m_contains;
+	contains_function_type m_contains;
 	const char *m_description;
 };
 
