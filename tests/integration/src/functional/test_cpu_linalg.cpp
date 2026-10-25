@@ -13,6 +13,7 @@
 
 #include <complex>
 #include <cstddef>
+#include <stdexcept>
 #include <vector>
 
 using namespace rexlib;
@@ -20,10 +21,9 @@ using namespace rexlib::ops;
 using rexlib::test::element_value;
 using rexlib::test::reduction_verb_fixture;
 
-// vecdot is a broadcast followed by a sum along an axis, so it shares the
-// reduction shape policy and the reduction loop with the reduction family.
-// It is the only one of them taking two operands, which is what these cases
-// are here to pin.
+// vecdot is a sum along an axis, so it shares the reduction loop with the
+// reduction family. It is the only one of them taking two operands, which is
+// what these cases are here to pin.
 
 TEST_CASE_METHOD(
 	reduction_verb_fixture,
@@ -586,5 +586,92 @@ TEST_CASE_METHOD(
 			-1, 0, 0, -1,
 			0, 0, 0, 0,
 		}
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"vecdot does not broadcast the axis it contracts",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 2, 3, 4, 5, 6 }
+	);
+	auto right = make_sequence_operand<float32_t>({ 2, 1 }, { 1, 1 });
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	CHECK_THROWS_AS(
+		rexlib::vecdot(left_ref, right_ref, context, nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"vecdot rejects stacks that do not broadcast together",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 2, 3, 4, 5, 6 }
+	);
+	auto right = make_sequence_operand<float32_t>(
+		{ 4, 3 },
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+	);
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	CHECK_THROWS_AS(
+		rexlib::vecdot(left_ref, right_ref, context, nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"cross does not broadcast the axis of the components",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 0, 0, 0, 1, 0 }
+	);
+	auto right = make_sequence_operand<float32_t>({ 2, 1 }, { 1, 1 });
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	CHECK_THROWS_AS(
+		rexlib::cross(left_ref, right_ref, context, nullptr),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"matmul rejects an operand that is not a matrix",
+	"[array_linalg][cpu]"
+)
+{
+	auto vector = make_sequence_operand<float32_t>({ 3 }, { 1, 2, 3 });
+	auto matrix = make_sequence_operand<float32_t>(
+		{ 3, 2 },
+		{ 1, 0, 0, 1, 1, 1 }
+	);
+	const const_array_ref vector_ref = vector;
+	const const_array_ref matrix_ref = matrix;
+
+	CHECK_THROWS_AS(
+		rexlib::matmul(vector_ref, matrix_ref, context, nullptr),
+		std::invalid_argument
+	);
+	CHECK_THROWS_AS(
+		rexlib::matmul(matrix_ref, vector_ref, context, nullptr),
+		std::invalid_argument
 	);
 }

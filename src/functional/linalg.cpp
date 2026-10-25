@@ -113,7 +113,7 @@ array cross(
 )
 {
 	return execute_binary(
-		ops::cross_operation(resolve_axis(x, y, axis)),
+		ops::cross_operation(ops::axis_list(1, resolve_axis(x, y, axis))),
 		x,
 		y,
 		context,

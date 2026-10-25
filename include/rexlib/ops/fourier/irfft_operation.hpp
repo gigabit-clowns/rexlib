@@ -4,33 +4,37 @@
 
 #include "fourier_normalization.hpp"
 
-#include <rexlib/core/dispatch/parametric_operation.hpp>
+#include <rexlib/core/operation/operation_declaration_macros.hpp>
 #include <rexlib/core/platform/dynamic_shared_object.h>
 #include <rexlib/ops/ops_component.hpp>
-#include <rexlib/ops/policies/axis_list.hpp>
-#include <rexlib/ops/policies/inverse_real_fourier_transform_shape_policy.hpp>
-#include <rexlib/ops/rules/operand_type_rules.hpp>
+#include <rexlib/ops/parameters/axis_list.hpp>
+#include <rexlib/ops/parameters/restored_signal_axes.hpp>
+#include <rexlib/ops/rules/shape_rules.hpp>
+#include <rexlib/ops/rules/type_rules.hpp>
+
+#include <cstddef>
 
 namespace rexlib
 {
 namespace ops
 {
 
-REXLIB_DECLARE_OPERATION_TRAITS(
+REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
 	irfft,
 	ops_component,
 	REXLIB_OPERANDS("signal"),
 	REXLIB_OPERANDS("spectrum"),
-	inverse_real_fourier_transform_shape_policy,
+	inverse_real_fourier_transform_shape_rule,
+	restored_signal_axes,
 	unary_real_of_rule<complex_type_domain>
 );
 
 /**
  * @brief Transform a half spectrum back into a real array.
  *
- * The inverse of rfft. The extent of the restored axis is recovered from
- * the parity the operation carries, an axis of m coefficients coming
- * from either 2*(m - 1) or 2*m - 1 samples.
+ * The inverse of rfft. An axis of m coefficients comes from either
+ * 2*(m - 1) or 2*m - 1 samples, so the operation carries the extent of the
+ * restored axis.
  */
 REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API irfft_operation final
@@ -40,20 +44,20 @@ public:
 	/**
 	 * @brief Construct an inverse transform of a real signal.
 	 *
-	 * @param axes The transformed axes. Sorted on construction. The last of
-	 * them is the restored one, and the remaining axes are batch dimensions.
-	 * @param parity The parity the restored axis had before it was
-	 * transformed.
+	 * @param axes The transformed axes. The last one named is the restored
+	 * one, and the remaining axes are batch dimensions.
+	 * @param extent The number of samples along the restored axis. The
+	 * spectrum must hold extent / 2 + 1 coefficients along it.
 	 * @param normalization Which of the transform pair carries the scaling.
 	 * It is measured against the restored real signal, not against the
 	 * coefficients the spectrum actually holds.
 	 *
-	 * @throws std::invalid_argument When an axis is repeated, or when no
-	 * axis is given.
+	 * @throws std::invalid_argument When an axis is repeated, when no axis
+	 * is given, or when @p extent is zero.
 	 */
 	irfft_operation(
 		axis_list axes,
-		signal_parity parity,
+		std::size_t extent,
 		fourier_normalization normalization = fourier_normalization::backward
 	);
 

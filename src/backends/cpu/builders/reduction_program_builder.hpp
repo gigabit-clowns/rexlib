@@ -37,8 +37,9 @@ namespace cpu
  * whole of that split is decided once here and the program that results holds
  * no decision left to make per element.
  *
- * @tparam Op The operation type this builder targets. Must carry a
- * reduction_operation_shape_policy.
+ * @tparam Op The operation type this builder targets. Its parameters must
+ * name the reduced axes through get_axes() and whether they are kept through
+ * get_keep_dimensions().
  * @tparam KernelFactory Factory producing the reduction kernel. Invoked as
  * factory(operation, output_types, input_types), where operation is the
  * concrete @p Op and the type arguments are type_list-s of the resolved
@@ -59,7 +60,7 @@ namespace cpu
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>,
+	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>,
 	typename Indexing = no_index_tag
 >
 class reduction_program_builder final
@@ -79,14 +80,14 @@ public:
 	 * holds no decision left to make per element.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return reduction_layout_plan The planned iteration.
 	 */
 	reduction_layout_plan make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**
@@ -129,7 +130,7 @@ using linear_indexed_reduction_program_builder =
 	reduction_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule>,
+		rule_type_dispatcher<typename Op::type_rule_type>,
 		linear_index_tag
 	>;
 
@@ -145,7 +146,7 @@ using multidimensional_indexed_reduction_program_builder =
 	reduction_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule>,
+		rule_type_dispatcher<typename Op::type_rule_type>,
 		multidimensional_index_tag
 	>;
 

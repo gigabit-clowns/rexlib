@@ -31,7 +31,8 @@ namespace cpu
  * share this builder; @p ShiftPolicy supplies that one difference.
  *
  * @tparam Op The operation type, declared through
- * REXLIB_DECLARE_PARAMETRIC_OPERATION with an axiswise_operation_shape_policy.
+ * REXLIB_DECLARE_PARAMETRIC_OPERATION with parameters naming the shifted axes
+ * through get_axes().
  * @tparam ShiftPolicy Provides
  * `static std::size_t shift_amount(std::size_t extent) noexcept`, the
  * distance an axis of that extent is cyclically shifted by.
@@ -42,7 +43,7 @@ namespace cpu
 template <
 	typename Op,
 	typename ShiftPolicy,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>
+	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>
 >
 class roll_program_builder final
 	: public dispatched_program_builder<
@@ -61,14 +62,14 @@ public:
 	 * that what runs per element is a plain affine copy.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return std::vector<joint_layout> One layout per block.
 	 */
 	std::vector<joint_layout> make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**

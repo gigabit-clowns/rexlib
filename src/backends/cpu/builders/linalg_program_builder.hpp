@@ -15,6 +15,8 @@
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/operation/shape_rule/core_placement.hpp>
+#include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -27,11 +29,43 @@ namespace cpu
 /**
  * @brief How many of an operation's trailing axes, per operand, are core.
  *
- * Specialized once per operation this builder serves. Two for a matrix
- * operand, one for a vector operand.
+ * Read from the shape rule of the operation: two for a matrix operand, one
+ * for a vector operand.
+ *
+ * @tparam Op The operation type. Its shape rule must place the core axes
+ * last, and describe one output and two inputs.
  */
 template <typename Op>
-struct linalg_core_ranks;
+struct linalg_core_ranks
+{
+	using shape_rule_type = typename Op::shape_rule_type;
+
+	static_assert(
+		shape_rule_type::placement_type::placement == core_placement::trailing,
+		"A linalg builder walks the trailing axes of its operands, so the "
+		"operation's shape rule must place the core axes last."
+	);
+
+	static_assert(
+		shape_rule_type::output_count == 1 && shape_rule_type::input_count == 2,
+		"A linalg builder serves operations of one output and two inputs."
+	);
+
+	static REXLIB_CONST_CONSTEXPR std::size_t output = type_list_element<
+		0,
+		typename shape_rule_type::output_core_list_type
+	>::type::axis_count;
+
+	static REXLIB_CONST_CONSTEXPR std::size_t left = type_list_element<
+		0,
+		typename shape_rule_type::input_core_list_type
+	>::type::axis_count;
+
+	static REXLIB_CONST_CONSTEXPR std::size_t right = type_list_element<
+		1,
+		typename shape_rule_type::input_core_list_type
+	>::type::axis_count;
+};
 
 /**
  * @brief Generic program builder for the matmul/matvec/vecmat family.
@@ -44,8 +78,8 @@ struct linalg_core_ranks;
  * parameter rather than always the trailing one, so it implements
  * program_builder directly instead of going through this template.
  *
- * @tparam Op The operation type this builder targets. Must have a
- * linalg_core_ranks<Op> specialization.
+ * @tparam Op The operation type this builder targets. Its shape rule must
+ * place the core axes last, as linalg_core_ranks reads them.
  * @tparam KernelFactory Factory producing the per-batch-element kernel.
  * Invoked as factory(operation, output_types, input_types, plan), where the
  * type arguments are type_list-s of the resolved element types and plan is
@@ -57,7 +91,7 @@ struct linalg_core_ranks;
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule>
+	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>
 >
 class linalg_program_builder final
 	: public dispatched_program_builder<
@@ -72,32 +106,30 @@ public:
 	/**
 	 * @brief Whether every operand reaches the rank its core needs.
 	 *
-	 * A rank smaller than the core it is asked to supply means the operand
-	 * was promoted by the shape policy (matmul's vector promotion): this
-	 * builder does not implement that, and declines rather than misreading
-	 * a batch axis as a core one.
+	 * A rank smaller than the core it is asked to supply is declined rather
+	 * than a batch axis being misread as a core one.
 	 *
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return bool True if every operand is at least as deep as its core.
 	 */
-	bool accepts_signatures(
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+	bool accepts_descriptors(
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const noexcept;
 
 	/**
 	 * @brief Split every operand into its batch axes and its core.
 	 *
 	 * @param operation The operation.
-	 * @param output_signatures The output operand signatures.
-	 * @param input_signatures The input operand signatures.
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
 	 * @return linalg_core_layout_plan The planned iteration.
 	 */
 	linalg_core_layout_plan make_plan(
 		const Op &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
 	) const;
 
 	/**
@@ -136,8 +168,8 @@ private:
  * program builder.
  *
  * @param name Identifier of the registration object.
- * @param op The operation type. Must have a linalg_core_ranks<op>
- * specialization.
+ * @param op The operation type. Its shape rule must place the core axes
+ * last.
  * @param kernel_factory Factory producing the per-batch-element kernel.
  */
 #define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \

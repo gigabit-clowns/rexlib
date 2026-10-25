@@ -37,7 +37,7 @@ REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
 	copy,
 	ops::copy_operation,
 	default_kernel_factory<copy_kernel>,
-	rule_type_dispatcher<ops::copy_operation::type_rule, copy_support>
+	rule_type_dispatcher<ops::copy_operation::type_rule_type, copy_support>
 );
 
 } // namespace cpu

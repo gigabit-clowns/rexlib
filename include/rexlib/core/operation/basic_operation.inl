@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include "basic_operation.hpp"
+
+namespace rexlib
+{
+
+template <typename Derived, typename Traits>
+inline
+const operation_descriptor&
+basic_operation<Derived, Traits>::get_static_descriptor() noexcept
+{
+	static const operation_descriptor descriptor = make_operation_descriptor(
+		Traits::get_component(),
+		Traits::get_name(),
+		Traits::get_output_names(),
+		Traits::get_input_names()
+	);
+	return descriptor;
+}
+
+template <typename Derived, typename Traits>
+inline
+const operation_descriptor&
+basic_operation<Derived, Traits>::get_descriptor() const noexcept
+{
+	return get_static_descriptor();
+}
+
+template <typename Derived, typename Traits>
+inline
+operation_id basic_operation<Derived, Traits>::get_id() const noexcept
+{
+	return operation_id::of<Derived>();
+}
+
+} // namespace rexlib

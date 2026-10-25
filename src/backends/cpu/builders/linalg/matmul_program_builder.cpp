@@ -14,14 +14,6 @@ namespace rexlib
 namespace cpu
 {
 
-template <>
-struct linalg_core_ranks<ops::matmul_operation>
-{
-	static constexpr std::size_t output = 2;
-	static constexpr std::size_t left = 2;
-	static constexpr std::size_t right = 2;
-};
-
 namespace
 {
 
@@ -93,7 +85,7 @@ REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	ops::matmul_operation,
 	matmul_kernel_factory,
 	rule_type_dispatcher<
-		ops::matmul_operation::type_rule,
+		ops::matmul_operation::type_rule_type,
 		eigen_scalar_support
 	>
 );

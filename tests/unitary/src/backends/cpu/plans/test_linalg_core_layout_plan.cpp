@@ -4,7 +4,7 @@
 
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/span.hpp>
@@ -19,9 +19,9 @@ using namespace rexlib::cpu;
 namespace
 {
 
-operand_signature make_signature(std::vector<std::size_t> extents)
+operand_descriptor make_operand_descriptor(std::vector<std::size_t> extents)
 {
-	return operand_signature(
+	return operand_descriptor(
 		strided_layout::make_contiguous_layout(make_span(extents)),
 		numerical_type::float32,
 		nullptr
@@ -36,11 +36,11 @@ TEST_CASE(
 	"[linalg_core_layout_plan]"
 )
 {
-	const auto output = make_signature({ 2, 4 });
-	const std::array<operand_signature, 2> inputs = {
-		make_signature({ 2, 3 }), make_signature({ 3, 4 })
+	const auto output = make_operand_descriptor({ 2, 4 });
+	const std::array<operand_descriptor, 2> inputs = {
+		make_operand_descriptor({ 2, 3 }), make_operand_descriptor({ 3, 4 })
 	};
-	const std::array<operand_signature, 1> outputs = { output };
+	const std::array<operand_descriptor, 1> outputs = { output };
 
 	const auto plan = linalg_core_layout_plan::for_trailing_core(
 		make_span(outputs), make_span(inputs), 2, 2, 2
@@ -78,11 +78,11 @@ TEST_CASE(
 	// batch: its trailing {2, 4} is one core matrix per batch step. right's
 	// rank equals its core rank, so it has no batch axis of its own and is
 	// broadcast up to that one axis instead.
-	const auto output = make_signature({ 5, 2, 4 });
-	const std::array<operand_signature, 2> inputs = {
-		make_signature({ 5, 2, 3 }), make_signature({ 3, 4 })
+	const auto output = make_operand_descriptor({ 5, 2, 4 });
+	const std::array<operand_descriptor, 2> inputs = {
+		make_operand_descriptor({ 5, 2, 3 }), make_operand_descriptor({ 3, 4 })
 	};
-	const std::array<operand_signature, 1> outputs = { output };
+	const std::array<operand_descriptor, 1> outputs = { output };
 
 	const auto plan = linalg_core_layout_plan::for_trailing_core(
 		make_span(outputs), make_span(inputs), 2, 2, 2
@@ -111,11 +111,11 @@ TEST_CASE(
 	"[linalg_core_layout_plan]"
 )
 {
-	const auto output = make_signature({ 2 });
-	const std::array<operand_signature, 2> inputs = {
-		make_signature({ 2, 3 }), make_signature({ 3 })
+	const auto output = make_operand_descriptor({ 2 });
+	const std::array<operand_descriptor, 2> inputs = {
+		make_operand_descriptor({ 2, 3 }), make_operand_descriptor({ 3 })
 	};
-	const std::array<operand_signature, 1> outputs = { output };
+	const std::array<operand_descriptor, 1> outputs = { output };
 
 	CHECK_THROWS_AS(
 		linalg_core_layout_plan::for_trailing_core(
@@ -131,11 +131,11 @@ TEST_CASE(
 	"[linalg_core_layout_plan]"
 )
 {
-	const auto output = make_signature({ 3, 4 });
-	const std::array<operand_signature, 2> inputs = {
-		make_signature({ 3, 4 }), make_signature({ 3, 4 })
+	const auto output = make_operand_descriptor({ 3, 4 });
+	const std::array<operand_descriptor, 2> inputs = {
+		make_operand_descriptor({ 3, 4 }), make_operand_descriptor({ 3, 4 })
 	};
-	const std::array<operand_signature, 1> outputs = { output };
+	const std::array<operand_descriptor, 1> outputs = { output };
 
 	const auto plan =
 		linalg_core_layout_plan::for_named_axis(
@@ -158,11 +158,11 @@ TEST_CASE(
 	"[linalg_core_layout_plan]"
 )
 {
-	const auto output = make_signature({ 3, 4 });
-	const std::array<operand_signature, 2> inputs = {
-		make_signature({ 3, 4 }), make_signature({ 1, 4 })
+	const auto output = make_operand_descriptor({ 3, 4 });
+	const std::array<operand_descriptor, 2> inputs = {
+		make_operand_descriptor({ 3, 4 }), make_operand_descriptor({ 1, 4 })
 	};
-	const std::array<operand_signature, 1> outputs = { output };
+	const std::array<operand_descriptor, 1> outputs = { output };
 
 	const auto plan =
 		linalg_core_layout_plan::for_named_axis(

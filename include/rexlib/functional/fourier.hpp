@@ -386,8 +386,8 @@ array ifft3(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  *
- * @note Only the half that is not redundant is stored: the last transformed
- * axis holds n / 2 + 1 coefficients. Complex arrays are not accepted.
+ * @note Only the half that is not redundant is stored: the last axis named
+ * holds n / 2 + 1 coefficients. Complex arrays are not accepted.
  */
 REXLIB_API
 array rfft(
@@ -408,8 +408,8 @@ array rfft(
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the half spectrum.
  *
- * @note Only the half that is not redundant is stored: the last transformed
- * axis holds n / 2 + 1 coefficients. Complex arrays are not accepted.
+ * @note Only the half that is not redundant is stored: the last axis named
+ * holds n / 2 + 1 coefficients. Complex arrays are not accepted.
  *
  * @note Scales as @ref ops::fourier_normalization::backward does. Name
  * another convention through the overload that takes one.
@@ -557,7 +557,8 @@ array rfft3(
  * @param x The half spectrum to be transformed.
  * @param axes The axes to transform along. Negative values refer to axes
  * from the end. The remaining axes are batch dimensions.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param normalization Which of the transform pair carries the scaling.
  * A transform and its inverse undo one another whenever they are given
  * the same one.
@@ -566,9 +567,7 @@ array rfft3(
  * @return array The array holding the real signal.
  *
  * @note The extent of the restored axis cannot be deduced: an axis of m stored
- * coefficients comes from either 2*(m - 1) or 2*m - 1 samples. Only its
- * parity actually matters, so any extent of the right parity selects the
- * same transform.
+ * coefficients comes from either 2*(m - 1) or 2*m - 1 samples.
  *
  * @see rfft
  */
@@ -588,15 +587,14 @@ array irfft(
  * @param x The half spectrum to be transformed.
  * @param axes The axes to transform along. Negative values refer to axes
  * from the end. The remaining axes are batch dimensions.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.
  *
  * @note The extent of the restored axis cannot be deduced: an axis of m stored
- * coefficients comes from either 2*(m - 1) or 2*m - 1 samples. Only its
- * parity actually matters, so any extent of the right parity selects the
- * same transform.
+ * coefficients comes from either 2*(m - 1) or 2*m - 1 samples.
  *
  * @see rfft
  *
@@ -618,7 +616,8 @@ array irfft(
  * Transforms along the last axis and treats the rest as batch dimensions.
  *
  * @param x The half spectrum to be transformed.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param normalization Which of the transform pair carries the scaling.
  * A transform and its inverse undo one another whenever they are given
  * the same one.
@@ -641,7 +640,8 @@ array irfft(
  * Transforms along the last axis and treats the rest as batch dimensions.
  *
  * @param x The half spectrum to be transformed.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.
@@ -663,7 +663,8 @@ array irfft(
  * Transforms along the last two axes and treats the rest as batch dimensions.
  *
  * @param x The half spectrum to be transformed.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param normalization Which of the transform pair carries the scaling.
  * A transform and its inverse undo one another whenever they are given
  * the same one.
@@ -686,7 +687,8 @@ array irfft2(
  * Transforms along the last two axes and treats the rest as batch dimensions.
  *
  * @param x The half spectrum to be transformed.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.
@@ -708,7 +710,8 @@ array irfft2(
  * Transforms along the last three axes and treats the rest as batch dimensions.
  *
  * @param x The half spectrum to be transformed.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param normalization Which of the transform pair carries the scaling.
  * A transform and its inverse undo one another whenever they are given
  * the same one.
@@ -731,7 +734,8 @@ array irfft3(
  * Transforms along the last three axes and treats the rest as batch dimensions.
  *
  * @param x The half spectrum to be transformed.
- * @param extent The number of samples along the last transformed axis.
+ * @param extent The number of samples along the last transformed axis. That
+ * axis must hold extent / 2 + 1 coefficients.
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the real signal.

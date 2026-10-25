@@ -249,7 +249,7 @@ jobs:
           cmake --install build --prefix "${{ runner.temp }}/install"
           found=$(find "${{ runner.temp }}/install" \
             \( -iname '*catch*' -o -iname '*eigen*' -o -iname '*spdlog*' \
-               -o -iname '*boost*' -o -iname '*half*' -o -iname '*pocketfft*' \) \
+               -o -iname '*boost*' -o -iname 'half.hpp' -o -iname '*pocketfft*' \) \
             -print)
           if [ -n "$found" ]; then
             echo "A dependency reached the install tree:"

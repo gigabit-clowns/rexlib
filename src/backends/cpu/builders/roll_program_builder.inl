@@ -2,7 +2,7 @@
 
 #include "roll_program_builder.hpp"
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
@@ -83,14 +83,14 @@ template <typename Op, typename ShiftPolicy, typename TypeDispatcher>
 std::vector<joint_layout>
 roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_plan(
 	const Op &operation,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
 ) const
 {
-	const auto axes = operation.get_shape_policy().get_axes();
+	const auto axes = operation.get_parameters().get_axes();
 
-	const auto &output_layout = output_signatures[0].get_layout();
-	const auto &input_layout = input_signatures[0].get_layout();
+	const auto &output_layout = output_descriptors[0].get_layout();
+	const auto &input_layout = input_descriptors[0].get_layout();
 
 	std::vector<std::size_t> extents;
 	output_layout.get_extents(extents);

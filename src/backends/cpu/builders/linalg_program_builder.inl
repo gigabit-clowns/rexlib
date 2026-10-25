@@ -2,7 +2,7 @@
 
 #include "linalg_program_builder.hpp"
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
@@ -67,32 +67,32 @@ private:
 template <typename Op, typename KernelFactory, typename TypeDispatcher>
 bool
 linalg_program_builder<Op, KernelFactory, TypeDispatcher>
-::accepts_signatures(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures
+::accepts_descriptors(
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
 ) const noexcept
 {
 	using core_ranks = linalg_core_ranks<Op>;
 
 	return
-		output_signatures[0].get_layout().get_rank() >= core_ranks::output &&
-		input_signatures[0].get_layout().get_rank() >= core_ranks::left &&
-		input_signatures[1].get_layout().get_rank() >= core_ranks::right;
+		output_descriptors[0].get_layout().get_rank() >= core_ranks::output &&
+		input_descriptors[0].get_layout().get_rank() >= core_ranks::left &&
+		input_descriptors[1].get_layout().get_rank() >= core_ranks::right;
 }
 
 template <typename Op, typename KernelFactory, typename TypeDispatcher>
 linalg_core_layout_plan
 linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_plan(
 	const Op& /*operation*/,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
 ) const
 {
 	using core_ranks = linalg_core_ranks<Op>;
 
 	return linalg_core_layout_plan::for_trailing_core(
-		output_signatures,
-		input_signatures,
+		output_descriptors,
+		input_descriptors,
 		core_ranks::output,
 		core_ranks::left,
 		core_ranks::right

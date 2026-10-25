@@ -112,16 +112,16 @@ linalg_core_layout_plan::linalg_core_layout_plan(
 }
 
 linalg_core_layout_plan linalg_core_layout_plan::for_trailing_core(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	std::size_t output_core_rank,
 	std::size_t left_core_rank,
 	std::size_t right_core_rank
 )
 {
-	const auto &output_layout = output_signatures[0].get_layout();
-	const auto &left_layout = input_signatures[0].get_layout();
-	const auto &right_layout = input_signatures[1].get_layout();
+	const auto &output_layout = output_descriptors[0].get_layout();
+	const auto &left_layout = input_descriptors[0].get_layout();
+	const auto &right_layout = input_descriptors[1].get_layout();
 
 	joint_layout_builder builder;
 	std::vector<std::size_t> batch_extents;
@@ -160,13 +160,13 @@ linalg_core_layout_plan linalg_core_layout_plan::for_trailing_core(
 }
 
 linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	std::size_t core_axis
 )
 {
 	std::vector<std::size_t> canonical_extents;
-	output_signatures[0].get_layout().get_extents(canonical_extents);
+	output_descriptors[0].get_layout().get_extents(canonical_extents);
 
 	joint_layout_builder builder;
 	std::vector<std::size_t> batch_extents;
@@ -174,7 +174,7 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 	std::ptrdiff_t offset;
 
 	const auto output_core = split_named_core(
-		output_signatures[0].get_layout(),
+		output_descriptors[0].get_layout(),
 		make_span(canonical_extents),
 		core_axis,
 		batch_extents, batch_strides, offset
@@ -182,7 +182,7 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 	builder.add_operand(make_span(batch_extents), make_span(batch_strides), offset);
 
 	const auto left_core = split_named_core(
-		input_signatures[0].get_layout(),
+		input_descriptors[0].get_layout(),
 		make_span(canonical_extents),
 		core_axis,
 		batch_extents, batch_strides, offset
@@ -190,7 +190,7 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 	builder.add_operand(make_span(batch_extents), make_span(batch_strides), offset);
 
 	const auto right_core = split_named_core(
-		input_signatures[1].get_layout(),
+		input_descriptors[1].get_layout(),
 		make_span(canonical_extents),
 		core_axis,
 		batch_extents, batch_strides, offset

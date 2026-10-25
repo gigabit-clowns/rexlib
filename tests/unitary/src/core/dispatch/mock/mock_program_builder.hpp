@@ -4,9 +4,9 @@
 
 #include <rexlib/core/dispatch/program_builder.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
-#include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
+#include <rexlib/core/hardware/program.hpp>
 
 #include <trompeloeil.hpp>
 
@@ -27,8 +27,8 @@ public:
 		get_suitability,
 		backend_priority (
 			const operation &operation,
-			span<const operand_signature> output_signatures,
-			span<const operand_signature> input_signatures,
+			span<const operand_descriptor> output_descriptors,
+			span<const operand_descriptor> input_descriptors,
 			command_queue &queue
 		),
 		override
@@ -38,8 +38,8 @@ public:
 		build,
 		std::shared_ptr<program> (
 			const operation &operation,
-			span<const operand_signature> output_signatures,
-			span<const operand_signature> input_signatures,
+			span<const operand_descriptor> output_descriptors,
+			span<const operand_descriptor> input_descriptors,
 			command_queue &queue,
 			program_cache *cache
 		),

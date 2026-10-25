@@ -17,7 +17,7 @@ class command_queue;
 
 
 class operation;
-class operand_signature;
+class operand_descriptor;
 class program_builder;
 class program_cache;
 
@@ -59,23 +59,23 @@ public:
 	 * configuration.
 	 *
 	 * @param operation The operation for which the program is built.
-	 * @param output_signatures The output array signatures involved in the
+	 * @param output_descriptors The output operand descriptors involved in the
 	 * operation.
-	 * @param input_signatures The input array signatures involved in the
+	 * @param input_descriptors The input operand descriptors involved in the
 	 * operation.
 	 * @param queue The command queue where the built program is
 	 * intended to be used.
 	 * @param cache Optional cache for backend-private resources, forwarded
 	 * to the selected builder.
 	 * @return std::shared_ptr<program> The executable program suited
-	 * for the requested operation and signature.
+	 * for the requested operation and operand descriptors.
 	 * @throws unsupported_operation_error If no registered builder supports
-	 * the operation with these signatures on this queue.
+	 * the operation with these operand descriptors on this queue.
 	 */
 	std::shared_ptr<program> build(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		command_queue &queue,
 		program_cache *cache = nullptr
 	) const;

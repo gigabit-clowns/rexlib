@@ -7,6 +7,7 @@ target_sources(
 		test_extremum_locator_kernel.cpp
 		test_fold_reduction_kernel.cpp
 		test_fourier_program_builder.cpp
+		test_linalg_program_builder.cpp
 )
 
 add_subdirectory(type_dispatchers)

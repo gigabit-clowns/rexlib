@@ -2,7 +2,7 @@
 
 #include "fourier_program_builder.hpp"
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
@@ -67,14 +67,14 @@ template <typename Op, typename Transform, typename TypeDispatcher>
 fourier_layout_plan
 fourier_program_builder<Op, Transform, TypeDispatcher>::make_plan(
 	const Op &operation,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
 ) const
 {
 	return fourier_layout_plan(
-		output_signatures[0],
-		input_signatures[0],
-		operation.get_shape_policy().get_axes(),
+		output_descriptors[0],
+		input_descriptors[0],
+		operation.get_parameters().get_axes(),
 		Transform::get_kind()
 	);
 }

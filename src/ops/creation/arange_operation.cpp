@@ -30,7 +30,7 @@ const scalar_value& arange_operation::get_step() const noexcept
 
 std::size_t arange_operation::get_count() const noexcept
 {
-	return get_shape_policy().get_count();
+	return get_parameters().get_count();
 }
 
 } // namespace ops

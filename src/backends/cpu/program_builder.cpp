@@ -2,7 +2,7 @@
 
 #include <rexlib/backends/cpu/program_builder.hpp>
 
-#include <rexlib/core/dispatch/operand_signature.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <backends/cpu/hardware/command_queue.hpp>
 
@@ -16,9 +16,9 @@ namespace cpu
 namespace
 {
 
-bool check_host_access(const operand_signature &signature) noexcept
+bool check_host_access(const operand_descriptor &descriptor) noexcept
 {
-	const auto *resource = signature.get_memory_resource();
+	const auto *resource = descriptor.get_memory_resource();
 	if (!resource)
 	{
 		return false;
@@ -32,11 +32,15 @@ bool check_host_access(const operand_signature &signature) noexcept
 	return true;
 }
 
-bool check_array_signatures(
-	span<const operand_signature> signatures
+bool check_array_descriptors(
+	span<const operand_descriptor> descriptors
 ) noexcept
 {
-	return std::all_of(signatures.begin(), signatures.end(), check_host_access);
+	return std::all_of(
+		descriptors.begin(),
+		descriptors.end(),
+		check_host_access
+	);
 }
 
 } // anonymous namespace
@@ -44,17 +48,17 @@ bool check_array_signatures(
 
 backend_priority program_builder::get_suitability(
 	const operation& /*operation*/,
-	span<const operand_signature> output_signatures,
-	span<const operand_signature> input_signatures,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors,
 	rexlib::command_queue &queue
 ) const
 {
-	if (!check_array_signatures(output_signatures))
+	if (!check_array_descriptors(output_descriptors))
 	{
 		return backend_priority::unsupported;
 	}
 
-	if (!check_array_signatures(input_signatures))
+	if (!check_array_descriptors(input_descriptors))
 	{
 		return backend_priority::unsupported;
 	}

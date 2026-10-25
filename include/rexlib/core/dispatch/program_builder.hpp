@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "operation_id.hpp"
+#include <rexlib/core/operation/operation_id.hpp>
 
 #include "../platform/dynamic_shared_object.h"
 #include "../span.hpp"
@@ -19,7 +19,7 @@ class command_queue;
 
 
 class operation;
-class operand_signature;
+class operand_descriptor;
 class program_cache;
 
 /**
@@ -52,9 +52,9 @@ public:
 	 *
 	 * @param operation The operation. Its ID must be equal to the ID returned
 	 * by get_operation_id.
-	 * @param output_signatures The output array signatures involved in the
+	 * @param output_descriptors The output operand descriptors involved in the
 	 * operation.
-	 * @param input_signatures The input array signatures involved in the
+	 * @param input_descriptors The input operand descriptors involved in the
 	 * operation.
 	 * @param queue The command queue where the built program is
 	 * intended to be used.
@@ -63,8 +63,8 @@ public:
 	 */
 	virtual backend_priority get_suitability(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		command_queue &queue
 	) const = 0;
 
@@ -77,9 +77,9 @@ public:
 	 *
 	 * @param operation The operation. Its ID must be equal to the ID returned
 	 * by get_operation_id.
-	 * @param output_signatures The output array signatures involved in the
+	 * @param output_descriptors The output operand descriptors involved in the
 	 * operation.
-	 * @param input_signatures The input array signatures involved in the
+	 * @param input_descriptors The input operand descriptors involved in the
 	 * operation.
 	 * @param queue The command queue where the built program is
 	 * intended to be used.
@@ -88,13 +88,13 @@ public:
 	 * resources (FFT plans, compiled kernels, workspaces, ...) across
 	 * builds. Implementations are free to ignore it.
 	 * @return std::shared_ptr<program> The executable program suited
-	 * for the requested operation and signature.
+	 * for the requested operation and operand descriptors.
 	 */
 	virtual
 	std::shared_ptr<program> build(
 		const operation &operation,
-		span<const operand_signature> output_signatures,
-		span<const operand_signature> input_signatures,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
 		command_queue &queue,
 		program_cache *cache
 	) const = 0;

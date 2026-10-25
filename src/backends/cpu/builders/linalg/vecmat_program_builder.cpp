@@ -14,14 +14,6 @@ namespace rexlib
 namespace cpu
 {
 
-template <>
-struct linalg_core_ranks<ops::vecmat_operation>
-{
-	static constexpr std::size_t output = 1;
-	static constexpr std::size_t left = 1;
-	static constexpr std::size_t right = 2;
-};
-
 namespace
 {
 
@@ -92,7 +84,7 @@ REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	ops::vecmat_operation,
 	vecmat_kernel_factory,
 	rule_type_dispatcher<
-		ops::vecmat_operation::type_rule,
+		ops::vecmat_operation::type_rule_type,
 		eigen_scalar_support
 	>
 );

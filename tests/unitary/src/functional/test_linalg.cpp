@@ -65,7 +65,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		const auto axes = dynamic_cast<const vecdot_operation&>(op)
-			.get_shape_policy().get_axes();
+			.get_parameters().get_axes();
 		seen.assign(axes.begin(), axes.end());
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
@@ -100,7 +100,7 @@ TEST_CASE_METHOD(
 	record.inspect = [&seen] (const operation &op)
 	{
 		seen = dynamic_cast<const cross_operation&>(op)
-			.get_shape_policy().get_axis();
+			.get_parameters().get_axes()[0];
 	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
 		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );

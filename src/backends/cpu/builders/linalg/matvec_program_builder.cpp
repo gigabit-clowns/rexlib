@@ -14,14 +14,6 @@ namespace rexlib
 namespace cpu
 {
 
-template <>
-struct linalg_core_ranks<ops::matvec_operation>
-{
-	static constexpr std::size_t output = 1;
-	static constexpr std::size_t left = 2;
-	static constexpr std::size_t right = 1;
-};
-
 namespace
 {
 
@@ -90,7 +82,7 @@ REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
 	ops::matvec_operation,
 	matvec_kernel_factory,
 	rule_type_dispatcher<
-		ops::matvec_operation::type_rule,
+		ops::matvec_operation::type_rule_type,
 		eigen_scalar_support
 	>
 );

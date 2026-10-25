@@ -17,7 +17,7 @@ the same pull request that causes it.
 | `include/rexlib/` | The public headers |
 | `src/` | The implementation, plus headers that are not public |
 | `src/backends/cpu/` | The CPU backend: builders, kernels, loops, plans |
-| `src/core/` | Dispatch, layouts, hardware abstraction, plugin loading |
+| `src/core/` | What an operation is and which operands it admits (`operation/`, with the shape and type rule languages in `shape_rule/` and `type_rule/`), how it runs (`dispatch/`), layouts, hardware abstraction, plugin loading |
 | `src/ops/`, `src/functional/` | Operation declarations and the functions that reach them |
 | `src/em/` | Reserved for the CryoEM operations. It holds no source yet, so its component target, `rexlib-em-obj`, is commented out in `src/CMakeLists.txt` and in `tests/unitary/CMakeLists.txt` |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
