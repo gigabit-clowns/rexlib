@@ -9,7 +9,8 @@
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
-#include <algorithm>
+#include <trompeloeil.hpp>
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -19,30 +20,30 @@
 
 using namespace rexlib;
 using namespace rexlib::cpu;
+using trompeloeil::_;
 
 namespace
 {
 
-/**
- * @brief The order the elements of a run reached the kernel.
- */
-struct fold_log
+class mock_fold_kernel
 {
-	std::vector<std::size_t> seeded;
-	std::vector<std::size_t> combined;
-	std::size_t merges = 0;
+public:
+	MAKE_CONST_MOCK1(seed, void(std::size_t index));
+	MAKE_CONST_MOCK1(combine, void(std::size_t index));
+	MAKE_CONST_MOCK0(merge, void());
 };
 
 /**
- * @brief Summing element kernel that records the indices it is handed.
+ * @brief Summing element kernel that reports the indices it is handed, and
+ * its merges, to a mock.
  *
  * Says nothing about reassociation, so the adaptor keeps its runs in order.
  */
-class recording_fold_kernel
+class forwarding_fold_kernel
 {
 public:
-	recording_fold_kernel()
-		: m_log(std::make_shared<fold_log>())
+	explicit forwarding_fold_kernel(const mock_fold_kernel &mock) noexcept
+		: m_mock(&mock)
 	{
 	}
 
@@ -54,7 +55,7 @@ public:
 
 	void seed(int &accumulator, const int *value, std::size_t index) const
 	{
-		m_log->seeded.push_back(index);
+		m_mock->seed(index);
 		accumulator = *value;
 	}
 
@@ -64,13 +65,13 @@ public:
 		std::size_t index
 	) const
 	{
-		m_log->combined.push_back(index);
+		m_mock->combine(index);
 		accumulator += *value;
 	}
 
 	void merge(int &accumulator, const int &other) const
 	{
-		++m_log->merges;
+		m_mock->merge();
 		accumulator += other;
 	}
 
@@ -79,13 +80,8 @@ public:
 		*result = accumulator;
 	}
 
-	const fold_log& log() const noexcept
-	{
-		return *m_log;
-	}
-
 private:
-	std::shared_ptr<fold_log> m_log;
+	const mock_fold_kernel *m_mock;
 };
 
 /**
@@ -94,11 +90,67 @@ private:
  * Identical in every other respect, which is what makes the answer the two
  * arrive at comparable.
  */
-class reassociable_fold_kernel : public recording_fold_kernel
+class reassociable_fold_kernel : public forwarding_fold_kernel
 {
 public:
+	using forwarding_fold_kernel::forwarding_fold_kernel;
+
 	static REXLIB_CONST_CONSTEXPR bool reassociable_fold = true;
 };
+
+using expectations = std::vector<std::unique_ptr<trompeloeil::expectation>>;
+
+/**
+ * @brief Expect a run folded in order: one combine per index.
+ */
+void expect_serial_fold(
+	expectations &expected,
+	const mock_fold_kernel &kernel,
+	trompeloeil::sequence &order,
+	const std::vector<std::size_t> &indices
+)
+{
+	for (const auto index : indices)
+	{
+		expected.push_back(
+			NAMED_REQUIRE_CALL(kernel, combine(index)).IN_SEQUENCE(order)
+		);
+	}
+}
+
+/**
+ * @brief Expect a run of @p count elements from index 0 dealt over lanes.
+ *
+ * One seed per lane, the remaining elements combined in order, and one merge
+ * per lane.
+ */
+void expect_dealt_fold(
+	expectations &expected,
+	const mock_fold_kernel &kernel,
+	trompeloeil::sequence &order,
+	std::size_t lanes,
+	std::size_t count
+)
+{
+	for (std::size_t index = 0; index < lanes; ++index)
+	{
+		expected.push_back(
+			NAMED_REQUIRE_CALL(kernel, seed(index)).IN_SEQUENCE(order)
+		);
+	}
+	for (std::size_t index = lanes; index < count; ++index)
+	{
+		expected.push_back(
+			NAMED_REQUIRE_CALL(kernel, combine(index)).IN_SEQUENCE(order)
+		);
+	}
+	for (std::size_t lane = 0; lane < lanes; ++lane)
+	{
+		expected.push_back(
+			NAMED_REQUIRE_CALL(kernel, merge()).IN_SEQUENCE(order)
+		);
+	}
+}
 
 /**
  * @brief Summing element kernel that takes no index at all.
@@ -191,7 +243,7 @@ linear_index_run<contiguous_stride_tag> index_run_at(std::size_t index)
 std::vector<std::size_t> iota_indices(std::size_t count)
 {
 	std::vector<std::size_t> result(count);
-	std::iota(result.begin(), result.end(), 0);
+	std::iota(result.begin(), result.end(), std::size_t(0));
 	return result;
 }
 
@@ -205,9 +257,7 @@ TEST_CASE(
 	// Saying nothing is the answer that costs nothing, so it has to be the
 	// one that keeps the fold in order.
 	CHECK( has_reassociable_fold<reassociable_fold_kernel>::value );
-	CHECK(
-		!has_reassociable_fold<recording_fold_kernel>::value
-	);
+	CHECK( !has_reassociable_fold<forwarding_fold_kernel>::value );
 	CHECK( !has_reassociable_fold<explicitly_serial_kernel>::value );
 	CHECK( !has_reassociable_fold<kernel_with_identity>::value );
 }
@@ -263,8 +313,15 @@ TEST_CASE(
 	// The elements reach the kernel in the order they sit in, which is what
 	// a fold that is not allowed to reassociate commits to.
 	const auto values = iota_vector(4*int_lane_count);
-	const recording_fold_kernel kernel;
-	const auto adaptor = make_reduction_element_adaptor(kernel);
+	const mock_fold_kernel kernel;
+	const auto adaptor =
+		make_reduction_element_adaptor(forwarding_fold_kernel(kernel));
+
+	trompeloeil::sequence order;
+	expectations expected;
+	expect_serial_fold(expected, kernel, order, iota_indices(values.size()));
+	FORBID_CALL(kernel, seed(_));
+	FORBID_CALL(kernel, merge());
 
 	int accumulator = 0;
 	adaptor.combine_run(
@@ -275,9 +332,6 @@ TEST_CASE(
 		index_run_at(0)
 	);
 
-	REQUIRE( kernel.log().combined == iota_indices(values.size()) );
-	REQUIRE( kernel.log().seeded.empty() );
-	REQUIRE( kernel.log().merges == 0 );
 	REQUIRE(
 		accumulator == std::accumulate(values.cbegin(), values.cend(), 0)
 	);
@@ -289,9 +343,22 @@ TEST_CASE(
 	"[reduction_element_adaptor]"
 )
 {
+	// Each lane is seeded from an element of its own, consecutive elements
+	// then go to consecutive lanes, and every lane is merged back.
 	const auto values = iota_vector(4*int_lane_count);
-	const reassociable_fold_kernel kernel;
-	const auto adaptor = make_reduction_element_adaptor(kernel);
+	const mock_fold_kernel kernel;
+	const auto adaptor =
+		make_reduction_element_adaptor(reassociable_fold_kernel(kernel));
+
+	trompeloeil::sequence order;
+	expectations expected;
+	expect_dealt_fold(
+		expected,
+		kernel,
+		order,
+		int_lane_count,
+		values.size()
+	);
 
 	int accumulator = 0;
 	adaptor.combine_run(
@@ -302,49 +369,11 @@ TEST_CASE(
 		index_run_at(0)
 	);
 
-	SECTION( "every element is folded exactly once" )
-	{
-		// The answer is what a single accumulator arrives at, reached by a
-		// different route: each element enters one lane, and every lane is
-		// merged back.
-		auto visited = kernel.log().seeded;
-		visited.insert(
-			visited.end(),
-			kernel.log().combined.cbegin(),
-			kernel.log().combined.cend()
-		);
-		std::sort(visited.begin(), visited.end());
-
-		REQUIRE( visited == iota_indices(values.size()) );
-	}
-
-	SECTION( "the first elements seed one lane each" )
-	{
-		REQUIRE( kernel.log().seeded == iota_indices(int_lane_count) );
-	}
-
-	SECTION( "consecutive elements go to consecutive lanes" )
-	{
-		// What makes one deal one contiguous stretch of the input, which is
-		// the whole point of dealing them this way rather than in blocks.
-		REQUIRE( kernel.log().combined.size() >= 2 );
-		REQUIRE( kernel.log().combined[0] == int_lane_count );
-		REQUIRE( kernel.log().combined[1] == int_lane_count + 1 );
-	}
-
-	SECTION( "the lanes are merged back into the accumulator" )
-	{
-		REQUIRE( kernel.log().merges == int_lane_count );
-	}
-
-	SECTION( "the answer is the one a serial fold arrives at" )
-	{
-		// Exact arithmetic here, so the reassociation is invisible and the
-		// two may be compared without a tolerance.
-		REQUIRE(
-			accumulator == std::accumulate(values.cbegin(), values.cend(), 0)
-		);
-	}
+	// Exact arithmetic here, so the reassociation is invisible and the
+	// answer may be compared with a serial fold's without a tolerance.
+	REQUIRE(
+		accumulator == std::accumulate(values.cbegin(), values.cend(), 0)
+	);
 }
 
 TEST_CASE(
@@ -356,8 +385,15 @@ TEST_CASE(
 	// more than the independence buys, so a short run keeps the simple path
 	// even for a kernel that would allow the other one.
 	const auto values = iota_vector(2*int_lane_count - 1);
-	const reassociable_fold_kernel kernel;
-	const auto adaptor = make_reduction_element_adaptor(kernel);
+	const mock_fold_kernel kernel;
+	const auto adaptor =
+		make_reduction_element_adaptor(reassociable_fold_kernel(kernel));
+
+	trompeloeil::sequence order;
+	expectations expected;
+	expect_serial_fold(expected, kernel, order, iota_indices(values.size()));
+	FORBID_CALL(kernel, seed(_));
+	FORBID_CALL(kernel, merge());
 
 	int accumulator = 0;
 	adaptor.combine_run(
@@ -367,10 +403,6 @@ TEST_CASE(
 		values.size(),
 		index_run_at(0)
 	);
-
-	REQUIRE( kernel.log().combined == iota_indices(values.size()) );
-	REQUIRE( kernel.log().seeded.empty() );
-	REQUIRE( kernel.log().merges == 0 );
 }
 
 TEST_CASE(
@@ -384,9 +416,22 @@ TEST_CASE(
 	// the lanes are taken up catches a tail that is dropped or folded twice.
 	for (std::size_t count = 1; count <= 5*int_lane_count; ++count)
 	{
+		INFO( "count " << count );
 		const auto values = iota_vector(count);
-		const reassociable_fold_kernel kernel;
-		const auto adaptor = make_reduction_element_adaptor(kernel);
+		const mock_fold_kernel kernel;
+		const auto adaptor =
+			make_reduction_element_adaptor(reassociable_fold_kernel(kernel));
+
+		trompeloeil::sequence order;
+		expectations expected;
+		if (count < 2*int_lane_count)
+		{
+			expect_serial_fold(expected, kernel, order, iota_indices(count));
+		}
+		else
+		{
+			expect_dealt_fold(expected, kernel, order, int_lane_count, count);
+		}
 
 		int accumulator = 0;
 		adaptor.combine_run(
@@ -397,12 +442,9 @@ TEST_CASE(
 			index_run_at(0)
 		);
 
-		const auto expected =
+		const auto expected_total =
 			std::accumulate(values.cbegin(), values.cend(), 0);
-		REQUIRE( accumulator == expected );
-		REQUIRE(
-			kernel.log().seeded.size() + kernel.log().combined.size() == count
-		);
+		REQUIRE( accumulator == expected_total );
 	}
 }
 
@@ -415,17 +457,29 @@ TEST_CASE(
 	// or reversed input has to be walked by its own stride on both paths.
 	const auto values = iota_vector(4*int_lane_count);
 
-	int expected = 0;
+	int total = 0;
 	for (std::size_t i = 0; i < values.size(); i += 2)
 	{
-		expected += values[i];
+		total += values[i];
 	}
+
+	const mock_fold_kernel kernel;
+	trompeloeil::sequence order;
+	expectations expected;
 
 	SECTION( "a kernel folding in order" )
 	{
-		const recording_fold_kernel kernel;
+		expect_serial_fold(
+			expected,
+			kernel,
+			order,
+			iota_indices(values.size() / 2)
+		);
+
 		int accumulator = 0;
-		make_reduction_element_adaptor(kernel).combine_run(
+		make_reduction_element_adaptor(
+			forwarding_fold_kernel(kernel)
+		).combine_run(
 			std::make_tuple(&accumulator),
 			std::make_tuple(values.data()),
 			std::make_tuple(std::ptrdiff_t(2)),
@@ -433,14 +487,23 @@ TEST_CASE(
 			index_run_at(0)
 		);
 
-		REQUIRE( accumulator == expected );
+		REQUIRE( accumulator == total );
 	}
 
 	SECTION( "a kernel folding in lanes" )
 	{
-		const reassociable_fold_kernel kernel;
+		expect_dealt_fold(
+			expected,
+			kernel,
+			order,
+			int_lane_count,
+			values.size() / 2
+		);
+
 		int accumulator = 0;
-		make_reduction_element_adaptor(kernel).combine_run(
+		make_reduction_element_adaptor(
+			reassociable_fold_kernel(kernel)
+		).combine_run(
 			std::make_tuple(&accumulator),
 			std::make_tuple(values.data()),
 			std::make_tuple(std::ptrdiff_t(2)),
@@ -448,7 +511,7 @@ TEST_CASE(
 			index_run_at(0)
 		);
 
-		REQUIRE( accumulator == expected );
+		REQUIRE( accumulator == total );
 	}
 }
 
@@ -462,22 +525,23 @@ TEST_CASE(
 	// and the index run it is handed says where that stretch sits and how
 	// the index moves along it.
 	const auto values = iota_vector(3);
-	const recording_fold_kernel kernel;
+	const mock_fold_kernel kernel;
+	const auto adaptor =
+		make_reduction_element_adaptor(forwarding_fold_kernel(kernel));
+	trompeloeil::sequence order;
+	expectations expected;
 
 	SECTION( "a run advancing the index by one" )
 	{
+		expect_serial_fold(expected, kernel, order, { 100, 101, 102 });
+
 		int accumulator = 0;
-		make_reduction_element_adaptor(kernel).combine_run(
+		adaptor.combine_run(
 			std::make_tuple(&accumulator),
 			std::make_tuple(values.data()),
 			std::make_tuple(contiguous_stride_tag()),
 			values.size(),
 			index_run_at(100)
-		);
-
-		REQUIRE(
-			kernel.log().combined ==
-			std::vector<std::size_t>{ 100, 101, 102 }
 		);
 	}
 
@@ -485,18 +549,15 @@ TEST_CASE(
 	{
 		// The shape of a run along an axis that is not the last one of the
 		// reduced space.
+		expect_serial_fold(expected, kernel, order, { 10, 13, 16 });
+
 		int accumulator = 0;
-		make_reduction_element_adaptor(kernel).combine_run(
+		adaptor.combine_run(
 			std::make_tuple(&accumulator),
 			std::make_tuple(values.data()),
 			std::make_tuple(contiguous_stride_tag()),
 			values.size(),
 			linear_index_run<std::ptrdiff_t>(10, 3)
-		);
-
-		REQUIRE(
-			kernel.log().combined ==
-			std::vector<std::size_t>{ 10, 13, 16 }
 		);
 	}
 }
@@ -556,10 +617,23 @@ TEST_CASE(
 	// A count by width matrix, row major, so a step along the run is `width`
 	// elements and a step along the strip is one.
 	const auto values = iota_vector(count*width);
-	const reassociable_fold_kernel kernel;
+	const mock_fold_kernel kernel;
+
+	// Every element of the strip at one place in the run shares its index.
+	expectations expected;
+	for (std::size_t e = 0; e < count; ++e)
+	{
+		expected.push_back(
+			NAMED_REQUIRE_CALL(kernel, combine(7 + e)).TIMES(width)
+		);
+	}
+	FORBID_CALL(kernel, seed(_));
+	FORBID_CALL(kernel, merge());
 
 	std::vector<int> accumulators(width, 10);
-	make_reduction_element_adaptor(kernel).combine_strip(
+	make_reduction_element_adaptor(
+		reassociable_fold_kernel(kernel)
+	).combine_strip(
 		std::make_tuple(accumulators.data()),
 		std::make_tuple(values.data()),
 		std::make_tuple(contiguous_stride_tag()),
@@ -574,17 +648,6 @@ TEST_CASE(
 		accumulators ==
 		std::vector<int>{ 10+1+5+9, 10+2+6+10, 10+3+7+11, 10+4+8+12 }
 	);
-	REQUIRE( kernel.log().merges == 0 );
-
-	// Every element of the strip at one place in the run shares its index.
-	auto indices = kernel.log().combined;
-	std::sort(indices.begin(), indices.end());
-	std::vector<std::size_t> expected;
-	for (std::size_t e = 0; e < count; ++e)
-	{
-		expected.insert(expected.end(), width, 7 + e);
-	}
-	REQUIRE( indices == expected );
 }
 
 TEST_CASE(
@@ -602,11 +665,15 @@ TEST_CASE(
 
 	for (std::size_t width = 1; width <= widest; ++width)
 	{
-		const recording_fold_kernel kernel;
+		const mock_fold_kernel kernel;
+		ALLOW_CALL(kernel, combine(_)).WITH(_1 < count);
+
 		std::vector<int> accumulators(widest + 1, 0);
 		accumulators.back() = -1; // A guard, to catch a block running over.
 
-		make_reduction_element_adaptor(kernel).combine_strip(
+		make_reduction_element_adaptor(
+			forwarding_fold_kernel(kernel)
+		).combine_strip(
 			std::make_tuple(accumulators.data()),
 			std::make_tuple(values.data()),
 			std::make_tuple(contiguous_stride_tag()),
@@ -643,10 +710,13 @@ TEST_CASE(
 	// accumulator of the strip is fed the same element.
 	REXLIB_CONST_CONSTEXPR std::size_t width = 3;
 	const auto values = iota_vector(width);
-	const recording_fold_kernel kernel;
+	const mock_fold_kernel kernel;
+	REQUIRE_CALL(kernel, combine(0u)).TIMES(width);
 
 	std::vector<int> accumulators(width, 0);
-	make_reduction_element_adaptor(kernel).combine_strip(
+	make_reduction_element_adaptor(
+		forwarding_fold_kernel(kernel)
+	).combine_strip(
 		std::make_tuple(accumulators.data()),
 		std::make_tuple(values.data()),
 		std::make_tuple(broadcasting_stride_tag()),
