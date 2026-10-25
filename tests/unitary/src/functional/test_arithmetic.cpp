@@ -119,21 +119,16 @@ TEST_CASE_METHOD(
 	const const_array_ref x = x_array;
 	const const_array_ref y = y_array;
 
-	test::dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(
 		trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_
 	))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<divmod_operation>(_1) )
+		.WITH( _2.size() == 2 )
+		.WITH( _3.size() == 2 )
+		.LR_WITH( storage_of(_3, 0) == x_storage.get() )
+		.LR_WITH( storage_of(_3, 1) == y_storage.get() );
 
 	divmod(x, y, context, nullptr, nullptr);
-
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(divmod_operation) );
-	CHECK( record.num_outputs == 2 );
-	CHECK( record.num_inputs == 2 );
-	CHECK( record.get_input_storage(0) == x_storage.get() );
-	CHECK( record.get_input_storage(1) == y_storage.get() );
 }
 
 TEST_CASE_METHOD(
@@ -153,19 +148,17 @@ TEST_CASE_METHOD(
 	const const_array_ref x = x_array;
 	const const_array_ref y = y_array;
 
-	test::dispatch_record record;
-	REQUIRE_CALL(*dispatcher, dispatch(
-		trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_
-	))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
-
-	const auto result = divmod(x, y, context, &quotient, &remainder);
-
 	// Each output has to land in its own slot, in signature order. Getting
 	// the two the wrong way round is the mistake a single output verb
 	// cannot make.
-	CHECK( record.get_output_storage(0) == quotient_storage.get() );
-	CHECK( record.get_output_storage(1) == remainder_storage.get() );
+	REQUIRE_CALL(*dispatcher, dispatch(
+		trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_
+	))
+		.LR_WITH( storage_of(_2, 0) == quotient_storage.get() )
+		.LR_WITH( storage_of(_2, 1) == remainder_storage.get() );
+
+	const auto result = divmod(x, y, context, &quotient, &remainder);
+
 	CHECK( result.first.get_storage() == quotient_storage.get() );
 	CHECK( result.second.get_storage() == remainder_storage.get() );
 }

@@ -19,8 +19,10 @@ class program_builder;
  *
  * @tparam Builder The concrete program_builder type. Must be default
  * constructible.
+ * @tparam Registry The registry to append to. Any type that takes a
+ * @ref program_builder_factory through @c add.
  */
-template <typename Builder>
+template <typename Builder, typename Registry = program_builder_registry>
 class program_builder_registration
 {
 public:
@@ -29,7 +31,7 @@ public:
 	 *
 	 * @param registry The registry to append to.
 	 */
-	explicit program_builder_registration(program_builder_registry &registry);
+	explicit program_builder_registration(Registry &registry);
 
 private:
 	static std::unique_ptr<program_builder> create_builder();

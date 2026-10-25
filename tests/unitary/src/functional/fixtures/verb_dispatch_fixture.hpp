@@ -30,7 +30,6 @@
 #include <trompeloeil.hpp>
 
 #include <cstddef>
-#include <functional>
 #include <memory>
 #include <typeinfo>
 #include <vector>
@@ -39,95 +38,6 @@ namespace rexlib
 {
 namespace test
 {
-
-/**
- * @brief What a mocked dispatch() call saw, kept for later inspection.
- *
- * The verbs build their operation as a temporary and hand it straight to
- * the dispatcher, so nothing about the call survives the call itself unless
- * it is copied out here.
- */
-struct dispatch_record
-{
-	bool called = false;
-	const std::type_info *operation_type = nullptr;
-	std::size_t num_outputs = 0;
-	std::size_t num_inputs = 0;
-	std::vector<const buffer*> output_storages;
-	std::vector<const buffer*> input_storages;
-	const device_session *session = nullptr;
-
-	/**
-	 * @brief Hook invoked while the operation is still alive.
-	 *
-	 * An operation carrying parameters, such as a fill value or a set of
-	 * reduction axes, is only reachable during the call: the verb passes a
-	 * temporary, so a pointer kept afterwards would dangle. Set this to
-	 * copy out whatever a particular test needs.
-	 */
-	std::function<void(const operation&)> inspect;
-
-	void operator()(
-		const operation &op,
-		span<array> outputs,
-		span<const const_array_ref> inputs,
-		const device_context &device_context
-	)
-	{
-		called = true;
-		operation_type = &typeid(op);
-		num_outputs = outputs.size();
-		num_inputs = inputs.size();
-
-		output_storages.clear();
-		for (const auto &output : outputs)
-		{
-			output_storages.push_back(output.get_storage());
-		}
-
-		input_storages.clear();
-		for (const auto &input : inputs)
-		{
-			input_storages.push_back(input.get_storage());
-		}
-
-		session = device_context.get_device_session().get();
-
-		if (inspect)
-		{
-			inspect(op);
-		}
-	}
-
-	/**
-	 * @brief Get the storage of an output operand.
-	 *
-	 * @param index Index of the operand.
-	 * @return const buffer* The storage, or null when the operand does not
-	 * exist or carried none. An absent operand is not fatal, so that a
-	 * failing check reports the mismatch rather than crashing the run.
-	 */
-	const buffer* get_output_storage(std::size_t index) const noexcept
-	{
-		return index < output_storages.size()
-			? output_storages[index]
-			: nullptr;
-	}
-
-	/**
-	 * @brief Get the storage of an input operand.
-	 *
-	 * @param index Index of the operand.
-	 * @return const buffer* The storage, or null when the operand does not
-	 * exist or carried none.
-	 */
-	const buffer* get_input_storage(std::size_t index) const noexcept
-	{
-		return index < input_storages.size()
-			? input_storages[index]
-			: nullptr;
-	}
-};
 
 /**
  * @brief Execution context wired to mocks, for testing functional verbs.
@@ -263,19 +173,19 @@ protected:
 			const array x_array = make_operand(x_storage, data_type);
 			const const_array_ref x = x_array;
 
-			dispatch_record record;
+			INFO( "output deduced" );
 			REQUIRE_CALL(*dispatcher, dispatch(
 				trompeloeil::_, trompeloeil::_,
 				trompeloeil::_, trompeloeil::_
 			))
-				.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+				.WITH( is_operation<Op>(_1) )
+				.WITH( _2.size() == 1 )
+				.WITH( _3.size() == 1 )
+				.LR_WITH( in_session(_4) )
+				.WITH( storage_of(_2, 0) == nullptr )
+				.LR_WITH( storage_of(_3, 0) == x_storage.get() );
 
 			verb(x, context, nullptr);
-
-			INFO( "output deduced" );
-			check_record<Op>(record, 1);
-			CHECK( record.get_output_storage(0) == nullptr );
-			CHECK( record.get_input_storage(0) == x_storage.get() );
 		}
 
 		{
@@ -285,18 +195,19 @@ protected:
 			array out = make_operand(out_storage, data_type);
 			const const_array_ref x = x_array;
 
-			dispatch_record record;
+			INFO( "output storage reused" );
 			REQUIRE_CALL(*dispatcher, dispatch(
 				trompeloeil::_, trompeloeil::_,
 				trompeloeil::_, trompeloeil::_
 			))
-				.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+				.WITH( is_operation<Op>(_1) )
+				.WITH( _2.size() == 1 )
+				.WITH( _3.size() == 1 )
+				.LR_WITH( in_session(_4) )
+				.LR_WITH( storage_of(_2, 0) == out_storage.get() );
 
 			const auto result = verb(x, context, &out);
 
-			INFO( "output storage reused" );
-			check_record<Op>(record, 1);
-			CHECK( record.get_output_storage(0) == out_storage.get() );
 			CHECK( result.get_storage() == out_storage.get() );
 		}
 	}
@@ -322,24 +233,20 @@ protected:
 			const const_array_ref x = x_array;
 			const const_array_ref y = y_array;
 
-			dispatch_record record;
+			INFO( "output deduced" );
 			REQUIRE_CALL(*dispatcher, dispatch(
 				trompeloeil::_, trompeloeil::_,
 				trompeloeil::_, trompeloeil::_
 			))
-				.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+				.WITH( is_operation<Op>(_1) )
+				.WITH( _2.size() == 1 )
+				.WITH( _3.size() == 2 )
+				.LR_WITH( in_session(_4) )
+				.WITH( storage_of(_2, 0) == nullptr )
+				.LR_WITH( storage_of(_3, 0) == x_storage.get() )
+				.LR_WITH( storage_of(_3, 1) == y_storage.get() );
 
 			verb(x, y, context, nullptr);
-
-			INFO( "output deduced" );
-			check_record<Op>(record, 2);
-			CHECK( record.get_output_storage(0) == nullptr );
-			CHECK( record.get_input_storage(0) == x_storage.get() );
-
-			// The operands must reach the dispatcher in the order the verb
-			// was given them, which is the whole of what a binary verb has
-			// to get right beyond naming its operation.
-			CHECK( record.get_input_storage(1) == y_storage.get() );
 		}
 
 		{
@@ -352,18 +259,19 @@ protected:
 			const const_array_ref x = x_array;
 			const const_array_ref y = y_array;
 
-			dispatch_record record;
+			INFO( "output storage reused" );
 			REQUIRE_CALL(*dispatcher, dispatch(
 				trompeloeil::_, trompeloeil::_,
 				trompeloeil::_, trompeloeil::_
 			))
-				.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+				.WITH( is_operation<Op>(_1) )
+				.WITH( _2.size() == 1 )
+				.WITH( _3.size() == 2 )
+				.LR_WITH( in_session(_4) )
+				.LR_WITH( storage_of(_2, 0) == out_storage.get() );
 
 			const auto result = verb(x, y, context, &out);
 
-			INFO( "output storage reused" );
-			check_record<Op>(record, 2);
-			CHECK( record.get_output_storage(0) == out_storage.get() );
 			CHECK( result.get_storage() == out_storage.get() );
 		}
 	}
@@ -394,20 +302,20 @@ protected:
 		const const_array_ref y = y_array;
 		const const_array_ref z = z_array;
 
-		dispatch_record record;
 		REQUIRE_CALL(*dispatcher, dispatch(
 			trompeloeil::_, trompeloeil::_,
 			trompeloeil::_, trompeloeil::_
 		))
-			.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+			.WITH( is_operation<Op>(_1) )
+			.WITH( _2.size() == 1 )
+			.WITH( _3.size() == 3 )
+			.LR_WITH( in_session(_4) )
+			.WITH( storage_of(_2, 0) == nullptr )
+			.LR_WITH( storage_of(_3, 0) == x_storage.get() )
+			.LR_WITH( storage_of(_3, 1) == y_storage.get() )
+			.LR_WITH( storage_of(_3, 2) == z_storage.get() );
 
 		verb(x, y, z, context, nullptr);
-
-		check_record<Op>(record, 3);
-		CHECK( record.get_output_storage(0) == nullptr );
-		CHECK( record.get_input_storage(0) == x_storage.get() );
-		CHECK( record.get_input_storage(1) == y_storage.get() );
-		CHECK( record.get_input_storage(2) == z_storage.get() );
 	}
 
 	/**
@@ -438,31 +346,22 @@ protected:
 			// Referred from the end, so that resolving it is observable.
 			const std::vector<std::ptrdiff_t> axes = { -1 };
 
-			dispatch_record record;
-			std::vector<std::size_t> seen;
-			record.inspect = [&seen] (const operation &op)
-			{
-				const auto &typed = dynamic_cast<const Op&>(op);
-				const auto resolved = typed.get_parameters().get_axes();
-				seen.assign(resolved.begin(), resolved.end());
-			};
+			INFO( "reduced over the last axis" );
+			// The operand is two dimensional, so the last axis is axis 1.
+			// An operation holds explicit axes, never a request to work
+			// one out later.
 			REQUIRE_CALL(*dispatcher, dispatch(
 				trompeloeil::_, trompeloeil::_,
 				trompeloeil::_, trompeloeil::_
 			))
-				.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+				.WITH( is_operation<Op>(_1) )
+				.WITH( _2.size() == 1 )
+				.WITH( _3.size() == 1 )
+				.LR_WITH( in_session(_4) )
+				.LR_WITH( storage_of(_3, 0) == x_storage.get() )
+				.WITH( axes_of<Op>(_1) == std::vector<std::size_t>{ 1 } );
 
 			over_axes(x, make_span(axes), false, context, nullptr);
-
-			INFO( "reduced over the last axis" );
-			check_record<Op>(record, 1);
-			CHECK( record.get_input_storage(0) == x_storage.get() );
-
-			// The operand is two dimensional, so the last axis is axis 1.
-			// An operation holds explicit axes, never a request to work
-			// one out later.
-			REQUIRE( seen.size() == 1 );
-			CHECK( seen[0] == 1 );
 		}
 
 		{
@@ -470,46 +369,89 @@ protected:
 			const array x_array = make_operand(x_storage, data_type);
 			const const_array_ref x = x_array;
 
-			dispatch_record record;
-			std::vector<std::size_t> seen;
-			record.inspect = [&seen] (const operation &op)
-			{
-				const auto &typed = dynamic_cast<const Op&>(op);
-				const auto resolved = typed.get_parameters().get_axes();
-				seen.assign(resolved.begin(), resolved.end());
-			};
+			INFO( "reduced over every axis" );
+			// Reducing over all of them is spelled out into a list rather
+			// than carried into the operation as a mode.
 			REQUIRE_CALL(*dispatcher, dispatch(
 				trompeloeil::_, trompeloeil::_,
 				trompeloeil::_, trompeloeil::_
 			))
-				.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+				.WITH( is_operation<Op>(_1) )
+				.WITH( _2.size() == 1 )
+				.WITH( _3.size() == 1 )
+				.LR_WITH( in_session(_4) )
+				.WITH( axes_of<Op>(_1) == std::vector<std::size_t>{ 0, 1 } );
 
 			over_everything(x, context, nullptr);
-
-			INFO( "reduced over every axis" );
-			check_record<Op>(record, 1);
-
-			// Reducing over all of them is spelled out into a list rather
-			// than carried into the operation as a mode.
-			REQUIRE( seen.size() == 2 );
-			CHECK( seen[0] == 0 );
-			CHECK( seen[1] == 1 );
 		}
 	}
 
-	/// Assert the parts of a record every single output verb shares.
+	/**
+	 * @brief Whether an operation is exactly an @p Op.
+	 */
 	template <typename Op>
-	void check_record(
-		const dispatch_record &record,
-		std::size_t expected_inputs
-	) const
+	static bool is_operation(const operation &op)
 	{
-		CHECK( record.called );
-		REQUIRE( record.operation_type != nullptr );
-		CHECK( *record.operation_type == typeid(Op) );
-		CHECK( record.num_outputs == 1 );
-		CHECK( record.num_inputs == expected_inputs );
-		CHECK( record.session == session.get() );
+		return typeid(op) == typeid(Op);
+	}
+
+	/**
+	 * @brief Get the storage of an output operand.
+	 *
+	 * @param operands The output operands of a dispatch.
+	 * @param index Index of the operand.
+	 * @return const buffer* The storage, or null when the operand does not
+	 * exist or carried none.
+	 */
+	static const buffer* storage_of(span<array> operands, std::size_t index)
+	{
+		return index < operands.size()
+			? operands[index].get_storage()
+			: nullptr;
+	}
+
+	/**
+	 * @brief Get the storage of an input operand.
+	 *
+	 * @param operands The input operands of a dispatch.
+	 * @param index Index of the operand.
+	 * @return const buffer* The storage, or null when the operand does not
+	 * exist or carried none.
+	 */
+	static const buffer* storage_of(
+		span<const const_array_ref> operands,
+		std::size_t index
+	)
+	{
+		return index < operands.size()
+			? operands[index].get_storage()
+			: nullptr;
+	}
+
+	/**
+	 * @brief Get the axes a reduction-like operation carries.
+	 *
+	 * @tparam Op The operation, whose parameters expose @c get_axes.
+	 * @return std::vector<std::size_t> The axes, or none when @p op is not an
+	 * @p Op.
+	 */
+	template <typename Op>
+	static std::vector<std::size_t> axes_of(const operation &op)
+	{
+		const auto *typed = dynamic_cast<const Op*>(&op);
+		if (!typed)
+		{
+			return {};
+		}
+
+		const auto axes = typed->get_parameters().get_axes();
+		return std::vector<std::size_t>(axes.begin(), axes.end());
+	}
+
+	/// Whether a dispatch runs in the session of this fixture.
+	bool in_session(const device_context &device_context) const
+	{
+		return device_context.get_device_session().get() == session.get();
 	}
 
 	std::shared_ptr<mock_device> device;
