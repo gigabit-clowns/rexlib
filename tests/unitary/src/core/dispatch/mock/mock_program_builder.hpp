@@ -7,6 +7,7 @@
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/hardware/program.hpp>
+#include <rexlib/core/operation/operation.hpp>
 
 #include <trompeloeil.hpp>
 

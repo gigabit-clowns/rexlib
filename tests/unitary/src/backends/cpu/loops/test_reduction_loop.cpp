@@ -19,12 +19,13 @@
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/span.hpp>
 
+#include <trompeloeil.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <memory>
 #include <numeric>
 #include <stdexcept>
 #include <tuple>
@@ -33,6 +34,7 @@
 
 using namespace rexlib;
 using namespace rexlib::cpu;
+using trompeloeil::_;
 
 namespace
 {
@@ -83,31 +85,21 @@ joint_layout make_indexed_layout(
 	return builder.build();
 }
 
-/**
- * @brief Tally of the calls a kernel received.
- */
-struct call_log
+class mock_sum_kernel
 {
-	std::size_t seeds = 0;
-	std::size_t combines = 0;
-	std::size_t finalizes = 0;
-	std::size_t identities = 0;
-	std::vector<std::size_t> reported_counts;
+public:
+	MAKE_CONST_MOCK1(seed, void(int value));
+	MAKE_CONST_MOCK1(combine, void(int value));
+	MAKE_CONST_MOCK2(finalize, void(int accumulator, std::size_t count));
+	MAKE_CONST_MOCK0(identity, void());
 };
 
 /**
- * @brief Summing kernel that records every call it receives.
- *
- * The log is held through a shared_ptr so that the copy the loop takes
- * shares state with the handle kept by the test.
+ * @brief Summing kernel that reports every call but merge to a mock.
  */
-class recording_kernel
+struct forwarding_sum_kernel
 {
-public:
-	recording_kernel()
-		: m_log(std::make_shared<call_log>())
-	{
-	}
+	const mock_sum_kernel *mock;
 
 	template <typename Outputs, typename Inputs>
 	struct accumulators
@@ -117,13 +109,13 @@ public:
 
 	void seed(int &accumulator, const int *value) const
 	{
-		++m_log->seeds;
+		mock->seed(*value);
 		accumulator = *value;
 	}
 
 	void combine(int &accumulator, const int *value) const
 	{
-		++m_log->combines;
+		mock->combine(*value);
 		accumulator += *value;
 	}
 
@@ -134,24 +126,15 @@ public:
 
 	void finalize(int *result, const int &accumulator, std::size_t count) const
 	{
-		++m_log->finalizes;
-		m_log->reported_counts.push_back(count);
+		mock->finalize(accumulator, count);
 		*result = accumulator;
 	}
 
 	void identity(int &accumulator) const
 	{
-		++m_log->identities;
+		mock->identity();
 		accumulator = 0;
 	}
-
-	const call_log& log() const noexcept
-	{
-		return *m_log;
-	}
-
-private:
-	std::shared_ptr<call_log> m_log;
 };
 
 /**
@@ -315,22 +298,23 @@ TEST_CASE(
 	const auto input = iota_vector(12);
 	std::vector<int> output(3, -1);
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	REQUIRE_CALL(kernel, seed(0));
+	REQUIRE_CALL(kernel, seed(1));
+	REQUIRE_CALL(kernel, seed(2));
+	REQUIRE_CALL(kernel, combine(_)).TIMES(3 * 3);
+	REQUIRE_CALL(kernel, finalize(18, 4u));
+	REQUIRE_CALL(kernel, finalize(22, 4u));
+	REQUIRE_CALL(kernel, finalize(26, 4u));
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({3}, {{1}, {1}}),
 		make_layout({4}, {{3}}),
 		4,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.log().seeds == 3 );
-	CHECK( kernel.log().combines == 3 * 3 );
-	CHECK( kernel.log().finalizes == 3 );
-	CHECK( kernel.log().identities == 0 );
-	CHECK( kernel.log().reported_counts ==
-	       std::vector<std::size_t>(3, std::size_t(4)) );
 
 	CHECK( output == std::vector<int>({18, 22, 26}) );
 }
@@ -345,19 +329,19 @@ TEST_CASE(
 	const auto input = iota_vector(12);
 	std::vector<int> output(4, -1);
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	REQUIRE_CALL(kernel, seed(_)).TIMES(4);
+	REQUIRE_CALL(kernel, combine(_)).TIMES(4 * 2);
+	REQUIRE_CALL(kernel, finalize(_, 3u)).TIMES(4);
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({4}, {{3}, {1}}),
 		make_layout({3}, {{1}}),
 		3,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.log().seeds == 4 );
-	CHECK( kernel.log().combines == 4 * 2 );
-	CHECK( kernel.log().finalizes == 4 );
 	CHECK( output == std::vector<int>({3, 12, 21, 30}) );
 }
 
@@ -369,19 +353,19 @@ TEST_CASE(
 	const auto input = iota_vector(12);
 	int output = -1;
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	REQUIRE_CALL(kernel, seed(0));
+	REQUIRE_CALL(kernel, combine(_)).TIMES(11);
+	REQUIRE_CALL(kernel, finalize(66, 12u));
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({}, {{}, {}}),
 		make_layout({4, 3}, {{3, 1}}),
 		12,
 		std::make_tuple(&output),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.log().seeds == 1 );
-	CHECK( kernel.log().combines == 11 );
-	CHECK( kernel.log().finalizes == 1 );
 	CHECK( output == 66 );
 }
 
@@ -395,19 +379,19 @@ TEST_CASE(
 	const auto input = iota_vector(6);
 	std::vector<int> output(6, -1);
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	REQUIRE_CALL(kernel, seed(_)).TIMES(6);
+	FORBID_CALL(kernel, combine(_));
+	REQUIRE_CALL(kernel, finalize(_, 1u)).TIMES(6);
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({6}, {{1}, {1}}),
 		make_layout({}, {{}}),
 		1,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.log().seeds == 6 );
-	CHECK( kernel.log().combines == 0 );
-	CHECK( kernel.log().finalizes == 6 );
 	CHECK( output == input );
 }
 
@@ -420,26 +404,27 @@ TEST_CASE(
 	// multiple of it, so the last tile is partial. Taken from the tile size
 	// rather than written down, so that tuning the tile cannot quietly stop
 	// this case from spanning more than one.
-	const std::size_t rows = 3;
-	const std::size_t tile = reduction_tile_size<type_list<int>>::value;
-	const std::size_t columns = tile + tile / 2 + 7;
+	REXLIB_CONST_CONSTEXPR std::size_t rows = 3;
+	REXLIB_CONST_CONSTEXPR std::size_t tile =
+		reduction_tile_size<type_list<int>>::value;
+	REXLIB_CONST_CONSTEXPR std::size_t columns = tile + tile / 2 + 7;
 
 	const auto input = iota_vector(rows * columns);
 	std::vector<int> output(columns, -1);
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	REQUIRE_CALL(kernel, seed(_)).TIMES(columns);
+	REQUIRE_CALL(kernel, combine(_)).TIMES(columns * (rows - 1));
+	REQUIRE_CALL(kernel, finalize(_, rows)).TIMES(columns);
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({columns}, {{1}, {1}}),
 		make_layout({rows}, {{static_cast<std::ptrdiff_t>(columns)}}),
 		rows,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.log().seeds == columns );
-	CHECK( kernel.log().combines == columns * (rows - 1) );
-	CHECK( kernel.log().finalizes == columns );
 
 	std::vector<int> expected(columns);
 	for (std::size_t c = 0; c < columns; ++c)
@@ -464,9 +449,13 @@ TEST_CASE(
 	SECTION( "a reversed input" )
 	{
 		int output = -1;
-		const recording_kernel kernel;
+		const mock_sum_kernel kernel;
+		REQUIRE_CALL(kernel, seed(5));
+		REQUIRE_CALL(kernel, combine(_)).TIMES(5);
+		REQUIRE_CALL(kernel, finalize(15, 6u));
+
 		run_reduction_loop(
-			kernel,
+			forwarding_sum_kernel{ &kernel },
 			make_layout({}, {{}, {}}),
 			make_layout({6}, {{-1}}),
 			6,
@@ -480,26 +469,32 @@ TEST_CASE(
 	SECTION( "an input broadcast along the reduced axis" )
 	{
 		int output = -1;
-		const recording_kernel kernel;
+		const mock_sum_kernel kernel;
+		REQUIRE_CALL(kernel, seed(5));
+		REQUIRE_CALL(kernel, combine(5)).TIMES(3);
+		REQUIRE_CALL(kernel, finalize(20, 4u));
+
 		run_reduction_loop(
-			kernel,
+			forwarding_sum_kernel{ &kernel },
 			make_layout({}, {{}, {}}),
 			make_layout({4}, {{0}}),
 			4,
 			std::make_tuple(&output),
 			std::make_tuple(static_cast<const int*>(input.data() + 5))
 		);
-
-		CHECK( kernel.log().combines == 3 );
 		CHECK( output == 20 );
 	}
 
 	SECTION( "an output written with a stride" )
 	{
 		std::vector<int> output(6, -1);
-		const recording_kernel kernel;
+		const mock_sum_kernel kernel;
+		REQUIRE_CALL(kernel, seed(_)).TIMES(3);
+		REQUIRE_CALL(kernel, combine(_)).TIMES(3);
+		REQUIRE_CALL(kernel, finalize(_, 2u)).TIMES(3);
+
 		run_reduction_loop(
-			kernel,
+			forwarding_sum_kernel{ &kernel },
 			make_layout({3}, {{1}, {2}}),
 			make_layout({2}, {{3}}),
 			2,
@@ -519,20 +514,20 @@ TEST_CASE(
 {
 	std::vector<int> output(3, -1);
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	FORBID_CALL(kernel, seed(_));
+	FORBID_CALL(kernel, combine(_));
+	REQUIRE_CALL(kernel, identity()).TIMES(3);
+	REQUIRE_CALL(kernel, finalize(0, 0u)).TIMES(3);
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({3}, {{1}, {1}}),
 		make_layout({0}, {{1}}),
 		0,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(nullptr))
 	);
-
-	CHECK( kernel.log().seeds == 0 );
-	CHECK( kernel.log().combines == 0 );
-	CHECK( kernel.log().identities == 3 );
-	CHECK( kernel.log().finalizes == 3 );
 	CHECK( output == std::vector<int>({0, 0, 0}) );
 }
 
@@ -543,7 +538,7 @@ TEST_CASE(
 )
 {
 	STATIC_REQUIRE(
-		has_reduction_identity<recording_kernel, type_list<int>>::value
+		has_reduction_identity<forwarding_sum_kernel, type_list<int>>::value
 	);
 	STATIC_REQUIRE_FALSE(
 		has_reduction_identity<seeded_only_kernel, type_list<int>>::value
@@ -571,18 +566,18 @@ TEST_CASE(
 {
 	const auto input = iota_vector(6);
 
-	const recording_kernel kernel;
+	const mock_sum_kernel kernel;
+	FORBID_CALL(kernel, seed(_));
+	FORBID_CALL(kernel, finalize(_, _));
+
 	run_reduction_loop(
-		kernel,
+		forwarding_sum_kernel{ &kernel },
 		make_layout({0}, {{1}, {1}}),
 		make_layout({6}, {{1}}),
 		6,
 		std::make_tuple(static_cast<int*>(nullptr)),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.log().seeds == 0 );
-	CHECK( kernel.log().finalizes == 0 );
 }
 
 TEST_CASE(
@@ -1106,36 +1101,38 @@ TEST_CASE(
 namespace
 {
 
-/**
- * @brief One invocation of a bulk member of a vector kernel.
- */
-struct bulk_call
+class mock_vector_kernel
 {
-	const int *input;
-	std::ptrdiff_t stride;
-	std::size_t extent;
-	std::ptrdiff_t reduced_stride;
-	std::size_t count;
-	bool indexed;
-	std::size_t first_index;
-	bool contiguous_index;
+public:
+	MAKE_CONST_MOCK3(
+		combine_run,
+		void(const int *input, std::ptrdiff_t stride, std::size_t count)
+	);
+	MAKE_CONST_MOCK5(
+		combine_strip,
+		void(
+			const int *input,
+			std::ptrdiff_t kept_stride,
+			std::size_t width,
+			std::ptrdiff_t reduced_stride,
+			std::size_t count
+		)
+	);
+	MAKE_CONST_MOCK2(
+		index_run,
+		void(std::size_t first_index, bool contiguous)
+	);
 };
 
 /**
- * @brief Summing vector kernel that records the bulk calls it receives.
+ * @brief Summing vector kernel that reports its bulk calls to a mock.
  *
- * Which of `combine_run` and `combine_strip` carries the fold is decided by
- * the layouts, so a kernel that records both is what tells them apart. Takes
- * a linear index run or none.
+ * A bulk call given a linear index run also reports the run, through
+ * index_run. Takes a linear index run or none.
  */
-class recording_vector_kernel
+struct forwarding_vector_kernel
 {
-public:
-	recording_vector_kernel()
-		: m_runs(std::make_shared<std::vector<bulk_call>>())
-		, m_strips(std::make_shared<std::vector<bulk_call>>())
-	{
-	}
+	const mock_vector_kernel *mock;
 
 	template <typename Outputs, typename Inputs>
 	struct accumulators
@@ -1161,7 +1158,15 @@ public:
 		std::size_t count
 	) const
 	{
-		fold_run(accumulators, inputs, strides, count, false, 0, false);
+		const auto stride = read_stride(strides);
+		const auto *input = std::get<0>(inputs);
+		mock->combine_run(input, stride, count);
+
+		auto &accumulator = *std::get<0>(accumulators);
+		for (std::size_t e = 0; e < count; ++e)
+		{
+			accumulator += input[static_cast<std::ptrdiff_t>(e)*stride];
+		}
 	}
 
 	template <typename... Strides, typename Stride>
@@ -1173,15 +1178,8 @@ public:
 		const linear_index_run<Stride> &index_run
 	) const
 	{
-		fold_run(
-			accumulators,
-			inputs,
-			strides,
-			count,
-			true,
-			index_run.get_index(),
-			std::is_same<Stride, contiguous_stride_tag>::value
-		);
+		report(index_run);
+		combine_run(accumulators, inputs, strides, count);
 	}
 
 	template <typename... KeptStrides, typename... ReducedStrides>
@@ -1194,17 +1192,21 @@ public:
 		std::size_t count
 	) const
 	{
-		fold_strip(
-			accumulators,
-			inputs,
-			kept_strides,
-			reduced_strides,
-			width,
-			count,
-			false,
-			0,
-			false
-		);
+		const auto kept = read_stride(kept_strides);
+		const auto reduced = read_stride(reduced_strides);
+		const auto *input = std::get<0>(inputs);
+		mock->combine_strip(input, kept, width, reduced, count);
+
+		auto *accumulators_begin = std::get<0>(accumulators);
+		for (std::size_t e = 0; e < count; ++e)
+		{
+			const auto *row = input + static_cast<std::ptrdiff_t>(e)*reduced;
+			for (std::size_t j = 0; j < width; ++j)
+			{
+				accumulators_begin[j] +=
+					row[static_cast<std::ptrdiff_t>(j)*kept];
+			}
+		}
 	}
 
 	template <
@@ -1222,16 +1224,14 @@ public:
 		const linear_index_run<Stride> &index_run
 	) const
 	{
-		fold_strip(
+		report(index_run);
+		combine_strip(
 			accumulators,
 			inputs,
 			kept_strides,
 			reduced_strides,
 			width,
-			count,
-			true,
-			index_run.get_index(),
-			std::is_same<Stride, contiguous_stride_tag>::value
+			count
 		);
 	}
 
@@ -1245,98 +1245,20 @@ public:
 		*result = accumulator;
 	}
 
-	const std::vector<bulk_call>& runs() const noexcept
-	{
-		return *m_runs;
-	}
-
-	const std::vector<bulk_call>& strips() const noexcept
-	{
-		return *m_strips;
-	}
-
 private:
-	std::shared_ptr<std::vector<bulk_call>> m_runs;
-	std::shared_ptr<std::vector<bulk_call>> m_strips;
-
 	template <typename... Strides>
 	static std::ptrdiff_t read_stride(const std::tuple<Strides...> &strides)
 	{
 		return static_cast<std::ptrdiff_t>(std::get<0>(strides));
 	}
 
-	template <typename... Strides>
-	void fold_run(
-		const std::tuple<int*> &accumulators,
-		const std::tuple<const int*> &inputs,
-		const std::tuple<Strides...> &strides,
-		std::size_t count,
-		bool indexed,
-		std::size_t first_index,
-		bool contiguous_index
-	) const
+	template <typename Stride>
+	void report(const linear_index_run<Stride> &index_run) const
 	{
-		const auto stride = read_stride(strides);
-		const auto *input = std::get<0>(inputs);
-		m_runs->push_back(
-			bulk_call {
-				input,
-				stride,
-				count,
-				0,
-				0,
-				indexed,
-				first_index,
-				contiguous_index
-			}
+		mock->index_run(
+			index_run.get_index(),
+			std::is_same<Stride, contiguous_stride_tag>::value
 		);
-
-		auto &accumulator = *std::get<0>(accumulators);
-		for (std::size_t e = 0; e < count; ++e)
-		{
-			accumulator += input[static_cast<std::ptrdiff_t>(e)*stride];
-		}
-	}
-
-	template <typename... KeptStrides, typename... ReducedStrides>
-	void fold_strip(
-		const std::tuple<int*> &accumulators,
-		const std::tuple<const int*> &inputs,
-		const std::tuple<KeptStrides...> &kept_strides,
-		const std::tuple<ReducedStrides...> &reduced_strides,
-		std::size_t width,
-		std::size_t count,
-		bool indexed,
-		std::size_t first_index,
-		bool contiguous_index
-	) const
-	{
-		const auto kept = read_stride(kept_strides);
-		const auto reduced = read_stride(reduced_strides);
-		const auto *input = std::get<0>(inputs);
-		m_strips->push_back(
-			bulk_call {
-				input,
-				kept,
-				width,
-				reduced,
-				count,
-				indexed,
-				first_index,
-				contiguous_index
-			}
-		);
-
-		auto *accumulators_begin = std::get<0>(accumulators);
-		for (std::size_t e = 0; e < count; ++e)
-		{
-			const auto *row = input + static_cast<std::ptrdiff_t>(e)*reduced;
-			for (std::size_t j = 0; j < width; ++j)
-			{
-				accumulators_begin[j] +=
-					row[static_cast<std::ptrdiff_t>(j)*kept];
-			}
-		}
 	}
 };
 
@@ -1354,30 +1276,25 @@ TEST_CASE(
 	const auto input = iota_vector(12);
 	std::vector<int> output(4, -1);
 
-	const recording_vector_kernel kernel;
+	const mock_vector_kernel kernel;
+	FORBID_CALL(kernel, combine_strip(_, _, _, _, _));
+	FORBID_CALL(kernel, index_run(_, _));
+
+	// The first element of each run seeded the accumulator, so the run
+	// handed over starts at the second and is one shorter.
+	REQUIRE_CALL(kernel, combine_run(input.data() + 1, 1, 2u));
+	REQUIRE_CALL(kernel, combine_run(input.data() + 4, 1, 2u));
+	REQUIRE_CALL(kernel, combine_run(input.data() + 7, 1, 2u));
+	REQUIRE_CALL(kernel, combine_run(input.data() + 10, 1, 2u));
+
 	run_reduction_vector_loop(
-		kernel,
+		forwarding_vector_kernel{ &kernel },
 		make_layout({4}, {{3}, {1}}),
 		make_layout({3}, {{1}}),
 		3,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.strips().empty() );
-	REQUIRE( kernel.runs().size() == 4 );
-
-	for (std::size_t j = 0; j < 4; ++j)
-	{
-		INFO( "output " << j );
-
-		// The first element of the run seeded the accumulator, so the run
-		// handed over starts at the second and is one shorter.
-		CHECK( kernel.runs()[j].input == input.data() + 3*j + 1 );
-		CHECK( kernel.runs()[j].stride == 1 );
-		CHECK( kernel.runs()[j].extent == 2 );
-		CHECK_FALSE( kernel.runs()[j].indexed );
-	}
 
 	CHECK( output == std::vector<int>({3, 12, 21, 30}) );
 }
@@ -1394,28 +1311,23 @@ TEST_CASE(
 	const auto input = iota_vector(12);
 	std::vector<int> output(3, -1);
 
-	const recording_vector_kernel kernel;
+	const mock_vector_kernel kernel;
+	FORBID_CALL(kernel, combine_run(_, _, _));
+	FORBID_CALL(kernel, index_run(_, _));
+
+	// One call for the whole run, both loops belonging to the kernel: the
+	// three elements of the reduced space that were not the seed, across the
+	// three outputs of the strip.
+	REQUIRE_CALL(kernel, combine_strip(input.data() + 3, 1, 3u, 3, 3u));
+
 	run_reduction_vector_loop(
-		kernel,
+		forwarding_vector_kernel{ &kernel },
 		make_layout({3}, {{1}, {1}}),
 		make_layout({4}, {{3}}),
 		4,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.runs().empty() );
-	REQUIRE( kernel.strips().size() == 1 );
-
-	// One call for the whole run, both loops belonging to the kernel: the
-	// three elements of the reduced space that were not the seed, across the
-	// three outputs of the strip.
-	CHECK( kernel.strips()[0].input == input.data() + 3 );
-	CHECK( kernel.strips()[0].stride == 1 );
-	CHECK( kernel.strips()[0].extent == 3 );
-	CHECK( kernel.strips()[0].reduced_stride == 3 );
-	CHECK( kernel.strips()[0].count == 3 );
-	CHECK_FALSE( kernel.strips()[0].indexed );
 
 	CHECK( output == std::vector<int>({18, 22, 26}) );
 }
@@ -1438,23 +1350,18 @@ TEST_CASE(
 	const auto input = iota_vector(12);
 	std::vector<int> output(2, -1);
 
-	const recording_vector_kernel kernel;
+	const mock_vector_kernel kernel;
+	FORBID_CALL(kernel, combine_run(_, _, _));
+	REQUIRE_CALL(kernel, combine_strip(input.data() + 2, 6, 2u, 2, 2u));
+
 	run_reduction_vector_loop(
-		kernel,
+		forwarding_vector_kernel{ &kernel },
 		make_layout({2}, {{6}, {1}}),
 		make_layout({3}, {{2}}),
 		3,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.runs().empty() );
-	REQUIRE( kernel.strips().size() == 1 );
-
-	CHECK( kernel.strips()[0].stride == 6 );
-	CHECK( kernel.strips()[0].reduced_stride == 2 );
-	CHECK( kernel.strips()[0].input == input.data() + 2 );
-	CHECK( kernel.strips()[0].count == 2 );
 
 	CHECK( output == std::vector<int>({0 + 2 + 4, 6 + 8 + 10}) );
 }
@@ -1470,9 +1377,12 @@ TEST_CASE(
 	SECTION( "folding a run" )
 	{
 		std::vector<int> output(4, -1);
-		const recording_vector_kernel kernel;
+		const mock_vector_kernel kernel;
+		REQUIRE_CALL(kernel, combine_run(_, _, _)).TIMES(4);
+		REQUIRE_CALL(kernel, index_run(1u, true)).TIMES(4);
+
 		run_indexed_reduction_vector_loop(
-			kernel,
+			forwarding_vector_kernel{ &kernel },
 			make_layout({4}, {{3}, {1}}),
 			make_indexed_layout({3}, {{1}}, linear_index_tag()),
 			3,
@@ -1480,22 +1390,17 @@ TEST_CASE(
 			std::make_tuple(static_cast<const int*>(input.data())),
 			linear_index_tag()
 		);
-
-		REQUIRE( kernel.runs().size() == 4 );
-		for (const auto &call : kernel.runs())
-		{
-			CHECK( call.indexed );
-			CHECK( call.first_index == 1 );
-			CHECK( call.contiguous_index );
-		}
 		CHECK( output == std::vector<int>({3, 12, 21, 30}) );
 	}
 	SECTION( "folding a strip" )
 	{
 		std::vector<int> output(3, -1);
-		const recording_vector_kernel kernel;
+		const mock_vector_kernel kernel;
+		REQUIRE_CALL(kernel, combine_strip(_, _, _, _, _));
+		REQUIRE_CALL(kernel, index_run(1u, true));
+
 		run_indexed_reduction_vector_loop(
-			kernel,
+			forwarding_vector_kernel{ &kernel },
 			make_layout({3}, {{1}, {1}}),
 			make_indexed_layout({4}, {{3}}, linear_index_tag()),
 			4,
@@ -1503,11 +1408,6 @@ TEST_CASE(
 			std::make_tuple(static_cast<const int*>(input.data())),
 			linear_index_tag()
 		);
-
-		REQUIRE( kernel.strips().size() == 1 );
-		CHECK( kernel.strips()[0].indexed );
-		CHECK( kernel.strips()[0].first_index == 1 );
-		CHECK( kernel.strips()[0].contiguous_index );
 		CHECK( output == std::vector<int>({18, 22, 26}) );
 	}
 }
@@ -1523,17 +1423,17 @@ TEST_CASE(
 	const auto input = iota_vector(3);
 	std::vector<int> output(3, -1);
 
-	const recording_vector_kernel kernel;
+	const mock_vector_kernel kernel;
+	FORBID_CALL(kernel, combine_run(_, _, _));
+	FORBID_CALL(kernel, combine_strip(_, _, _, _, _));
+
 	run_reduction_vector_loop(
-		kernel,
+		forwarding_vector_kernel{ &kernel },
 		make_layout({3}, {{1}, {1}}),
 		make_layout({}, {{}}),
 		1,
 		std::make_tuple(output.data()),
 		std::make_tuple(static_cast<const int*>(input.data()))
 	);
-
-	CHECK( kernel.runs().empty() );
-	CHECK( kernel.strips().empty() );
 	CHECK( output == input );
 }

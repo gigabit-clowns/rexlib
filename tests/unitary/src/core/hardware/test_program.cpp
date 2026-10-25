@@ -6,20 +6,11 @@
 
 using namespace rexlib;
 
-namespace
-{
-
-class test_program final : public program
-{
-};
-
-} // anonymous namespace
-
 TEST_CASE(
 	"program::get_scratch_requirements returns empty span by default",
 	"[hardware]"
 )
 {
-	test_program prog;
+	const program prog;
 	CHECK( prog.get_scratch_requirements().empty() );
 }

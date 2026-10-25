@@ -5,6 +5,7 @@
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
+#include "mock/mock_program_builder.hpp"
 #include "serial_pool.hpp"
 
 #include <rexlib/core/backend_priority.hpp>
@@ -12,14 +13,12 @@
 #include <rexlib/core/hardware/memory_resource_kind.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
-#include <rexlib/core/operation/operation_id.hpp>
 #include <rexlib/core/span.hpp>
 
 #include "../../core/operation/mock/mock_operation.hpp"
 #include "../../core/hardware/mock/mock_memory_resource.hpp"
 #include "../../core/hardware/mock/mock_command_queue.hpp"
 
-#include <memory>
 #include <vector>
 
 using namespace rexlib;
@@ -27,34 +26,6 @@ using namespace rexlib::cpu;
 
 namespace
 {
-
-/**
- * @brief Concrete builder used to exercise get_suitability.
- *
- * cpu_program_builder only overrides get_suitability and stays
- * abstract, so this subclass provides trivial stubs for the remaining pure
- * virtuals. Neither is invoked by the tests.
- */
-class test_cpu_program_builder final
-	: public cpu_program_builder
-{
-public:
-	operation_id get_operation_id() const noexcept override
-	{
-		return operation_id::of<test_cpu_program_builder>();
-	}
-
-	std::shared_ptr<rexlib::program> build(
-		const operation & /*operation*/,
-		span<const operand_descriptor> /*output_descriptors*/,
-		span<const operand_descriptor> /*input_descriptors*/,
-		rexlib::command_queue & /*queue*/,
-		program_cache * /*cache*/
-	) const override
-	{
-		return nullptr;
-	}
-};
 
 operand_descriptor make_operand_descriptor(const memory_resource *resource)
 {
@@ -74,7 +45,7 @@ TEST_CASE(
 	"[cpu_program_builder]"
 )
 {
-	const test_cpu_program_builder builder;
+	const cpu::mock_program_builder builder;
 	const mock_operation operation;
 
 	mock_memory_resource host_resource;
@@ -106,7 +77,7 @@ TEST_CASE(
 	"[cpu_program_builder]"
 )
 {
-	const test_cpu_program_builder builder;
+	const cpu::mock_program_builder builder;
 	const mock_operation operation;
 
 	mock_memory_resource host_resource;
@@ -144,7 +115,7 @@ TEST_CASE(
 	"[cpu_program_builder]"
 )
 {
-	const test_cpu_program_builder builder;
+	const cpu::mock_program_builder builder;
 	const mock_operation operation;
 
 	mock_memory_resource host_resource;
@@ -179,7 +150,7 @@ TEST_CASE(
 	"[cpu_program_builder]"
 )
 {
-	const test_cpu_program_builder builder;
+	const cpu::mock_program_builder builder;
 	const mock_operation operation;
 
 	// A null memory resource cannot be host accessible.
@@ -206,7 +177,7 @@ TEST_CASE(
 	"[cpu_program_builder]"
 )
 {
-	const test_cpu_program_builder builder;
+	const cpu::mock_program_builder builder;
 	const mock_operation operation;
 
 	mock_memory_resource host_resource;
@@ -239,7 +210,7 @@ TEST_CASE(
 	"[cpu_program_builder]"
 )
 {
-	const test_cpu_program_builder builder;
+	const cpu::mock_program_builder builder;
 	const mock_operation operation;
 
 	// With no descriptors to reject, only the queue kind decides suitability.

@@ -4,26 +4,28 @@
 
 #include <rexlib/core/dispatch/program_builder_registration.hpp>
 
-#include <rexlib/core/dispatch/program_builder_registry.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include "mock/mock_program_builder.hpp"
+#include "mock/mock_program_builder_registry.hpp"
 
-#include "fixtures/stub_program_builder.hpp"
+#include <trompeloeil.hpp>
 
 using namespace rexlib;
-using namespace rexlib::test;
 
 TEST_CASE(
-	"program_builder_registration appends its builder factory to a registry",
+	"program_builder_registration appends a factory for its builder to a "
+	"registry",
 	"[program_builder_registration]"
 )
 {
-	program_builder_registry registry;
-	const program_builder_registration<stub_program_builder> registration(
-		registry
-	);
+	mock_program_builder_registry registry;
 
-	program_manager manager;
-	registry.register_all(manager);
+	REQUIRE_CALL(registry, add(trompeloeil::_))
+		.WITH(
+			dynamic_cast<const mock_program_builder*>(_1().get()) != nullptr
+		);
 
-	CHECK( build_stub_operation(manager) != nullptr );
+	const program_builder_registration<
+		mock_program_builder,
+		mock_program_builder_registry
+	> registration(registry);
 }

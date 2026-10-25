@@ -16,8 +16,10 @@
 #include <rexlib/core/span.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
+#include <trompeloeil.hpp>
+
 #include <cstddef>
-#include <memory>
+#include <ostream>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -51,6 +53,12 @@ struct stride_info
 	bool operator==(const stride_info &other) const noexcept
 	{
 		return value == other.value && kind == other.kind;
+	}
+
+	friend std::ostream& operator<<(std::ostream &os, const stride_info &info)
+	{
+		return os << '{' << info.value << ", " << static_cast<int>(info.kind)
+			<< '}';
 	}
 };
 
@@ -89,31 +97,93 @@ stride_kind stride_classify(T) noexcept
 }
 
 /**
- * @brief Record of a single vector-loop kernel invocation.
+ * @brief Inner loop handed to run_elementwise_outer_loop, called with the
+ * offsets of its operand pointers from a common base.
  */
-struct vector_loop_call
+class mock_inner_loop
 {
-	std::vector<const int*> pointers;
-	std::size_t count;
-	std::vector<stride_info> strides;
+public:
+	MAKE_CONST_MOCK2(
+		run,
+		void(std::vector<std::ptrdiff_t> offsets, std::size_t count)
+	);
 };
 
 /**
- * @brief Kernel that records every invocation.
- *
- * run_elementwise_vector_loop invokes the kernel as `(pointers, strides,
- * count)`, i.e. a tuple of `n` operand pointers, a tuple of `n` resolved
- * strides and the element count. The two tuples are unpacked and stored for
- * inspection. The log is held through a shared_ptr so that the copy stored
- * inside the loop shares state with the handle kept by the test.
+ * @brief Kernel handed to run_elementwise_vector_loop, called with the
+ * offsets of its operand pointers from a common base and the stride tags
+ * those operands were resolved to.
  */
-class recording_vector_kernel
+class mock_vector_kernel
 {
 public:
-	recording_vector_kernel()
-		: m_calls(std::make_shared<std::vector<vector_loop_call>>())
+	MAKE_CONST_MOCK3(
+		run,
+		void(
+			std::vector<std::ptrdiff_t> offsets,
+			std::vector<stride_info> strides,
+			std::size_t count
+		)
+	);
+};
+
+template <typename Tuple, std::size_t... Is>
+std::vector<std::ptrdiff_t> offsets_of(
+	const Tuple &pointers,
+	const int *base,
+	std::index_sequence<Is...>
+)
+{
+	return { (std::get<Is>(pointers) - base)... };
+}
+
+template <typename Tuple, std::size_t... Is>
+std::vector<stride_info> strides_of(
+	const Tuple &strides,
+	std::index_sequence<Is...>
+)
+{
+	return {
+		stride_info {
+			stride_value(std::get<Is>(strides)),
+			stride_classify(std::get<Is>(strides))
+		}...
+	};
+}
+
+/**
+ * @brief Copyable inner loop forwarding each call to a mock_inner_loop.
+ *
+ * The loop calls it as (pointers..., count).
+ */
+struct inner_loop_forwarder
+{
+	const mock_inner_loop *mock;
+	const int *base;
+
+	template <typename... Args>
+	void operator()(Args... args) const
 	{
+		REXLIB_CONST_CONSTEXPR std::size_t count_index = sizeof...(Args) - 1;
+		const auto packed = std::make_tuple(args...);
+
+		mock->run(
+			offsets_of(packed, base, std::make_index_sequence<count_index>()),
+			static_cast<std::size_t>(std::get<count_index>(packed))
+		);
 	}
+};
+
+/**
+ * @brief Copyable kernel forwarding each call to a mock_vector_kernel.
+ *
+ * The loop calls it as (pointers, strides, count), the first two being
+ * tuples of one element per operand.
+ */
+struct vector_kernel_forwarder
+{
+	const mock_vector_kernel *mock;
+	const int *base;
 
 	template <typename PointerTuple, typename StrideTuple>
 	void operator()(
@@ -122,119 +192,20 @@ public:
 		std::size_t count
 	) const
 	{
-		REXLIB_CONST_CONSTEXPR std::size_t n =
-			std::tuple_size<PointerTuple>::value;
+		using operands = std::make_index_sequence<
+			std::tuple_size<PointerTuple>::value
+		>;
 
-		vector_loop_call call;
-		collect_pointers(call.pointers, pointers, std::make_index_sequence<n>());
-		call.count = count;
-		collect_strides(call.strides, strides, std::make_index_sequence<n>());
-		m_calls->push_back(std::move(call));
-	}
-
-	const std::vector<vector_loop_call>& calls() const noexcept
-	{
-		return *m_calls;
-	}
-
-private:
-	std::shared_ptr<std::vector<vector_loop_call>> m_calls;
-
-	template <typename Tuple, std::size_t... Is>
-	static void collect_pointers(
-		std::vector<const int*> &out,
-		const Tuple &pointers,
-		std::index_sequence<Is...>
-	)
-	{
-		(void) std::initializer_list<int> {
-			(out.push_back(std::get<Is>(pointers)), 0)...
-		};
-	}
-
-	template <typename Tuple, std::size_t... Is>
-	static void collect_strides(
-		std::vector<stride_info> &out,
-		const Tuple &strides,
-		std::index_sequence<Is...>
-	)
-	{
-		(void) std::initializer_list<int> {
-			(
-				out.push_back(
-					stride_info {
-						stride_value(std::get<Is>(strides)),
-						stride_classify(std::get<Is>(strides))
-					}
-				),
-				0
-			)...
-		};
-	}
-};
-
-/**
- * @brief Record of a single inner-loop invocation.
- */
-struct outer_loop_call
-{
-	std::vector<const int*> pointers;
-	std::size_t count;
-};
-
-/**
- * @brief Inner-loop functor that records every invocation.
- *
- * run_elementwise_outer_loop invokes the handler as (pointers..., count). The
- * count is the last argument, so it is captured together with the pointers and
- * split out afterwards (a trailing std::size_t after a pack is a non-deduced
- * context). The recorded log is held through a shared_ptr so that the copy
- * stored inside the outer loop shares state with the handle kept by the test.
- */
-class recording_inner_loop
-{
-public:
-	recording_inner_loop()
-		: m_calls(std::make_shared<std::vector<outer_loop_call>>())
-	{
-	}
-
-	template <typename... Args>
-	void operator()(Args... args) const
-	{
-		constexpr std::size_t count_index = sizeof...(Args) - 1;
-		const auto packed = std::make_tuple(args...);
-
-		outer_loop_call call;
-		call.count = static_cast<std::size_t>(std::get<count_index>(packed));
-		collect_pointers(
-			call.pointers,
-			packed,
-			std::make_index_sequence<count_index>()
+		mock->run(
+			offsets_of(pointers, base, operands()),
+			strides_of(strides, operands()),
+			count
 		);
-		m_calls->push_back(std::move(call));
-	}
-
-	const std::vector<outer_loop_call>& calls() const noexcept
-	{
-		return *m_calls;
-	}
-
-private:
-	std::shared_ptr<std::vector<outer_loop_call>> m_calls;
-
-	template <typename Tuple, std::size_t... Is>
-	static void collect_pointers(
-		std::vector<const int*> &out,
-		const Tuple &packed,
-		std::index_sequence<Is...>
-	)
-	{
-		(void) std::initializer_list<int> {
-			(out.push_back(std::get<Is>(packed)), 0)...
-		};
 	}
 };
+
+using offset_list = std::vector<std::ptrdiff_t>;
+using stride_list = std::vector<stride_info>;
 
 /**
  * @brief Description of one operand for make_layout.
@@ -276,38 +247,7 @@ std::vector<int> make_buffer()
 	return std::vector<int>(2048);
 }
 
-// Offsets of a vector-loop call's pointers relative to the common base
-// pointer.
-std::vector<std::ptrdiff_t> offsets_of(
-	const vector_loop_call &call,
-	const int *base
-)
-{
-	std::vector<std::ptrdiff_t> result;
-	for (const auto *pointer : call.pointers)
-	{
-		result.push_back(pointer - base);
-	}
-	return result;
-}
-
-// Offsets of an outer-loop call's pointers relative to the common base
-// pointer.
-std::vector<std::ptrdiff_t> offsets_of(
-	const outer_loop_call &call,
-	const int *base
-)
-{
-	std::vector<std::ptrdiff_t> result;
-	for (const auto *pointer : call.pointers)
-	{
-		result.push_back(pointer - base);
-	}
-	return result;
-}
-
 } // anonymous namespace
-
 
 TEST_CASE(
 	"elementwise_outer_loop invokes the handler once for a 1D layout",
@@ -315,17 +255,14 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
+	const mock_inner_loop inner_loop;
+	REQUIRE_CALL(inner_loop, run(offset_list{0}, 5u));
+
 	run_elementwise_outer_loop(
-		recorder,
+		inner_loop_forwarder{ &inner_loop, buffer.data() },
 		make_layout({5}, {{{1}, 0}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 5 );
-	CHECK( offsets_of(calls[0], buffer.data()) == std::vector<std::ptrdiff_t>{0} );
 }
 
 TEST_CASE(
@@ -335,25 +272,19 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
+	const mock_inner_loop inner_loop;
+	trompeloeil::sequence seq;
+	REQUIRE_CALL(inner_loop, run(offset_list{0}, 3u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list{100}, 3u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list{200}, 3u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list{300}, 3u)).IN_SEQUENCE(seq);
+
 	// Inner extent 3 (dim 0), outer extent 4 (dim 1) with outer stride 100.
 	run_elementwise_outer_loop(
-		recorder,
+		inner_loop_forwarder{ &inner_loop, buffer.data() },
 		make_layout({3, 4}, {{{1, 100}, 0}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 4 );
-	const std::vector<std::ptrdiff_t> expected_offsets = {0, 100, 200, 300};
-	for (std::size_t i = 0; i < calls.size(); ++i)
-	{
-		CHECK( calls[i].count == 3 );
-		CHECK(
-			offsets_of(calls[i], buffer.data()) ==
-			std::vector<std::ptrdiff_t>{expected_offsets[i]}
-		);
-	}
 }
 
 TEST_CASE(
@@ -362,25 +293,19 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
+	const mock_inner_loop inner_loop;
+	trompeloeil::sequence seq;
+	REQUIRE_CALL(inner_loop, run(offset_list{0}, 2u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list{10}, 2u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list{100}, 2u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list{110}, 2u)).IN_SEQUENCE(seq);
+
 	// Extents {2, 2, 2}: dim 1 (stride 10) varies before dim 2 (stride 100).
 	run_elementwise_outer_loop(
-		recorder,
+		inner_loop_forwarder{ &inner_loop, buffer.data() },
 		make_layout({2, 2, 2}, {{{1, 10, 100}, 0}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 4 );
-	const std::vector<std::ptrdiff_t> expected_offsets = {0, 10, 100, 110};
-	for (std::size_t i = 0; i < calls.size(); ++i)
-	{
-		CHECK( calls[i].count == 2 );
-		CHECK(
-			offsets_of(calls[i], buffer.data()) ==
-			std::vector<std::ptrdiff_t>{expected_offsets[i]}
-		);
-	}
 }
 
 TEST_CASE(
@@ -390,10 +315,15 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
+	const mock_inner_loop inner_loop;
+	trompeloeil::sequence seq;
+	REQUIRE_CALL(inner_loop, run(offset_list({0, 1000}), 2u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list({10, 1020}), 2u)).IN_SEQUENCE(seq);
+	REQUIRE_CALL(inner_loop, run(offset_list({20, 1040}), 2u)).IN_SEQUENCE(seq);
+
 	// Two operands sharing extents {2, 3}. The second one has a base offset.
 	run_elementwise_outer_loop(
-		recorder,
+		inner_loop_forwarder{ &inner_loop, buffer.data() },
 		make_layout(
 			{2, 3},
 			{
@@ -404,19 +334,6 @@ TEST_CASE(
 		buffer.data(),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 3 );
-	const std::vector<std::vector<std::ptrdiff_t>> expected = {
-		{0, 1000},
-		{10, 1020},
-		{20, 1040}
-	};
-	for (std::size_t i = 0; i < calls.size(); ++i)
-	{
-		CHECK( calls[i].count == 2 );
-		CHECK( offsets_of(calls[i], buffer.data()) == expected[i] );
-	}
 }
 
 TEST_CASE(
@@ -426,18 +343,15 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
+	const mock_inner_loop inner_loop;
+	REQUIRE_CALL(inner_loop, run(offset_list{7}, 1u));
+
 	// Empty extents, single operand with a base offset.
 	run_elementwise_outer_loop(
-		recorder,
+		inner_loop_forwarder{ &inner_loop, buffer.data() },
 		make_layout({}, {{{}, 7}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 1 );
-	CHECK( offsets_of(calls[0], buffer.data()) == std::vector<std::ptrdiff_t>{7} );
 }
 
 TEST_CASE(
@@ -446,35 +360,31 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
+	const mock_inner_loop inner_loop;
+	FORBID_CALL(inner_loop, run(trompeloeil::_, trompeloeil::_));
+
 	run_elementwise_outer_loop(
-		recorder,
+		inner_loop_forwarder{ &inner_loop, buffer.data() },
 		make_layout({0}, {{{1}, 0}}),
 		buffer.data()
 	);
-
-	CHECK( recorder.calls().empty() );
 }
 
 TEST_CASE(
-	"run_elementwise_outer_loop accepts an rvalue inner loop",
+	"run_elementwise_outer_loop accepts an lvalue inner loop",
 	"[elementwise_outer_loop]"
 )
 {
 	auto buffer = make_buffer();
-	recording_inner_loop recorder;
-	// Pass a temporary inner loop (sharing the recorder's log) to exercise the
-	// forwarding reference.
+	const mock_inner_loop inner_loop;
+	REQUIRE_CALL(inner_loop, run(offset_list{5}, 3u));
+
+	const inner_loop_forwarder forwarder{ &inner_loop, buffer.data() };
 	run_elementwise_outer_loop(
-		recording_inner_loop(recorder),
+		forwarder,
 		make_layout({3}, {{{1}, 5}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 3 );
-	CHECK( offsets_of(calls[0], buffer.data()) == std::vector<std::ptrdiff_t>{5} );
 }
 
 
@@ -485,21 +395,17 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
+	const mock_vector_kernel kernel;
+	REQUIRE_CALL(
+		kernel,
+		run(offset_list{0}, stride_list{{1, stride_kind::contiguous}}, 5u)
+	);
+
 	run_elementwise_vector_loop(
-		recorder,
+		vector_kernel_forwarder{ &kernel, buffer.data() },
 		make_layout({5}, {{{1}, 0}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 5 );
-	CHECK(
-		offsets_of(calls[0], buffer.data()) == std::vector<std::ptrdiff_t>{0}
-	);
-	REQUIRE( calls[0].strides.size() == 1 );
-	CHECK( calls[0].strides[0] == stride_info{1, stride_kind::contiguous} );
 }
 
 TEST_CASE(
@@ -509,11 +415,21 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
+	const mock_vector_kernel kernel;
+	const stride_list expected_strides = {
+		{1, stride_kind::contiguous},
+		{0, stride_kind::broadcasting},
+		{7, stride_kind::runtime}
+	};
+	REQUIRE_CALL(
+		kernel,
+		run(offset_list({0, 1000, 500}), expected_strides, 4u)
+	);
+
 	// Three operands sharing extents {4} with contiguous, broadcasting and
 	// generic inner strides respectively.
 	run_elementwise_vector_loop(
-		recorder,
+		vector_kernel_forwarder{ &kernel, buffer.data() },
 		make_layout(
 			{4},
 			{
@@ -526,16 +442,6 @@ TEST_CASE(
 		buffer.data(),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 4 );
-	const std::vector<stride_info> expected_strides = {
-		{1, stride_kind::contiguous},
-		{0, stride_kind::broadcasting},
-		{7, stride_kind::runtime}
-	};
-	CHECK( calls[0].strides == expected_strides );
 }
 
 TEST_CASE(
@@ -545,27 +451,24 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
+	const mock_vector_kernel kernel;
+	const stride_list contiguous = { {1, stride_kind::contiguous} };
+	trompeloeil::sequence seq;
+	REQUIRE_CALL(kernel, run(offset_list{0}, contiguous, 3u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(kernel, run(offset_list{100}, contiguous, 3u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(kernel, run(offset_list{200}, contiguous, 3u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(kernel, run(offset_list{300}, contiguous, 3u))
+		.IN_SEQUENCE(seq);
+
 	// Inner extent 3 (dim 0, stride 1), outer extent 4 (dim 1, stride 100).
 	run_elementwise_vector_loop(
-		recorder,
+		vector_kernel_forwarder{ &kernel, buffer.data() },
 		make_layout({3, 4}, {{{1, 100}, 0}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 4 );
-	const std::vector<std::ptrdiff_t> expected_offsets = {0, 100, 200, 300};
-	for (std::size_t i = 0; i < calls.size(); ++i)
-	{
-		CHECK( calls[i].count == 3 );
-		CHECK(
-			offsets_of(calls[i], buffer.data()) ==
-			std::vector<std::ptrdiff_t>{expected_offsets[i]}
-		);
-		REQUIRE( calls[i].strides.size() == 1 );
-		CHECK( calls[i].strides[0] == stride_info{1, stride_kind::contiguous} );
-	}
 }
 
 TEST_CASE(
@@ -575,10 +478,22 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
+	const mock_vector_kernel kernel;
+	const stride_list contiguous = {
+		{1, stride_kind::contiguous},
+		{1, stride_kind::contiguous}
+	};
+	trompeloeil::sequence seq;
+	REQUIRE_CALL(kernel, run(offset_list({0, 1000}), contiguous, 2u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(kernel, run(offset_list({10, 1020}), contiguous, 2u))
+		.IN_SEQUENCE(seq);
+	REQUIRE_CALL(kernel, run(offset_list({20, 1040}), contiguous, 2u))
+		.IN_SEQUENCE(seq);
+
 	// Two operands sharing extents {2, 3}; the second one has a base offset.
 	run_elementwise_vector_loop(
-		recorder,
+		vector_kernel_forwarder{ &kernel, buffer.data() },
 		make_layout(
 			{2, 3},
 			{
@@ -589,24 +504,6 @@ TEST_CASE(
 		buffer.data(),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 3 );
-	const std::vector<std::vector<std::ptrdiff_t>> expected = {
-		{0, 1000},
-		{10, 1020},
-		{20, 1040}
-	};
-	for (std::size_t i = 0; i < calls.size(); ++i)
-	{
-		CHECK( calls[i].count == 2 );
-		CHECK( offsets_of(calls[i], buffer.data()) == expected[i] );
-		const std::vector<stride_info> expected_strides = {
-			{1, stride_kind::contiguous},
-			{1, stride_kind::contiguous}
-		};
-		CHECK( calls[i].strides == expected_strides );
-	}
 }
 
 TEST_CASE(
@@ -616,23 +513,19 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
+	const mock_vector_kernel kernel;
+	REQUIRE_CALL(
+		kernel,
+		run(offset_list{7}, stride_list{{0, stride_kind::broadcasting}}, 1u)
+	);
+
 	// Empty extents: a single element and no stride to inspect, so the operand
 	// collapses to a broadcasting tag.
 	run_elementwise_vector_loop(
-		recorder,
+		vector_kernel_forwarder{ &kernel, buffer.data() },
 		make_layout({}, {{{}, 7}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 1 );
-	CHECK(
-		offsets_of(calls[0], buffer.data()) == std::vector<std::ptrdiff_t>{7}
-	);
-	REQUIRE( calls[0].strides.size() == 1 );
-	CHECK( calls[0].strides[0] == stride_info{0, stride_kind::broadcasting} );
 }
 
 TEST_CASE(
@@ -642,39 +535,37 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
+	const mock_vector_kernel kernel;
+	FORBID_CALL(
+		kernel,
+		run(trompeloeil::_, trompeloeil::_, trompeloeil::_)
+	);
+
 	run_elementwise_vector_loop(
-		recorder,
+		vector_kernel_forwarder{ &kernel, buffer.data() },
 		make_layout({0}, {{{1}, 0}}),
 		buffer.data()
 	);
-
-	CHECK( recorder.calls().empty() );
 }
 
 TEST_CASE(
-	"run_elementwise_vector_loop accepts an rvalue kernel",
+	"run_elementwise_vector_loop accepts an lvalue kernel",
 	"[elementwise_vector_loop]"
 )
 {
 	auto buffer = make_buffer();
-	recording_vector_kernel recorder;
-	// Pass a temporary kernel (sharing the recorder's log) to exercise the
-	// forwarding reference.
+	const mock_vector_kernel kernel;
+	REQUIRE_CALL(
+		kernel,
+		run(offset_list{5}, stride_list{{1, stride_kind::contiguous}}, 3u)
+	);
+
+	const vector_kernel_forwarder forwarder{ &kernel, buffer.data() };
 	run_elementwise_vector_loop(
-		recording_vector_kernel(recorder),
+		forwarder,
 		make_layout({3}, {{{1}, 5}}),
 		buffer.data()
 	);
-
-	const auto &calls = recorder.calls();
-	REQUIRE( calls.size() == 1 );
-	CHECK( calls[0].count == 3 );
-	CHECK(
-		offsets_of(calls[0], buffer.data()) == std::vector<std::ptrdiff_t>{5}
-	);
-	REQUIRE( calls[0].strides.size() == 1 );
-	CHECK( calls[0].strides[0] == stride_info{1, stride_kind::contiguous} );
 }
 
 
@@ -849,21 +740,31 @@ TEST_CASE(
 	CHECK( remainder == std::vector<int>{2, 2, 1} );
 }
 
+namespace
+{
+
+class mock_element_operation
+{
+public:
+	MAKE_CONST_MOCK1(run, void(int *result));
+};
+
+} // anonymous namespace
+
 TEST_CASE(
 	"run_elementwise_loop does not invoke the operation for an empty axis",
 	"[elementwise_loop]"
 )
 {
-	std::size_t calls = 0;
 	int dummy = 0;
+	const mock_element_operation operation;
+	FORBID_CALL(operation, run(trompeloeil::_));
 
 	run_elementwise_loop(
-		[&calls] (int *r) { ++calls; *r = 1; },
+		[&operation] (int *r) { operation.run(r); },
 		make_layout({0}, {{{1}, 0}}),
 		&dummy
 	);
-
-	CHECK( calls == 0 );
 }
 
 namespace
@@ -1071,34 +972,32 @@ struct coordinate_writer
 	}
 };
 
-struct linear_vector_call
+/**
+ * @brief Kernel handed to run_indexed_elementwise_vector_loop, called with
+ * the count of every vector, the linear index at its first element and at
+ * the one after, and whether its stride was resolved as contiguous.
+ */
+class mock_linear_vector_kernel
 {
-	std::size_t count;
-	std::size_t first_index;
-	std::size_t second_index;
-	bool contiguous_stride;
-
-	bool operator==(const linear_vector_call &other) const noexcept
-	{
-		return
-			count == other.count &&
-			first_index == other.first_index &&
-			second_index == other.second_index &&
-			contiguous_stride == other.contiguous_stride;
-	}
+public:
+	MAKE_CONST_MOCK4(
+		run,
+		void(
+			std::size_t count,
+			std::size_t first_index,
+			std::size_t second_index,
+			bool contiguous_stride
+		)
+	);
 };
 
 /**
- * @brief Vector kernel recording where the linear index run of every vector
- * starts, where it is one element later, and how its stride was resolved.
+ * @brief Copyable kernel forwarding each call to a
+ * mock_linear_vector_kernel.
  */
-class linear_vector_recorder
+struct linear_vector_kernel_forwarder
 {
-public:
-	explicit linear_vector_recorder(std::vector<linear_vector_call> &calls)
-		: m_calls(&calls)
-	{
-	}
+	const mock_linear_vector_kernel *mock;
 
 	template <typename Pointers, typename Strides, typename Stride>
 	void operator()(
@@ -1108,18 +1007,13 @@ public:
 		const linear_index_run<Stride> &index_run
 	) const
 	{
-		m_calls->push_back(
-			linear_vector_call {
-				count,
-				index_run.get_index(),
-				index_run.advanced(1).get_index(),
-				std::is_same<Stride, contiguous_stride_tag>::value
-			}
+		mock->run(
+			count,
+			index_run.get_index(),
+			index_run.advanced(1).get_index(),
+			std::is_same<Stride, contiguous_stride_tag>::value
 		);
 	}
-
-private:
-	std::vector<linear_vector_call> *m_calls;
 };
 
 } // anonymous namespace
@@ -1197,29 +1091,45 @@ TEST_CASE(
 	CHECK( destination == std::vector<std::ptrdiff_t>{ -1, -1, -1 } );
 }
 
+namespace
+{
+
+/**
+ * @brief Element operation handed to run_indexed_elementwise_loop, called
+ * with what the test reads off the index of each element.
+ */
+class mock_indexed_operation
+{
+public:
+	MAKE_CONST_MOCK1(run, void(std::size_t value));
+};
+
+} // anonymous namespace
+
 TEST_CASE(
 	"run_indexed_elementwise_loop should hand out every linear index exactly "
 	"once",
 	"[indexed_elementwise_loop]"
 )
 {
-	std::vector<std::size_t> visits;
-	const auto recorder =
-		[&visits] (std::ptrdiff_t *destination, std::size_t index)
-		{
-			visits.push_back(index);
-			*destination = 0;
-		};
+	const mock_indexed_operation operation;
+	trompeloeil::sequence order;
+	REQUIRE_CALL(operation, run(0u)).IN_SEQUENCE(order);
+	REQUIRE_CALL(operation, run(1u)).IN_SEQUENCE(order);
+	REQUIRE_CALL(operation, run(2u)).IN_SEQUENCE(order);
+	REQUIRE_CALL(operation, run(3u)).IN_SEQUENCE(order);
 
 	std::vector<std::ptrdiff_t> destination(4, -1);
 	run_indexed_elementwise_loop(
-		recorder,
+		[&operation] (std::ptrdiff_t *result, std::size_t index)
+		{
+			operation.run(index);
+			*result = 0;
+		},
 		make_indexed_layout({ 4 }, { { { 1 }, 0 } }, linear_index_tag()),
 		linear_index_tag(),
 		destination.data()
 	);
-
-	CHECK( visits == std::vector<std::size_t>{ 0, 1, 2, 3 } );
 }
 
 TEST_CASE(
@@ -1340,13 +1250,15 @@ TEST_CASE(
 	"[indexed_elementwise_loop]"
 )
 {
-	std::size_t rank = 1;
 	std::ptrdiff_t destination = -1;
+	const mock_indexed_operation rank_of;
+	REQUIRE_CALL(rank_of, run(0u));
 
 	run_indexed_elementwise_loop(
-		[&rank] (std::ptrdiff_t *result, const multidimensional_index &index)
+		[&rank_of]
+		(std::ptrdiff_t *result, const multidimensional_index &index)
 		{
-			rank = index.get_rank();
+			rank_of.run(index.get_rank());
 			*result = 7;
 		},
 		make_indexed_layout({}, { { {}, 0 } }, multidimensional_index_tag()),
@@ -1354,7 +1266,6 @@ TEST_CASE(
 		&destination
 	);
 
-	CHECK( rank == 0 );
 	CHECK( destination == 7 );
 }
 
@@ -1411,12 +1322,14 @@ TEST_CASE(
 )
 {
 	auto buffer = make_buffer();
-	std::vector<linear_vector_call> calls;
+	const mock_linear_vector_kernel kernel;
 
 	SECTION( "a row-major operand, walked as a single vector" )
 	{
+		REQUIRE_CALL(kernel, run(6u, 0u, 1u, true));
+
 		run_indexed_elementwise_vector_loop(
-			linear_vector_recorder(calls),
+			linear_vector_kernel_forwarder{ &kernel },
 			make_indexed_layout(
 				{ 2, 3 },
 				{ { { 3, 1 }, 0 } },
@@ -1425,16 +1338,16 @@ TEST_CASE(
 			linear_index_tag(),
 			buffer.data()
 		);
-
-		const std::vector<linear_vector_call> expected = {
-			{ 6, 0, 1, true }
-		};
-		CHECK( calls == expected );
 	}
 	SECTION( "a column-major operand, walked column by column" )
 	{
+		trompeloeil::sequence seq;
+		REQUIRE_CALL(kernel, run(2u, 0u, 3u, false)).IN_SEQUENCE(seq);
+		REQUIRE_CALL(kernel, run(2u, 1u, 4u, false)).IN_SEQUENCE(seq);
+		REQUIRE_CALL(kernel, run(2u, 2u, 5u, false)).IN_SEQUENCE(seq);
+
 		run_indexed_elementwise_vector_loop(
-			linear_vector_recorder(calls),
+			linear_vector_kernel_forwarder{ &kernel },
 			make_indexed_layout(
 				{ 2, 3 },
 				{ { { 1, 2 }, 0 } },
@@ -1443,15 +1356,31 @@ TEST_CASE(
 			linear_index_tag(),
 			buffer.data()
 		);
-
-		const std::vector<linear_vector_call> expected = {
-			{ 2, 0, 3, false },
-			{ 2, 1, 4, false },
-			{ 2, 2, 5, false }
-		};
-		CHECK( calls == expected );
 	}
 }
+
+namespace
+{
+
+/**
+ * @brief Kernel handed to run_indexed_elementwise_vector_loop, called with
+ * the length of each vector and the coordinates of its first and last
+ * elements in a two dimensional layout.
+ */
+class mock_indexed_vector_kernel
+{
+public:
+	MAKE_CONST_MOCK3(
+		run,
+		void(
+			std::size_t count,
+			std::vector<std::size_t> first,
+			std::vector<std::size_t> last
+		)
+	);
+};
+
+} // anonymous namespace
 
 TEST_CASE(
 	"run_indexed_elementwise_vector_loop should place the coordinates at the "
@@ -1459,12 +1388,21 @@ TEST_CASE(
 	"[indexed_elementwise_vector_loop]"
 )
 {
+	using coordinates = std::vector<std::size_t>;
+
 	// The vectors of a column-major 2x3 array are its columns.
 	auto buffer = make_buffer();
-	std::vector<std::vector<std::size_t>> calls;
+	const mock_indexed_vector_kernel kernel;
+	trompeloeil::sequence columns;
+	REQUIRE_CALL(kernel, run(2u, coordinates{ 0, 0 }, coordinates{ 1, 0 }))
+		.IN_SEQUENCE(columns);
+	REQUIRE_CALL(kernel, run(2u, coordinates{ 0, 1 }, coordinates{ 1, 1 }))
+		.IN_SEQUENCE(columns);
+	REQUIRE_CALL(kernel, run(2u, coordinates{ 0, 2 }, coordinates{ 1, 2 }))
+		.IN_SEQUENCE(columns);
 
 	run_indexed_elementwise_vector_loop(
-		[&calls] (
+		[&kernel] (
 			const auto& /*pointers*/,
 			const auto& /*strides*/,
 			std::size_t count,
@@ -1472,7 +1410,11 @@ TEST_CASE(
 		)
 		{
 			const auto last = index.advanced(count - 1);
-			calls.push_back({ count, index[0], index[1], last[0], last[1] });
+			kernel.run(
+				count,
+				coordinates{ index[0], index[1] },
+				coordinates{ last[0], last[1] }
+			);
 		},
 		make_indexed_layout(
 			{ 2, 3 },
@@ -1482,11 +1424,4 @@ TEST_CASE(
 		multidimensional_index_tag(),
 		buffer.data()
 	);
-
-	const std::vector<std::vector<std::size_t>> expected = {
-		{ 2, 0, 0, 1, 0 },
-		{ 2, 0, 1, 1, 1 },
-		{ 2, 0, 2, 1, 2 }
-	};
-	CHECK( calls == expected );
 }

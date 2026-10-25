@@ -7,15 +7,14 @@
 
 #include <rexlib/core/platform/constexpr.hpp>
 
+#include <trompeloeil.hpp>
+
 #include <algorithm>
 #include <atomic>
 #include <cstddef>
-#include <functional>
-#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <thread>
-#include <utility>
 #include <vector>
 
 using namespace rexlib;
@@ -24,53 +23,19 @@ using namespace rexlib::cpu;
 namespace
 {
 
-using range = std::pair<std::size_t, std::size_t>;
-
-/**
- * @brief Record the range of every chunk a job was cut into.
- *
- * The pool invokes bodies concurrently, so the record is guarded. The order
- * the ranges arrive in is a matter of timing; they are sorted before being
- * asserted on.
- */
-class range_recorder
+class mock_body
 {
 public:
-	void operator()(std::size_t begin, std::size_t end) const
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		m_ranges.emplace_back(begin, end);
-	}
-
-	std::vector<range> take_sorted() const
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		auto result = m_ranges;
-		std::sort(result.begin(), result.end());
-		return result;
-	}
-
-private:
-	mutable std::mutex m_mutex;
-	mutable std::vector<range> m_ranges;
+	MAKE_CONST_MOCK2(run, void(std::size_t begin, std::size_t end));
 };
 
-/**
- * @brief Whether the ranges tile [0, count) exactly, in order and without gaps.
- */
-bool covers(const std::vector<range> &ranges, std::size_t count)
+// A body for parallel_for that hands each chunk to the mock.
+auto forward_to(const mock_body &body)
 {
-	std::size_t expected = 0;
-	for (const auto &r : ranges)
+	return [&body] (std::size_t begin, std::size_t end)
 	{
-		if (r.first != expected || r.second <= r.first)
-		{
-			return false;
-		}
-		expected = r.second;
-	}
-
-	return expected == count;
+		body.run(begin, end);
+	};
 }
 
 } // anonymous namespace
@@ -95,24 +60,12 @@ TEST_CASE(
 {
 	thread_pool pool(0);
 
-	range_recorder recorder;
+	const mock_body body;
 	const auto caller = std::this_thread::get_id();
-	std::atomic<bool> same_thread(true);
-	const auto body =
-		[&recorder, &caller, &same_thread]
-		(std::size_t begin, std::size_t end)
-		{
-			if (std::this_thread::get_id() != caller)
-			{
-				same_thread.store(false);
-			}
-			recorder(begin, end);
-		};
+	REQUIRE_CALL(body, run(0u, 1000u))
+		.LR_WITH(std::this_thread::get_id() == caller);
 
-	parallel_for(pool, 1000, 1, body);
-
-	CHECK( recorder.take_sorted() == std::vector<range>{ { 0, 1000 } } );
-	CHECK( same_thread.load() );
+	parallel_for(pool, 1000, 1, forward_to(body));
 }
 
 TEST_CASE(
@@ -122,12 +75,13 @@ TEST_CASE(
 {
 	thread_pool pool(3);
 
-	range_recorder recorder;
-	parallel_for(pool, 100, 1, std::ref(recorder));
+	const mock_body body;
+	REQUIRE_CALL(body, run(0u, 25u));
+	REQUIRE_CALL(body, run(25u, 50u));
+	REQUIRE_CALL(body, run(50u, 75u));
+	REQUIRE_CALL(body, run(75u, 100u));
 
-	const auto ranges = recorder.take_sorted();
-	CHECK( ranges.size() == 4 );
-	CHECK( covers(ranges, 100) );
+	parallel_for(pool, 100, 1, forward_to(body));
 }
 
 TEST_CASE(
@@ -140,11 +94,13 @@ TEST_CASE(
 	// size, never on timing, so it can be asserted exactly.
 	thread_pool pool(3);
 
-	range_recorder recorder;
-	parallel_for(pool, 10, 1, std::ref(recorder));
+	const mock_body body;
+	REQUIRE_CALL(body, run(0u, 3u));
+	REQUIRE_CALL(body, run(3u, 6u));
+	REQUIRE_CALL(body, run(6u, 8u));
+	REQUIRE_CALL(body, run(8u, 10u));
 
-	CHECK( recorder.take_sorted() ==
-	       std::vector<range>{ { 0, 3 }, { 3, 6 }, { 6, 8 }, { 8, 10 } } );
+	parallel_for(pool, 10, 1, forward_to(body));
 }
 
 TEST_CASE(
@@ -154,10 +110,10 @@ TEST_CASE(
 {
 	thread_pool pool(3);
 
-	range_recorder recorder;
-	parallel_for(pool, 100, 1000, std::ref(recorder));
+	const mock_body body;
+	REQUIRE_CALL(body, run(0u, 100u));
 
-	CHECK( recorder.take_sorted() == std::vector<range>{ { 0, 100 } } );
+	parallel_for(pool, 100, 1000, forward_to(body));
 }
 
 TEST_CASE(
@@ -169,12 +125,11 @@ TEST_CASE(
 	// pool could otherwise fill.
 	thread_pool pool(3);
 
-	range_recorder recorder;
-	parallel_for(pool, 100, 40, std::ref(recorder));
+	const mock_body body;
+	REQUIRE_CALL(body, run(0u, 50u));
+	REQUIRE_CALL(body, run(50u, 100u));
 
-	const auto ranges = recorder.take_sorted();
-	CHECK( ranges.size() == 2 );
-	CHECK( covers(ranges, 100) );
+	parallel_for(pool, 100, 40, forward_to(body));
 }
 
 TEST_CASE(
@@ -184,10 +139,10 @@ TEST_CASE(
 {
 	thread_pool pool(3);
 
-	range_recorder recorder;
-	parallel_for(pool, 0, 1, std::ref(recorder));
+	const mock_body body;
+	FORBID_CALL(body, run(trompeloeil::_, trompeloeil::_));
 
-	CHECK( recorder.take_sorted().empty() );
+	parallel_for(pool, 0, 1, forward_to(body));
 }
 
 TEST_CASE(
