@@ -14,44 +14,22 @@
 using namespace rexlib;
 using namespace rexlib::ops;
 using trompeloeil::_;
-using rexlib::test::dispatch_record;
 using rexlib::test::verb_dispatch_fixture;
 
 namespace
 {
 
-// The verbs build their fill operation as a temporary and hand it straight
-// to the dispatcher, so its value has to be copied out while the call is
-// still on the stack.
-class fill_value_capture
+/**
+ * @brief Whether @p op is a fill_operation carrying @p value.
+ */
+template <typename T>
+bool fills_with(const operation &op, T value)
 {
-public:
-	explicit fill_value_capture(test::dispatch_record &record)
-	{
-		record.inspect = [this] (const operation &op)
-		{
-			const auto *fill = dynamic_cast<const fill_operation*>(&op);
-			if (fill)
-			{
-				m_value = std::make_unique<scalar_value>(
-					fill->get_fill_value()
-				);
-			}
-		};
-	}
-
-	const scalar_value* get() const noexcept
-	{
-		return m_value.get();
-	}
-
-private:
-	std::unique_ptr<scalar_value> m_value;
-};
+	const auto *fill = dynamic_cast<const fill_operation*>(&op);
+	return fill && fill->get_fill_value().get<T>() == value;
+}
 
 } // anonymous namespace
-
-
 
 TEST_CASE(
 	"empty throws when the execution context has no allocator for the "
@@ -396,10 +374,13 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(buffer);
 
-	dispatch_record record;
-	const fill_value_capture fill_value(record);
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<fill_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 0 )
+		.LR_WITH( storage_of(_2, 0) == buffer.get() )
+		.LR_WITH( in_session(_4) )
+		.WITH( fills_with(_1, 2.5f) );
 
 	const auto result = full(
 		descriptor,
@@ -407,16 +388,6 @@ TEST_CASE_METHOD(
 		scalar_value(2.5f),
 		context
 	);
-
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(fill_operation) );
-	REQUIRE( fill_value.get() != nullptr );
-	CHECK( fill_value.get()->get<float>() == 2.5f );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 0 );
-	CHECK( record.get_output_storage(0) == buffer.get() );
-	CHECK( record.session == session.get() );
 }
 
 TEST_CASE_METHOD(
@@ -436,24 +407,17 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(buffer);
 
-	dispatch_record record;
-	const fill_value_capture fill_value(record);
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<fill_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 0 )
+		.WITH( fills_with(_1, 0) );
 
 	const auto result = zeros(
 		descriptor,
 		memory_resource_affinity::host,
 		context
 	);
-
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(fill_operation) );
-	REQUIRE( fill_value.get() != nullptr );
-	CHECK( fill_value.get()->get<int>() == 0 );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 0 );
 }
 
 TEST_CASE_METHOD(
@@ -473,24 +437,17 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(buffer);
 
-	dispatch_record record;
-	const fill_value_capture fill_value(record);
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<fill_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 0 )
+		.WITH( fills_with(_1, 1) );
 
 	const auto result = ones(
 		descriptor,
 		memory_resource_affinity::host,
 		context
 	);
-
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(fill_operation) );
-	REQUIRE( fill_value.get() != nullptr );
-	CHECK( fill_value.get()->get<int>() == 1 );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 0 );
 }
 
 TEST_CASE_METHOD(
@@ -503,20 +460,14 @@ TEST_CASE_METHOD(
 	const auto source_buffer = std::make_shared<mock_buffer>();
 	array source(source_buffer, descriptor);
 
-	dispatch_record record;
-	const fill_value_capture fill_value(record);
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<copy_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 1 )
+		.LR_WITH( storage_of(_3, 0) == source_buffer.get() )
+		.LR_WITH( in_session(_4) );
 
 	const auto result = copy(source.share(), context);
-
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(copy_operation) );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 1 );
-	CHECK( record.get_input_storage(0) == source_buffer.get() );
-	CHECK( record.session == session.get() );
 }
 
 TEST_CASE_METHOD(
@@ -529,19 +480,12 @@ TEST_CASE_METHOD(
 	const auto buffer = std::make_shared<mock_buffer>();
 	array target(buffer, descriptor);
 
-	dispatch_record record;
-	const fill_value_capture fill_value(record);
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<fill_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 0 )
+		.LR_WITH( storage_of(_2, 0) == buffer.get() )
+		.WITH( fills_with(_1, 7) );
 
 	fill(target, scalar_value(7), context);
-
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(fill_operation) );
-	REQUIRE( fill_value.get() != nullptr );
-	CHECK( fill_value.get()->get<int>() == 7 );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 0 );
-	CHECK( record.get_output_storage(0) == buffer.get() );
 }

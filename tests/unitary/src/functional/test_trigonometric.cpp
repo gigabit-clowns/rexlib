@@ -187,22 +187,18 @@ TEST_CASE_METHOD(
 	array cosine = make_operand(cosine_storage);
 	const const_array_ref x = x_array;
 
-	test::dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(
 		trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_
 	))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<sincos_operation>(_1) )
+		.WITH( _2.size() == 2 )
+		.WITH( _3.size() == 1 )
+		.LR_WITH( storage_of(_3, 0) == x_storage.get() )
+		.LR_WITH( storage_of(_2, 0) == sine_storage.get() )
+		.LR_WITH( storage_of(_2, 1) == cosine_storage.get() );
 
 	const auto result = sincos(x, context, &sine, &cosine);
 
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(sincos_operation) );
-	CHECK( record.num_outputs == 2 );
-	CHECK( record.num_inputs == 1 );
-	CHECK( record.get_input_storage(0) == x_storage.get() );
-	CHECK( record.get_output_storage(0) == sine_storage.get() );
-	CHECK( record.get_output_storage(1) == cosine_storage.get() );
 	CHECK( result.first.get_storage() == sine_storage.get() );
 	CHECK( result.second.get_storage() == cosine_storage.get() );
 }

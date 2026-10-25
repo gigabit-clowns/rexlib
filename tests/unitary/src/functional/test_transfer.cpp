@@ -11,7 +11,6 @@
 using namespace rexlib;
 using namespace rexlib::ops;
 using trompeloeil::_;
-using rexlib::test::dispatch_record;
 using rexlib::test::verb_dispatch_fixture;
 
 
@@ -115,9 +114,13 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(target_buffer);
 
-	dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<copy_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 1 )
+		.LR_WITH( storage_of(_2, 0) == target_buffer.get() )
+		.LR_WITH( storage_of(_3, 0) == source_buffer.get() )
+		.LR_WITH( in_session(_4) );
 
 	array input(source_buffer, descriptor);
 
@@ -128,14 +131,6 @@ TEST_CASE_METHOD(
 	);
 
 	CHECK( result.get_storage() == target_buffer.get() );
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(copy_operation) );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 1 );
-	CHECK( record.get_output_storage(0) == target_buffer.get() );
-	CHECK( record.get_input_storage(0) == source_buffer.get() );
-	CHECK( record.session == session.get() );
 }
 
 
@@ -164,9 +159,13 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(target_buffer);
 
-	dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<copy_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 1 )
+		.LR_WITH( storage_of(_2, 0) == target_buffer.get() )
+		.LR_WITH( storage_of(_3, 0) == source_buffer.get() )
+		.LR_WITH( in_session(_4) );
 
 	array source(source_buffer, descriptor);
 
@@ -177,14 +176,6 @@ TEST_CASE_METHOD(
 	);
 
 	CHECK( result.get_storage() == target_buffer.get() );
-	CHECK( record.called );
-	REQUIRE( record.operation_type != nullptr );
-	CHECK( *record.operation_type == typeid(copy_operation) );
-	CHECK( record.num_outputs == 1 );
-	CHECK( record.num_inputs == 1 );
-	CHECK( record.get_output_storage(0) == target_buffer.get() );
-	CHECK( record.get_input_storage(0) == source_buffer.get() );
-	CHECK( record.session == session.get() );
 }
 
 TEST_CASE_METHOD(
@@ -207,9 +198,9 @@ TEST_CASE_METHOD(
 	ALLOW_CALL(*host_allocator, get_memory_resource())
 		.LR_RETURN(host_resource);
 
-	dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.LR_WITH( storage_of(_2, 0) == out_buffer.get() )
+		.LR_WITH( storage_of(_3, 0) == source_buffer.get() );
 
 	array source(source_buffer, descriptor);
 	array out(out_buffer, descriptor);
@@ -224,9 +215,6 @@ TEST_CASE_METHOD(
 	// The output storage is reused and the copy dispatched into it.
 	CHECK( result.get_storage() == out_buffer.get() );
 	CHECK( out.get_storage() == out_buffer.get() );
-	CHECK( record.called );
-	CHECK( record.get_output_storage(0) == out_buffer.get() );
-	CHECK( record.get_input_storage(0) == source_buffer.get() );
 }
 
 
@@ -300,18 +288,15 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(device_buffer);
 
-	dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<copy_operation>(_1) )
+		.LR_WITH( storage_of(_3, 0) == source_buffer.get() );
 
 	array source(source_buffer, descriptor);
 
 	const auto result = to_device_copy(source.share(), context);
 
 	CHECK( result.get_storage() == device_buffer.get() );
-	CHECK( record.called );
-	CHECK( *record.operation_type == typeid(copy_operation) );
-	CHECK( record.get_input_storage(0) == source_buffer.get() );
 }
 
 TEST_CASE_METHOD(
@@ -334,16 +319,13 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(host_buffer);
 
-	dispatch_record record;
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<copy_operation>(_1) )
+		.LR_WITH( storage_of(_3, 0) == source_buffer.get() );
 
 	array source(source_buffer, descriptor);
 
 	const auto result = to_host_copy(source.share(), context);
 
 	CHECK( result.get_storage() == host_buffer.get() );
-	CHECK( record.called );
-	CHECK( *record.operation_type == typeid(copy_operation) );
-	CHECK( record.get_input_storage(0) == source_buffer.get() );
 }

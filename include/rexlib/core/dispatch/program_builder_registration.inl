@@ -7,19 +7,19 @@
 namespace rexlib
 {
 
-template <typename Builder>
+template <typename Builder, typename Registry>
 inline
-program_builder_registration<Builder>::program_builder_registration(
-	program_builder_registry &registry
+program_builder_registration<Builder, Registry>::program_builder_registration(
+	Registry &registry
 )
 {
 	registry.add(&create_builder);
 }
 
-template <typename Builder>
+template <typename Builder, typename Registry>
 inline
 std::unique_ptr<program_builder>
-program_builder_registration<Builder>::create_builder()
+program_builder_registration<Builder, Registry>::create_builder()
 {
 	return std::make_unique<Builder>();
 }

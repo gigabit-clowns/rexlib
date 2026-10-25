@@ -60,26 +60,20 @@ TEST_CASE_METHOD(
 	const const_array_ref x = x_array;
 	const const_array_ref y = y_array;
 
-	test::dispatch_record record;
-	std::vector<std::size_t> seen;
-	record.inspect = [&seen] (const operation &op)
-	{
-		const auto axes = dynamic_cast<const vecdot_operation&>(op)
-			.get_parameters().get_axes();
-		seen.assign(axes.begin(), axes.end());
-	};
+	// The operands are two dimensional, so the last axis is axis 1.
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<vecdot_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 2 )
+		.LR_WITH( in_session(_4) )
+		.LR_WITH( storage_of(_3, 0) == x_storage.get() )
+		.LR_WITH( storage_of(_3, 1) == y_storage.get() )
+		.WITH(
+			axes_of<vecdot_operation>(_1) ==
+				std::vector<std::size_t>{ 1 }
+		);
 
 	vecdot(x, y, context, nullptr);
-
-	check_record<vecdot_operation>(record, 2);
-	CHECK( record.get_input_storage(0) == x_storage.get() );
-	CHECK( record.get_input_storage(1) == y_storage.get() );
-
-	// The operands are two dimensional, so the last axis is axis 1.
-	REQUIRE( seen.size() == 1 );
-	CHECK( seen[0] == 1 );
 }
 
 TEST_CASE_METHOD(
@@ -95,18 +89,14 @@ TEST_CASE_METHOD(
 	const const_array_ref x = x_array;
 	const const_array_ref y = y_array;
 
-	test::dispatch_record record;
-	std::size_t seen = 0;
-	record.inspect = [&seen] (const operation &op)
-	{
-		seen = dynamic_cast<const cross_operation&>(op)
-			.get_parameters().get_axes()[0];
-	};
 	REQUIRE_CALL(*dispatcher, dispatch(_, _, _, _))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( is_operation<cross_operation>(_1) )
+		.WITH( _2.size() == 1 )
+		.WITH( _3.size() == 2 )
+		.LR_WITH( in_session(_4) )
+		.WITH(
+			axes_of<cross_operation>(_1) == std::vector<std::size_t>{ 1 }
+		);
 
 	cross(x, y, -1, context, nullptr);
-
-	check_record<cross_operation>(record, 2);
-	CHECK( seen == 1 );
 }

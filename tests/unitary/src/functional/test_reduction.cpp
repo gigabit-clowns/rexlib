@@ -26,6 +26,20 @@ using namespace rexlib::ops;
 using rexlib::test::verb_dispatch_fixture;
 using trompeloeil::_;
 
+namespace
+{
+
+/**
+ * @brief Whether @p op is a sum_operation that keeps its reduced axes.
+ */
+bool keeps_dimensions(const operation &op)
+{
+	const auto *sum = dynamic_cast<const sum_operation*>(&op);
+	return sum && sum->get_parameters().get_keep_dimensions();
+}
+
+} // anonymous namespace
+
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,
 	"sum dispatches a sum_operation carrying the resolved axes",
@@ -148,19 +162,10 @@ TEST_CASE_METHOD(
 
 	const std::vector<std::ptrdiff_t> axes = { 0 };
 
-	test::dispatch_record record;
-	bool kept = false;
-	record.inspect = [&kept] (const operation &op)
-	{
-		const auto &typed = dynamic_cast<const sum_operation&>(op);
-		kept = typed.get_parameters().get_keep_dimensions();
-	};
 	REQUIRE_CALL(*dispatcher, dispatch(
 		trompeloeil::_, trompeloeil::_, trompeloeil::_, trompeloeil::_
 	))
-		.LR_SIDE_EFFECT( record(_1, _2, _3, _4) );
+		.WITH( keeps_dimensions(_1) );
 
 	sum(x, make_span(axes), true, context, nullptr);
-
-	CHECK( kept );
 }
