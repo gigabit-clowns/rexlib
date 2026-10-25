@@ -1,7 +1,7 @@
 target_sources(
 	rexlib-cpu-obj
 	PRIVATE
-		program_builder.cpp
+		cpu_program_builder.cpp
 )
 
 add_subdirectory(builders)

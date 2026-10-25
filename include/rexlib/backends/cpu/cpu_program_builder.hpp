@@ -11,15 +11,15 @@ namespace rexlib
 namespace cpu
 {
 
-class REXLIB_API program_builder
-	: public rexlib::program_builder
+class REXLIB_API cpu_program_builder
+	: public program_builder
 {
 public:
 	backend_priority get_suitability(
 		const operation &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
-		rexlib::command_queue &queue
+		command_queue &queue
 	) const override;
 };
 

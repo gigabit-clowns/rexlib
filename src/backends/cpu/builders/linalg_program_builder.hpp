@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
 
 #include <rexlib/core/dispatch/program_builder_registry.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>

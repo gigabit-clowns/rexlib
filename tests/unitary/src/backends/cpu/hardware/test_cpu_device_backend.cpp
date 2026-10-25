@@ -4,7 +4,7 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
-#include <backends/cpu/hardware/device_backend.hpp>
+#include <backends/cpu/hardware/cpu_device_backend.hpp>
 
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/library_version.hpp>
@@ -15,29 +15,29 @@ using namespace rexlib;
 using namespace rexlib::cpu;
 
 TEST_CASE(
-	"cpu::device_backend should be named as cpu",
-	"[cpu::device_backend]"
+	"cpu_device_backend should be named as cpu",
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 	REQUIRE( backend.get_name() == "cpu" );
 }
 
 TEST_CASE(
-	"cpu::device_backend should have the same version as the core",
-	"[cpu::device_backend]"
+	"cpu_device_backend should have the same version as the core",
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 	REQUIRE( backend.get_version() == rexlib::get_library_version() );
 }
 
 TEST_CASE(
-	"cpu::device_backend should have a single device id",
-	"[cpu::device_backend]"
+	"cpu_device_backend should have a single device id",
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 
 	std::vector<std::size_t> device_ids;
 	backend.enumerate_devices(device_ids);
@@ -47,12 +47,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::device_backend should fail gathering info about a device id "
+	"cpu_device_backend should fail gathering info about a device id "
 	"unequal to 0",
-	"[cpu::device_backend]"
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 
 	const std::size_t id = GENERATE(1, 2, 10, 32);
 	device_properties properties;
@@ -61,24 +61,24 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::device_backend should gather info about a device with an id "
+	"cpu_device_backend should gather info about a device with an id "
 	"equal to 0",
-	"[cpu::device_backend]"
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 
 	device_properties properties;
 	REQUIRE( backend.get_device_properties(0, properties) == true );
 }
 
 TEST_CASE(
-	"cpu::device_backend should throw creating a device with an id "
+	"cpu_device_backend should throw creating a device with an id "
 	"unequal to 0",
-	"[cpu::device_backend]"
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 
 	const std::size_t id = GENERATE(1, 2, 10, 32);
 	device_properties properties;
@@ -93,11 +93,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::device_backend should create a valid device with an id equal to 0",
-	"[cpu::device_backend]"
+	"cpu_device_backend should create a valid device with an id equal to 0",
+	"[cpu_device_backend]"
 )
 {
-	cpu::device_backend backend;
+	cpu_device_backend backend;
 
 	const auto device = backend.create_device(0);
 	REQUIRE( device != nullptr );

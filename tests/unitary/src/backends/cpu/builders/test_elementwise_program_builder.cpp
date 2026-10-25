@@ -5,12 +5,12 @@
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/load_store.hpp>
-#include <backends/cpu/hardware/command_queue.hpp>
+#include <backends/cpu/hardware/cpu_command_queue.hpp>
 #include <backends/cpu/loops/multidimensional_index.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/cpu_program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/operation/operand_names.hpp>
@@ -112,7 +112,7 @@ TEST_CASE(
 {
 	const test_builder builder;
 	const test_binary_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::size_t count = 4;
 	const std::vector<operand_descriptor> outputs {
@@ -154,7 +154,7 @@ TEST_CASE(
 	};
 	const std::vector<std::shared_ptr<buffer>> scratch_operands;
 
-	auto &executable = dynamic_cast<cpu::program&>(*program);
+	auto &executable = dynamic_cast<cpu_program&>(*program);
 	executable.execute(
 		make_span(output_operands),
 		make_span(input_operands),
@@ -175,7 +175,7 @@ TEST_CASE(
 {
 	const test_builder builder;
 	mock_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	// The rejection names the operation it was handed, so the mock has to
 	// be able to answer that much.
@@ -219,7 +219,7 @@ TEST_CASE(
 {
 	const test_builder builder;
 	const test_binary_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	// The operation expects exactly one output.
 	const std::vector<operand_descriptor> outputs {
@@ -251,7 +251,7 @@ TEST_CASE(
 {
 	const test_builder builder;
 	const test_binary_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_float32_signature(4)
@@ -314,7 +314,7 @@ TEST_CASE(
 {
 	const coordinate_builder builder;
 	const test_coordinates_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	// Element (i, j) of a 2x3 output stored column by column sits at i + 2j.
 	const std::array<std::size_t, 2> extents { 2, 3 };
@@ -347,7 +347,7 @@ TEST_CASE(
 	const std::vector<std::shared_ptr<const buffer>> input_operands;
 	const std::vector<std::shared_ptr<buffer>> scratch_operands;
 
-	auto &executable = dynamic_cast<cpu::program&>(*program);
+	auto &executable = dynamic_cast<cpu_program&>(*program);
 	executable.execute(
 		make_span(output_operands),
 		make_span(input_operands),

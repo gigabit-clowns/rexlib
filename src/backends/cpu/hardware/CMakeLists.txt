@@ -1,8 +1,8 @@
 target_sources(
 	rexlib-cpu-obj
 	PRIVATE
-		command_queue.cpp
-		device.cpp
-		device_backend.cpp
+		cpu_command_queue.cpp
+		cpu_device.cpp
+		cpu_device_backend.cpp
 		thread_pool.cpp
 )

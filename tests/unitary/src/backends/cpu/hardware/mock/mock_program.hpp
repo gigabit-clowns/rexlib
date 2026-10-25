@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/cpu_program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <trompeloeil.hpp>
@@ -13,7 +13,7 @@ namespace cpu
 {
 
 class mock_program final
-	: public program
+	: public cpu_program
 {
 public:
 	MAKE_CONST_MOCK4(

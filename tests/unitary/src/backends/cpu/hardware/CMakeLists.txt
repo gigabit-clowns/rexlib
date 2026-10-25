@@ -1,9 +1,9 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_command_queue.cpp
-		test_device.cpp
-		test_device_backend.cpp
+		test_cpu_command_queue.cpp
+		test_cpu_device.cpp
+		test_cpu_device_backend.cpp
 		test_functor_program.cpp
 		test_thread_pool.cpp
 )

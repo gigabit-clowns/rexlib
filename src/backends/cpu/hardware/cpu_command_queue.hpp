@@ -16,25 +16,26 @@ class thread_pool;
 /**
  * @brief CPU implementation of @ref command_queue.
  */
-class command_queue final
-	: public rexlib::command_queue
+class cpu_command_queue final
+	: public command_queue
 {
 public:
 	/**
 	 * @brief Construct a queue over a set of threads.
 	 *
 	 * The pool is named rather than reached for, so that the only thing in
-	 * this backend that owns threads is the @ref device a queue was made by.
-	 * Nothing static holds one, which is what keeps the workers being joined
-	 * while the program is still running rather than while it is exiting.
+	 * this backend that owns threads is the @ref cpu_device a queue was made
+	 * by. Nothing static holds one, which is what keeps the workers being
+	 * joined while the program is still running rather than while it is
+	 * exiting.
 	 *
 	 * @param pool The threads the programs submitted here may spread
 	 * themselves over.
 	 *
 	 * @throws std::invalid_argument If @p pool is null.
 	 */
-	explicit command_queue(std::shared_ptr<thread_pool> pool);
-	~command_queue() override = default;
+	explicit cpu_command_queue(std::shared_ptr<thread_pool> pool);
+	~cpu_command_queue() override = default;
 
 	command_token submit(command cmd) override;
 
@@ -46,9 +47,9 @@ public:
 	thread_pool& get_thread_pool() const noexcept;
 
 	static
-	command_queue* try_cast(rexlib::command_queue &queue) noexcept;
+	cpu_command_queue* try_cast(command_queue &queue) noexcept;
 	static
-	const command_queue* try_cast(const rexlib::command_queue &queue) noexcept;
+	const cpu_command_queue* try_cast(const command_queue &queue) noexcept;
 
 private:
 	std::shared_ptr<thread_pool> m_pool;

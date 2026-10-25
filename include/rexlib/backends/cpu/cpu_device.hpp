@@ -23,8 +23,8 @@ class thread_pool;
  * static destruction, which on Windows means joining threads the loader has
  * already stopped.
  */
-class REXLIB_API device final
-	: public rexlib::device
+class REXLIB_API cpu_device final
+	: public device
 {
 public:
 	/**
@@ -34,13 +34,13 @@ public:
 	 * @ref thread_pool::get_default_worker_count workers when null, which is
 	 * what every caller but a test wants.
 	 */
-	explicit device(std::shared_ptr<thread_pool> pool = nullptr);
-	~device() override;
+	explicit cpu_device(std::shared_ptr<thread_pool> pool = nullptr);
+	~cpu_device() override;
 
 	const memory_resource& 
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
-	std::shared_ptr<rexlib::command_queue> create_command_queue() const override;
+	std::shared_ptr<command_queue> create_command_queue() const override;
 
 	/**
 	 * @brief Get the threads this device runs its programs over.

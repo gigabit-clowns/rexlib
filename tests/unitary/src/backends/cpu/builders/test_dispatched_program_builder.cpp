@@ -6,7 +6,7 @@
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
-#include <backends/cpu/hardware/command_queue.hpp>
+#include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include "../serial_pool.hpp"
 
@@ -280,7 +280,7 @@ TEST_CASE(
 
 	const silent_program_builder builder;
 	const probe_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(&host_resource)
@@ -307,7 +307,7 @@ TEST_CASE(
 		.RETURN(memory_resource_kind::host);
 
 	const probe_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(&host_resource)
@@ -343,7 +343,7 @@ TEST_CASE(
 
 	const silent_program_builder builder;
 	const probe_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	// The operation takes exactly one input.
 	const std::vector<operand_descriptor> outputs {
@@ -372,7 +372,7 @@ TEST_CASE(
 
 	const silent_program_builder builder;
 	const probe_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(&device_resource)
@@ -395,7 +395,7 @@ TEST_CASE(
 {
 	const silent_program_builder builder;
 	const probe_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(nullptr)
@@ -423,7 +423,7 @@ TEST_CASE(
 {
 	const silent_program_builder builder;
 	const probe_operation operation;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(nullptr),
@@ -465,7 +465,7 @@ TEST_CASE(
 		.RETURN(memory_resource_kind::host);
 
 	const astype_probe_program_builder builder;
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(&host_resource, numerical_type::float64)
@@ -497,7 +497,7 @@ TEST_CASE(
 {
 	const astype_probe_program_builder builder;
 	const astype_probe_operation operation(numerical_type::float64);
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(nullptr, numerical_type::float64)

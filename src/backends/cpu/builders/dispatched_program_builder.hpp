@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
@@ -62,7 +62,7 @@ namespace cpu
  */
 template <typename Derived, typename Op, typename TypeDispatcher>
 class dispatched_program_builder
-	: public program_builder
+	: public cpu_program_builder
 {
 public:
 	dispatched_program_builder() noexcept = default;
@@ -74,14 +74,14 @@ public:
 		const operation &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
-		rexlib::command_queue &queue
+		command_queue &queue
 	) const override;
 
-	std::shared_ptr<rexlib::program> build(
+	std::shared_ptr<program> build(
 		const operation &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
-		rexlib::command_queue &queue,
+		command_queue &queue,
 		program_cache *cache
 	) const override;
 

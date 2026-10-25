@@ -205,7 +205,7 @@ inline void functor_program<F, Outputs, Inputs, Scratches>::execute_wrapper(
 
 
 template <typename F, typename Outputs, typename Inputs>
-inline std::shared_ptr<program> make_functor_program(
+inline std::shared_ptr<cpu_program> make_functor_program(
 	F &&fun,
 	Outputs,
 	Inputs
@@ -218,7 +218,7 @@ inline std::shared_ptr<program> make_functor_program(
 }
 
 template <typename F, typename Outputs, typename Inputs, typename Scratches>
-inline std::shared_ptr<program> make_functor_program(
+inline std::shared_ptr<cpu_program> make_functor_program(
 	F &&fun,
 	Outputs,
 	Inputs,
