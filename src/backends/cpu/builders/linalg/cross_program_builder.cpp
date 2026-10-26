@@ -10,7 +10,7 @@
 #include <backends/cpu/kernels/eigen_gemm.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
-#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_builder_registration.hpp>
 #include <rexlib/core/meta/type_list.hpp>
@@ -97,7 +97,7 @@ using cross_type_dispatcher =
  * needs the operation's own axis at build() time.
  */
 class cross_program_builder final
-	: public program_builder
+	: public cpu_program_builder
 {
 public:
 	cross_program_builder() noexcept = default;
@@ -112,13 +112,13 @@ public:
 		const operation &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
-		rexlib::command_queue &queue
+		command_queue &queue
 	) const override
 	{
 		constexpr auto output_count = ops::cross_operation::output_operand_count;
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
-		const auto base = program_builder::get_suitability(
+		const auto base = cpu_program_builder::get_suitability(
 			operation, output_descriptors, input_descriptors, queue
 		);
 		if (base == backend_priority::unsupported)
@@ -154,11 +154,11 @@ public:
 		return base;
 	}
 
-	std::shared_ptr<rexlib::program> build(
+	std::shared_ptr<program> build(
 		const operation &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
-		rexlib::command_queue& /*queue*/,
+		command_queue& /*queue*/,
 		program_cache* /*cache*/
 	) const override
 	{

@@ -2,7 +2,7 @@ target_sources(
 	rexlib-unitary-tests
 	PRIVATE
 		test_load_store.cpp
-		test_program_builder.cpp
+		test_cpu_program_builder.cpp
 )
 
 add_subdirectory(builders)

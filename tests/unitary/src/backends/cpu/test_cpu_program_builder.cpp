@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <rexlib/backends/cpu/program_builder.hpp>
-#include <backends/cpu/hardware/command_queue.hpp>
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
+#include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include "mock/mock_program_builder.hpp"
 #include "serial_pool.hpp"
@@ -40,9 +40,9 @@ operand_descriptor make_operand_descriptor(const memory_resource *resource)
 
 
 TEST_CASE(
-	"cpu::program_builder get_suitability returns normal when every "
+	"cpu_program_builder get_suitability returns normal when every "
 	"descriptor is host accessible and the queue is a CPU queue",
-	"[cpu::program_builder]"
+	"[cpu_program_builder]"
 )
 {
 	const cpu::mock_program_builder builder;
@@ -59,7 +59,7 @@ TEST_CASE(
 		make_operand_descriptor(&host_resource)
 	};
 
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -72,9 +72,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::program_builder get_suitability returns unsupported when "
+	"cpu_program_builder get_suitability returns unsupported when "
 	"any output descriptor is not host accessible",
-	"[cpu::program_builder]"
+	"[cpu_program_builder]"
 )
 {
 	const cpu::mock_program_builder builder;
@@ -97,7 +97,7 @@ TEST_CASE(
 		make_operand_descriptor(&host_resource)
 	};
 
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -110,9 +110,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::program_builder get_suitability returns unsupported when "
+	"cpu_program_builder get_suitability returns unsupported when "
 	"any input descriptor is not host accessible",
-	"[cpu::program_builder]"
+	"[cpu_program_builder]"
 )
 {
 	const cpu::mock_program_builder builder;
@@ -132,7 +132,7 @@ TEST_CASE(
 		make_operand_descriptor(&device_resource)
 	};
 
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -145,9 +145,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::program_builder get_suitability returns unsupported when a "
+	"cpu_program_builder get_suitability returns unsupported when a "
 	"descriptor has no memory resource",
-	"[cpu::program_builder]"
+	"[cpu_program_builder]"
 )
 {
 	const cpu::mock_program_builder builder;
@@ -159,7 +159,7 @@ TEST_CASE(
 	};
 	const std::vector<operand_descriptor> inputs;
 
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,
@@ -172,9 +172,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::program_builder get_suitability returns unsupported when "
+	"cpu_program_builder get_suitability returns unsupported when "
 	"the queue is not a CPU queue",
-	"[cpu::program_builder]"
+	"[cpu_program_builder]"
 )
 {
 	const cpu::mock_program_builder builder;
@@ -205,9 +205,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::program_builder get_suitability returns normal for empty "
+	"cpu_program_builder get_suitability returns normal for empty "
 	"descriptor lists on a CPU queue",
-	"[cpu::program_builder]"
+	"[cpu_program_builder]"
 )
 {
 	const cpu::mock_program_builder builder;
@@ -217,7 +217,7 @@ TEST_CASE(
 	const std::vector<operand_descriptor> outputs;
 	const std::vector<operand_descriptor> inputs;
 
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto priority = builder.get_suitability(
 		operation,

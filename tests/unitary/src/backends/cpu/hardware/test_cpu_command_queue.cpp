@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <backends/cpu/hardware/command_queue.hpp>
+#include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include <rexlib/core/hardware/command.hpp>
 #include <rexlib/core/span.hpp>
@@ -38,52 +38,52 @@ bool holds(span<const T> actual, const std::vector<T> &expected)
 } // anonymous namespace
 
 TEST_CASE(
-	"cpu::command_queue should reject a null thread pool",
-	"[cpu::command_queue]"
+	"cpu_command_queue should reject a null thread pool",
+	"[cpu_command_queue]"
 )
 {
 	CHECK_THROWS_AS(
-		cpu::command_queue(nullptr),
+		cpu_command_queue(nullptr),
 		std::invalid_argument
 	);
 }
 
 TEST_CASE(
-	"cpu::command_queue should run its programs over the pool it was given",
-	"[cpu::command_queue]"
+	"cpu_command_queue should run its programs over the pool it was given",
+	"[cpu_command_queue]"
 )
 {
 	const auto pool = get_serial_pool();
-	const cpu::command_queue queue(pool);
+	const cpu_command_queue queue(pool);
 	CHECK( &queue.get_thread_pool() == pool.get() );
 }
 
 TEST_CASE(
-	"cpu::command_queue::submit throws when the command has no program",
-	"[cpu::command_queue]"
+	"cpu_command_queue::submit throws when the command has no program",
+	"[cpu_command_queue]"
 )
 {
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 	const command cmd;
 	CHECK_THROWS_AS( queue.submit(cmd), std::invalid_argument );
 }
 
 TEST_CASE(
-	"cpu::command_queue::submit throws when the program is not a cpu::program",
-	"[cpu::command_queue]"
+	"cpu_command_queue::submit throws when the program is not a cpu_program",
+	"[cpu_command_queue]"
 )
 {
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 	const command cmd(std::make_shared<rexlib::mock_program>());
 	CHECK_THROWS_AS( queue.submit(cmd), std::bad_cast );
 }
 
 TEST_CASE(
-	"cpu::command_queue::submit calls execute with the bound operands",
-	"[cpu::command_queue]"
+	"cpu_command_queue::submit calls execute with the bound operands",
+	"[cpu_command_queue]"
 )
 {
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto prog = std::make_shared<cpu::mock_program>();
 	const std::vector<std::shared_ptr<buffer>> outputs = { 
@@ -124,11 +124,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::command_queue::submit returns an empty token",
-	"[cpu::command_queue]"
+	"cpu_command_queue::submit returns an empty token",
+	"[cpu_command_queue]"
 )
 {
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto prog = std::make_shared<cpu::mock_program>();
 	const command cmd(prog);
@@ -149,12 +149,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::command_queue::submit waits for its dependencies before it runs "
+	"cpu_command_queue::submit waits for its dependencies before it runs "
 	"the program",
-	"[cpu::command_queue]"
+	"[cpu_command_queue]"
 )
 {
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const auto prog = std::make_shared<cpu::mock_program>();
 	const auto timeline = std::make_shared<mock_command_timeline>();
@@ -187,32 +187,32 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"cpu::command_queue::try_cast returns the same object for a command_queue",
-	"[cpu::command_queue]"
+	"cpu_command_queue::try_cast returns the same object for a command_queue",
+	"[cpu_command_queue]"
 )
 {
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 	rexlib::command_queue &base = queue;
-	CHECK( cpu::command_queue::try_cast(base) == &queue );
+	CHECK( cpu_command_queue::try_cast(base) == &queue );
 }
 
 TEST_CASE(
-	"cpu::command_queue::try_cast returns nullptr for a foreign command_queue",
-	"[cpu::command_queue]"
+	"cpu_command_queue::try_cast returns nullptr for a foreign command_queue",
+	"[cpu_command_queue]"
 )
 {
 	mock_command_queue queue;
 	rexlib::command_queue &base = queue;
-	CHECK( cpu::command_queue::try_cast(base) == nullptr );
+	CHECK( cpu_command_queue::try_cast(base) == nullptr );
 }
 
 TEST_CASE(
-	"cpu::command_queue::try_cast const overload preserves constness",
-	"[cpu::command_queue]"
+	"cpu_command_queue::try_cast const overload preserves constness",
+	"[cpu_command_queue]"
 )
 {
-	const cpu::command_queue queue(get_serial_pool());
+	const cpu_command_queue queue(get_serial_pool());
 	const rexlib::command_queue &base = queue;
-	const cpu::command_queue *result = cpu::command_queue::try_cast(base);
+	const cpu_command_queue *result = cpu_command_queue::try_cast(base);
 	CHECK( result == &queue );
 }

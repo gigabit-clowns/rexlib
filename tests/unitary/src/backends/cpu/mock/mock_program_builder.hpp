@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
@@ -18,7 +18,7 @@ namespace cpu
 
 // Mocks the pure virtuals alone, leaving get_suitability to the CPU builder.
 class mock_program_builder final
-	: public program_builder
+	: public cpu_program_builder
 {
 public:
 	MAKE_CONST_MOCK0(

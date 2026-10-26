@@ -18,8 +18,8 @@ class thread_pool;
 /**
  * @brief CPU base class for executable programs.
  */
-class REXLIB_API program
-	: public rexlib::program
+class REXLIB_API cpu_program
+	: public program
 {
 public:
 	/**

@@ -19,7 +19,7 @@ namespace cpu
  * it on. Spawning none also keeps these cases off the one thing this backend
  * does that a case cannot observe, which is starting and joining threads.
  *
- * Held by shared_ptr because a @ref command_queue shares ownership of the
+ * Held by shared_ptr because a @ref cpu_command_queue shares ownership of the
  * pool it runs programs over.
  *
  * @return const std::shared_ptr<thread_pool>& The pool.

@@ -51,7 +51,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	const operation &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
-	rexlib::command_queue &queue
+	command_queue &queue
 ) const
 {
 	REXLIB_CONST_CONSTEXPR auto output_count =
@@ -59,7 +59,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	REXLIB_CONST_CONSTEXPR auto input_count =
 		Op::input_operand_count;
 
-	const auto base = program_builder::get_suitability(
+	const auto base = cpu_program_builder::get_suitability(
 		operation,
 		output_descriptors,
 		input_descriptors,
@@ -108,12 +108,12 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 }
 
 template <typename Derived, typename Op, typename TypeDispatcher>
-std::shared_ptr<rexlib::program>
+std::shared_ptr<program>
 dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 	const operation &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
-	rexlib::command_queue& /*queue*/,
+	command_queue& /*queue*/,
 	program_cache* /*cache*/
 ) const
 {

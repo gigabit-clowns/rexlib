@@ -95,13 +95,13 @@ public:
 	 * @param output_types Runtime data type of each output operand.
 	 * @param input_types Runtime data type of each input operand.
 	 * @param operation_data_types The data types the operation supplies.
-	 * @return std::shared_ptr<rexlib::program> The program built by the
+	 * @return std::shared_ptr<program> The program built by the
 	 * factory.
 	 * @throws std::invalid_argument When the operand types do not resolve
 	 * against the rule, or the resolved pivots are rejected by @p Support.
 	 */
 	template <typename F, std::size_t OutputCount, std::size_t InputCount>
-	static std::shared_ptr<rexlib::program> dispatch(
+	static std::shared_ptr<program> dispatch(
 		const operation_descriptor &descriptor,
 		F &&factory,
 		const std::array<numerical_type, OutputCount> &output_types,
@@ -139,7 +139,7 @@ private:
 	static type_rule_interpreter get_interpreter() noexcept;
 
 	template <typename F, std::size_t... PivotIndices>
-	static std::shared_ptr<rexlib::program> dispatch_pivots(
+	static std::shared_ptr<program> dispatch_pivots(
 		F &&factory,
 		const type_rule_resolution &resolution,
 		std::index_sequence<PivotIndices...>
@@ -152,7 +152,7 @@ private:
 	);
 
 	template <typename F, typename Pivots>
-	static std::shared_ptr<rexlib::program> invoke_if(
+	static std::shared_ptr<program> invoke_if(
 		std::true_type supported,
 		F &&factory,
 		Pivots pivot_types
@@ -160,7 +160,7 @@ private:
 
 	template <typename F, typename Pivots>
 	REXLIB_NORETURN
-	static std::shared_ptr<rexlib::program> invoke_if(
+	static std::shared_ptr<program> invoke_if(
 		std::false_type supported,
 		F &&factory,
 		Pivots pivot_types

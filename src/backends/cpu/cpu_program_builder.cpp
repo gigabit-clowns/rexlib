@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/backends/cpu/program_builder.hpp>
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
-#include <backends/cpu/hardware/command_queue.hpp>
+#include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include <algorithm>
 
@@ -46,11 +46,11 @@ bool check_array_descriptors(
 } // anonymous namespace
 
 
-backend_priority program_builder::get_suitability(
+backend_priority cpu_program_builder::get_suitability(
 	const operation& /*operation*/,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
-	rexlib::command_queue &queue
+	command_queue &queue
 ) const
 {
 	if (!check_array_descriptors(output_descriptors))
@@ -63,7 +63,7 @@ backend_priority program_builder::get_suitability(
 		return backend_priority::unsupported;
 	}
 
-	if (!command_queue::try_cast(queue))
+	if (!cpu_command_queue::try_cast(queue))
 	{
 		return backend_priority::unsupported;
 	}

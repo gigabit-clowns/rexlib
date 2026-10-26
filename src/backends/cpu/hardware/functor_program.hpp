@@ -4,7 +4,7 @@
 
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
-#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/cpu_program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include <memory>
@@ -18,9 +18,9 @@ namespace cpu
 {
 
 /**
- * @brief Adapts a strongly typed functor to the @ref program interface.
+ * @brief Adapts a strongly typed functor to the @ref cpu_program interface.
  *
- * The @ref program interface is type erased: its @ref program::execute
+ * The @ref cpu_program interface is type erased: its @ref cpu_program::execute
  * method receives its operands as spans of @ref buffer handles, without any
  * static knowledge of the element types they hold. This class bridges that gap
  * by pairing a functor with compile time descriptions of its operand types.
@@ -64,7 +64,7 @@ namespace cpu
  */
 template <typename F, typename Outputs, typename Inputs, typename Scratches>
 class functor_program final
-	: public program
+	: public cpu_program
 {
 public:
 	using functor_type = F;
@@ -161,10 +161,10 @@ private:
  * @param fun The functor to be wrapped.
  * @param output_types A @ref rexlib::type_list describing the output operands.
  * @param input_types A @ref rexlib::type_list describing the input operands.
- * @return The wrapped program, held through a `std::shared_ptr<program>`.
+ * @return The wrapped program, held through a `std::shared_ptr<cpu_program>`.
  */
 template <typename F, typename Outputs, typename Inputs>
-std::shared_ptr<program> make_functor_program(
+std::shared_ptr<cpu_program> make_functor_program(
 	F &&fun,
 	Outputs output_types,
 	Inputs input_types
@@ -186,10 +186,10 @@ std::shared_ptr<program> make_functor_program(
  * @param input_types A @ref rexlib::type_list describing the input operands.
  * @param scratch_types A @ref rexlib::type_list describing the scratch operands.
  * @param scratch_requirements One requirement per scratch type, in order.
- * @return The wrapped program, held through a `std::shared_ptr<program>`.
+ * @return The wrapped program, held through a `std::shared_ptr<cpu_program>`.
  */
 template <typename F, typename Outputs, typename Inputs, typename Scratches>
-std::shared_ptr<program> make_functor_program(
+std::shared_ptr<cpu_program> make_functor_program(
 	F &&fun,
 	Outputs output_types,
 	Inputs input_types,

@@ -16,8 +16,8 @@ namespace cpu
  * @brief Implementation of the @ref device_backend interface to retrieve the 
  * CPU device.
  */
-class device_backend final
-	: public rexlib::device_backend
+class cpu_device_backend final
+	: public device_backend
 {
 public:
 	std::string get_name() const override;
@@ -30,10 +30,10 @@ public:
 		device_properties &desc
 	) const override;
 
-	std::shared_ptr<rexlib::device>
+	std::shared_ptr<device>
 	create_device(std::size_t id) const override;
 
-	static bool register_at(rexlib::device_manager &manager);
+	static bool register_at(device_manager &manager);
 }; 
 
 } // namespace cpu

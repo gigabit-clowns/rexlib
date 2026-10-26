@@ -3,11 +3,11 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <backends/cpu/builders/fourier_program_builder.hpp>
-#include <backends/cpu/hardware/command_queue.hpp>
+#include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 
-#include <rexlib/backends/cpu/program.hpp>
+#include <rexlib/backends/cpu/cpu_program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
 #include "../serial_pool.hpp"
@@ -84,7 +84,7 @@ void run(
 	const std::vector<std::shared_ptr<const buffer>> inputs { input };
 	const std::vector<std::shared_ptr<buffer>> scratches;
 
-	auto &executable = dynamic_cast<cpu::program&>(*program);
+	auto &executable = dynamic_cast<cpu_program&>(*program);
 	executable.execute(
 		make_span(outputs),
 		make_span(inputs),
@@ -149,7 +149,7 @@ TEST_CASE(
 	// offset, which is why this is pinned here rather than through one.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(
@@ -211,7 +211,7 @@ TEST_CASE(
 	// transformable as one laid out end to end.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(
@@ -265,7 +265,7 @@ TEST_CASE(
 	// directly instead of going through the output.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(
@@ -321,7 +321,7 @@ TEST_CASE(
 	// manager look for a backend that can.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	mock_memory_resource host_resource;
 	ALLOW_CALL(host_resource, get_kind())
@@ -357,7 +357,7 @@ TEST_CASE(
 {
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	mock_memory_resource host_resource;
 	ALLOW_CALL(host_resource, get_kind())
@@ -393,7 +393,7 @@ TEST_CASE(
 {
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	// A transform produces exactly one operand.
 	const std::vector<operand_descriptor> outputs {
@@ -436,7 +436,7 @@ TEST_CASE(
 	// into forward order first.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<operand_descriptor> outputs {
 		make_operand_descriptor(
@@ -505,7 +505,7 @@ TEST_CASE(
 
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 1 } };
-	cpu::command_queue queue(get_serial_pool());
+	cpu_command_queue queue(get_serial_pool());
 
 	const std::vector<std::size_t> extents = { row_count, sample_count };
 	const std::vector<std::ptrdiff_t> strides = {

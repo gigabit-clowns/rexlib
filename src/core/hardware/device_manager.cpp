@@ -5,7 +5,7 @@
 #include <rexlib/core/hardware/device_session.hpp>
 #include <rexlib/core/platform/assert.hpp>
 
-#include <backends/cpu/hardware/device_backend.hpp>
+#include <backends/cpu/hardware/cpu_device_backend.hpp>
 
 #include <stdexcept>
 #include <tuple>
@@ -82,7 +82,7 @@ device_manager::~device_manager() = default;
 
 void device_manager::register_builtin_backends()
 {
-	cpu::device_backend::register_at(*this);
+	cpu::cpu_device_backend::register_at(*this);
 }
 
 bool device_manager::register_backend(std::unique_ptr<device_backend> backend)

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/backends/cpu/device.hpp>
+#include <rexlib/backends/cpu/cpu_device.hpp>
 
-#include "command_queue.hpp"
+#include "cpu_command_queue.hpp"
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
@@ -15,7 +15,7 @@ namespace rexlib
 namespace cpu
 {
 
-device::device(std::shared_ptr<thread_pool> pool)
+cpu_device::cpu_device(std::shared_ptr<thread_pool> pool)
 	: m_pool(
 		pool
 			? std::move(pool)
@@ -26,24 +26,24 @@ device::device(std::shared_ptr<thread_pool> pool)
 {
 }
 
-device::~device() = default;
+cpu_device::~cpu_device() = default;
 
 const memory_resource&
-device::get_memory_resource(memory_resource_affinity /*affinity*/) const
+cpu_device::get_memory_resource(memory_resource_affinity /*affinity*/) const
 {
 	return host_memory_resource::get();
 }
 
-std::shared_ptr<rexlib::command_queue> device::create_command_queue() const
+std::shared_ptr<command_queue> cpu_device::create_command_queue() const
 {
 	// A fresh queue every time, all of them over the one pool this device
 	// owns. The only state a queue holds is that pool, so two of them are
 	// interchangeable, and handing out a new one costs an allocation rather
 	// than the threads.
-	return std::make_shared<command_queue>(m_pool);
+	return std::make_shared<cpu_command_queue>(m_pool);
 }
 
-const std::shared_ptr<thread_pool>& device::get_thread_pool() const noexcept
+const std::shared_ptr<thread_pool>& cpu_device::get_thread_pool() const noexcept
 {
 	return m_pool;
 }
