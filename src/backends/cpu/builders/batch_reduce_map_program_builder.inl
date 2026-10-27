@@ -203,7 +203,7 @@ private:
 	) const
 	{
 		statistics_type result = {};
-		run_indexed_reduction_loop(
+		run_indexed_reduction_vector_loop(
 			m_kernel.make_reduction(pass, previous),
 			m_plan.get_scalar_layout(),
 			m_plan.get_reduced_layout(),

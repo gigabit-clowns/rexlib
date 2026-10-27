@@ -46,9 +46,11 @@ namespace cpu
  *     [, std::size_t counter]
  * ) const;
  * @endcode
- * A reduction kernel is an element reduction kernel, as
- * @ref run_reduction_loop describes, whose inputs are the inputs carrying
- * the core axes and whose outputs are the statistics, of type double. The
+ * A reduction kernel is a vector reduction kernel, as
+ * @ref run_reduction_vector_loop describes, whose inputs are the inputs
+ * carrying the core axes and whose outputs are the statistics, of type
+ * double; an element reduction kernel takes part wrapped in a
+ * @ref reduction_element_adaptor. The
  * first reduction is handed statistics of zero. A map kernel is a vector
  * kernel, as @ref run_elementwise_vector_loop describes, over the outputs
  * followed by the inputs carrying the core axes. It is made for each batch

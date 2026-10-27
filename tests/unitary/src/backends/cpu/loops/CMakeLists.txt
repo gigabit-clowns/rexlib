@@ -3,6 +3,7 @@ target_sources(
 	PRIVATE
 		test_elementwise_loop.cpp
 		test_inner_loop_stride_dispatch.cpp
+		test_multidimensional_index.cpp
 		test_parallel_grain.cpp
 		test_reduction_element_adaptor.cpp
 		test_reduction_loop.cpp

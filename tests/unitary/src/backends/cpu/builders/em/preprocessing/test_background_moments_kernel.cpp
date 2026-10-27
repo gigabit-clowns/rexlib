@@ -6,6 +6,7 @@
 #include <backends/cpu/builders/em/preprocessing/background_moments_kernel.hpp>
 
 #include <backends/cpu/builders/em/preprocessing/background_geometry.hpp>
+#include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/multidimensional_index.hpp>
 
 #include <rexlib/core/span.hpp>
@@ -14,6 +15,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <tuple>
 #include <vector>
 
 using namespace rexlib;
@@ -22,6 +24,8 @@ using Catch::Matchers::WithinRel;
 
 namespace
 {
+
+using moments_type = std::tuple<std::size_t, double, double>;
 
 REXLIB_CONST_CONSTEXPR double infinity =
 	std::numeric_limits<double>::infinity();
@@ -44,42 +48,60 @@ background_moments_kernel make_unbounded(const background_geometry &geometry)
 }
 
 /**
- * @brief Fold a row through a kernel, one element at a time.
+ * @brief Fold part of a row through a kernel as one run.
+ */
+void fold_run(
+	const background_moments_kernel &kernel,
+	const std::vector<double> &row,
+	moments_type &moments,
+	std::size_t first,
+	std::size_t last
+)
+{
+	const std::ptrdiff_t coordinate = static_cast<std::ptrdiff_t>(first);
+	kernel.combine_run(
+		std::make_tuple(
+			&std::get<0>(moments),
+			&std::get<1>(moments),
+			&std::get<2>(moments)
+		),
+		std::make_tuple(row.data() + first),
+		std::make_tuple(contiguous_stride_tag()),
+		last - first,
+		multidimensional_index(1, 0).rebased(&coordinate)
+	);
+}
+
+std::array<double, 2> finalize(
+	const background_moments_kernel &kernel,
+	const moments_type &moments
+)
+{
+	std::array<double, 2> result = {{ 0, 0 }};
+	kernel.finalize(
+		&result[0],
+		&result[1],
+		std::get<0>(moments),
+		std::get<1>(moments),
+		std::get<2>(moments),
+		9
+	);
+	return result;
+}
+
+/**
+ * @brief Fold a whole row through a kernel as one run.
  *
  * @return std::array<double, 2> The mean and the scale.
  */
 std::array<double, 2> fold(
 	const background_moments_kernel &kernel,
-	const std::vector<double> &row,
-	std::size_t first = 0,
-	std::size_t last = 9
+	const std::vector<double> &row
 )
 {
-	std::array<double, 3> moments = {{ 0, 0, 0 }};
-	for (std::size_t i = first; i < last; ++i)
-	{
-		const std::ptrdiff_t coordinate = static_cast<std::ptrdiff_t>(i);
-		const auto index = multidimensional_index(1, 1).rebased(&coordinate);
-		if (i == first)
-		{
-			kernel.seed(moments[0], moments[1], moments[2], &row[i], index);
-		}
-		else
-		{
-			kernel.combine(moments[0], moments[1], moments[2], &row[i], index);
-		}
-	}
-
-	std::array<double, 2> result = {{ 0, 0 }};
-	kernel.finalize(
-		&result[0],
-		&result[1],
-		moments[0],
-		moments[1],
-		moments[2],
-		row.size()
-	);
-	return result;
+	moments_type moments(0, 0, 0);
+	fold_run(kernel, row, moments, 0, row.size());
+	return finalize(kernel, moments);
 }
 
 } // anonymous namespace
@@ -145,28 +167,91 @@ TEST_CASE(
 	const auto kernel = make_unbounded(geometry);
 	const std::vector<double> row = { 1, 3, 1, 0, 0, 0, 3, 1, 3 };
 
-	std::array<double, 3> left = {{ 0, 0, 0 }};
-	std::array<double, 3> right = {{ 0, 0, 0 }};
+	moments_type left(0, 0, 0);
+	moments_type right(0, 0, 0);
+	fold_run(kernel, row, left, 0, 5);
+	fold_run(kernel, row, right, 5, 9);
+	kernel.merge(
+		std::get<0>(left),
+		std::get<1>(left),
+		std::get<2>(left),
+		std::get<0>(right),
+		std::get<1>(right),
+		std::get<2>(right)
+	);
+
+	CHECK( finalize(kernel, left) == fold(kernel, row) );
+}
+
+TEST_CASE(
+	"background_moments_kernel should seed from one element",
+	"[background_moments_kernel]"
+)
+{
+	const auto geometry = make_row_geometry();
+	const auto kernel = make_unbounded(geometry);
+	const std::array<double, 2> values = {{ 5, not_a_number }};
+	const std::array<std::ptrdiff_t, 2> coordinates = {{ 0, 4 }};
+
+	const auto seeded = [&](const double *value, const std::ptrdiff_t *at)
+	{
+		moments_type result(9, -1, -1);
+		kernel.seed(
+			std::get<0>(result),
+			std::get<1>(result),
+			std::get<2>(result),
+			value,
+			multidimensional_index(1, 0).rebased(at)
+		);
+		return result;
+	};
+
+	CHECK( seeded(&values[0], &coordinates[0]) == moments_type(1, 5, 25) );
+	CHECK( seeded(&values[0], &coordinates[1]) == moments_type(0, 0, 0) );
+	CHECK( seeded(&values[1], &coordinates[0]) == moments_type(0, 0, 0) );
+}
+
+TEST_CASE(
+	"background_moments_kernel should fold every strip of a block as its "
+	"own run",
+	"[background_moments_kernel]"
+)
+{
+	const auto geometry = make_row_geometry();
+	const auto kernel = make_unbounded(geometry);
+
+	// Two rows interleaved, so that the strip steps by one between them.
+	const std::vector<double> first = { 1, 3, 1, 9, 9, 9, 3, 1, 3 };
+	const std::vector<double> second = { 2, 2, 2, 9, 9, 9, 4, 4, 4 };
+	std::vector<double> interleaved;
 	for (std::size_t i = 0; i < 9; ++i)
 	{
-		const std::ptrdiff_t coordinate = static_cast<std::ptrdiff_t>(i);
-		const auto index = multidimensional_index(1, 1).rebased(&coordinate);
-		auto &part = i < 5 ? left : right;
-		if (i == 0 || i == 5)
-		{
-			kernel.seed(part[0], part[1], part[2], &row[i], index);
-		}
-		else
-		{
-			kernel.combine(part[0], part[1], part[2], &row[i], index);
-		}
+		interleaved.push_back(first[i]);
+		interleaved.push_back(second[i]);
 	}
-	kernel.merge(left[0], left[1], left[2], right[0], right[1], right[2]);
 
-	std::array<double, 2> merged = {{ 0, 0 }};
-	kernel.finalize(&merged[0], &merged[1], left[0], left[1], left[2], 9);
+	std::array<std::size_t, 2> counts = {{ 0, 0 }};
+	std::array<double, 2> sums = {{ 0, 0 }};
+	std::array<double, 2> squares = {{ 0, 0 }};
+	const std::ptrdiff_t coordinate = 0;
+	kernel.combine_strip(
+		std::make_tuple(counts.data(), sums.data(), squares.data()),
+		std::make_tuple(static_cast<const double*>(interleaved.data())),
+		std::make_tuple(contiguous_stride_tag()),
+		std::make_tuple(std::ptrdiff_t(2)),
+		2,
+		9,
+		multidimensional_index(1, 0).rebased(&coordinate)
+	);
 
-	CHECK( merged == fold(kernel, row) );
+	CHECK(
+		finalize(kernel, moments_type(counts[0], sums[0], squares[0])) ==
+		fold(kernel, first)
+	);
+	CHECK(
+		finalize(kernel, moments_type(counts[1], sums[1], squares[1])) ==
+		fold(kernel, second)
+	);
 }
 
 TEST_CASE(

@@ -42,21 +42,24 @@ std::array<double, 2> fold(
 	const std::vector<double> &row
 )
 {
-	std::array<double, 3> moments = {{ 0, 0, 0 }};
-	for (std::size_t i = 0; i < row.size(); ++i)
-	{
-		const std::ptrdiff_t coordinate = static_cast<std::ptrdiff_t>(i);
-		const auto index = multidimensional_index(1, 1).rebased(&coordinate);
-		kernel.combine(moments[0], moments[1], moments[2], &row[i], index);
-	}
+	std::size_t count = 0;
+	std::array<double, 2> sums = {{ 0, 0 }};
+	const std::ptrdiff_t coordinate = 0;
+	kernel.combine_run(
+		std::make_tuple(&count, &sums[0], &sums[1]),
+		std::make_tuple(row.data()),
+		std::make_tuple(contiguous_stride_tag()),
+		row.size(),
+		multidimensional_index(1, 0).rebased(&coordinate)
+	);
 
 	std::array<double, 2> result = {{ 0, 0 }};
 	kernel.finalize(
 		&result[0],
 		&result[1],
-		moments[0],
-		moments[1],
-		moments[2],
+		count,
+		sums[0],
+		sums[1],
 		row.size()
 	);
 	return result;

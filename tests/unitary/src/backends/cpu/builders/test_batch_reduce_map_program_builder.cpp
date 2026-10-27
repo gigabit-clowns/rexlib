@@ -5,6 +5,7 @@
 #include <backends/cpu/builders/batch_reduce_map_program_builder.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 #include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/reduction_element_adaptor.hpp>
 #include <backends/cpu/loops/strided_pointer_iterator.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
@@ -144,12 +145,14 @@ template <std::size_t PassCount>
 class mean_subtraction
 {
 public:
-	mean_kernel make_reduction(
+	reduction_element_adaptor<mean_kernel> make_reduction(
 		std::size_t pass,
 		const std::array<double, 1> &previous
 	) const
 	{
-		return mean_kernel(pass == 0 ? -1e300 : previous[0]);
+		return reduction_element_adaptor<mean_kernel>(
+			mean_kernel(pass == 0 ? -1e300 : previous[0])
+		);
 	}
 
 	template <typename Inputs>
@@ -277,12 +280,14 @@ private:
 class counter_writer
 {
 public:
-	index_check_kernel make_reduction(
+	reduction_element_adaptor<index_check_kernel> make_reduction(
 		std::size_t,
 		const std::array<double, 1>&
 	) const
 	{
-		return index_check_kernel();
+		return reduction_element_adaptor<index_check_kernel>(
+			index_check_kernel()
+		);
 	}
 
 	template <typename Inputs>

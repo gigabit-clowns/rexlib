@@ -39,6 +39,18 @@ public:
 	REXLIB_CONSTEXPR std::size_t get_rank() const noexcept;
 
 	/**
+	 * @brief Get the axis of the index space that the innermost axis of the
+	 * traversal walks.
+	 *
+	 * Along a run of the traversal, the coordinate along this axis grows by
+	 * one from each element to the next, and every other coordinate stays.
+	 *
+	 * @return std::size_t The axis, or the rank when the traversal has no
+	 * axis.
+	 */
+	REXLIB_CONSTEXPR std::size_t get_inner_axis() const noexcept;
+
+	/**
 	 * @brief Get the coordinate along an axis.
 	 *
 	 * @param axis The axis. Must be less than `get_rank()`.

@@ -7,6 +7,7 @@
 #include <rexlib/core/span.hpp>
 
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace rexlib
@@ -57,7 +58,35 @@ public:
 	 */
 	bool is_background(const multidimensional_index &index) const noexcept;
 
+	/**
+	 * @brief Find the elements of a run that are not background.
+	 *
+	 * A run holds consecutive elements along the inner axis of @p index,
+	 * so the elements that are not background form one range within it.
+	 *
+	 * @param index The coordinates of the first element of the run.
+	 * @param count The number of elements of the run.
+	 * @return std::pair<std::size_t, std::size_t> The positions within the
+	 * run of the first element that is not background and of the one past
+	 * the last. They are equal when every element is background.
+	 */
+	std::pair<std::size_t, std::size_t> find_excluded_range(
+		const multidimensional_index &index,
+		std::size_t count
+	) const noexcept;
+
 private:
+	std::ptrdiff_t compute_squared_distance(
+		const multidimensional_index &index,
+		std::size_t skipped_axis
+	) const noexcept;
+
+	std::size_t compute_half_width(
+		std::ptrdiff_t squared_distance,
+		std::size_t extent
+	) const noexcept;
+
+	std::vector<std::size_t> m_extents;
 	std::vector<std::ptrdiff_t> m_centre;
 	double m_squared_radius;
 };
