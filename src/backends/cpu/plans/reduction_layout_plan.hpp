@@ -54,7 +54,8 @@ public:
 	 * kept layout.
 	 * @param input_descriptors Descriptors of the inputs. At least one is
 	 * needed.
-	 * @param axes The axes being reduced, ascending and without repetitions.
+	 * @param axes The axes being reduced, in any order and without
+	 * repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes with
 	 * an extent of one instead of dropping them.
 	 * @param indexing No index operand is added to either layout.
@@ -84,7 +85,8 @@ public:
 	 * @param output_descriptors Descriptors of the outputs.
 	 * @param input_descriptors Descriptors of the inputs. At least one is
 	 * needed.
-	 * @param axes The axes being reduced, ascending and without repetitions.
+	 * @param axes The axes being reduced, in any order and without
+	 * repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes.
 	 * @param indexing Selects the linear index.
 	 *
@@ -113,7 +115,8 @@ public:
 	 * @param output_descriptors Descriptors of the outputs.
 	 * @param input_descriptors Descriptors of the inputs. At least one is
 	 * needed.
-	 * @param axes The axes being reduced, ascending and without repetitions.
+	 * @param axes The axes being reduced, in any order and without
+	 * repetitions.
 	 * @param keep_dimensions Whether the outputs kept the reduced axes.
 	 * @param indexing Selects the coordinates.
 	 *

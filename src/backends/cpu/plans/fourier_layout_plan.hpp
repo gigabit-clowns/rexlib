@@ -61,8 +61,9 @@ public:
 	 *
 	 * @param output_descriptor Descriptor of the transformed operand.
 	 * @param input_descriptor Descriptor of the operand being transformed.
-	 * @param axes The transformed axes, ascending and without repetitions.
-	 * The last of them is the one a half spectrum is stored along.
+	 * @param axes The transformed axes, without repetitions, in the order
+	 * the operation names them. The last of them is the one a half spectrum
+	 * is stored along.
 	 * @param kind Which domain each operand lives in.
 	 *
 	 * @throws std::invalid_argument When the two operands do not have the
@@ -100,7 +101,8 @@ public:
 	const std::vector<std::size_t>& get_shape() const noexcept;
 
 	/**
-	 * @brief Get the transformed axes, ascending.
+	 * @brief Get the transformed axes, in the order the operation names
+	 * them.
 	 *
 	 * @return const std::vector<std::size_t>& The axes.
 	 */
