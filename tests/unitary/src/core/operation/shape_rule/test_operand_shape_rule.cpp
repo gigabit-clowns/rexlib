@@ -50,6 +50,20 @@ using fixed_rule = operand_shape_rule<
 	type_list<core_dimensions<axis_same_as<0>>>
 >;
 
+using keyed_rule = operand_shape_rule<
+	type_list<>,
+	type_list<core_dimensions<axis_run<>>>,
+	type_list<core_dimensions<axis_run<>>, core_dimensions<>>,
+	named_core<test_axes>
+>;
+
+using leading_key_rule = operand_shape_rule<
+	type_list<>,
+	type_list<core_dimensions<axis_run<>>>,
+	type_list<core_dimensions<>, core_dimensions<axis_run<>>>,
+	named_core<test_axes>
+>;
+
 using elementwise_rule = operand_shape_rule<
 	type_list<>,
 	type_list<core_dimensions<>>,
@@ -111,4 +125,16 @@ TEST_CASE(
 {
 	STATIC_CHECK( fixed_rule::pivot_count == 1 );
 	STATIC_CHECK_FALSE( fixed_rule::requires_parameters );
+}
+
+TEST_CASE(
+	"operand_shape_rule should admit an input without core axes under named "
+	"placement",
+	"[operand_shape_rule]"
+)
+{
+	STATIC_CHECK( keyed_rule::input_count == 2 );
+	STATIC_CHECK( keyed_rule::requires_parameters );
+	STATIC_CHECK( leading_key_rule::input_count == 2 );
+	STATIC_CHECK( leading_key_rule::requires_parameters );
 }

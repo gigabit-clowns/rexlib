@@ -140,13 +140,35 @@ struct cores_empty<type_list<Cores...>>
 {
 };
 
+template <typename Core>
+struct core_carries_axes
+	: std::integral_constant<bool, (Core::axis_count > 0 || Core::has_run)>
+{
+};
+
 template <typename Cores>
-struct cores_not_empty;
+struct cores_any_carry_axes;
 
 template <typename... Cores>
-struct cores_not_empty<type_list<Cores...>>
-	: shape_rule_all_of<(Cores::axis_count > 0 || Cores::has_run)...>
+struct cores_any_carry_axes<type_list<Cores...>>
+	: shape_rule_any_of<core_carries_axes<Cores>::value...>
 {
+};
+
+template <typename Cores>
+struct first_core_carrying_axes
+{
+	using type = void;
+};
+
+template <typename First, typename... Rest>
+struct first_core_carrying_axes<type_list<First, Rest...>>
+{
+	using type = typename std::conditional<
+		core_carries_axes<First>::value,
+		First,
+		typename first_core_carrying_axes<type_list<Rest...>>::type
+	>::type;
 };
 
 template <std::size_t AxisCount, bool HasRun, typename Cores>
@@ -161,26 +183,36 @@ struct cores_empty_or_alike<AxisCount, HasRun, type_list<Cores...>>
 {
 };
 
+template <typename Reference, typename Inputs, typename Outputs>
+struct cores_alike_to
+	: std::integral_constant<
+		bool,
+		cores_empty_or_alike<
+			Reference::axis_count,
+			Reference::has_run,
+			Inputs
+		>::value &&
+		cores_empty_or_alike<
+			Reference::axis_count,
+			Reference::has_run,
+			Outputs
+		>::value
+	>
+{
+};
+
 template <typename Inputs, typename Outputs>
-struct named_cores_alike
+struct cores_alike_to<void, Inputs, Outputs>
 	: std::true_type
 {
 };
 
-template <typename First, typename... Rest, typename Outputs>
-struct named_cores_alike<type_list<First, Rest...>, Outputs>
-	: std::integral_constant<
-		bool,
-		cores_empty_or_alike<
-			First::axis_count,
-			First::has_run,
-			type_list<First, Rest...>
-		>::value &&
-		cores_empty_or_alike<
-			First::axis_count,
-			First::has_run,
-			Outputs
-		>::value
+template <typename Inputs, typename Outputs>
+struct named_cores_alike
+	: cores_alike_to<
+		typename first_core_carrying_axes<Inputs>::type,
+		Inputs,
+		Outputs
 	>
 {
 };
@@ -274,15 +306,9 @@ struct operand_shape_rule
 	);
 
 	static_assert(
-		Placement::placement != core_placement::named || input_count > 0,
-		"A rule whose core axes are named needs an input to name them in."
-	);
-
-	static_assert(
 		Placement::placement != core_placement::named ||
-		detail::cores_not_empty<Inputs>::value,
-		"Under named placement every input carries the named axes, so no "
-		"input may declare empty core dimensions."
+		detail::cores_any_carry_axes<Inputs>::value,
+		"A rule whose core axes are named needs an input carrying them."
 	);
 
 	static_assert(

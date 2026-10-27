@@ -58,6 +58,21 @@ bool is_supplied(const extent_pivot_descriptor &pivot) noexcept
 	return pivot.get_source() != extent_pivot_source::inputs;
 }
 
+bool carries_axes(const core_dimensions_descriptor &core) noexcept
+{
+	return core.has_run() || !core.get_slots().empty();
+}
+
+bool carries_named_axes(
+	const shape_rule_descriptor &rule,
+	std::size_t input
+) noexcept
+{
+	return
+		rule.get_placement() == core_placement::named &&
+		carries_axes(rule.get_input_cores()[input]);
+}
+
 void check_operand_counts(
 	const operation_descriptor &descriptor,
 	const shape_rule_descriptor &rule,
@@ -154,7 +169,9 @@ void check_named_axes(
 		throw std::invalid_argument(oss.str());
 	}
 
-	if (rule.get_input_cores().empty())
+	const auto cores = rule.get_input_cores();
+	const auto carrier = std::find_if(cores.begin(), cores.end(), &carries_axes);
+	if (carrier == cores.end())
 	{
 		std::ostringstream oss;
 		oss << descriptor << ": the shape rule names axes, but describes no "
@@ -162,7 +179,7 @@ void check_named_axes(
 		throw std::invalid_argument(oss.str());
 	}
 
-	const auto core = rule.get_input_cores()[0];
+	const auto &core = *carrier;
 	const auto required = core.get_slots().size();
 	const auto admissible = core.has_run()
 		? named_axes.size() >= required
@@ -180,12 +197,25 @@ void check_named_axes(
 	}
 }
 
-std::size_t compute_frame_rank(span<const operand_specification> inputs)
+/**
+ * @brief Get the rank of the frame the named axes are named in.
+ *
+ * Under named placement only the inputs carrying the named axes take part.
+ */
+std::size_t compute_frame_rank(
+	const shape_rule_descriptor &rule,
+	span<const operand_specification> inputs
+)
 {
+	const auto named = rule.get_placement() == core_placement::named;
+
 	std::size_t result = 0;
-	for (const auto &input : inputs)
+	for (std::size_t i = 0; i < inputs.size(); ++i)
 	{
-		result = std::max(result, input.get_shape().size());
+		if (!named || carries_named_axes(rule, i))
+		{
+			result = std::max(result, inputs[i].get_shape().size());
+		}
 	}
 	return result;
 }
@@ -245,6 +275,23 @@ axis_list_type locate_input_core(
 		for (auto axis = rank - count; axis < rank; ++axis)
 		{
 			result.push_back(axis);
+		}
+		return result;
+	}
+
+	if (!carries_named_axes(rule, input))
+	{
+		const auto batch_rank = frame_rank - named_axes.size();
+		if (rank > batch_rank)
+		{
+			std::ostringstream oss;
+			oss << descriptor << ": input operand "
+				<< describe_operand(descriptor, input, false) << " has ";
+			write_count(oss, rank, "axis", "axes");
+			oss << ", but the inputs carrying the named axes have only ";
+			write_count(oss, batch_rank, "other axis", "other axes");
+			oss << " for it to broadcast against.";
+			throw std::invalid_argument(oss.str());
 		}
 		return result;
 	}
@@ -627,85 +674,47 @@ shape_type check_input_cores(
 }
 
 /**
- * @brief Find the axis of an input lying at a position of the batch frame.
+ * @brief List the batch axes of an input: those not among its core axes,
+ * ascending.
+ */
+axis_list_type list_batch_axes(
+	std::size_t rank,
+	const axis_list_type &core_axes
+)
+{
+	std::vector<bool> core(rank, false);
+	for (const auto axis : core_axes)
+	{
+		core[axis] = true;
+	}
+
+	axis_list_type result;
+	result.reserve(rank - core_axes.size());
+	for (std::size_t axis = 0; axis < rank; ++axis)
+	{
+		if (!core[axis])
+		{
+			result.push_back(axis);
+		}
+	}
+	return result;
+}
+
+/**
+ * @brief Find the batch axis of an input lying at a position of the batch
+ * frame, the batch axes being aligned to its end.
  *
  * @return std::size_t The axis, or no_index when the input does not reach
  * that far.
  */
 std::size_t find_batch_axis(
-	std::size_t rank,
-	std::size_t offset,
+	const axis_list_type &batch_axes,
+	std::size_t frame,
 	std::size_t position
 ) noexcept
 {
-	return position >= offset && position - offset < rank
-		? position - offset
-		: no_index;
-}
-
-/**
- * @brief Get the rank of every input aligned in the batch frame.
- *
- * Under trailing placement the core axes are left out.
- */
-std::vector<std::size_t> align_batch_ranks(
-	const shape_rule_descriptor &rule,
-	span<const operand_specification> inputs,
-	const std::vector<axis_list_type> &input_cores
-)
-{
-	const auto trailing = rule.get_placement() == core_placement::trailing;
-
-	std::vector<std::size_t> result;
-	result.reserve(inputs.size());
-	for (std::size_t i = 0; i < inputs.size(); ++i)
-	{
-		const auto rank = inputs[i].get_shape().size();
-		result.push_back(trailing ? rank - input_cores[i].size() : rank);
-	}
-	return result;
-}
-
-/**
- * @brief Get the rank of the batch frame.
- */
-std::size_t compute_batch_frame(
-	const shape_rule_descriptor &rule,
-	const std::vector<std::size_t> &aligned_ranks,
-	std::size_t frame_rank
-)
-{
-	if (rule.get_placement() != core_placement::trailing)
-	{
-		return frame_rank;
-	}
-
-	if (aligned_ranks.empty())
-	{
-		return 0;
-	}
-
-	return *std::max_element(aligned_ranks.begin(), aligned_ranks.end());
-}
-
-/**
- * @brief Mark the positions of the batch frame the named axes take.
- */
-std::vector<bool> mark_named_positions(
-	const shape_rule_descriptor &rule,
-	span<const std::size_t> named_axes,
-	std::size_t frame
-)
-{
-	std::vector<bool> result(frame, false);
-	if (rule.get_placement() == core_placement::named)
-	{
-		for (const auto axis : named_axes)
-		{
-			result[axis] = true;
-		}
-	}
-	return result;
+	const auto offset = frame - batch_axes.size();
+	return position >= offset ? batch_axes[position - offset] : no_index;
 }
 
 /**
@@ -716,7 +725,7 @@ std::vector<bool> mark_named_positions(
  */
 std::size_t find_batch_origin(
 	span<const operand_specification> inputs,
-	const std::vector<std::size_t> &aligned_ranks,
+	const std::vector<axis_list_type> &batch_axes,
 	std::size_t frame,
 	std::size_t position,
 	std::size_t extent,
@@ -725,11 +734,7 @@ std::size_t find_batch_origin(
 {
 	for (std::size_t other = 0; other < before; ++other)
 	{
-		const auto axis = find_batch_axis(
-			aligned_ranks[other],
-			frame - aligned_ranks[other],
-			position
-		);
+		const auto axis = find_batch_axis(batch_axes[other], frame, position);
 		if (axis != no_index && inputs[other].get_shape()[axis] == extent)
 		{
 			return other;
@@ -766,34 +771,40 @@ void throw_batch_mismatch(
 /**
  * @brief Broadcast the batch axes of every input together.
  *
- * The batch axes are aligned in a frame: the last axes before the core ones
- * under trailing placement, and the axes the inputs broadcast to under named
- * placement, the named ones left out.
+ * The batch axes of an input are its axes less its core axes. They are
+ * aligned to the end of the batch frame, whichever the placement: under
+ * named placement the batch axes of an input carrying the named axes are
+ * already the last of the axes of the frame that are not named.
  */
 shape_type broadcast_batches(
 	const operation_descriptor &descriptor,
-	const shape_rule_descriptor &rule,
 	span<const operand_specification> inputs,
-	const std::vector<axis_list_type> &input_cores,
-	span<const std::size_t> named_axes,
-	std::size_t frame_rank
+	const std::vector<axis_list_type> &input_cores
 )
 {
-	const auto aligned_ranks = align_batch_ranks(rule, inputs, input_cores);
-	const auto frame = compute_batch_frame(rule, aligned_ranks, frame_rank);
-	const auto named = mark_named_positions(rule, named_axes, frame);
+	std::vector<axis_list_type> batch_axes;
+	batch_axes.reserve(inputs.size());
+	std::size_t frame = 0;
+	for (std::size_t i = 0; i < inputs.size(); ++i)
+	{
+		batch_axes.push_back(
+			list_batch_axes(inputs[i].get_shape().size(), input_cores[i])
+		);
+		frame = std::max(frame, batch_axes.back().size());
+	}
 
 	shape_type extents(frame, 1);
 	for (std::size_t i = 0; i < inputs.size(); ++i)
 	{
 		const auto &shape = inputs[i].get_shape();
-		const auto offset = frame - aligned_ranks[i];
+		const auto offset = frame - batch_axes[i].size();
 
-		for (std::size_t q = 0; q < aligned_ranks[i]; ++q)
+		for (std::size_t k = 0; k < batch_axes[i].size(); ++k)
 		{
-			const auto position = q + offset;
-			const auto extent = shape[q];
-			if (named[position] || extent == 1 || extent == extents[position])
+			const auto position = k + offset;
+			const auto axis = batch_axes[i][k];
+			const auto extent = shape[axis];
+			if (extent == 1 || extent == extents[position])
 			{
 				continue;
 			}
@@ -802,7 +813,7 @@ shape_type broadcast_batches(
 			{
 				const auto origin = find_batch_origin(
 					inputs,
-					aligned_ranks,
+					batch_axes,
 					frame,
 					position,
 					extents[position],
@@ -813,29 +824,16 @@ shape_type broadcast_batches(
 					descriptor,
 					inputs,
 					origin,
-					find_batch_axis(
-						aligned_ranks[origin],
-						frame - aligned_ranks[origin],
-						position
-					),
+					find_batch_axis(batch_axes[origin], frame, position),
 					i,
-					q
+					axis
 				);
 			}
 			extents[position] = extent;
 		}
 	}
 
-	shape_type result;
-	result.reserve(frame);
-	for (std::size_t position = 0; position < frame; ++position)
-	{
-		if (!named[position])
-		{
-			result.push_back(extents[position]);
-		}
-	}
-	return result;
+	return extents;
 }
 
 void check_exact_outputs(
@@ -937,7 +935,7 @@ shape_rule_resolution resolve_shape_rule(
 	check_operand_counts(descriptor, rule, output_count, inputs.size());
 	check_shape_rule_instance(descriptor, rule, named_axes, operation_extents);
 
-	const auto frame_rank = compute_frame_rank(inputs);
+	const auto frame_rank = compute_frame_rank(rule, inputs);
 	check_named_axes_in_frame(descriptor, named_axes, frame_rank);
 
 	std::vector<axis_list_type> input_cores;
@@ -970,14 +968,7 @@ shape_rule_resolution resolve_shape_rule(
 		inputs,
 		input_cores
 	);
-	auto batch = broadcast_batches(
-		descriptor,
-		rule,
-		inputs,
-		input_cores,
-		named_axes,
-		frame_rank
-	);
+	auto batch = broadcast_batches(descriptor, inputs, input_cores);
 
 	return shape_rule_resolution(
 		std::move(batch),
