@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "command_queue.hpp"
+#include "cuda_command_queue.hpp"
 
-#include "caching_allocator/buffer.hpp"
+#include "caching_allocator/cuda_buffer.hpp"
 #include "device_guard.hpp"
 #include "error.hpp"
 #include "event_recorder.hpp"
@@ -32,7 +32,7 @@ bool are_own_buffers(span<const std::shared_ptr<Buffer>> operands) noexcept
 {
 	for (const auto &operand : operands)
 	{
-		if (dynamic_cast<const buffer*>(operand.get()) == nullptr)
+		if (dynamic_cast<const cuda_buffer*>(operand.get()) == nullptr)
 		{
 			return false;
 		}
@@ -50,13 +50,13 @@ void record_use(
 {
 	for (const auto &operand : operands)
 	{
-		static_cast<const buffer&>(*operand).record_use(token);
+		static_cast<const cuda_buffer&>(*operand).record_use(token);
 	}
 }
 
 } // anonymous namespace
 
-command_queue::command_queue(
+cuda_command_queue::cuda_command_queue(
 	int ordinal,
 	std::shared_ptr<event_recorder> recorder
 )
@@ -72,41 +72,41 @@ command_queue::command_queue(
 	);
 }
 
-command_queue::~command_queue()
+cuda_command_queue::~cuda_command_queue()
 {
 	// Acts on the device that owns the stream, so the current one is
 	// irrelevant here.
 	REXLIB_CUDA_CHECK_NO_THROW( cudaStreamDestroy(m_stream) );
 }
 
-command_queue::handle command_queue::get_handle() const noexcept
+cuda_command_queue::handle cuda_command_queue::get_handle() const noexcept
 {
 	return m_stream;
 }
 
-int command_queue::get_ordinal() const noexcept
+int cuda_command_queue::get_ordinal() const noexcept
 {
 	return m_ordinal;
 }
 
 const std::shared_ptr<stream_timeline>&
-command_queue::get_timeline() const noexcept
+cuda_command_queue::get_timeline() const noexcept
 {
 	return m_timeline;
 }
 
-void command_queue::synchronize() const
+void cuda_command_queue::synchronize() const
 {
 	REXLIB_CUDA_CHECK( cudaStreamSynchronize(m_stream) );
 }
 
-command_token command_queue::submit(command cmd)
+command_token cuda_command_queue::submit(command cmd)
 {
 	const auto &program = cmd.get_program();
 	if (!program)
 	{
 		throw std::invalid_argument(
-			"command_queue::submit: Provided command does not have an "
+			"cuda_command_queue::submit: Provided command does not have an "
 			"associated program."
 		);
 	}
@@ -115,7 +115,7 @@ command_token command_queue::submit(command cmd)
 	if (!launchable)
 	{
 		throw std::invalid_argument(
-			"command_queue::submit: The program of the command was not "
+			"cuda_command_queue::submit: The program of the command was not "
 			"created by the CUDA backend."
 		);
 	}
@@ -145,9 +145,9 @@ command_token command_queue::submit(command cmd)
 	}
 }
 
-command_queue& command_queue::cast(rexlib::command_queue &queue)
+cuda_command_queue& cuda_command_queue::cast(command_queue &queue)
 {
-	auto *result = dynamic_cast<command_queue*>(&queue);
+	auto *result = dynamic_cast<cuda_command_queue*>(&queue);
 	if (!result)
 	{
 		throw std::invalid_argument(
@@ -158,9 +158,9 @@ command_queue& command_queue::cast(rexlib::command_queue &queue)
 	return *result;
 }
 
-const command_queue& command_queue::cast(const rexlib::command_queue &queue)
+const cuda_command_queue& cuda_command_queue::cast(const command_queue &queue)
 {
-	const auto *result = dynamic_cast<const command_queue*>(&queue);
+	const auto *result = dynamic_cast<const cuda_command_queue*>(&queue);
 	if (!result)
 	{
 		throw std::invalid_argument(
@@ -171,7 +171,7 @@ const command_queue& command_queue::cast(const rexlib::command_queue &queue)
 	return *result;
 }
 
-void command_queue::wait_for(const command_token &dependency) const
+void cuda_command_queue::wait_for(const command_token &dependency) const
 {
 	const auto &timeline = dependency.get_timeline();
 
@@ -193,7 +193,7 @@ void command_queue::wait_for(const command_token &dependency) const
 	}
 }
 
-command_token command_queue::track(const command &cmd) const
+command_token cuda_command_queue::track(const command &cmd) const
 {
 	// Nobody would keep the memory of a buffer of another kind until the
 	// work ends, so the work ends here.

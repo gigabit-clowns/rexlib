@@ -14,7 +14,7 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/plugin.hpp`, `src/plugin.cpp` | `cuda_plugin`, the `plugin` the core sees: its name, version and what it registers |
+| `src/cuda_plugin.hpp`, `src/cuda_plugin.cpp` | `cuda_plugin`, the `plugin` the core sees: its name, version and what it registers |
 | `src/plugin_hook.cpp` | `rexlib_get_plugin`, the one exported symbol |
 | `src/hardware/` | The implementation of rexlib's hardware interface: backend, device, queue, event, memory resources, errors |
 | `src/hardware/caching_allocator/` | The caching memory allocator, modelled on PyTorch's |
@@ -25,8 +25,7 @@ the same pull request that causes it.
 | `scripts/select_cuda_major.py` | Rewrites `pyproject.toml` for one CUDA major before a wheel is built |
 | `external/rexlib` | The rexlib this plugin is developed against, a submodule |
 
-Everything is in `namespace rexlib::cuda`, except `cuda_plugin`, which is in
-`namespace rexlib`.
+Everything is in `namespace rexlib::cuda`.
 
 ## Building
 
@@ -97,6 +96,17 @@ Indentation is tabs. Lines stay within 80 columns.
 Declarations go in a `.hpp`, definitions that must be visible go in an `.inl`
 the header includes at its end, and everything else goes in a `.cpp`. Every
 source starts with `// SPDX-License-Identifier: GPL-3.0-only`.
+
+A class that implements one of rexlib's interfaces is named
+`<qualifier>_<interface>`, as in rexlib, the qualifier saying which one it is:
+`cuda_device`, `cuda_command_queue`, `cuda_device_backend` and `cuda_buffer`
+implement `device`, `command_queue`, `device_backend` and `buffer`, while
+`pinned_memory_resource`, `caching_memory_allocator` and `stream_timeline` are
+named after the memory or the mechanism behind them. Its files carry the same
+name. The name stands on its own: `namespace rexlib::cuda`
+keeps the plugin's symbols apart from those of other backends, and is never
+what tells an implementation from its interface, so inside it a plain `device`
+is rexlib's.
 
 Declarations are documented with Doxygen comments: `@brief`, `@param`,
 `@return` and `@throws`.

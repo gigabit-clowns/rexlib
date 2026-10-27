@@ -16,8 +16,8 @@ namespace cuda
  * @brief Implementation of the @ref rexlib::device_backend interface to
  * retrieve the CUDA capable devices.
  */
-class device_backend final
-	: public rexlib::device_backend
+class cuda_device_backend final
+	: public device_backend
 {
 public:
 	std::string get_name() const override;
@@ -30,7 +30,7 @@ public:
 		device_properties &desc
 	) const override;
 
-	std::shared_ptr<rexlib::device> create_device(std::size_t id) const override;
+	std::shared_ptr<device> create_device(std::size_t id) const override;
 
 	static bool register_at(rexlib::device_manager &manager);
 };

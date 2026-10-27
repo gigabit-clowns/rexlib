@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "device.hpp"
+#include "cuda_device.hpp"
 
-#include "command_queue.hpp"
+#include "cuda_command_queue.hpp"
 
 #include "device_memory_resource.hpp"
 #include "pinned_memory_resource.hpp"
@@ -15,7 +15,7 @@ namespace rexlib
 namespace cuda
 {
 
-device::device(int ordinal)
+cuda_device::cuda_device(int ordinal)
 	: m_ordinal(ordinal)
 	, m_events(std::make_shared<pooled_event_recorder>(ordinal))
 {
@@ -29,15 +29,15 @@ device::device(int ordinal)
 	}
 }
 
-device::~device() = default;
+cuda_device::~cuda_device() = default;
 
-int device::get_ordinal() const noexcept
+int cuda_device::get_ordinal() const noexcept
 {
 	return m_ordinal;
 }
 
 const memory_resource&
-device::get_memory_resource(memory_resource_affinity affinity) const
+cuda_device::get_memory_resource(memory_resource_affinity affinity) const
 {
 	if (!m_memory)
 	{
@@ -56,14 +56,15 @@ device::get_memory_resource(memory_resource_affinity affinity) const
 
 	default:
 		throw std::invalid_argument(
-			"device::get_memory_resource: Unknown memory resource affinity."
+			"cuda_device::get_memory_resource: Unknown memory resource "
+			"affinity."
 		);
 	}
 }
 
-std::shared_ptr<rexlib::command_queue> device::create_command_queue() const
+std::shared_ptr<command_queue> cuda_device::create_command_queue() const
 {
-	return std::make_shared<command_queue>(m_ordinal, m_events);
+	return std::make_shared<cuda_command_queue>(m_ordinal, m_events);
 }
 
 } // namespace cuda

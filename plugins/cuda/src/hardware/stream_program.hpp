@@ -47,9 +47,9 @@ public:
 	 * @throws std::exception If the work could not be issued.
 	 */
 	virtual void launch(
-		span<const std::shared_ptr<rexlib::buffer>> output_operands,
-		span<const std::shared_ptr<const rexlib::buffer>> input_operands,
-		span<const std::shared_ptr<rexlib::buffer>> scratch_operands,
+		span<const std::shared_ptr<buffer>> output_operands,
+		span<const std::shared_ptr<const buffer>> input_operands,
+		span<const std::shared_ptr<buffer>> scratch_operands,
 		cudaStream_t stream
 	) const = 0;
 };

@@ -2,9 +2,9 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <hardware/device.hpp>
+#include <hardware/cuda_device.hpp>
 
-#include <hardware/command_queue.hpp>
+#include <hardware/cuda_command_queue.hpp>
 
 #include "test_driver.hpp"
 
@@ -21,7 +21,7 @@ TEST_CASE(
 	"[device]"
 )
 {
-	const cuda::device dev(0);
+	const cuda::cuda_device dev(0);
 
 	CHECK( dev.get_ordinal() == 0 );
 }
@@ -31,7 +31,7 @@ TEST_CASE(
 	"[device]"
 )
 {
-	const cuda::device dev(0);
+	const cuda::cuda_device dev(0);
 
 	CHECK(
 		is_device_accessible(
@@ -51,7 +51,7 @@ TEST_CASE(
 	"[device]"
 )
 {
-	const cuda::device dev(0);
+	const cuda::cuda_device dev(0);
 
 	// Only where the two affinities are answered by different resources is
 	// there anything to choose between.
@@ -77,15 +77,15 @@ TEST_CASE(
 		SKIP( "No CUDA capable device is available." );
 	}
 
-	const cuda::device dev(0);
+	const cuda::cuda_device dev(0);
 
 	const auto first = dev.create_command_queue();
 	const auto second = dev.create_command_queue();
 	REQUIRE( first != nullptr );
 	REQUIRE( second != nullptr );
 
-	const auto &first_queue = cuda::command_queue::cast(*first);
-	const auto &second_queue = cuda::command_queue::cast(*second);
+	const auto &first_queue = cuda::cuda_command_queue::cast(*first);
+	const auto &second_queue = cuda::cuda_command_queue::cast(*second);
 
 	CHECK( first_queue.get_ordinal() == 0 );
 	CHECK( first_queue.get_handle() != second_queue.get_handle() );

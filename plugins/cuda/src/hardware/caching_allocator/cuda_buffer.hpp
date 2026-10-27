@@ -40,8 +40,8 @@ class memory_block_allocator;
  * @note Recording a use is synchronized against other uses of the same
  * buffer, but not against its destruction.
  */
-class buffer final
-	: public rexlib::buffer
+class cuda_buffer final
+	: public buffer
 {
 public:
 	/**
@@ -59,18 +59,18 @@ public:
 	 * derived from the device one, since the two only happen to coincide where
 	 * the addresses are unified.
 	 */
-	buffer(
+	cuda_buffer(
 		std::shared_ptr<memory_block_allocator> allocator,
 		memory_block &block,
 		const memory_resource &resource,
 		void *host_data
 	);
-	buffer(const buffer &other) = delete;
-	buffer(buffer &&other) = delete;
-	~buffer() override;
+	cuda_buffer(const cuda_buffer &other) = delete;
+	cuda_buffer(cuda_buffer &&other) = delete;
+	~cuda_buffer() override;
 
-	buffer& operator=(const buffer &other) = delete;
-	buffer& operator=(buffer &&other) = delete;
+	cuda_buffer& operator=(const cuda_buffer &other) = delete;
+	cuda_buffer& operator=(cuda_buffer &&other) = delete;
 
 	void* get_host_ptr() noexcept override;
 	const void* get_host_ptr() const noexcept override;
@@ -121,23 +121,23 @@ public:
 	 * @brief Downcast a buffer to this backend's implementation.
 	 *
 	 * @param buf The buffer to be cast.
-	 * @return buffer& The same buffer, as a CUDA buffer.
+	 * @return cuda_buffer& The same buffer, as a CUDA buffer.
 	 *
 	 * @throws std::invalid_argument If the buffer was not created by this
 	 * backend.
 	 */
-	static buffer& cast(rexlib::buffer &buf);
+	static cuda_buffer& cast(buffer &buf);
 
 	/**
 	 * @brief Downcast a buffer to this backend's implementation.
 	 *
 	 * @param buf The buffer to be cast.
-	 * @return const buffer& The same buffer, as a CUDA buffer.
+	 * @return const cuda_buffer& The same buffer, as a CUDA buffer.
 	 *
 	 * @throws std::invalid_argument If the buffer was not created by this
 	 * backend.
 	 */
-	static const buffer& cast(const rexlib::buffer &buf);
+	static const cuda_buffer& cast(const buffer &buf);
 
 private:
 	/// One token per timeline, inline for as many queues as a buffer is ever

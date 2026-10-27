@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "plugin.hpp"
+#include "cuda_plugin.hpp"
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
@@ -10,7 +10,7 @@
 	#define REXLIB_CUDA_API REXLIB_IMPORT
 #endif
 
-static const rexlib::cuda_plugin instance;
+static const rexlib::cuda::cuda_plugin instance;
 
 extern "C"
 {

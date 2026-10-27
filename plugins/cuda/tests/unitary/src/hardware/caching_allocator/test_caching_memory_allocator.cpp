@@ -4,8 +4,8 @@
 
 #include <hardware/caching_allocator/caching_memory_allocator.hpp>
 
-#include <hardware/caching_allocator/buffer.hpp>
-#include <hardware/command_queue.hpp>
+#include <hardware/caching_allocator/cuda_buffer.hpp>
+#include <hardware/cuda_command_queue.hpp>
 #include <hardware/pooled_event_recorder.hpp>
 #include <hardware/stream_timeline.hpp>
 
@@ -115,7 +115,9 @@ TEST_CASE(
 	// Rounding up is what keeps the remainder of a block usable, so the size
 	// the buffer reports is the rounded one rather than what was asked for.
 	CHECK( buf->get_size() == align_ceil(std::size_t(1000), alignment) );
-	CHECK( is_aligned(cuda::buffer::cast(*buf).get_device_ptr(), alignment) );
+	CHECK(
+		is_aligned(cuda::cuda_buffer::cast(*buf).get_device_ptr(), alignment)
+	);
 }
 
 TEST_CASE(
@@ -132,7 +134,7 @@ TEST_CASE(
 
 		auto buf = fixture.get().allocate(1024, alignment, nullptr, pending);
 		CHECK( buf->get_host_ptr() == nullptr );
-		CHECK( cuda::buffer::cast(*buf).get_device_ptr() != nullptr );
+		CHECK( cuda::cuda_buffer::cast(*buf).get_device_ptr() != nullptr );
 	}
 
 	SECTION( "but yes when it is page locked host memory" )
@@ -142,7 +144,8 @@ TEST_CASE(
 		auto buf = fixture.get().allocate(1024, alignment, nullptr, pending);
 		CHECK( buf->get_host_ptr() != nullptr );
 		CHECK(
-			buf->get_host_ptr() == cuda::buffer::cast(*buf).get_device_ptr()
+			buf->get_host_ptr() ==
+				cuda::cuda_buffer::cast(*buf).get_device_ptr()
 		);
 	}
 }
@@ -159,7 +162,7 @@ TEST_CASE(
 	{
 		auto buf =
 			fixture.get().allocate(min_heap, alignment, nullptr, pending);
-		first = cuda::buffer::cast(*buf).get_device_ptr();
+		first = cuda::cuda_buffer::cast(*buf).get_device_ptr();
 	}
 
 	// Only reachable again if dropping the buffer put the block back, since a
@@ -167,7 +170,7 @@ TEST_CASE(
 	FORBID_CALL(fixture.get_blocks().get_source(), allocate(trompeloeil::_));
 	auto second =
 		fixture.get().allocate(min_heap, alignment, nullptr, pending);
-	CHECK( cuda::buffer::cast(*second).get_device_ptr() == first );
+	CHECK( cuda::cuda_buffer::cast(*second).get_device_ptr() == first );
 }
 
 TEST_CASE(
@@ -189,8 +192,8 @@ TEST_CASE(
 		// Nothing has ever run against new memory.
 		CHECK( pending.is_empty() );
 
-		data = cuda::buffer::cast(*buf).get_device_ptr();
-		cuda::buffer::cast(*buf).record_use(command_token(timeline, 6));
+		data = cuda::cuda_buffer::cast(*buf).get_device_ptr();
+		cuda::cuda_buffer::cast(*buf).record_use(command_token(timeline, 6));
 	}
 
 	SECTION( "while that command is running" )
@@ -198,7 +201,7 @@ TEST_CASE(
 		command_token pending;
 		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
 
-		CHECK( cuda::buffer::cast(*buf).get_device_ptr() == data );
+		CHECK( cuda::cuda_buffer::cast(*buf).get_device_ptr() == data );
 		CHECK( pending.get_timeline() == timeline );
 		CHECK( pending.get_id() == 6 );
 	}
@@ -211,7 +214,7 @@ TEST_CASE(
 		command_token pending;
 		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
 
-		CHECK( cuda::buffer::cast(*buf).get_device_ptr() == data );
+		CHECK( cuda::cuda_buffer::cast(*buf).get_device_ptr() == data );
 		CHECK( pending.is_empty() );
 	}
 
@@ -232,7 +235,7 @@ TEST_CASE(
 		// memory nothing uses.
 		auto buf = allocator.allocate(min_heap, alignment, nullptr, pending);
 
-		CHECK( cuda::buffer::cast(*buf).get_device_ptr() == data );
+		CHECK( cuda::cuda_buffer::cast(*buf).get_device_ptr() == data );
 		CHECK( pending.get_timeline() == timeline );
 		CHECK( pending.get_id() == 6 );
 	}
@@ -259,9 +262,11 @@ TEST_CASE(
 		auto second_buffer =
 			allocator.allocate(min_heap / 2, alignment, nullptr, pending);
 
-		second_data = cuda::buffer::cast(*second_buffer).get_device_ptr();
-		cuda::buffer::cast(*first_buffer).record_use(command_token(first, 1));
-		cuda::buffer::cast(*second_buffer).record_use(command_token(second, 1));
+		second_data = cuda::cuda_buffer::cast(*second_buffer).get_device_ptr();
+		cuda::cuda_buffer::cast(*first_buffer)
+			.record_use(command_token(first, 1));
+		cuda::cuda_buffer::cast(*second_buffer)
+			.record_use(command_token(second, 1));
 	}
 
 	command_token pending;
@@ -269,7 +274,7 @@ TEST_CASE(
 		min_heap / 2, alignment, second.get(), pending
 	);
 
-	CHECK( cuda::buffer::cast(*buf).get_device_ptr() == second_data );
+	CHECK( cuda::cuda_buffer::cast(*buf).get_device_ptr() == second_data );
 	CHECK( pending.get_timeline() == second );
 }
 
@@ -288,7 +293,7 @@ TEST_CASE(
 	auto &allocator = fixture.get();
 	const auto &other = fixture.get_blocks().get_timeline(0);
 
-	cuda::command_queue queue(
+	cuda::cuda_command_queue queue(
 		0,
 		std::make_shared<cuda::pooled_event_recorder>(0)
 	);
@@ -311,15 +316,16 @@ TEST_CASE(
 		auto own_buffer =
 			allocator.allocate(min_heap / 2, alignment, nullptr, pending);
 
-		own_data = cuda::buffer::cast(*own_buffer).get_device_ptr();
-		cuda::buffer::cast(*other_buffer).record_use(command_token(other, 1));
-		cuda::buffer::cast(*own_buffer).record_use(own);
+		own_data = cuda::cuda_buffer::cast(*own_buffer).get_device_ptr();
+		cuda::cuda_buffer::cast(*other_buffer)
+			.record_use(command_token(other, 1));
+		cuda::cuda_buffer::cast(*own_buffer).record_use(own);
 	}
 
 	command_token pending;
 	auto buf = allocator.allocate(min_heap / 2, alignment, &queue, pending);
 
-	CHECK( cuda::buffer::cast(*buf).get_device_ptr() == own_data );
+	CHECK( cuda::cuda_buffer::cast(*buf).get_device_ptr() == own_data );
 	CHECK( pending.get_timeline() == queue.get_timeline() );
 	CHECK( pending.get_id() == own.get_id() );
 }

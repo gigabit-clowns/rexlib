@@ -2,11 +2,11 @@
 
 #include "caching_memory_allocator.hpp"
 
-#include "buffer.hpp"
+#include "cuda_buffer.hpp"
 #include "memory_block.hpp"
 #include "memory_block_allocator.hpp"
 
-#include "../command_queue.hpp"
+#include "../cuda_command_queue.hpp"
 #include "../stream_timeline.hpp"
 
 #include <rexlib/core/hardware/command_token.hpp>
@@ -49,16 +49,16 @@ std::size_t caching_memory_allocator::get_max_alignment() const noexcept
 	return m_allocator->get_max_alignment();
 }
 
-std::shared_ptr<rexlib::buffer> caching_memory_allocator::allocate(
+std::shared_ptr<buffer> caching_memory_allocator::allocate(
 	std::size_t size,
 	std::size_t alignment,
-	rexlib::command_queue *queue_hint,
+	command_queue *queue_hint,
 	command_token &pending
 )
 {
 	// A queue of another backend has no memory here that it could use at no
 	// cost, so it is as good as no hint.
-	const auto *queue = dynamic_cast<const command_queue*>(queue_hint);
+	const auto *queue = dynamic_cast<const cuda_command_queue*>(queue_hint);
 	return allocate_for_timeline(
 		size,
 		alignment,
@@ -67,7 +67,7 @@ std::shared_ptr<rexlib::buffer> caching_memory_allocator::allocate(
 	);
 }
 
-std::shared_ptr<rexlib::buffer>
+std::shared_ptr<buffer>
 caching_memory_allocator::allocate_for_timeline(
 	std::size_t size,
 	std::size_t alignment,
@@ -88,7 +88,7 @@ caching_memory_allocator::allocate_for_timeline(
 
 		// The host pointer is its own rather than the device one, since the
 		// two only happen to coincide where the addresses are unified.
-		auto result = std::make_shared<buffer>(
+		auto result = std::make_shared<cuda_buffer>(
 			m_allocator,
 			block,
 			*m_resource,

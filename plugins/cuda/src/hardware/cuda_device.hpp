@@ -22,8 +22,8 @@ class event_recorder;
  * The one driver resource it holds is the pool of events its queues capture
  * their commands with, which fills as they are needed.
  */
-class device final
-	: public rexlib::device
+class cuda_device final
+	: public device
 {
 public:
 	/**
@@ -34,20 +34,20 @@ public:
 	 * @throws error If the device could not be asked what kind of memory it
 	 * has.
 	 */
-	explicit device(int ordinal);
-	device(const device &other) = delete;
-	device(device &&other) = delete;
-	~device() override;
+	explicit cuda_device(int ordinal);
+	cuda_device(const cuda_device &other) = delete;
+	cuda_device(cuda_device &&other) = delete;
+	~cuda_device() override;
 
-	device& operator=(const device &other) = delete;
-	device& operator=(device &&other) = delete;
+	cuda_device& operator=(const cuda_device &other) = delete;
+	cuda_device& operator=(cuda_device &&other) = delete;
 
 	int get_ordinal() const noexcept;
 
 	const memory_resource&
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
-	std::shared_ptr<rexlib::command_queue> create_command_queue() const override;
+	std::shared_ptr<command_queue> create_command_queue() const override;
 
 private:
 	int m_ordinal;

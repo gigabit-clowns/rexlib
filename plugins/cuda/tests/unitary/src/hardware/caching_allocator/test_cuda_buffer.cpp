@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <hardware/caching_allocator/buffer.hpp>
+#include <hardware/caching_allocator/cuda_buffer.hpp>
 
 #include <hardware/caching_allocator/caching_memory_allocator.hpp>
 
@@ -29,7 +29,7 @@ constexpr std::size_t alignment =
 constexpr std::size_t min_heap =
 	REXLIB_CUDA_CACHING_ALLOCATOR_MIN_HEAP_BYTES;
 
-cuda::buffer& allocate_buffer(
+cuda::cuda_buffer& allocate_buffer(
 	cuda::caching_allocator_fixture &fixture,
 	std::size_t size,
 	std::shared_ptr<rexlib::buffer> &owner
@@ -39,7 +39,7 @@ cuda::buffer& allocate_buffer(
 	owner = fixture.get().allocate_for_timeline(
 		size, alignment, nullptr, pending
 	);
-	return cuda::buffer::cast(*owner);
+	return cuda::cuda_buffer::cast(*owner);
 }
 
 } // anonymous namespace
@@ -200,7 +200,7 @@ TEST_CASE(
 	command_token pending;
 	auto other =
 		allocator.allocate_for_timeline(min_heap, alignment, nullptr, pending);
-	CHECK( cuda::buffer::cast(*other).get_device_ptr() != first_data );
+	CHECK( cuda::cuda_buffer::cast(*other).get_device_ptr() != first_data );
 	CHECK( fixture.get_blocks().get_arena().get_used_bytes() == 2 * min_heap );
 
 	// Once one of the two commands has finished, the block goes back into
@@ -221,7 +221,7 @@ TEST_CASE(
 
 	// The memory nothing uses is handed out first.
 	CHECK( unused_pending.is_empty() );
-	CHECK( cuda::buffer::cast(*held).get_device_ptr() == first_data );
+	CHECK( cuda::cuda_buffer::cast(*held).get_device_ptr() == first_data );
 	CHECK( held_pending.get_timeline() == second );
 	CHECK( held_pending.get_id() == 1 );
 }
@@ -249,7 +249,7 @@ TEST_CASE(
 		1024, alignment, timeline.get(), pending
 	);
 
-	CHECK( cuda::buffer::cast(*second).get_device_ptr() == first_data );
+	CHECK( cuda::cuda_buffer::cast(*second).get_device_ptr() == first_data );
 	CHECK( pending.get_timeline() == timeline );
 	CHECK( pending.get_id() == 2 );
 }
@@ -263,14 +263,14 @@ TEST_CASE(
 	std::shared_ptr<rexlib::buffer> owner;
 	auto &buf = allocate_buffer(fixture, 1024, owner);
 
-	CHECK( &cuda::buffer::cast(*owner) == &buf );
+	CHECK( &cuda::cuda_buffer::cast(*owner) == &buf );
 
 	cuda::mock_buffer foreign;
-	CHECK_THROWS_AS( cuda::buffer::cast(foreign), std::invalid_argument );
+	CHECK_THROWS_AS( cuda::cuda_buffer::cast(foreign), std::invalid_argument );
 
 	const auto &const_foreign = foreign;
 	CHECK_THROWS_AS(
-		cuda::buffer::cast(const_foreign),
+		cuda::cuda_buffer::cast(const_foreign),
 		std::invalid_argument
 	);
 }

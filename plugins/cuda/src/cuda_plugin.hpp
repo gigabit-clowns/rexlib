@@ -6,6 +6,8 @@
 
 namespace rexlib
 {
+namespace cuda
+{
 
 class cuda_plugin final
 	: public plugin
@@ -28,4 +30,5 @@ private:
 
 };
 
+} // namespace cuda
 } // namespace rexlib

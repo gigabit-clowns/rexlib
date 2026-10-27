@@ -31,8 +31,8 @@ class stream_timeline;
  * Thread safe. Commands submitted at the same time may each end up waiting
  * for what the other depends on.
  */
-class command_queue final
-	: public rexlib::command_queue
+class cuda_command_queue final
+	: public command_queue
 {
 public:
 	using handle = cudaStream_t;
@@ -47,13 +47,13 @@ public:
 	 * @throws std::invalid_argument If @p recorder is nullptr.
 	 * @throws error If the stream could not be created.
 	 */
-	command_queue(int ordinal, std::shared_ptr<event_recorder> recorder);
-	command_queue(const command_queue &other) = delete;
-	command_queue(command_queue &&other) = delete;
-	~command_queue() override;
+	cuda_command_queue(int ordinal, std::shared_ptr<event_recorder> recorder);
+	cuda_command_queue(const cuda_command_queue &other) = delete;
+	cuda_command_queue(cuda_command_queue &&other) = delete;
+	~cuda_command_queue() override;
 
-	command_queue& operator=(const command_queue &other) = delete;
-	command_queue& operator=(command_queue &&other) = delete;
+	cuda_command_queue& operator=(const cuda_command_queue &other) = delete;
+	cuda_command_queue& operator=(cuda_command_queue &&other) = delete;
 
 	handle get_handle() const noexcept;
 	int get_ordinal() const noexcept;
@@ -79,23 +79,23 @@ public:
 	 * @brief Downcast a queue to this backend's implementation.
 	 *
 	 * @param queue The queue to be cast.
-	 * @return command_queue& The same queue, as a CUDA queue.
+	 * @return cuda_command_queue& The same queue, as a CUDA queue.
 	 *
 	 * @throws std::invalid_argument If the queue was not created by this
 	 * backend.
 	 */
-	static command_queue& cast(rexlib::command_queue &queue);
+	static cuda_command_queue& cast(command_queue &queue);
 
 	/**
 	 * @brief Downcast a queue to this backend's implementation.
 	 *
 	 * @param queue The queue to be cast.
-	 * @return const command_queue& The same queue, as a CUDA queue.
+	 * @return const cuda_command_queue& The same queue, as a CUDA queue.
 	 *
 	 * @throws std::invalid_argument If the queue was not created by this
 	 * backend.
 	 */
-	static const command_queue& cast(const rexlib::command_queue &queue);
+	static const cuda_command_queue& cast(const command_queue &queue);
 
 private:
 	std::shared_ptr<stream_timeline> m_timeline;

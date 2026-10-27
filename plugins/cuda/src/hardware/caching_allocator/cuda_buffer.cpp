@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "buffer.hpp"
+#include "cuda_buffer.hpp"
 
 #include "memory_block.hpp"
 #include "memory_block_allocator.hpp"
@@ -14,7 +14,7 @@ namespace rexlib
 namespace cuda
 {
 
-buffer::buffer(
+cuda_buffer::cuda_buffer(
 	std::shared_ptr<memory_block_allocator> allocator,
 	memory_block &block,
 	const memory_resource &resource,
@@ -28,8 +28,8 @@ buffer::buffer(
 	if (!m_allocator)
 	{
 		throw std::invalid_argument(
-			"buffer::buffer: An allocator is required to give the block back "
-			"to."
+			"cuda_buffer::cuda_buffer: An allocator is required to give the "
+			"block back to."
 		);
 	}
 
@@ -41,42 +41,42 @@ buffer::buffer(
 	}
 }
 
-buffer::~buffer()
+cuda_buffer::~cuda_buffer()
 {
 	m_allocator->recycle(*m_block, get_recorded_uses());
 }
 
-void* buffer::get_host_ptr() noexcept
+void* cuda_buffer::get_host_ptr() noexcept
 {
 	return m_host_data;
 }
 
-const void* buffer::get_host_ptr() const noexcept
+const void* cuda_buffer::get_host_ptr() const noexcept
 {
 	return m_host_data;
 }
 
-std::size_t buffer::get_size() const noexcept
+std::size_t cuda_buffer::get_size() const noexcept
 {
 	return m_block->get_size();
 }
 
-const memory_resource& buffer::get_memory_resource() const noexcept
+const memory_resource& cuda_buffer::get_memory_resource() const noexcept
 {
 	return *m_resource;
 }
 
-void* buffer::get_device_ptr() noexcept
+void* cuda_buffer::get_device_ptr() noexcept
 {
 	return m_block->get_data();
 }
 
-const void* buffer::get_device_ptr() const noexcept
+const void* cuda_buffer::get_device_ptr() const noexcept
 {
 	return m_block->get_data();
 }
 
-void buffer::record_use(const command_token &token) const
+void cuda_buffer::record_use(const command_token &token) const
 {
 	if (token.is_empty())
 	{
@@ -104,14 +104,14 @@ void buffer::record_use(const command_token &token) const
 	}
 }
 
-span<const command_token> buffer::get_recorded_uses() const noexcept
+span<const command_token> cuda_buffer::get_recorded_uses() const noexcept
 {
 	return make_span(m_uses.data(), m_uses.size());
 }
 
-buffer& buffer::cast(rexlib::buffer &buf)
+cuda_buffer& cuda_buffer::cast(buffer &buf)
 {
-	auto *result = dynamic_cast<buffer*>(&buf);
+	auto *result = dynamic_cast<cuda_buffer*>(&buf);
 	if (!result)
 	{
 		throw std::invalid_argument(
@@ -122,9 +122,9 @@ buffer& buffer::cast(rexlib::buffer &buf)
 	return *result;
 }
 
-const buffer& buffer::cast(const rexlib::buffer &buf)
+const cuda_buffer& cuda_buffer::cast(const buffer &buf)
 {
-	const auto *result = dynamic_cast<const buffer*>(&buf);
+	const auto *result = dynamic_cast<const cuda_buffer*>(&buf);
 	if (!result)
 	{
 		throw std::invalid_argument(

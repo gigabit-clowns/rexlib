@@ -60,10 +60,10 @@ public:
 
 	std::size_t get_max_alignment() const noexcept override;
 
-	std::shared_ptr<rexlib::buffer> allocate(
+	std::shared_ptr<buffer> allocate(
 		std::size_t size,
 		std::size_t alignment,
-		rexlib::command_queue *queue_hint,
+		command_queue *queue_hint,
 		command_token &pending
 	) override;
 
@@ -81,13 +81,13 @@ public:
 	 * used on first. May be nullptr.
 	 * @param pending Receives the token of the command that still uses the
 	 * memory handed out. Empty when nothing uses it.
-	 * @return std::shared_ptr<rexlib::buffer> The buffer. Never null.
+	 * @return std::shared_ptr<buffer> The buffer. Never null.
 	 *
 	 * @throws std::bad_alloc If the device had no memory left.
 	 * @throws std::invalid_argument If @p alignment is not a valid power of
 	 * two within @ref get_max_alignment.
 	 */
-	std::shared_ptr<rexlib::buffer> allocate_for_timeline(
+	std::shared_ptr<buffer> allocate_for_timeline(
 		std::size_t size,
 		std::size_t alignment,
 		const command_timeline *timeline,

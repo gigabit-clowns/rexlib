@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "device_backend.hpp"
+#include "cuda_device_backend.hpp"
 
-#include "device.hpp"
+#include "cuda_device.hpp"
 #include "error.hpp"
 
 #include "../config.hpp"
@@ -43,12 +43,12 @@ static bool get_device_count(int &count) noexcept
 
 
 
-std::string device_backend::get_name() const
+std::string cuda_device_backend::get_name() const
 {
 	return "cuda";
 }
 
-version device_backend::get_version() const
+version cuda_device_backend::get_version() const
 {
 	// Querying the runtime version goes through the driver, which fails when
 	// it is missing or older than the runtime. The version the plugin was
@@ -69,7 +69,7 @@ version device_backend::get_version() const
 	);
 }
 
-void device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
+void cuda_device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
 {
 	int count;
 	if (!get_device_count(count))
@@ -84,7 +84,7 @@ void device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
 	);
 }
 
-bool device_backend::get_device_properties(
+bool cuda_device_backend::get_device_properties(
 	std::size_t id,
 	device_properties &desc
 ) const
@@ -120,8 +120,8 @@ bool device_backend::get_device_properties(
 	return result;
 }
 
-std::shared_ptr<rexlib::device>
-device_backend::create_device(std::size_t id) const
+std::shared_ptr<device>
+cuda_device_backend::create_device(std::size_t id) const
 {
 	int count;
 	if (!get_device_count(count))
@@ -135,12 +135,12 @@ device_backend::create_device(std::size_t id) const
 		throw std::invalid_argument("Invalid device id");
 	}
 
-	return std::make_shared<device>(ordinal);
+	return std::make_shared<cuda_device>(ordinal);
 }
 
-bool device_backend::register_at(rexlib::device_manager &manager)
+bool cuda_device_backend::register_at(rexlib::device_manager &manager)
 {
-	return manager.register_backend(std::make_unique<device_backend>());
+	return manager.register_backend(std::make_unique<cuda_device_backend>());
 }
 
 } // namespace cuda

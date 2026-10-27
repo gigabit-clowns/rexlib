@@ -2,12 +2,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <hardware/command_queue.hpp>
+#include <hardware/cuda_command_queue.hpp>
 
 #include <hardware/pooled_event_recorder.hpp>
 #include <hardware/stream_timeline.hpp>
 
-#include <hardware/caching_allocator/buffer.hpp>
+#include <hardware/caching_allocator/cuda_buffer.hpp>
 
 #include "caching_allocator/mock/mock_buffer.hpp"
 #include "caching_allocator/test_caching_allocator.hpp"
@@ -49,7 +49,7 @@ public:
 	{
 	}
 
-	cuda::command_queue& get() noexcept
+	cuda::cuda_command_queue& get() noexcept
 	{
 		return m_queue;
 	}
@@ -67,7 +67,7 @@ public:
 
 private:
 	cuda::caching_allocator_fixture m_buffers;
-	cuda::command_queue m_queue;
+	cuda::cuda_command_queue m_queue;
 };
 
 } // anonymous namespace
@@ -78,7 +78,7 @@ TEST_CASE(
 )
 {
 	CHECK_THROWS_AS(
-		cuda::command_queue(0, nullptr),
+		cuda::cuda_command_queue(0, nullptr),
 		std::invalid_argument
 	);
 }
@@ -94,8 +94,8 @@ TEST_CASE(
 	}
 
 	const auto recorder = std::make_shared<cuda::pooled_event_recorder>(0);
-	const cuda::command_queue first(0, recorder);
-	const cuda::command_queue second(0, recorder);
+	const cuda::cuda_command_queue first(0, recorder);
+	const cuda::cuda_command_queue second(0, recorder);
 
 	CHECK( first.get_ordinal() == 0 );
 	CHECK( first.get_handle() != nullptr );
@@ -113,8 +113,8 @@ TEST_CASE(
 	}
 
 	const auto recorder = std::make_shared<cuda::pooled_event_recorder>(0);
-	const cuda::command_queue first(0, recorder);
-	const cuda::command_queue second(0, recorder);
+	const cuda::cuda_command_queue first(0, recorder);
+	const cuda::cuda_command_queue second(0, recorder);
 
 	REQUIRE( first.get_timeline() != nullptr );
 	CHECK( first.get_timeline() != second.get_timeline() );
@@ -131,7 +131,7 @@ TEST_CASE(
 	}
 
 	const auto recorder = std::make_shared<cuda::pooled_event_recorder>(0);
-	const cuda::command_queue queue(0, recorder);
+	const cuda::cuda_command_queue queue(0, recorder);
 	const auto &timeline = queue.get_timeline();
 
 	cuda::stream_blocker blocker(queue.get_handle());
@@ -160,7 +160,7 @@ TEST_CASE(
 
 	command_token token;
 	{
-		const cuda::command_queue queue(
+		const cuda::cuda_command_queue queue(
 			0,
 			std::make_shared<cuda::pooled_event_recorder>(0)
 		);
@@ -187,7 +187,7 @@ TEST_CASE(
 		SKIP( "No CUDA capable device is available." );
 	}
 
-	const cuda::command_queue queue(
+	const cuda::cuda_command_queue queue(
 		0,
 		std::make_shared<cuda::pooled_event_recorder>(0)
 	);
@@ -212,7 +212,7 @@ TEST_CASE(
 		SKIP( "No CUDA capable device is available." );
 	}
 
-	cuda::command_queue queue(
+	cuda::cuda_command_queue queue(
 		0,
 		std::make_shared<cuda::pooled_event_recorder>(0)
 	);
@@ -339,7 +339,7 @@ TEST_CASE(
 	// finds out what it still has to wait for.
 	for (const auto &operand : {output, input, scratch})
 	{
-		const auto uses = cuda::buffer::cast(*operand).get_recorded_uses();
+		const auto uses = cuda::cuda_buffer::cast(*operand).get_recorded_uses();
 		REQUIRE( uses.size() == 1 );
 		CHECK( uses[0].get_timeline() == queue.get_timeline() );
 		CHECK( uses[0].get_id() == token.get_id() );
@@ -408,7 +408,7 @@ TEST_CASE(
 			)
 		);
 
-		cuda::command_queue other(
+		cuda::cuda_command_queue other(
 			0,
 			std::make_shared<cuda::pooled_event_recorder>(0)
 		);
@@ -483,7 +483,7 @@ TEST_CASE(
 	// there is no work left by the time anyone could drop it.
 	CHECK( probe.has_finished() );
 	CHECK( token.is_empty() );
-	CHECK( cuda::buffer::cast(*own).get_recorded_uses().empty() );
+	CHECK( cuda::cuda_buffer::cast(*own).get_recorded_uses().empty() );
 }
 
 TEST_CASE(
@@ -517,7 +517,7 @@ TEST_CASE(
 
 	// No token came out of it, so nothing would ever wait for that work.
 	CHECK( probe.has_finished() );
-	CHECK( cuda::buffer::cast(*output).get_recorded_uses().empty() );
+	CHECK( cuda::cuda_buffer::cast(*output).get_recorded_uses().empty() );
 }
 
 TEST_CASE(
@@ -530,23 +530,23 @@ TEST_CASE(
 		SKIP( "No CUDA capable device is available." );
 	}
 
-	cuda::command_queue queue(
+	cuda::cuda_command_queue queue(
 		0,
 		std::make_shared<cuda::pooled_event_recorder>(0)
 	);
 	rexlib::command_queue &base = queue;
 
-	CHECK( &cuda::command_queue::cast(base) == &queue );
+	CHECK( &cuda::cuda_command_queue::cast(base) == &queue );
 
 	cuda::mock_command_queue foreign;
 	CHECK_THROWS_AS(
-		cuda::command_queue::cast(foreign),
+		cuda::cuda_command_queue::cast(foreign),
 		std::invalid_argument
 	);
 
 	const rexlib::command_queue &const_foreign = foreign;
 	CHECK_THROWS_AS(
-		cuda::command_queue::cast(const_foreign),
+		cuda::cuda_command_queue::cast(const_foreign),
 		std::invalid_argument
 	);
 }
