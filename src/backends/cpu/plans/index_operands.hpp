@@ -7,6 +7,7 @@
 #include <rexlib/core/span.hpp>
 
 #include <cstddef>
+#include <vector>
 
 namespace rexlib
 {
@@ -15,6 +16,34 @@ class joint_layout_builder;
 
 namespace cpu
 {
+
+/**
+ * @brief Compute the row-major strides of the linear index over every axis.
+ *
+ * @param extents Extents of the index space, in axis order.
+ * @return std::vector<std::ptrdiff_t> One stride per axis, in elements.
+ */
+std::vector<std::ptrdiff_t> make_row_major_strides(
+	span<const std::size_t> extents
+);
+
+/**
+ * @brief Compute the row-major strides of the linear index over some of
+ * the axes.
+ *
+ * The index counts the positions along the counted axes only: an axis that
+ * is not counted has a stride of 0, and contributes no extent to the
+ * strides of the axes before it.
+ *
+ * @param extents Extents of the index space, in axis order.
+ * @param counted_axes The axes counted, ascending and without repetitions.
+ * @return std::vector<std::ptrdiff_t> One stride per axis, in elements.
+ * @throws std::out_of_range When a counted axis is not within the rank.
+ */
+std::vector<std::ptrdiff_t> make_row_major_strides(
+	span<const std::size_t> extents,
+	span<const std::size_t> counted_axes
+);
 
 /**
  * @brief Add the index operands of a traversal that hands out no index,

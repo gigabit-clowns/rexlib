@@ -58,11 +58,6 @@ bool is_supplied(const extent_pivot_descriptor &pivot) noexcept
 	return pivot.get_source() != extent_pivot_source::inputs;
 }
 
-bool carries_axes(const core_dimensions_descriptor &core) noexcept
-{
-	return core.has_run() || !core.get_slots().empty();
-}
-
 bool carries_named_axes(
 	const shape_rule_descriptor &rule,
 	std::size_t input
@@ -70,7 +65,7 @@ bool carries_named_axes(
 {
 	return
 		rule.get_placement() == core_placement::named &&
-		carries_axes(rule.get_input_cores()[input]);
+		!rule.get_input_cores()[input].is_empty();
 }
 
 void check_operand_counts(
@@ -170,7 +165,11 @@ void check_named_axes(
 	}
 
 	const auto cores = rule.get_input_cores();
-	const auto carrier = std::find_if(cores.begin(), cores.end(), &carries_axes);
+	const auto carrier = std::find_if(
+		cores.begin(),
+		cores.end(),
+		[](const core_dimensions_descriptor &core) { return !core.is_empty(); }
+	);
 	if (carrier == cores.end())
 	{
 		std::ostringstream oss;
