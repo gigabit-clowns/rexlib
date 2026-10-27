@@ -12,4 +12,5 @@ target_sources(
 		test_linalg_program_builder.cpp
 )
 
+add_subdirectory(em)
 add_subdirectory(type_dispatchers)
