@@ -41,5 +41,30 @@ std::size_t get_parallel_grain_size() noexcept;
  */
 std::size_t grain_for_cost(std::size_t cost_per_iteration) noexcept;
 
+/**
+ * @brief Whether to share out the inner space of a nested loop, rather
+ * than its outer space.
+ *
+ * The outer space is preferred wherever it has the parallelism to spare:
+ * splitting it keeps every inner loop on one thread, so its answer is what
+ * one thread computes down to the last bit. Twice the worker count rather
+ * than once, so that a ragged finish has somewhere to go.
+ *
+ * Only when the outer space has too few iterations for that is the inner
+ * space worth splitting. Below one grain nothing is worth splitting, and
+ * the schedule refuses on its own.
+ *
+ * @param outer_count The iterations of the outer space.
+ * @param inner_count The iterations of the inner space, for each outer one.
+ * @param workers The number of threads available.
+ * @return true The inner space is worth splitting.
+ * @return false The outer space is to be split, or nothing is.
+ */
+bool should_split_inner_space(
+	std::size_t outer_count,
+	std::size_t inner_count,
+	std::size_t workers
+) noexcept;
+
 } // namespace cpu
 } // namespace rexlib

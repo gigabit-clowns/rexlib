@@ -70,5 +70,19 @@ std::size_t grain_for_cost(std::size_t cost_per_iteration) noexcept
 	return std::max<std::size_t>(budget / cost_per_iteration, 1);
 }
 
+bool should_split_inner_space(
+	std::size_t outer_count,
+	std::size_t inner_count,
+	std::size_t workers
+) noexcept
+{
+	return
+		workers > 1 &&
+		outer_count > 0 &&
+		outer_count < 2*workers &&
+		inner_count >= 2*workers &&
+		outer_count*inner_count >= get_parallel_grain_size();
+}
+
 } // namespace cpu
 } // namespace rexlib
