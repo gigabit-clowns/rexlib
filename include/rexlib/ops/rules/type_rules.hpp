@@ -208,6 +208,26 @@ using masked_binary_homogeneous_rule = operand_type_rule<
 >;
 
 /**
+ * @brief Unary operation taking a key of a fixed element type alongside
+ * its operand.
+ *
+ * The output has the element type of the operand. The key, such as the
+ * seed of a random draw, has its own fixed element type.
+ *
+ * @tparam Domain The admissible element types of the operand.
+ * @tparam Key The element type of the key.
+ */
+template <
+	typename Domain = floating_point_type_domain,
+	numerical_type Key = numerical_type::uint64
+>
+using keyed_unary_homogeneous_rule = operand_type_rule<
+	type_list<pivot_from_input<0, Domain>>,
+	type_list<slot_same_as<0>>,
+	type_list<slot_same_as<0>, slot_fixed<Key>>
+>;
+
+/**
  * @brief Selection between two operands driven by a boolean condition.
  *
  * The element type follows the operands being selected from and not the

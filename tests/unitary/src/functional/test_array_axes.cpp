@@ -68,6 +68,28 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"last_axes should name the last axes in order",
+	"[array_axes]"
+)
+{
+	const auto x = make_array({ 2, 3, 4 });
+
+	CHECK( last_axes(x, 2) == ops::axis_list{ 1, 2 } );
+	CHECK( last_axes(x, 3) == ops::axis_list{ 0, 1, 2 } );
+	CHECK( last_axes(x, 0).empty() );
+}
+
+TEST_CASE(
+	"last_axes should reject more axes than the array has",
+	"[array_axes]"
+)
+{
+	const auto x = make_array({ 2, 3 });
+
+	CHECK_THROWS_AS( last_axes(x, 3), std::invalid_argument );
+}
+
+TEST_CASE(
 	"every_axis should name every axis in order",
 	"[array_axes]"
 )

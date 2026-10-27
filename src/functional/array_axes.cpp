@@ -7,6 +7,8 @@
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 
 #include <numeric>
+#include <sstream>
+#include <stdexcept>
 #include <vector>
 
 namespace rexlib
@@ -33,6 +35,22 @@ ops::axis_list resolve_axes(
 		result.push_back(sanitize_index(axis, rank));
 	}
 
+	return result;
+}
+
+ops::axis_list last_axes(const const_array_ref &x, std::size_t count)
+{
+	const auto rank = get_rank(x);
+	if (rank < count)
+	{
+		std::ostringstream oss;
+		oss << "A " << count << " dimensional operation needs at least "
+			<< count << " axes, but the operand has " << rank << ".";
+		throw std::invalid_argument(oss.str());
+	}
+
+	ops::axis_list result(count);
+	std::iota(result.begin(), result.end(), rank - count);
 	return result;
 }
 
