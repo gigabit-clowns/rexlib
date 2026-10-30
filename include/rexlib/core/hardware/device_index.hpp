@@ -152,8 +152,8 @@ private:
  * @brief Parse the device ID from a string.
  *
  * A device ID string representation is expected to be:
- * <device_backend>:<device_id>
- * <device_backend> (assumes device_id=0)
+ * - `<device_backend>:<device_id>`
+ * - `<device_backend>` (assumes `device_id` is 0)
  *
  * @param text Appropriately formatted string with the device ID
  * @param result Output device_index object.

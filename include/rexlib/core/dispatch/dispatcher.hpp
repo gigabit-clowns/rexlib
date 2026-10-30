@@ -51,9 +51,9 @@ public:
 	 * @brief Execute an operation on the provided operands.
 	 *
 	 * Output operands are resolved against the operation: when they lack
-	 * storage it is allocated from @p allocator, and when they already own
-	 * storage it is validated and reused. The resulting command is then
-	 * submitted to @p queue.
+	 * storage it is allocated from the allocators of @p device, and when they
+	 * already own storage it is validated and reused. The resulting command
+	 * is then submitted to the active queue of @p device.
 	 *
 	 * The work runs after the commands that still access its operands: those
 	 * that write an input, and those that read or write an output. It is
@@ -65,8 +65,8 @@ public:
 	 * @param output_operands The output operands. May be modified in place to
 	 * receive freshly allocated storage and sanitized descriptors.
 	 * @param input_operands The input operands. Must already own storage.
-	 * @param device_context Device resources used for execution.
-	 * @param queue The queue to which the operation may be executed.
+	 * @param device The allocators and the active queue the operation runs
+	 * with.
 	 */
 	virtual void dispatch(
 		const operation &operation,

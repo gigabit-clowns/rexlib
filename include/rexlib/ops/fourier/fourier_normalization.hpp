@@ -24,8 +24,9 @@ namespace ops
  * caller that names a factor per transform instead is left to pair the two up
  * correctly, and pairing them wrongly is silent.
  *
- * There is deliberately no "none": it would be @ref backward on a forward
- * transform and @ref forward on an inverse one, so it names no scaling that
+ * There is deliberately no "none": it would be
+ * @ref fourier_normalization::backward on a forward transform and
+ * @ref fourier_normalization::forward on an inverse one, so it names no scaling that
  * cannot already be asked for, and two spellings of one operation are two
  * programs where there should be one.
  */

@@ -20,9 +20,9 @@ class memory_allocator;
  * @brief Scoped, configurable view over a @ref device_session.
  *
  * A @c device_context layers the per-use, configurable state on top of the
- * immutable @ref device_session: the @em active @ref command_queue that work
- * is submitted to, and the @ref memory_allocator selected for each
- * @ref memory_resource_affinity. 
+ * immutable @ref device_session. That state is the @em active
+ * @ref command_queue that work is submitted to, and the
+ * @ref memory_allocator selected for each @ref memory_resource_affinity.
  *
  * The context is a lightweight, copyable value with functional-update
  * semantics: @ref on_queue and @ref with_allocator do not mutate the receiver,

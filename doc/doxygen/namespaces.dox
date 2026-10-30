@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+/**
+ * @namespace rexlib
+ * @brief Arrays, the operations on them and the devices that run those
+ * operations.
+ */
+
+/**
+ * @namespace rexlib::ops
+ * @brief The declarations of the operations: their operands, parameters and
+ * rules.
+ */
+
+/**
+ * @namespace rexlib::cpu
+ * @brief The backend that runs operations on the CPU of the host.
+ */
+
+/**
+ * @namespace rexlib::em
+ * @brief Operations for CryoEM and CryoET image processing.
+ */

@@ -123,11 +123,11 @@ struct numerical_type_of<std::complex<float64_t>>
  * @brief Convert numerical_type-s to static types.
  *
  * The static type of the provided numerical_type is exposed as
- * native_type_of<Type>::type.
+ * `native_type_of<Type>::type`.
  *
  * This is the inverse of numerical_type_of, so that
- * numerical_type_of<typename native_type_of<Type>::type>::value equals
- * Type for every convertible numerical_type.
+ * `numerical_type_of<typename native_type_of<Type>::type>::value` equals
+ * `Type` for every convertible numerical_type.
  *
  * It is left undefined for numerical_type::unknown and
  * numerical_type::count, so that naming a type that has no static

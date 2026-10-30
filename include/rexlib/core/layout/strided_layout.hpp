@@ -58,7 +58,7 @@ public:
 	/**
 	 * @brief Get the strides of the layout.
 	 * 
-	 * @param extents Output parameter where the strides are written.
+	 * @param strides Output parameter where the strides are written.
 	 */
 	REXLIB_API
 	void get_strides(std::vector<std::ptrdiff_t> &strides) const;
@@ -147,8 +147,8 @@ public:
 	 * @brief Obtains a layout view to the matrix diagonal defined by two axes.
 	 * 
 	 * @param axis1 First axis of the diagonal. Must be in [-rank, rank).
-	 * @param axis1 Second axis of the diagonal. Must be in [-rank, rank).
-	 * Cannot be equal to axis1.
+	 * @param axis2 Second axis of the diagonal. Must be in [-rank, rank).
+	 * Cannot be equal to @p axis1.
 	 * @return strided_layout The resulting layout of the matrix_diagonal.
 	 * @throws std::out_of_range If either axis1 or axis2 exceeds bounds.
 	 * @throws std::invalid_argument If axis1 and axis2 are equal.

@@ -252,7 +252,6 @@ array copy(
  * @param out The array whose elements are set.
  * @param fill_value Value to which all the elements are set.
  * @param context The execution context used for dispatching.
- * @return array The filled array.
  */
 REXLIB_API
 void fill(

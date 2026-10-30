@@ -5,6 +5,16 @@
 #include "operating_system.h"
 
 /**
+ * @file
+ * @brief Macros that give the byte order of the system.
+ *
+ * `REXLIB_BYTE_ORDER` is the byte order of the system, and
+ * `REXLIB_FLOAT_BYTE_ORDER` that of its floating point unit. Each is
+ * `REXLIB_BYTE_ORDER_LITTLE_ENDIAN` or `REXLIB_BYTE_ORDER_BIG_ENDIAN`. The
+ * detection is based on that of rapidjson.
+ */
+
+/**
  * @brief Constant representing little endian byte ordering
  * 
  */
@@ -16,13 +26,6 @@
  */
 #define REXLIB_BYTE_ORDER_BIG_ENDIAN 2
 
-
-/**
- * @def REXLIB_BYTE_ORDER
- * @brief Indicates the byte ordering used by the system
- * 
- * Detection based on rapidjson code
- */
 
 //Detect with GCC 4.6's macro.
 #if defined(__BYTE_ORDER__)
@@ -54,12 +57,6 @@
 	#error "Could not determine byte ordering"
 #endif
 
-/**
- * @def REXLIB_FLOAT_BYTE_ORDER
- * @brief Indicates the byte ordering used by the Floating
- * Point Unit of the system
- * 
- */
 #if defined(__FLOAT_WORD_ORDER__)
 	#if (__FLOAT_WORD_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 		#define REXLIB_FLOAT_BYTE_ORDER REXLIB_BYTE_ORDER_LITTLE_ENDIAN

@@ -69,8 +69,9 @@ array matvec(
  *
  * @note The vector's last axis is contracted with the matrix's second to
  * last axis, and everything before is a stack broadcast between the
- * operands. The mirror image of @ref matvec: neither operand is promoted,
- * so @p x must already have rank one or more and @p y rank two or more.
+ * operands. It is the mirror image of @ref matvec. Neither operand is
+ * promoted, so @p x must already have rank one or more and @p y rank two or
+ * more.
  *
  * @see matvec
  * @see matmul

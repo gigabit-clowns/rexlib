@@ -67,6 +67,15 @@ Options:
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
 turning off `BUILD_TESTING` for its own.
 
+`rexlib-docs` writes the documentation of the public headers under
+`doc/doxygen/html` of the build tree. A warning of Doxygen fails it, so a
+comment that names a parameter that is not there does not go unnoticed; a
+member left undocumented is not a warning. Doxygen leaves out what sits in
+a namespace it has no documentation for, so a new namespace is documented in
+`doc/doxygen/namespaces.dox`. The macros that declare an operation are given
+to Doxygen as the class they declare, in `doc/doxygen/CMakeLists.txt`, so
+that the comment above a declaration documents its class.
+
 Each suite carries its name as a CTest label, so `ctest -L unitary` and
 `ctest -L integration` run one of them. The label is set whichever way the
 cases were registered. Under CMake 3.18 each suite is a single test, since

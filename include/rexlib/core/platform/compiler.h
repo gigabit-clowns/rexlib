@@ -3,33 +3,18 @@
 #pragma once
 
 /**
- * @def REXLIB_CLANG
- * @brief Defined when building with Clang
- * 
- */
-
-/**
- * @def REXLIB_ICC
- * @brief Defined when building with Intel Compiler
- * 
- */
-
-/**
- * @def REXLIB_ICX
- * @brief Defined when building with Intel LLVM based Compiler
- * 
- */
-
-/**
- * @def REXLIB_GCC
- * @brief Defined when building with GNU C/C++ compiler
- * 
- */
-
-/**
- * @def REXLIB_MSVC
- * @brief Defined when building with Microsoft Visual C++
- * 
+ * @file
+ * @brief Macros that name the compiler.
+ *
+ * At most one of these is defined, to 1:
+ * - `REXLIB_CLANG`: Clang.
+ * - `REXLIB_ICC`: the Intel C++ Compiler.
+ * - `REXLIB_ICX`: the Intel compiler based on LLVM.
+ * - `REXLIB_GCC`: the GNU C/C++ compiler.
+ * - `REXLIB_MSVC`: Microsoft Visual C++.
+ *
+ * `REXLIB_MINGW` is defined, to 1, when building with MinGW. It may be
+ * defined together with one of the above.
  */
 
 #if defined(__clang__)
@@ -46,14 +31,6 @@
 	#pragma message ("Could not determine the compiler")
 #endif
 
-/**
- * @def REXLIB_MINGW
- * @brief Defined when building with MinGW.
- * 
- * Unlike the former compiler macros, this definition is not exclusive and
- * it may be present together with other definitions.
- * 
- */
 #if defined(__MINGW32__) || defined(__MINGW64__)
 	#define REXLIB_MINGW 1
 #endif
