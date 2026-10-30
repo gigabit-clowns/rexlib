@@ -47,6 +47,13 @@ cmake --build build -j
 ctest --test-dir build
 ```
 
+With CMake 3.21 or newer the presets do the same: `cmake --preset debug`,
+`cmake --build --preset debug`, `ctest --preset debug`, which build into
+`build/debug`. There are `release`, `sanitize` (the address and undefined
+behaviour sanitizers) and `sanitize-thread` presets too; the two sanitizer
+presets are not offered on Windows. Settings of a machine of one's own, such
+as a compiler cache, go in a `CMakeUserPresets.json`, which git ignores.
+
 CMake 3.18 is the minimum. The sources are written to C++14 and reach anything
 newer through the `REXLIB_*` feature macros, so that a compiler without it
 still builds them; CMake asks for C++17 but leaves
