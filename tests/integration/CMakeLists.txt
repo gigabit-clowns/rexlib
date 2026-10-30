@@ -1,4 +1,5 @@
-# Add the test executable
+# SPDX-License-Identifier: GPL-3.0-only
+
 add_executable(rexlib-integration-tests)
 add_subdirectory(src)
 target_link_libraries(
@@ -13,15 +14,6 @@ add_dependencies(
 	rexlib-test-assets
 )
 
-# On windows targets, copy the library to the test directory
-if(WIN32)
-	add_custom_command(TARGET rexlib-integration-tests
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rexlib> $<TARGET_FILE_DIR:rexlib-integration-tests>
-	)
-endif()
-
 rexlib_enable_warnings(rexlib-integration-tests)
 
-# Register tests
 rexlib_register_tests(rexlib-integration-tests integration)

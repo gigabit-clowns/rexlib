@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 # Define one object library per component. Properties that CMake only
 # applies automatically to SHARED targets (export define, PIC, hidden
 # visibility) must be set explicitly on each object library.

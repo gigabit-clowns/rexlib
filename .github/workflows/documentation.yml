@@ -57,10 +57,10 @@ jobs:
         source-dir: ${{ github.workspace }}
         build-dir: "${{ github.workspace }}/build"
         options: |
-          REXLIB_BUILD_DOC=ON
+          REXLIB_BUILD_DOCS=ON
           BUILD_TESTING=OFF
         run-build: true
-        build-args: --target doxygen
+        build-args: --target rexlib-docs
 
     - name: Upload artifact
       if: startsWith(github.ref, 'refs/tags/v')

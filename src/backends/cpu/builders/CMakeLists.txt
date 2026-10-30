@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 add_subdirectory(arithmetic)
 add_subdirectory(assignment)
 add_subdirectory(bitwise)

@@ -1,4 +1,5 @@
-# Add the test executable
+# SPDX-License-Identifier: GPL-3.0-only
+
 add_executable(rexlib-unitary-tests)
 add_subdirectory(src)
 target_compile_definitions(
@@ -8,7 +9,7 @@ target_compile_definitions(
 )
 target_include_directories(
 	rexlib-unitary-tests
-	PRIVATE 
+	PRIVATE
 		${PROJECT_SOURCE_DIR}/src
 )
 # This suite reaches symbols the shared library hides, so it embeds the
@@ -61,19 +62,6 @@ if(MSVC)
 	)
 endif()
 
-# On Windows the plugin DLLs that some tests load (e.g. dynamic_library) depend
-# on rexlib.dll. The loader resolves a plugin's imports from the test
-# executable's directory, so copy the library next to it. Unlike the
-# integration suite this executable embeds the core objects and never imports
-# the DLL itself, hence the DLL would otherwise not be present here.
-if(WIN32)
-	add_custom_command(TARGET rexlib-unitary-tests
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rexlib> $<TARGET_FILE_DIR:rexlib-unitary-tests>
-	)
-endif()
-
 rexlib_enable_warnings(rexlib-unitary-tests)
 
-# Register tests
 rexlib_register_tests(rexlib-unitary-tests unitary)

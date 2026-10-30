@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 # Build the mock plugins consumed by the tests as runtime assets.
 add_subdirectory(dummy_plugin)
 add_subdirectory(faulty_plugin1)

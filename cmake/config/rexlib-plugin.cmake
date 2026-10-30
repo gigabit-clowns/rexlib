@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 # Helpers for building rexlib plugins. Included both from rexlib's own
 # build and from the installed package config, so that an in-tree
 # superbuild and a find_package() consumer see the same contract.

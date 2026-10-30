@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 cmake_minimum_required(VERSION 3.18)
 
 # Without this CMAKE_MSVC_DEBUG_INFORMATION_FORMAT is silently ignored.
@@ -11,36 +13,49 @@ if(POLICY CMP0135)
 	cmake_policy(SET CMP0135 NEW)
 endif()
 
-# Define the project
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
 project(
 	rexlib
 	VERSION ${PROJECT_VERSION}
+	DESCRIPTION
+		"Device-agnostic array computing library for CryoEM and CryoET image \
+processing, with a pluggable backend architecture"
 	LANGUAGES C CXX
 )
 
-# Add the CMake module path
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 
-# Include CMake packages
 include(CTest)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 include(CMakeDependentOption)
 include(rexlib_enable_warnings)
 
-# ---------------------------------------------------------------------------
-# Options
-# ---------------------------------------------------------------------------
-
 option(REXLIB_INSTALL "Generate rexlib's install rules" ON)
-option(REXLIB_BUILD_DOC "Build documentation" OFF)
-option(REXLIB_ENABLE_COVERAGE "Enable code coverage" OFF)
-option(REXLIB_REGISTER_TESTS_PER_BINARY "Register one test per test executable instead of one per Catch2 case" OFF)
-
-# Lets a consumer that embeds rexlib drop its tests without dropping its own.
-option(REXLIB_BUILD_TESTING "Build rexlib's tests" ${BUILD_TESTING})
+option(
+	REXLIB_BUILD_DOCS
+	"Add the target that builds the documentation of the API, which needs \
+Doxygen"
+	OFF
+)
+option(
+	REXLIB_ENABLE_COVERAGE
+	"Instrument the library and the tests for code coverage"
+	OFF
+)
+option(
+	REXLIB_REGISTER_TESTS_PER_BINARY
+	"Register one test per test executable instead of one per Catch2 case"
+	OFF
+)
+# Only while BUILD_TESTING, the switch of CTest, is on: tests built without
+# it could not be registered with CTest. Its own option lets a project that
+# embeds rexlib drop rexlib's tests without dropping its own.
+cmake_dependent_option(
+	REXLIB_BUILD_TESTING "Build rexlib's tests" ON
+	"BUILD_TESTING" OFF
+)
 
 # Every dependency is private and none appears in a public header, so building
 # one here or finding an installed one changes nothing for a consumer of the
@@ -90,9 +105,12 @@ set(
 )
 unset(REXLIB_PLUGINS_DIR_DEFAULT)
 
-# ---------------------------------------------------------------------------
-# Dependencies
-# ---------------------------------------------------------------------------
+# Windows looks for a library beside the executable that needs it, and has no
+# other way to be told where one is. So the library and the test executables
+# are all built into one directory.
+if(WIN32 AND NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+endif()
 
 find_package(Threads REQUIRED)
 
@@ -150,10 +168,6 @@ else()
 	find_package(Eigen3 REQUIRED CONFIG)
 endif()
 
-# ---------------------------------------------------------------------------
-# The package
-# ---------------------------------------------------------------------------
-
 # Same helper the installed package config offers, so that a plugin built
 # inside a superbuild installs itself exactly as an out-of-tree one does.
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake)
@@ -166,15 +180,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Add source directory
 add_subdirectory(src)
 
-# Only build tests if both this project and the build as a whole want them
-if(BUILD_TESTING AND REXLIB_BUILD_TESTING)
+if(REXLIB_BUILD_TESTING)
 	add_subdirectory(tests)
 endif()
 
-# Only build docs if requested
-if(REXLIB_BUILD_DOC)
+if(REXLIB_BUILD_DOCS)
 	add_subdirectory(doc)
 endif()

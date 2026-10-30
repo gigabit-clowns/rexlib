@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 # Locates the pocketfft header, a single file that ships with no CMake of any
 # kind, and exposes it as pocketfft::pocketfft.
 #

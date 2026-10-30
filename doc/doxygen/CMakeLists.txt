@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 find_package(Doxygen REQUIRED)
 
 # Set color theme
@@ -12,6 +14,6 @@ set(DOXYGEN_EXPAND_ONLY_PREDEF YES)
 set(DOXYGEN_PREDEFINED "REXLIB_MAY_ALIAS=")
 
 doxygen_add_docs(
-    doxygen
-    ${PROJECT_SOURCE_DIR}/include
+	rexlib-docs
+	${PROJECT_SOURCE_DIR}/include
 )

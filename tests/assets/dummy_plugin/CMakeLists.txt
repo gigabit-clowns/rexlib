@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/dummy_plugin.cpp)
 add_library(dummy-plugin MODULE ${SOURCES})
 set_target_properties(

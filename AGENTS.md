@@ -59,8 +59,8 @@ Options:
 | Option | Default | Effect |
 |---|---|---|
 | `REXLIB_INSTALL` | `ON` | Generates the install and export rules |
-| `REXLIB_BUILD_TESTING` | `BUILD_TESTING` | Builds the test suites |
-| `REXLIB_BUILD_DOC` | `OFF` | Builds the Doxygen target |
+| `REXLIB_BUILD_TESTING` | `ON` while `BUILD_TESTING` is on, forced `OFF` otherwise | Builds the test suites |
+| `REXLIB_BUILD_DOCS` | `OFF` | Adds the Doxygen target `rexlib-docs` |
 | `REXLIB_ENABLE_COVERAGE` | `OFF` | Adds coverage instrumentation |
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 
@@ -69,7 +69,13 @@ turning off `BUILD_TESTING` for its own.
 
 Each suite carries its name as a CTest label, so `ctest -L unitary` and
 `ctest -L integration` run one of them. The label is set whichever way the
-cases were registered.
+cases were registered. Under CMake 3.18 each suite is a single test, since
+listing the cases needs the JSON support of CMake 3.19.
+
+On Windows the library and the test executables are built into one
+directory, `bin/` of the build tree, unless `CMAKE_RUNTIME_OUTPUT_DIRECTORY`
+is given: Windows finds a library beside the executable that loads it, and
+a plugin a test loads finds `rexlib.dll` there too.
 
 The last one exists because a memory checker pays its start-up on every test
 CTest runs. Discovering each case makes it re-analyse the whole binary once per
@@ -142,6 +148,9 @@ private members carry `m_`; macros are `UPPER_CASE` with a `REXLIB_` prefix.
 
 Indentation is tabs. Lines stay within 80 columns; the handful that do not are
 the exception rather than the rule.
+
+Every source file, the CMake files included, starts with
+`SPDX-License-Identifier: GPL-3.0-only`.
 
 Declarations go in a `.hpp`, definitions that must be visible go in an `.inl`
 the header includes at its end, and everything else goes in a `.cpp`.

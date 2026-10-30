@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 # Locates the half header, a single file that ships with no CMake package
 # config anywhere, and exposes it as half::half.
 #
