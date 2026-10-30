@@ -6,7 +6,6 @@
 #include "../platform/dynamic_shared_object.h"
 
 #include <string>
-#include <string_view>
 #include <ostream>
 
 namespace rexlib 
@@ -161,6 +160,6 @@ private:
  * @return false The string was not parsed and the result was not written.
  */
 REXLIB_API
-bool parse_device_index(std::string_view text, device_index &result);
+bool parse_device_index(const std::string &text, device_index &result);
 
 } // namespace rexlib
