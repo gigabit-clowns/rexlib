@@ -1,19 +1,31 @@
-include(rexlib_add_catch2)
-include(rexlib_add_trompeloeil)
+# Declared here rather than beside the other toggles, because these two
+# dependencies exist only while the tests are built.
+cmake_dependent_option(
+	REXLIB_BUILD_CATCH2 "Fetch Catch2 and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
+cmake_dependent_option(
+	REXLIB_BUILD_TROMPELOEIL "Fetch trompeloeil and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
 
-# Declared here rather than beside the other REXLIB_USE_SYSTEM_* options,
-# because these two dependencies exist only while the tests are built. The
-# global switch reaches them the same way it reaches the rest.
-option(REXLIB_USE_SYSTEM_CATCH2 "Use find_package for Catch2" OFF)
-option(REXLIB_USE_SYSTEM_TROMPELOEIL "Use find_package for trompeloeil" OFF)
-
-if(REXLIB_USE_SYSTEM_DEPENDENCIES)
-	set(REXLIB_USE_SYSTEM_CATCH2 ON)
-	set(REXLIB_USE_SYSTEM_TROMPELOEIL ON)
+if(REXLIB_BUILD_CATCH2)
+	include(rexlib_fetch_catch2)
+	rexlib_fetch_catch2(
+		COMMIT 08092139210881f01a34e60c5f2fd6afa0ea4024
+	) # v3.16.1
+else()
+	find_package(Catch2 3.0.1 REQUIRED CONFIG)
 endif()
 
-rexlib_add_catch2(VERSION 3.16.1 MINIMUM 3.0.1)
-rexlib_add_trompeloeil(VERSION 49 MINIMUM 42)
+if(REXLIB_BUILD_TROMPELOEIL)
+	include(rexlib_fetch_trompeloeil)
+	rexlib_fetch_trompeloeil(
+		COMMIT eaeb89c1ce9d354b0ba7eb921fd5712cdbd78adf
+	) # v49
+else()
+	find_package(trompeloeil 42 REQUIRED CONFIG)
+endif()
 
 include(Catch)
 

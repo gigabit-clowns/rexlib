@@ -97,7 +97,7 @@ jobs:
         id: fetched
         uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
         with:
-          key: ${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_add_*.cmake') }}
+          key: ${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
 
       - name: Configure and build with CMake
         uses: threeal/cmake-action@725d1314ccf9ea922805d7e3f9d9bcbca892b406 # v2
@@ -187,18 +187,17 @@ jobs:
             libboost-filesystem-dev \
             libeigen3-dev \
             libspdlog-dev \
+            libtrompeloeil-cpp-dev \
             catch2
 
       # half and pocketfft are packaged nowhere, so a system build of them is
       # a packager dropping the header on the include path. Doing the same
       # here is what covers Findhalf.cmake and Findpocketfft.cmake.
       - name: Place the headers no distribution packages
-        # Bump alongside the half version in CMakeLists.txt.
-        env:
-          HALF_SHA256: 76ddbf406e9d9b772ec73af2bf925b38b290b4390cc4064720a08d4b4bca0aa9
         run: |
-          commit=$(sed -n 's/.*rexlib_add_pocketfft(COMMIT \([^)]*\)).*/\1/p' CMakeLists.txt)
-          version=$(sed -n 's/.*rexlib_add_half(VERSION \([^) ]*\).*/\1/p' CMakeLists.txt)
+          commit=$(sed -n '/rexlib_fetch_pocketfft(/{n;s/.*COMMIT \([0-9a-f]*\).*/\1/p}' CMakeLists.txt)
+          version=$(sed -n '/rexlib_fetch_half(/{n;s/.*VERSION \([^ ]*\).*/\1/p}' CMakeLists.txt)
+          sha256=$(sed -n '/rexlib_fetch_half(/{n;n;s/.*SHA256 \([0-9a-f]*\).*/\1/p}' CMakeLists.txt)
           curl -fsS -o pocketfft_hdronly.h \
             "https://raw.githubusercontent.com/mreineck/pocketfft/${commit}/pocketfft_hdronly.h"
           # SourceForge always redirects to a geo-selected mirror, so this
@@ -206,7 +205,7 @@ jobs:
           # trusting whichever mirror answers unnecessary.
           curl -fsSL --proto '=https' --proto-redir '=https' -o half.zip \
             "https://downloads.sourceforge.net/project/half/half/${version}/half-${version}.zip"
-          echo "${HALF_SHA256}  half.zip" | sha256sum -c -
+          echo "${sha256}  half.zip" | sha256sum -c -
           unzip -q half.zip -d half
           sudo install -m 644 pocketfft_hdronly.h half/include/half.hpp /usr/local/include/
 
@@ -225,12 +224,7 @@ jobs:
           cxx-compiler: g++
           options: |
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-            REXLIB_USE_SYSTEM_BOOST=ON
-            REXLIB_USE_SYSTEM_SPDLOG=ON
-            REXLIB_USE_SYSTEM_HALF=ON
-            REXLIB_USE_SYSTEM_POCKETFFT=ON
-            REXLIB_USE_SYSTEM_EIGEN=ON
-            REXLIB_USE_SYSTEM_CATCH2=ON
+            REXLIB_BUILD_DEPENDENCIES=OFF
             CMAKE_C_COMPILER_LAUNCHER=ccache
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
           run-build: true

@@ -5,6 +5,12 @@ if(POLICY CMP0141)
 	cmake_policy(SET CMP0141 NEW)
 endif()
 
+# What a fetched archive holds takes the time it is extracted at, so that a
+# new archive always rebuilds what came from it.
+if(POLICY CMP0135)
+	cmake_policy(SET CMP0135 NEW)
+endif()
+
 # Define the project
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
@@ -21,12 +27,8 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 include(CTest)
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
+include(CMakeDependentOption)
 include(rexlib_enable_warnings)
-include(rexlib_add_half)
-include(rexlib_add_spdlog)
-include(rexlib_add_boost)
-include(rexlib_add_pocketfft)
-include(rexlib_add_eigen)
 
 # ---------------------------------------------------------------------------
 # Options
@@ -40,25 +42,35 @@ option(REXLIB_REGISTER_TESTS_PER_BINARY "Register one test per test executable i
 # Lets a consumer that embeds rexlib drop its tests without dropping its own.
 option(REXLIB_BUILD_TESTING "Build rexlib's tests" ${BUILD_TESTING})
 
-# Every dependency is private and none appears in a public header, so taking
-# one from the system changes nothing for a consumer of the installed package.
-option(REXLIB_USE_SYSTEM_DEPENDENCIES "Use find_package for the dependencies instead of fetching them" OFF)
-option(REXLIB_USE_SYSTEM_BOOST "Use find_package for Boost" OFF)
-option(REXLIB_USE_SYSTEM_SPDLOG "Use find_package for spdlog" OFF)
-option(REXLIB_USE_SYSTEM_HALF "Use find_package for half" OFF)
-option(REXLIB_USE_SYSTEM_POCKETFFT "Use find_package for pocketfft" OFF)
-option(REXLIB_USE_SYSTEM_EIGEN "Use find_package for Eigen" OFF)
-
-# The global switch turns all of them on, on every configure rather than only
-# seeding their defaults, so that setting it on a build directory that already
-# exists takes effect. 
-if(REXLIB_USE_SYSTEM_DEPENDENCIES)
-	set(REXLIB_USE_SYSTEM_BOOST ON)
-	set(REXLIB_USE_SYSTEM_SPDLOG ON)
-	set(REXLIB_USE_SYSTEM_HALF ON)
-	set(REXLIB_USE_SYSTEM_POCKETFFT ON)
-	set(REXLIB_USE_SYSTEM_EIGEN ON)
-endif()
+# Every dependency is private and none appears in a public header, so building
+# one here or finding an installed one changes nothing for a consumer of the
+# installed library. Turning the global switch off turns every one of the
+# others off, on every configure.
+option(
+	REXLIB_BUILD_DEPENDENCIES
+	"Build the dependencies with rexlib, rather than finding installed ones"
+	ON
+)
+cmake_dependent_option(
+	REXLIB_BUILD_BOOST "Fetch Boost and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
+cmake_dependent_option(
+	REXLIB_BUILD_SPDLOG "Fetch spdlog and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
+cmake_dependent_option(
+	REXLIB_BUILD_HALF "Fetch half and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
+cmake_dependent_option(
+	REXLIB_BUILD_POCKETFFT "Fetch pocketfft and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
+cmake_dependent_option(
+	REXLIB_BUILD_EIGEN "Fetch Eigen and build it with rexlib" ON
+	"REXLIB_BUILD_DEPENDENCIES" OFF
+)
 
 # The default goes through a variable of its own: assigning to the cache
 # entry's own name first would leave a normal variable shadowing it, and the
@@ -83,11 +95,60 @@ unset(REXLIB_PLUGINS_DIR_DEFAULT)
 # ---------------------------------------------------------------------------
 
 find_package(Threads REQUIRED)
-rexlib_add_boost(VERSION 1.92.0 MINIMUM 1.70.0)
-rexlib_add_half(VERSION 2.2.1)
-rexlib_add_spdlog(VERSION 1.17.0 MINIMUM 1.4.0)
-rexlib_add_pocketfft(COMMIT 4d865cba24359b05b37da4e75aee24498c3b78e7)
-rexlib_add_eigen(VERSION 5.0.1)
+
+if(REXLIB_BUILD_BOOST)
+	include(rexlib_fetch_boost)
+	rexlib_fetch_boost(
+		TAG boost-1.92.0
+		SHA256 9bed76128d4e46755dbe818487788c6fceb6f72b378f4daa49b7e1e600d9088d
+	)
+else()
+	# CONFIG mode, because only the BoostConfig.cmake that Boost has
+	# installed since 1.70 defines Boost::headers.
+	find_package(Boost 1.70 REQUIRED CONFIG COMPONENTS filesystem)
+endif()
+
+if(REXLIB_BUILD_HALF)
+	include(rexlib_fetch_half)
+	rexlib_fetch_half(
+		VERSION 2.2.1
+		SHA256 76ddbf406e9d9b772ec73af2bf925b38b290b4390cc4064720a08d4b4bca0aa9
+	)
+else()
+	# The header carries no version, so none is asked for.
+	find_package(half REQUIRED MODULE)
+endif()
+
+if(REXLIB_BUILD_SPDLOG)
+	include(rexlib_fetch_spdlog)
+	rexlib_fetch_spdlog(
+		COMMIT 79524ddd08a4ec981b7fea76afd08ee05f83755d
+	) # v1.17.0
+else()
+	find_package(spdlog 1.4 REQUIRED CONFIG)
+endif()
+
+if(REXLIB_BUILD_POCKETFFT)
+	include(rexlib_fetch_pocketfft)
+	rexlib_fetch_pocketfft(
+		COMMIT 4d865cba24359b05b37da4e75aee24498c3b78e7
+	) # cpp
+else()
+	# pocketfft makes no releases, so no version is asked for.
+	find_package(pocketfft REQUIRED MODULE)
+endif()
+
+if(REXLIB_BUILD_EIGEN)
+	include(rexlib_fetch_eigen)
+	rexlib_fetch_eigen(
+		COMMIT bc3b39870ecb690a623a3f49149a358b95c5781d
+	) # 5.0.1
+else()
+	# No version is asked for: the package of Eigen takes one for a major
+	# version to match rather than for a floor, so asking for the 3.3 every
+	# distribution carries would refuse the 5 that is fetched.
+	find_package(Eigen3 REQUIRED CONFIG)
+endif()
 
 # ---------------------------------------------------------------------------
 # The package

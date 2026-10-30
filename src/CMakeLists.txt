@@ -86,8 +86,7 @@ target_link_libraries(
 		spdlog::spdlog_header_only
 		half::half
 		Boost::filesystem # Eventually replace by std::filesystem (C++17)
-		Boost::container # Eventually replace in C++23
-		Boost::container_hash
+		Boost::headers # Container and ContainerHash
 		${CMAKE_DL_LIBS} # Loading the plugins
 )
 if(WIN32)

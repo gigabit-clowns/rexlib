@@ -21,7 +21,7 @@ the same pull request that causes it.
 | `src/ops/`, `src/functional/` | Operation declarations and the functions that reach them |
 | `src/em/` | The CryoEM operations and the functions that reach them, in namespace `rexlib::em`. Their CPU programs live with the others, under `src/backends/cpu/builders/em/` |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
-| `cmake/modules/` | One `rexlib_add_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
+| `cmake/modules/` | One `rexlib_fetch_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The template for the installed CMake package config |
 
 The same top level groups appear on both sides, `core`, `backends`, `ops`,
@@ -98,18 +98,33 @@ so its counters are not atomic and its counts are lost the same way. It is
 left as it is because clang selects arcs differently and has never produced a
 negative, and because buying atomic counters there costs the cache.
 
-Dependencies come through one `cmake/modules/rexlib_add_*.cmake` each: boost,
-spdlog, half, pocketfft and eigen for the library, catch2 and trompeloeil for
-the tests. Every one is fetched and built by default and can instead be taken
-from the system, either all at once with `REXLIB_USE_SYSTEM_DEPENDENCIES` or
-one at a time with `REXLIB_USE_SYSTEM_BOOST` and its siblings, which default to
-the value the global one had when the build directory was first configured.
+Every dependency is fetched and built with rexlib by default, static, and
+ends up inside its library. Turning `REXLIB_BUILD_DEPENDENCIES` off finds
+them all installed instead, with `find_package`, as a distribution builds
+rexlib. Turning off `REXLIB_BUILD_<DEP>` (`BOOST`, `SPDLOG`, `HALF`,
+`POCKETFFT`, `EIGEN`, and for the tests `CATCH2` and `TROMPELOEIL`) does that
+for one of them. `cmake_dependent_option` declares those toggles, so that the
+global one forces the others off.
 
-Each function takes the release to fetch as `VERSION` and, separately, the one
-`find_package` demands as `MINIMUM`. The fetched pin tracks the newest release
-and would be a floor no distribution meets. Renovate reads `VERSION` in place,
-so it stays a literal in `CMakeLists.txt`. `FETCHCONTENT_SOURCE_DIR_<NAME>`
-points a fetch at a local checkout without either option.
+A dependency is a branch where it is used, in `CMakeLists.txt` for the
+library and in `tests/CMakeLists.txt` for the tests. Built, it is a call to
+`rexlib_fetch_<dep>()` with what pins the release it fetches. Found, it is
+the `find_package` call, with the oldest version that works. Each
+`rexlib_fetch_<dep>()` has a module of its own in `cmake/modules/`, reads
+nothing but its arguments, and sets the options of the project it fetches in
+its own scope. A new dependency gets a toggle, a branch, a module and a
+manager in `renovate.json`.
+
+Those calls hold the only pins, in forms Renovate keeps up to date. What is
+released on GitHub or GitLab is pinned by the commit of its release tag,
+`COMMIT <sha>) # <tag>`, as the actions of the workflows are; pocketfft,
+which makes no releases, by a commit of its `cpp` branch, `# cpp`. Boost is
+pinned by its tag and the SHA256 of the archive it attaches to the release,
+since the archive of a commit lacks its libraries, which are submodules, and
+half by its version and the SHA256 of its archive on SourceForge. Renovate
+bumps the versions, not the hashes, so such a bump fails to configure until
+the hash CMake reports is pasted in. `FETCHCONTENT_SOURCE_DIR_<NAME>` points a
+fetch at a local checkout.
 
 half and pocketfft ship no CMake package config anywhere, so their system path
 goes through this project's own `Findhalf.cmake` and `Findpocketfft.cmake`.
@@ -264,12 +279,13 @@ that is the only way a compiler cache can be used, and the environment is set
 up with `vswhere` and `vcvars` beforehand.
 
 Beside the matrix, one `ubuntu-latest` job builds against system dependencies,
-so that the `find_package` half of every `rexlib_add_*` module keeps being
-exercised. It takes boost, eigen, spdlog and catch2 from apt and puts
-the half and pocketfft headers on the include path the way a packager would,
-which is what covers `Findhalf.cmake` and `Findpocketfft.cmake`; trompeloeil,
-packaged nowhere and more than one header, stays fetched. The job also asserts
-that no dependency reached the install tree.
+with `REXLIB_BUILD_DEPENDENCIES` off, so that every `find_package` branch
+keeps being exercised. It takes boost, eigen, spdlog, catch2 and trompeloeil
+from apt and puts the half and pocketfft headers on the include path the way a
+packager would, which is what covers `Findhalf.cmake` and
+`Findpocketfft.cmake`. The pins and the hash of half it reads from
+`CMakeLists.txt`. The job also asserts that no dependency reached the install
+tree.
 
 Every entry runs the suites, and the `ubuntu-latest` ones run them under a
 memory checker with `REXLIB_REGISTER_TESTS_PER_BINARY`. The rest run them
