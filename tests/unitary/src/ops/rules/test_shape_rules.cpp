@@ -298,6 +298,33 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"keyed_axiswise_shape_rule should leave the shape alone and broadcast "
+	"the key against the batch",
+	"[shape_rules]"
+)
+{
+	CHECK(
+		deduce_shape<keyed_axiswise_shape_rule>(
+			{ { 4, 8, 16 }, {} },
+			{ 1, 2 }
+		) == shape_type{ 4, 8, 16 }
+	);
+	CHECK(
+		deduce_shape<keyed_axiswise_shape_rule>(
+			{ { 8, 4, 16 }, { 4 } },
+			{ 0, 2 }
+		) == shape_type{ 8, 4, 16 }
+	);
+	CHECK_THROWS_AS(
+		deduce_shape<keyed_axiswise_shape_rule>(
+			{ { 4, 8, 16 }, { 3 } },
+			{ 1, 2 }
+		),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
 	"fourier_transform_shape_rule should leave the shape alone and reject "
 	"an empty transformed axis",
 	"[shape_rules]"

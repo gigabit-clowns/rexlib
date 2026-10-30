@@ -247,6 +247,30 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"fourier_layout_plan keeps the axes in the order they are named, and "
+	"halves the last named",
+	"[fourier_layout_plan]"
+)
+{
+	const auto input =
+		make_operand_descriptor({ 4, 6 }, numerical_type::float32);
+	const auto output =
+		make_operand_descriptor({ 3, 6 }, numerical_type::complex_float32);
+	const std::vector<std::size_t> transformed_axes = { 1, 0 };
+
+	const fourier_layout_plan plan(
+		output,
+		input,
+		make_span(transformed_axes),
+		fourier_transform_kind::real_to_complex
+	);
+
+	CHECK( plan.get_axes() == transformed_axes );
+	CHECK( plan.get_shape() == std::vector<std::size_t>{ 4, 6 } );
+	CHECK( plan.get_sample_count() == 24 );
+}
+
+TEST_CASE(
 	"fourier_layout_plan halves only the last of several transformed axes",
 	"[fourier_layout_plan]"
 )

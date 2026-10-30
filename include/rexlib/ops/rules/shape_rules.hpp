@@ -189,6 +189,21 @@ using axiswise_shape_rule = operand_shape_rule<
 >;
 
 /**
+ * @brief Operation along the axes the operation names that keeps their
+ * extents, reading a second input without core axes.
+ *
+ * The second input has no core axes, so it broadcasts against the axes of
+ * the first that are not named: one value for every batch element, or a
+ * single value for all of them.
+ */
+using keyed_axiswise_shape_rule = operand_shape_rule<
+	type_list<>,
+	type_list<core_dimensions<axis_run<>>>,
+	type_list<core_dimensions<axis_run<>>, core_dimensions<>>,
+	named_core<axes_of>
+>;
+
+/**
  * @brief Transform of a real signal along the axes the operation names.
  *
  * The last axis named holds the n / 2 + 1 coefficients that are not

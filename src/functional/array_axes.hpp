@@ -35,6 +35,17 @@ ops::axis_list resolve_axes(
 );
 
 /**
+ * @brief Name the last axes of an array, in order.
+ *
+ * @param x The array.
+ * @param count The number of axes named.
+ * @return ops::axis_list The axes rank - count to rank - 1.
+ * @throws std::invalid_argument When the array has fewer than @p count
+ * axes.
+ */
+ops::axis_list last_axes(const const_array_ref &x, std::size_t count);
+
+/**
  * @brief Name every axis of an array, in order.
  *
  * @param x The array.

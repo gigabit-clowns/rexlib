@@ -66,3 +66,35 @@ TEST_CASE(
 		positive_extent_domain::get_description()
 	);
 }
+
+TEST_CASE(
+	"core_dimensions_descriptor should be empty only without a run and "
+	"without a slot",
+	"[core_dimensions_descriptor]"
+)
+{
+	const std::array<extent_slot_descriptor, 1> slots = {{ make_slot(0) }};
+	const auto domain = make_extent_domain<any_extent_domain>();
+
+	CHECK(
+		core_dimensions_descriptor(
+			span<const extent_slot_descriptor>(),
+			false,
+			domain
+		).is_empty()
+	);
+	CHECK_FALSE(
+		core_dimensions_descriptor(
+			span<const extent_slot_descriptor>(),
+			true,
+			domain
+		).is_empty()
+	);
+	CHECK_FALSE(
+		core_dimensions_descriptor(
+			make_span(slots.data(), slots.size()),
+			false,
+			domain
+		).is_empty()
+	);
+}

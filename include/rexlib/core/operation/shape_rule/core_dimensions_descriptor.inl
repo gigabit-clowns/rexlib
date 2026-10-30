@@ -31,6 +31,12 @@ bool core_dimensions_descriptor::has_run() const noexcept
 }
 
 inline
+bool core_dimensions_descriptor::is_empty() const noexcept
+{
+	return !m_has_run && m_slots.empty();
+}
+
+inline
 const extent_domain&
 core_dimensions_descriptor::get_run_domain() const noexcept
 {

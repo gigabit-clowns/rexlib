@@ -117,19 +117,13 @@ target_link_libraries(
 		Eigen3::Eigen
 )
 
-# The em component has no source yet, and an object library without sources
-# does not generate. Once it has one, uncomment it here, in the two places
-# below that name it and in tests/unitary/CMakeLists.txt, and list what its
-# sources reach.
-#
-# rexlib_add_component(rexlib-em-obj)
-# target_link_libraries(
-# 	rexlib-em-obj
-# 	PUBLIC
-# 		Threads::Threads
-# 		spdlog::spdlog_header_only
-# 		half::half
-# )
+rexlib_add_component(rexlib-em-obj)
+target_link_libraries(
+	rexlib-em-obj
+	PUBLIC
+		Threads::Threads
+		spdlog::spdlog_header_only
+)
 
 # The sources, one CMakeLists per directory. They come after every component
 # above, since each names the target it adds itself to.
@@ -137,7 +131,7 @@ add_subdirectory(core)
 add_subdirectory(ops)
 add_subdirectory(functional)
 add_subdirectory(backends)
-# add_subdirectory(em)
+add_subdirectory(em)
 
 # Assemble the single shared library from the component objects.
 #
@@ -160,7 +154,7 @@ target_link_libraries(
 		rexlib-ops-obj
 		rexlib-functional-obj
 		rexlib-cpu-obj
-		# rexlib-em-obj
+		rexlib-em-obj
 )
 set_target_properties(
 	rexlib

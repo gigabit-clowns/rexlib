@@ -37,6 +37,12 @@ std::size_t multidimensional_index::get_rank() const noexcept
 }
 
 REXLIB_INLINE_CONSTEXPR
+std::size_t multidimensional_index::get_inner_axis() const noexcept
+{
+	return m_inner_axis;
+}
+
+REXLIB_INLINE_CONSTEXPR
 std::size_t
 multidimensional_index::operator[](std::size_t axis) const noexcept
 {

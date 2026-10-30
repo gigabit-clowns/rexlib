@@ -48,6 +48,14 @@ public:
 	bool has_run() const noexcept;
 
 	/**
+	 * @brief Check whether the core has no axes: neither a run nor a slot.
+	 *
+	 * @return true The core has no axes.
+	 * @return false The core has a run or a slot.
+	 */
+	bool is_empty() const noexcept;
+
+	/**
 	 * @brief Get the extents every axis of the run may take.
 	 *
 	 * @return const extent_domain& The domain.

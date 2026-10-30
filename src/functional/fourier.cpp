@@ -13,40 +13,8 @@
 #include <rexlib/ops/fourier/irfft_operation.hpp>
 #include <rexlib/ops/fourier/rfft_operation.hpp>
 
-#include <numeric>
-#include <sstream>
-#include <stdexcept>
-
 namespace rexlib
 {
-
-namespace
-{
-
-/**
- * @brief Name the trailing @p count axes of an array.
- *
- * What the numbered spellings transform along. An image lives in the last
- * two axes of a stack of them, and a volume in the last three, so this is
- * the shape the convenience forms exist to express.
- */
-ops::axis_list last_axes(const const_array_ref &x, std::size_t count)
-{
-	const auto rank = get_rank(x);
-	if (rank < count)
-	{
-		std::ostringstream oss;
-		oss << "A " << count << " dimensional transform needs at least "
-			<< count << " axes, but the operand has " << rank << ".";
-		throw std::invalid_argument(oss.str());
-	}
-
-	ops::axis_list result(count);
-	std::iota(result.begin(), result.end(), rank - count);
-	return result;
-}
-
-} // anonymous namespace
 
 array fft(
 	const_array_ref x,

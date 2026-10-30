@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -40,6 +41,59 @@ std::vector<std::ptrdiff_t> strides_of(
 }
 
 } // anonymous namespace
+
+TEST_CASE(
+	"make_row_major_strides strides every axis in row-major order",
+	"[index_operands]"
+)
+{
+	const std::vector<std::size_t> extents = { 2, 3, 4 };
+
+	CHECK(
+		make_row_major_strides(make_span(extents)) ==
+		std::vector<std::ptrdiff_t>{ 12, 4, 1 }
+	);
+	CHECK( make_row_major_strides(span<const std::size_t>()).empty() );
+}
+
+TEST_CASE(
+	"make_row_major_strides counts only the axes it is given",
+	"[index_operands]"
+)
+{
+	const std::vector<std::size_t> extents = { 2, 3, 4, 5 };
+	const std::vector<std::size_t> counted = { 0, 2, 3 };
+	const std::vector<std::size_t> every = { 0, 1, 2, 3 };
+
+	CHECK(
+		make_row_major_strides(make_span(extents), make_span(counted)) ==
+		std::vector<std::ptrdiff_t>{ 20, 0, 5, 1 }
+	);
+	CHECK(
+		make_row_major_strides(make_span(extents), make_span(every)) ==
+		make_row_major_strides(make_span(extents))
+	);
+	CHECK(
+		make_row_major_strides(
+			make_span(extents),
+			span<const std::size_t>()
+		) == std::vector<std::ptrdiff_t>{ 0, 0, 0, 0 }
+	);
+}
+
+TEST_CASE(
+	"make_row_major_strides rejects a counted axis beyond the rank",
+	"[index_operands]"
+)
+{
+	const std::vector<std::size_t> extents = { 2, 3 };
+	const std::vector<std::size_t> counted = { 2 };
+
+	CHECK_THROWS_AS(
+		make_row_major_strides(make_span(extents), make_span(counted)),
+		std::out_of_range
+	);
+}
 
 TEST_CASE(
 	"add_index_operands adds nothing for a traversal handing out no index",

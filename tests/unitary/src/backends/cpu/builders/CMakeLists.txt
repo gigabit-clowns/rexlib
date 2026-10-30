@@ -1,6 +1,8 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_batch_reduce_map_program_builder.cpp
+		test_core_input_indices.cpp
 		test_default_kernel_factory.cpp
 		test_dispatched_program_builder.cpp
 		test_elementwise_program_builder.cpp
@@ -10,4 +12,5 @@ target_sources(
 		test_linalg_program_builder.cpp
 )
 
+add_subdirectory(em)
 add_subdirectory(type_dispatchers)

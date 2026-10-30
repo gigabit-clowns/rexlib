@@ -1141,35 +1141,6 @@ make_reduction_runner(
 }
 
 /**
- * @brief Whether to share out the space a reduction folds over, rather than
- * the space that survives it.
- *
- * The surviving space is preferred wherever it has the parallelism to spare:
- * splitting it needs no merge, no buffer, and reassociates nothing, so its
- * answer is what one thread computes down to the last bit. Twice the worker
- * count rather than once, so that a ragged finish has somewhere to go.
- *
- * Only when there are too few outputs for that is the fold itself worth
- * splitting, of which a reduction to a scalar is the extreme: one output, and
- * all of the work behind it. Below one grain nothing is worth splitting, and
- * the schedule refuses on its own.
- */
-inline
-bool should_split_reduced_space(
-	std::size_t kept_count,
-	std::size_t reduction_count,
-	std::size_t workers
-) noexcept
-{
-	return
-		workers > 1 &&
-		kept_count > 0 &&
-		kept_count < 2*workers &&
-		reduction_count >= 2*workers &&
-		kept_count*reduction_count >= get_parallel_grain_size();
-}
-
-/**
  * @brief Fold a reduction by splitting the space it folds over.
  *
  * Each chunk folds its own slice of the reduced space over the whole surviving
@@ -1422,11 +1393,7 @@ void run_indexed_reduction_vector_loop(
 	const auto kept_count = kept_layout.compute_element_count();
 	const auto workers = schedule.get_concurrency();
 
-	if (!detail::should_split_reduced_space(
-			kept_count,
-			reduction_count,
-			workers
-		))
+	if (!should_split_inner_space(kept_count, reduction_count, workers))
 	{
 		detail::run_reduction_output_split(
 			kernel,

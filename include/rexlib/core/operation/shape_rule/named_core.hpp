@@ -13,9 +13,11 @@ namespace rexlib
  * @brief Placement of the core axes where the operation instance names
  * them.
  *
- * The axes are named in the frame of the broadcast inputs, whose rank is
- * the highest input rank. An output with no core axes either drops the
- * named axes or keeps them with an extent of one.
+ * The axes are named in the frame of the broadcast inputs carrying them,
+ * whose rank is the highest rank among those inputs. An input with no core
+ * axes is all batch: its axes broadcast against the axes of the frame that
+ * are not named, and it may not have more of them. An output with no core
+ * axes either drops the named axes or keeps them with an extent of one.
  *
  * @tparam AxesAccessor Type reading the named axes from the parameters of
  * the operation instance, through a static `get(const Parameters&)`
