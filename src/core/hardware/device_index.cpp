@@ -38,7 +38,7 @@ std::size_t device_index::get_device_id() const noexcept
 	return m_device_id;
 }
 
-bool parse_device_index(std::string_view text, device_index &result)
+bool parse_device_index(const std::string &text, device_index &result)
 {
 	if(text.empty())
 	{

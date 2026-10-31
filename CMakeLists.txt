@@ -49,6 +49,12 @@ option(
 	"Register one test per test executable instead of one per Catch2 case"
 	OFF
 )
+option(
+	REXLIB_CHECK_HEADERS
+	"Compile every public header on its own under each C++ standard the \
+compiler supports"
+	OFF
+)
 # Only while BUILD_TESTING, the switch of CTest, is on: tests built without
 # it could not be registered with CTest. Its own option lets a project that
 # embeds rexlib drop rexlib's tests without dropping its own.
@@ -184,6 +190,10 @@ add_subdirectory(src)
 
 if(REXLIB_BUILD_TESTING)
 	add_subdirectory(tests)
+endif()
+
+if(REXLIB_CHECK_HEADERS)
+	add_subdirectory(tests/headers)
 endif()
 
 if(REXLIB_BUILD_DOCS)

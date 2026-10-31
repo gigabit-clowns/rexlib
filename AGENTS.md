@@ -21,6 +21,8 @@ the same pull request that causes it.
 | `src/ops/`, `src/functional/` | Operation declarations and the functions that reach them |
 | `src/em/` | The CryoEM operations and the functions that reach them, in namespace `rexlib::em`. Their CPU programs live with the others, under `src/backends/cpu/builders/em/` |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
+| `tests/headers/` | The check that compiles each public header on its own, under every C++ standard the compiler has |
+| `tests/install/` | The test that installs rexlib and builds `consumer/`, a project of its own, against the install |
 | `cmake/modules/` | One `rexlib_fetch_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The template for the installed CMake package config |
 
@@ -58,8 +60,9 @@ CMake 3.18 is the minimum. The sources are written to C++14 and reach anything
 newer through the `REXLIB_*` feature macros, so that a compiler without it
 still builds them; CMake asks for C++17 but leaves
 `CMAKE_CXX_STANDARD_REQUIRED` off, so the request is a preference. One
-declaration does not follow this, `parse_device_index` in
-`core/hardware/device_index.hpp`, which takes a `std::string_view`.
+definition does not follow this, `parse_device_index` in
+`src/core/hardware/device_index.cpp`, which uses `std::from_chars`. The
+public headers do, and `REXLIB_CHECK_HEADERS` holds them to it.
 
 Options:
 
@@ -70,9 +73,17 @@ Options:
 | `REXLIB_BUILD_DOCS` | `OFF` | Adds the Doxygen target `rexlib-docs` |
 | `REXLIB_ENABLE_COVERAGE` | `OFF` | Adds coverage instrumentation |
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
+| `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
 turning off `BUILD_TESTING` for its own.
+
+With `REXLIB_INSTALL` on, the tests include two labelled `install`: the first
+installs the build into a directory of the build tree, and the second builds
+`tests/install/consumer`, a C++14 project that finds rexlib with
+`find_package` and nothing else, and runs it except on Windows. A header that
+is not installed, or a package that does not describe the library, fails
+there.
 
 `rexlib-docs` writes the documentation of the public headers under
 `doc/doxygen/html` of the build tree. A warning of Doxygen fails it, so a
