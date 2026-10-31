@@ -39,10 +39,7 @@ from ._context import get_active_execution_context as get_active_execution_conte
 from ._device import device as device
 from ._paths import get_cmake_dir as get_cmake_dir, get_include as get_include
 
-# em has no area yet. Uncomment this import and the entry of em in
-# __all__ once it has one.
-#
-# from . import em as em
+from . import em as em
 
 # Imported for its effect: it installs the Python operators onto Array,
 # which has to happen before anything hands one out.
@@ -95,7 +92,7 @@ __all__ = [
 	"device",
 	"dispatch",
 	"divide",
-	# "em",
+	"em",
 	"empty",
 	"fill",
 	"from_dlpack",

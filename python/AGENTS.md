@@ -14,8 +14,8 @@ the same pull request that causes it.
 
 | Path | Holds |
 |---|---|
-| `src/` | The nanobind binding, 35 `.cpp` and 36 `.hpp`, compiled into the `rexlib._binding` extension |
-| `python/rexlib/` | The Python package, 9 `.py`: everything the binding cannot express |
+| `src/` | The nanobind binding, 38 `.cpp` and 39 `.hpp`, compiled into the `rexlib._binding` extension |
+| `python/rexlib/` | The Python package, 10 `.py`: everything the binding cannot express |
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
 | `scripts/` | Development tools: the test runner, the stub generator and collector, the wheel check |
@@ -39,12 +39,13 @@ path *is* the API, so the directories are named without an underscore and each
 carries an `__all__` of its own. Anything private inside one still takes the
 underscore.
 
-`em` holds nothing at the moment. Image I/O was its one area, and it now lives
-in [vitrio](https://github.com/gigabit-clowns/vitrio), a package of its own
-that takes and gives arrays through DLPack and the buffer protocol. Until
-rexlib gains another area there is no `src/em/` and `src/main.cpp` creates no
-`em` submodule, and the import of the package in `python/rexlib/__init__.py`
-is commented out.
+`em` holds the operations of `rexlib::em`, which rexlib declares under
+`em/functional/` the way it declares its own under `functional/`. They are
+flat in `rexlib.em`, as the operations of `rexlib` are flat in `rexlib`, each
+with its context defaulted by `em/_functional.py`. Image I/O, once an area of
+`em`, now lives in [vitrio](https://github.com/gigabit-clowns/vitrio), a
+package of its own that takes and gives arrays through DLPack and the buffer
+protocol.
 
 The rule that follows: if a change could be expressed in either place, it goes
 in `python/rexlib/`. C++ is the expensive side to change and the one that has
@@ -77,6 +78,7 @@ them. See #143.
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
+| `_binding.em.functional` | `src/em/functional/` | The operations of `rexlib::em`, each taking an explicit context |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the
 `bind_` function of the directory it stands for: `src/main.cpp` creates
@@ -95,7 +97,7 @@ declarations need.
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
 | `_functional.py` | The operations again, with `context` defaulting to the active one |
 | `_ndarray.py` | Installs onto `Array` the Python operators, `__array__` and the two DLPack methods; holds `from_dlpack` |
-| `em/` | The electron microscopy areas, one module each. None yet |
+| `em/` | The operations of `rexlib::em`, flat, with `context` defaulting to the active one |
 
 `_paths` is imported first in `__init__.py`, and the order matters: on Windows
 nothing else imports until the bundled library is findable. `_ndarray` is
@@ -221,8 +223,8 @@ a method of `Array`; any other it renders as an import, which is not a stub.
 
 A submodule that holds submodules of its own becomes a directory of stubs
 rather than one file: `_binding/<name>/__init__.pyi` beside one `.pyi` for
-each it holds. None does today, and every step that moves stubs carries that
-tree all the same: `scripts/collect_stubs.py` copies it and the artifact
+each it holds. `em` does, holding `functional`, and every step that moves
+stubs carries that tree: `scripts/collect_stubs.py` copies it and the artifact
 holding it is uploaded as a directory. A flat `*.pyi` glob at either step
 takes the top level and drops the rest, which fails nothing and publishes
 wheels typed everywhere except the area that was just added.

@@ -38,3 +38,7 @@ ignore = [
 
 [lint.pydocstyle]
 convention = "pep257"
+
+[lint.pylint]
+max-args = 7
+max-positional-args = 7

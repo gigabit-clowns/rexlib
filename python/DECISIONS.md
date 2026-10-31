@@ -96,7 +96,14 @@ The submodules follow rexlib's directories, not its namespaces. An area under
 its functions carry no qualifier of their own. The path is what keeps the
 areas apart, so that a `read` in one never has to be renamed for the next.
 
-`em` has no area today. Image I/O was the one it had, and it moved to
+The operations of `em` follow the rule on the binding's side, as
+`_binding.em.functional` from rexlib's `em/functional/`, and leave it on the
+package's: `rexlib.em` holds them flat, as `rexlib` holds those of
+`functional/`. rexlib declares every one of them in `namespace em` itself, so
+their names are already kept apart there and no area has to do it.
+Reopen if rexlib gives two operations of `em` the same name.
+
+Image I/O, the area `em` had before, moved to
 [vitrio](https://github.com/gigabit-clowns/vitrio).
 
 ## Exchanging memory
