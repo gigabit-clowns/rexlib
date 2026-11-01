@@ -14,7 +14,7 @@ namespace em
 
 array standardize_background(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	span<const std::ptrdiff_t> axes,
 	double radius,
 	double lower_bound,
@@ -31,7 +31,7 @@ array standardize_background(
 			upper_bound
 		),
 		value,
-		seed,
+		key,
 		context,
 		out
 	);
@@ -39,7 +39,7 @@ array standardize_background(
 
 array standardize_background_2d(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	double radius,
 	double lower_bound,
 	double upper_bound,
@@ -55,7 +55,7 @@ array standardize_background_2d(
 			upper_bound
 		),
 		value,
-		seed,
+		key,
 		context,
 		out
 	);
@@ -63,7 +63,7 @@ array standardize_background_2d(
 
 array standardize_background_3d(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	double radius,
 	double lower_bound,
 	double upper_bound,
@@ -79,7 +79,7 @@ array standardize_background_3d(
 			upper_bound
 		),
 		value,
-		seed,
+		key,
 		context,
 		out
 	);

@@ -30,7 +30,7 @@ public:
 	 * @param scale The factor applied after subtracting the mean.
 	 * @param lower_bound The lowest standardized value kept.
 	 * @param upper_bound The highest standardized value kept.
-	 * @param seed The seed of the draws.
+	 * @param key The key of the draws.
 	 * @param counter The counter of the first element of the image, added to
 	 * the counter of every element within it.
 	 */
@@ -39,7 +39,7 @@ public:
 		double scale,
 		double lower_bound,
 		double upper_bound,
-		std::uint64_t seed,
+		std::uint64_t key,
 		std::uint64_t counter
 	) noexcept;
 
@@ -75,7 +75,7 @@ private:
 	double m_scale;
 	double m_lower_bound;
 	double m_upper_bound;
-	std::uint64_t m_seed;
+	std::uint64_t m_key;
 	std::uint64_t m_counter;
 };
 

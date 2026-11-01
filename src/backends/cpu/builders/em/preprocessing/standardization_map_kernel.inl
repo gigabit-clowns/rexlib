@@ -23,14 +23,14 @@ standardization_map_kernel::standardization_map_kernel(
 	double scale,
 	double lower_bound,
 	double upper_bound,
-	std::uint64_t seed,
+	std::uint64_t key,
 	std::uint64_t counter
 ) noexcept
 	: m_mean(mean)
 	, m_scale(scale)
 	, m_lower_bound(lower_bound)
 	, m_upper_bound(upper_bound)
-	, m_seed(seed)
+	, m_key(key)
 	, m_counter(counter)
 {
 }
@@ -107,7 +107,7 @@ void standardization_map_kernel::operator()(
 		if (!has_pair || counter / 2 != pair_block)
 		{
 			pair_block = counter / 2;
-			pair = standard_normal_pair(m_seed, pair_block);
+			pair = standard_normal_pair(m_key, pair_block);
 			has_pair = true;
 		}
 		store(&result[n], static_cast<compute_type>(pair[counter % 2]));

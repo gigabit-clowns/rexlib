@@ -22,7 +22,7 @@ namespace em
  *
  * @param value The images. Their axes are the named ones, and every other
  * axis is a batch axis.
- * @param seed The uint64 seeds of the draws replacing elements. It has no
+ * @param key The uint64 keys of the draws replacing elements. It has no
  * image axes and broadcasts against the batch axes of @p value.
  * @param axes The axes of an image. Negative values refer to axes from the
  * end.
@@ -41,7 +41,7 @@ namespace em
 REXLIB_API
 array standardize_background(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	span<const std::ptrdiff_t> axes,
 	double radius,
 	double lower_bound,
@@ -56,7 +56,7 @@ array standardize_background(
  *
  * @param value The images, in its last two axes. Every other axis is a
  * batch axis.
- * @param seed The uint64 seeds of the draws replacing elements. It has no
+ * @param key The uint64 keys of the draws replacing elements. It has no
  * image axes and broadcasts against the batch axes of @p value.
  * @param radius The radius of the region excluded from the background, in
  * elements.
@@ -75,7 +75,7 @@ array standardize_background(
 REXLIB_API
 array standardize_background_2d(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	double radius,
 	double lower_bound,
 	double upper_bound,
@@ -89,7 +89,7 @@ array standardize_background_2d(
  *
  * @param value The volumes, in its last three axes. Every other axis is a
  * batch axis.
- * @param seed The uint64 seeds of the draws replacing elements. It has no
+ * @param key The uint64 keys of the draws replacing elements. It has no
  * volume axes and broadcasts against the batch axes of @p value.
  * @param radius The radius of the region excluded from the background, in
  * elements.
@@ -108,7 +108,7 @@ array standardize_background_2d(
 REXLIB_API
 array standardize_background_3d(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	double radius,
 	double lower_bound,
 	double upper_bound,

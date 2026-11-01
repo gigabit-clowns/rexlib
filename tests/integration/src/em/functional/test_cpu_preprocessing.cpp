@@ -286,12 +286,12 @@ void check_images_against_reference(
 std::vector<double> standardize_images(
 	const execution_context &context,
 	const array &value,
-	const array &seed,
+	const array &key,
 	std::size_t count
 )
 {
 	return read_array<double>(
-		em::standardize_background_2d(value, seed, 5, -3, 3, context),
+		em::standardize_background_2d(value, key, 5, -3, 3, context),
 		count
 	);
 }
@@ -351,7 +351,7 @@ TEST_CASE_METHOD(
 )
 {
 	const auto values = make_images();
-	const auto seed =
+	const auto key =
 		make_array(context, { 3 }, std::vector<std::uint64_t>{ 11, 12, 13 });
 
 	// The same images, with the batch axis between their rows and columns.
@@ -370,14 +370,14 @@ TEST_CASE_METHOD(
 	const auto trailing = standardize_images(
 		context,
 		make_array(context, { 3, 16, 16 }, values),
-		seed,
+		key,
 		values.size()
 	);
 	const std::vector<std::ptrdiff_t> axes = { 0, 2 };
 	const auto around = read_array<double>(
 		em::standardize_background(
 			make_array(context, { 16, 3, 16 }, permuted),
-			seed,
+			key,
 			make_span(axes),
 			5,
 			-3,
@@ -416,11 +416,11 @@ TEST_CASE_METHOD(
 	}};
 	const auto view = subarray(base, make_span(subscripts));
 	const auto contiguous = copy(view, context);
-	const auto seed =
+	const auto key =
 		make_array(context, { 3 }, std::vector<std::uint64_t>{ 7, 8, 9 });
 
-	const auto from_view = standardize_images(context, view, seed, 768);
-	const auto from_copy = standardize_images(context, contiguous, seed, 768);
+	const auto from_view = standardize_images(context, view, key, 768);
+	const auto from_copy = standardize_images(context, contiguous, key, 768);
 
 	for (std::size_t i = 0; i < from_view.size(); ++i)
 	{
@@ -432,17 +432,17 @@ TEST_CASE_METHOD(
 TEST_CASE_METHOD(
 	cpu_execution_context_fixture,
 	"standardize_background_2d draws the same values for an image however "
-	"it is batched, given a seed per image",
+	"it is batched, given a key per image",
 	"[em_preprocessing][cpu]"
 )
 {
 	const auto values = make_images();
-	const std::vector<std::uint64_t> seeds = { 11, 12, 13 };
+	const std::vector<std::uint64_t> keys = { 11, 12, 13 };
 
 	const auto batched = standardize_images(
 		context,
 		make_array(context, { 3, 16, 16 }, values),
-		make_array(context, { 3 }, seeds),
+		make_array(context, { 3 }, keys),
 		values.size()
 	);
 
@@ -456,7 +456,7 @@ TEST_CASE_METHOD(
 		const auto alone = standardize_images(
 			context,
 			make_array(context, { 16, 16 }, image),
-			make_array(context, {}, std::vector<std::uint64_t>{ seeds[b] }),
+			make_array(context, {}, std::vector<std::uint64_t>{ keys[b] }),
 			256
 		);
 		CHECK(
@@ -472,7 +472,7 @@ TEST_CASE_METHOD(
 TEST_CASE_METHOD(
 	cpu_execution_context_fixture,
 	"standardize_background_2d draws different values for every image "
-	"sharing one seed",
+	"sharing one key",
 	"[em_preprocessing][cpu]"
 )
 {
