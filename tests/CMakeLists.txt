@@ -56,3 +56,7 @@ endfunction()
 add_subdirectory(assets)
 add_subdirectory(unitary)
 add_subdirectory(integration)
+
+if(REXLIB_INSTALL)
+	add_subdirectory(install)
+endif()

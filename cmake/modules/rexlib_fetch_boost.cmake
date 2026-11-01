@@ -12,11 +12,14 @@ include(FetchContent)
 # libraries rexlib includes are built, with the ones they need in turn.
 # Boost::headers, which an installed Boost defines for every library that is
 # only headers, holds them only when the compatibility targets are asked for.
+# Container is built as headers alone, which leaves out what is not used of
+# it, its allocators and memory resources, so that it is among them too.
 function(rexlib_fetch_boost)
 	cmake_parse_arguments(PARSE_ARGV 0 arg "" "TAG;SHA256" "")
 
 	set(BOOST_INCLUDE_LIBRARIES container container_hash filesystem)
 	set(BOOST_ENABLE_COMPATIBILITY_TARGETS ON)
+	set(BOOST_CONTAINER_HEADER_ONLY ON)
 	set(BUILD_SHARED_LIBS OFF)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
