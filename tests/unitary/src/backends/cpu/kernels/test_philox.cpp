@@ -36,3 +36,46 @@ TEST_CASE(
 		}}
 	);
 }
+
+TEST_CASE(
+	"make_philox_counter should place the block, the stream and the domain",
+	"[philox]"
+)
+{
+	CHECK(
+		make_philox_counter(
+			0x0123456789abcdefu,
+			5,
+			philox_domain::key_derivation
+		) ==
+		philox_counter_type{{ 0x89abcdefu, 0x01234567u, 5, 1 }}
+	);
+	CHECK(
+		make_philox_counter(7, 0, philox_domain::draw) ==
+		philox_counter_type{{ 7, 0, 0, 0 }}
+	);
+}
+
+TEST_CASE(
+	"make_philox_key should put the low half of the key first",
+	"[philox]"
+)
+{
+	CHECK(
+		make_philox_key(0x0123456789abcdefu) ==
+		philox_key_type{{ 0x89abcdefu, 0x01234567u }}
+	);
+}
+
+TEST_CASE(
+	"make_philox_halves should join each pair of words low word first",
+	"[philox]"
+)
+{
+	CHECK(
+		make_philox_halves(
+			{{ 0x89abcdefu, 0x01234567u, 0x76543210u, 0xfedcba98u }}
+		) ==
+		philox_halves_type{{ 0x0123456789abcdefu, 0xfedcba9876543210u }}
+	);
+}
