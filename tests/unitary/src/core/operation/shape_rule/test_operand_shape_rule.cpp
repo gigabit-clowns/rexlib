@@ -72,6 +72,17 @@ using elementwise_rule = operand_shape_rule<
 	output_batch::broadcast_target
 >;
 
+using accumulating_rule = operand_shape_rule<
+	type_list<extent_from_inputs<>, extent_from_inputs<>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<
+		core_dimensions<axis_same_as<0>>,
+		core_dimensions<axis_same_as<1>>
+	>,
+	trailing_core,
+	output_batch::accumulated
+>;
+
 } // anonymous namespace
 
 TEST_CASE(
@@ -103,6 +114,8 @@ TEST_CASE(
 	STATIC_CHECK(
 		elementwise_rule::batch == output_batch::broadcast_target
 	);
+	STATIC_CHECK( accumulating_rule::batch == output_batch::accumulated );
+	STATIC_CHECK_FALSE( accumulating_rule::requires_parameters );
 }
 
 TEST_CASE(

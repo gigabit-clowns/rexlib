@@ -12,11 +12,13 @@ namespace rexlib
 shape_rule_resolution::shape_rule_resolution(
 	extent_list_type batch,
 	extent_list_type extents,
-	extent_list_type run_extents
+	extent_list_type run_extents,
+	std::vector<extent_list_type> accumulator_batches
 ) noexcept
 	: m_batch(std::move(batch))
 	, m_extents(std::move(extents))
 	, m_run_extents(std::move(run_extents))
+	, m_accumulator_batches(std::move(accumulator_batches))
 {
 }
 
@@ -36,6 +38,15 @@ const shape_rule_resolution::extent_list_type&
 shape_rule_resolution::get_run_extents() const noexcept
 {
 	return m_run_extents;
+}
+
+const shape_rule_resolution::extent_list_type&
+shape_rule_resolution::get_accumulator_batch(
+	std::size_t output
+) const noexcept
+{
+	REXLIB_ASSERT(output < m_accumulator_batches.size());
+	return m_accumulator_batches[output];
 }
 
 } // namespace rexlib

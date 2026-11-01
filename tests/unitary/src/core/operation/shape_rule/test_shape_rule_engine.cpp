@@ -60,6 +60,17 @@ using leading_key_rule = operand_shape_rule<
 	named_core<test_axes>
 >;
 
+using accumulating_rule = operand_shape_rule<
+	type_list<extent_from_inputs<>, extent_from_inputs<>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<
+		core_dimensions<axis_same_as<0>>,
+		core_dimensions<axis_same_as<1>>
+	>,
+	trailing_core,
+	output_batch::accumulated
+>;
+
 const shape_rule_descriptor& keyed() noexcept
 {
 	return shape_rule_descriptor_of<keyed_rule>::get();
@@ -333,5 +344,69 @@ TEST_CASE(
 		),
 		ContainsSubstring("2 axes are named, but this operation acts along "
 			"exactly 1 axis.")
+	);
+}
+
+TEST_CASE(
+	"resolve_shape_rule should give an accumulating output the batch of its "
+	"accumulator",
+	"[shape_rule_engine]"
+)
+{
+	const auto &rule = shape_rule_descriptor_of<accumulating_rule>::get();
+	const auto inputs = make_shaped_operands({ { 3, 1, 5 }, { 3, 4, 2 } });
+
+	const auto resolution = resolve_shape_rule(
+		shape_rule_test_descriptor(),
+		rule,
+		span<const std::size_t>(),
+		span<const std::size_t>(),
+		1,
+		make_span(inputs)
+	);
+
+	CHECK( resolution.get_batch() == shape_type{ 3, 4 } );
+	CHECK( resolution.get_accumulator_batch(0) == shape_type{ 3, 1 } );
+	CHECK(
+		make_output_shape(
+			rule,
+			resolution,
+			span<const std::size_t>(),
+			false,
+			0
+		) ==
+		shape_type{ 3, 1, 5 }
+	);
+}
+
+TEST_CASE(
+	"resolve_shape_rule should give an accumulator without batch axes an "
+	"output without them",
+	"[shape_rule_engine]"
+)
+{
+	const auto &rule = shape_rule_descriptor_of<accumulating_rule>::get();
+	const auto inputs = make_shaped_operands({ { 5 }, { 3, 4, 2 } });
+
+	const auto resolution = resolve_shape_rule(
+		shape_rule_test_descriptor(),
+		rule,
+		span<const std::size_t>(),
+		span<const std::size_t>(),
+		1,
+		make_span(inputs)
+	);
+
+	CHECK( resolution.get_batch() == shape_type{ 3, 4 } );
+	CHECK( resolution.get_accumulator_batch(0).empty() );
+	CHECK(
+		make_output_shape(
+			rule,
+			resolution,
+			span<const std::size_t>(),
+			false,
+			0
+		) ==
+		shape_type{ 5 }
 	);
 }

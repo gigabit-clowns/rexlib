@@ -141,6 +141,17 @@ using sequence_rule = operand_shape_rule<
 	type_list<>
 >;
 
+using accumulating_rule = operand_shape_rule<
+	type_list<extent_from_inputs<>, extent_from_inputs<>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<
+		core_dimensions<axis_same_as<0>>,
+		core_dimensions<axis_same_as<1>>
+	>,
+	trailing_core,
+	output_batch::accumulated
+>;
+
 } // anonymous namespace
 
 TEST_CASE(
@@ -594,5 +605,59 @@ TEST_CASE(
 		deduce_shape<supplied_extent_rule>({ { 4, 5 } }, {}, false, { 6 }),
 		ContainsSubstring("'left' has extent 5 along axis 1, but this "
 			"operation requires 6, which the operation fixes.")
+	);
+}
+
+TEST_CASE(
+	"shape_rule_interpreter should give an accumulating output the shape of "
+	"its accumulator",
+	"[shape_rule_interpreter]"
+)
+{
+	CHECK(
+		deduce_shape<accumulating_rule>({ { 3, 1, 5 }, { 3, 4, 2 } }) ==
+		shape_type{ 3, 1, 5 }
+	);
+	CHECK(
+		deduce_shape<accumulating_rule>({ { 4, 5 }, { 3, 1, 2 } }) ==
+		shape_type{ 4, 5 }
+	);
+	CHECK(
+		deduce_shape<accumulating_rule>({ { 5 }, { 3, 4, 2 } }) ==
+		shape_type{ 5 }
+	);
+}
+
+TEST_CASE(
+	"shape_rule_interpreter should require an accumulator to broadcast "
+	"against the other inputs",
+	"[shape_rule_interpreter]"
+)
+{
+	CHECK_THROWS_WITH(
+		deduce_shape<accumulating_rule>({ { 2, 5 }, { 3, 2 } }),
+		ContainsSubstring("'left' and 'right' do not broadcast")
+	);
+}
+
+TEST_CASE(
+	"shape_rule_interpreter should accept only an accumulating output of the "
+	"shape of its accumulator",
+	"[shape_rule_interpreter]"
+)
+{
+	CHECK_NOTHROW(
+		accept_shapes<accumulating_rule>(
+			{ { 3, 1, 5 } },
+			{ { 3, 1, 5 }, { 3, 4, 2 } }
+		)
+	);
+	CHECK_THROWS_WITH(
+		accept_shapes<accumulating_rule>(
+			{ { 3, 4, 5 } },
+			{ { 3, 1, 5 }, { 3, 4, 2 } }
+		),
+		ContainsSubstring("has shape (3, 4, 5), but the inputs call for "
+			"(3, 1, 5)")
 	);
 }

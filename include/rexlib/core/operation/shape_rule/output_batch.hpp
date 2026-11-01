@@ -18,7 +18,17 @@ enum class output_batch
 	/**
 	 * @brief Any the inputs broadcast to, shared by every output.
 	 */
-	broadcast_target
+	broadcast_target,
+
+	/**
+	 * @brief Those of the input at the same position, its accumulator.
+	 *
+	 * Each output has the shape of its accumulator. The batch axes of all
+	 * inputs broadcast together, and the broadcast batch axes an
+	 * accumulator lacks, or holds with an extent of one, are reduced into
+	 * it.
+	 */
+	accumulated
 };
 
 } // namespace rexlib

@@ -835,6 +835,37 @@ shape_type broadcast_batches(
 	return extents;
 }
 
+/**
+ * @brief List the extents of the batch axes of each accumulator, when the
+ * outputs of the rule accumulate into inputs.
+ */
+std::vector<shape_type> list_accumulator_batches(
+	const shape_rule_descriptor &rule,
+	std::size_t output_count,
+	span<const operand_specification> inputs,
+	const std::vector<axis_list_type> &input_cores
+)
+{
+	std::vector<shape_type> result;
+	if (rule.get_output_batch() != output_batch::accumulated)
+	{
+		return result;
+	}
+
+	result.reserve(output_count);
+	for (std::size_t o = 0; o < output_count; ++o)
+	{
+		const auto &shape = inputs[o].get_shape();
+		shape_type batch;
+		for (const auto axis : list_batch_axes(shape.size(), input_cores[o]))
+		{
+			batch.push_back(shape[axis]);
+		}
+		result.push_back(std::move(batch));
+	}
+	return result;
+}
+
 void check_exact_outputs(
 	const operation_descriptor &descriptor,
 	const shape_rule_descriptor &rule,
@@ -968,11 +999,18 @@ shape_rule_resolution resolve_shape_rule(
 		input_cores
 	);
 	auto batch = broadcast_batches(descriptor, inputs, input_cores);
+	auto accumulator_batches = list_accumulator_batches(
+		rule,
+		output_count,
+		inputs,
+		input_cores
+	);
 
 	return shape_rule_resolution(
 		std::move(batch),
 		std::move(values),
-		std::move(run_extents)
+		std::move(run_extents),
+		std::move(accumulator_batches)
 	);
 }
 
@@ -1000,7 +1038,10 @@ operand_specification::shape_type make_output_shape(
 		);
 	}
 
-	const auto &batch = resolution.get_batch();
+	const auto &batch =
+		rule.get_output_batch() == output_batch::accumulated ?
+		resolution.get_accumulator_batch(output) :
+		resolution.get_batch();
 	if (rule.get_placement() == core_placement::trailing)
 	{
 		shape_type result = batch;
