@@ -66,6 +66,11 @@ using slice_transform_core = core_dimensions<
 using slice_radial_core = core_dimensions<ops::axis_half_spectrum_of<1>>;
 
 /**
+ * @brief Core axes of the four CTF parameters of a slice.
+ */
+using slice_ctf_core = core_dimensions<axis_same_as<3>>;
+
+/**
  * @brief Extent variables of the slice insertions.
  */
 using slice_insertion_pivots = type_list<
@@ -137,6 +142,40 @@ using weighted_slice_insertion_shape_rule = operand_shape_rule<
  * @brief Type rule of insert_weighted_slices_operation.
  */
 using weighted_slice_insertion_type_rule = operand_type_rule<
+	type_list<pivot_from_input<1, slice_insertion_type_domain>>,
+	type_list<slot_complex_of<0>, slot_same_as<0>>,
+	type_list<
+		slot_complex_of<0>,
+		slot_same_as<0>,
+		slot_complex_of<0>,
+		slot_same_as<0>,
+		slot_same_as<0>,
+		slot_same_as<0>
+	>
+>;
+
+/**
+ * @brief Shape rule of insert_ctf_slices_operation.
+ */
+using ctf_slice_insertion_shape_rule = operand_shape_rule<
+	slice_insertion_pivots,
+	type_list<volume_half_spectrum_core, volume_half_spectrum_core>,
+	type_list<
+		volume_half_spectrum_core,
+		volume_half_spectrum_core,
+		slice_half_spectrum_core,
+		slice_transform_core,
+		slice_ctf_core,
+		slice_radial_core
+	>,
+	trailing_core,
+	output_batch::accumulated
+>;
+
+/**
+ * @brief Type rule of insert_ctf_slices_operation.
+ */
+using ctf_slice_insertion_type_rule = operand_type_rule<
 	type_list<pivot_from_input<1, slice_insertion_type_domain>>,
 	type_list<slot_complex_of<0>, slot_same_as<0>>,
 	type_list<

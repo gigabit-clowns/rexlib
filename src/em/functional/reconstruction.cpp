@@ -4,6 +4,7 @@
 
 #include <rexlib/core/dispatch/execute.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/ops/reconstruction/insert_ctf_slices_operation.hpp>
 #include <rexlib/em/ops/reconstruction/insert_slices_operation.hpp>
 #include <rexlib/em/ops/reconstruction/insert_weighted_slices_operation.hpp>
 
@@ -96,6 +97,38 @@ std::pair<array, array> insert_weighted_slices(
 	};
 	return execute_insertion(
 		insert_weighted_slices_operation(window),
+		inputs,
+		context,
+		numerator_out,
+		denominator_out
+	);
+}
+
+std::pair<array, array> insert_ctf_slices(
+	const_array_ref numerator,
+	const_array_ref denominator,
+	const_array_ref slices,
+	const_array_ref transforms,
+	const_array_ref ctf,
+	const_array_ref radial_weights,
+	const gridding_window &window,
+	const ctf_optics &optics,
+	double pixel_size,
+	const execution_context &context,
+	array *numerator_out,
+	array *denominator_out
+)
+{
+	const std::array<const_array_ref, 6> inputs = {
+		numerator,
+		denominator,
+		slices,
+		transforms,
+		ctf,
+		radial_weights
+	};
+	return execute_insertion(
+		insert_ctf_slices_operation(window, optics, pixel_size),
 		inputs,
 		context,
 		numerator_out,
