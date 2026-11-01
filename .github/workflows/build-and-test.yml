@@ -15,7 +15,7 @@ on:
       - .github/workflows/release.yml
       - .gitignore
       - .vscode/**
-      - doc/**
+      - docs/**
       - logos/**
       - renovate.json
 

@@ -15,6 +15,9 @@ Where the code, the tests and the build files of rexlib live.
 | `tests/install/` | The test that installs rexlib and builds `consumer/`, a project of its own, against the install |
 | `cmake/modules/` | One `rexlib_fetch_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The template for the installed CMake package config |
+| `docs/doxygen/` | The reference of the C++ headers, with Doxygen |
+| `docs/templates/source/` | Templates of a header, an inline file and a source |
+| `docs/agents/` | The docs that `AGENTS.md` indexes |
 
 The same top level groups appear on both sides, `core`, `backends`, `ops`,
 `functional` and `em`, but not every directory has a counterpart: a header with

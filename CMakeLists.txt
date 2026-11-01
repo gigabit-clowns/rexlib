@@ -197,5 +197,5 @@ if(REXLIB_CHECK_HEADERS)
 endif()
 
 if(REXLIB_BUILD_DOCS)
-	add_subdirectory(doc)
+	add_subdirectory(docs)
 endif()

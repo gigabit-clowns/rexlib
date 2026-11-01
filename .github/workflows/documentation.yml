@@ -18,7 +18,7 @@ on:
       - .github/workflows/release.yml
       - .gitignore
       - .vscode/**
-      - doc/**
+      - docs/**
       - logos/**
       - renovate.json
 
@@ -66,7 +66,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/v')
       uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
       with:
-        path: ${{ github.workspace }}/build/doc/doxygen/html
+        path: ${{ github.workspace }}/build/docs/doxygen/html
 
   deploy_doxygen_to_gh_pages:
     name: Deploy Doxygen documentation to GitHub Pages
