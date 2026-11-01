@@ -1,59 +1,41 @@
-cmake_minimum_required(VERSION 3.16)
+# SPDX-License-Identifier: GPL-3.0-only
 
-include(CTest)
-include(FetchContent)
-
-# Test excecutable name
-set(TESTS_NAME "${PROJECT_NAME}_integration_tests")
-
-# Register all source and header files
-file(
-	GLOB_RECURSE 
-	TEST_SOURCES 
-		${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp 
-		${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
-)
-
-# Add the test executable
-add_executable(
-	${TESTS_NAME}
-	${TEST_SOURCES}
-)
-set_target_properties(
-	${TESTS_NAME} PROPERTIES 
-	CXX_STANDARD 20
-)
+add_executable(rexlib-cuda-integration-tests)
+add_subdirectory(src)
 target_link_libraries(
-	${TESTS_NAME} 
-	PRIVATE 
+	rexlib-cuda-integration-tests
+	PRIVATE
 		rexlib::rexlib
 		Catch2::Catch2WithMain
 		# To check that what the plugin hands out really is what it says it is,
 		# which only the driver can answer.
 		CUDA::cudart
 )
-add_dependencies(${TESTS_NAME} ${PROJECT_NAME})
+add_dependencies(rexlib-cuda-integration-tests rexlib-cuda)
 
-# On windows targets, copy the library to the test directory
+# The tests load the plugin from the directory they run in, and on Windows
+# the plugin and the tests import rexlib, whose DLL is not on the loader's
+# search path. So both sit next to the executable.
+add_custom_command(
+	TARGET rexlib-cuda-integration-tests
+	POST_BUILD
+	COMMAND
+		${CMAKE_COMMAND} -E copy
+		$<TARGET_FILE:rexlib-cuda>
+		$<TARGET_FILE_DIR:rexlib-cuda-integration-tests>
+	VERBATIM
+)
 if(WIN32)
-	add_custom_command(TARGET ${TESTS_NAME}
+	add_custom_command(
+		TARGET rexlib-cuda-integration-tests
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rexlib::rexlib> "${CMAKE_CURRENT_BINARY_DIR}"
-		COMMENT "Copy rexlib DLL file to ${CMAKE_CURRENT_BINARY_DIR} directory" VERBATIM
+		COMMAND
+			${CMAKE_COMMAND} -E copy
+			$<TARGET_FILE:rexlib::rexlib>
+			$<TARGET_FILE_DIR:rexlib-cuda-integration-tests>
+		VERBATIM
 	)
 endif()
 
-# Copy the plugin Shared Library
-add_custom_command(TARGET ${TESTS_NAME}
-	POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${PROJECT_NAME}> "${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-# Discover tests
-catch_discover_tests(${TESTS_NAME})
-
-# Install
-install(
-	TARGETS ${TESTS_NAME}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+rexlib_cuda_enable_warnings(rexlib-cuda-integration-tests)
+rexlib_cuda_register_tests(rexlib-cuda-integration-tests integration)

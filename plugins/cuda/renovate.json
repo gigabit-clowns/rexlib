@@ -30,40 +30,35 @@
     {
       "customType": "regex",
       "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["fetch_boost\\(VERSION (?<currentValue>[^)]+)\\)"],
+      "matchStrings": ["rexlib_cuda_fetch_boost\\(\\s*TAG (?<currentValue>\\S+)\\s+SHA256 (?<currentDigest>[0-9a-f]{64})"],
       "depNameTemplate": "boost",
       "packageNameTemplate": "boostorg/boost",
-      "datasourceTemplate": "github-releases",
-      "extractVersionTemplate": "^boost-(?<version>.*)$"
+      "datasourceTemplate": "github-release-attachments",
+      "versioningTemplate": "regex:^boost-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
     },
     {
       "customType": "regex",
       "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["fetch_spdlog\\(VERSION (?<currentValue>[^)]+)\\)"],
+      "matchStrings": ["rexlib_cuda_fetch_spdlog\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
       "depNameTemplate": "spdlog",
       "packageNameTemplate": "gabime/spdlog",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "datasourceTemplate": "github-tags"
     },
     {
-      "description": "Declared with a bare URL rather than a fetch_ helper",
       "customType": "regex",
       "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["https://github\\.com/catchorg/Catch2/archive/refs/tags/v(?<currentValue>[^\\s\"]+)\\.tar\\.gz"],
+      "matchStrings": ["rexlib_cuda_fetch_catch2\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
       "depNameTemplate": "catch2",
       "packageNameTemplate": "catchorg/Catch2",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "datasourceTemplate": "github-tags"
     },
     {
-      "description": "Declared with a bare URL rather than a fetch_ helper",
       "customType": "regex",
       "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["https://github\\.com/rollbear/trompeloeil/archive/refs/tags/v(?<currentValue>[^\\s\"]+)\\.tar\\.gz"],
+      "matchStrings": ["rexlib_cuda_fetch_trompeloeil\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
       "depNameTemplate": "trompeloeil",
       "packageNameTemplate": "rollbear/trompeloeil",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "datasourceTemplate": "github-tags"
     }
   ]
 }

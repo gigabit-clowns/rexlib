@@ -33,6 +33,7 @@
 
 # CMake output
 build
+CMakeUserPresets.json
 
 # VS Code
 .vscode

@@ -1,51 +1,49 @@
-cmake_minimum_required(VERSION 3.18)
-
-# Find all source files
-file(
-	GLOB_RECURSE
-	SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/*.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/*.c
-		${CMAKE_CURRENT_SOURCE_DIR}/*.cu
-)
+# SPDX-License-Identifier: GPL-3.0-only
 
 # $<TARGET_OBJECTS:> carries only the objects, so what is built from them
 # picks up their usage requirements here instead.
-set(DEPS_NAME ${PROJECT_NAME}-deps)
-add_library(${DEPS_NAME} INTERFACE)
+add_library(rexlib-cuda-deps INTERFACE)
 target_link_libraries(
-	${DEPS_NAME}
+	rexlib-cuda-deps
 	INTERFACE
 		rexlib::rexlib
 		CUDA::cudart
-		Boost::container
-		Boost::intrusive
-		Boost::unordered
+		Boost::headers # Container, Intrusive and Unordered
 		spdlog::spdlog
 )
 
 # The unitary tests reach the plugin's internals, which have no installed
 # headers, so they include them from here.
 target_include_directories(
-	${DEPS_NAME}
+	rexlib-cuda-deps
 	INTERFACE
 		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-# Disable min/max macros in windows
+# Without it windows.h defines min and max as macros.
 if(MSVC)
-	target_compile_definitions(${DEPS_NAME} INTERFACE NOMINMAX)
+	target_compile_definitions(
+		rexlib-cuda-deps
+		INTERFACE
+			NOMINMAX
+	)
 endif()
 
 # Compile the sources once into an object library, so that both the plugin and
 # the unitary test executable can consume them. A MODULE cannot be linked
 # against, which is what the tests would otherwise need.
-set(OBJECTS_NAME ${PROJECT_NAME}-objects)
-add_library(${OBJECTS_NAME} OBJECT ${SOURCES})
+add_library(rexlib-cuda-objects OBJECT)
+target_sources(
+	rexlib-cuda-objects
+	PRIVATE
+		cuda_plugin.cpp
+		plugin_hook.cpp
+)
+add_subdirectory(hardware)
+
 set_target_properties(
-	${OBJECTS_NAME}
+	rexlib-cuda-objects
 	PROPERTIES
-		CXX_STANDARD 20
 		POSITION_INDEPENDENT_CODE ON
 		# Device code compiled here is linked into the module below, not
 		# into each object, so a kernel may be called across translation
@@ -53,48 +51,40 @@ set_target_properties(
 		CUDA_SEPARABLE_COMPILATION ON
 )
 target_compile_definitions(
-	${OBJECTS_NAME}
+	rexlib-cuda-objects
 	PRIVATE
-		REXLIB_CUDA_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
-		REXLIB_CUDA_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
-		REXLIB_CUDA_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
+		REXLIB_CUDA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+		REXLIB_CUDA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+		REXLIB_CUDA_VERSION_PATCH=${PROJECT_VERSION_PATCH}
 		# CMake only defines this automatically for SHARED and MODULE targets.
 		REXLIB_CUDA_EXPORTING
 )
 target_link_libraries(
-	${OBJECTS_NAME}
+	rexlib-cuda-objects
 	PRIVATE
-		${DEPS_NAME}
+		rexlib-cuda-deps
 )
-
-# Enable all warnings during compilation
-if(MSVC)
-	target_compile_options(${OBJECTS_NAME} PRIVATE /W4)
-else()
-	target_compile_options(${OBJECTS_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+rexlib_cuda_enable_warnings(rexlib-cuda-objects)
 
 # Create the plugin. It is only loaded at runtime by the core's plugin manager
 # and exposes no headers, so it is a MODULE and its dependencies stay private.
-set(TARGET_NAME ${PROJECT_NAME})
-add_library(${TARGET_NAME} MODULE $<TARGET_OBJECTS:${OBJECTS_NAME}>)
+add_library(rexlib-cuda MODULE $<TARGET_OBJECTS:rexlib-cuda-objects>)
 set_target_properties(
-	${TARGET_NAME}
+	rexlib-cuda
 	PROPERTIES
-		CXX_STANDARD 20
 		# The device link step for the separately compiled objects above.
 		# Without it their device symbols are silently left unresolved.
 		CUDA_RESOLVE_DEVICE_SYMBOLS ON
 )
 target_link_libraries(
-	${TARGET_NAME}
+	rexlib-cuda
 	PRIVATE
-		${DEPS_NAME}
+		rexlib-cuda-deps
 )
 
 if(REXLIB_CUDA_RUNTIME_RPATH)
 	set_property(
-		TARGET ${TARGET_NAME}
+		TARGET rexlib-cuda
 		APPEND PROPERTY INSTALL_RPATH "${REXLIB_CUDA_RUNTIME_RPATH}"
 	)
 endif()
@@ -103,5 +93,5 @@ endif()
 # rexlib owns where a plugin goes and how it reaches the library, so the
 # destination and the RPATH back to it come from its exported helper.
 if(REXLIB_CUDA_INSTALL)
-	rexlib_install_plugin(${TARGET_NAME})
+	rexlib_install_plugin(rexlib-cuda)
 endif()

@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.15) # list(POP_BACK)
+# SPDX-License-Identifier: GPL-3.0-only
 
 # Reproduces the CMAKE_CUDA_ARCHITECTURES value "all-major" of CMake 3.23.
-function(cuda_all_major_architectures out_var compiler)
+function(rexlib_cuda_all_major_architectures out_var compiler)
 	execute_process(
 		COMMAND ${compiler} --list-gpu-arch
 		OUTPUT_VARIABLE supported

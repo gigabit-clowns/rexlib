@@ -1,31 +1,16 @@
-cmake_minimum_required(VERSION 3.16)
-
-# Test excecutable name
-set(TESTS_NAME "${PROJECT_NAME}_unitary_tests")
-
-# Register all source and header files
-file(
-	GLOB_RECURSE
-	TEST_SOURCES
-		${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/src/*.c
-)
+# SPDX-License-Identifier: GPL-3.0-only
 
 # The plugin is a MODULE and cannot be linked against, so the tests embed
 # the same objects it is built from.
 add_executable(
-	${TESTS_NAME}
-	${TEST_SOURCES}
-	$<TARGET_OBJECTS:${PROJECT_NAME}-objects>
+	rexlib-cuda-unitary-tests
+	$<TARGET_OBJECTS:rexlib-cuda-objects>
 )
-set_target_properties(
-	${TESTS_NAME} PROPERTIES
-	CXX_STANDARD 20
-)
+add_subdirectory(src)
 target_link_libraries(
-	${TESTS_NAME}
+	rexlib-cuda-unitary-tests
 	PRIVATE
-		${PROJECT_NAME}-deps
+		rexlib-cuda-deps
 		Catch2::Catch2WithMain
 		trompeloeil::trompeloeil
 )
@@ -33,19 +18,17 @@ target_link_libraries(
 # The embedded objects import rexlib, whose DLL is not on the loader's
 # search path, so it has to sit next to the executable that needs it.
 if(WIN32)
-	add_custom_command(TARGET ${TESTS_NAME}
+	add_custom_command(
+		TARGET rexlib-cuda-unitary-tests
 		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy
-			$<TARGET_FILE:rexlib::rexlib> $<TARGET_FILE_DIR:${TESTS_NAME}>
-		COMMENT "Copy rexlib DLL next to ${TESTS_NAME}" VERBATIM
+		COMMAND
+			${CMAKE_COMMAND} -E copy
+			$<TARGET_FILE:rexlib::rexlib>
+			$<TARGET_FILE_DIR:rexlib-cuda-unitary-tests>
+		COMMENT "Copy rexlib DLL next to rexlib-cuda-unitary-tests"
+		VERBATIM
 	)
 endif()
 
-# Discover tests
-catch_discover_tests(${TESTS_NAME})
-
-# Install
-install(
-	TARGETS ${TESTS_NAME}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+rexlib_cuda_enable_warnings(rexlib-cuda-unitary-tests)
+rexlib_cuda_register_tests(rexlib-cuda-unitary-tests unitary)
