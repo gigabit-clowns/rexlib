@@ -111,7 +111,8 @@ elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 		shape_rule_descriptor_of<typename Op::shape_rule_type>::get();
 	REXLIB_ASSERT(rule.get_placement() == core_placement::trailing);
 
-	const auto &output_core = rule.get_output_cores()[0];
+	const auto output_cores = rule.get_output_cores();
+	const auto &output_core = output_cores[0];
 	REXLIB_ASSERT(!output_core.has_run());
 
 	std::vector<std::size_t> frame_extents;
