@@ -41,7 +41,57 @@ void philox_round(
 	}};
 }
 
+inline
+std::uint32_t low_word(std::uint64_t value) noexcept
+{
+	return static_cast<std::uint32_t>(value);
+}
+
+inline
+std::uint32_t high_word(std::uint64_t value) noexcept
+{
+	return static_cast<std::uint32_t>(value >> 32);
+}
+
+inline
+std::uint64_t join_words(std::uint32_t low, std::uint32_t high) noexcept
+{
+	return (static_cast<std::uint64_t>(high) << 32) | low;
+}
+
 } // namespace detail
+
+inline
+philox_counter_type make_philox_counter(
+	std::uint64_t block,
+	std::uint32_t stream,
+	philox_domain domain
+) noexcept
+{
+	return {{
+		detail::low_word(block),
+		detail::high_word(block),
+		stream,
+		static_cast<std::uint32_t>(domain)
+	}};
+}
+
+inline
+philox_key_type make_philox_key(std::uint64_t key) noexcept
+{
+	return {{ detail::low_word(key), detail::high_word(key) }};
+}
+
+inline
+philox_halves_type make_philox_halves(
+	const philox_counter_type &block
+) noexcept
+{
+	return {{
+		detail::join_words(block[0], block[1]),
+		detail::join_words(block[2], block[3])
+	}};
+}
 
 inline
 philox_counter_type philox4x32_10(

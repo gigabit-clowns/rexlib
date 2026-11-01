@@ -19,7 +19,7 @@ REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
 	standardize_background,
 	em_component,
 	REXLIB_OPERANDS("result"),
-	REXLIB_OPERANDS("value", "seed"),
+	REXLIB_OPERANDS("value", "key"),
 	ops::keyed_axiswise_shape_rule,
 	ops::axis_selection,
 	ops::keyed_unary_homogeneous_rule<floating_point_type_domain>
@@ -48,15 +48,19 @@ REXLIB_DECLARE_PARAMETRIC_OPERATION_TRAITS(
  * element has a mean of 0 and a standard deviation of 1. An image whose
  * standard deviation is 0 has its mean subtracted and is not scaled.
  *
- * The seed is a uint64 array without core axes. It broadcasts against the
- * batch axes of the value, so one seed may serve every image or each image
- * may have its own. The draw of an element depends only on its seed and on
- * its counter, which is the row-major position of the element among the
- * elements of the result sharing its seed. Images with seeds of their own
- * therefore draw the same values however they are batched. The draw for
- * counter c is the Box-Muller deviate of the Philox4x32-10 block at c / 2,
- * rounded down, keyed by the seed: its cosine branch when c is even, and
- * its sine branch when c is odd.
+ * The key is a uint64 array without core axes. It broadcasts against the
+ * batch axes of the value, so one key may serve every image or each image
+ * may have its own. A key gives one stream of draws over every element of
+ * the result it covers, so images sharing a key draw different values. The
+ * draw of an element depends only on its key and on its counter, which is
+ * the row-major position of the element among the elements of the result
+ * sharing its key. Images with keys of their own therefore draw the same
+ * values however they are batched.
+ *
+ * The draw for counter c is a Box-Muller deviate of the Philox4x32-10 block
+ * keyed by the key. Words 0 and 1 of the block counter are the low and the
+ * high half of c / 2, rounded down, and words 2 and 3 are 0. The draw is
+ * the cosine branch when c is even, and the sine branch when c is odd.
  */
 REXLIB_BEGIN_TEMPLATE_BASE
 class REXLIB_API standardize_background_operation final

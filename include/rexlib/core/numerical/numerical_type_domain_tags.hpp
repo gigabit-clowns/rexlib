@@ -119,6 +119,19 @@ using complex_type_domain =
 	category_type_domain<numerical_type_category::complex>;
 
 /**
+ * @brief Named domain holding a single type.
+ *
+ * @tparam Type The type belonging to the domain.
+ */
+template <numerical_type Type>
+struct single_type_domain
+	: named_domain<single_type_domain<Type>>
+{
+	static REXLIB_CONST_CONSTEXPR numerical_type_domain value =
+		numerical_type_domain({ Type });
+};
+
+/**
  * @brief Named domain holding the union of other named domains.
  *
  * @tparam Domains The domain tags to be united. At least one is required.

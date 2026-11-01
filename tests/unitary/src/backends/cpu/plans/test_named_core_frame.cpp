@@ -187,3 +187,48 @@ TEST_CASE(
 		std::invalid_argument
 	);
 }
+
+TEST_CASE(
+	"make_trailing_core_frame should take the last axes as the core axes",
+	"[named_core_frame]"
+)
+{
+	const auto frame = make_trailing_core_frame({ 4, 3, 2 }, 1);
+
+	CHECK( to_vector(frame.get_core_axes()) == std::vector<std::size_t>{ 2 } );
+	CHECK(
+		to_vector(frame.get_batch_axes()) ==
+		std::vector<std::size_t>{ 0, 1 }
+	);
+
+	const auto all_batch = make_trailing_core_frame({ 4, 3 }, 0);
+	CHECK( all_batch.get_core_axes().empty() );
+	CHECK( to_vector(all_batch.get_batch_axes()).size() == 2 );
+}
+
+TEST_CASE(
+	"make_trailing_core_frame should align an operand without core axes to "
+	"the batch axes",
+	"[named_core_frame]"
+)
+{
+	const auto frame = make_trailing_core_frame({ 4, 3, 2 }, 1);
+
+	const auto aligned = frame.align(make_layout({ 3 }, { 5 }, 7), false);
+
+	CHECK( extents_of(aligned) == std::vector<std::size_t>{ 4, 3, 2 } );
+	CHECK( strides_of(aligned) == std::vector<std::ptrdiff_t>{ 0, 5, 0 } );
+	CHECK( aligned.get_offset() == 7 );
+}
+
+TEST_CASE(
+	"make_trailing_core_frame should reject more core axes than the frame "
+	"has",
+	"[named_core_frame]"
+)
+{
+	CHECK_THROWS_AS(
+		make_trailing_core_frame({ 4 }, 2),
+		std::out_of_range
+	);
+}

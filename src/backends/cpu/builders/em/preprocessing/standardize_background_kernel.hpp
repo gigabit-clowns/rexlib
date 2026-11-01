@@ -23,7 +23,7 @@ namespace cpu
  * background elements. The second computes them again over those whose
  * value, standardized with the first, lies within the bounds. The map
  * standardizes with the second, and replaces every element it does not
- * keep with a draw keyed by the seed of the image.
+ * keep with a draw keyed by the key of the image.
  *
  * Its statistics are the mean and the scale, in that order.
  */
@@ -63,7 +63,7 @@ public:
 	 *
 	 * @tparam Value The element type of the value.
 	 * @param statistics The statistics of the last pass.
-	 * @param inputs The value and the seed, placed at the image.
+	 * @param inputs The value and the key, placed at the image.
 	 * @param counter The counter of the first element of the image.
 	 * @return standardization_map_kernel The map.
 	 */

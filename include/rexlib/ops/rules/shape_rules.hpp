@@ -285,6 +285,19 @@ using sequence_shape_rule = operand_shape_rule<
 	type_list<>
 >;
 
+/**
+ * @brief Sequence of as many values as the operation names for every
+ * element of the input.
+ *
+ * The input has no core axes. The output holds its shape followed by one
+ * axis of the length the operation names.
+ */
+using elementwise_sequence_shape_rule = operand_shape_rule<
+	type_list<extent_from_operation<count_of>>,
+	type_list<core_dimensions<axis_same_as<0>>>,
+	type_list<core_dimensions<>>
+>;
+
 /** @} */
 
 } // namespace ops

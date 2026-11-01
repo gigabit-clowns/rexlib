@@ -31,9 +31,15 @@ namespace cpu
  * @brief Generic program builder for the elementwise operation family.
  *
  * Builds a CPU program that applies a per-element kernel to every element of
- * the operands, following broadcast semantics. It owns the scaffolding shared
- * by every elementwise operation: operation type check, operand-count
- * validation, joint layout construction and type dispatch.
+ * the outputs. The shape rule of the operation places every input in the
+ * frame of the outputs: an input without core axes broadcasts against the
+ * axes before the core axes of the outputs, and an input carrying core axes
+ * broadcasts against every axis. The shape rule must place its core axes
+ * last, and the core of the outputs must have a fixed number of axes.
+ *
+ * The builder owns the scaffolding shared by every elementwise operation:
+ * operation type check, operand-count validation, joint layout construction
+ * and type dispatch.
  *
  * @tparam Op The operation type this builder targets.
  * @tparam KernelFactory Factory producing the per-element kernel. Invoked as

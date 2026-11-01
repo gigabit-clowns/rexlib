@@ -6,12 +6,16 @@
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/operation/shape_rule/core_placement.hpp>
+#include <rexlib/core/operation/shape_rule/shape_rule_descriptor_of.hpp>
+#include <rexlib/core/platform/assert.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/parallel_grain.hpp>
 #include <backends/cpu/plans/index_operands.hpp>
+#include <backends/cpu/plans/named_core_frame.hpp>
 
 #include <cstddef>
 #include <tuple>
@@ -103,14 +107,35 @@ elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 	span<const operand_descriptor> input_descriptors
 ) const
 {
+	const auto &rule =
+		shape_rule_descriptor_of<typename Op::shape_rule_type>::get();
+	REXLIB_ASSERT(rule.get_placement() == core_placement::trailing);
+
+	const auto output_cores = rule.get_output_cores();
+	const auto &output_core = output_cores[0];
+	REXLIB_ASSERT(!output_core.has_run());
+
+	std::vector<std::size_t> frame_extents;
+	output_descriptors[0].get_layout().get_extents(frame_extents);
+	const auto frame = make_trailing_core_frame(
+		std::move(frame_extents),
+		output_core.get_slots().size()
+	);
+
 	joint_layout_builder layout_builder;
 	for (const auto &descriptor : output_descriptors)
 	{
 		layout_builder.add_operand(descriptor.get_layout());
 	}
-	for (const auto &descriptor : input_descriptors)
+	const auto input_cores = rule.get_input_cores();
+	for (std::size_t i = 0; i < input_descriptors.size(); ++i)
 	{
-		layout_builder.add_operand(descriptor.get_layout());
+		layout_builder.add_operand(
+			frame.align(
+				input_descriptors[i].get_layout(),
+				!input_cores[i].is_empty()
+			)
+		);
 	}
 	append_index_operands(layout_builder, output_descriptors, Indexing());
 
