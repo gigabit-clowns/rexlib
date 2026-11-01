@@ -15,6 +15,7 @@ target_sources(
 		test_logical.cpp
 		test_numeric.cpp
 		test_power.cpp
+		test_random.cpp
 		test_reduction.cpp
 		test_rounding.cpp
 		test_selection.cpp

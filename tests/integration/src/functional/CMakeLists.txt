@@ -14,6 +14,7 @@ target_sources(
 		test_cpu_logical.cpp
 		test_cpu_numeric.cpp
 		test_cpu_power.cpp
+		test_cpu_random.cpp
 		test_cpu_reduction.cpp
 		test_cpu_rounding.cpp
 		test_cpu_selection.cpp

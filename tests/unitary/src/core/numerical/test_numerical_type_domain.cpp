@@ -209,6 +209,19 @@ TEST_CASE(
 }
 
 TEST_CASE(
+    "single_type_domain should hold its type alone",
+    "[numerical_type_domain]"
+)
+{
+    using uint64_domain = single_type_domain<numerical_type::uint64>;
+
+    CHECK( uint64_domain::get() ==
+           numerical_type_domain{ numerical_type::uint64 } );
+    STATIC_REQUIRE( uint64_domain::contains_type<std::uint64_t>::value );
+    STATIC_REQUIRE( !uint64_domain::contains_type<std::int64_t>::value );
+}
+
+TEST_CASE(
     "a named domain should classify static types as it does values",
     "[numerical_type_domain]"
 )

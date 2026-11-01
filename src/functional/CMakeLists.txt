@@ -15,6 +15,7 @@ target_sources(
 		logical.cpp
 		numeric.cpp
 		power.cpp
+		random.cpp
 		reduction.cpp
 		rounding.cpp
 		selection.cpp

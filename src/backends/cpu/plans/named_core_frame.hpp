@@ -145,5 +145,20 @@ private:
 	std::vector<std::size_t> m_batch_axes;
 };
 
+/**
+ * @brief Make a frame whose core axes are its last axes.
+ *
+ * @param frame_extents The extents of the frame.
+ * @param core_rank The number of core axes.
+ * @return named_core_frame The frame, with its last @p core_rank axes as
+ * core axes.
+ * @throws std::out_of_range When the frame has fewer than @p core_rank
+ * axes.
+ */
+named_core_frame make_trailing_core_frame(
+	std::vector<std::size_t> frame_extents,
+	std::size_t core_rank
+);
+
 } // namespace cpu
 } // namespace rexlib

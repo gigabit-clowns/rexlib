@@ -643,3 +643,41 @@ TEST_CASE(
 		std::invalid_argument
 	);
 }
+
+TEST_CASE(
+	"elementwise_sequence_shape_rule should append a sequence of the length "
+	"the operation names to the shape of the input",
+	"[shape_rules]"
+)
+{
+	using rule = elementwise_sequence_shape_rule;
+	CHECK( deduce_shape<rule>({ {} }, {}, false, { 2 }) == shape_type{ 2 } );
+	CHECK(
+		deduce_shape<rule>({ { 4, 3 } }, {}, false, { 5 }) ==
+		shape_type{ 4, 3, 5 }
+	);
+	CHECK(
+		deduce_shape<rule>({ { 4 } }, {}, false, { 0 }) ==
+		shape_type{ 4, 0 }
+	);
+}
+
+TEST_CASE(
+	"elementwise_sequence_shape_rule should require an output of the shape "
+	"of the input followed by the length",
+	"[shape_rules]"
+)
+{
+	using rule = elementwise_sequence_shape_rule;
+	CHECK_NOTHROW(
+		accept_shapes<rule>({ { 4, 2 } }, { { 4 } }, {}, false, { 2 })
+	);
+	CHECK_THROWS_AS(
+		accept_shapes<rule>({ { 4, 3 } }, { { 4 } }, {}, false, { 2 }),
+		std::invalid_argument
+	);
+	CHECK_THROWS_AS(
+		accept_shapes<rule>({ { 2 } }, { { 4 } }, {}, false, { 2 }),
+		std::invalid_argument
+	);
+}

@@ -165,5 +165,24 @@ std::vector<std::ptrdiff_t> named_core_frame::select_batch(
 	return select_axes(frame_values, m_batch_axes);
 }
 
+named_core_frame make_trailing_core_frame(
+	std::vector<std::size_t> frame_extents,
+	std::size_t core_rank
+)
+{
+	const auto rank = frame_extents.size();
+	if (core_rank > rank)
+	{
+		std::ostringstream oss;
+		oss << "make_trailing_core_frame: A frame of rank " << rank
+			<< " cannot hold " << core_rank << " core axes.";
+		throw std::out_of_range(oss.str());
+	}
+
+	std::vector<std::size_t> core_axes(core_rank);
+	std::iota(core_axes.begin(), core_axes.end(), rank - core_rank);
+	return named_core_frame(std::move(frame_extents), make_span(core_axes));
+}
+
 } // namespace cpu
 } // namespace rexlib
