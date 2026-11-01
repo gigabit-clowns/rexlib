@@ -12,7 +12,8 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "REXLIB_BUILD_TESTING": "ON"
+        "REXLIB_BUILD_TESTING": "ON",
+        "REXLIB_CHECK_HEADERS": "ON"
       }
     },
     {
