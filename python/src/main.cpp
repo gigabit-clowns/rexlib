@@ -4,6 +4,7 @@
 #include "core/numerical/main.hpp"
 #include "core/dispatch/main.hpp"
 #include "functional/main.hpp"
+#include "ops/main.hpp"
 #include "em/main.hpp"
 
 #include "core/service_catalog.hpp"
@@ -32,6 +33,9 @@ NB_MODULE(_binding, m) {
 
 	auto dispatch_module = m.def_submodule("dispatch");
 	bind_dispatch(dispatch_module);
+
+	auto ops_module = m.def_submodule("ops");
+	ops::bind_ops(ops_module);
 
 	auto functional_module = m.def_submodule("functional");
 	bind_functional(functional_module);

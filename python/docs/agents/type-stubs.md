@@ -25,7 +25,8 @@ a method of `Array`; any other it renders as an import, which is not a stub.
 
 A submodule that holds submodules of its own becomes a directory of stubs
 rather than one file: `_binding/<name>/__init__.pyi` beside one `.pyi` for
-each it holds. `em` does, holding `functional`, and every step that moves
+each it holds. `em` does, holding `functional`, and so does `ops`, holding
+`fourier`. Every step that moves
 stubs carries that tree: `scripts/collect_stubs.py` copies it and the artifact
 holding it is uploaded as a directory. A flat `*.pyi` glob at either step
 takes the top level and drops the rest, which fails nothing and publishes

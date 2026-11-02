@@ -15,6 +15,7 @@ target_sources(
 add_subdirectory(core)
 add_subdirectory(em)
 add_subdirectory(functional)
+add_subdirectory(ops)
 
 target_compile_definitions(
 	_binding

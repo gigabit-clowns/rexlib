@@ -6,6 +6,7 @@ target_sources(
 		arithmetic.cpp
 		cast.cpp
 		creation.cpp
+		fourier.cpp
 		main.cpp
 		transfer.cpp
 )

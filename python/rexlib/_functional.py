@@ -8,6 +8,7 @@ order, but `context` defaults to the active one (see
 """
 
 from __future__ import annotations
+from collections.abc import Sequence
 from typing import Any
 
 from ._binding import functional as _raw
@@ -15,6 +16,7 @@ from ._binding.ndarray import Array, ArrayDescriptor
 from ._binding.numerical import NumericalType
 from ._binding.hardware import MemoryResourceAffinity
 from ._binding.dispatch import ExecutionContext
+from ._binding.ops.fourier import FourierNormalization
 from ._context import get_active_execution_context
 
 def _resolve_context(context: ExecutionContext | None) -> ExecutionContext:
@@ -198,3 +200,373 @@ def fill(
 ) -> None:
 	"""Fill an array with the given value in place."""
 	_raw.fill(out, fill_value, _resolve_context(context))
+
+# -- fourier --------------------------------------------------------------
+
+def _resolve_normalization(
+	norm: str | FourierNormalization
+) -> FourierNormalization:
+	if isinstance(norm, FourierNormalization):
+		return norm
+	return FourierNormalization[norm]
+
+def fft(
+	x: Array,
+	axes: Sequence[int] | None = None,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform an array to the frequency domain.
+
+	Args:
+		x: The array.
+		axes: The axes to transform. Negative values count from the end.
+			Defaults to the last axis.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	if axes is None:
+		return _raw.fft(
+			x, _resolve_normalization(norm),
+			_resolve_context(context), out
+		)
+	return _raw.fft(
+		x, list(axes), _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def fft2(
+	x: Array,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform the last two axes to the frequency domain.
+
+	Args:
+		x: The array.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.fft2(
+		x, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def fft3(
+	x: Array,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform the last three axes to the frequency domain.
+
+	Args:
+		x: The array.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.fft3(
+		x, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def ifft(
+	x: Array,
+	axes: Sequence[int] | None = None,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform a spectrum back to the signal domain.
+
+	Args:
+		x: The array.
+		axes: The axes to transform. Negative values count from the end.
+			Defaults to the last axis.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	if axes is None:
+		return _raw.ifft(
+			x, _resolve_normalization(norm),
+			_resolve_context(context), out
+		)
+	return _raw.ifft(
+		x, list(axes), _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def ifft2(
+	x: Array,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform the last two axes back to the signal domain.
+
+	Args:
+		x: The array.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.ifft2(
+		x, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def ifft3(
+	x: Array,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform the last three axes back to the signal domain.
+
+	Args:
+		x: The array.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.ifft3(
+		x, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def rfft(
+	x: Array,
+	axes: Sequence[int] | None = None,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform a real array to its half spectrum.
+
+	Args:
+		x: The array.
+		axes: The axes to transform. Negative values count from the end.
+			Defaults to the last axis.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	if axes is None:
+		return _raw.rfft(
+			x, _resolve_normalization(norm),
+			_resolve_context(context), out
+		)
+	return _raw.rfft(
+		x, list(axes), _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def rfft2(
+	x: Array,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform the last two axes of a real array to a half spectrum.
+
+	Args:
+		x: The array.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.rfft2(
+		x, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def rfft3(
+	x: Array,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform the last three axes of a real array to a half spectrum.
+
+	Args:
+		x: The array.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.rfft3(
+		x, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def irfft(
+	x: Array,
+	extent: int,
+	axes: Sequence[int] | None = None,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform a half spectrum back to a real array.
+
+	Args:
+		x: The array.
+		extent: The number of samples along the last axis
+			transformed, which its half spectrum does not tell.
+		axes: The axes to transform. Negative values count from the end.
+			Defaults to the last axis.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	if axes is None:
+		return _raw.irfft(
+			x, extent, _resolve_normalization(norm),
+			_resolve_context(context), out
+		)
+	return _raw.irfft(
+		x, list(axes), extent, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def irfft2(
+	x: Array,
+	extent: int,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform a half spectrum of the last two axes back to a real array.
+
+	Args:
+		x: The array.
+		extent: The number of samples along the last axis, which its
+			half spectrum does not tell.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.irfft2(
+		x, extent, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def irfft3(
+	x: Array,
+	extent: int,
+	norm: str | FourierNormalization = "backward",
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Transform a half spectrum of the last three axes back to a real array.
+
+	Args:
+		x: The array.
+		extent: The number of samples along the last axis, which its
+			half spectrum does not tell.
+		norm: Which of a transform and its inverse divides by the number
+			of samples: "backward", "ortho" or "forward", as in NumPy.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The transformed array.
+	"""
+	return _raw.irfft3(
+		x, extent, _resolve_normalization(norm),
+		_resolve_context(context), out
+	)
+
+def fftshift(
+	x: Array,
+	axes: Sequence[int] | None = None,
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Move the zero frequency of a spectrum to its centre.
+
+	Args:
+		x: The array.
+		axes: The axes to shift. Negative values count from the end.
+			Defaults to every axis.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The shifted array.
+	"""
+	if axes is None:
+		return _raw.fftshift(x, _resolve_context(context), out)
+	return _raw.fftshift(x, list(axes), _resolve_context(context), out)
+
+def ifftshift(
+	x: Array,
+	axes: Sequence[int] | None = None,
+	context: ExecutionContext | None = None,
+	out: Array | None = None
+) -> Array:
+	"""Undo fftshift, moving the centre back to index 0.
+
+	Args:
+		x: The array.
+		axes: The axes to shift. Negative values count from the end.
+			Defaults to every axis.
+		context: The execution context. Defaults to the active one.
+		out: An array to write the result into.
+
+	Returns:
+		The shifted array.
+	"""
+	if axes is None:
+		return _raw.ifftshift(x, _resolve_context(context), out)
+	return _raw.ifftshift(x, list(axes), _resolve_context(context), out)
