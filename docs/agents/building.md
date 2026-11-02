@@ -30,6 +30,8 @@ Options:
 | `REXLIB_INSTALL` | `ON` | Generates the install and export rules |
 | `REXLIB_BUILD_TESTING` | `ON` while `BUILD_TESTING` is on, forced `OFF` otherwise | Builds the test suites |
 | `REXLIB_BUILD_DOCS` | `OFF` | Adds the Doxygen target `rexlib-docs` |
+| `REXLIB_DOCS_USE_README_AS_MAINPAGE` | `ON` | Uses `README.md` as Doxygen's main page |
+| `REXLIB_DOCS_STRIP_BADGES_FROM_MAINPAGE` | `ON` | Uses a generated copy of `README.md` without badge blocks as Doxygen's main page |
 | `REXLIB_ENABLE_COVERAGE` | `OFF` | Adds coverage instrumentation |
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
@@ -53,6 +55,12 @@ a namespace it has no documentation for, so a new namespace is documented in
 `docs/doxygen/namespaces.dox`. The macros that declare an operation are given
 to Doxygen as the class they declare, in `docs/doxygen/CMakeLists.txt`, so
 that the comment above a declaration documents its class.
+
+With `REXLIB_DOCS_USE_README_AS_MAINPAGE=ON`, the main page is taken from
+`README.md`, so the front page and the repository overview stay in one place.
+With `REXLIB_DOCS_STRIP_BADGES_FROM_MAINPAGE=ON`, Doxygen reads a generated
+copy where everything between `<!-- docs-badges:start -->` and
+`<!-- docs-badges:end -->` is removed.
 
 Each suite carries its name as a CTest label, so `ctest -L unitary` and
 `ctest -L integration` run one of them. The label is set whichever way the
