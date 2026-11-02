@@ -23,7 +23,7 @@ namespace nb = nanobind;
 
 static array py_standardize_background(
 	const_array_ref value,
-	const_array_ref seed,
+	const_array_ref key,
 	const std::vector<std::ptrdiff_t> &axes,
 	double radius,
 	double lower_bound,
@@ -34,7 +34,7 @@ static array py_standardize_background(
 {
 	return standardize_background(
 		value,
-		seed,
+		key,
 		make_span(axes),
 		radius,
 		lower_bound,
@@ -48,21 +48,21 @@ void bind_preprocessing(nb::module_ &m)
 {
 	m.def(
 		"standardize_background", &py_standardize_background,
-		nb::arg("value"), nb::arg("seed"), nb::arg("axes"),
+		nb::arg("value"), nb::arg("key"), nb::arg("axes"),
 		nb::arg("radius"), nb::arg("lower_bound"), nb::arg("upper_bound"),
 		nb::arg("context"),
 		nb::arg("out").none() = nb::none()
 	);
 	m.def(
 		"standardize_background_2d", &standardize_background_2d,
-		nb::arg("value"), nb::arg("seed"),
+		nb::arg("value"), nb::arg("key"),
 		nb::arg("radius"), nb::arg("lower_bound"), nb::arg("upper_bound"),
 		nb::arg("context"),
 		nb::arg("out").none() = nb::none()
 	);
 	m.def(
 		"standardize_background_3d", &standardize_background_3d,
-		nb::arg("value"), nb::arg("seed"),
+		nb::arg("value"), nb::arg("key"),
 		nb::arg("radius"), nb::arg("lower_bound"), nb::arg("upper_bound"),
 		nb::arg("context"),
 		nb::arg("out").none() = nb::none()

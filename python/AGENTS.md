@@ -34,6 +34,11 @@ CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
 - Every bound entity gets a `.hpp` and a `.cpp`, with a `declare_` and a
   `define_` function. See [binding](docs/agents/binding.md).
 - Tabs, 80 columns, on both sides. See [package](docs/agents/package.md).
+- Every source file, the CMake files included, starts with
+  `SPDX-License-Identifier: GPL-3.0-only`. See
+  [package](docs/agents/package.md).
+- A new `.cpp` is named in the `CMakeLists.txt` of its directory. See
+  [building](docs/agents/building.md).
 - Comments say what, never why, and there is no `TODO`. See
   [comments](docs/agents/comments.md).
 - A change is tested from Python, in the directory of the module whose
