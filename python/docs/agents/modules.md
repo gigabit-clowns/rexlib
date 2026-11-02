@@ -31,6 +31,7 @@ them. See #143.
 | `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
 | `_binding.ops.fourier` | `src/ops/fourier/` | `FourierNormalization`, the convention of the Fourier transforms |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
+| `_binding.em.ops.parameters` | `src/em/ops/parameters/` | The types the parameters of the operations of `rexlib::em` are made of: `GriddingProfile`, `GriddingWindow`, `CtfOptics` |
 | `_binding.em.functional` | `src/em/functional/` | The operations of `rexlib::em`, each taking an explicit context |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the

@@ -5,4 +5,5 @@ target_sources(
 	PRIVATE
 		main.cpp
 		preprocessing.cpp
+		reconstruction.cpp
 )

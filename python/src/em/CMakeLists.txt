@@ -6,3 +6,4 @@ target_sources(
 		main.cpp
 )
 add_subdirectory(functional)
+add_subdirectory(ops)
