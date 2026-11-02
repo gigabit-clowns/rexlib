@@ -100,11 +100,13 @@ REXLIB_DECLARE_OPERATION_TRAITS(
  * - numerator[g] += kappa(g - K) r v exp(-2 pi i g . C / N)
  * - denominator[g] += kappa(g - K) r
  *
- * The voxels g span the full spectrum of the volume. A contribution to a
- * voxel with g_x < 0 goes, conjugated, to -g. A voxel beyond N / 2 in
- * magnitude along any axis receives nothing. Along y and z of an even N,
- * the frequencies N / 2 and -N / 2 are the same element. The order of the
- * sums is unspecified.
+ * The sums run over the full spectrum of each slice and are defined at
+ * every voxel g of the full spectrum of the volume. The accumulators hold
+ * the sums at the voxels with g_x >= 0; those at g_x < 0 are their
+ * conjugates, and are not stored. A voxel beyond N / 2 in magnitude along
+ * any axis receives nothing. Along y and z of an even N, the frequencies
+ * N / 2 and -N / 2 are the same element. The order of the sums is
+ * unspecified.
  *
  * @see gridding_window
  */

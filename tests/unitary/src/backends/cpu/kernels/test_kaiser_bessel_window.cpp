@@ -31,6 +31,12 @@ TEST_CASE(
 	CHECK_THAT( window.evaluate(-1.0), WithinAbs(expected, 1e-6) );
 	CHECK( window.evaluate(2.0) == 0.0 );
 	CHECK( window.evaluate(-2.5) == 0.0 );
+
+	// The window does not vanish at the half-width.
+	CHECK_THAT(
+		window.evaluate(2.0 - 1e-9),
+		WithinAbs(1.0 / bessel_i0(9.0), 1e-6)
+	);
 }
 
 TEST_CASE(

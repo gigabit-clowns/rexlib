@@ -18,9 +18,10 @@ namespace cpu
  * Kaiser-Bessel weights.
  *
  * The weight of a voxel at a distance d from the sample is
- * I0(beta sqrt(1 - (d / w)^2)) / I0(beta) for |d| < w, and 0 beyond. It is
- * read from a table of the window sampled at @ref samples_per_voxel points
- * per voxel, with linear interpolation between them.
+ * I0(beta sqrt(1 - (d / w)^2)) / I0(beta) for |d| < w, and 0 from w on. It
+ * is read from a table of the window sampled at @ref samples_per_voxel
+ * points per voxel, with linear interpolation between them; the window
+ * does not vanish at w, and the table ends with its value there.
  */
 class kaiser_bessel_window
 {

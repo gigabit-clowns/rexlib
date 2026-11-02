@@ -6,6 +6,7 @@
 
 #include <rexlib/core/platform/assert.hpp>
 
+#include <algorithm>
 #include <cmath>
 
 namespace rexlib
@@ -25,13 +26,15 @@ kaiser_bessel_window::kaiser_bessel_window(const em::gridding_window &window)
 	const auto count =
 		static_cast<std::size_t>(std::ceil(m_half_width * samples_per_voxel));
 
-	// One entry past the half-width, so that the interpolation of the last
-	// stretch reads a weight of 0.
-	m_table.resize(count + 1, 0.0);
-	for (std::size_t i = 0; i < count; ++i)
+	// The last entry is the window at the half-width itself, which the
+	// stretch before it interpolates towards.
+	m_table.resize(count + 1);
+	for (std::size_t i = 0; i <= count; ++i)
 	{
-		const auto ratio = static_cast<double>(i) /
-			(m_half_width * samples_per_voxel);
+		const auto ratio = std::min(
+			static_cast<double>(i) / (m_half_width * samples_per_voxel),
+			1.0
+		);
 		m_table[i] =
 			bessel_i0(shape * std::sqrt(1.0 - ratio * ratio)) * normalization;
 	}
@@ -52,13 +55,12 @@ double kaiser_bessel_window::get_half_width() const noexcept
 inline
 double kaiser_bessel_window::evaluate(double distance) const noexcept
 {
-	const auto position = std::abs(distance) * samples_per_voxel;
-	const auto last = static_cast<double>(m_table.size() - 1);
-	if (!(position < last))
+	if (!(std::abs(distance) < m_half_width))
 	{
 		return 0.0;
 	}
 
+	const auto position = std::abs(distance) * samples_per_voxel;
 	const auto below = std::floor(position);
 	const auto fraction = position - below;
 	const auto index = static_cast<std::size_t>(below);
