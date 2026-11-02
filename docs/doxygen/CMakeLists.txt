@@ -7,6 +7,13 @@ set(DOXYGEN_HTML_COLORSTYLE_HUE 220)
 set(DOXYGEN_HTML_COLORSTYLE_SAT 100)
 set(DOXYGEN_HTML_COLORSTYLE_GAMMA 80)
 
+if(REXLIB_DOCS_USE_README_AS_MAINPAGE)
+	set(DOXYGEN_USE_MDFILE_AS_MAINPAGE ${PROJECT_SOURCE_DIR}/README.md)
+endif()
+set(DOXYGEN_FILE_PATTERNS *.hpp *.md)
+set(DOXYGEN_STRIP_FROM_PATH ${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR})
+set(DOXYGEN_STRIP_FROM_INC_PATH ${PROJECT_SOURCE_DIR}/include)
+
 # An attribute macro between a keyword and the name it declares hides the
 # declaration from Doxygen, so such macros are expanded to nothing. The
 # macros that declare an operation are expanded to the class they declare,
@@ -36,6 +43,7 @@ set(DOXYGEN_WARN_AS_ERROR FAIL_ON_WARNINGS)
 
 doxygen_add_docs(
 	rexlib-docs
+	${PROJECT_SOURCE_DIR}/README.md
 	${PROJECT_SOURCE_DIR}/include
 	${CMAKE_CURRENT_SOURCE_DIR}/namespaces.dox
 )

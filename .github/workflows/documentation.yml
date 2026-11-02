@@ -9,7 +9,6 @@ on:
       - main
     paths-ignore:
       - LICENSE
-      - '**.md'
       - .github/workflows/clean-up-caches.yml
       - .github/workflows/codeql-actions.yml
       - .github/workflows/codeql-cpp.yml
@@ -18,7 +17,6 @@ on:
       - .github/workflows/release.yml
       - .gitignore
       - .vscode/**
-      - docs/**
       - logos/**
       - renovate.json
 
@@ -45,7 +43,7 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
     - name: Setup Pages
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
       uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
 
     - name: Install dependencies
@@ -63,7 +61,7 @@ jobs:
         build-args: --target rexlib-docs
 
     - name: Upload artifact
-      if: startsWith(github.ref, 'refs/tags/v')
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
       uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
       with:
         path: ${{ github.workspace }}/build/docs/doxygen/html
@@ -74,7 +72,7 @@ jobs:
     permissions:
       pages: write
       id-token: write
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

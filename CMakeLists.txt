@@ -40,6 +40,11 @@ Doxygen"
 	OFF
 )
 option(
+	REXLIB_DOCS_USE_README_AS_MAINPAGE
+	"Use README.md as the Doxygen main page when building documentation"
+	ON
+)
+option(
 	REXLIB_ENABLE_COVERAGE
 	"Instrument the library and the tests for code coverage"
 	OFF
