@@ -3,6 +3,8 @@
 target_sources(
 	rexlib-cpu-obj
 	PRIVATE
+		bessel_i0.cpp
+		contrast_transfer_function.cpp
 		eigen_gemm.cpp
 		eigen_gemm_complex_float32.cpp
 		eigen_gemm_complex_float64.cpp
@@ -16,5 +18,8 @@ target_sources(
 		eigen_gemm_uint32.cpp
 		eigen_gemm_uint64.cpp
 		eigen_gemm_uint8.cpp
+		frequency_bounds.cpp
 		pocketfft_fourier_transform.cpp
+		row_interval.cpp
+		slice_frame.cpp
 )

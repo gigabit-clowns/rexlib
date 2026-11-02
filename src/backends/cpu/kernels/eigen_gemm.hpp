@@ -57,7 +57,7 @@ enum class core_layout_kind
  * classify a core before calling resolve_gemm and friends.
  */
 core_layout_kind classify_core_layout(
-	const linalg_operand_core &core
+	const operand_core &core
 ) noexcept;
 
 bool is_row_major_compatible(core_layout_kind kind) noexcept;
@@ -70,12 +70,12 @@ bool is_column_major_compatible(core_layout_kind kind) noexcept;
  * The padding axis has extent one, so its stride is never dereferenced;
  * any value is safe.
  */
-linalg_operand_core pad_as_column(const linalg_operand_core &vector_core) noexcept;
+operand_core pad_as_column(const operand_core &vector_core) noexcept;
 
 /**
  * @brief Pad a rank one core into a rank two row ({1, extent}).
  */
-linalg_operand_core pad_as_row(const linalg_operand_core &vector_core) noexcept;
+operand_core pad_as_row(const operand_core &vector_core) noexcept;
 
 /**
  * @brief Signature every gemm implementation shares, whatever mix of its
@@ -90,9 +90,9 @@ using gemm_fn = void (*)(
 	T *out,
 	const T *left,
 	const T *right,
-	const linalg_operand_core &out_core,
-	const linalg_operand_core &left_core,
-	const linalg_operand_core &right_core
+	const operand_core &out_core,
+	const operand_core &left_core,
+	const operand_core &right_core
 );
 
 /**

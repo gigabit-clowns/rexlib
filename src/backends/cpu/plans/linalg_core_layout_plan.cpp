@@ -2,6 +2,8 @@
 
 #include "linalg_core_layout_plan.hpp"
 
+#include "operand_core.hpp"
+
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 
@@ -19,49 +21,11 @@ namespace
 {
 
 /**
- * @brief Split a layout's trailing axes off as a core, leaving the rest as
- * the batch prefix.
- */
-linalg_operand_core split_trailing_core(
-	const strided_layout &layout,
-	std::size_t core_rank,
-	std::vector<std::size_t> &batch_extents,
-	std::vector<std::ptrdiff_t> &batch_strides
-)
-{
-	std::vector<std::size_t> extents;
-	std::vector<std::ptrdiff_t> strides;
-	layout.get_extents(extents);
-	layout.get_strides(strides);
-
-	if (extents.size() < core_rank)
-	{
-		throw std::invalid_argument(
-			"linalg_core_layout_plan: operand does not have enough axes "
-			"for its core."
-		);
-	}
-
-	const auto batch_rank = extents.size() - core_rank;
-	batch_extents.assign(extents.begin(), extents.begin() + batch_rank);
-	batch_strides.assign(strides.begin(), strides.begin() + batch_rank);
-
-	std::array<std::size_t, 2> core_extents{};
-	std::array<std::ptrdiff_t, 2> core_strides{};
-	for (std::size_t i = 0; i < core_rank; ++i)
-	{
-		core_extents[i] = extents[batch_rank + i];
-		core_strides[i] = strides[batch_rank + i];
-	}
-	return linalg_operand_core(core_rank, core_extents, core_strides);
-}
-
-/**
  * @brief Broadcast a layout to the canonical extents and split the named
  * axis off as a core, leaving the rest, in their original relative order,
  * as the batch.
  */
-linalg_operand_core split_named_core(
+operand_core split_named_core(
 	const strided_layout &layout,
 	span<const std::size_t> canonical_extents,
 	std::size_t core_axis,
@@ -78,8 +42,8 @@ linalg_operand_core split_named_core(
 	broadcast_layout.get_strides(strides);
 	offset = broadcast_layout.get_offset();
 
-	const std::array<std::size_t, 2> core_extents{ extents.at(core_axis), 0 };
-	const std::array<std::ptrdiff_t, 2> core_strides{
+	const std::array<std::size_t, 3> core_extents{ extents.at(core_axis), 0 };
+	const std::array<std::ptrdiff_t, 3> core_strides{
 		strides.at(core_axis), 0
 	};
 
@@ -93,16 +57,16 @@ linalg_operand_core split_named_core(
 			batch_strides.push_back(strides[i]);
 		}
 	}
-	return linalg_operand_core(1, core_extents, core_strides);
+	return operand_core(1, core_extents, core_strides);
 }
 
 } // anonymous namespace
 
 linalg_core_layout_plan::linalg_core_layout_plan(
 	joint_layout batch_layout,
-	const linalg_operand_core &output_core,
-	const linalg_operand_core &left_core,
-	const linalg_operand_core &right_core
+	const operand_core &output_core,
+	const operand_core &left_core,
+	const operand_core &right_core
 ) noexcept
 	: m_batch_layout(std::move(batch_layout))
 	, m_output_core(output_core)
@@ -225,19 +189,19 @@ std::size_t linalg_core_layout_plan::get_core_cost() const noexcept
 	return result > 0 ? result : 1;
 }
 
-const linalg_operand_core& 
+const operand_core& 
 linalg_core_layout_plan::get_output_core() const noexcept
 {
 	return m_output_core;
 }
 
-const linalg_operand_core& 
+const operand_core& 
 linalg_core_layout_plan::get_left_core() const noexcept
 {
 	return m_left_core;
 }
 
-const linalg_operand_core& 
+const operand_core& 
 linalg_core_layout_plan::get_right_core() const noexcept
 {
 	return m_right_core;

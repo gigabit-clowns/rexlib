@@ -15,7 +15,7 @@ namespace cpu
 // files including it.
 
 core_layout_kind classify_core_layout(
-	const linalg_operand_core &core
+	const operand_core &core
 ) noexcept
 {
 	if (core.get_rank() == 1)
@@ -50,18 +50,18 @@ bool is_column_major_compatible(core_layout_kind kind) noexcept
 	       kind == core_layout_kind::vector_contiguous;
 }
 
-linalg_operand_core pad_as_column(const linalg_operand_core &vector_core) noexcept
+operand_core pad_as_column(const operand_core &vector_core) noexcept
 {
-	return linalg_operand_core(
+	return operand_core(
 		2,
 		{ vector_core.get_extent(0), 1 },
 		{ vector_core.get_stride(0), 1 }
 	);
 }
 
-linalg_operand_core pad_as_row(const linalg_operand_core &vector_core) noexcept
+operand_core pad_as_row(const operand_core &vector_core) noexcept
 {
-	return linalg_operand_core(
+	return operand_core(
 		2,
 		{ 1, vector_core.get_extent(0) },
 		{ 1, vector_core.get_stride(0) }
