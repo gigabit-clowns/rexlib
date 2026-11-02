@@ -12,7 +12,7 @@ def test_standardize_background_2d_matches_a_reference(__setup_context):
 
 	result = rexlib.em.standardize_background_2d(
 		rexlib.from_dlpack(images),
-		__setup_seeds(3),
+		__setup_keys(3),
 		4,
 		math.inf,
 		__setup_context
@@ -25,14 +25,14 @@ def test_standardize_background_2d_matches_a_reference(__setup_context):
 
 def test_standardize_background_takes_axes_from_the_end(__setup_context):
 	images = __setup_images()
-	seeds = __setup_seeds(3)
+	keys = __setup_keys(3)
 
 	named = rexlib.em.standardize_background(
-		rexlib.from_dlpack(images), seeds, [-2, -1], 4, (-3, 3),
+		rexlib.from_dlpack(images), keys, [-2, -1], 4, (-3, 3),
 		__setup_context
 	)
 	numbered = rexlib.em.standardize_background_2d(
-		rexlib.from_dlpack(images), seeds, 4, (-3, 3), __setup_context
+		rexlib.from_dlpack(images), keys, 4, (-3, 3), __setup_context
 	)
 
 	assert numpy.array_equal(numpy.asarray(named), numpy.asarray(numbered))
@@ -43,19 +43,19 @@ def test_standardize_background_replaces_what_is_not_finite(__setup_context):
 	images[1, 5, 5] = math.inf
 
 	result = numpy.asarray(rexlib.em.standardize_background_2d(
-		rexlib.from_dlpack(images), __setup_seeds(3), 4, 3,
+		rexlib.from_dlpack(images), __setup_keys(3), 4, 3,
 		__setup_context
 	))
 
 	assert numpy.all(numpy.isfinite(result))
 
-def test_standardize_background_draws_by_seed(__setup_context):
+def test_standardize_background_draws_by_key(__setup_context):
 	images = numpy.full((2, 8, 8), math.nan)
 
-	def draw(seeds):
+	def draw(keys):
 		return numpy.asarray(rexlib.em.standardize_background_2d(
 			rexlib.from_dlpack(images.copy()),
-			rexlib.from_dlpack(numpy.asarray(seeds, dtype=numpy.uint64)),
+			rexlib.from_dlpack(numpy.asarray(keys, dtype=numpy.uint64)),
 			2, 3, __setup_context
 		))
 
@@ -67,7 +67,7 @@ def test_standardize_background_3d_keeps_the_shape(__setup_context):
 	volumes = numpy.random.default_rng(7).normal(size=(2, 6, 6, 6))
 
 	result = rexlib.em.standardize_background_3d(
-		rexlib.from_dlpack(volumes), __setup_seeds(2), 2, 3,
+		rexlib.from_dlpack(volumes), __setup_keys(2), 2, 3,
 		__setup_context
 	)
 
@@ -78,7 +78,7 @@ def test_standardize_background_writes_into_out(__setup_context):
 	out = rexlib.from_dlpack(numpy.zeros_like(images))
 
 	result = rexlib.em.standardize_background_2d(
-		rexlib.from_dlpack(images), __setup_seeds(3), 4, 3,
+		rexlib.from_dlpack(images), __setup_keys(3), 4, 3,
 		__setup_context, out=out
 	)
 
@@ -88,20 +88,20 @@ def test_standardize_background_uses_the_active_context():
 	images = __setup_images()
 	with rexlib.device('cpu'):
 		result = rexlib.em.standardize_background_2d(
-			rexlib.from_dlpack(images), __setup_seeds(3), 4, 3
+			rexlib.from_dlpack(images), __setup_keys(3), 4, 3
 		)
 	assert numpy.asarray(result).shape == images.shape
 
 def test_standardize_background_reads_one_bound_as_both(__setup_context):
 	images = __setup_images()
 	images[0, 0, 0] = 1000
-	seeds = __setup_seeds(3)
+	keys = __setup_keys(3)
 
 	symmetric = rexlib.em.standardize_background_2d(
-		rexlib.from_dlpack(images), seeds, 4, 2.5, __setup_context
+		rexlib.from_dlpack(images), keys, 4, 2.5, __setup_context
 	)
 	paired = rexlib.em.standardize_background_2d(
-		rexlib.from_dlpack(images), seeds, 4, (-2.5, 2.5), __setup_context
+		rexlib.from_dlpack(images), keys, 4, (-2.5, 2.5), __setup_context
 	)
 
 	assert numpy.array_equal(numpy.asarray(symmetric), numpy.asarray(paired))
@@ -114,20 +114,20 @@ def test_standardize_background_refuses_bounds_around_no_mean(
 	__setup_context, bounds
 ):
 	images = rexlib.from_dlpack(__setup_images())
-	seeds = __setup_seeds(3)
+	keys = __setup_keys(3)
 	with pytest.raises(ValueError):
 		rexlib.em.standardize_background_2d(
-			images, seeds, 4, bounds, __setup_context
+			images, keys, 4, bounds, __setup_context
 		)
 
 def test_standardize_background_refuses_bounds_of_another_length(
 	__setup_context
 ):
 	images = rexlib.from_dlpack(__setup_images())
-	seeds = __setup_seeds(3)
+	keys = __setup_keys(3)
 	with pytest.raises(ValueError):
 		rexlib.em.standardize_background_2d(
-			images, seeds, 4, (-3.0, 0.0, 3.0), __setup_context
+			images, keys, 4, (-3.0, 0.0, 3.0), __setup_context
 		)
 
 def __reference(images, radius):
@@ -146,7 +146,7 @@ def __reference(images, radius):
 def __setup_images():
 	return numpy.random.default_rng(3).normal(100, 5, size=(3, 16, 16))
 
-def __setup_seeds(count):
+def __setup_keys(count):
 	return rexlib.from_dlpack(numpy.arange(count, dtype=numpy.uint64))
 
 @pytest.fixture

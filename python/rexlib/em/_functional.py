@@ -28,7 +28,7 @@ def _resolve_bounds(
 
 def standardize_background(
 	value: Array,
-	seed: Array,
+	key: Array,
 	axes: Sequence[int],
 	radius: float,
 	bounds: float | tuple[float, float],
@@ -43,13 +43,15 @@ def standardize_background(
 	divided by its standard deviation, both computed again without the
 	elements whose standardized value lies outside `bounds`. Elements
 	that are not finite, or that end up outside the bounds, are replaced
-	by standard normal draws keyed by `seed`.
+	by standard normal draws keyed by `key`.
 
 	Args:
 		value: The images, of a floating point type.
-		seed: The uint64 seeds of the draws. It has no image axes and
-			broadcasts against the other axes of `value`: one seed for
-			every image, or one per image.
+		key: The uint64 keys of the draws. It has no image axes and
+			broadcasts against the other axes of `value`. A key gives one
+			stream of draws over every image it covers, so images sharing
+			a key draw different values, and an image with a key of its
+			own draws the same values however it is batched.
 		axes: The axes of an image. Negative values count from the end.
 		radius: The radius of the region left out of the background, in
 			elements.
@@ -63,7 +65,7 @@ def standardize_background(
 	"""
 	return _raw.standardize_background(
 		value,
-		seed,
+		key,
 		list(axes),
 		radius,
 		*_resolve_bounds(bounds),
@@ -73,7 +75,7 @@ def standardize_background(
 
 def standardize_background_2d(
 	value: Array,
-	seed: Array,
+	key: Array,
 	radius: float,
 	bounds: float | tuple[float, float],
 	context: ExecutionContext | None = None,
@@ -86,7 +88,7 @@ def standardize_background_2d(
 
 	Args:
 		value: The images, of a floating point type.
-		seed: The uint64 seeds of the draws, one for every image or one
+		key: The uint64 keys of the draws, one for every image or one
 			per image.
 		radius: The radius of the region left out of the background, in
 			elements.
@@ -100,7 +102,7 @@ def standardize_background_2d(
 	"""
 	return _raw.standardize_background_2d(
 		value,
-		seed,
+		key,
 		radius,
 		*_resolve_bounds(bounds),
 		_resolve_context(context),
@@ -109,7 +111,7 @@ def standardize_background_2d(
 
 def standardize_background_3d(
 	value: Array,
-	seed: Array,
+	key: Array,
 	radius: float,
 	bounds: float | tuple[float, float],
 	context: ExecutionContext | None = None,
@@ -122,7 +124,7 @@ def standardize_background_3d(
 
 	Args:
 		value: The volumes, of a floating point type.
-		seed: The uint64 seeds of the draws, one for every volume or one
+		key: The uint64 keys of the draws, one for every volume or one
 			per volume.
 		radius: The radius of the region left out of the background, in
 			elements.
@@ -136,7 +138,7 @@ def standardize_background_3d(
 	"""
 	return _raw.standardize_background_3d(
 		value,
-		seed,
+		key,
 		radius,
 		*_resolve_bounds(bounds),
 		_resolve_context(context),
