@@ -19,6 +19,7 @@ on:
       - .vscode/**
       - logos/**
       - renovate.json
+      - docs/agents
 
   pull_request:
     branches:
