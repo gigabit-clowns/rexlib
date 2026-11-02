@@ -4,7 +4,6 @@ target_sources(
 	rexlib-cpu-obj
 	PRIVATE
 		bessel_i0.cpp
-		contrast_transfer_function.cpp
 		eigen_gemm.cpp
 		eigen_gemm_complex_float32.cpp
 		eigen_gemm_complex_float64.cpp

@@ -5,6 +5,8 @@
 
 #include <backends/cpu/builders/em/reconstruction/slice_insertion_program_builder.hpp>
 
+#include <backends/cpu/builders/em/reconstruction/ctf_weight.hpp>
+#include <backends/cpu/builders/em/reconstruction/spectrum_weight.hpp>
 #include <backends/cpu/builders/em/reconstruction/unit_weight.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 #include <backends/cpu/kernels/bessel_i0.hpp>
@@ -18,7 +20,10 @@
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/numerical/numerical_type_traits.hpp>
 #include <rexlib/core/span.hpp>
+#include <rexlib/em/ops/parameters/ctf_optics.hpp>
+#include <rexlib/em/ops/reconstruction/insert_ctf_slices_operation.hpp>
 #include <rexlib/em/ops/reconstruction/insert_slices_operation.hpp>
+#include <rexlib/em/ops/reconstruction/insert_weighted_slices_operation.hpp>
 
 #include "../../../serial_pool.hpp"
 
@@ -29,6 +34,8 @@
 #include <limits>
 #include <memory>
 #include <random>
+#include <ostream>
+#include <utility>
 #include <vector>
 
 using namespace rexlib;
@@ -37,11 +44,36 @@ using namespace rexlib::cpu;
 namespace
 {
 
-using builder_type =
-	slice_insertion_program_builder<em::insert_slices_operation, unit_weight>;
-
 template <typename T>
 using complex_vector = std::vector<std::complex<T>>;
+
+/**
+ * @brief Which of the three insertions a case runs.
+ */
+enum class insertion_variant
+{
+	plain,
+	weighted,
+	ctf
+};
+
+std::ostream& operator<<(std::ostream &os, insertion_variant variant)
+{
+	switch (variant)
+	{
+	case insertion_variant::plain: return os << "plain";
+	case insertion_variant::weighted: return os << "weighted";
+	case insertion_variant::ctf: return os << "ctf";
+	}
+	return os;
+}
+
+const double pixel_size = 1.5;
+
+em::ctf_optics make_optics()
+{
+	return em::ctf_optics(300, 2.7, 0.1);
+}
 
 std::size_t count_elements(const std::vector<std::size_t> &extents)
 {
@@ -54,28 +86,73 @@ std::size_t count_elements(const std::vector<std::size_t> &extents)
 }
 
 /**
+ * @brief The extents of the operands of one insertion.
+ */
+class case_extents
+{
+public:
+	case_extents(
+		std::vector<std::size_t> accumulator,
+		std::vector<std::size_t> slices,
+		std::vector<std::size_t> transforms,
+		std::vector<std::size_t> radial,
+		std::vector<std::size_t> extra
+	)
+		: m_accumulator(std::move(accumulator))
+		, m_slices(std::move(slices))
+		, m_transforms(std::move(transforms))
+		, m_radial(std::move(radial))
+		, m_extra(std::move(extra))
+	{
+	}
+
+	const std::vector<std::size_t>& get_accumulator() const
+	{
+		return m_accumulator;
+	}
+	const std::vector<std::size_t>& get_slices() const { return m_slices; }
+	const std::vector<std::size_t>& get_transforms() const
+	{
+		return m_transforms;
+	}
+	const std::vector<std::size_t>& get_radial() const { return m_radial; }
+	const std::vector<std::size_t>& get_extra() const { return m_extra; }
+
+private:
+	std::vector<std::size_t> m_accumulator;
+	std::vector<std::size_t> m_slices;
+	std::vector<std::size_t> m_transforms;
+	std::vector<std::size_t> m_radial;
+	std::vector<std::size_t> m_extra;
+};
+
+/**
  * @brief The operands of one insertion, with contiguous layouts.
+ *
+ * The extra operand is the weights of insert_weighted_slices or the CTF
+ * parameters of insert_ctf_slices, and is empty for insert_slices.
  */
 template <typename T>
 class insertion_case
 {
 public:
 	insertion_case(
-		std::vector<std::size_t> accumulator_extents,
-		std::vector<std::size_t> slice_extents,
-		std::vector<std::size_t> transform_extents,
-		std::vector<std::size_t> radial_extents,
+		insertion_variant variant,
+		case_extents extents,
 		unsigned seed
 	)
-		: m_accumulator_extents(std::move(accumulator_extents))
-		, m_slice_extents(std::move(slice_extents))
-		, m_transform_extents(std::move(transform_extents))
-		, m_radial_extents(std::move(radial_extents))
-		, m_numerator(count_elements(m_accumulator_extents))
-		, m_denominator(count_elements(m_accumulator_extents))
-		, m_slices(count_elements(m_slice_extents))
-		, m_transforms(count_elements(m_transform_extents))
-		, m_radial(count_elements(m_radial_extents))
+		: m_variant(variant)
+		, m_extents(std::move(extents))
+		, m_numerator(count_elements(m_extents.get_accumulator()))
+		, m_denominator(count_elements(m_extents.get_accumulator()))
+		, m_slices(count_elements(m_extents.get_slices()))
+		, m_transforms(count_elements(m_extents.get_transforms()))
+		, m_radial(count_elements(m_extents.get_radial()))
+		, m_extra(
+			variant == insertion_variant::plain
+				? 0
+				: count_elements(m_extents.get_extra())
+		)
 	{
 		std::mt19937 engine(seed);
 		std::uniform_real_distribution<double> unit(-1.0, 1.0);
@@ -101,85 +178,62 @@ public:
 		{
 			value = T(weight(engine));
 		}
+
+		if (variant == insertion_variant::weighted)
+		{
+			for (auto &value : m_extra)
+			{
+				value = T(weight(engine));
+			}
+		}
+		else if (variant == insertion_variant::ctf)
+		{
+			std::uniform_real_distribution<double> defocus(8000, 25000);
+			std::uniform_real_distribution<double> angle(0, pi);
+			std::uniform_real_distribution<double> shift(0, 0.5);
+			for (std::size_t i = 0; i < m_extra.size(); i += 4)
+			{
+				m_extra[i] = T(defocus(engine));
+				m_extra[i + 1] = T(defocus(engine));
+				m_extra[i + 2] = T(angle(engine));
+				m_extra[i + 3] = T(shift(engine));
+			}
+		}
 	}
 
-	const std::vector<std::size_t>& get_accumulator_extents() const
-	{
-		return m_accumulator_extents;
-	}
+	insertion_variant get_variant() const { return m_variant; }
+	const case_extents& get_extents() const { return m_extents; }
 
 	std::size_t get_slice_extent() const
 	{
-		return m_slice_extents[m_slice_extents.size() - 2];
+		const auto &slices = m_extents.get_slices();
+		return slices[slices.size() - 2];
 	}
 
 	std::size_t get_volume_extent() const
 	{
-		return m_accumulator_extents[m_accumulator_extents.size() - 3];
+		const auto &accumulator = m_extents.get_accumulator();
+		return accumulator[accumulator.size() - 3];
 	}
 
-	complex_vector<T>& get_numerator() { return m_numerator; }
-	std::vector<T>& get_denominator() { return m_denominator; }
-	complex_vector<T>& get_slices() { return m_slices; }
-	std::vector<T>& get_transforms() { return m_transforms; }
-	std::vector<T>& get_radial() { return m_radial; }
 	const complex_vector<T>& get_numerator() const { return m_numerator; }
 	const std::vector<T>& get_denominator() const { return m_denominator; }
 	const complex_vector<T>& get_slices() const { return m_slices; }
 	const std::vector<T>& get_transforms() const { return m_transforms; }
 	const std::vector<T>& get_radial() const { return m_radial; }
-
-	std::vector<operand_descriptor> make_input_descriptors() const
-	{
-		return {
-			make_descriptor(m_accumulator_extents, complex_type()),
-			make_descriptor(m_accumulator_extents, real_type()),
-			make_descriptor(m_slice_extents, complex_type()),
-			make_descriptor(m_transform_extents, real_type()),
-			make_descriptor(m_radial_extents, real_type())
-		};
-	}
-
-	std::vector<operand_descriptor> make_output_descriptors() const
-	{
-		return {
-			make_descriptor(m_accumulator_extents, complex_type()),
-			make_descriptor(m_accumulator_extents, real_type())
-		};
-	}
+	const std::vector<T>& get_extra() const { return m_extra; }
+	complex_vector<T>& get_slices() { return m_slices; }
+	std::vector<T>& get_radial() { return m_radial; }
 
 private:
-	static numerical_type complex_type()
-	{
-		return numerical_type_of<std::complex<T>>::value;
-	}
-
-	static numerical_type real_type()
-	{
-		return numerical_type_of<T>::value;
-	}
-
-	static operand_descriptor make_descriptor(
-		const std::vector<std::size_t> &extents,
-		numerical_type data_type
-	)
-	{
-		return operand_descriptor(
-			strided_layout::make_contiguous_layout(make_span(extents)),
-			data_type,
-			nullptr
-		);
-	}
-
-	std::vector<std::size_t> m_accumulator_extents;
-	std::vector<std::size_t> m_slice_extents;
-	std::vector<std::size_t> m_transform_extents;
-	std::vector<std::size_t> m_radial_extents;
+	insertion_variant m_variant;
+	case_extents m_extents;
 	complex_vector<T> m_numerator;
 	std::vector<T> m_denominator;
 	complex_vector<T> m_slices;
 	std::vector<T> m_transforms;
 	std::vector<T> m_radial;
+	std::vector<T> m_extra;
 };
 
 template <typename T>
@@ -204,9 +258,23 @@ std::vector<T> read_buffer(const buffer &buffer, std::size_t count)
 	return std::vector<T>(data, data + count);
 }
 
+template <typename T>
+operand_descriptor make_descriptor(
+	const std::vector<std::size_t> &extents,
+	bool complex
+)
+{
+	return operand_descriptor(
+		strided_layout::make_contiguous_layout(make_span(extents)),
+		complex
+			? numerical_type_of<std::complex<T>>::value
+			: numerical_type_of<T>::value,
+		nullptr
+	);
+}
+
 /**
- * @brief The result of running the program: the numerator and the
- * denominator.
+ * @brief The numerator and the denominator.
  */
 template <typename T>
 class insertion_result
@@ -227,24 +295,66 @@ private:
 };
 
 /**
- * @brief Build the program of a case and run it.
- *
- * @param in_place Whether the outputs are the accumulators themselves.
+ * @brief Build a program with a builder and run it over the operands.
  */
-template <typename T>
-insertion_result<T> run(
+template <typename Builder, typename Op, typename T>
+insertion_result<T> run_program(
+	const Op &operation,
 	const insertion_case<T> &data,
-	const em::gridding_window &window,
 	thread_pool &pool,
-	bool in_place = false
+	bool in_place
 )
 {
-	const builder_type builder;
-	const em::insert_slices_operation operation(window);
-	cpu_command_queue queue(get_serial_pool());
-	const auto output_descriptors = data.make_output_descriptors();
-	const auto input_descriptors = data.make_input_descriptors();
+	const auto &extents = data.get_extents();
+	const auto numerator = make_buffer(data.get_numerator());
+	const auto denominator = make_buffer(data.get_denominator());
 
+	std::vector<operand_descriptor> input_descriptors = {
+		make_descriptor<T>(extents.get_accumulator(), true),
+		make_descriptor<T>(extents.get_accumulator(), false),
+		make_descriptor<T>(extents.get_slices(), true)
+	};
+	std::vector<std::shared_ptr<const buffer>> inputs = {
+		numerator,
+		denominator,
+		make_buffer(data.get_slices())
+	};
+	const auto add = [&](
+		const std::vector<std::size_t> &operand_extents,
+		const std::vector<T> &values
+	)
+	{
+		input_descriptors.push_back(
+			make_descriptor<T>(operand_extents, false)
+		);
+		inputs.push_back(make_buffer(values));
+	};
+
+	switch (data.get_variant())
+	{
+	case insertion_variant::plain:
+		add(extents.get_transforms(), data.get_transforms());
+		add(extents.get_radial(), data.get_radial());
+		break;
+	case insertion_variant::weighted:
+		add(extents.get_extra(), data.get_extra());
+		add(extents.get_transforms(), data.get_transforms());
+		add(extents.get_radial(), data.get_radial());
+		break;
+	case insertion_variant::ctf:
+		add(extents.get_transforms(), data.get_transforms());
+		add(extents.get_extra(), data.get_extra());
+		add(extents.get_radial(), data.get_radial());
+		break;
+	}
+
+	const std::vector<operand_descriptor> output_descriptors = {
+		make_descriptor<T>(extents.get_accumulator(), true),
+		make_descriptor<T>(extents.get_accumulator(), false)
+	};
+
+	const Builder builder;
+	cpu_command_queue queue(get_serial_pool());
 	const auto program = builder.build(
 		operation,
 		make_span(output_descriptors),
@@ -254,16 +364,7 @@ insertion_result<T> run(
 	);
 	REQUIRE( program != nullptr );
 
-	const auto numerator = make_buffer(data.get_numerator());
-	const auto denominator = make_buffer(data.get_denominator());
-	const std::vector<std::shared_ptr<const buffer>> inputs = {
-		numerator,
-		denominator,
-		make_buffer(data.get_slices()),
-		make_buffer(data.get_transforms()),
-		make_buffer(data.get_radial())
-	};
-	const auto count = count_elements(data.get_accumulator_extents());
+	const auto count = count_elements(extents.get_accumulator());
 	const std::vector<std::shared_ptr<buffer>> outputs = {
 		in_place ? numerator : make_buffer(complex_vector<T>(count)),
 		in_place ? denominator : make_buffer(std::vector<T>(count))
@@ -284,12 +385,56 @@ insertion_result<T> run(
 }
 
 /**
+ * @brief Build and run the program of the operation a case names.
+ *
+ * @param in_place Whether the outputs are the accumulators themselves.
+ */
+template <typename T>
+insertion_result<T> run(
+	const insertion_case<T> &data,
+	const em::gridding_window &window,
+	thread_pool &pool,
+	bool in_place = false
+)
+{
+	switch (data.get_variant())
+	{
+	case insertion_variant::weighted:
+		return run_program<
+			slice_insertion_program_builder<
+				em::insert_weighted_slices_operation,
+				spectrum_weight
+			>
+		>(em::insert_weighted_slices_operation(window), data, pool, in_place);
+	case insertion_variant::ctf:
+		return run_program<
+			slice_insertion_program_builder<
+				em::insert_ctf_slices_operation,
+				ctf_weight
+			>
+		>(
+			em::insert_ctf_slices_operation(window, make_optics(), pixel_size),
+			data,
+			pool,
+			in_place
+		);
+	case insertion_variant::plain:
+		break;
+	}
+	return run_program<
+		slice_insertion_program_builder<
+			em::insert_slices_operation,
+			unit_weight
+		>
+	>(em::insert_slices_operation(window), data, pool, in_place);
+}
+
+/**
  * @brief The window weight of a voxel at a distance from a sample along
  * one axis, from the formulas of the contract.
  */
 double window_weight(const em::gridding_window &window, double distance)
 {
-	const auto w = window.get_half_width();
 	switch (window.get_profile())
 	{
 	case em::gridding_profile::box:
@@ -298,7 +443,7 @@ double window_weight(const em::gridding_window &window, double distance)
 		return 1.0 - std::abs(distance);
 	case em::gridding_profile::kaiser_bessel:
 	{
-		const auto ratio = distance / w;
+		const auto ratio = distance / window.get_half_width();
 		if (!(std::abs(ratio) < 1.0))
 		{
 			return 0.0;
@@ -347,11 +492,39 @@ std::vector<std::ptrdiff_t> reached_voxels(
 }
 
 /**
+ * @brief The CTF of a frequency, from the formula of the contract.
+ */
+double reference_ctf(
+	const double *parameters,
+	std::size_t extent,
+	double k_x,
+	double k_y
+)
+{
+	const auto optics = make_optics();
+	const auto wavelength = optics.get_wavelength();
+	const auto aberration = optics.get_spherical_aberration() * 1e7;
+	const auto s2 = (k_x * k_x + k_y * k_y) /
+		std::pow(static_cast<double>(extent) * pixel_size, 2);
+	const auto direction = std::atan2(k_y, k_x);
+	const auto defocus = 0.5 * (parameters[0] + parameters[1]) +
+		0.5 * (parameters[0] - parameters[1]) *
+			std::cos(2.0 * (direction - parameters[2]));
+	return std::sin(
+		pi * wavelength * defocus * s2 -
+		0.5 * pi * aberration * std::pow(wavelength, 3) * s2 * s2 +
+		parameters[3] + std::asin(optics.get_amplitude_contrast())
+	);
+}
+
+/**
  * @brief Insert the slices of a case as the contract states, in double.
  *
  * Every frequency of the full spectrum of each slice is placed, the voxels
  * with a negative x are left out, and the accumulators are the inputs plus
- * the insertions.
+ * the insertions. The batches are K accumulators each receiving B slices,
+ * with the transforms laid out (K, B) or (B) and every other input (B) or
+ * without batch axes.
  */
 template <typename T>
 insertion_result<T> reference(
@@ -370,16 +543,18 @@ insertion_result<T> reference(
 	const auto volume_centre = static_cast<double>(big / 2);
 	const auto volume_count = big * big * half;
 
-	// The batches: K accumulators, each receiving B slices whose transforms
-	// are laid out (K, B) or (B), as the cases below arrange them.
-	const auto &accumulator_extents = data.get_accumulator_extents();
 	const auto accumulator_count =
-		count_elements(accumulator_extents) / volume_count;
+		data.get_numerator().size() / volume_count;
 	const auto slice_count = data.get_slices().size() / (n * h);
 	const auto transform_count = data.get_transforms().size() / 12;
 	const auto radial_count = data.get_radial().size() / h;
+	const auto variant = data.get_variant();
+	const auto extra_size = variant == insertion_variant::ctf ? 4 : n * h;
+	const auto extra_count = variant == insertion_variant::plain
+		? 1
+		: data.get_extra().size() / extra_size;
 
-	complex_vector<double> numerator(count_elements(accumulator_extents));
+	complex_vector<double> numerator(data.get_numerator().size());
 	std::vector<double> denominator(numerator.size());
 	for (std::size_t i = 0; i < numerator.size(); ++i)
 	{
@@ -387,107 +562,118 @@ insertion_result<T> reference(
 		denominator[i] = data.get_denominator()[i];
 	}
 
+	const auto slices_per_accumulator = transform_count / accumulator_count;
 	for (std::size_t k = 0; k < accumulator_count; ++k)
+	for (std::size_t b = 0; b < slices_per_accumulator; ++b)
 	{
-		const auto slices_per_accumulator =
-			transform_count / accumulator_count;
-		for (std::size_t b = 0; b < slices_per_accumulator; ++b)
+		const auto *slice = &data.get_slices()[(b % slice_count) * n * h];
+		const auto *transform = &data.get_transforms()[
+			(k * slices_per_accumulator + b) * 12
+		];
+		const auto *radial = &data.get_radial()[(b % radial_count) * h];
+		std::vector<double> extra(extra_size);
+		for (std::size_t i = 0;
+			variant != insertion_variant::plain && i < extra_size;
+			++i)
 		{
-			const auto *slice = &data.get_slices()[
-				(b % slice_count) * n * h
-			];
-			const auto *transform = &data.get_transforms()[
-				(k * slices_per_accumulator + b) * 12
-			];
-			const auto *radial = &data.get_radial()[(b % radial_count) * h];
-			auto *num = &numerator[k * volume_count];
-			auto *den = &denominator[k * volume_count];
+			extra[i] = data.get_extra()[(b % extra_count) * extra_size + i];
+		}
+		auto *num = &numerator[k * volume_count];
+		auto *den = &denominator[k * volume_count];
 
-			for (std::ptrdiff_t row = 0; row < signed_n; ++row)
+		for (std::ptrdiff_t row = 0; row < signed_n; ++row)
+		for (std::ptrdiff_t column = 0;
+			column < static_cast<std::ptrdiff_t>(h);
+			++column)
+		{
+			if (
+				n % 2 == 0 &&
+				(row == signed_n / 2 || column == signed_n / 2)
+			)
 			{
-				if (n % 2 == 0 && row == signed_n / 2)
+				continue;
+			}
+			const auto k_y = static_cast<double>(
+				row <= signed_n / 2 ? row : row - signed_n
+			);
+			const auto k_x = static_cast<double>(column);
+			const auto shell = static_cast<std::size_t>(
+				std::floor(std::sqrt(k_x * k_x + k_y * k_y) + 0.5)
+			);
+			if (shell >= h)
+			{
+				continue;
+			}
+			const auto r = static_cast<double>(radial[shell]);
+			if (r == 0.0)
+			{
+				continue;
+			}
+
+			double alpha = 1.0;
+			double beta = 1.0;
+			if (variant == insertion_variant::weighted)
+			{
+				beta = extra[static_cast<std::size_t>(row) * h +
+					static_cast<std::size_t>(column)];
+			}
+			else if (variant == insertion_variant::ctf)
+			{
+				alpha = reference_ctf(extra.data(), n, k_x, k_y);
+				beta = alpha * alpha;
+			}
+
+			const std::complex<double> x = slice[row * h + column];
+			const auto shift = 2.0 * pi * (
+				k_x * (centre + transform[3]) +
+				k_y * (centre + transform[7])
+			) / static_cast<double>(n);
+			const auto v = x * std::polar(1.0, shift);
+
+			for (int sign = 1; sign >= -1; sign -= 2)
+			{
+				if (sign < 0 && column == 0)
 				{
 					continue;
 				}
-				const auto k_y = static_cast<double>(
-					row <= signed_n / 2 ? row : row - signed_n
-				);
-				for (std::ptrdiff_t column = 0;
-					column < static_cast<std::ptrdiff_t>(h);
-					++column)
+				const auto value = sign > 0 ? v : std::conj(v);
+				double big_k[3];
+				for (std::size_t j = 0; j < 3; ++j)
 				{
-					if (n % 2 == 0 && column == signed_n / 2)
-					{
-						continue;
-					}
-					const auto k_x = static_cast<double>(column);
-					const auto shell = static_cast<std::size_t>(
-						std::floor(std::sqrt(k_x * k_x + k_y * k_y) + 0.5)
+					big_k[j] = sign * scale * (
+						k_x * transform[j] + k_y * transform[4 + j]
 					);
-					if (shell >= h)
+				}
+
+				for (const auto gz : reached_voxels(window, big_k[2]))
+				for (const auto gy : reached_voxels(window, big_k[1]))
+				for (const auto gx : reached_voxels(window, big_k[0]))
+				{
+					if (
+						gx < 0 || gx > signed_big / 2 ||
+						std::abs(gy) > signed_big / 2 ||
+						std::abs(gz) > signed_big / 2
+					)
 					{
 						continue;
 					}
-					const auto r = static_cast<double>(radial[shell]);
-					if (r == 0.0)
-					{
-						continue;
-					}
-
-					const std::complex<double> x = slice[row * h + column];
-					const auto shift = 2.0 * pi * (
-						k_x * (centre + transform[3]) +
-						k_y * (centre + transform[7])
-					) / static_cast<double>(n);
-					const auto v = x * std::polar(1.0, shift);
-
-					for (int sign = 1; sign >= -1; sign -= 2)
-					{
-						if (sign < 0 && column == 0)
-						{
-							continue;
-						}
-						const auto value = sign > 0 ? v : std::conj(v);
-						double big_k[3];
-						for (std::size_t j = 0; j < 3; ++j)
-						{
-							big_k[j] = sign * scale * (
-								k_x * transform[j] + k_y * transform[4 + j]
-							);
-						}
-
-						for (const auto gz : reached_voxels(window, big_k[2]))
-						for (const auto gy : reached_voxels(window, big_k[1]))
-						for (const auto gx : reached_voxels(window, big_k[0]))
-						{
-							const auto weight = r *
-								window_weight(window, gx - big_k[0]) *
-								window_weight(window, gy - big_k[1]) *
-								window_weight(window, gz - big_k[2]);
-							const auto contribution =
-								value * weight * std::polar(
-								1.0,
-								-2.0 * pi * (gx + gy + gz) * volume_centre /
-									static_cast<double>(big)
-							);
-							if (
-								gx < 0 || gx > signed_big / 2 ||
-								std::abs(gy) > signed_big / 2 ||
-								std::abs(gz) > signed_big / 2
-							)
-							{
-								continue;
-							}
-							const auto sy = gy < 0 ? gy + signed_big : gy;
-							const auto sz = gz < 0 ? gz + signed_big : gz;
-							const auto index =
-								(sz * signed_big + sy) *
-									static_cast<std::ptrdiff_t>(half) +
-								gx;
-							num[index] += contribution;
-							den[index] += weight;
-						}
-					}
+					const auto kappa =
+						window_weight(window, gx - big_k[0]) *
+						window_weight(window, gy - big_k[1]) *
+						window_weight(window, gz - big_k[2]);
+					const auto phase = std::polar(
+						1.0,
+						-2.0 * pi * (gx + gy + gz) * volume_centre /
+							static_cast<double>(big)
+					);
+					const auto sy = gy < 0 ? gy + signed_big : gy;
+					const auto sz = gz < 0 ? gz + signed_big : gz;
+					const auto index =
+						(sz * signed_big + sy) *
+							static_cast<std::ptrdiff_t>(half) +
+						gx;
+					num[index] += kappa * r * alpha * value * phase;
+					den[index] += kappa * r * beta;
 				}
 			}
 		}
@@ -541,10 +727,7 @@ void check_close(
 }
 
 template <typename T>
-bool identical(
-	const insertion_result<T> &a,
-	const insertion_result<T> &b
-)
+bool identical(const insertion_result<T> &a, const insertion_result<T> &b)
 {
 	return
 		a.get_numerator() == b.get_numerator() &&
@@ -555,13 +738,25 @@ bool identical(
  * @brief Three slices of extent n into one volume of extent big.
  */
 template <typename T>
-insertion_case<T> make_batch(std::size_t n, std::size_t big, unsigned seed)
+insertion_case<T> make_batch(
+	insertion_variant variant,
+	std::size_t n,
+	std::size_t big,
+	unsigned seed
+)
 {
+	const auto h = n / 2 + 1;
 	return insertion_case<T>(
-		{ big, big, big / 2 + 1 },
-		{ 3, n, n / 2 + 1 },
-		{ 3, 3, 4 },
-		{ 3, n / 2 + 1 },
+		variant,
+		case_extents(
+			{ big, big, big / 2 + 1 },
+			{ 3, n, h },
+			{ 3, 3, 4 },
+			{ 3, h },
+			variant == insertion_variant::ctf
+				? std::vector<std::size_t>{ 3, 4 }
+				: std::vector<std::size_t>{ 3, n, h }
+		),
 		seed
 	);
 }
@@ -583,6 +778,13 @@ private:
 	std::size_t m_volume;
 };
 
+double tolerance_for(const em::gridding_window &window)
+{
+	return window.get_profile() == em::gridding_profile::kaiser_bessel
+		? 5e-4
+		: 1e-9;
+}
+
 } // anonymous namespace
 
 TEST_CASE(
@@ -599,32 +801,63 @@ TEST_CASE(
 		em::gridding_window::linear(),
 		em::gridding_window::kaiser_bessel(1.5, 6.0)
 	);
-	const auto tolerance =
-		window.get_profile() == em::gridding_profile::kaiser_bessel
-			? 5e-4
-			: 1e-9;
-
 	INFO(
 		"n = " << sizes.get_slice() << ", N = " << sizes.get_volume()
 		<< ", window " << window.get_profile()
 	);
-	const auto data =
-		make_batch<double>(sizes.get_slice(), sizes.get_volume(), 1);
+	const auto data = make_batch<double>(
+		insertion_variant::plain, sizes.get_slice(), sizes.get_volume(), 1
+	);
 
 	check_close(
 		run(data, window, *get_serial_pool()),
 		reference(data, window),
-		tolerance
+		tolerance_for(window)
 	);
 }
 
 TEST_CASE(
-	"the insert_slices program should give the same bits on any number of "
+	"the weighted and CTF insertion programs should weight as the contract "
+	"states",
+	"[slice_insertion_program_builder]"
+)
+{
+	const auto variant = GENERATE(
+		insertion_variant::weighted, insertion_variant::ctf
+	);
+	const auto sizes = GENERATE(size_pair(6, 12), size_pair(5, 7));
+	const auto window = GENERATE(
+		em::gridding_window::linear(),
+		em::gridding_window::kaiser_bessel(2.0, 8.0)
+	);
+	INFO(
+		variant << ", n = " << sizes.get_slice() << ", N = "
+		<< sizes.get_volume() << ", window " << window.get_profile()
+	);
+	const auto data = make_batch<double>(
+		variant, sizes.get_slice(), sizes.get_volume(), 5
+	);
+
+	check_close(
+		run(data, window, *get_serial_pool()),
+		reference(data, window),
+		tolerance_for(window)
+	);
+}
+
+TEST_CASE(
+	"the insertion programs should give the same bits on any number of "
 	"threads and in place",
 	"[slice_insertion_program_builder]"
 )
 {
-	const auto data = make_batch<float>(8, 16, 2);
+	const auto variant = GENERATE(
+		insertion_variant::plain,
+		insertion_variant::weighted,
+		insertion_variant::ctf
+	);
+	INFO( variant );
+	const auto data = make_batch<float>(variant, 8, 16, 2);
 	const auto window = em::gridding_window::linear();
 	thread_pool threads(3);
 
@@ -646,10 +879,14 @@ TEST_CASE(
 	// Two accumulators, each receiving the same three slices through
 	// transforms of its own.
 	const insertion_case<double> data(
-		{ 2, 1, 8, 8, 5 },
-		{ 3, 6, 4 },
-		{ 2, 3, 3, 4 },
-		{ 3, 4 },
+		insertion_variant::plain,
+		case_extents(
+			{ 2, 1, 8, 8, 5 },
+			{ 3, 6, 4 },
+			{ 2, 3, 3, 4 },
+			{ 3, 4 },
+			{}
+		),
 		3
 	);
 	const auto window = em::gridding_window::linear();
@@ -666,17 +903,14 @@ TEST_CASE(
 	"[slice_insertion_program_builder]"
 )
 {
-	auto data = make_batch<double>(8, 16, 4);
+	auto data = make_batch<double>(insertion_variant::plain, 8, 16, 4);
 	const auto not_a_number = std::numeric_limits<double>::quiet_NaN();
-	// Shells 3 and 4 of every slice are cut off.
+	// Shells 3 and 4 of every slice are cut off, and the samples at
+	// (k_x, k_y) = (4, 0), on shell 4, are NaN.
 	for (std::size_t b = 0; b < 3; ++b)
 	{
 		data.get_radial()[b * 5 + 3] = 0.0;
 		data.get_radial()[b * 5 + 4] = 0.0;
-	}
-	// Samples at (k_x, k_y) = (4, 0) are on shell 4.
-	for (std::size_t b = 0; b < 3; ++b)
-	{
 		data.get_slices()[b * 8 * 5 + 4] =
 			std::complex<double>(not_a_number, not_a_number);
 	}

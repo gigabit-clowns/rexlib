@@ -20,11 +20,21 @@ namespace cpu
  * s = |k| / (n p) the spatial frequency for an extent n and a pixel size p,
  * and D(t) the defocus along the direction t of k.
  *
+ * The coefficients are derived in double precision and evaluated in T.
+ *
+ * @tparam T The real type the function is evaluated in.
+ *
  * @see em::insert_ctf_slices_operation
  */
+template <typename T>
 class contrast_transfer_function
 {
 public:
+	/**
+	 * @brief Construct the function that is 0 at every frequency.
+	 */
+	contrast_transfer_function() noexcept;
+
 	/**
 	 * @brief Construct the function of an image.
 	 *
@@ -54,19 +64,28 @@ public:
 	 *
 	 * @param k_x The frequency along x, in samples.
 	 * @param k_y The frequency along y, in samples.
-	 * @return double c(k).
+	 * @return T c(k).
 	 */
-	double operator()(double k_x, double k_y) const noexcept;
+	T operator()(T k_x, T k_y) const noexcept;
+
+	/**
+	 * @brief Compute the phase whose sine is the function at a frequency.
+	 *
+	 * @param k_x The frequency along x, in samples.
+	 * @param k_y The frequency along y, in samples.
+	 * @return T The phase, in radians.
+	 */
+	T compute_phase(T k_x, T k_y) const noexcept;
 
 private:
-	double m_defocus_scale;
-	double m_aberration_scale;
-	double m_mean_defocus;
-	double m_half_defocus_difference;
-	double m_cos_double_angle;
-	double m_sin_double_angle;
-	double m_phase;
+	T m_radial;
+	T m_axial;
+	T m_diagonal;
+	T m_aberration;
+	T m_phase;
 };
 
 } // namespace cpu
 } // namespace rexlib
+
+#include "contrast_transfer_function.inl"

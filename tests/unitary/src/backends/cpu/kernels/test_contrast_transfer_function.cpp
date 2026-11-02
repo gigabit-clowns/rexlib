@@ -47,7 +47,7 @@ TEST_CASE(
 	"[contrast_transfer_function]"
 )
 {
-	const contrast_transfer_function ctf(
+	const contrast_transfer_function<double> ctf(
 		em::ctf_optics(300, 2.7, 0.1), 1.0, 256, 15000, 12000, 0.3, 0
 	);
 
@@ -61,7 +61,7 @@ TEST_CASE(
 )
 {
 	const em::ctf_optics optics(300, 2.7, 0.07);
-	const contrast_transfer_function ctf(
+	const contrast_transfer_function<double> ctf(
 		optics, 1.2, 128, 20000, 20000, 1.1, 0.4
 	);
 
@@ -85,10 +85,10 @@ TEST_CASE(
 )
 {
 	const em::ctf_optics optics(200, 2.0, 0.1);
-	const contrast_transfer_function along(
+	const contrast_transfer_function<double> along(
 		optics, 1.0, 200, 18000, 12000, 0, 0
 	);
-	const contrast_transfer_function turned(
+	const contrast_transfer_function<double> turned(
 		optics, 1.0, 200, 18000, 12000, pi / 2, 0
 	);
 
@@ -98,4 +98,44 @@ TEST_CASE(
 	CHECK_THAT( along(0, 30), WithinAbs(with_v, 1e-9) );
 	CHECK_THAT( turned(30, 0), WithinAbs(with_v, 1e-9) );
 	CHECK_THAT( turned(0, 30), WithinAbs(with_u, 1e-9) );
+}
+
+TEST_CASE(
+	"contrast_transfer_function should default to 0 at every frequency",
+	"[contrast_transfer_function]"
+)
+{
+	const contrast_transfer_function<double> ctf;
+
+	CHECK( ctf(0, 0) == 0.0 );
+	CHECK( ctf(12, -5) == 0.0 );
+}
+
+TEST_CASE(
+	"contrast_transfer_function in single precision should stay close to "
+	"double precision up to the Nyquist frequency",
+	"[contrast_transfer_function]"
+)
+{
+	// A large defocus over small pixels, where the phase is largest.
+	const em::ctf_optics optics(300, 2.7, 0.1);
+	const contrast_transfer_function<double> exact(
+		optics, 0.5, 512, 50000, 45000, 0.7, 0.3
+	);
+	const contrast_transfer_function<float> single(
+		optics, 0.5, 512, 50000, 45000, 0.7, 0.3
+	);
+
+	for (int k_x = 0; k_x <= 256; k_x += 17)
+	{
+		for (int k_y = -256; k_y <= 256; k_y += 31)
+		{
+			CHECK_THAT(
+				static_cast<double>(single(
+					static_cast<float>(k_x), static_cast<float>(k_y)
+				)),
+				WithinAbs(exact(k_x, k_y), 2e-3)
+			);
+		}
+	}
 }
