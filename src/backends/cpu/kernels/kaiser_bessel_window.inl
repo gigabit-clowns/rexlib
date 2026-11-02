@@ -7,6 +7,7 @@
 #include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace rexlib
@@ -14,75 +15,124 @@ namespace rexlib
 namespace cpu
 {
 
+template <typename T>
 inline
-kaiser_bessel_window::kaiser_bessel_window(const em::gridding_window &window)
-	: m_half_width(window.get_half_width())
-	, m_tap_count(static_cast<std::size_t>(std::ceil(2.0 * m_half_width)))
+kaiser_bessel_window<T>::kaiser_bessel_window(
+	const em::gridding_window &window
+)
+	: m_half_width(static_cast<T>(window.get_half_width()))
+	, m_tap_count(
+		static_cast<std::size_t>(std::ceil(2.0 * window.get_half_width()))
+	)
 {
 	REXLIB_ASSERT(window.get_profile() == em::gridding_profile::kaiser_bessel);
 
+	const auto half_width = window.get_half_width();
 	const auto shape = window.get_shape();
 	const auto normalization = 1.0 / bessel_i0(shape);
 	const auto count =
-		static_cast<std::size_t>(std::ceil(m_half_width * samples_per_voxel));
+		static_cast<std::size_t>(std::ceil(half_width * samples_per_voxel));
+	m_scale = static_cast<T>(static_cast<double>(count) / half_width);
+	m_step_count = static_cast<std::int32_t>(count);
 
-	// The last entry is the window at the half-width itself, which the
-	// stretch before it interpolates towards.
-	m_table.resize(count + 1);
+	// The entry i holds the window at i / count of the half-width, so the
+	// entry count holds its value at the half-width itself; two zeros
+	// follow, read for any distance from the half-width on.
+	m_table.assign(count + 3, T(0));
 	for (std::size_t i = 0; i <= count; ++i)
 	{
-		const auto ratio = std::min(
-			static_cast<double>(i) / (m_half_width * samples_per_voxel),
-			1.0
+		const auto ratio = static_cast<double>(i) / static_cast<double>(count);
+		m_table[i] = static_cast<T>(
+			bessel_i0(shape * std::sqrt(1.0 - ratio * ratio)) * normalization
 		);
-		m_table[i] =
-			bessel_i0(shape * std::sqrt(1.0 - ratio * ratio)) * normalization;
 	}
-}
-
-inline
-std::size_t kaiser_bessel_window::get_tap_count() const noexcept
-{
-	return m_tap_count;
-}
-
-inline
-double kaiser_bessel_window::get_half_width() const noexcept
-{
-	return m_half_width;
-}
-
-inline
-double kaiser_bessel_window::evaluate(double distance) const noexcept
-{
-	if (!(std::abs(distance) < m_half_width))
-	{
-		return 0.0;
-	}
-
-	const auto position = std::abs(distance) * samples_per_voxel;
-	const auto below = std::floor(position);
-	const auto fraction = position - below;
-	const auto index = static_cast<std::size_t>(below);
-	return m_table[index] + fraction * (m_table[index + 1] - m_table[index]);
 }
 
 template <typename T>
 inline
-std::ptrdiff_t kaiser_bessel_window::place(
-	double coordinate,
-	T *weights
+std::size_t kaiser_bessel_window<T>::get_tap_count() const noexcept
+{
+	return m_tap_count;
+}
+
+template <typename T>
+inline
+T kaiser_bessel_window<T>::get_half_width() const noexcept
+{
+	return m_half_width;
+}
+
+template <typename T>
+inline
+T kaiser_bessel_window<T>::evaluate(T distance) const noexcept
+{
+	const auto position = std::abs(distance) * m_scale;
+	const auto step = static_cast<std::int32_t>(position);
+	const auto index = step < m_step_count ? step : m_step_count + 1;
+	const auto fraction = position - static_cast<T>(index);
+	const auto below = m_table[static_cast<std::size_t>(index)];
+	return below +
+		fraction * (m_table[static_cast<std::size_t>(index) + 1] - below);
+}
+
+template <typename T>
+inline
+void kaiser_bessel_window<T>::place(
+	const T *coordinates,
+	std::int32_t count,
+	std::int32_t *first,
+	T *weights,
+	std::size_t weight_stride
 ) const noexcept
 {
-	const auto first =
-		static_cast<std::ptrdiff_t>(std::floor(coordinate - m_half_width)) + 1;
+	const auto *table = m_table.data();
+
+	// The lowest voxel above c - w: floor(c - w) + 1, the floor taken by
+	// truncation and corrected below 0.
+	for (std::int32_t i = 0; i < count; ++i)
+	{
+		const auto low = coordinates[i] - m_half_width;
+		const auto truncated = static_cast<std::int32_t>(low);
+		first[i] = truncated - (low < static_cast<T>(truncated) ? 1 : 0) + 1;
+	}
+
+	// A position at or past the step count, which is |d| >= w, reads the
+	// two zeros past the end of the table: an integer select rather than
+	// a floating point one. Each block is computed into the stack, where
+	// the gather from the table cannot alias the store, then copied out.
+	const auto past_end = m_step_count + 1;
+	std::array<T, block_size> block;
 	for (std::size_t tap = 0; tap < m_tap_count; ++tap)
 	{
-		const auto voxel = first + static_cast<std::ptrdiff_t>(tap);
-		weights[tap] =
-			static_cast<T>(evaluate(static_cast<double>(voxel) - coordinate));
+		auto *tap_weights = weights + tap * weight_stride;
+		const auto offset = static_cast<std::int32_t>(tap);
+		for (std::int32_t start = 0; start < count; start += block_size)
+		{
+			const auto length = std::min(
+				count - start,
+				static_cast<std::int32_t>(block_size)
+			);
+			for (std::int32_t i = 0; i < length; ++i)
+			{
+				const auto j = start + i;
+				const auto distance = std::abs(
+					static_cast<T>(first[j] + offset) - coordinates[j]
+				);
+				const auto position = distance * m_scale;
+				const auto step = static_cast<std::int32_t>(position);
+				const auto index = step < m_step_count ? step : past_end;
+				const auto fraction = position - static_cast<T>(index);
+				const auto below = table[index];
+				block[static_cast<std::size_t>(i)] =
+					below + fraction * (table[index + 1] - below);
+			}
+			std::copy(
+				block.begin(),
+				block.begin() + length,
+				tap_weights + start
+			);
+		}
 	}
-	return first;
 }
 
 } // namespace cpu

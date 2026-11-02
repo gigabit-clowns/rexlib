@@ -5,6 +5,7 @@
 #include <rexlib/core/platform/constexpr.hpp>
 
 #include <cstddef>
+#include <cstdint>
 
 namespace rexlib
 {
@@ -34,18 +35,26 @@ public:
 	std::size_t get_tap_count() const noexcept;
 
 	/**
-	 * @brief Place a sample on the voxels of an axis.
+	 * @brief Place a run of samples on the voxels of an axis.
 	 *
-	 * @tparam T The type of the weights.
-	 * @param coordinate The position of the sample along the axis, in
-	 * voxels.
-	 * @param weights Receives @ref tap_count weights, one per voxel from the
-	 * first.
-	 * @return std::ptrdiff_t The index of the first voxel, the one below the
-	 * sample.
+	 * @tparam T The type of the positions and the weights.
+	 * @param coordinates The position of each sample along the axis, in
+	 * voxels. Within the range of std::int32_t.
+	 * @param count The number of samples.
+	 * @param first Receives the index of the first voxel of each sample, the
+	 * one below it.
+	 * @param weights Receives @ref tap_count weights per sample, the weights
+	 * of tap t from weights + t * weight_stride.
+	 * @param weight_stride The distance between the weights of two taps.
 	 */
 	template <typename T>
-	std::ptrdiff_t place(double coordinate, T *weights) const noexcept;
+	void place(
+		const T *coordinates,
+		std::int32_t count,
+		std::int32_t *first,
+		T *weights,
+		std::size_t weight_stride
+	) const noexcept;
 };
 
 } // namespace cpu

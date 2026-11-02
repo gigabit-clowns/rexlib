@@ -2,8 +2,6 @@
 
 #include "box_window.hpp"
 
-#include <cmath>
-
 namespace rexlib
 {
 namespace cpu
@@ -17,10 +15,22 @@ std::size_t box_window::get_tap_count() const noexcept
 
 template <typename T>
 inline
-std::ptrdiff_t box_window::place(double coordinate, T *weights) const noexcept
+void box_window::place(
+	const T *coordinates,
+	std::int32_t count,
+	std::int32_t *first,
+	T *weights,
+	std::size_t
+) const noexcept
 {
-	weights[0] = T(1);
-	return static_cast<std::ptrdiff_t>(std::round(coordinate));
+	// Truncating c + 1/2 or c - 1/2 rounds halves away from 0.
+	for (std::int32_t i = 0; i < count; ++i)
+	{
+		const auto c = coordinates[i];
+		const auto half = c < T(0) ? T(-0.5) : T(0.5);
+		first[i] = static_cast<std::int32_t>(c + half);
+		weights[i] = T(1);
+	}
 }
 
 } // namespace cpu

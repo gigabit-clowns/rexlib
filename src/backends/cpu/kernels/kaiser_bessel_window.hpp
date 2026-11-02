@@ -6,6 +6,7 @@
 #include <rexlib/em/ops/parameters/gridding_window.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace rexlib
@@ -19,17 +20,26 @@ namespace cpu
  *
  * The weight of a voxel at a distance d from the sample is
  * I0(beta sqrt(1 - (d / w)^2)) / I0(beta) for |d| < w, and 0 from w on. It
- * is read from a table of the window sampled at @ref samples_per_voxel
- * points per voxel, with linear interpolation between them; the window
- * does not vanish at w, and the table ends with its value there.
+ * is read from a table of the window sampled at about
+ * @ref samples_per_voxel points per voxel, a whole number of steps from 0
+ * to w, with linear interpolation between them; the window does not
+ * vanish at w, and the table ends with its value there.
+ *
+ * @tparam T The type of the weights.
  */
+template <typename T>
 class kaiser_bessel_window
 {
 public:
 	/**
-	 * @brief Number of table entries per voxel of distance.
+	 * @brief Least number of table entries per voxel of distance.
 	 */
 	static REXLIB_CONST_CONSTEXPR std::size_t samples_per_voxel = 1024;
+
+	/**
+	 * @brief Number of samples placed at once.
+	 */
+	static REXLIB_CONST_CONSTEXPR std::size_t block_size = 64;
 
 	/**
 	 * @brief Construct the window of a gridding_window.
@@ -50,36 +60,44 @@ public:
 	/**
 	 * @brief Get the half-width of the window.
 	 *
-	 * @return double The half-width, in voxels.
+	 * @return T The half-width, in voxels.
 	 */
-	double get_half_width() const noexcept;
+	T get_half_width() const noexcept;
 
 	/**
 	 * @brief Evaluate the window at a distance.
 	 *
 	 * @param distance The signed distance from the sample, in voxels.
-	 * @return double The weight. 0 at and beyond the half-width.
+	 * @return T The weight. 0 at and beyond the half-width.
 	 */
-	double evaluate(double distance) const noexcept;
+	T evaluate(T distance) const noexcept;
 
 	/**
-	 * @brief Place a sample on the voxels of an axis.
+	 * @brief Place a run of samples on the voxels of an axis.
 	 *
-	 * @tparam T The type of the weights.
-	 * @param coordinate The position of the sample along the axis, in
-	 * voxels.
-	 * @param weights Receives get_tap_count() weights, one per voxel from
-	 * the first.
-	 * @return std::ptrdiff_t The index of the first voxel, the lowest one
-	 * within the half-width of the sample.
+	 * @param coordinates The position of each sample along the axis, in
+	 * voxels. Within the range of std::int32_t.
+	 * @param count The number of samples.
+	 * @param first Receives the index of the first voxel of each sample, the
+	 * lowest one within the half-width of the sample.
+	 * @param weights Receives get_tap_count() weights per sample, the
+	 * weights of tap t from weights + t * weight_stride.
+	 * @param weight_stride The distance between the weights of two taps.
 	 */
-	template <typename T>
-	std::ptrdiff_t place(double coordinate, T *weights) const noexcept;
+	void place(
+		const T *coordinates,
+		std::int32_t count,
+		std::int32_t *first,
+		T *weights,
+		std::size_t weight_stride
+	) const noexcept;
 
 private:
-	double m_half_width;
+	T m_half_width;
 	std::size_t m_tap_count;
-	std::vector<double> m_table;
+	T m_scale;
+	std::int32_t m_step_count;
+	std::vector<T> m_table;
 };
 
 } // namespace cpu

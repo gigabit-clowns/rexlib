@@ -2,8 +2,6 @@
 
 #include "triangle_window.hpp"
 
-#include <cmath>
-
 namespace rexlib
 {
 namespace cpu
@@ -17,16 +15,26 @@ std::size_t triangle_window::get_tap_count() const noexcept
 
 template <typename T>
 inline
-std::ptrdiff_t triangle_window::place(
-	double coordinate,
-	T *weights
+void triangle_window::place(
+	const T *coordinates,
+	std::int32_t count,
+	std::int32_t *first,
+	T *weights,
+	std::size_t weight_stride
 ) const noexcept
 {
-	const auto below = std::floor(coordinate);
-	const auto fraction = coordinate - below;
-	weights[0] = static_cast<T>(1.0 - fraction);
-	weights[1] = static_cast<T>(fraction);
-	return static_cast<std::ptrdiff_t>(below);
+	auto *above = weights + weight_stride;
+	for (std::int32_t i = 0; i < count; ++i)
+	{
+		const auto c = coordinates[i];
+		const auto truncated = static_cast<std::int32_t>(c);
+		const auto below =
+			truncated - (c < static_cast<T>(truncated) ? 1 : 0);
+		const auto fraction = c - static_cast<T>(below);
+		first[i] = below;
+		weights[i] = T(1) - fraction;
+		above[i] = fraction;
+	}
 }
 
 } // namespace cpu

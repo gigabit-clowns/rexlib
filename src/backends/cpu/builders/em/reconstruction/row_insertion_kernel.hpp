@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "insertion_chunk.hpp"
 #include "virtual_row.hpp"
 
 #include <backends/cpu/kernels/frequency_bounds.hpp>
@@ -10,8 +11,10 @@
 
 #include <rexlib/core/platform/constexpr.hpp>
 
+#include <array>
 #include <complex>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace rexlib
@@ -45,10 +48,12 @@ public:
 	using complex_type = std::complex<T>;
 	using slice_state_type = typename SampleWeight::template slice_state<T>;
 
+	using chunk_type = insertion_chunk<T>;
+
 	/**
 	 * @brief Number of samples a pass covers.
 	 */
-	static REXLIB_CONST_CONSTEXPR std::size_t chunk_size = 64;
+	static REXLIB_CONST_CONSTEXPR std::size_t chunk_size = chunk_type::size;
 
 	/**
 	 * @brief Construct a kernel.
@@ -115,10 +120,25 @@ private:
 		const virtual_row<T> &row,
 		const slice_state_type &state,
 		std::ptrdiff_t begin,
-		std::size_t count
+		std::int32_t count,
+		chunk_type &chunk
 	);
 
-	void scatter(std::size_t count) noexcept;
+	void fill_radial_weights(
+		const virtual_row<T> &row,
+		std::ptrdiff_t begin,
+		std::int32_t count,
+		chunk_type &chunk
+	) const noexcept;
+
+	void fill_values(
+		const virtual_row<T> &row,
+		std::ptrdiff_t begin,
+		std::int32_t count,
+		chunk_type &chunk
+	) const noexcept;
+
+	void scatter(std::int32_t count, const chunk_type &chunk) noexcept;
 
 	std::ptrdiff_t stored_index(std::ptrdiff_t frequency) const noexcept;
 
@@ -134,17 +154,7 @@ private:
 	frequency_interval m_z;
 	frequency_interval m_y;
 	frequency_bounds m_reach;
-	std::vector<std::ptrdiff_t> m_first_x;
-	std::vector<std::ptrdiff_t> m_first_y;
-	std::vector<std::ptrdiff_t> m_first_z;
-	std::vector<T> m_weights_x;
-	std::vector<T> m_weights_y;
-	std::vector<T> m_weights_z;
-	std::vector<T> m_numerator_weights;
-	std::vector<T> m_denominator_weights;
-	std::vector<complex_type> m_values;
-	std::vector<T> m_counts;
-	std::vector<unsigned char> m_active;
+	std::array<std::vector<T>, 3> m_window_weights;
 };
 
 } // namespace cpu
