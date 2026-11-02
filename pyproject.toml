@@ -63,7 +63,7 @@ Issues = "https://github.com/gigabit-clowns/rexlib-python/issues"
 # every Python and platform, with the hash of each file. Only uv writes it,
 # and only this version of uv, which CI installs too.
 [tool.uv]
-required-version = "==0.13.1"
+required-version = "==0.13.2"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
