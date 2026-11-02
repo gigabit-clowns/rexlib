@@ -1,6 +1,8 @@
 # rexlib
 
+<!-- docs-badges:start -->
 [![Build and test](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml)
+<!-- docs-badges:end -->
 
 rexlib is a device-agnostic array computing library with a pluggable backend
 architecture. It provides ND-arrays, operation dispatch and execution services,
@@ -118,6 +120,7 @@ cmake -S . -B build -DREXLIB_BUILD_DOCS=ON -DBUILD_TESTING=OFF
 cmake --build build --target rexlib-docs
 ```
 
+<!-- docs-badges:start -->
 ## SonarCloud status
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 
@@ -133,3 +136,4 @@ cmake --build build --target rexlib-docs
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
+<!-- docs-badges:end -->
