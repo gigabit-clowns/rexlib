@@ -12,8 +12,8 @@ namespace rexlib
  * @brief What a shape rule resolves to against a set of inputs.
  *
  * Holds everything the shape of an output is assembled from: the batch
- * axes the inputs broadcast to, the extent of every extent variable, and
- * the extents of the axes of the run.
+ * axes the inputs broadcast to, the batch axes of each accumulator, the
+ * extent of every extent variable, and the extents of the axes of the run.
  */
 class shape_rule_resolution
 {
@@ -29,11 +29,15 @@ public:
 	 * order.
 	 * @param run_extents The extents of the axes of the run, in the order
 	 * they are laid out. Empty when the rule declares no run.
+	 * @param accumulator_batches The extents of the batch axes of each
+	 * accumulator, one per output. Empty unless the outputs accumulate into
+	 * inputs.
 	 */
 	shape_rule_resolution(
 		extent_list_type batch,
 		extent_list_type extents,
-		extent_list_type run_extents
+		extent_list_type run_extents,
+		std::vector<extent_list_type> accumulator_batches
 	) noexcept;
 
 	/**
@@ -61,10 +65,23 @@ public:
 	 */
 	const extent_list_type& get_run_extents() const noexcept;
 
+	/**
+	 * @brief Get the extents of the batch axes of an accumulator.
+	 *
+	 * @param output Index of the output accumulating into it. Must be less
+	 * than the number of accumulators.
+	 * @return const extent_list_type& The extents, in the order they are laid
+	 * out.
+	 */
+	const extent_list_type& get_accumulator_batch(
+		std::size_t output
+	) const noexcept;
+
 private:
 	extent_list_type m_batch;
 	extent_list_type m_extents;
 	extent_list_type m_run_extents;
+	std::vector<extent_list_type> m_accumulator_batches;
 };
 
 } // namespace rexlib

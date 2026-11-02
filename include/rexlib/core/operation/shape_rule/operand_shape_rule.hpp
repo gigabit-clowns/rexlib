@@ -207,6 +207,40 @@ struct cores_alike_to<void, Inputs, Outputs>
 {
 };
 
+template <typename Outputs, typename Inputs, typename Indices>
+struct cores_repeat_leading;
+
+template <typename Outputs, typename Inputs, std::size_t... Indices>
+struct cores_repeat_leading<Outputs, Inputs, std::index_sequence<Indices...>>
+	: shape_rule_all_of<std::is_same<
+		typename type_list_element<Indices, Outputs>::type,
+		typename type_list_element<Indices, Inputs>::type
+	>::value...>
+{
+};
+
+template <
+	typename Outputs,
+	typename Inputs,
+	bool Enough = (
+		type_list_size<Outputs>::value <= type_list_size<Inputs>::value
+	)
+>
+struct cores_accumulate_into
+	: std::false_type
+{
+};
+
+template <typename Outputs, typename Inputs>
+struct cores_accumulate_into<Outputs, Inputs, true>
+	: cores_repeat_leading<
+		Outputs,
+		Inputs,
+		std::make_index_sequence<type_list_size<Outputs>::value>
+	>
+{
+};
+
 template <typename Inputs, typename Outputs>
 struct named_cores_alike
 	: cores_alike_to<
@@ -327,6 +361,16 @@ struct operand_shape_rule
 		),
 		"Only an operation without core axes may write into outputs larger "
 		"than its inputs broadcast to."
+	);
+
+	static_assert(
+		Batch != output_batch::accumulated ||
+		(
+			Placement::placement == core_placement::trailing &&
+			detail::cores_accumulate_into<Outputs, Inputs>::value
+		),
+		"An output accumulating into an input needs core axes that lie last "
+		"and an input at its position declaring the same core."
 	);
 };
 
