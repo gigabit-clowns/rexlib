@@ -7,4 +7,5 @@ target_sources(
 		insert_slices_program_builder.cpp
 		insert_weighted_slices_program_builder.cpp
 		slice_entry.cpp
+		slice_insertion_tuning.cpp
 )

@@ -57,7 +57,8 @@ slice_insertion_program_builder<Op, SampleWeight>::make_loop_functor(
 	return slice_insertion_functor<real_type, SampleWeight>(
 		std::move(plan),
 		operation.get_window(),
-		SampleWeight::make_parameters(operation)
+		SampleWeight::make_parameters(operation),
+		slice_insertion_tuning()
 	);
 }
 

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "slice_entry.hpp"
+#include "slice_insertion_tuning.hpp"
 
 #include <backends/cpu/plans/slice_insertion_layout_plan.hpp>
 #include <backends/cpu/plans/volume_tile.hpp>
@@ -41,26 +42,18 @@ public:
 	using slice_state_type = typename SampleWeight::template slice_state<T>;
 
 	/**
-	 * @brief The bytes a tile of the accumulators may take.
-	 */
-	static REXLIB_CONST_CONSTEXPR std::size_t tile_byte_budget = 1 << 20;
-
-	/**
-	 * @brief The number of tiles wanted per thread at least.
-	 */
-	static REXLIB_CONST_CONSTEXPR std::size_t tiles_per_thread = 8;
-
-	/**
 	 * @brief Construct the functor of an operation.
 	 *
 	 * @param plan The plan of the operands.
 	 * @param window The gridding window.
 	 * @param parameters The parameters of the sample weights.
+	 * @param tuning The sizing of the tiles.
 	 */
 	slice_insertion_functor(
 		slice_insertion_layout_plan plan,
 		const em::gridding_window &window,
-		const parameters_type &parameters
+		const parameters_type &parameters,
+		const slice_insertion_tuning &tuning
 	);
 
 	/**
@@ -132,6 +125,7 @@ private:
 	slice_insertion_layout_plan m_plan;
 	em::gridding_window m_window;
 	parameters_type m_parameters;
+	slice_insertion_tuning m_tuning;
 };
 
 } // namespace cpu

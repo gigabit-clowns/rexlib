@@ -33,11 +33,13 @@ inline
 slice_insertion_functor<T, SampleWeight>::slice_insertion_functor(
 	slice_insertion_layout_plan plan,
 	const em::gridding_window &window,
-	const parameters_type &parameters
+	const parameters_type &parameters,
+	const slice_insertion_tuning &tuning
 )
 	: m_plan(std::move(plan))
 	, m_window(window)
 	, m_parameters(parameters)
+	, m_tuning(tuning)
 {
 }
 
@@ -125,8 +127,8 @@ void slice_insertion_functor<T, SampleWeight>::run(
 		choose_tile_extent(
 			extent,
 			row_bytes,
-			tile_byte_budget,
-			tiles_per_thread * pool.get_size(),
+			m_tuning.get_tile_byte_budget(),
+			m_tuning.get_tiles_per_thread() * pool.get_size(),
 			m_window.get_half_width()
 		)
 	);
