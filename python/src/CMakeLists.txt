@@ -1,26 +1,27 @@
-cmake_minimum_required(VERSION 3.16)
+# SPDX-License-Identifier: GPL-3.0-only
 
-# Register all source and header files
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
-file(GLOB_RECURSE HEADERS ${PROJECT_SOURCE_DIR}/include/*.h ${PROJECT_SOURCE_DIR}/include/*.hpp)
-file(GLOB_RECURSE INLINE_SOURCES ${PROJECT_SOURCE_DIR}/include/*.inl)
-
-# Create the shared library
-set(TARGET_NAME "_binding")
 # nanobind falls back to the interpreter's own ABI where the stable one
 # cannot serve: before Python 3.12, and on a free-threaded interpreter.
 set(NANOBIND_OPTIONS NB_SUPPRESS_WARNINGS)
 if(REXLIB_PYTHON_STABLE_ABI)
 	list(APPEND NANOBIND_OPTIONS STABLE_ABI)
 endif()
-nanobind_add_module(${TARGET_NAME} ${NANOBIND_OPTIONS} ${SOURCES})
+nanobind_add_module(_binding ${NANOBIND_OPTIONS})
+target_sources(
+	_binding
+	PRIVATE
+		main.cpp
+)
+add_subdirectory(core)
+add_subdirectory(em)
+add_subdirectory(functional)
 
 target_compile_definitions(
-	${TARGET_NAME}
+	_binding
 	PRIVATE
-		REXLIB_PYTHON_VERSION_MAJOR=${CMAKE_PROJECT_VERSION_MAJOR}
-		REXLIB_PYTHON_VERSION_MINOR=${CMAKE_PROJECT_VERSION_MINOR}
-		REXLIB_PYTHON_VERSION_PATCH=${CMAKE_PROJECT_VERSION_PATCH}
+		REXLIB_PYTHON_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+		REXLIB_PYTHON_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+		REXLIB_PYTHON_VERSION_PATCH=${PROJECT_VERSION_PATCH}
 )
 
 # librexlib ships in the package's own library directory, whichever name
@@ -29,13 +30,15 @@ target_compile_definitions(
 # loads extensions with LOAD_WITH_ALTERED_SEARCH_PATH.
 if(APPLE)
 	set_target_properties(
-		${TARGET_NAME}
-		PROPERTIES INSTALL_RPATH "@loader_path/${CMAKE_INSTALL_LIBDIR}"
+		_binding
+		PROPERTIES
+			INSTALL_RPATH "@loader_path/${CMAKE_INSTALL_LIBDIR}"
 	)
 elseif(UNIX)
 	set_target_properties(
-		${TARGET_NAME}
-		PROPERTIES INSTALL_RPATH "$ORIGIN/${CMAKE_INSTALL_LIBDIR}"
+		_binding
+		PROPERTIES
+			INSTALL_RPATH "$ORIGIN/${CMAKE_INSTALL_LIBDIR}"
 	)
 endif()
 
@@ -46,37 +49,32 @@ if(UNIX AND NOT REXLIB_PYTHON_STAGE_PREFIX)
 		get_target_property(REXLIB_LOCATION rexlib::rexlib LOCATION)
 		get_filename_component(REXLIB_LIBRARY_DIR "${REXLIB_LOCATION}" DIRECTORY)
 		set_property(
-			TARGET ${TARGET_NAME}
+			TARGET _binding
 			APPEND PROPERTY INSTALL_RPATH "${REXLIB_LIBRARY_DIR}"
 		)
 	endif()
 endif()
 
 target_link_libraries(
-	${TARGET_NAME}
-	PRIVATE 
+	_binding
+	PRIVATE
 		rexlib::rexlib
+		dlpack::dlpack
 )
-target_include_directories(
-	${TARGET_NAME}
-	SYSTEM PRIVATE
-		${dlpack_SOURCE_DIR}/include
-)
+# std::complex is specified for float, double and long double only, and the
+# standard library of MSVC says so wherever it is used with anything else.
 if(MSVC)
-	target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
 	target_compile_definitions(
-		${TARGET_NAME}
-		PRIVATE _SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING
+		_binding
+		PRIVATE
+			_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING
 	)
-else()
-	target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
+rexlib_python_enable_warnings(_binding)
 
-# Install library's binary files and headers
 if(REXLIB_PYTHON_INSTALL)
 	install(
-		TARGETS ${TARGET_NAME}
-		LIBRARY
-		DESTINATION "${REXLIB_PYTHON_PACKAGE_DIR}"
+		TARGETS _binding
+		LIBRARY DESTINATION "${REXLIB_PYTHON_PACKAGE_DIR}"
 	)
 endif()

@@ -2,7 +2,9 @@
 
 The conventions of the Python code under `python/rexlib/`.
 
-Indentation is tabs, on both sides. Lines stay within 80 columns.
+Indentation is tabs, on both sides. Lines stay within 80 columns. Every source
+file, the CMake files included, starts with
+`SPDX-License-Identifier: GPL-3.0-only`.
 
 `from __future__ import annotations` goes at the top of every module that
 annotates anything, so that no annotation is evaluated at import. That is what

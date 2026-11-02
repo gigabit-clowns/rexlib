@@ -59,6 +59,23 @@ jobs:
       - name: Move the submodule to rexlib's main
         run: git submodule update --remote external/rexlib
 
+      - name: Set up Python
+        id: python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: '3.13'
+
+      # nanobind comes from pip, and a group of pyproject.toml is installed by
+      # pip 25.1 and newer. The interpreter is named, since the login shell
+      # puts another Python first on the PATH of some runners, and CMake is
+      # given this one.
+      - name: Install what the binding is built with
+        env:
+          PYTHON: ${{ steps.python.outputs.python-path }}
+        run: |
+          "$PYTHON" -m pip install --upgrade pip
+          "$PYTHON" -m pip install --group dev
+
       # Ninja does not locate MSVC on its own the way the Visual Studio
       # generator does; without this the configure step finds no cl.exe.
       - name: Set up MSVC environment
@@ -78,7 +95,7 @@ jobs:
         id: fetched
         uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
         with:
-          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'cmake/modules/rexlib_python_fetch_*.cmake', 'external/rexlib/cmake/modules/rexlib_fetch_*.cmake') }}
 
       - name: Install rexlib
         env:
@@ -111,6 +128,7 @@ jobs:
             CMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
             CMAKE_EXPORT_COMPILE_COMMANDS=ON
             rexlib_ROOT=${{ runner.temp }}/rexlib
+            Python_EXECUTABLE=${{ steps.python.outputs.python-path }}
             FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }}
             CMAKE_C_COMPILER_LAUNCHER=ccache
             CMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -195,7 +213,7 @@ jobs:
         id: fetched
         uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
         with:
-          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'cmake/modules/rexlib_python_fetch_*.cmake', 'external/rexlib/cmake/modules/rexlib_fetch_*.cmake') }}
 
       - name: Install rexlib
         env:
@@ -216,12 +234,22 @@ jobs:
           cmake --install "${{ runner.temp }}/rexlib-build" \
             --config Release --component rexlib_development
 
+      - name: Set up uv
+        uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+
+      # The tests' requirements are taken from uv.lock: every file is checked
+      # against its hash, and only wheels are accepted, so no setup script of
+      # a dependency runs.
       - name: Install with pip
         env:
           rexlib_ROOT: ${{ runner.temp }}/rexlib
           CMAKE_GENERATOR: Ninja
         run: |
-          pip install .[test] -v \
+          uv export --frozen --only-group test --no-emit-project \
+            --output-file "$RUNNER_TEMP/test-requirements.txt"
+          python -m pip install --require-hashes --only-binary :all: \
+            --requirement "$RUNNER_TEMP/test-requirements.txt"
+          python -m pip install . -v \
             -Ccmake.define.FETCHCONTENT_BASE_DIR=${{ steps.fetched.outputs.dir }} \
             -Ccmake.define.CMAKE_C_COMPILER_LAUNCHER=ccache \
             -Ccmake.define.CMAKE_CXX_COMPILER_LAUNCHER=ccache \

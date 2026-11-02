@@ -10,7 +10,7 @@ belongs to.
 | `tests/` | pytest suites, mirroring the binding's module structure |
 | `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
 | `scripts/` | Development tools: the test runner, the stub generator and collector, the wheel check |
-| `cmake/modules/` | `python_stubs.cmake`, which installs the type stubs |
+| `cmake/modules/` | `rexlib_python_stubs.cmake`, which installs the type stubs, `rexlib_python_enable_warnings.cmake` and `rexlib_python_fetch_dlpack.cmake` |
 | `conf/` | `coverage.ini` |
 | `external/rexlib` | The rexlib the repository is developed against, a submodule |
 

@@ -1,21 +1,17 @@
-cmake_minimum_required(VERSION 3.16)
+# SPDX-License-Identifier: GPL-3.0-only
 
-include(GNUInstallDirs)
-
-set(TARGET_NAME dummy_plugin2)
-set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/plugin.cpp)
-add_library(${TARGET_NAME} MODULE ${SOURCES})
+add_library(dummy_plugin2 MODULE plugin.cpp)
 set_target_properties(
-	${TARGET_NAME}
-	PROPERTIES 
-		CXX_STANDARD 20
+	dummy_plugin2
+	PROPERTIES
 		DEFINE_SYMBOL "REXLIB_DUMMY_PLUGIN2_EXPORTING"
 )
 target_link_libraries(
-	${TARGET_NAME}
+	dummy_plugin2
 	PRIVATE
 		rexlib::rexlib
 )
+rexlib_python_enable_warnings(dummy_plugin2)
 
 # Beside the real plugin directory rather than inside it, so these are
 # only ever found by a test that asks for them by path. Deriving from
@@ -27,7 +23,7 @@ get_filename_component(
 )
 if(REXLIB_PYTHON_INSTALL)
 	install(
-		TARGETS ${TARGET_NAME}
+		TARGETS dummy_plugin2
 		LIBRARY DESTINATION
 			${REXLIB_PYTHON_PACKAGE_DIR}/${MODULE_INSTALL_DIR}/rexlib-dummy-plugins/
 	)

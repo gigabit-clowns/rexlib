@@ -3,8 +3,8 @@
 How the stubs of the extension are generated and carried into the package.
 
 The extension's `.pyi` files are generated while it is built, by
-`scripts/generate_stubs.py` through nanobind's stubgen, run from the fetched
-sources, and land in `rexlib/_binding/` beside it. They are not in the
+`scripts/generate_stubs.py` through the stubgen of the nanobind pip installed,
+and land in `rexlib/_binding/` beside it. They are not in the
 repository and there is nothing to run by hand.
 
 Generating them imports the extension, which a cross-compiling build cannot

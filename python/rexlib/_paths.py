@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 """Locate the C++ side of rexlib that ships inside this package."""
 
 from __future__ import annotations

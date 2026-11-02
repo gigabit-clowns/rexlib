@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+# SPDX-License-Identifier: GPL-3.0-only
 
 # Installs type stubs for an extension module.
 #
@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.18)
 # produces one it cannot run - a cross-compile - is unable to do. Passing
 # STUBS_DIR installs stubs generated elsewhere instead; they describe the
 # Python API, which does not vary by target.
-function(install_python_stubs)
+function(rexlib_python_install_stubs)
 	# STUBS_DIR is passed empty where the stubs are to be generated.
 	if(POLICY CMP0174)
 		cmake_policy(SET CMP0174 NEW)

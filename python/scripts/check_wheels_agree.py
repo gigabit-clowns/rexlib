@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
 """Fail if the wheels of one build carry different rexlib libraries.
 
 ccache reuses rexlib's objects between interpreters, which is sound only

@@ -18,12 +18,15 @@ cmake -S external/rexlib -B build/rexlib -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF
 cmake --build build/rexlib --target install --parallel $(nproc)
 ```
-Then, to install in development mode from the root of this project:
+Then, to install in development mode from the root of this project, first
+what the build and the tests need (pip 25.1 or newer), then the package:
 ```
+pip install --group dev
 CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
   pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
 ```
-That builds in a temporary directory that is discarded afterwards, so every run
+Without build isolation the build uses the CMake on the `PATH`, which has to be
+3.26 or newer; the `dev` group installs one. That builds in a temporary directory that is discarded afterwards, so every run
 compiles the whole binding again. If you are installing repeatedly, name a
 build directory and the build becomes incremental:
 ```
@@ -35,7 +38,7 @@ project, which is what makes it the same one next time. It sits beside the one
 rexlib was built in above rather than over it, so removing either leaves the
 other alone. It keeps CMake's cache along with the objects, so an option that
 is only read the first time a build directory is configured —
-`REXLIB_USE_SYSTEM_BOOST` and its siblings, among others — keeps the answer it
+`REXLIB_BUILD_BOOST` and its siblings, among others — keeps the answer it
 was given then. Remove `build/binding` to change one.
 
 To run the tests for this project (only available when installed in development mode), run:

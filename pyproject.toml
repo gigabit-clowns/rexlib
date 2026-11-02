@@ -1,6 +1,7 @@
 [build-system]
 requires = [
     "scikit-build-core==1.1.1",
+    "nanobind==3.1.0",
 ]
 build-backend = "scikit_build_core.build"
 
@@ -8,8 +9,8 @@ build-backend = "scikit_build_core.build"
 name = "rexlib"
 dynamic = ["version"]
 authors = [
-        { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
-        { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
+    { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
+    { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
 ]
 description = "Python binding for the rexlib framework"
 classifiers = [
@@ -35,7 +36,8 @@ license = "GPL-3.0-only"
 requires-python = ">=3.10"
 dependencies = []
 
-[project.optional-dependencies]
+# Installed with pip install --group, which pip has had since 25.1.
+[dependency-groups]
 test = [
     "numpy==2.2.6; python_version == '3.10' and platform_machine != 'ARM64'",
     "numpy==2.4.6; python_version == '3.11'",
@@ -44,10 +46,24 @@ test = [
     "pytest-cov==7.1.0",
     "ruff==0.17.1",
 ]
+# What a build without build isolation, or by CMake itself, needs and pip
+# would otherwise provide, and the tests.
+dev = [
+    { include-group = "test" },
+    "scikit-build-core==1.1.1",
+    "cmake==4.4.4",
+    "nanobind==3.1.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/gigabit-clowns/rexlib-python"
 Issues = "https://github.com/gigabit-clowns/rexlib-python/issues"
+
+# uv.lock pins every package of the groups, those they pull in included, for
+# every Python and platform, with the hash of each file. Only uv writes it,
+# and only this version of uv, which CI installs too.
+[tool.uv]
+required-version = "==0.13.1"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -113,4 +129,4 @@ test-command = "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexl
 
 # The full suite is not run here; build-and-test already does that per
 # platform, and this has to stay cheap enough for every wheel.
-#test-extras = ["test"]
+#test-groups = ["test"]

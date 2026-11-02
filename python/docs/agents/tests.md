@@ -16,6 +16,19 @@ export, such as a tensor on another device or of another version.
 ./scripts/run-tests.sh --coverage
 ```
 
+What the tests need is the `test` group of `pyproject.toml` (`pip install
+--group test`, which `dev` includes).
+
+`uv.lock` pins every package of the groups, those they pull in included, for
+every Python and platform, with the hash of each file. CI installs the
+`test` group from it, `uv export --frozen --only-group test` given to
+`pip install --require-hashes --only-binary :all:`, so a file that changed
+or a source distribution of a dependency is refused. Only the uv of
+`[tool.uv] required-version` writes it: after a change to a group, run
+`uv lock`. Renovate regenerates it with every bump of a pin of
+`pyproject.toml`, refreshes what the pins pull in through its lock file
+maintenance, and bumps `required-version`.
+
 The package has to be installed with `REXLIB_PYTHON_BUILD_TESTING=ON`, which
 is what builds the dummy plugins in `tests/assets/`. The runner sets pytest's
 rootdir to the repository and, with `--coverage`, writes `coverage.xml`

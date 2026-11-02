@@ -33,6 +33,7 @@
 
 # Build artefacts
 build/
+CMakeUserPresets.json
 
 # Python Cache
 __pycache__/

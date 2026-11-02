@@ -17,9 +17,13 @@ cmake -S external/rexlib -B build/rexlib -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF
 cmake --build build/rexlib --target install --parallel $(nproc)
 
+pip install --group dev
 CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
   pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
 ```
+
+Without build isolation the build uses the CMake on the `PATH`, which
+`pyproject.toml` asks to be 3.26 or newer; the `dev` group installs one.
 
 `pip install` is the way in, not `cmake --build`: scikit-build-core drives
 CMake, and the install rules are what put the package together. A CMake build
@@ -45,19 +49,35 @@ CMake 3.18 is the minimum, and 3.26 with `REXLIB_PYTHON_STABLE_ABI`, the
 first whose FindPython has `Development.SABIModule`. The binding is C++20,
 unlike rexlib itself, which is C++14: nothing here has to build on the
 compilers rexlib supports, only on the ones that build wheels.
-`CMAKE_CXX_STANDARD_REQUIRED` is off all the same.
+CMake requires that standard rather than preferring it, so that nothing
+newer gets in unnoticed.
 
-nanobind and DLPack are fetched, each pinned in `CMakeLists.txt` as a git tag
-that Renovate follows. DLPack is one header, and only the header is taken:
-its own build file is not read. rexlib is found with `find_package` and only
-built from `external/rexlib` when none is found, which is what makes a source
-distribution installable on a machine with no rexlib.
+nanobind comes from pip and is never fetched: it is in `build-system.requires`
+for pip, and in the `dev` group of `pyproject.toml` for a build by CMake
+itself (`pip install --group dev`, pip 25.1 or newer, which also installs
+scikit-build-core, CMake and the `test` group). CMake asks the
+interpreter it found where nanobind's package is, `python -m nanobind
+--cmake_dir`, unless `nanobind_ROOT` or `nanobind_DIR` says so.
+
+DLPack is fetched by default, through `rexlib_python_fetch_dlpack()` in
+`cmake/modules/`, pinned as `COMMIT <sha>) # <tag>` in `CMakeLists.txt`,
+which Renovate keeps up to date. It is one header, and only the header is
+taken: its own build file is not read. `REXLIB_PYTHON_BUILD_DEPENDENCIES`,
+or `REXLIB_PYTHON_BUILD_DLPACK` alone, off finds an installed one instead;
+no version is asked of it, since its package reports 0.6 whatever the
+release. A new dependency gets a toggle, a branch, a module and a manager in
+`renovate.json`.
+
+rexlib is found with `find_package` and only built from `external/rexlib`
+when none is found, which is what makes a source distribution installable
+on a machine with no rexlib.
 
 Options:
 
 | Option | Default | Effect |
 |---|---|---|
 | `REXLIB_PYTHON_BUILD_TESTING` | `BUILD_TESTING` | Builds the dummy plugins the tests need |
+| `REXLIB_PYTHON_BUILD_DEPENDENCIES` | `ON` | Fetches DLPack rather than finding an installed one |
 | `REXLIB_PYTHON_INSTALL` | `ON` | Generates the install rules |
 | `REXLIB_PYTHON_INSTALL_DIR` | `Python_SITEARCH`; under scikit-build-core, always the wheel's platlib | Where the package is installed |
 | `REXLIB_PYTHON_STAGE_PREFIX` | empty | A rexlib prefix to copy inside the package |
@@ -82,8 +102,15 @@ nothing else, and no symlinks — a wheel stores a symlink as a second full copy
 of a 50 MB library. rexlib's `rexlib_runtime` and `rexlib_development`
 components install exactly that.
 
-Unlike rexlib, `src/CMakeLists.txt` globs its sources. A new `.cpp` is picked
-up by reconfiguring and needs naming nowhere. The reasons rexlib lists its
-sources explicitly do not apply here: there is one target, and nothing in the
-binding registers itself through objects at namespace scope, so link order
-decides nothing.
+As in rexlib, every directory holding sources carries a `CMakeLists.txt`
+naming them, which adds them to `_binding` and descends into the directories
+below it. A new `.cpp` has to be named there before it is built: the lists
+are explicit rather than globbed, so that adding a file cannot go unnoticed
+by the build system.
+
+With CMake 3.21 or newer the presets configure and build the binding as CI's
+CMake job does, with the dummy plugins: `cmake --preset debug`,
+`cmake --build --preset debug`, into `build/debug`, and `release`. A build
+by CMake alone gives a compilation database, not a package. Settings of a
+machine of one's own, such as `rexlib_ROOT` or a compiler cache, go in a
+`CMakeUserPresets.json`, which git ignores.

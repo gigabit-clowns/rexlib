@@ -68,7 +68,7 @@ jobs:
         id: fetched
         uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
         with:
-          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'cmake/modules/rexlib_python_fetch_*.cmake', 'external/rexlib/cmake/modules/rexlib_fetch_*.cmake') }}
 
       # Nothing points at a rexlib, so this builds the one in
       # external/rexlib, the same way a wheel does.
@@ -165,7 +165,7 @@ jobs:
         id: fetched
         uses: gigabit-clowns/.github/.github/composites/restore-fetched@main
         with:
-          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}
+          key: ${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'cmake/modules/rexlib_python_fetch_*.cmake', 'external/rexlib/cmake/modules/rexlib_fetch_*.cmake') }}
           variant: ${{ runner.os == 'Linux' && 'host' || '' }}
 
       # Ninja does not locate MSVC on its own the way the Visual Studio
@@ -314,7 +314,7 @@ jobs:
 
       - name: Note what its downloads depend on
         id: fetched-key
-        run: echo "value=${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'external/rexlib/cmake/modules/fetch_*.cmake') }}" >> "$GITHUB_OUTPUT"
+        run: echo "value=${{ hashFiles('CMakeLists.txt', 'external/rexlib/CMakeLists.txt', 'cmake/modules/rexlib_python_fetch_*.cmake', 'external/rexlib/cmake/modules/rexlib_fetch_*.cmake') }}" >> "$GITHUB_OUTPUT"
 
       - name: Build sdist
         run: pipx run build --sdist

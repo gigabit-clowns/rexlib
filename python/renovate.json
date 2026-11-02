@@ -9,6 +9,10 @@
     "dependencies"
   ],
   "minimumReleaseAge": "14 days",
+  "lockFileMaintenance": {
+    "description": "Moves what uv.lock pins beyond the groups' own pins, those they pull in, to their newest releases",
+    "enabled": true
+  },
   "internalChecksFilter": "strict",
   "poetry": {
     "description": "Not a poetry project, but supersedes default pep manager if left enabled.",
@@ -20,24 +24,20 @@
   },
   "customManagers": [
     {
-      "description": "Track nanobind, fetched by CMake FetchContent",
+      "description": "The version of uv that writes uv.lock, which CI installs too",
       "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["GIT_REPOSITORY https://github.com/wjakob/nanobind\\s+GIT_TAG v(?<currentValue>[^\\s]+)"],
-      "depNameTemplate": "nanobind",
-      "packageNameTemplate": "wjakob/nanobind",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "managerFilePatterns": ["/(^|/)pyproject\\.toml$/"],
+      "matchStrings": ["required-version = \"==(?<currentValue>[^\"]+)\""],
+      "depNameTemplate": "uv",
+      "datasourceTemplate": "pypi"
     },
     {
-      "description": "Track dlpack, fetched by CMake FetchContent",
       "customType": "regex",
       "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["GIT_REPOSITORY https://github.com/dmlc/dlpack\\s+GIT_TAG v(?<currentValue>[^\\s]+)"],
+      "matchStrings": ["rexlib_python_fetch_dlpack\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
       "depNameTemplate": "dlpack",
       "packageNameTemplate": "dmlc/dlpack",
-      "datasourceTemplate": "github-tags",
-      "extractVersionTemplate": "^v(?<version>.*)$"
+      "datasourceTemplate": "github-tags"
     }
   ],
   "packageRules": [
