@@ -130,3 +130,72 @@ TEST_CASE(
 			.is_empty()
 	);
 }
+
+TEST_CASE(
+	"bound_rows should keep every row with a sample within the bounds",
+	"[row_interval]"
+)
+{
+	const auto seed = GENERATE(range(0, 64));
+	std::mt19937 engine(static_cast<std::mt19937::result_type>(seed + 100));
+	std::uniform_real_distribution<double> coordinate(-20.0, 20.0);
+	std::uniform_real_distribution<double> slope(-3.0, 3.0);
+
+	const volume_frequency x_step = {{
+		slope(engine), slope(engine), slope(engine)
+	}};
+	const volume_frequency y_step = {{
+		slope(engine), slope(engine), slope(engine)
+	}};
+	volume_frequency lower{};
+	volume_frequency upper{};
+	for (std::size_t axis = 0; axis < 3; ++axis)
+	{
+		const auto a = coordinate(engine);
+		const auto b = coordinate(engine);
+		lower[axis] = a < b ? a : b;
+		upper[axis] = a < b ? b : a;
+	}
+	const frequency_bounds bounds(lower, upper);
+
+	const auto rows = bound_rows(x_step, y_step, bounds, 0, 12, -12, 12);
+
+	for (std::ptrdiff_t k_y = -12; k_y <= 12; ++k_y)
+	{
+		const volume_frequency base = {{
+			static_cast<double>(k_y) * y_step[0],
+			static_cast<double>(k_y) * y_step[1],
+			static_cast<double>(k_y) * y_step[2]
+		}};
+		for (std::ptrdiff_t k_x = 0; k_x <= 12; ++k_x)
+		{
+			if (within(base, x_step, bounds, k_x))
+			{
+				CHECK( rows.get_begin() <= k_y );
+				CHECK( k_y < rows.get_end() );
+			}
+		}
+	}
+	CHECK( rows.get_begin() >= -12 );
+	CHECK( rows.get_end() <= 13 );
+}
+
+TEST_CASE(
+	"bound_rows should give no row for a box the slice cannot reach",
+	"[row_interval]"
+)
+{
+	const frequency_bounds bounds({{ 0, 0, 5 }}, {{ 10, 10, 6 }});
+
+	CHECK(
+		bound_rows({{ 1, 0, 0 }}, {{ 0, 1, 0 }}, bounds, 0, 8, -8, 8)
+			.is_empty()
+	);
+	CHECK(
+		bound_rows(
+			{{ 1, 0, 0 }},
+			{{ std::numeric_limits<double>::quiet_NaN(), 1, 0 }},
+			bounds, 0, 8, -8, 8
+		).is_empty()
+	);
+}

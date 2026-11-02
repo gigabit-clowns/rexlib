@@ -77,5 +77,32 @@ row_interval clip_row(
 	std::ptrdiff_t last
 ) noexcept;
 
+/**
+ * @brief Bound the rows of a slice whose samples may land in a box.
+ *
+ * The sample (k_x, k_y) lands on k_x x_step + k_y y_step. The range
+ * returned holds every k_y in [first_y, last_y] for which some k_x in
+ * [first_x, last_x] lands in the box, and may hold more. A step that is not
+ * finite gives an empty range.
+ *
+ * @param x_step The step of the frequency per unit of k_x.
+ * @param y_step The step of the frequency per unit of k_y.
+ * @param bounds The box.
+ * @param first_x The first sample of a row.
+ * @param last_x The last sample of a row.
+ * @param first_y The first row.
+ * @param last_y The last row.
+ * @return row_interval The range of rows.
+ */
+row_interval bound_rows(
+	const volume_frequency &x_step,
+	const volume_frequency &y_step,
+	const frequency_bounds &bounds,
+	std::ptrdiff_t first_x,
+	std::ptrdiff_t last_x,
+	std::ptrdiff_t first_y,
+	std::ptrdiff_t last_y
+) noexcept;
+
 } // namespace cpu
 } // namespace rexlib

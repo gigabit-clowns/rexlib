@@ -359,82 +359,101 @@ void slice_insertion_functor<T, SampleWeight>::insert_tile(
 		const auto *x_phases = &phases[entry.get_phase_offset()];
 		const auto *y_phases = x_phases + h;
 		const auto radius = static_cast<double>(last_shell) + 0.5;
+		const auto widest =
+			std::min(last_column, static_cast<std::ptrdiff_t>(radius));
 
-		for (std::ptrdiff_t stored_row = 0; stored_row < signed_n; ++stored_row)
+		// The rows of an even extent stop short of its Nyquist frequency.
+		const auto highest_row = n % 2 == 0 ? signed_n / 2 - 1 : signed_n / 2;
+		const auto first_row = std::max(-highest_row, -widest);
+		const auto last_row = std::min(highest_row, widest);
+
+		for (int sign = 1; sign >= -1; sign -= 2)
 		{
-			if (n % 2 == 0 && stored_row == signed_n / 2)
-			{
-				continue;
-			}
-			const auto k_y = stored_row <= signed_n / 2
-				? stored_row
-				: stored_row - signed_n;
-			const auto k_y_value = static_cast<double>(k_y);
-			const auto reach = radius * radius - k_y_value * k_y_value;
-			if (reach < 0.0)
-			{
-				continue;
-			}
-			const auto last = std::min(
-				last_column,
-				static_cast<std::ptrdiff_t>(std::floor(std::sqrt(reach)))
-			);
-			const auto *samples = slice + stored_row * slice_core.get_stride(0);
+			const bool negated = sign < 0;
+			const std::ptrdiff_t first = negated ? 1 : 0;
+			const auto signed_scale = static_cast<double>(sign);
+			const auto &x_frame = frame.get_x_step();
+			const auto &y_frame = frame.get_y_step();
+			const volume_frequency step = {{
+				signed_scale * x_frame[0],
+				signed_scale * x_frame[1],
+				signed_scale * x_frame[2]
+			}};
+			const volume_frequency y_step = {{
+				signed_scale * y_frame[0],
+				signed_scale * y_frame[1],
+				signed_scale * y_frame[2]
+			}};
 
-			for (int sign = 1; sign >= -1; sign -= 2)
+			for (std::size_t zi = 0; zi < z_count; ++zi)
 			{
-				const bool negated = sign < 0;
-				const std::ptrdiff_t first = negated ? 1 : 0;
-				if (first > last)
+				for (std::size_t yi = 0; yi < y_count; ++yi)
 				{
-					continue;
-				}
+					kernel.set_box(z_intervals[zi], y_intervals[yi]);
+					const auto rows = bound_rows(
+						step,
+						y_step,
+						kernel.get_reach(),
+						first,
+						widest,
+						first_row,
+						last_row
+					);
 
-				const auto signed_scale = static_cast<double>(sign);
-				const auto &x_step = frame.get_x_step();
-				const auto &y_step = frame.get_y_step();
-				const volume_frequency base = {{
-					signed_scale * k_y_value * y_step[0],
-					signed_scale * k_y_value * y_step[1],
-					signed_scale * k_y_value * y_step[2]
-				}};
-				const volume_frequency step = {{
-					signed_scale * x_step[0],
-					signed_scale * x_step[1],
-					signed_scale * x_step[2]
-				}};
-				const virtual_row<T> row(
-					negated,
-					stored_row,
-					k_y_value,
-					base,
-					step,
-					samples,
-					slice_core.get_stride(1),
-					x_phases,
-					y_phases[stored_row],
-					radial,
-					radial_core.get_stride(0),
-					last_shell
-				);
-
-				for (std::size_t zi = 0; zi < z_count; ++zi)
-				{
-					for (std::size_t yi = 0; yi < y_count; ++yi)
+					for (auto k_y = rows.get_begin();
+						k_y < rows.get_end();
+						++k_y)
 					{
-						kernel.set_box(z_intervals[zi], y_intervals[yi]);
+						const auto k_y_value = static_cast<double>(k_y);
+						const auto reach =
+							radius * radius - k_y_value * k_y_value;
+						if (reach < 0.0)
+						{
+							continue;
+						}
+						const auto last = std::min(
+							widest,
+							static_cast<std::ptrdiff_t>(std::sqrt(reach))
+						);
+						if (first > last)
+						{
+							continue;
+						}
+
+						const volume_frequency base = {{
+							k_y_value * y_step[0],
+							k_y_value * y_step[1],
+							k_y_value * y_step[2]
+						}};
 						const auto interval = clip_row(
 							base, step, kernel.get_reach(), first, last
 						);
-						if (!interval.is_empty())
+						if (interval.is_empty())
 						{
-							kernel.insert(
-								row,
-								states[index],
-								interval.get_begin(),
-								interval.get_end()
-							);
+							continue;
 						}
+
+						const auto stored_row = k_y < 0 ? k_y + signed_n : k_y;
+						const virtual_row<T> row(
+							negated,
+							stored_row,
+							k_y_value,
+							base,
+							step,
+							slice + stored_row * slice_core.get_stride(0),
+							slice_core.get_stride(1),
+							x_phases,
+							y_phases[stored_row],
+							radial,
+							radial_core.get_stride(0),
+							last_shell
+						);
+						kernel.insert(
+							row,
+							states[index],
+							interval.get_begin(),
+							interval.get_end()
+						);
 					}
 				}
 			}
