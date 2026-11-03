@@ -3,7 +3,6 @@
 target_sources(
 	rexlib-core-obj
 	PRIVATE
-		core_program_builder_registry.cpp
 		dispatcher.cpp
 		eager_dispatcher.cpp
 		execute.cpp

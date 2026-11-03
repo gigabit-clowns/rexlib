@@ -5,6 +5,7 @@
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/builders/linalg_program_builder.hpp>
 #include <backends/cpu/builders/operand_data_types.hpp>
+#include <backends/cpu/builders/program_builder_registration_macros.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
 #include <backends/cpu/load_store.hpp>
@@ -12,13 +13,11 @@
 
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
-#include <rexlib/core/dispatch/program_builder_registration.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_cast.hpp>
 #include <rexlib/core/operation/type_rule/operation_data_types.hpp>
 
-#include <core/dispatch/core_program_builder_registry.hpp>
 
 #include <array>
 #include <cstddef>
@@ -236,8 +235,7 @@ public:
 
 } // anonymous namespace
 
-static const program_builder_registration<cross_program_builder>
-cross_program_builder_registration(get_core_program_builder_registry());
+REXLIB_REGISTER_CPU_PROGRAM_BUILDER(cross, cross_program_builder);
 
 } // namespace cpu
 } // namespace rexlib

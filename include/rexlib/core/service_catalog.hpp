@@ -25,9 +25,9 @@ public:
 	/**
 	 * @brief Construct a new interface catalog object.
 	 *
-	 * @param register_builtin_backends This parameters controls whether the
-	 * interface catalog should load the backends bundled with the
-	 * core.
+	 * @param register_builtin_backends Whether the catalog registers the
+	 * plugins built into the library at itself, as a loaded plugin is
+	 * registered.
 	 */
 	REXLIB_API
 	explicit service_catalog(bool register_builtin_backends = true);

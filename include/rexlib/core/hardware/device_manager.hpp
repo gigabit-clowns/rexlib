@@ -25,9 +25,8 @@ class device_session;
  *
  * The manager owns the registered backends and exposes a unified view of
  * all devices known to the framework, identified across backends by
- * @ref device_index. Backends are typically contributed by plugins at
- * load time via @ref register_backend, with @ref register_builtin_backends
- * adding those that are statically linked.
+ * @ref device_index. Backends are contributed by plugins, those built into
+ * the library included, through @ref register_backend.
  */
 class REXLIB_API device_manager final
 	: public service_manager
@@ -40,8 +39,6 @@ public:
 
 	device_manager& operator=(const device_manager &other) = delete;
 	device_manager& operator=(device_manager &&other) = delete;
-
-	void register_builtin_backends() override;
 
 	/**
 	 * @brief Enumerate the names of all registered backends.

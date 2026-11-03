@@ -2,12 +2,8 @@
 
 #include <rexlib/core/service_catalog.hpp>
 
-#include <rexlib/core/plugin.hpp>
+#include "builtin_plugin_registry.hpp"
 
-#include "plugin_loader.hpp"
-
-#include <vector>
-#include <cstdlib>
 #include <unordered_map>
 
 namespace rexlib
@@ -16,10 +12,7 @@ namespace rexlib
 class service_catalog::implementation
 {
 public:
-	explicit implementation(bool register_builtin_backends)
-		: m_register_builtin_backends(register_builtin_backends)
-	{
-	}
+	implementation() = default;
 
 	implementation(const implementation &other) = delete;
 	implementation(implementation &&other) = delete;
@@ -45,11 +38,6 @@ public:
 		std::shared_ptr<service_manager> value
 	)
 	{
-		if (m_register_builtin_backends)
-		{
-			value->register_builtin_backends();
-		}
-
 		m_interfaces.emplace(key, std::move(value));
 	}
 
@@ -57,15 +45,16 @@ private:
 	using catalog_type =
 		std::unordered_map<std::type_index, std::shared_ptr<service_manager>>;
 
-	bool m_register_builtin_backends;
 	catalog_type m_interfaces;
 };
 
 service_catalog::service_catalog(bool register_builtin_backends)
-	: m_implementation(
-		std::make_unique<implementation>(register_builtin_backends)
-	)
+	: m_implementation(std::make_unique<implementation>())
 {
+	if (register_builtin_backends)
+	{
+		get_builtin_plugin_registry().register_all(*this);
+	}
 }
 
 service_catalog::service_catalog(service_catalog&& other) noexcept = default;
