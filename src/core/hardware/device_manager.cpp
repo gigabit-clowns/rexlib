@@ -5,7 +5,6 @@
 #include <rexlib/core/hardware/device_session.hpp>
 #include <rexlib/core/platform/assert.hpp>
 
-#include <backends/cpu/hardware/cpu_device_backend.hpp>
 
 #include <stdexcept>
 #include <unordered_map>
@@ -75,11 +74,6 @@ private:
 device_manager::device_manager() = default;
 
 device_manager::~device_manager() = default;
-
-void device_manager::register_builtin_backends()
-{
-	cpu::cpu_device_backend::register_at(*this);
-}
 
 bool device_manager::register_backend(std::unique_ptr<device_backend> backend)
 {

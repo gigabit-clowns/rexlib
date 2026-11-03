@@ -4,50 +4,16 @@
 
 #include "mock/mock_service_manager.hpp"
 
+#include <rexlib/core/hardware/device_manager.hpp>
+
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
+#include <string>
 #include <utility>
+#include <vector>
 
 using namespace rexlib;
-
-namespace
-{
-
-class counting_service_manager : public service_manager
-{
-public:
-	void register_builtin_backends() override
-	{
-		++m_register_count;
-	}
-
-	int get_register_count() const noexcept
-	{
-		return m_register_count;
-	}
-
-private:
-	int m_register_count = 0;
-};
-
-class other_counting_service_manager : public service_manager
-{
-public:
-	void register_builtin_backends() override
-	{
-		++m_register_count;
-	}
-
-	int get_register_count() const noexcept
-	{
-		return m_register_count;
-	}
-
-private:
-	int m_register_count = 0;
-};
-
-} // anonymous namespace
 
 TEST_CASE(
 	"service_catalog returns the same instance on repeated access",
@@ -68,10 +34,8 @@ TEST_CASE(
 )
 {
 	service_catalog catalog(false);
-	const auto first =
-		catalog.get_service_manager<counting_service_manager>();
-	const auto second =
-		catalog.get_service_manager<other_counting_service_manager>();
+	const auto first = catalog.get_service_manager<mock_service_manager>();
+	const auto second = catalog.get_service_manager<device_manager>();
 
 	REQUIRE(first);
 	REQUIRE(second);
@@ -83,47 +47,33 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"service_catalog calls register_builtin_backends on first access "
-	"when enabled",
+	"service_catalog registers the plugins built into the library when "
+	"asked to",
 	"[service_catalog]"
 )
 {
 	service_catalog catalog(true);
-	const auto manager =
-		catalog.get_service_manager<counting_service_manager>();
+	std::vector<std::string> backends;
 
-	REQUIRE(manager);
-	CHECK(manager->get_register_count() == 1);
+	catalog.get_service_manager<device_manager>()->enumerate_backends(backends);
+
+	CHECK(
+		std::find(backends.cbegin(), backends.cend(), "cpu")
+		!= backends.cend()
+	);
 }
 
 TEST_CASE(
-	"service_catalog skips register_builtin_backends when disabled",
+	"service_catalog registers no built-in plugin when not asked to",
 	"[service_catalog]"
 )
 {
 	service_catalog catalog(false);
-	// mock_service_manager has no expectations set, so any call to
-	// register_builtin_backends would trigger a trompeloeil violation.
-	const auto manager =
-		catalog.get_service_manager<mock_service_manager>();
+	std::vector<std::string> backends;
 
-	REQUIRE(manager);
-}
+	catalog.get_service_manager<device_manager>()->enumerate_backends(backends);
 
-TEST_CASE(
-	"service_catalog only calls register_builtin_backends on first access",
-	"[service_catalog]"
-)
-{
-	service_catalog catalog(true);
-	const auto first =
-		catalog.get_service_manager<counting_service_manager>();
-	const auto second =
-		catalog.get_service_manager<counting_service_manager>();
-
-	REQUIRE(first);
-	REQUIRE(first == second);
-	CHECK(first->get_register_count() == 1);
+	CHECK(backends.empty());
 }
 
 TEST_CASE(

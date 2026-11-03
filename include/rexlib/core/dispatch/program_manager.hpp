@@ -41,8 +41,6 @@ public:
 	program_manager&
 	operator=(program_manager &&other) = delete;
 
-	void register_builtin_backends() override;
-
 	/**
 	 * @brief Register a new operation program builder.
 	 *

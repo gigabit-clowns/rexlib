@@ -8,7 +8,6 @@
 #include <rexlib/core/operation/operation_id.hpp>
 
 #include <core/find_most_suitable_backend.hpp>
-#include <core/dispatch/core_program_builder_registry.hpp>
 
 #include <vector>
 #include <unordered_map>
@@ -109,11 +108,6 @@ private:
 
 program_manager::program_manager() noexcept = default;
 program_manager::~program_manager() = default;
-
-void program_manager::register_builtin_backends()
-{
-	get_core_program_builder_registry().register_all(*this);
-}
 
 bool program_manager::register_builder(
 	std::unique_ptr<program_builder> builder
