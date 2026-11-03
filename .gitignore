@@ -35,6 +35,9 @@
 build
 CMakeUserPresets.json
 
+# Compiler cache
+.ccache
+
 # VS Code
 .vscode
 
