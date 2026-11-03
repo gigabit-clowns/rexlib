@@ -1,0 +1,21 @@
+{
+  "$comment": "Every dependency of rexlib, which the CMake 3.18 job of ci.yml installs with vcpkg",
+  "dependencies": [
+    "boost-container",
+    "boost-container-hash",
+    "boost-filesystem",
+    "catch2",
+    "eigen3",
+    "half",
+    "pocketfft",
+    "spdlog",
+    "trompeloeil"
+  ],
+  "vcpkg-configuration": {
+    "default-registry": {
+      "kind": "git",
+      "repository": "https://github.com/microsoft/vcpkg",
+      "baseline": "9eec002df1cd109f8f104cd966a763daf9751489"
+    }
+  }
+}

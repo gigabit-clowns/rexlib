@@ -26,8 +26,6 @@ permissions:
 env:
   CMAKE_GENERATOR: Ninja
   CMAKE_BUILD_PARALLEL_LEVEL: 4
-  CMAKE_C_COMPILER_LAUNCHER: ccache
-  CMAKE_CXX_COMPILER_LAUNCHER: ccache
   CTEST_PARALLEL_LEVEL: 4
   CCACHE_BASEDIR: ${{ github.workspace }}
   CCACHE_NOHASHDIR: 1
@@ -49,12 +47,12 @@ jobs:
             cc: gcc
             cxx: g++
             preset: coverage
-          - name: Linux x86_64, clang 14
+          - name: Linux x86_64, clang
             os: ubuntu-22.04
             cc: clang
             cxx: clang++
             preset: debug
-          - name: Linux aarch64, gcc 11
+          - name: Linux aarch64, gcc
             os: ubuntu-22.04-arm
             cc: gcc
             cxx: g++
@@ -88,7 +86,8 @@ jobs:
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
-      FETCHED: ${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }}
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
       SONAR_TOKEN: ${{ matrix.preset == 'coverage' && secrets.SONAR_TOKEN || '' }}
     steps:
       # Sonar reads the history to tell new code from old.
@@ -124,16 +123,17 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ${{ env.FETCHED }}
-            !${{ env.FETCHED }}/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+            ${{ runner.temp }}/fetched
+            !${{ runner.temp }}/fetched/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: fetched-${{ runner.os }}-
 
       # MSVC keeps its debug information beside each object only when it is
       # embedded, which is what lets ccache cache what it compiles.
       - name: Configure
         run: >-
           cmake --preset ${{ matrix.preset }}
-          -DFETCHCONTENT_BASE_DIR="$FETCHED"
+          -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
           ${{ matrix.msvc && '-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
 
       - name: Build
@@ -183,10 +183,8 @@ jobs:
     env:
       CC: clang
       CXX: clang++
-      FETCHED: /tmp/fetched
-      ASAN_OPTIONS: detect_leaks=1:strict_string_checks=1
-      UBSAN_OPTIONS: print_stacktrace=1
-      TSAN_OPTIONS: halt_on_error=1
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -204,12 +202,13 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ${{ env.FETCHED }}
-            !${{ env.FETCHED }}/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+            ${{ runner.temp }}/fetched
+            !${{ runner.temp }}/fetched/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: fetched-${{ runner.os }}-
 
       - name: Configure
-        run: cmake --preset ${{ matrix.preset }} -DFETCHCONTENT_BASE_DIR="$FETCHED"
+        run: cmake --preset ${{ matrix.preset }} -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
@@ -217,51 +216,37 @@ jobs:
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 
-  # The one job without presets, which need CMake 3.21, and so the one that
-  # holds cmake_minimum_required to its word. It builds as a distribution
-  # does: every dependency installed on the system, in Release.
+  # The one job without presets, which need CMake 3.25, and so the one that
+  # holds cmake_minimum_required to its word. It builds against installed
+  # dependencies, as a packager does: vcpkg installs every one of them into a
+  # prefix, at the baseline its manifest names, and the find_package branch of
+  # each is what finds it. Release.
   minimum-cmake:
-    name: CMake 3.18, system packages
+    name: CMake 3.18, installed dependencies
     timeout-minutes: 60
     runs-on: ubuntu-24.04
     env:
       CC: gcc
       CXX: g++
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - name: Install the dependencies the distribution carries
-        run: |
-          sudo apt-get update
-          sudo apt-get install --no-install-recommends --yes \
-            libboost-container-dev \
-            libboost-filesystem-dev \
-            libeigen3-dev \
-            libspdlog-dev \
-            libtrompeloeil-cpp-dev \
-            catch2
+      - name: Keep the packages vcpkg builds
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/vcpkg/archives
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
 
-      # half and pocketfft are packaged nowhere, so a system build of them is
-      # a packager dropping the header on the include path. Doing the same
-      # here is what covers Findhalf.cmake and Findpocketfft.cmake.
-      - name: Place the headers no distribution packages
-        run: |
-          commit=$(sed -n '/rexlib_fetch_pocketfft(/{n;s/.*COMMIT \([0-9a-f]*\).*/\1/p}' CMakeLists.txt)
-          version=$(sed -n '/rexlib_fetch_half(/{n;s/.*VERSION \([^ ]*\).*/\1/p}' CMakeLists.txt)
-          sha256=$(sed -n '/rexlib_fetch_half(/{n;n;s/.*SHA256 \([0-9a-f]*\).*/\1/p}' CMakeLists.txt)
-          curl -fsS -o pocketfft_hdronly.h \
-            "https://raw.githubusercontent.com/mreineck/pocketfft/${commit}/pocketfft_hdronly.h"
-          # SourceForge always redirects to a geo-selected mirror, so this
-          # download has to follow redirects; the checksum is what makes
-          # trusting whichever mirror answers unnecessary.
-          curl -fsSL --proto '=https' --proto-redir '=https' -o half.zip \
-            "https://downloads.sourceforge.net/project/half/half/${version}/half-${version}.zip"
-          echo "${sha256}  half.zip" | sha256sum -c -
-          unzip -q half.zip -d half
-          sudo install -m 644 pocketfft_hdronly.h half/include/half.hpp /usr/local/include/
+      - name: Install the dependencies
+        run: >-
+          "$VCPKG_INSTALLATION_ROOT/vcpkg" install
+          --x-manifest-root=.github/vcpkg
+          --x-install-root="$RUNNER_TEMP/vcpkg"
 
       - name: Install CMake 3.18
         run: |
@@ -281,6 +266,7 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/cmake" -S . -B build
           -DCMAKE_BUILD_TYPE=Release
           -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/x64-linux"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
@@ -292,7 +278,7 @@ jobs:
         run: >-
           "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
 
-      # A system build must not drag a dependency into the install: every one
+      # Installed dependencies must not reach rexlib's own install: every one
       # of them is private and none appears in a public header.
       - name: Check that no dependency reached the install
         run: |
@@ -311,8 +297,6 @@ jobs:
     name: Documentation
     timeout-minutes: 20
     runs-on: ubuntu-24.04
-    env:
-      FETCHED: /tmp/fetched
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -328,12 +312,13 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ${{ env.FETCHED }}
-            !${{ env.FETCHED }}/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+            ${{ runner.temp }}/fetched
+            !${{ runner.temp }}/fetched/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: fetched-${{ runner.os }}-
 
       - name: Configure
-        run: cmake --preset docs -DFETCHCONTENT_BASE_DIR="$FETCHED"
+        run: cmake --preset docs -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
 
       - name: Build
         run: cmake --build --preset docs
@@ -350,8 +335,6 @@ jobs:
     name: Lint
     timeout-minutes: 20
     runs-on: ubuntu-24.04
-    env:
-      FETCHED: /tmp/fetched
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -365,12 +348,13 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            ${{ env.FETCHED }}
-            !${{ env.FETCHED }}/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+            ${{ runner.temp }}/fetched
+            !${{ runner.temp }}/fetched/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: fetched-${{ runner.os }}-
 
       - name: Configure
-        run: cmake --preset lint -DFETCHCONTENT_BASE_DIR="$FETCHED"
+        run: cmake --preset lint -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
 
       - name: Test
         run: ctest --preset lint
