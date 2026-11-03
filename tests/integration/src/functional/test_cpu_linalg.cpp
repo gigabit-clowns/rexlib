@@ -13,6 +13,7 @@
 
 #include <complex>
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 #include <vector>
 
@@ -533,6 +534,42 @@ TEST_CASE_METHOD(
 		rexlib::cross(left_ref, right_ref, context, nullptr),
 		{ 3 },
 		{ 0, 0, 1 }
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"cross takes the cross product of half-precision vectors",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<float16_t>({ 3 }, { 1, 2, 3 });
+	auto right = make_sequence_operand<float16_t>({ 3 }, { 4, 5, 6 });
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	check_values<float16_t>(
+		rexlib::cross(left_ref, right_ref, context, nullptr),
+		{ 3 },
+		{ -3, 6, -3 }
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"cross takes the cross product of 8-bit integer vectors",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<std::int8_t>({ 3 }, { 1, 2, 3 });
+	auto right = make_sequence_operand<std::int8_t>({ 3 }, { 4, 5, 6 });
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	check_values<std::int8_t>(
+		rexlib::cross(left_ref, right_ref, context, nullptr),
+		{ 3 },
+		{ -3, 6, -3 }
 	);
 }
 

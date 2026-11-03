@@ -7,7 +7,7 @@
 #include <backends/cpu/builders/operand_data_types.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
-#include <backends/cpu/kernels/eigen_gemm.hpp>
+#include <backends/cpu/load_store.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>
@@ -19,8 +19,6 @@
 #include <rexlib/core/operation/type_rule/operation_data_types.hpp>
 
 #include <core/dispatch/core_program_builder_registry.hpp>
-
-#include <Eigen/Dense>
 
 #include <array>
 #include <cstddef>
@@ -42,7 +40,8 @@ namespace
  *
  * The named axis always has extent three regardless of shape, so unlike
  * matmul/matvec/vecmat there is no size grid to dispatch: every instance
- * maps straight to Eigen's own cross product.
+ * computes the three components directly. Every component is read before
+ * any is written, and each is computed in the type load() widens it to.
  */
 template <typename T>
 class cross_core_kernel
@@ -61,19 +60,15 @@ public:
 
 	void operator()(T *out, const T *left, const T *right) const noexcept
 	{
-		using vector3 = Eigen::Matrix<T, 3, 1>;
-		using stride_t = Eigen::InnerStride<Eigen::Dynamic>;
-
-		const Eigen::Map<const vector3, 0, stride_t> left_map(
-			left, stride_t(m_left_stride)
-		);
-		const Eigen::Map<const vector3, 0, stride_t> right_map(
-			right, stride_t(m_right_stride)
-		);
-		Eigen::Map<vector3, 0, stride_t> out_map(
-			out, stride_t(m_out_stride)
-		);
-		out_map.noalias() = left_map.cross(right_map);
+		const auto l0 = load(left);
+		const auto l1 = load(left + m_left_stride);
+		const auto l2 = load(left + 2 * m_left_stride);
+		const auto r0 = load(right);
+		const auto r1 = load(right + m_right_stride);
+		const auto r2 = load(right + 2 * m_right_stride);
+		store(out, l1 * r2 - l2 * r1);
+		store(out + m_out_stride, l2 * r0 - l0 * r2);
+		store(out + 2 * m_out_stride, l0 * r1 - l1 * r0);
 	}
 
 private:
@@ -83,10 +78,7 @@ private:
 };
 
 using cross_type_dispatcher =
-	rule_type_dispatcher<
-		ops::cross_operation::type_rule_type,
-		eigen_scalar_support
-	>;
+	rule_type_dispatcher<ops::cross_operation::type_rule_type>;
 
 /**
  * @brief CPU program builder for cross.
