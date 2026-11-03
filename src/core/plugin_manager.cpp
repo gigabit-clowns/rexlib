@@ -3,8 +3,11 @@
 #include <rexlib/core/plugin_manager.hpp>
 
 #include "plugin_loader.hpp"
+#include "system/environment.hpp"
+#include "system/utf8_path.hpp"
 
 #include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/dynamic_library_error.hpp>
 #include <rexlib/core/exceptions/plugin_load_error.hpp>
 
 #include <core/logger.hpp>
@@ -13,8 +16,6 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
-#include <system_error>
-#include <cstdlib>
 
 #include <boost/filesystem.hpp>
 
@@ -48,7 +49,7 @@ void try_load_plugin(
 			"Failed to load plugin from {}: {}", path, error.what()
 		);
 	}
-	catch(const std::system_error& error)
+	catch(const dynamic_library_error& error)
 	{
 		REXLIB_LOG_ERROR(
 			"Failed to load shared library {}: {}", path, error.what()
@@ -190,9 +191,7 @@ std::string get_default_plugin_directory()
 	const auto* symbol =
 		reinterpret_cast<const void*>(&get_default_plugin_directory);
 
-	auto path = boost::filesystem::path(
-		dynamic_library::query_symbol_filename(symbol)
-	);
+	auto path = utf8_to_path(dynamic_library::query_symbol_filename(symbol));
 	if(path.empty())
 	{
 		throw plugin_load_error(
@@ -201,19 +200,14 @@ std::string get_default_plugin_directory()
 	}
 
 	path.replace_filename(plugins_directory_name);
-	return path.string();
+	return path_to_utf8(path);
 }
 
 std::vector<std::string> get_plugin_search_path()
 {
 	std::vector<std::string> result;
 
-	const char *const environment_variable =
-		std::getenv(plugins_environment_variable);
-	if (environment_variable)
-	{
-		split_path(environment_variable, result);
-	}
+	split_path(get_environment_variable(plugins_environment_variable), result);
 
 	append_unique(result, get_default_plugin_directory());
 
@@ -225,7 +219,9 @@ void discover_plugins(const std::string& directory, plugin_manager &manager)
 	boost::filesystem::directory_iterator iterator;
 	try
 	{
-		iterator = boost::filesystem::directory_iterator(directory);
+		iterator = boost::filesystem::directory_iterator(
+			utf8_to_path(directory)
+		);
 	}
 	catch(const boost::filesystem::filesystem_error& e)
 	{
@@ -240,7 +236,7 @@ void discover_plugins(const std::string& directory, plugin_manager &manager)
 
 	for (const auto& entry : iterator)
 	{
-		try_load_plugin(manager, entry.path().string());
+		try_load_plugin(manager, path_to_utf8(entry.path()));
 	}
 }
 

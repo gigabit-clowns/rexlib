@@ -37,15 +37,13 @@ public:
 	REXLIB_API void add_plugin(const plugin& plugin);
 
 	/**
-	 * @brief Load a plugin from a Shared Object and add it.
+	 * @brief Load a plugin from a shared object and add it.
 	 *
-	 * The path to the shared object can be provided without a extension,
-	 * in which case it will be inferred from the platform. Relative paths
-	 * will be searched in LD_LIBRARY_PATH.
-	 *
-	 * @param path Path to the plugin.
-	 * @return const plugin* The loaded plugin. nullptr if it could not be
-	 * loaded.
+	 * @param path Path to the shared object, in UTF-8, resolved as
+	 * dynamic_library resolves it.
+	 * @return const plugin* The loaded plugin, never null.
+	 * @throws dynamic_library_error If the shared object cannot be loaded.
+	 * @throws plugin_load_error If the shared object is not a plugin.
 	 */
 	REXLIB_API const plugin* load_plugin(const std::string &path);
 
@@ -76,10 +74,10 @@ private:
 /**
  * @brief Get the default plugin directory.
  *
- * Returns the path to a sub-directory named as "plugins" located
+ * Returns the path to a sub-directory named "rexlib-plugins" located
  * in the same directory as the shared library of the core.
  *
- * @return std::string Default plugin directory.
+ * @return std::string Default plugin directory, in UTF-8.
  *
  */
 REXLIB_API
@@ -94,7 +92,7 @@ std::string get_default_plugin_directory();
  * last, so that setting the variable adds locations rather than
  * hiding the installed plugins. Duplicates are removed.
  *
- * @return std::vector<std::string> The plugin search path.
+ * @return std::vector<std::string> The plugin search path, in UTF-8.
  * @see get_default_plugin_directory
  *
  */
@@ -104,7 +102,9 @@ std::vector<std::string> get_plugin_search_path();
 /**
  * @brief Discover and load all plugins in a directory.
  *
- * @param directory Directory where plugins are searched.
+ * A file that cannot be loaded as a plugin is logged and skipped.
+ *
+ * @param directory Directory where plugins are searched, in UTF-8.
  * @param manager Plugin manager where plugins are loaded.
  *
  */

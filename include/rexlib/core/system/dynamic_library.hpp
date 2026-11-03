@@ -28,14 +28,22 @@ public:
 	/**
 	 * @brief Construct a new dynamic_library object from a file
 	 *
-	 * @param filename Path of the dynamic library file
+	 * A path with a directory is resolved against the working directory;
+	 * a bare file name is searched for by the system. Every symbol the
+	 * library needs is resolved as it loads, so a missing one fails here
+	 * rather than when it is first used.
+	 *
+	 * @param filename Path of the dynamic library file, in UTF-8
+	 * @throws dynamic_library_error If the library cannot be loaded
 	 */
 	explicit dynamic_library(const char* filename);
 
 	/**
 	 * @brief Construct a new dynamic_library object from a file
 	 *
-	 * @param filename Path of the dynamic library file
+	 * @param filename Path of the dynamic library file, in UTF-8
+	 * @throws dynamic_library_error If the library cannot be loaded
+	 * @see dynamic_library(const char*)
 	 */
 	explicit dynamic_library(const std::string& filename);
 
@@ -58,14 +66,18 @@ public:
 	/**
 	 * @brief Loads a dynamic library
 	 *
-	 * @param filename Path to the dynamic library
+	 * @param filename Path to the dynamic library, in UTF-8
+	 * @throws dynamic_library_error If the library cannot be loaded
+	 * @see dynamic_library(const char*)
 	 */
 	void open(const char* filename);
 
 	/**
 	 * @brief Loads a dynamic library
 	 *
-	 * @param filename Path to the dynamic library
+	 * @param filename Path to the dynamic library, in UTF-8
+	 * @throws dynamic_library_error If the library cannot be loaded
+	 * @see dynamic_library(const char*)
 	 */
 	void open(const std::string& filename);
 
@@ -79,7 +91,8 @@ public:
 	 * @brief Get the address of a symbol
 	 *
 	 * @param name Name of the symbol
-	 * @return void* Pointer to the symbol. nullptr if not found
+	 * @return void* Pointer to the symbol. nullptr if not found, or if no
+	 * library is open
 	 */
 	void* get_symbol(const char* name) const noexcept;
 
@@ -87,7 +100,8 @@ public:
 	 * @brief Get the address of a symbol
 	 *
 	 * @param name Name of the symbol
-	 * @return void* Pointer to the symbol. nullptr if not found
+	 * @return void* Pointer to the symbol. nullptr if not found, or if no
+	 * library is open
 	 */
 	void* get_symbol(const std::string& name) const noexcept;
 
@@ -97,7 +111,8 @@ public:
 	 *
 	 * @param symbol The symbol to be looked up.
 	 * @return std::string The path to the dynamic library from where
-	 * the symbol has been loaded. Empty if no matching symbol was found.
+	 * the symbol has been loaded, in UTF-8. Empty if no matching symbol
+	 * was found.
 	 */
 	static std::string query_symbol_filename(const void* symbol);
 
