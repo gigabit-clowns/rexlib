@@ -130,8 +130,10 @@ memory_block* memory_block_pool::find_foreign_block(
 		if (candidate_timeline != timeline && candidate_timeline)
 		{
 			auto *candidate = find_in_timeline(size, candidate_timeline);
-			if (candidate &&
-			    (!result || candidate->get_size() < result->get_size()))
+			if (
+				candidate &&
+				(!result || candidate->get_size() < result->get_size())
+			)
 			{
 				result = candidate;
 			}
@@ -247,7 +249,7 @@ void memory_block_pool::enumerate_pending(
 				[] (const memory_block &lhs, const memory_block &rhs) noexcept
 				{
 					return lhs.get_pending().get_id() <
-					       rhs.get_pending().get_id();
+						rhs.get_pending().get_id();
 				}
 			);
 			pending.push_back(latest->get_pending());
@@ -280,10 +282,12 @@ void memory_block_pool::reset_pending() noexcept
 	while (ite != m_blocks.end())
 	{
 		const auto next = std::next(ite);
-		if (ite->is_free() &&
-		    next != m_blocks.end() &&
-		    next->is_free() &&
-		    next->get_heap() == ite->get_heap())
+		if (
+			ite->is_free() &&
+			next != m_blocks.end() &&
+			next->is_free() &&
+			next->get_heap() == ite->get_heap()
+		)
 		{
 			ite->set_size(ite->get_size() + next->get_size());
 			unbound.erase(unbound.iterator_to(*next));
@@ -358,8 +362,10 @@ memory_block* memory_block_pool::find_in_timeline(
 		free_memory_block_compare()
 	);
 
-	if (ite == m_free_blocks.end() ||
-	    ite->get_pending().get_timeline().get() != timeline)
+	if (
+		ite == m_free_blocks.end() ||
+		ite->get_pending().get_timeline().get() != timeline
+	)
 	{
 		return nullptr;
 	}
@@ -441,9 +447,9 @@ bool memory_block_pool::is_mergeable(
 	// one timeline does. Merging across timelines would silently hand out
 	// memory another queue may still be running against.
 	return neighbour.get_heap() == block.get_heap() &&
-	       neighbour.get_pending().get_timeline() ==
-	       block.get_pending().get_timeline() &&
-	       neighbour.is_free();
+		neighbour.get_pending().get_timeline() ==
+		block.get_pending().get_timeline() &&
+		neighbour.is_free();
 }
 
 void memory_block_pool::keep_later_pending(
@@ -453,8 +459,10 @@ void memory_block_pool::keep_later_pending(
 {
 	// Only called for tokens of one timeline. Between two empty tokens there
 	// is nothing to choose.
-	if (!other.get_pending().is_empty() &&
-	    other.get_pending().get_id() > block.get_pending().get_id())
+	if (
+		!other.get_pending().is_empty() &&
+		other.get_pending().get_id() > block.get_pending().get_id()
+	)
 	{
 		block.set_pending(other.get_pending());
 	}
@@ -470,8 +478,10 @@ bool memory_block_pool::is_partition(const memory_block &block) const noexcept
 		return true;
 	}
 
-	if (ite != m_blocks.begin() &&
-	    std::prev(ite)->get_heap() == block.get_heap())
+	if (
+		ite != m_blocks.begin() &&
+		std::prev(ite)->get_heap() == block.get_heap()
+	)
 	{
 		return true;
 	}

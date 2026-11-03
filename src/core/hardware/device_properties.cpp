@@ -87,19 +87,19 @@ device_properties::device_properties(
 
 device_properties::~device_properties() = default;
 
-device_properties& 
+device_properties&
 device_properties::operator=(const device_properties &other)
 {
 	if (other.m_implementation)
 	{
-		m_implementation = 
+		m_implementation =
 			std::make_unique<implementation>(*other.m_implementation);
 	}
 
 	return *this;
 }
 
-device_properties& 
+device_properties&
 device_properties::operator=(device_properties&& other) noexcept = default;
 
 void device_properties::set_type(device_type type)
@@ -154,7 +154,7 @@ std::size_t device_properties::get_optimal_data_alignment() const noexcept
 	return get_implementation().get_optimal_data_alignment();
 }
 
-device_properties::implementation& 
+device_properties::implementation&
 device_properties::create_implementation_if_null()
 {
 	if (!m_implementation)
@@ -165,7 +165,7 @@ device_properties::create_implementation_if_null()
 	return *m_implementation;
 }
 
-const device_properties::implementation& 
+const device_properties::implementation&
 device_properties::get_implementation() const noexcept
 {
 	static const implementation empty;

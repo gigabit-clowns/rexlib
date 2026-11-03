@@ -86,14 +86,20 @@ TEST_CASE(
 {
 	SECTION( "for memory the host cannot address" )
 	{
-		cuda::block_allocator_fixture fixture(cuda::test_arena::unlimited, false);
+		cuda::block_allocator_fixture fixture(
+			cuda::test_arena::unlimited,
+			false
+		);
 		CHECK( fixture.get().get_max_alignment() == alignment );
 		CHECK_FALSE( fixture.get().is_host_accessible() );
 	}
 
 	SECTION( "and for memory it can" )
 	{
-		cuda::block_allocator_fixture fixture(cuda::test_arena::unlimited, true);
+		cuda::block_allocator_fixture fixture(
+			cuda::test_arena::unlimited,
+			true
+		);
 		CHECK( fixture.get().is_host_accessible() );
 	}
 }

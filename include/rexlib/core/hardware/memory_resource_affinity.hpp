@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
@@ -11,7 +11,7 @@ namespace rexlib
 enum class memory_resource_affinity
 {
 	/// The memory resource can be optimally accessed by the host.
-	host, 
+	host,
 	/// The memory resource can be optimally accessed by the device.
 	device,
 

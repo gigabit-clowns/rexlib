@@ -21,12 +21,13 @@ void define_service_catalog(service_catalog_class &c)
 	c
 		.def(nb::init<bool>(), nb::arg("register_builtin_backends") = true)
 		.def(
-			"register_plugins", 
-			[](service_catalog &catalog, const plugin_manager &manager) 
+			"register_plugins",
+			[](service_catalog &catalog, const plugin_manager &manager)
 			{
 				return register_all_plugins_at(manager, catalog);
 			},
-			nb::keep_alive<1, 2>() // Do not destroy the manager before the catalog
+			// Do not destroy the manager before the catalog
+			nb::keep_alive<1, 2>()
 		);
 }
 

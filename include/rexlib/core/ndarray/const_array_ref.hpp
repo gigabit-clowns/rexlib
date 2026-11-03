@@ -25,8 +25,8 @@ class const_array;
  * A const_array_ref refers to the contents of an array without sharing
  * its ownership and only allows read-only semantics with it. It is
  * intended to be used as a parameter type at interface boundaries where
- * ownership does not need to be extended, analogously to std::string_view. 
- * The referenced array must outlive the const_array_ref; do not store 
+ * ownership does not need to be extended, analogously to std::string_view.
+ * The referenced array must outlive the const_array_ref; do not store
  * const_array_ref objects.
  *
  * @see const_array
@@ -43,13 +43,15 @@ public:
 
 	/**
 	 * @brief Construct a const_array_ref from an implementation pointer.
-	 * 
+	 *
 	 * @param implementation The implementation referenced by this.
-	 * 
+	 *
 	 * @note This function is not part of the public API and shall only be
 	 * used internally or for testing purposes.
 	 */
-	explicit const_array_ref(const array_implementation *implementation) noexcept;
+	explicit const_array_ref(
+		const array_implementation *implementation
+	) noexcept;
 
 	/**
 	 * @brief Construct a const_array_ref referencing an array.

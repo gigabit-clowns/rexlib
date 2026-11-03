@@ -40,7 +40,9 @@ void define_device_backend(device_backend_class &c)
 			{
 				device_properties props;
 				if (!self.get_device_properties(id, props)) {
-					throw std::invalid_argument("Requested device does not exist.");
+					throw std::invalid_argument(
+						"Requested device does not exist."
+					);
 				}
 				return props;
 			},

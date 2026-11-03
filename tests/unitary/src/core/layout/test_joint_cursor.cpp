@@ -6,7 +6,10 @@
 
 using namespace rexlib;
 
-TEST_CASE( "default constructed array iterator should be empty", "[joint_cursor]" )
+TEST_CASE(
+	"default constructed array iterator should be empty",
+	"[joint_cursor]"
+)
 {
 	joint_cursor iterator;
 	CHECK( iterator.get_indices().data() == nullptr );
@@ -15,25 +18,28 @@ TEST_CASE( "default constructed array iterator should be empty", "[joint_cursor]
 	CHECK( iterator.get_offsets().size() == 0UL );
 }
 
-TEST_CASE( "array iterator should be initialized at zero position with base offsets", "[joint_cursor]" )
+TEST_CASE(
+	"array iterator should be initialized at zero position with base offsets",
+	"[joint_cursor]"
+)
 {
 	std::vector<std::ptrdiff_t> offsets = { 2345, 1234, 983, 1245 };
-	const std::size_t n_dim = 12; 
+	const std::size_t n_dim = 12;
 
 	joint_cursor iterator(n_dim, offsets);
-	
+
 	SECTION("const")
 	{
-		const auto indices = 
+		const auto indices =
 			static_cast<const joint_cursor&>(iterator).get_indices();
-	
+
 		REQUIRE( indices.size() == n_dim );
 		for (std::size_t i = 0; i < indices.size(); ++i)
 		{
 			CHECK(indices[i] == 0);
 		}
 
-		const auto offsets2 = 
+		const auto offsets2 =
 			static_cast<const joint_cursor&>(iterator).get_offsets();
 
 		REQUIRE( offsets2.size() == offsets.size() );
@@ -45,7 +51,7 @@ TEST_CASE( "array iterator should be initialized at zero position with base offs
 	SECTION("non-const")
 	{
 		const auto indices = iterator.get_indices();
-	
+
 		REQUIRE( indices.size() == n_dim );
 		for (std::size_t i = 0; i < indices.size(); ++i)
 		{
@@ -65,10 +71,10 @@ TEST_CASE( "array iterator should be initialized at zero position with base offs
 TEST_CASE( "array iterator should not reallocate data", "[joint_cursor]" )
 {
 	std::vector<std::ptrdiff_t> offsets = { 2345, 1234, 983, 1245 };
-	const std::size_t n_dim = 12; 
+	const std::size_t n_dim = 12;
 
 	joint_cursor iterator(n_dim, offsets);
-	
+
 	auto *offsets_ptr = iterator.get_offsets().data();
 	auto *indices_ptr = iterator.get_indices().data();
 

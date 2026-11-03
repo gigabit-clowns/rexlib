@@ -24,7 +24,9 @@ def test_uses_active_context_when_none_given():
 def test_explicit_context_still_works_outside_a_with_block():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	device_context = rexlib.hardware.DeviceContext(session)
 	program_manager = rexlib.dispatch.get_program_manager(catalog)
 	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)
@@ -41,17 +43,23 @@ def test_explicit_context_still_works_outside_a_with_block():
 def test_explicit_context_overrides_active_context():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	device_context = rexlib.hardware.DeviceContext(session)
 	program_manager = rexlib.dispatch.get_program_manager(catalog)
 	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)
-	explicit_context = rexlib.dispatch.ExecutionContext(device_context, dispatcher)
+	explicit_context = rexlib.dispatch.ExecutionContext(
+		device_context, dispatcher
+	)
 
 	descriptor = rexlib.make_contiguous_array_descriptor(
 		[2, 2], rexlib.NumericalType.float32
 	)
 	with rexlib.device('cpu'):
 		result = rexlib.zeros(
-			descriptor, rexlib.hardware.MemoryResourceAffinity.host, explicit_context
+			descriptor,
+			rexlib.hardware.MemoryResourceAffinity.host,
+			explicit_context
 		)
 	assert isinstance(result, rexlib.Array)

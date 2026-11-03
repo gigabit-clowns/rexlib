@@ -59,8 +59,9 @@ template <int Rows, int Cols, bool RowMajor>
 struct eigen_matrix_options
 	: std::integral_constant<
 		int,
-		RowMajor ? static_cast<int>(Eigen::RowMajor)
-		         : static_cast<int>(Eigen::ColMajor)
+		RowMajor
+			? static_cast<int>(Eigen::RowMajor)
+			: static_cast<int>(Eigen::ColMajor)
 	>
 {
 };
@@ -264,9 +265,10 @@ inline bool all_row_major_compatible(
 	core_layout_kind a, core_layout_kind b, core_layout_kind c
 ) noexcept
 {
-	return is_row_major_compatible(a) &&
-	       is_row_major_compatible(b) &&
-	       is_row_major_compatible(c);
+	return
+		is_row_major_compatible(a) &&
+		is_row_major_compatible(b) &&
+		is_row_major_compatible(c);
 }
 
 /**
@@ -524,7 +526,9 @@ gemm_fn<T> resolve_gemv(
 {
 	if (all_row_major_compatible(out_kind, left_kind, right_kind))
 	{
-		return &gemm_call_contiguous<Eigen::Dynamic, Eigen::Dynamic, 1, true, T>;
+		return &gemm_call_contiguous<
+			Eigen::Dynamic, Eigen::Dynamic, 1, true, T
+		>;
 	}
 
 	return &gemm_call_strided<T>;

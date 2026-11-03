@@ -40,7 +40,10 @@ def test_with_dispatcher_returns_updated_copy(__setup_context):
 	)
 	updated = ctx.with_dispatcher(other)
 	assert updated.dispatcher is other
-	assert updated.device_context.device_session is device_context.device_session
+	assert (
+		updated.device_context.device_session is
+		device_context.device_session
+	)
 	assert ctx.dispatcher is dispatcher
 
 def test_with_device_context_returns_updated_copy(__setup_context):
@@ -55,7 +58,9 @@ def test_with_device_context_returns_updated_copy(__setup_context):
 def __setup_context():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	device_context = rexlib.hardware.DeviceContext(session)
 	program_manager = rexlib.dispatch.get_program_manager(catalog)
 	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)

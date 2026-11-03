@@ -55,7 +55,9 @@ def __setup_array(shape, context):
 def __setup_context():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	device_context = rexlib.hardware.DeviceContext(session)
 	program_manager = rexlib.dispatch.get_program_manager(catalog)
 	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)

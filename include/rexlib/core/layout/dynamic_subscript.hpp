@@ -12,26 +12,26 @@
 #include "../platform/attributes.hpp"
 #include "../platform/cpp_explicit.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 
 /**
  * @brief Class describing a runtime defined subscript.
- * 
+ *
  * A subscript may be either a
  * - ellipsis_tag
  * - new_axis_tag
  * - index (std::ptrdiff_t)
  * - slice (slice)
- * 
+ *
  */
 class dynamic_subscript
 {
 public:
 	/**
-	 * @brief Enumeration holding the types this object can hold. 
-	 * 
+	 * @brief Enumeration holding the types this object can hold.
+	 *
 	 */
 	enum class subscript_type
 	{
@@ -43,21 +43,21 @@ public:
 
 	/**
 	 * @brief Construct a dynamic_subscript holding an ellipsis_tag.
-	 * 
+	 *
 	 */
 	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(ellipsis_tag) noexcept;
 
 	/**
 	 * @brief Construct a dynamic_subscript holding a new_axis_tag.
-	 * 
+	 *
 	 */
 	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(new_axis_tag) noexcept;
 
 	/**
 	 * @brief Construct a dynamic_subscript holding an index.
-	 * 
+	 *
 	 * @param index The index that is assigned to this object.
 
 		*/
@@ -66,9 +66,9 @@ public:
 
 	/**
 	 * @brief Construct a dynamic_subscript holding a slice.
-	 * 
+	 *
 	 * @param slice the slice that is assigned to this object.
-	 * 
+	 *
 	 */
 	REXLIB_NO_EXPLICIT REXLIB_CONSTEXPR
 	dynamic_subscript(const slice &slice) noexcept;
@@ -82,18 +82,18 @@ public:
 
 	/**
 	 * @brief Get the subscript type held by this object.
-	 * 
-	 * @return subscript_type 
+	 *
+	 * @return subscript_type
 	 */
 	REXLIB_CONSTEXPR
 	subscript_type get_subscript_type() const noexcept;
 
 	/**
 	 * @brief Get the index.
-	 * 
+	 *
 	 * This method shall only be called if get_subscript_type() returns
 	 * subscript_type::index. Otherwise an exception is thrown.
-	 * 
+	 *
 	 * @return std::ptrdiff_t The index held by this object.
 	 * @throws bad_dynamic_subscript_access
 	 */
@@ -101,10 +101,10 @@ public:
 
 	/**
 	 * @brief Get the slice.
-	 * 
+	 *
 	 * This method shall only be called if get_subscript_type() returns
 	 * subscript_type::slice. Otherwise an exception is thrown.
-	 * 
+	 *
 	 * @return slice The slice held by this object.
 	 * @throws bad_dynamic_subscript_access
 	 */
@@ -142,17 +142,17 @@ public:
 };
 
 /**
- * @brief Invoke the provided function with the value held by the dynamic 
+ * @brief Invoke the provided function with the value held by the dynamic
  * subscript
- * 
+ *
  * @tparam F Function type.
- * @param func The function to be invoked. Must be callable with the following 
+ * @param func The function to be invoked. Must be callable with the following
  * argument types:
  * - ellipsis_tag
  * - new_axis_tag
  * - std::ptrdiff_t
  * - slice
- * 
+ *
  * @param subscript The subscript to be evaluated.
  * @return auto result of calling func with the evaluated argument.
  */

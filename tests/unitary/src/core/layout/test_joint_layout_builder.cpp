@@ -510,10 +510,14 @@ TEST_CASE(
 	const auto layout = build_layout(description, {});
 
 	CHECK( to_vector(layout.get_extents()) == description.extents );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       description.operands[0].strides );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       description.operands[1].strides );
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		description.operands[0].strides
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		description.operands[1].strides
+	);
 	CHECK( layout.get_offset(0) == 0 );
 	CHECK( layout.get_offset(1) == 3 );
 }
@@ -534,12 +538,18 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, reordering_only);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 12, 20, 12, 6 } );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 12, 144, 864 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 120, 1, 1440, 20 } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 12, 20, 12, 6 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, 12, 144, 864 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 120, 1, 1440, 20 }
+	);
 }
 
 TEST_CASE(
@@ -558,8 +568,10 @@ TEST_CASE(
 		reordering_only
 	);
 
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, far } );
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, far }
+	);
 }
 
 TEST_CASE(
@@ -579,8 +591,10 @@ TEST_CASE(
 		reordering_only
 	);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 2, far } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 2, far }
+	);
 }
 
 TEST_CASE(
@@ -601,10 +615,14 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, reordering_only);
 
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 0, 6 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 2, 6 } );
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, 0, 6 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 1, 2, 6 }
+	);
 }
 
 TEST_CASE(
@@ -621,8 +639,10 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, reordering_only);
 
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 0, 4 } );
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, 0, 4 }
+	);
 }
 
 TEST_CASE(
@@ -645,18 +665,24 @@ TEST_CASE(
 		reordering_and_coalescing
 	);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>(extents.crbegin(), extents.crend()) );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>(
-	           output_strides.crbegin(),
-	           output_strides.crend()
-	       ) );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>(
-	           input_strides.crbegin(),
-	           input_strides.crend()
-	       ) );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>(extents.crbegin(), extents.crend())
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>(
+			output_strides.crbegin(),
+			output_strides.crend()
+		)
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>(
+			input_strides.crbegin(),
+			input_strides.crend()
+		)
+	);
 }
 
 TEST_CASE(
@@ -674,12 +700,18 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, coalescing_only);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 17280 } );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 1 } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 17280 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 1 }
+	);
 }
 
 TEST_CASE(
@@ -699,12 +731,18 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, coalescing_only);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 20, 72, 12 } );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 40, 2880 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 20, 2880 } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 20, 72, 12 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, 40, 2880 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 1, 20, 2880 }
+	);
 }
 
 TEST_CASE(
@@ -722,12 +760,18 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, coalescing_only);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 240 } );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 1 } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 240 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 1 }
+	);
 }
 
 TEST_CASE(
@@ -764,12 +808,18 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, reordering_and_coalescing);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 144, 120 } );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 288 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 288 } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 144, 120 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, 288 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 1, 288 }
+	);
 }
 
 TEST_CASE(
@@ -788,12 +838,18 @@ TEST_CASE(
 
 	const auto layout = build_layout(description, reordering_and_coalescing);
 
-	CHECK( to_vector(layout.get_extents()) ==
-	       std::vector<std::size_t>{ 144, 120 } );
-	CHECK( to_vector(layout.get_strides(0)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 0 } );
-	CHECK( to_vector(layout.get_strides(1)) ==
-	       std::vector<std::ptrdiff_t>{ 1, 144 } );
+	CHECK(
+		to_vector(layout.get_extents()) ==
+		std::vector<std::size_t>{ 144, 120 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(0)) ==
+		std::vector<std::ptrdiff_t>{ 1, 0 }
+	);
+	CHECK(
+		to_vector(layout.get_strides(1)) ==
+		std::vector<std::ptrdiff_t>{ 1, 144 }
+	);
 }
 
 TEST_CASE(
@@ -827,17 +883,25 @@ TEST_CASE(
 		);
 
 		const auto reordered = build_layout(description, reordering_only);
-		CHECK( to_vector(reordered.get_extents()) ==
-		       std::vector<std::size_t>{ 5, 4, 3, 2 } );
-		CHECK( to_vector(reordered.get_strides(0)) ==
-		       std::vector<std::ptrdiff_t>{ sign, 5*sign, 20*sign, 60*sign } );
+		CHECK(
+			to_vector(reordered.get_extents()) ==
+			std::vector<std::size_t>{ 5, 4, 3, 2 }
+		);
+		CHECK(
+			to_vector(reordered.get_strides(0)) ==
+			std::vector<std::ptrdiff_t>{ sign, 5*sign, 20*sign, 60*sign }
+		);
 
 		const auto coalesced =
 			build_layout(description, reordering_and_coalescing);
-		CHECK( to_vector(coalesced.get_extents()) ==
-		       std::vector<std::size_t>{ 120 } );
-		CHECK( to_vector(coalesced.get_strides(0)) ==
-		       std::vector<std::ptrdiff_t>{ sign } );
+		CHECK(
+			to_vector(coalesced.get_extents()) ==
+			std::vector<std::size_t>{ 120 }
+		);
+		CHECK(
+			to_vector(coalesced.get_strides(0)) ==
+			std::vector<std::ptrdiff_t>{ sign }
+		);
 	}
 	while (std::next_permutation(order.begin(), order.end()));
 }

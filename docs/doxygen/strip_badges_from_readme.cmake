@@ -28,7 +28,10 @@ foreach(LINE IN LISTS INPUT_LINES)
 		continue()
 	endif()
 
-	if(LINE MATCHES "^[ 	]*\[!\[[^]]*\]\([^)]*badge[^)]*\)\]\([^)]*\)[ 	]*$")
+	if(
+		LINE
+		MATCHES "^[ 	]*\[!\[[^]]*\]\([^)]*badge[^)]*\)\]\([^)]*\)[ 	]*$"
+	)
 		continue()
 	endif()
 

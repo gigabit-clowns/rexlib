@@ -313,7 +313,9 @@ protected:
 	) const
 	{
 		const auto data_type = numerical_type_of<U>::value;
-		CHECK( result.get_descriptor() == make_descriptor({ 2, 3 }, data_type) );
+		CHECK(
+			result.get_descriptor() == make_descriptor({ 2, 3 }, data_type)
+		);
 
 		const auto stored = numerical_cast<U>(expected);
 		for (const auto value : read_host<U>(result, element_count))
@@ -440,8 +442,13 @@ private:
 		const const_array_ref left_ref = left;
 		const const_array_ref right_ref = right;
 
-		const auto results = verb(left_ref, right_ref, context, nullptr,
-		                          nullptr);
+		const auto results = verb(
+			left_ref,
+			right_ref,
+			context,
+			nullptr,
+			nullptr
+		);
 
 		const auto widened_left = widen(x.as<left_type>());
 		const auto widened_right = widen(y.as<right_type>());

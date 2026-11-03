@@ -72,7 +72,7 @@ public:
 	using input_types = Inputs;
 	using scratch_types = Scratches;
 	using scratch_requirement_array_type = std::array<
-		program_scratch_requirement, 
+		program_scratch_requirement,
 		type_list_size<scratch_types>::value
 	>;
 
@@ -126,14 +126,14 @@ public:
 		thread_pool &pool
 	) const override;
 
-	span<const program_scratch_requirement> 
+	span<const program_scratch_requirement>
 	get_scratch_requirements() const override;
 
 private:
-	REXLIB_NO_UNIQUE_ADDRESS 
+	REXLIB_NO_UNIQUE_ADDRESS
 	functor_type m_function;
 
-	REXLIB_NO_UNIQUE_ADDRESS 
+	REXLIB_NO_UNIQUE_ADDRESS
 	scratch_requirement_array_type m_scratch_requirements;
 
 	template<
@@ -184,7 +184,8 @@ std::shared_ptr<cpu_program> make_functor_program(
  * @param fun The functor to be wrapped.
  * @param output_types A @ref rexlib::type_list describing the output operands.
  * @param input_types A @ref rexlib::type_list describing the input operands.
- * @param scratch_types A @ref rexlib::type_list describing the scratch operands.
+ * @param scratch_types A @ref rexlib::type_list describing the scratch
+ * operands.
  * @param scratch_requirements One requirement per scratch type, in order.
  * @return The wrapped program, held through a `std::shared_ptr<cpu_program>`.
  */

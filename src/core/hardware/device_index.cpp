@@ -16,7 +16,10 @@ device_index::~device_index() = default;
 device_index& device_index::operator=(const device_index &other) = default;
 device_index& device_index::operator=(device_index &&other) noexcept = default;
 
-device_index::device_index(const std::string &backend_name, std::size_t device_id)
+device_index::device_index(
+	const std::string &backend_name,
+	std::size_t device_id
+)
 	: m_backend_name(backend_name)
 	, m_device_id(device_id)
 {

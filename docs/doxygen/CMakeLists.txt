@@ -44,11 +44,11 @@ set(
 	DOXYGEN_PREDEFINED
 	"REXLIB_API="
 	"REXLIB_MAY_ALIAS="
-	"REXLIB_DECLARE_OPERATION(op, component_traits, outputs, inputs, shape, ...)=\
-class op##_operation : public ::rexlib::trivial_operation<op##_operation, \
-op##_operation_traits> {}"
-	"REXLIB_DECLARE_PARAMETRIC_OPERATION(op, component_traits, outputs, inputs, \
-shape, parameters, ...)=class op##_operation : public \
+	"REXLIB_DECLARE_OPERATION(op, component_traits, outputs, inputs, \
+shape, ...)=class op##_operation : public \
+::rexlib::trivial_operation<op##_operation, op##_operation_traits> {}"
+	"REXLIB_DECLARE_PARAMETRIC_OPERATION(op, component_traits, outputs, \
+inputs, shape, parameters, ...)=class op##_operation : public \
 ::rexlib::parametric_operation<op##_operation, op##_operation_traits> {}"
 )
 

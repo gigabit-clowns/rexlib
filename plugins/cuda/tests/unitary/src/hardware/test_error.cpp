@@ -35,8 +35,8 @@ TEST_CASE(
 	{
 		const std::string message = e.what();
 
-		// Not what the runtime says about the code: it is free to say nothing at
-		// all, and does on some platforms.
+		// Not what the runtime says about the code: it is free to say nothing
+		// at all, and does on some platforms.
 		CHECK( message.find("cudaErrorInvalidValue") != std::string::npos );
 		CHECK( message.find(__FILE__) != std::string::npos );
 		CHECK_FALSE( message.empty() );

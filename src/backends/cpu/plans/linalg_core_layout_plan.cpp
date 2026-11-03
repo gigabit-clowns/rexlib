@@ -143,7 +143,11 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 		core_axis,
 		batch_extents, batch_strides, offset
 	);
-	builder.add_operand(make_span(batch_extents), make_span(batch_strides), offset);
+	builder.add_operand(
+		make_span(batch_extents),
+		make_span(batch_strides),
+		offset
+	);
 
 	const auto left_core = split_named_core(
 		input_descriptors[0].get_layout(),
@@ -151,7 +155,11 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 		core_axis,
 		batch_extents, batch_strides, offset
 	);
-	builder.add_operand(make_span(batch_extents), make_span(batch_strides), offset);
+	builder.add_operand(
+		make_span(batch_extents),
+		make_span(batch_strides),
+		offset
+	);
 
 	const auto right_core = split_named_core(
 		input_descriptors[1].get_layout(),
@@ -159,7 +167,11 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 		core_axis,
 		batch_extents, batch_strides, offset
 	);
-	builder.add_operand(make_span(batch_extents), make_span(batch_strides), offset);
+	builder.add_operand(
+		make_span(batch_extents),
+		make_span(batch_strides),
+		offset
+	);
 
 	return linalg_core_layout_plan(
 		builder.build(), output_core, left_core, right_core
@@ -189,19 +201,19 @@ std::size_t linalg_core_layout_plan::get_core_cost() const noexcept
 	return result > 0 ? result : 1;
 }
 
-const operand_core& 
+const operand_core&
 linalg_core_layout_plan::get_output_core() const noexcept
 {
 	return m_output_core;
 }
 
-const operand_core& 
+const operand_core&
 linalg_core_layout_plan::get_left_core() const noexcept
 {
 	return m_left_core;
 }
 
-const operand_core& 
+const operand_core&
 linalg_core_layout_plan::get_right_core() const noexcept
 {
 	return m_right_core;

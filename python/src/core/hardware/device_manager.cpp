@@ -17,7 +17,9 @@ namespace rexlib
 
 namespace nb = nanobind;
 
-static std::shared_ptr<device_manager> get_device_manager(service_catalog &catalog)
+static std::shared_ptr<device_manager> get_device_manager(
+	service_catalog &catalog
+)
 {
 	return catalog.get_service_manager<device_manager>();
 }
@@ -60,7 +62,9 @@ void define_device_manager(device_manager_class &c, nb::module_ &m)
 			{
 				device_properties desc;
 				if(!self.get_device_properties(index, desc)) {
-					throw std::invalid_argument("Requested device does not exist.");
+					throw std::invalid_argument(
+						"Requested device does not exist."
+					);
 				}
 				return desc;
 			}

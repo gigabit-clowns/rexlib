@@ -29,7 +29,7 @@ void cpu_device_backend::enumerate_devices(std::vector<std::size_t> &ids) const
 }
 
 bool cpu_device_backend::get_device_properties(
-	std::size_t id, 
+	std::size_t id,
 	device_properties &desc
 ) const
 {

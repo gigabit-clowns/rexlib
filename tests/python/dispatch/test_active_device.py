@@ -22,14 +22,18 @@ def test_device_accepts_a_device_index():
 def test_device_accepts_a_device_session():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	with rexlib.device(session) as ctx:
 		assert ctx.device_context.device_session is session
 
 def test_device_accepts_a_device_context():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	device_context = rexlib.hardware.DeviceContext(session)
 	with rexlib.device(device_context) as ctx:
 		assert ctx.device_context.device_session is session

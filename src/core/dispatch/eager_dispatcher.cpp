@@ -189,7 +189,7 @@ std::vector<std::shared_ptr<const buffer>> extract_input_storage(
 			std::ostringstream oss;
 			oss << "eager_dispatcher::dispatch: Input operand at "
 				<< "index " << i << " does not have associated storage.";
-			
+
 			throw std::invalid_argument(oss.str());
 		}
 	}
@@ -350,7 +350,7 @@ void eager_dispatcher::dispatch(
 			"Expected a device context with a dereferenceable active queue."
 		);
 	}
-	
+
 	const auto n_outputs = output_operands.size();
 	const auto n_inputs = input_operands.size();
 	validate_arity(

@@ -12,7 +12,7 @@
 
 using namespace rexlib;
 
-TEST_CASE( "open a dynamic library", "[dynamic_library]" ) 
+TEST_CASE( "open a dynamic library", "[dynamic_library]" )
 {
 	dynamic_library dl(get_mock_plugin_path("dummy-plugin"));
 
@@ -23,13 +23,13 @@ TEST_CASE( "open a dynamic library", "[dynamic_library]" )
 	REQUIRE( symbol != nullptr );
 }
 
-TEST_CASE( "default construct dynamic_library", "[dynamic_library]" ) 
+TEST_CASE( "default construct dynamic_library", "[dynamic_library]" )
 {
 	dynamic_library lib;
 	REQUIRE( lib.is_open() == false );
 }
 
-TEST_CASE( "recover shared library path from symbol", "[dynamic_library]" ) 
+TEST_CASE( "recover shared library path from symbol", "[dynamic_library]" )
 {
 	// Open a dynamic library and query a symbol.
 	const auto path = get_mock_plugin_path("dummy-plugin");

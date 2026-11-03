@@ -141,7 +141,7 @@ void plugin_manager::create_if_null()
 std::string get_default_plugin_directory()
 {
 	// Address of any core function
-	const auto* symbol = 
+	const auto* symbol =
 		reinterpret_cast<const void*>(&get_default_plugin_directory);
 
 	auto path = boost::filesystem::path(
@@ -227,15 +227,15 @@ void discover_plugins(const std::string& directory, plugin_manager &manager)
 	catch(const boost::filesystem::filesystem_error& e)
 	{
 		REXLIB_LOG_DEBUG(
-			"Failed to open plugin directory {}: {}", 
-			directory, 
+			"Failed to open plugin directory {}: {}",
+			directory,
 			e.what()
 		);
 
 		std::ignore = e; // To avoid compiler warnings with log disabled
 	}
 
-	for (const auto& entry : iterator) 
+	for (const auto& entry : iterator)
 	{
 		try_load_plugin(manager, entry.path().string());
 	}
@@ -250,7 +250,7 @@ void discover_plugins(plugin_manager &manager)
 }
 
 std::size_t register_all_plugins_at(
-	const plugin_manager &manager, 
+	const plugin_manager &manager,
 	service_catalog &catalog
 )
 {

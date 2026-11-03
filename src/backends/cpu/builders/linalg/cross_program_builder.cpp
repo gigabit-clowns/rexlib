@@ -115,7 +115,8 @@ public:
 		command_queue &queue
 	) const override
 	{
-		constexpr auto output_count = ops::cross_operation::output_operand_count;
+		constexpr auto output_count =
+			ops::cross_operation::output_operand_count;
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
 		const auto base = cpu_program_builder::get_suitability(
@@ -126,8 +127,10 @@ public:
 			return base;
 		}
 
-		if (output_descriptors.size() != output_count ||
-		    input_descriptors.size() != input_count)
+		if (
+			output_descriptors.size() != output_count ||
+			input_descriptors.size() != input_count
+		)
 		{
 			return backend_priority::unsupported;
 		}
@@ -141,10 +144,15 @@ public:
 		);
 
 		const auto supported =
-			detail::dispatcher_support_query<cross_type_dispatcher>::is_supported(
+			detail::dispatcher_support_query<
+				cross_type_dispatcher
+			>::is_supported(
 				make_span(output_types.data(), output_count),
 				make_span(input_types.data(), input_count),
-				make_span(operation_data_types.data(), operation_data_types.size())
+				make_span(
+					operation_data_types.data(),
+					operation_data_types.size()
+				)
 			);
 		if (!supported)
 		{
@@ -162,7 +170,8 @@ public:
 		program_cache* /*cache*/
 	) const override
 	{
-		constexpr auto output_count = ops::cross_operation::output_operand_count;
+		constexpr auto output_count =
+			ops::cross_operation::output_operand_count;
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
 		if (output_descriptors.size() != output_count)
@@ -188,7 +197,8 @@ public:
 		std::array<numerical_type, input_count> input_types;
 		extract_data_types(output_types, output_descriptors);
 		extract_data_types(input_types, input_descriptors);
-		const auto operation_data_types = get_operation_data_types(typed_operation);
+		const auto operation_data_types =
+			get_operation_data_types(typed_operation);
 
 		auto plan = linalg_core_layout_plan::for_named_axis(
 			output_descriptors, input_descriptors, axis
@@ -199,7 +209,7 @@ public:
 			[&plan] (auto output_element_types, auto input_element_types)
 			{
 				using out_type = typename type_list_element<
-					0, 
+					0,
 					decltype(output_element_types)
 				>::type;
 				cross_core_kernel<out_type> kernel(

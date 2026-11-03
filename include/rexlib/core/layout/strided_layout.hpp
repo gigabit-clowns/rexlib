@@ -12,7 +12,7 @@
 #include <functional>
 #include <cstddef>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class strided_layout_implementation;
@@ -33,23 +33,23 @@ public:
 
 	/**
 	 * @brief Obtain a hash of the layout.
-	 * 
-	 * @return std::size_t The hash. 
+	 *
+	 * @return std::size_t The hash.
 	 */
 	REXLIB_API
 	std::size_t hash() const noexcept;
 
 	/**
 	 * @brief Get the number of axis in the layout
-	 * 
-	 * @return std::size_t 
+	 *
+	 * @return std::size_t
 	 */
 	REXLIB_API
 	std::size_t get_rank() const noexcept;
 
 	/**
 	 * @brief Get the extents of the layout.
-	 * 
+	 *
 	 * @param extents Output parameter where the extents are written.
 	 */
 	REXLIB_API
@@ -57,7 +57,7 @@ public:
 
 	/**
 	 * @brief Get the strides of the layout.
-	 * 
+	 *
 	 * @param strides Output parameter where the strides are written.
 	 */
 	REXLIB_API
@@ -65,7 +65,7 @@ public:
 
 	/**
 	 * @brief Get the offset of the data.
-	 * 
+	 *
 	 * @return std::size_t The offset in elements.
 	 */
 	REXLIB_API
@@ -73,7 +73,7 @@ public:
 
 	/**
 	 * @brief Computes the minimum storage size (in elements) for this layout.
-	 * 
+	 *
 	 * @return std::size_t Minimum storage size in elements.
 	 */
 	REXLIB_API
@@ -81,7 +81,7 @@ public:
 
 	/**
 	 * @brief Computes the number of elements referenced by the layout.
-	 * 
+	 *
 	 * @return std::size_t Number of elements.
 	 */
 	REXLIB_API
@@ -89,7 +89,7 @@ public:
 
 	/**
 	 * @brief Check if this layout has a specific shape.
-	 * 
+	 *
 	 * @param extents The extents to be compared.
 	 * @return true If the provided extents match layout's extents.
 	 * @return false If the provided extents do not match layout's extents.
@@ -99,19 +99,19 @@ public:
 
 	/**
 	 * @brief Apply a set of dynamic subscripts to this layout.
-	 * 
+	 *
 	 * @param subscripts The subscripts.
 	 * @return strided_layout The resulting layout.
 	 * @throws std::invalid_argument If not all subscripts are processed.
 	 * Or subscript is out of bounds
 	 */
 	REXLIB_NODISCARD REXLIB_API
-	strided_layout 
+	strided_layout
 	apply_subscripts(span<const dynamic_subscript> subscripts) const;
 
 	/**
 	 * @brief Reverse the order of the axes.
-	 * 
+	 *
 	 * @return strided_layout The resulting layout.
 	 */
 	REXLIB_NODISCARD REXLIB_API
@@ -119,8 +119,8 @@ public:
 
 	/**
 	 * @brief Permute the order of the axes.
-	 * 
-	 * @param order Order acquired by the new layout. Must have the same 
+	 *
+	 * @param order Order acquired by the new layout. Must have the same
 	 * size as the amount of dimensions and it must feature strictly one
 	 * instance of each number in [0, rank).
 	 * @return strided_layout Permuted layout.
@@ -131,7 +131,7 @@ public:
 
 	/**
 	 * @brief Swap two axes in the layout.
-	 * 
+	 *
 	 * @param axis1 Index of the first axis. Must be in [-rank, rank).
 	 * @param axis2 Index of the second axis. Must be in [-rank, rank).
 	 * @return strided_layout Permuted layout.
@@ -139,13 +139,13 @@ public:
 	 */
 	REXLIB_NODISCARD REXLIB_API
 	strided_layout matrix_transpose(
-		std::ptrdiff_t axis1 = -1, 
+		std::ptrdiff_t axis1 = -1,
 		std::ptrdiff_t axis2 = -2
 	) const;
 
 	/**
 	 * @brief Obtains a layout view to the matrix diagonal defined by two axes.
-	 * 
+	 *
 	 * @param axis1 First axis of the diagonal. Must be in [-rank, rank).
 	 * @param axis2 Second axis of the diagonal. Must be in [-rank, rank).
 	 * Cannot be equal to @p axis1.
@@ -155,13 +155,13 @@ public:
 	 */
 	REXLIB_NODISCARD REXLIB_API
 	strided_layout matrix_diagonal(
-		std::ptrdiff_t axis1 = -1, 
+		std::ptrdiff_t axis1 = -1,
 		std::ptrdiff_t axis2 = -2
 	) const;
 
 	/**
 	 * @brief Remove insignificant axes of the layout.
-	 * 
+	 *
 	 * @return strided_layout The resulting layout.
 	 */
 	REXLIB_NODISCARD REXLIB_API
@@ -169,15 +169,15 @@ public:
 
 	/**
 	 * @brief Perform a broadcast of the layout to match the provided extents.
-	 * 
-	 * This function modifies the layout to match the provided extents by 
+	 *
+	 * This function modifies the layout to match the provided extents by
 	 * adding phantom axes or adjusting existing axes.
-	 * 
+	 *
 	 * @param extents Extents to broadcast to.
 	 * untouched. Must be greater or equal to rank. Defaults to zero.
 	 * @return strided_layout The resulting broadcasted layout.
 	 * @throws std::invalid_argument If the layout has more axes than extents.
-	 * @throws std::invalid_argument If the axes cannot be broadcasted to the 
+	 * @throws std::invalid_argument If the axes cannot be broadcasted to the
 	 * provided extents.
 	 */
 	REXLIB_NODISCARD REXLIB_API
@@ -185,8 +185,8 @@ public:
 
 	/**
 	 * @brief Get the implementation of this layout.
-	 * 
-	 * @return const strided_layout_implementation& The implementation 
+	 *
+	 * @return const strided_layout_implementation& The implementation
 	 * reference.
 	 *
 	 * @note The implementation class is not part of the public API. This method
@@ -196,7 +196,7 @@ public:
 
 	/**
 	 * @brief Create a contiguous layout from the provided extents.
-	 * 
+	 *
 	 * @param extents Extents of the layout.
 	 * @return strided_layout The resulting layout.
 	 */
@@ -215,7 +215,10 @@ public:
 	// Defined out of line: it compares the implementations, and the
 	// implementation type is incomplete here.
 	friend REXLIB_API
-	bool operator==(const strided_layout &lhs, const strided_layout &rhs) noexcept;
+	bool operator==(
+		const strided_layout &lhs,
+		const strided_layout &rhs
+	) noexcept;
 
 	friend bool
 	operator!=(const strided_layout &lhs, const strided_layout &rhs) noexcept
@@ -225,13 +228,13 @@ public:
 
 private:
 	// Copy-on-write implementation
-	std::shared_ptr<const strided_layout_implementation> m_implementation; 
+	std::shared_ptr<const strided_layout_implementation> m_implementation;
 
-	explicit 
+	explicit
 	strided_layout(
 		std::shared_ptr<const strided_layout_implementation> impl
 	) noexcept;
-	explicit 
+	explicit
 	strided_layout(strided_layout_implementation &&impl);
 };
 

@@ -26,6 +26,7 @@ and a newer push to a pull request cancels the run it supersedes; runs on
 | Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang |
 | CMake 3.18, system packages | The one job without presets: CMake 3.18.0, every dependency from the distribution (half and pocketfft placed by hand, as a packager would), Release, the suites, and a check that no dependency reaches the install |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
+| Lint | The `lint` preset: every file git tracks against `.editorconfig` |
 | All checks | Fails unless every other job succeeded |
 
 The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the

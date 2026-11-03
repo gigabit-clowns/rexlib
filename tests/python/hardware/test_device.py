@@ -53,7 +53,9 @@ def test_session_wraps_the_python_device(
 	assert session.device is __setup_mock_device
 	assert session.properties.name == __setup_properties.name
 
-def test_session_keeps_the_python_device_alive(__setup_queue, __setup_properties):
+def test_session_keeps_the_python_device_alive(
+	__setup_queue, __setup_properties
+):
 	session = rexlib.hardware.DeviceSession(
 		DeviceMock(__setup_queue), __setup_properties
 	)
@@ -98,7 +100,9 @@ def test_arrays_can_be_created_on_a_python_device(
 def __setup_queue():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	return session.default_queue
 
 @pytest.fixture

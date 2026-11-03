@@ -22,7 +22,7 @@ public:
 
 	operation_id& operator=(const operation_id &other) = default;
 	operation_id& operator=(operation_id &&other) = default;
-	
+
 	friend bool
 	operator==(const operation_id &lhs, const operation_id &rhs) noexcept
 	{
@@ -37,7 +37,7 @@ public:
 
 	/**
 	 * @brief Compute the hash for this operation identifier.
-	 * 
+	 *
 	 * @return std::size_t The hash.
 	 */
 	std::size_t hash() const noexcept;

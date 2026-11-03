@@ -339,7 +339,10 @@ private:
 		check_output<output_type>(
 			result,
 			output_extents(extents, axes, keep_dimensions),
-			reference(widen(x.as<input_type>()), reduction_count(extents, axes)),
+			reference(
+				widen(x.as<input_type>()),
+				reduction_count(extents, axes)
+			),
 			mode
 		);
 	}

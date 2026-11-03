@@ -27,7 +27,7 @@ array transfer(
 		);
 	}
 
-	const auto &allocator = 
+	const auto &allocator =
 		context.get_device_context().get_allocator(affinity);
 	if (!allocator)
 	{
@@ -98,9 +98,9 @@ array to_device_copy(
 )
 {
 	return transfer_copy(
-		std::move(input), 
-		memory_resource_affinity::device, 
-		context, 
+		std::move(input),
+		memory_resource_affinity::device,
+		context,
 		out
 	);
 }
@@ -124,9 +124,9 @@ array to_host_copy(
 )
 {
 	return transfer_copy(
-		std::move(input), 
-		memory_resource_affinity::host, 
-		context, 
+		std::move(input),
+		memory_resource_affinity::host,
+		context,
 		out
 	);
 }

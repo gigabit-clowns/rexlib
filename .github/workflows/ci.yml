@@ -299,7 +299,7 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/cmake" --install build --prefix "$RUNNER_TEMP/install"
           found=$(find "$RUNNER_TEMP/install" \
             \( -iname '*catch*' -o -iname '*eigen*' -o -iname '*spdlog*' \
-               -o -iname '*boost*' -o -iname 'half.hpp' -o -iname '*pocketfft*' \) \
+              -o -iname '*boost*' -o -iname 'half.hpp' -o -iname '*pocketfft*' \) \
             -print)
           if [ -n "$found" ]; then
             echo "A dependency reached the install tree:"
@@ -344,6 +344,37 @@ jobs:
           name: documentation
           path: build/docs/docs/doxygen/html
 
+  # The checks that need no build: the .editorconfig rules, through the lint
+  # preset.
+  lint:
+    name: Lint
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    env:
+      FETCHED: /tmp/fetched
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install editorconfig-checker
+        run: pipx install editorconfig-checker==3.11.1
+
+      - name: Keep the fetched sources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ env.FETCHED }}
+            !${{ env.FETCHED }}/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+
+      - name: Configure
+        run: cmake --preset lint -DFETCHCONTENT_BASE_DIR="$FETCHED"
+
+      - name: Test
+        run: ctest --preset lint
+
   # The one check the branch rules require besides SonarCloud's. It runs
   # whatever happened before it, and fails unless every job it needs
   # succeeded: a job that a failure skipped would otherwise count as passed.
@@ -356,6 +387,7 @@ jobs:
       - sanitize
       - minimum-cmake
       - documentation
+      - lint
     runs-on: ubuntu-24.04
     steps:
       - name: Decide whether every check passed

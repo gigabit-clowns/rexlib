@@ -16,7 +16,9 @@ def test_session_provides_host_allocator(__setup_device_manager):
 	session = __setup_device_manager.create_device_session(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
-	allocator = session.get_allocator(rexlib.hardware.MemoryResourceAffinity.host)
+	allocator = session.get_allocator(
+		rexlib.hardware.MemoryResourceAffinity.host
+	)
 	assert allocator is not None
 
 @pytest.fixture

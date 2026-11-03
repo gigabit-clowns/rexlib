@@ -22,8 +22,10 @@ cuda_device::cuda_device(int ordinal)
 	// Where the host and the device are the same physical memory, a device
 	// local pool would be a second name for the page locked one plus a copy
 	// nothing needs, so both kinds of request are served from the latter.
-	if (pinned_memory_resource::get().get_kind() !=
-	    memory_resource_kind::unified)
+	if (
+		pinned_memory_resource::get().get_kind() !=
+		memory_resource_kind::unified
+	)
 	{
 		m_memory = std::make_unique<device_memory_resource>(ordinal);
 	}

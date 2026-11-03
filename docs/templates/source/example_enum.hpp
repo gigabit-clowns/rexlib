@@ -7,18 +7,18 @@
 #include <string_view>
 #include <ostream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
  * @brief Describe the purpose of the example_enum
- * 
+ *
  */
 enum class example_enum
 {
-    first,
-    second,
-    third,
+	first,
+	second,
+	third,
 };
 
 REXLIB_CONSTEXPR const char* to_string(example_enum ex) noexcept;

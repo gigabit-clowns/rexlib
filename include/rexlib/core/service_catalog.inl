@@ -7,7 +7,7 @@
 #include "platform/constexpr.hpp"
 #include "platform/assert.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 template <typename T>

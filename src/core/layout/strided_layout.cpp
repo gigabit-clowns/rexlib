@@ -4,7 +4,7 @@
 
 #include "strided_layout_implementation.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 strided_layout::strided_layout() noexcept = default;
@@ -79,7 +79,7 @@ bool strided_layout::extents_equal(
 }
 
 REXLIB_NODISCARD
-strided_layout 
+strided_layout
 strided_layout::apply_subscripts(span<const dynamic_subscript> subscripts) const
 {
 	if (subscripts.empty())
@@ -94,7 +94,7 @@ REXLIB_NODISCARD
 strided_layout strided_layout::transpose() const
 {
 	if (get_rank() <= 1)
-	{   
+	{
 		return *this; // Empty or single axis. Not modified.
 	}
 
@@ -110,18 +110,18 @@ strided_layout strided_layout::permute(span<const std::size_t> order) const
 }
 
 REXLIB_NODISCARD
-strided_layout 
+strided_layout
 strided_layout::matrix_transpose(
-	std::ptrdiff_t axis1, 
+	std::ptrdiff_t axis1,
 	std::ptrdiff_t axis2) const
 {
 	return strided_layout(get_implementation().matrix_transpose(axis1, axis2));
 }
 
 REXLIB_NODISCARD
-strided_layout 
+strided_layout
 strided_layout::matrix_diagonal(
-	std::ptrdiff_t axis1, 
+	std::ptrdiff_t axis1,
 	std::ptrdiff_t axis2
 ) const
 {
@@ -143,7 +143,7 @@ strided_layout strided_layout::squeeze() const
 }
 
 REXLIB_NODISCARD
-strided_layout 
+strided_layout
 strided_layout::broadcast_to(span<const std::size_t> extents) const
 {
 	if (extents_equal(extents))
@@ -194,8 +194,8 @@ strided_layout strided_layout::make_contiguous_layout(
 
 REXLIB_NODISCARD
 strided_layout strided_layout::make_custom_layout(
-	span<const std::size_t> extents, 
-	span<const std::ptrdiff_t> strides, 
+	span<const std::size_t> extents,
+	span<const std::ptrdiff_t> strides,
 	std::ptrdiff_t offset
 )
 {
@@ -205,7 +205,7 @@ strided_layout strided_layout::make_custom_layout(
 			"Extents and strides must have the same number of elements"
 		);
 	}
-	
+
 	const auto count = extents.size();
 	if (count == 0 && offset == 0)
 	{

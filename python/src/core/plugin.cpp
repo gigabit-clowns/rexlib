@@ -33,6 +33,6 @@ void define_plugin(plugin_class &c)
 		.def_prop_ro("version", &plugin::get_version)
 		.def("__repr__", &to_repr);
 
-	}
 }
- // namespace rexlib
+
+} // namespace rexlib

@@ -55,8 +55,10 @@ TEST_CASE(
 
 	// Only where the two affinities are answered by different resources is
 	// there anything to choose between.
-	if (&dev.get_memory_resource(memory_resource_affinity::device) ==
-	    &dev.get_memory_resource(memory_resource_affinity::host))
+	if (
+		&dev.get_memory_resource(memory_resource_affinity::device) ==
+		&dev.get_memory_resource(memory_resource_affinity::host)
+	)
 	{
 		SKIP( "The device shares the memory of the host." );
 	}

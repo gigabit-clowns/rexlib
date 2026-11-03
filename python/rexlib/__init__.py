@@ -36,7 +36,9 @@ from ._binding.numerical import NumericalType as NumericalType
 from ._binding.ops.fourier import FourierNormalization as FourierNormalization
 
 from ._catalog import get_default_catalog as get_default_catalog
-from ._context import get_active_execution_context as get_active_execution_context
+from ._context import (
+	get_active_execution_context as get_active_execution_context,
+)
 from ._device import device as device
 from ._paths import get_cmake_dir as get_cmake_dir, get_include as get_include
 

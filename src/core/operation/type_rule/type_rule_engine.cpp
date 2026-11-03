@@ -67,8 +67,10 @@ const numerical_type_domain* find_operand_domain(
 
 	for (const auto &pivot : pivots)
 	{
-		if (pivot.get_source() == source &&
-		    pivot.get_index() == operand_index)
+		if (
+			pivot.get_source() == source &&
+			pivot.get_index() == operand_index
+		)
 		{
 			return &pivot.get_domain();
 		}
@@ -152,8 +154,10 @@ type_rule_resolution resolve_pivots(
 	for (std::size_t i = 0; i < pivots.size(); ++i)
 	{
 		const auto &pivot = pivots[i];
-		if (pivot.get_source() != type_pivot_source::output ||
-		    pivot.get_default_pivot() < 0)
+		if (
+			pivot.get_source() != type_pivot_source::output ||
+			pivot.get_default_pivot() < 0
+		)
 		{
 			continue;
 		}

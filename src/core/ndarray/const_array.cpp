@@ -6,7 +6,7 @@
 
 #include "array_implementation.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 const_array::const_array() = default;
@@ -25,25 +25,25 @@ const array_descriptor& const_array::get_descriptor() const noexcept
 {
 	static array_descriptor empty_descriptor;
 	return
-		m_implementation ? 
-		m_implementation->get_descriptor() : 
+		m_implementation ?
+		m_implementation->get_descriptor() :
 		empty_descriptor;
 }
 
 const buffer* const_array::get_storage() const noexcept
 {
 	return
-		m_implementation ? 
-		m_implementation->get_storage() : 
+		m_implementation ?
+		m_implementation->get_storage() :
 		nullptr;
 }
 
-std::shared_ptr<const buffer> 
+std::shared_ptr<const buffer>
 const_array::share_storage() const noexcept
 {
 	return
-		m_implementation ? 
-		m_implementation->share_storage() : 
+		m_implementation ?
+		m_implementation->share_storage() :
 		nullptr;
 }
 

@@ -16,13 +16,13 @@
 
 /**
  * @brief Constant representing little endian byte ordering
- * 
+ *
  */
 #define REXLIB_BYTE_ORDER_LITTLE_ENDIAN 1
 
 /**
  * @brief Constant representing big endian byte ordering
- * 
+ *
  */
 #define REXLIB_BYTE_ORDER_BIG_ENDIAN 2
 
@@ -52,7 +52,7 @@
 		#define REXLIB_BYTE_ORDER REXLIB_BYTE_ORDER_BIG_ENDIAN
 	#endif
 
-// Failed detecting 
+// Failed detecting
 #else
 	#error "Could not determine byte ordering"
 #endif

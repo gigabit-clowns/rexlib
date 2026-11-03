@@ -30,7 +30,8 @@ version cuda_plugin::get_version() const noexcept
 
 void cuda_plugin::register_at(service_catalog& catalog) const
 {
-	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
+	const auto device_manager =
+		catalog.get_service_manager<rexlib::device_manager>();
 	cuda_device_backend::register_at(*device_manager);
 }
 

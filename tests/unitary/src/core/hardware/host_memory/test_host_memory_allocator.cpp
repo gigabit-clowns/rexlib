@@ -17,19 +17,29 @@
 
 using namespace rexlib;
 
-TEST_CASE( "get_max_alignment in host_memory_allocator should return the page size", "[host_memory_allocator]" )
+TEST_CASE(
+	"get_max_alignment in host_memory_allocator should return the page size",
+	"[host_memory_allocator]"
+)
 {
 	host_memory_allocator allocator;
 	CHECK( allocator.get_max_alignment() == get_page_size() );
 }
 
-TEST_CASE( "get_memory_resource in host_memory_allocator should return the host memory resource", "[host_memory_allocator]" )
+TEST_CASE(
+	"get_memory_resource in host_memory_allocator should return the host "
+	"memory resource",
+	"[host_memory_allocator]"
+)
 {
 	host_memory_allocator allocator;
 	CHECK( &allocator.get_memory_resource() == &get_host_memory_resource() );
 }
 
-TEST_CASE( "host_memory_allocator should return a host accessible buffer", "[host_memory_allocator]" )
+TEST_CASE(
+	"host_memory_allocator should return a host accessible buffer",
+	"[host_memory_allocator]"
+)
 {
 	host_memory_allocator allocator;
 
@@ -39,11 +49,17 @@ TEST_CASE( "host_memory_allocator should return a host accessible buffer", "[hos
 	auto buffer = allocator.allocate(size, alignment, nullptr, pending);
 
 	REQUIRE( buffer != nullptr );
-	REQUIRE( reinterpret_cast<std::uintptr_t>(buffer->get_host_ptr()) % alignment == 0 );
+	REQUIRE(
+		reinterpret_cast<std::uintptr_t>(buffer->get_host_ptr()) % alignment ==
+		0
+	);
 	REQUIRE( buffer->get_size() >= size );
 }
 
-TEST_CASE( "host_memory_allocator should ignore the queue", "[host_memory_allocator]" )
+TEST_CASE(
+	"host_memory_allocator should ignore the queue",
+	"[host_memory_allocator]"
+)
 {
 	host_memory_allocator allocator;
 
@@ -69,7 +85,11 @@ TEST_CASE(
 	CHECK( pending.is_empty() );
 }
 
-TEST_CASE( "host_memory_resource should return the host memory resource in get_memory_resource", "[host_memory_allocator]" )
+TEST_CASE(
+	"host_memory_resource should return the host memory resource in "
+	"get_memory_resource",
+	"[host_memory_allocator]"
+)
 {
 	host_memory_allocator allocator;
 
@@ -79,7 +99,10 @@ TEST_CASE( "host_memory_resource should return the host memory resource in get_m
 	REQUIRE( &resource1 == &resource2 );
 }
 
-TEST_CASE( "host_buffer_allocator should allocate enough space", "[host_memory_allocator]" )
+TEST_CASE(
+	"host_buffer_allocator should allocate enough space",
+	"[host_memory_allocator]"
+)
 {
 	const std::size_t size = 1024;
 	const std::size_t alignment = 64;
@@ -89,7 +112,11 @@ TEST_CASE( "host_buffer_allocator should allocate enough space", "[host_memory_a
 	auto buffer = allocator.allocate(size, alignment, nullptr, pending);
 
 	REQUIRE( buffer->get_size() >= size );
-	REQUIRE( reinterpret_cast<std::uintptr_t>(buffer->get_host_ptr()) % alignment == 0 );
+	REQUIRE(
+		reinterpret_cast<std::uintptr_t>(buffer->get_host_ptr()) % alignment ==
+		0
+	);
 
-	std::memset(buffer->get_host_ptr(), 0, buffer->get_size()); // Should not segfault
+	// Should not segfault
+	std::memset(buffer->get_host_ptr(), 0, buffer->get_size());
 }
