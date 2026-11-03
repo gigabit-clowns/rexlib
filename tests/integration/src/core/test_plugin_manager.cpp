@@ -3,6 +3,7 @@
 #include <rexlib/core/plugin_manager.hpp>
 
 #include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/dynamic_library_error.hpp>
 #include <rexlib/core/exceptions/plugin_load_error.hpp>
 #include <rexlib/core/platform/operating_system.h>
 
@@ -114,13 +115,13 @@ TEST_CASE(
 
 	REQUIRE_THROWS_AS(
 		manager.load_plugin("path_to_nowhere"),
-		std::system_error
+		dynamic_library_error
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
 	REQUIRE_THROWS_AS(
 		manager.load_plugin(get_text_file_path()),
-		std::system_error
+		dynamic_library_error
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
@@ -164,6 +165,20 @@ TEST_CASE(
 	const plugin& plugin = manager.get_plugin(0);
 	REQUIRE( plugin.get_name() == "dummy-plugin" );
 	REQUIRE( plugin.get_version() == version(1, 2, 3) );
+}
+
+TEST_CASE(
+	"discover_plugins should find plugins in a directory whose name is not "
+	"ASCII",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+	REQUIRE_NOTHROW(
+		discover_plugins(get_non_ascii_test_plugin_directory(), manager)
+	);
+	REQUIRE( manager.get_plugin_count() == 1 );
+	REQUIRE( manager.get_plugin(0).get_name() == "dummy-plugin" );
 }
 
 TEST_CASE(

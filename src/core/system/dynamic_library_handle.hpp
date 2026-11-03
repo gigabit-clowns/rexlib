@@ -2,19 +2,17 @@
 
 #pragma once
 
-
-#include <rexlib/core/platform/operating_system.h>
-
 #include <string>
 
 namespace rexlib
 {
 
 /**
- * @brief Open a the dynamic library
+ * @brief Open a dynamic library, resolving every symbol it needs.
  *
- * @param filename Path to the dynamic library
- * @return void* Pointer to the newly opened dynamic library
+ * @param filename Path to the dynamic library, in UTF-8.
+ * @return void* Handle of the newly opened dynamic library.
+ * @throws dynamic_library_error If it cannot be loaded.
  */
 void* dynamic_library_open(const char* filename);
 
@@ -35,20 +33,13 @@ void dynamic_library_close(void* handle) noexcept;
 void* dynamic_library_get_symbol(void* handle, const char* name) noexcept;
 
 /**
- * @brief Obtain the filename to the dynamic library from where the
+ * @brief Obtain the filename of the dynamic library from where the
  * given symbol has been loaded.
  *
- * @param symbol
- * @return std::string
+ * @param symbol The symbol to be looked up.
+ * @return std::string The path in UTF-8. Empty if no loaded library
+ * holds the symbol.
  */
 std::string dynamic_library_symbol_filename_lookup(const void* symbol);
 
 } // namespace rexlib
-
-#if REXLIB_POSIX
-	#include "dynamic_library_handle_posix.inl"
-#elif REXLIB_WINDOWS
-	#include "dynamic_library_handle_windows.inl"
-#else
-	#error "No dynamic_library_handle implementation for this platform"
-#endif

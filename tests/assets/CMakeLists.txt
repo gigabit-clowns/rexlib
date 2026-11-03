@@ -4,12 +4,30 @@
 add_subdirectory(dummy_plugin)
 add_subdirectory(faulty_plugin1)
 add_subdirectory(faulty_plugin2)
+set(REXLIB_TEST_PLUGINS dummy-plugin faulty-plugin1 faulty-plugin2)
+
+# Only the linkers of Unix leave an unresolved symbol to the loader.
+if(UNIX)
+	add_subdirectory(plugin_with_missing_symbol)
+	list(APPEND REXLIB_TEST_PLUGINS plugin-with-missing-symbol)
+endif()
 
 # Single directory where every asset is staged. Both the unitary and the
 # integration test suites resolve their assets from here through an absolute
 # path, so the tests no longer depend on their working directory.
 set(REXLIB_TEST_ASSET_ROOT ${CMAKE_CURRENT_BINARY_DIR}/assets)
 set(REXLIB_TEST_PLUGINS_DIRECTORY ${REXLIB_TEST_ASSET_ROOT}/plugins)
+
+set(REXLIB_COPY_TEST_PLUGINS)
+foreach(PLUGIN ${REXLIB_TEST_PLUGINS})
+	list(
+		APPEND REXLIB_COPY_TEST_PLUGINS
+		COMMAND
+			${CMAKE_COMMAND} -E copy
+			$<TARGET_FILE:${PLUGIN}>
+			${REXLIB_TEST_PLUGINS_DIRECTORY}
+	)
+endforeach()
 
 # Stage the assets next to the build tree.
 add_custom_target(
@@ -20,18 +38,12 @@ add_custom_target(
 		${CMAKE_CURRENT_SOURCE_DIR}/lorem_ipsum.txt
 		${REXLIB_TEST_ASSET_ROOT}
 	COMMAND ${CMAKE_COMMAND} -E make_directory ${REXLIB_TEST_PLUGINS_DIRECTORY}
+	${REXLIB_COPY_TEST_PLUGINS}
 	COMMAND
-		${CMAKE_COMMAND} -E copy
-		$<TARGET_FILE:dummy-plugin>
-		${REXLIB_TEST_PLUGINS_DIRECTORY}
-	COMMAND
-		${CMAKE_COMMAND} -E copy
-		$<TARGET_FILE:faulty-plugin1>
-		${REXLIB_TEST_PLUGINS_DIRECTORY}
-	COMMAND
-		${CMAKE_COMMAND} -E copy
-		$<TARGET_FILE:faulty-plugin2>
-		${REXLIB_TEST_PLUGINS_DIRECTORY}
+		${CMAKE_COMMAND}
+		-DPLUGIN=$<TARGET_FILE:dummy-plugin>
+		-DROOT=${REXLIB_TEST_ASSET_ROOT}
+		-P ${CMAKE_CURRENT_SOURCE_DIR}/copy_to_non_ascii_directory.cmake
 )
 
 # Interface target that gives any test suite access to the assets: the
