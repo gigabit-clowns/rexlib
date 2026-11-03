@@ -43,11 +43,12 @@ cmake_dependent_option(
 	REXLIB_CUDA_BUILD_TESTING "Build the plugin's tests" ON
 	"BUILD_TESTING" OFF
 )
-
-set(
-	REXLIB_CUDA_REXLIB_VERSION 0.1
-	CACHE STRING "Version of rexlib this plugin requires"
+option(
+	REXLIB_CUDA_WARNINGS_AS_ERRORS
+	"Fail the build of the plugin's own targets on a compiler warning"
+	OFF
 )
+
 set(
 	REXLIB_CUDA_RUNTIME_RPATH ""
 	CACHE STRING "RPATH entry reaching the CUDA runtime"
@@ -111,9 +112,11 @@ else()
 	find_package(spdlog 1.4 REQUIRED CONFIG)
 endif()
 
-if(NOT TARGET rexlib::rexlib)
-	find_package(rexlib ${REXLIB_CUDA_REXLIB_VERSION} REQUIRED)
-endif()
+# The plugin is built against an installed rexlib, as any third-party
+# plugin is, of the minor version it shares with the library.
+find_package(
+	rexlib ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR} REQUIRED
+)
 
 add_subdirectory(src)
 

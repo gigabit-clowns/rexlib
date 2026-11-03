@@ -358,6 +358,127 @@ jobs:
         run: >-
           "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
 
+  # The CUDA plugin, built as a third party builds a plugin: against the
+  # library, installed. The toolkit comes from NVIDIA's repository, every
+  # other dependency is installed by vcpkg, and warnings are errors. The
+  # CUDA 12 row builds the plugin with CMake 3.18. The runners have no GPU,
+  # so the tests that need one skip themselves.
+  cuda:
+    name: ${{ matrix.name }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: CUDA 12, Linux x86_64
+            os: ubuntu-24.04
+            repository: x86_64
+            cuda: '12.9'
+            triplet: x64-linux
+            cmake: '3.18.0'
+          - name: CUDA 13, Linux aarch64
+            os: ubuntu-24.04-arm
+            repository: sbsa
+            cuda: '13.4'
+            triplet: arm64-linux
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: gcc
+      CXX: g++
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Keep the packages vcpkg builds
+        uses: actions/cache@v6.1.0
+        with:
+          path: ${{ runner.temp }}/vcpkg-archives
+          key: vcpkg-${{ matrix.os }}-g++-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-g++-${{ matrix.triplet }}-
+
+      - name: Install the dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
+          vcpkg install --x-manifest-root=.github/vcpkg \
+            --x-install-root="$RUNNER_TEMP/vcpkg" \
+            --triplet=${{ matrix.triplet }} \
+            --host-triplet=${{ matrix.triplet }} \
+            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
+
+      - name: Install the CUDA toolkit
+        env:
+          REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${{ matrix.repository }}
+          CUDA: ${{ matrix.cuda }}
+        run: |
+          curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
+          sudo dpkg -i cuda-keyring_1.1-1_all.deb
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            "cuda-nvcc-${CUDA/./-}" "cuda-cudart-dev-${CUDA/./-}"
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-g++-cuda-${{ matrix.cuda }}
+          max-size: 500M
+          evict-old-files: job
+          install: binary
+
+      - name: Configure the library
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DREXLIB_BUILD_TESTING=OFF
+          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+
+      - name: Build the library
+        run: cmake --build build
+
+      - name: Install the library
+        run: cmake --install build --prefix "$RUNNER_TEMP/rexlib"
+
+      - name: Use CMake ${{ matrix.cmake }} from here on
+        if: matrix.cmake
+        env:
+          CMAKE: ${{ matrix.cmake }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cmake"
+          "$RUNNER_TEMP/cmake/bin/pip" install --quiet "cmake==$CMAKE"
+          "$RUNNER_TEMP/cmake/bin/cmake" --version
+          echo "$RUNNER_TEMP/cmake/bin" >> "$GITHUB_PATH"
+
+      # One architecture is enough to compile for, and the oldest that CUDA 13
+      # still supports.
+      - name: Configure the plugin
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          CMAKE_CUDA_COMPILER_LAUNCHER: ccache
+          TOOLKIT: /usr/local/cuda-${{ matrix.cuda }}
+        run: >-
+          cmake -S plugins/cuda -B build-cuda
+          -DCMAKE_BUILD_TYPE=Debug
+          -DREXLIB_CUDA_BUILD_DEPENDENCIES=OFF
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
+          -DCUDAToolkit_ROOT="$TOOLKIT"
+          -DCMAKE_CUDA_COMPILER="$TOOLKIT/bin/nvcc"
+          -DCMAKE_CUDA_ARCHITECTURES=75
+          -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
+
+      - name: Build the plugin
+        run: cmake --build build-cuda
+
+      - name: Test the plugin
+        working-directory: build-cuda
+        run: ctest --output-on-failure --no-tests=error
+
   documentation:
     name: Documentation
     timeout-minutes: 20
@@ -473,6 +594,7 @@ jobs:
       - build-and-test
       - sanitize
       - minimum-cmake
+      - cuda
       - documentation
       - lint
     runs-on: ubuntu-24.04

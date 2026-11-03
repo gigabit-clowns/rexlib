@@ -3,16 +3,17 @@
 How to configure and build the plugin, its presets, toolkit requirements and
 options, and how its targets are put together.
 
-The plugin needs a rexlib to link against. It finds one with `find_package`,
-so build the submodule into a prefix and point `rexlib_ROOT` at it:
+The plugin is built as any third-party plugin is: against an installed
+rexlib, which it finds with `find_package`, of the minor version it shares
+with the library. From the root of the repository, install the library into
+a prefix and point `rexlib_ROOT` at it, on the command line or in the
+environment:
 
 ```
-git submodule update --init
-cmake -S external/rexlib -B build/rexlib -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=build/rexlib-install -DCMAKE_INSTALL_LIBDIR=lib \
-  -DBUILD_TESTING=OFF
-cmake --build build/rexlib --target install --parallel
-cmake -S . -B build/cuda -Drexlib_ROOT=build/rexlib-install
+cmake -S . -B build/rexlib -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+cmake --build build/rexlib --parallel
+cmake --install build/rexlib --prefix build/rexlib-install
+cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install
 cmake --build build/cuda --parallel
 ```
 
@@ -52,7 +53,7 @@ Options:
 | `REXLIB_CUDA_BUILD_TESTING` | `ON` while `BUILD_TESTING` is on, forced `OFF` otherwise | Builds the test suites |
 | `REXLIB_CUDA_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CUDA_INSTALL` | `ON` | Generates the install rules |
-| `REXLIB_CUDA_REXLIB_VERSION` | `0.1` | The rexlib version `find_package` asks for |
+| `REXLIB_CUDA_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail the plugin's own targets (`-Werror`, `/WX`) |
 | `REXLIB_CUDA_RUNTIME_RPATH` | empty | An extra RPATH entry reaching the CUDA runtime |
 
 The sources are compiled once, into the object library `rexlib-cuda-objects`,

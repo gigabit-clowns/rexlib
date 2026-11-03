@@ -13,6 +13,5 @@ Where each part of the plugin lives.
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
 | `cmake/modules/` | One `rexlib_cuda_fetch_*.cmake` per dependency, `rexlib_cuda_architectures` and `rexlib_cuda_enable_warnings` |
 | `scripts/select_cuda_major.py` | Rewrites `pyproject.toml` for one CUDA major before a wheel is built |
-| `external/rexlib` | The rexlib this plugin is developed against, a submodule |
 
 Everything is in `namespace rexlib::cuda`.
