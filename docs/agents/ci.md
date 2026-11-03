@@ -13,11 +13,19 @@ changes, and so on.
 
 `.github/workflows/ci.yml` runs on every pull request and every push to
 `main`, with no path filter: a change runs every job it could break. The jobs
-run the preset commands a developer runs. They use public actions only, pinned by
-digest, on runner images named by version rather than `-latest`, and check
-the repository out without keeping its credentials. Every job has a timeout,
+run the preset commands a developer runs. They use public actions only, on
+runner images named by version rather than `-latest`, and check the
+repository out without keeping its credentials. Every job has a timeout,
 and a newer push to a pull request cancels the run it supersedes; runs on
 `main` are never cancelled.
+
+A workflow names each action by its full version, and
+`.github/workflows/actions.lock` locks that version, and what the action
+itself uses, to a commit, which is what the runner runs. The lockfile is
+written by `gh actions-lock`, an extension of the GitHub CLI
+(`gh extension install github/gh-actions-lock`), and never by hand: a change
+that adds an action or moves one to another version runs it again and
+commits both files.
 
 | Job | What it checks |
 |---|---|
@@ -25,7 +33,7 @@ and a newer push to a pull request cancels the run it supersedes; runs on
 | Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
 | CMake 3.18 | The one job without presets: CMake 3.18.0, Release with warnings as errors, and the suites |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
-| Lint | The `lint` preset: clang-tidy, pinned, on the library's sources as they compile, and every file git tracks against `.editorconfig`. The dependencies are installed, as in the jobs with warnings as errors |
+| Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset: clang-tidy, pinned, on the library's sources as they compile, and every file git tracks against `.editorconfig`. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
 
 The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the
