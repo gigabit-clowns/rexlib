@@ -13,3 +13,13 @@ add_test(
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
 set_tests_properties(rexlib-style PROPERTIES LABELS style)
+
+find_program(REXLIB_RUFF NAMES ruff REQUIRED)
+
+# ruff.toml names the Python files it checks.
+add_test(
+	NAME rexlib-ruff
+	COMMAND ${REXLIB_RUFF} check --no-cache
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
+set_tests_properties(rexlib-ruff PROPERTIES LABELS style)
