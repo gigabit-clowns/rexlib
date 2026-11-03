@@ -2,6 +2,8 @@
 
 #include <backends/cpu/plans/named_core_frame.hpp>
 
+#include <core/layout/axis_values.hpp>
+
 #include <numeric>
 #include <sstream>
 #include <stdexcept>
@@ -11,26 +13,6 @@ namespace rexlib
 {
 namespace cpu
 {
-
-namespace
-{
-
-template <typename T>
-std::vector<T> select_axes(
-	span<const T> values,
-	const std::vector<std::size_t> &axes
-)
-{
-	std::vector<T> result;
-	result.reserve(axes.size());
-	for (const auto axis : axes)
-	{
-		result.push_back(values[axis]);
-	}
-	return result;
-}
-
-} // anonymous namespace
 
 named_core_frame::named_core_frame(
 	std::vector<std::size_t> frame_extents,
@@ -83,12 +65,12 @@ span<const std::size_t> named_core_frame::get_batch_axes() const noexcept
 
 std::vector<std::size_t> named_core_frame::get_core_extents() const
 {
-	return select_axes(make_span(m_frame_extents), m_core_axes);
+	return select_axes(make_span(m_frame_extents), make_span(m_core_axes));
 }
 
 std::vector<std::size_t> named_core_frame::get_batch_extents() const
 {
-	return select_axes(make_span(m_frame_extents), m_batch_axes);
+	return select_axes(make_span(m_frame_extents), make_span(m_batch_axes));
 }
 
 strided_layout named_core_frame::embed(
@@ -155,14 +137,14 @@ std::vector<std::ptrdiff_t> named_core_frame::select_core(
 	span<const std::ptrdiff_t> frame_values
 ) const
 {
-	return select_axes(frame_values, m_core_axes);
+	return select_axes(frame_values, make_span(m_core_axes));
 }
 
 std::vector<std::ptrdiff_t> named_core_frame::select_batch(
 	span<const std::ptrdiff_t> frame_values
 ) const
 {
-	return select_axes(frame_values, m_batch_axes);
+	return select_axes(frame_values, make_span(m_batch_axes));
 }
 
 named_core_frame make_trailing_core_frame(

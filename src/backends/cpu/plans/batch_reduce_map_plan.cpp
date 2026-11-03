@@ -64,16 +64,6 @@ void check_cores(
 	}
 }
 
-std::size_t element_count(const std::vector<std::size_t> &extents) noexcept
-{
-	std::size_t result = 1;
-	for (const auto extent : extents)
-	{
-		result *= extent;
-	}
-	return result;
-}
-
 /**
  * @brief Add the batch axes of an aligned operand to the batch layout, with
  * its offset.
@@ -280,8 +270,8 @@ batch_reduce_map_plan::batch_reduce_map_plan(
 	m_scalar_layout = scalar_builder.build();
 	m_reduced_layout = reduced_builder.build();
 	m_map_layout = map_builder.build();
-	m_batch_count = element_count(batch_extents);
-	m_core_count = element_count(core_extents);
+	m_batch_count = m_batch_layout.compute_element_count();
+	m_core_count = m_reduced_layout.compute_element_count();
 }
 
 const named_core_frame& batch_reduce_map_plan::get_frame() const noexcept

@@ -2,6 +2,8 @@
 
 #include "slice_insertion_layout_plan.hpp"
 
+#include <core/layout/axis_values.hpp>
+
 #include <rexlib/core/layout/broadcast.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
@@ -56,31 +58,6 @@ private:
 	strided_layout m_layout;
 };
 
-template <typename T>
-std::vector<T> select_axes(
-	const std::vector<T> &values,
-	const std::vector<std::size_t> &axes
-)
-{
-	std::vector<T> result;
-	result.reserve(axes.size());
-	for (const auto axis : axes)
-	{
-		result.push_back(values[axis]);
-	}
-	return result;
-}
-
-std::size_t element_count(const std::vector<std::size_t> &extents) noexcept
-{
-	std::size_t result = 1;
-	for (const auto extent : extents)
-	{
-		result *= extent;
-	}
-	return result;
-}
-
 void add_operand(
 	joint_layout_builder &builder,
 	const strided_layout &layout,
@@ -91,7 +68,7 @@ void add_operand(
 {
 	std::vector<std::ptrdiff_t> strides;
 	layout.get_strides(strides);
-	const auto selected = select_axes(strides, axes);
+	const auto selected = select_axes(make_span(strides), make_span(axes));
 	builder.add_operand(
 		make_span(axis_extents),
 		make_span(selected),
@@ -160,8 +137,10 @@ slice_insertion_layout_plan::slice_insertion_layout_plan(
 		}
 	}
 
-	const auto kept_extents = select_axes(frame, kept_axes);
-	const auto reduced_extents = select_axes(frame, reduced_axes);
+	const auto kept_extents =
+		select_axes(make_span(frame), make_span(kept_axes));
+	const auto reduced_extents =
+		select_axes(make_span(frame), make_span(reduced_axes));
 	joint_layout_builder kept_builder;
 	joint_layout_builder reduced_builder;
 	kept_builder.set_extents(make_span(kept_extents));
@@ -193,8 +172,8 @@ slice_insertion_layout_plan::slice_insertion_layout_plan(
 
 	m_kept_layout = kept_builder.build();
 	m_reduced_layout = reduced_builder.build();
-	m_kept_count = element_count(kept_extents);
-	m_reduced_count = element_count(reduced_extents);
+	m_kept_count = m_kept_layout.compute_element_count();
+	m_reduced_count = m_reduced_layout.compute_element_count();
 
 	for (std::size_t o = 0; o < output_descriptors.size(); ++o)
 	{
