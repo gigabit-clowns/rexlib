@@ -39,14 +39,18 @@ cmake_dependent_option(
 	"BUILD_TESTING" OFF
 )
 option(
-	REXLIB_BUILD_DEPENDENCIES
-	"Build the dependencies with rexlib, rather than finding installed ones"
-	ON
+	REXLIB_USE_SYSTEM_DEPENDENCIES
+	"Find every dependency installed, rather than fetching it and building it \
+with rexlib"
+	OFF
 )
 
 cmake_dependent_option(
-	REXLIB_BUILD_DLPACK "Fetch DLPack and build it with the binding" ON
-	"REXLIB_BUILD_DEPENDENCIES" OFF
+	REXLIB_USE_SYSTEM_DLPACK
+	"Find an installed DLPack rather than fetching it"
+	OFF
+	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
+	ON
 )
 option(
 	REXLIB_PYTHON_STABLE_ABI
@@ -152,16 +156,16 @@ if(NOT nanobind_ROOT AND NOT nanobind_DIR)
 endif()
 find_package(nanobind 3.0 REQUIRED CONFIG)
 
-if(REXLIB_BUILD_DLPACK)
-	include(rexlib_python_fetch_dlpack)
-	rexlib_python_fetch_dlpack(
-		COMMIT 84d107bf416c6bab9ae68ad285876600d230490d
-	) # v1.3
-else()
+if(REXLIB_USE_SYSTEM_DLPACK)
 	# No version is asked for: the package of DLPack reports 0.6 whatever
 	# the release, so asking for the 1.0 the versioned tensors arrived in
 	# would refuse every release that has them.
 	find_package(dlpack REQUIRED CONFIG)
+else()
+	include(rexlib_python_fetch_dlpack)
+	rexlib_python_fetch_dlpack(
+		COMMIT 84d107bf416c6bab9ae68ad285876600d230490d
+	) # v1.3
 endif()
 
 if(NOT TARGET rexlib::rexlib)

@@ -167,7 +167,7 @@ jobs:
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: >-
           cmake --preset ${{ matrix.preset }}
-          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
           ${{ matrix.python && '-DREXLIB_BUILD_PYTHON=ON' || '' }}
@@ -320,7 +320,7 @@ jobs:
         run: >-
           "$RUNNER_TEMP/cmake/bin/cmake" -S . -B build
           -DCMAKE_BUILD_TYPE=Release
-          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/x64-linux"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
@@ -345,7 +345,7 @@ jobs:
         run: >-
           "$RUNNER_TEMP/cmake/bin/cmake" -S python -B build-python
           -DCMAKE_BUILD_TYPE=Release
-          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/x64-linux"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
@@ -434,7 +434,7 @@ jobs:
           cmake -S . -B build
           -DCMAKE_BUILD_TYPE=Release
           -DREXLIB_BUILD_TESTING=OFF
-          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
@@ -465,7 +465,7 @@ jobs:
         run: >-
           cmake -S plugins/cuda -B build-cuda
           -DCMAKE_BUILD_TYPE=Debug
-          -DREXLIB_CUDA_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
           -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DCUDAToolkit_ROOT="$TOOLKIT"
           -DCMAKE_CUDA_COMPILER="$TOOLKIT/bin/nvcc"
@@ -574,7 +574,7 @@ jobs:
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: >-
           cmake --preset lint
-          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/x64-linux"
 
       - name: Build
