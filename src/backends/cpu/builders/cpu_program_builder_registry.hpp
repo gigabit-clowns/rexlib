@@ -14,7 +14,7 @@ namespace cpu
  *
  * The CPU's program builders add themselves to it during static
  * initialization, through @ref REXLIB_REGISTER_CPU_PROGRAM_BUILDER, and
- * @ref cpu_plugin registers them at a catalog's program_manager.
+ * @ref cpu_plugin registers them at a catalog's program_service.
  *
  * @return program_builder_registry& The registry.
  */

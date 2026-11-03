@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <rexlib/core/dispatch/program_cache.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
 
@@ -34,35 +34,35 @@ struct mock_operation_b
 } // anonymous namespace
 
 TEST_CASE(
-	"program_manager::register_builder accepts a valid builder",
-	"[program_manager]"
+	"program_service::register_builder accepts a valid builder",
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 	auto builder = std::make_unique<mock_program_builder>();
 
 	REQUIRE_CALL(*builder, get_operation_id())
 		.RETURN(operation_id::of<mock_program_builder>());
 
-	CHECK(manager.register_builder(std::move(builder)));
+	CHECK(programs.register_builder(std::move(builder)));
 }
 
 TEST_CASE(
-	"program_manager::register_builder rejects a null builder",
-	"[program_manager]"
+	"program_service::register_builder rejects a null builder",
+	"[program_service]"
 )
 {
-	program_manager manager;
-	CHECK_FALSE(manager.register_builder(nullptr));
+	program_service programs;
+	CHECK_FALSE(programs.register_builder(nullptr));
 }
 
 TEST_CASE(
-	"program_manager::register_builder accepts multiple builders "
+	"program_service::register_builder accepts multiple builders "
 	"for the same operation",
-	"[program_manager]"
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 	auto builder1 = std::make_unique<mock_program_builder>();
 	auto builder2 = std::make_unique<mock_program_builder>();
 
@@ -71,17 +71,17 @@ TEST_CASE(
 	REQUIRE_CALL(*builder2, get_operation_id())
 		.RETURN(operation_id::of<mock_program_builder>());
 
-	CHECK(manager.register_builder(std::move(builder1)));
-	CHECK(manager.register_builder(std::move(builder2)));
+	CHECK(programs.register_builder(std::move(builder1)));
+	CHECK(programs.register_builder(std::move(builder2)));
 }
 
 TEST_CASE(
-	"program_manager::build dispatches to the builder with the "
+	"program_service::build dispatches to the builder with the "
 	"highest suitability",
-	"[program_manager]"
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 
 	const mock_operation_a op;
 	const std::array<operand_descriptor, 2> output_descriptors;
@@ -129,11 +129,11 @@ TEST_CASE(
 	)
 		.RETURN(prog);
 
-	REQUIRE(manager.register_builder(std::move(builder1)));
-	REQUIRE(manager.register_builder(std::move(builder2)));
+	REQUIRE(programs.register_builder(std::move(builder1)));
+	REQUIRE(programs.register_builder(std::move(builder2)));
 
 	CHECK(
-		manager.build(
+		programs.build(
 			op,
 			make_span(output_descriptors),
 			make_span(input_descriptors),
@@ -143,11 +143,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"program_manager::build filters builders by operation id",
-	"[program_manager]"
+	"program_service::build filters builders by operation id",
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 
 	const mock_operation_a op;
 	const std::array<operand_descriptor, 2> output_descriptors;
@@ -186,11 +186,11 @@ TEST_CASE(
 	REQUIRE_CALL(*builder_b, get_operation_id())
 		.RETURN(operation_id::of<mock_operation_b>());
 
-	REQUIRE(manager.register_builder(std::move(builder_a)));
-	REQUIRE(manager.register_builder(std::move(builder_b)));
+	REQUIRE(programs.register_builder(std::move(builder_a)));
+	REQUIRE(programs.register_builder(std::move(builder_b)));
 
 	CHECK(
-		manager.build(
+		programs.build(
 			op,
 			make_span(output_descriptors),
 			make_span(input_descriptors),
@@ -200,11 +200,11 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"program_manager::build forwards a null cache by default",
-	"[program_manager]"
+	"program_service::build forwards a null cache by default",
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 
 	const mock_operation_a op;
 	const std::array<operand_descriptor, 2> output_descriptors;
@@ -239,10 +239,10 @@ TEST_CASE(
 		.LR_WITH(_5 == nullptr)
 		.RETURN(prog);
 
-	REQUIRE(manager.register_builder(std::move(builder)));
+	REQUIRE(programs.register_builder(std::move(builder)));
 
 	CHECK(
-		manager.build(
+		programs.build(
 			op,
 			make_span(output_descriptors),
 			make_span(input_descriptors),
@@ -252,12 +252,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"program_manager::build forwards the cache pointer to the "
+	"program_service::build forwards the cache pointer to the "
 	"selected builder",
-	"[program_manager]"
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 
 	const mock_operation_a op;
 	const std::array<operand_descriptor, 2> output_descriptors;
@@ -293,10 +293,10 @@ TEST_CASE(
 		.LR_WITH(_5 == &cache)
 		.RETURN(prog);
 
-	REQUIRE(manager.register_builder(std::move(builder)));
+	REQUIRE(programs.register_builder(std::move(builder)));
 
 	CHECK(
-		manager.build(
+		programs.build(
 			op,
 			make_span(output_descriptors),
 			make_span(input_descriptors),
@@ -307,12 +307,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"program_manager::build throws when no builder handles the "
+	"program_service::build throws when no builder handles the "
 	"operation",
-	"[program_manager]"
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 
 	const mock_operation_b op;
 	const std::array<operand_descriptor, 2> output_descriptors;
@@ -323,10 +323,10 @@ TEST_CASE(
 	REQUIRE_CALL(*builder, get_operation_id())
 		.RETURN(operation_id::of<mock_operation_a>());
 
-	REQUIRE(manager.register_builder(std::move(builder)));
+	REQUIRE(programs.register_builder(std::move(builder)));
 
 	REQUIRE_THROWS_AS(
-		manager.build(
+		programs.build(
 			op,
 			make_span(output_descriptors),
 			make_span(input_descriptors),
@@ -337,12 +337,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"program_manager::build throws when every candidate reports "
+	"program_service::build throws when every candidate reports "
 	"unsupported",
-	"[program_manager]"
+	"[program_service]"
 )
 {
-	program_manager manager;
+	program_service programs;
 
 	const mock_operation_a op;
 	const std::array<operand_descriptor, 2> output_descriptors;
@@ -378,11 +378,11 @@ TEST_CASE(
 	)
 		.RETURN(backend_priority::unsupported);
 
-	REQUIRE(manager.register_builder(std::move(builder1)));
-	REQUIRE(manager.register_builder(std::move(builder2)));
+	REQUIRE(programs.register_builder(std::move(builder1)));
+	REQUIRE(programs.register_builder(std::move(builder2)));
 
 	REQUIRE_THROWS_AS(
-		manager.build(
+		programs.build(
 			op,
 			make_span(output_descriptors),
 			make_span(input_descriptors),

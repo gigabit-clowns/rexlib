@@ -14,7 +14,7 @@ namespace rexlib
 
 class command_queue;
 class device;
-class device_manager;
+class device_service;
 class memory_allocator;
 
 namespace cuda
@@ -85,7 +85,7 @@ public:
 private:
 	plugin_manager m_manager;
 	service_catalog m_catalog;
-	std::shared_ptr<rexlib::device_manager> m_devices;
+	std::shared_ptr<rexlib::device_service> m_devices;
 	std::shared_ptr<rexlib::device> m_device;
 };
 

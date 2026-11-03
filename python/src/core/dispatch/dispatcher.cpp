@@ -2,7 +2,7 @@
 
 #include "dispatcher.hpp"
 
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 
 #include <nanobind/stl/shared_ptr.h>
 
@@ -21,7 +21,7 @@ void define_dispatcher(nb::module_ &m)
 	m.def(
 		"make_eager_dispatcher",
 		&make_eager_dispatcher,
-		nb::arg("program_manager")
+		nb::arg("program_service")
 	);
 }
 

@@ -190,7 +190,7 @@ TEST_CASE(
 )
 {
 	// Asking whether a configuration can be served is not an error, which
-	// is what lets the program manager fall through to another backend
+	// is what lets the program service fall through to another backend
 	// instead of an unsupported type escaping from build().
 	const std::array<numerical_type, 1> output = { numerical_type::float32 };
 	const std::array<numerical_type, 2> matching = {

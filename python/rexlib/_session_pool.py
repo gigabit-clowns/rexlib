@@ -17,7 +17,7 @@ def get_pooled_device_session(
 	"""
 	Get the process-wide device session for a device, creating it once.
 
-	`DeviceManager.create_device_session` is documented as uncached, so
+	`DeviceService.create_device_session` is documented as uncached, so
 	every call builds a new session. Sessions are expensive and holding
 	several for the same device means sharing resources across distinct
 	logical device handles, so this pool keeps one session per device and
@@ -48,8 +48,8 @@ def get_pooled_device_session(
 		with __pool_lock:
 			session = __pool.get(key)
 		if session is None:
-			manager = hardware.get_device_manager(get_default_catalog())
-			session = manager.create_device_session(index)
+			devices = hardware.get_device_service(get_default_catalog())
+			session = devices.create_device_session(index)
 			with __pool_lock:
 				__pool[key] = session
 		return session

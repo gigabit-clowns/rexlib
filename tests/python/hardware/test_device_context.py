@@ -41,5 +41,5 @@ def test_with_allocator_installs_the_allocator(__setup_session):
 @pytest.fixture
 def __setup_session():
 	catalog = rexlib.ServiceCatalog()
-	manager = rexlib.hardware.get_device_manager(catalog)
-	return manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	devices = rexlib.hardware.get_device_service(catalog)
+	return devices.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))

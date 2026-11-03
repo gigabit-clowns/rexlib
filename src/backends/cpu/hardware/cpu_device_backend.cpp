@@ -4,7 +4,7 @@
 
 #include <rexlib/backends/cpu/cpu_device.hpp>
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/library_version.hpp>
 #include <rexlib/core/system/host.hpp>
 
@@ -59,9 +59,9 @@ cpu_device_backend::create_device(std::size_t id) const
 	return std::make_shared<cpu_device>();
 }
 
-bool cpu_device_backend::register_at(device_manager &manager)
+bool cpu_device_backend::register_at(device_service &devices)
 {
-	return manager.register_backend(std::make_unique<cpu_device_backend>());
+	return devices.register_backend(std::make_unique<cpu_device_backend>());
 }
 
 } // namespace cpu

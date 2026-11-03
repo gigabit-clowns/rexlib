@@ -4,7 +4,7 @@
 
 #include <rexlib/core/binary/bit.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/command.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
@@ -315,16 +315,16 @@ void track_accesses(
 } // anonymous namespace
 
 eager_dispatcher::eager_dispatcher(
-	std::shared_ptr<const program_manager> program_manager,
+	std::shared_ptr<const program_service> program_service,
 	std::size_t cache_capacity
 )
-	: m_program_manager(std::move(program_manager))
+	: m_program_service(std::move(program_service))
 	, m_program_cache(cache_capacity)
 {
-	if (!m_program_manager)
+	if (!m_program_service)
 	{
 		throw std::invalid_argument(
-			"program_manager cannot be null"
+			"program_service cannot be null"
 		);
 	}
 }
@@ -420,8 +420,8 @@ void eager_dispatcher::dispatch(
 		make_span(input_storages.data(), n_inputs)
 	);
 
-	REXLIB_ASSERT(m_program_manager);
-	auto prog = m_program_manager->build(
+	REXLIB_ASSERT(m_program_service);
+	auto prog = m_program_service->build(
 		op,
 		make_span(output_operand_descriptors.data(), n_outputs),
 		make_span(input_operand_descriptors.data(), n_inputs),
@@ -450,11 +450,11 @@ void eager_dispatcher::dispatch(
 
 // Declared in dispatcher.hpp.
 std::shared_ptr<dispatcher> make_eager_dispatcher(
-	std::shared_ptr<const program_manager> program_manager
+	std::shared_ptr<const program_service> program_service
 )
 {
 	return std::make_shared<eager_dispatcher>(
-		std::move(program_manager),
+		std::move(program_service),
 		REXLIB_DEFAULT_OPERATION_PROGRAM_CACHE_CAPACITY
 	);
 }

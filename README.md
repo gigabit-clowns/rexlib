@@ -45,11 +45,11 @@ target_link_libraries(my_program PRIVATE rexlib::rexlib)
 ```cpp
 #include <rexlib/core/dispatch/dispatcher.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/device_context.hpp>
 #include <rexlib/core/hardware/device_index.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/library_version.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
@@ -65,9 +65,9 @@ int main()
 
 	rexlib::service_catalog catalog;
 	const auto devices =
-		catalog.get_service_manager<rexlib::device_manager>();
+		catalog.get_service<rexlib::device_service>();
 	const auto programs =
-		catalog.get_service_manager<rexlib::program_manager>();
+		catalog.get_service<rexlib::program_service>();
 	const rexlib::execution_context context(
 		rexlib::device_context(
 			devices->create_device_session(rexlib::device_index("cpu", 0))

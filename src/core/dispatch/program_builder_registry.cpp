@@ -3,7 +3,7 @@
 #include <rexlib/core/dispatch/program_builder_registry.hpp>
 
 #include <rexlib/core/dispatch/program_builder.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 
 namespace rexlib
 {
@@ -19,11 +19,11 @@ void program_builder_registry::add(program_builder_factory factory)
 	}
 }
 
-void program_builder_registry::register_all(program_manager &manager) const
+void program_builder_registry::register_all(program_service &programs) const
 {
 	for (const auto factory : m_factories)
 	{
-		manager.register_builder(factory());
+		programs.register_builder(factory());
 	}
 }
 

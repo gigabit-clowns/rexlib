@@ -8,7 +8,7 @@
 #include <rexlib/core/backend_priority.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_cache.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/ndarray/access_hazard_tracker.hpp>
 #include <rexlib/core/ndarray/array.hpp>
@@ -92,7 +92,7 @@ public:
 		, host_allocator(std::make_shared<mock_memory_allocator>())
 		, device_allocator(std::make_shared<mock_memory_allocator>())
 		, default_queue(std::make_shared<mock_command_queue>())
-		, manager(std::make_shared<program_manager>())
+		, programs(std::make_shared<program_service>())
 		, program(std::make_shared<mock_program>())
 	{
 
@@ -122,7 +122,7 @@ public:
 		);
 		context = device_context(session);
 
-		eager_dispatcher = make_eager_dispatcher(manager);
+		eager_dispatcher = make_eager_dispatcher(programs);
 
 		// The output alignment query is harmless for tests that never allocate.
 		expectations.push_back(
@@ -193,7 +193,7 @@ protected:
 		);
 	}
 
-	// Register a builder so that the program manager resolves @ref program for
+	// Register a builder so that the program service resolves @ref program for
 	// @ref op.
 	void register_program_builder()
 	{
@@ -227,7 +227,7 @@ protected:
 			)
 				.LR_RETURN(program)
 		);
-		REQUIRE(manager->register_builder(std::move(builder)));
+		REQUIRE(programs->register_builder(std::move(builder)));
 	}
 
 	// Make @ref program report the given scratch requirements
@@ -300,7 +300,7 @@ protected:
 	std::shared_ptr<command_queue> default_queue;
 	std::shared_ptr<const device_session> session;
 	device_context context;
-	std::shared_ptr<program_manager> manager;
+	std::shared_ptr<program_service> programs;
 	std::shared_ptr<dispatcher> eager_dispatcher;
 	std::shared_ptr<mock_program> program;
 
@@ -323,7 +323,7 @@ TEST_CASE(
 )
 {
 	const auto dispatcher = make_eager_dispatcher(
-		std::make_shared<program_manager>()
+		std::make_shared<program_service>()
 	);
 
 	mock_operation op;
@@ -952,7 +952,7 @@ TEST_CASE(
 	"[eager_dispatcher]"
 )
 {
-	const auto command_manager = std::make_shared<program_manager>();
+	const auto command_manager = std::make_shared<program_service>();
 
 	const auto dispatcher = make_eager_dispatcher(command_manager);
 
@@ -960,13 +960,13 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"make_eager_dispatcher throws when the command manager is null",
+	"make_eager_dispatcher throws when the program service is null",
 	"[eager_dispatcher]"
 )
 {
 	CHECK_THROWS_AS(
 		make_eager_dispatcher(
-			std::shared_ptr<const program_manager>()
+			std::shared_ptr<const program_service>()
 		),
 		std::invalid_argument
 	);

@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <rexlib/core/dispatch/program_builder_registry.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 
 #include <rexlib/core/backend_priority.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
@@ -27,7 +27,7 @@ namespace
 {
 
 std::shared_ptr<program> build_mock_operation(
-	const program_manager &manager,
+	const program_service &programs,
 	command_queue &queue
 )
 {
@@ -35,7 +35,7 @@ std::shared_ptr<program> build_mock_operation(
 	const std::array<operand_descriptor, 1> output_descriptors;
 	const std::array<operand_descriptor, 0> input_descriptors;
 
-	return manager.build(
+	return programs.build(
 		op,
 		make_span(output_descriptors),
 		make_span(input_descriptors),
@@ -46,7 +46,7 @@ std::shared_ptr<program> build_mock_operation(
 } // anonymous namespace
 
 TEST_CASE(
-	"program_builder_registry::register_all hands a manager what its "
+	"program_builder_registry::register_all hands a program service what its "
 	"factories make",
 	"[program_builder_registry]"
 )
@@ -57,7 +57,7 @@ TEST_CASE(
 	program_builder_registry registry;
 	mock_command_queue queue;
 	// Declared before the expectations, so the builder it owns outlives them.
-	program_manager manager;
+	program_service programs;
 
 	auto builder = std::make_unique<mock_program_builder>();
 	const auto prog = std::make_shared<mock_program>();
@@ -74,9 +74,9 @@ TEST_CASE(
 		.LR_RETURN(std::move(builder));
 
 	registry.add(&factory::create);
-	registry.register_all(manager);
+	registry.register_all(programs);
 
-	CHECK( build_mock_operation(manager, queue) == prog );
+	CHECK( build_mock_operation(programs, queue) == prog );
 }
 
 TEST_CASE(
@@ -87,12 +87,12 @@ TEST_CASE(
 {
 	program_builder_registry registry;
 	mock_command_queue queue;
-	program_manager manager;
+	program_service programs;
 
-	registry.register_all(manager);
+	registry.register_all(programs);
 
 	CHECK_THROWS_AS(
-		build_mock_operation(manager, queue),
+		build_mock_operation(programs, queue),
 		unsupported_operation_error
 	);
 }
@@ -104,13 +104,13 @@ TEST_CASE(
 {
 	program_builder_registry registry;
 	mock_command_queue queue;
-	program_manager manager;
+	program_service programs;
 
 	registry.add(nullptr);
-	registry.register_all(manager);
+	registry.register_all(programs);
 
 	CHECK_THROWS_AS(
-		build_mock_operation(manager, queue),
+		build_mock_operation(programs, queue),
 		unsupported_operation_error
 	);
 }

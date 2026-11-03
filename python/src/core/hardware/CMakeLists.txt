@@ -8,7 +8,7 @@ target_sources(
 		device_backend.cpp
 		device_context.cpp
 		device_index.cpp
-		device_manager.cpp
+		device_service.cpp
 		device_properties.cpp
 		device_session.cpp
 		device_type.cpp

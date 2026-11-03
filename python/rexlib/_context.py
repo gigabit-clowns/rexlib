@@ -28,8 +28,8 @@ def get_active_execution_context() -> ExecutionContext:
 	context = getattr(__local, "execution_context", None)
 	if context is None:
 		catalog = get_default_catalog()
-		program_manager = dispatch.get_program_manager(catalog)
-		dispatcher = dispatch.make_eager_dispatcher(program_manager)
+		program_service = dispatch.get_program_service(catalog)
+		dispatcher = dispatch.make_eager_dispatcher(program_service)
 		context = ExecutionContext(hardware.DeviceContext(), dispatcher)
 		__local.execution_context = context
 	return context

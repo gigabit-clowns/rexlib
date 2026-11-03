@@ -6,8 +6,8 @@
 #include <backends/cpu/hardware/cpu_device_backend.hpp>
 #include <core/builtin_plugin_registration.hpp>
 
-#include <rexlib/core/dispatch/program_manager.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/library_version.hpp>
 #include <rexlib/core/service_catalog.hpp>
 
@@ -41,10 +41,10 @@ version cpu_plugin::get_version() const noexcept
 void cpu_plugin::register_at(service_catalog &catalog) const
 {
 	cpu_device_backend::register_at(
-		*catalog.get_service_manager<device_manager>()
+		*catalog.get_service<device_service>()
 	);
 	get_cpu_program_builder_registry().register_all(
-		*catalog.get_service_manager<program_manager>()
+		*catalog.get_service<program_service>()
 	);
 }
 

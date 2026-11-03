@@ -7,7 +7,7 @@
 namespace rexlib
 {
 
-class device_manager;
+class device_service;
 
 namespace cuda
 {
@@ -32,7 +32,7 @@ public:
 
 	std::shared_ptr<device> create_device(std::size_t id) const override;
 
-	static bool register_at(rexlib::device_manager &manager);
+	static bool register_at(rexlib::device_service &devices);
 };
 
 } // namespace cuda

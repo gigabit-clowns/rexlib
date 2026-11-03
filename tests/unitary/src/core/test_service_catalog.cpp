@@ -2,9 +2,9 @@
 
 #include <rexlib/core/service_catalog.hpp>
 
-#include "mock/mock_service_manager.hpp"
+#include "mock/mock_service.hpp"
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -21,28 +21,28 @@ TEST_CASE(
 )
 {
 	service_catalog catalog(false);
-	const auto first = catalog.get_service_manager<mock_service_manager>();
-	const auto second = catalog.get_service_manager<mock_service_manager>();
+	const auto first = catalog.get_service<mock_service>();
+	const auto second = catalog.get_service<mock_service>();
 
 	REQUIRE(first);
 	CHECK(first == second);
 }
 
 TEST_CASE(
-	"service_catalog hands each service_manager type its own instance",
+	"service_catalog hands each service type its own instance",
 	"[service_catalog]"
 )
 {
 	service_catalog catalog(false);
-	const auto first = catalog.get_service_manager<mock_service_manager>();
-	const auto second = catalog.get_service_manager<device_manager>();
+	const auto first = catalog.get_service<mock_service>();
+	const auto second = catalog.get_service<device_service>();
 
 	REQUIRE(first);
 	REQUIRE(second);
 	// Different types must not be aliased under a shared catalog key.
 	CHECK(
-		static_cast<service_manager *>(first.get())
-		!= static_cast<service_manager *>(second.get())
+		static_cast<service *>(first.get())
+		!= static_cast<service *>(second.get())
 	);
 }
 
@@ -55,7 +55,7 @@ TEST_CASE(
 	service_catalog catalog(true);
 	std::vector<std::string> backends;
 
-	catalog.get_service_manager<device_manager>()->enumerate_backends(backends);
+	catalog.get_service<device_service>()->enumerate_backends(backends);
 
 	CHECK(
 		std::find(backends.cbegin(), backends.cend(), "cpu")
@@ -71,40 +71,40 @@ TEST_CASE(
 	service_catalog catalog(false);
 	std::vector<std::string> backends;
 
-	catalog.get_service_manager<device_manager>()->enumerate_backends(backends);
+	catalog.get_service<device_service>()->enumerate_backends(backends);
 
 	CHECK(backends.empty());
 }
 
 TEST_CASE(
-	"service_catalog preserves managers through move construction",
+	"service_catalog preserves services through move construction",
 	"[service_catalog]"
 )
 {
 	service_catalog source(false);
-	const auto manager =
-		source.get_service_manager<mock_service_manager>();
+	const auto instance =
+		source.get_service<mock_service>();
 
 	service_catalog destination(std::move(source));
 	const auto reloaded =
-		destination.get_service_manager<mock_service_manager>();
+		destination.get_service<mock_service>();
 
-	CHECK(reloaded == manager);
+	CHECK(reloaded == instance);
 }
 
 TEST_CASE(
-	"service_catalog preserves managers through move assignment",
+	"service_catalog preserves services through move assignment",
 	"[service_catalog]"
 )
 {
 	service_catalog source(false);
-	const auto manager =
-		source.get_service_manager<mock_service_manager>();
+	const auto instance =
+		source.get_service<mock_service>();
 
 	service_catalog destination(false);
 	destination = std::move(source);
 	const auto reloaded =
-		destination.get_service_manager<mock_service_manager>();
+		destination.get_service<mock_service>();
 
-	CHECK(reloaded == manager);
+	CHECK(reloaded == instance);
 }

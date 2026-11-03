@@ -7,7 +7,7 @@
 
 #include "../config.hpp"
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 
 #include <cstdlib>
 #include <iomanip>
@@ -138,9 +138,9 @@ cuda_device_backend::create_device(std::size_t id) const
 	return std::make_shared<cuda_device>(ordinal);
 }
 
-bool cuda_device_backend::register_at(rexlib::device_manager &manager)
+bool cuda_device_backend::register_at(rexlib::device_service &devices)
 {
-	return manager.register_backend(std::make_unique<cuda_device_backend>());
+	return devices.register_backend(std::make_unique<cuda_device_backend>());
 }
 
 } // namespace cuda

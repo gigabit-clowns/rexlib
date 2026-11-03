@@ -12,5 +12,5 @@ target_sources(
 		program_builder_registry.cpp
 		program_cache.cpp
 		program_cache_key.cpp
-		program_manager.cpp
+		program_service.cpp
 )

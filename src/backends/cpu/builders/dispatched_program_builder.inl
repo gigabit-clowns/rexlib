@@ -94,7 +94,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		get_operation_data_types(operation_cast<Op>(operation));
 
 	// Reporting an unsupported element type here, rather than throwing from
-	// build(), is what lets the manager fall through to another backend.
+	// build(), is what lets the program service fall through to another backend.
 	const auto supported =
 		detail::dispatcher_support_query<TypeDispatcher>::is_supported(
 			make_span(output_types.data(), output_count),

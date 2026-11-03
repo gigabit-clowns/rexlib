@@ -9,8 +9,8 @@
 #include "serial_pool.hpp"
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/library_version.hpp>
@@ -53,7 +53,7 @@ TEST_CASE(
 	std::vector<std::string> backends;
 
 	cpu_plugin().register_at(catalog);
-	catalog.get_service_manager<device_manager>()->enumerate_backends(backends);
+	catalog.get_service<device_service>()->enumerate_backends(backends);
 
 	CHECK( backends == std::vector<std::string>{ "cpu" } );
 }
@@ -77,7 +77,7 @@ TEST_CASE(
 	cpu_command_queue queue(get_serial_pool());
 
 	cpu_plugin().register_at(catalog);
-	const auto program = catalog.get_service_manager<program_manager>()->build(
+	const auto program = catalog.get_service<program_service>()->build(
 		ops::fill_operation(scalar_value(1.0F)),
 		make_span(outputs),
 		span<const operand_descriptor>(),
