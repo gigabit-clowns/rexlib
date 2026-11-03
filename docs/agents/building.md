@@ -12,7 +12,8 @@ With CMake 3.25 or newer the presets do the same: `cmake --preset debug`,
 `cmake --build --preset debug`, `ctest --preset debug`, which build into
 `build/debug`. There are `release`, `sanitize` (the address and undefined
 behaviour sanitizers) and `sanitize-thread` presets too; the two sanitizer
-presets are not offered on Windows. `coverage`, on Linux only, adds coverage
+presets are not offered on Windows; they set the sanitizers' options too,
+so a test run behaves as CI's. `coverage`, on Linux only, adds coverage
 instrumentation, registers the tests per binary and passes valgrind the
 options CI uses, for `ctest --test-dir build/coverage -T MemCheck`. `docs`
 configures for the Doxygen reference alone and builds `rexlib-docs`.

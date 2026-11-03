@@ -35,3 +35,11 @@ TEST_CASE(
 	}
 
 }
+
+TEST_CASE(
+	"aligned_alloc should return nullptr for a size of zero",
+	"[aligned_alloc]"
+)
+{
+	REQUIRE( rexlib::aligned_alloc(0, 64) == nullptr );
+}

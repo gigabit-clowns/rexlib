@@ -12,6 +12,11 @@ namespace rexlib
 
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 {
+	if (size == 0)
+	{
+		return nullptr;
+	}
+
 	#if REXLIB_WINDOWS
 		return _aligned_malloc(size, alignment);
 	#elif REXLIB_POSIX

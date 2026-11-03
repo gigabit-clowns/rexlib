@@ -9,7 +9,7 @@
  * @brief Provide a OpenMP directive to the compiler.
  *
  */
-#if _OPENMP
+#if defined(_OPENMP)
 	#define REXLIB_OMP(x) REXLIB_PRAGMA(omp x)
 #else
 	#define REXLIB_OMP(x)
