@@ -16,9 +16,9 @@ reached for when setting up rather than when computing.
 
 from __future__ import annotations
 
-# Imported first: on Windows it puts the bundled library on the DLL
-# search path, which importing the extension depends on.
-from . import _paths as _paths
+# Imported first: on Windows it puts the library on the DLL search path,
+# which importing the extension depends on.
+from . import _dll_directories as _dll_directories
 
 from ._binding import (
 	dispatch as dispatch,

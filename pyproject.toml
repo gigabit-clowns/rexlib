@@ -66,7 +66,17 @@ Issues = "https://github.com/gigabit-clowns/rexlib-python/issues"
 required-version = "==0.13.3"
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests/python"]
+
+[tool.coverage.run]
+source = ["rexlib"]
+
+# The tests import the installed package, not python/rexlib.
+[tool.coverage.paths]
+source = ["python/rexlib", "*/site-packages/rexlib"]
+
+[tool.coverage.xml]
+output = "coverage.xml"
 
 [tool.scikit-build]
 # git ls-files does not report a submodule's contents, so the rexlib source
@@ -92,12 +102,11 @@ wheel.py-api = "cp312"
 
 # Everything except rexlib's namelink, the unversioned librexlib.so. A wheel
 # cannot hold a symlink, so it would be stored as a second full copy of a
-# 50 MB library. "Unspecified" is this project's own rules, which name no
-# component; the other two are absent unless rexlib is built from source here.
+# 50 MB library. rexlib_python is the binding.
 #
 # In this order: they are installed one at a time, and generating the type
 # stubs imports the extension, which does not load until rexlib is in place.
-install.components = ["rexlib_runtime", "rexlib_development", "Unspecified"]
+install.components = ["rexlib_runtime", "rexlib_development", "rexlib_python"]
 
 # The versioned names, beside which rexlib installs a soname.
 wheel.exclude = [
@@ -111,9 +120,9 @@ build.verbose = false
 cmake.build-type = "Release"
 
 [tool.scikit-build.cmake.define]
+REXLIB_BUILD_PYTHON = "ON"
 REXLIB_PYTHON_STABLE_ABI = "ON"
 BUILD_TESTING = "OFF"
-REXLIB_PYTHON_BUILD_TESTING = "OFF"
 
 [[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"

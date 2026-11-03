@@ -38,6 +38,17 @@ CMakeUserPresets.json
 # Compiler cache
 .ccache
 
+# Python
+__pycache__/
+*.pyc
+*.pyd
+.venv
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+coverage.xml
+
 # VS Code
 .vscode
 

@@ -25,26 +25,31 @@ target_compile_definitions(
 		REXLIB_PYTHON_VERSION_PATCH=${PROJECT_VERSION_PATCH}
 )
 
-# librexlib ships in the package's own library directory, whichever name
-# the platform gives it, so the loader resolves it from the extension's own
-# location. Windows needs nothing: the DLL sits beside the .pyd and CPython
-# loads extensions with LOAD_WITH_ALTERED_SEARCH_PATH.
+# librexlib is in the library directory of the install prefix, which the
+# loader is told relative to the extension. Windows has no RPATH: the
+# package's _paths module adds the prefix's bin directory to the DLL search
+# path.
+set(
+	REXLIB_PYTHON_LIBRARY_FROM_PACKAGE
+	"${REXLIB_PYTHON_PREFIX_FROM_PACKAGE}/${CMAKE_INSTALL_LIBDIR}"
+)
 if(APPLE)
 	set_target_properties(
 		_binding
 		PROPERTIES
-			INSTALL_RPATH "@loader_path/${CMAKE_INSTALL_LIBDIR}"
+			INSTALL_RPATH "@loader_path/${REXLIB_PYTHON_LIBRARY_FROM_PACKAGE}"
 	)
 elseif(UNIX)
 	set_target_properties(
 		_binding
 		PROPERTIES
-			INSTALL_RPATH "$ORIGIN/${CMAKE_INSTALL_LIBDIR}"
+			INSTALL_RPATH "$ORIGIN/${REXLIB_PYTHON_LIBRARY_FROM_PACKAGE}"
 	)
 endif()
 
-# A package that carries no rexlib also looks where this build found it.
-if(UNIX AND NOT REXLIB_PYTHON_STAGE_PREFIX)
+# Built against an installed rexlib, the extension also looks where this
+# build found it.
+if(UNIX)
 	get_target_property(REXLIB_IMPORTED rexlib::rexlib IMPORTED)
 	if(REXLIB_IMPORTED)
 		get_target_property(REXLIB_LOCATION rexlib::rexlib LOCATION)
@@ -75,11 +80,13 @@ if(MSVC)
 			_SILENCE_NONFLOATING_COMPLEX_DEPRECATION_WARNING
 	)
 endif()
-rexlib_python_enable_warnings(_binding)
+rexlib_enable_warnings(_binding)
 
-if(REXLIB_PYTHON_INSTALL)
+if(REXLIB_INSTALL)
 	install(
 		TARGETS _binding
-		LIBRARY DESTINATION "${REXLIB_PYTHON_PACKAGE_DIR}"
+		LIBRARY
+			DESTINATION "${REXLIB_PYTHON_PACKAGE_DIR}"
+			COMPONENT rexlib_python
 	)
 endif()

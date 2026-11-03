@@ -8,52 +8,18 @@ pip install rexlib
 ```
 This package wraps an installation of the rexlib C++ library and ships a copy of it inside the wheel. Any installation satisfying the version it asks for will do.
 
-The rexlib this repository is developed against is the `external/rexlib` submodule, so clone with it:
-```
-git clone --recurse-submodules https://github.com/gigabit-clowns/rexlib-python.git
-```
-If you have no rexlib installed, build the submodule into a prefix:
-```
-cmake -S external/rexlib -B build/rexlib -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF
-cmake --build build/rexlib --target install --parallel $(nproc)
-```
-Then, to install in development mode from the root of this project, first
-what the build and the tests need (pip 25.1 or newer), then the package:
+To build the binding from this repository, install what the build and the tests need (pip 25.1 or newer), then build it with the library and run its tests:
 ```
 pip install --group dev
-CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
-  pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DREXLIB_BUILD_PYTHON=ON \
+  -DPython_EXECUTABLE=$(which python)
+cmake --build build --parallel $(nproc)
+ctest --test-dir build -L python
 ```
-Without build isolation the build uses the CMake on the `PATH`, which has to be
-3.26 or newer; the `dev` group installs one. That builds in a temporary directory that is discarded afterwards, so every run
-compiles the whole binding again. If you are installing repeatedly, name a
-build directory and the build becomes incremental:
-```
-SKBUILD_BUILD_DIR=build/binding CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
-  pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
-```
-The directory has to be relative: scikit-build-core resolves it against this
-project, which is what makes it the same one next time. It sits beside the one
-rexlib was built in above rather than over it, so removing either leaves the
-other alone. It keeps CMake's cache along with the objects, so an option that
-is only read the first time a build directory is configured —
-`REXLIB_BUILD_BOOST` and its siblings, among others — keeps the answer it
-was given then. Remove `build/binding` to change one.
-
-To run the tests for this project (only available when installed in development mode), run:
-```
-./scripts/run-tests.sh
-```
+`pip install .` builds and installs a wheel instead. [docs/agents/building.md](docs/agents/building.md) has the details, including building the binding alone against an installed rexlib.
 
 ## Type stubs
-Type stubs for the compiled extension are generated with [nanobind's stubgen](https://nanobind.readthedocs.io/en/latest/typing.html) while the bindings are built, and end up in `rexlib/_binding/` next to the extension. They are not kept in the repository and there is nothing to run by hand: installing the package, from source or from a wheel, is enough.
-
-Generating them means importing the extension, which a build cannot do when it is compiling for another architecture. Those builds are handed stubs made elsewhere instead, through `REXLIB_PYTHON_STUBS_DIR`:
-```
-pip install . -C cmake.define.REXLIB_PYTHON_STUBS_DIR=<directory holding the .pyi files>
-```
-The path may be relative to the project. Stubs describe the Python API, so the same ones are correct for every platform. A build that can neither generate nor be given them fails rather than producing an untyped package.
+Type stubs for the compiled extension are generated with [nanobind's stubgen](https://nanobind.readthedocs.io/en/latest/typing.html) when the package is installed, and end up in `rexlib/_binding/` next to the extension. They are not kept in the repository and there is nothing to run by hand: installing the package, from source or from a wheel, is enough.
 
 ## SonarCloud status
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-python&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-python)

@@ -67,16 +67,11 @@ add_test(
 )
 
 # Under ctest -T memcheck these two would check cmake and ctest, not rexlib,
-# and a memory checker reports what those keep until they exit. CTest reads
-# the list of tests a memory check leaves out from this file of the build
-# tree.
-file(
-	WRITE ${PROJECT_BINARY_DIR}/CTestCustom.cmake
-	"list(\n"
-	"\tAPPEND CTEST_CUSTOM_MEMCHECK_IGNORE\n"
-	"\trexlib-install\n"
-	"\trexlib-install-consumer\n"
-	")\n"
+# and a memory checker reports what those keep until they exit.
+set_property(
+	GLOBAL APPEND PROPERTY REXLIB_MEMCHECK_IGNORE
+	rexlib-install
+	rexlib-install-consumer
 )
 
 set_tests_properties(

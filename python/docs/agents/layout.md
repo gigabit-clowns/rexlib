@@ -5,14 +5,11 @@ belongs to.
 
 | Path | Holds |
 |---|---|
-| `src/` | The nanobind binding, 38 `.cpp` and 39 `.hpp`, compiled into the `rexlib._binding` extension |
-| `python/rexlib/` | The Python package, 10 `.py`: everything the binding cannot express |
-| `tests/` | pytest suites, mirroring the binding's module structure |
-| `tests/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
-| `scripts/` | Development tools: the test runner, the stub generator and collector, the wheel check |
-| `cmake/modules/` | `rexlib_python_stubs.cmake`, which installs the type stubs, `rexlib_python_enable_warnings.cmake` and `rexlib_python_fetch_dlpack.cmake` |
-| `conf/` | `coverage.ini` |
-| `external/rexlib` | The rexlib the repository is developed against, a submodule |
+| `python/src/` | The nanobind binding, compiled into the `rexlib._binding` extension |
+| `python/rexlib/` | The Python package: everything the binding cannot express |
+| `tests/python/` | pytest suites, mirroring the binding's module structure |
+| `tests/python/assets/` | Two dummy plugins, built by CMake, that the plugin tests discover |
+| `cmake/modules/` | `rexlib_python_fetch_dlpack.cmake`, beside the library's modules |
 
 There are two sides, and which one a change belongs to is the first question
 to ask.

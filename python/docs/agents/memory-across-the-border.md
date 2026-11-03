@@ -28,7 +28,7 @@ A capsule is created with `PyCapsule_New`, not `nb::capsule`. The cleanup of
 the latter is handed the pointer whatever the capsule's name, and would
 release a tensor a consumer has already taken.
 
-The binding and the dummy plugins build with `-Wall -Wextra -Wpedantic`,
-`/W4 /WX` on MSVC, through `rexlib_python_enable_warnings`.
+The binding and the dummy plugins build with the library's warnings, through
+`rexlib_enable_warnings`, which `REXLIB_WARNINGS_AS_ERRORS` makes errors.
 nanobind's headers and Python's are system headers to it
 (`NB_SUPPRESS_WARNINGS`), so the warnings are the binding's own.

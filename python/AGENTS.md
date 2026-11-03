@@ -13,16 +13,14 @@ update it in the same pull request that causes it.
 
 ## Building and testing
 
+From the root of the repository:
+
 ```
-cmake -S external/rexlib -B build/rexlib -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX=~/.local -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_TESTING=OFF
-cmake --build build/rexlib --target install --parallel $(nproc)
-
 pip install --group dev
-CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
-  pip install . --no-build-isolation -v -Ccmake.define.REXLIB_PYTHON_BUILD_TESTING=ON
-
-./scripts/run-tests.sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DREXLIB_BUILD_PYTHON=ON \
+  -DPython_EXECUTABLE=$(which python)
+cmake --build build --parallel $(nproc)
+ctest --test-dir build -L python
 ```
 
 ## Always
@@ -54,7 +52,7 @@ CMAKE_PREFIX_PATH=~/.local CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) \
 | [layout](docs/agents/layout.md) | Adding a file or directory, or deciding which side a change goes in |
 | [modules](docs/agents/modules.md) | Adding a submodule of `_binding` or a module of `python/rexlib/` |
 | [building](docs/agents/building.md) | Building in any other way than above, or changing `CMakeLists.txt` or its options |
-| [type-stubs](docs/agents/type-stubs.md) | Changing a bound signature, or how stubs are generated or collected |
+| [type-stubs](docs/agents/type-stubs.md) | Changing a bound signature, or how stubs are generated |
 | [binding](docs/agents/binding.md) | Touching `src/` |
 | [memory-across-the-border](docs/agents/memory-across-the-border.md) | Touching the buffer protocol, DLPack or `dlpack_buffer` |
 | [package](docs/agents/package.md) | Touching `python/rexlib/` |
