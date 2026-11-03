@@ -43,6 +43,20 @@ def test_plugin_manager_adds_a_discovered_plugin():
 	target.add_plugin(source.plugins[0])
 	assert list(map(repr, target.plugins)) == [repr(source.plugins[0])]
 
+def test_plugin_manager_skips_a_plugin_it_holds():
+	pm = rexlib.PluginManager()
+	pm.discover_plugins(__get_dummy_plugin_directory())
+	pm.discover_plugins(__get_dummy_plugin_directory())
+	assert len(pm.plugins) == 2
+
+def test_plugin_manager_refuses_to_add_a_plugin_it_holds():
+	source = rexlib.PluginManager()
+	source.discover_plugins(__get_dummy_plugin_directory())
+	target = rexlib.PluginManager()
+	target.add_plugin(source.plugins[0])
+	with pytest.raises(ValueError):
+		target.add_plugin(source.plugins[0])
+
 def test_plugin_manager_raises_when_loading_a_missing_plugin():
 	pm = rexlib.PluginManager()
 	with pytest.raises(RuntimeError):

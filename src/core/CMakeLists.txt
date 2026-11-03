@@ -5,6 +5,7 @@ target_sources(
 	PRIVATE
 		builtin_plugin_registry.cpp
 		library_version.cpp
+		plugin_compatibility_check.cpp
 		plugin_loader.cpp
 		plugin_manager.cpp
 		service_catalog.cpp

@@ -50,12 +50,6 @@ set_target_properties(
 		# units.
 		CUDA_SEPARABLE_COMPILATION ON
 )
-target_compile_definitions(
-	rexlib-cuda-objects
-	PRIVATE
-		# CMake only defines this automatically for SHARED and MODULE targets.
-		REXLIB_CUDA_EXPORTING
-)
 # The version reaches only the file that reports it.
 set_property(
 	SOURCE cuda_plugin.cpp

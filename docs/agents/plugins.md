@@ -2,13 +2,29 @@
 
 What a backend plugin exports and what it has to agree on with the core.
 
-A plugin is a shared object exporting `rexlib_get_plugin`, returning a
-`const plugin*`. `plugin_loader` resolves that symbol by name, so the contract
-is the symbol and the `plugin` interface, not the C++ ABI of the loader.
+A plugin is a shared object that expands `REXLIB_DEFINE_PLUGIN(type)`, from
+`rexlib/core/plugin_definition.hpp`, once. It defines two functions with C
+linkage: `rexlib_get_plugin_compatibility`, returning the
+`plugin_compatibility` the plugin was built for, and `rexlib_get_plugin`,
+returning the plugin, which it constructs on the first call. Nothing of the
+plugin's C++ runs before the loader has checked the first.
 
-It is still a C++ ABI boundary for everything the plugin touches: the plugin
-and the core have to agree on compiler, standard library, and on Windows the
-runtime and whether it is the debug one.
+`plugin_compatibility` is plain data of a fixed layout, filled by the
+`REXLIB_PLUGIN_COMPATIBILITY` macro where it is expanded: the version of
+rexlib from `rexlib/core/version_macros.h`, and the C++ ABI from
+`rexlib/core/platform/cpp_abi.hpp` (the Itanium or MSVC family, the standard
+library and the setting that changes its ABI, the debug runtime of MSVC). A
+macro rather than a function, because an inline function could resolve to the
+core's copy and report the core's build. Fields are only appended; `size`
+says how many the plugin knows.
+
+`plugin_loader` refuses a plugin with a message naming both sides when it
+states no compatibility, or one the core cannot run with: before 1.0 another
+minor version, from 1.0 another major version or a newer minor version, and
+any other C++ ABI (`src/core/plugin_compatibility_check.cpp`). The family is
+the ABI, not the compiler, so a core built with GCC loads a plugin built with
+Clang. `plugin_manager` refuses a second plugin of a name it already holds,
+which `discover_plugins` logs and skips.
 
 `dynamic_library` takes paths in UTF-8 on every platform and resolves every
 symbol a library needs as it loads (`RTLD_NOW | RTLD_LOCAL`; Windows binds a

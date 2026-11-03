@@ -16,7 +16,8 @@ class service_catalog;
  * @brief Abstract class representing a plugin interface.
  *
  * A concrete instance of this class may be used to connect a plugin
- * to the core.
+ * to the core. A shared object makes its plugin loadable with
+ * REXLIB_DEFINE_PLUGIN, from rexlib/core/plugin_definition.hpp.
  *
  */
 class REXLIB_API plugin

@@ -1,14 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/dummy_plugin.cpp)
-add_library(dummy-plugin MODULE ${SOURCES})
-set_target_properties(
-	dummy-plugin
-	PROPERTIES
-		DEFINE_SYMBOL "REXLIB_DUMMY_PLUGIN_EXPORTING"
-)
+add_library(dummy-plugin MODULE dummy_plugin.cpp)
 target_link_libraries(
 	dummy-plugin
 	PRIVATE
 		rexlib
 )
+rexlib_enable_warnings(dummy-plugin)

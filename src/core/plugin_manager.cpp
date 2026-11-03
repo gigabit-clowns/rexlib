@@ -16,6 +16,8 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <stdexcept>
+#include <utility>
 
 #include <boost/filesystem.hpp>
 
@@ -95,6 +97,11 @@ void split_path(
 	}
 }
 
+std::string get_duplicate_message(const std::string &name)
+{
+	return "A plugin named \"" + name + "\" is already in this manager.";
+}
+
 } // anonymous namespace
 
 class plugin_manager::implementation
@@ -104,23 +111,27 @@ public:
 
 	void add_plugin(const plugin& plugin)
 	{
+		if (contains(plugin.get_name()))
+		{
+			throw std::invalid_argument(
+				get_duplicate_message(plugin.get_name())
+			);
+		}
 		m_plugins.emplace_back(plugin);
 	}
 
 	const plugin* load_plugin(const std::string &path)
 	{
-		const auto ite = m_loaders.emplace(m_loaders.cend(), path);
-		const auto* plugin = ite->get_plugin();
-		if (plugin)
+		plugin_loader loader(path);
+		const plugin &loaded = *loader.get_plugin();
+		if (contains(loaded.get_name()))
 		{
-			add_plugin(*plugin);
-		}
-		else
-		{
-			m_loaders.erase(ite); // Did not load anything
+			throw plugin_load_error(get_duplicate_message(loaded.get_name()));
 		}
 
-		return plugin;
+		m_loaders.push_back(std::move(loader));
+		m_plugins.emplace_back(loaded);
+		return &loaded;
 	}
 
 	std::size_t get_plugin_count() const noexcept
@@ -136,6 +147,18 @@ public:
 private:
 	std::vector<plugin_loader> m_loaders;
 	std::vector<std::reference_wrapper<const plugin>> m_plugins;
+
+	bool contains(const std::string &name) const
+	{
+		return std::any_of(
+			m_plugins.cbegin(),
+			m_plugins.cend(),
+			[&name](const plugin &held)
+			{
+				return held.get_name() == name;
+			}
+		);
+	}
 };
 
 plugin_manager::plugin_manager() = default;

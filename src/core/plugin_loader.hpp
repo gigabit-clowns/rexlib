@@ -23,7 +23,12 @@ public:
 	/**
 	 * @brief Load a new plugin.
 	 *
-	 * @param path Path to the Shared Object
+	 * The plugin is asked for its plugin_compatibility first, and refused
+	 * unless it can run with this library.
+	 *
+	 * @param path Path to the Shared Object, in UTF-8
+	 * @throws dynamic_library_error If the shared object cannot be loaded
+	 * @throws plugin_load_error If it is not a plugin this library can run
 	 */
 	explicit plugin_loader(const std::string& path);
 

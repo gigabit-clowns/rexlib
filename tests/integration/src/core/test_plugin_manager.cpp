@@ -12,8 +12,10 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <cstdlib>
+#include <stdexcept>
 
 using namespace rexlib;
 
@@ -126,20 +128,113 @@ TEST_CASE(
 	REQUIRE( manager.get_plugin_count() == 0 );
 
 	REQUIRE_THROWS_MATCHES(
-		manager.load_plugin(get_mock_plugin_path("faulty-plugin1")),
+		manager.load_plugin(get_mock_plugin_path("plugin-returning-null")),
 		plugin_load_error,
 		Catch::Matchers::Message("rexlib_get_plugin returned NULL.")
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
 	REQUIRE_THROWS_MATCHES(
-		manager.load_plugin(get_mock_plugin_path("faulty-plugin2")),
+		manager.load_plugin(
+			get_mock_plugin_path("plugin-without-entry-point")
+		),
 		plugin_load_error,
 		Catch::Matchers::Message(
 			"rexlib_get_plugin symbol could not be found in shared object."
 		)
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin that states no compatibility should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+
+	REQUIRE_THROWS_MATCHES(
+		manager.load_plugin(
+			get_mock_plugin_path("plugin-without-compatibility")
+		),
+		plugin_load_error,
+		Catch::Matchers::Message(
+			"rexlib_get_plugin_compatibility symbol could not be found in "
+			"shared object; a plugin defines it with REXLIB_DEFINE_PLUGIN."
+		)
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin built against another minor version should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+
+	REQUIRE_THROWS_AS(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-minor")),
+		plugin_load_error
+	);
+	REQUIRE_THROWS_WITH(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-minor")),
+		Catch::Matchers::ContainsSubstring("The plugin was built against")
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin built for another C++ ABI should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+
+	REQUIRE_THROWS_AS(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-abi")),
+		plugin_load_error
+	);
+	REQUIRE_THROWS_WITH(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-abi")),
+		Catch::Matchers::ContainsSubstring("but rexlib was built for")
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin the plugin manager holds should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+	const auto* plugin = manager.load_plugin(
+		get_mock_plugin_path("dummy-plugin")
+	);
+
+	REQUIRE_THROWS_MATCHES(
+		manager.load_plugin(get_mock_plugin_path("dummy-plugin")),
+		plugin_load_error,
+		Catch::Matchers::Message(
+			"A plugin named \"dummy-plugin\" is already in this manager."
+		)
+	);
+	REQUIRE( manager.get_plugin_count() == 1 );
+	REQUIRE( &(manager.get_plugin(0)) == plugin );
+}
+
+TEST_CASE(
+	"add a plugin the plugin manager holds should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+	const auto* plugin = manager.load_plugin(
+		get_mock_plugin_path("dummy-plugin")
+	);
+
+	REQUIRE_THROWS_AS( manager.add_plugin(*plugin), std::invalid_argument );
+	REQUIRE( manager.get_plugin_count() == 1 );
 }
 
 TEST_CASE(
