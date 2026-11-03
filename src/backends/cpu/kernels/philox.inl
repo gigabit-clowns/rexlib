@@ -12,10 +12,10 @@ namespace cpu
 namespace detail
 {
 
-REXLIB_CONST_CONSTEXPR std::uint32_t philox_multiplier_0 = 0xD2511F53u;
-REXLIB_CONST_CONSTEXPR std::uint32_t philox_multiplier_1 = 0xCD9E8D57u;
-REXLIB_CONST_CONSTEXPR std::uint32_t philox_weyl_0 = 0x9E3779B9u;
-REXLIB_CONST_CONSTEXPR std::uint32_t philox_weyl_1 = 0xBB67AE85u;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_multiplier_0 = 0xD2511F53U;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_multiplier_1 = 0xCD9E8D57U;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_weyl_0 = 0x9E3779B9U;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_weyl_1 = 0xBB67AE85U;
 
 inline
 void philox_round(

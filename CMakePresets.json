@@ -91,10 +91,11 @@
     },
     {
       "name": "lint",
-      "displayName": "Static checks: the .editorconfig rules",
+      "displayName": "Static checks: clang-tidy and the .editorconfig rules",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "REXLIB_BUILD_TESTING": "OFF",
+        "REXLIB_CLANG_TIDY": "ON",
         "REXLIB_CHECK_STYLE": "ON"
       }
     }
@@ -129,6 +130,10 @@
       "name": "docs",
       "configurePreset": "docs",
       "targets": ["rexlib-docs"]
+    },
+    {
+      "name": "lint",
+      "configurePreset": "lint"
     }
   ],
   "testPresets": [

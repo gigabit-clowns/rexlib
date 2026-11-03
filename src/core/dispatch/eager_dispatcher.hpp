@@ -38,7 +38,12 @@ public:
 		std::shared_ptr<const program_manager> program_manager,
 		std::size_t cache_capacity
 	);
+	eager_dispatcher(const eager_dispatcher &other) = delete;
+	eager_dispatcher(eager_dispatcher &&other) = delete;
 	~eager_dispatcher() override;
+
+	eager_dispatcher& operator=(const eager_dispatcher &other) = delete;
+	eager_dispatcher& operator=(eager_dispatcher &&other) = delete;
 
 	void dispatch(
 		const operation &operation,

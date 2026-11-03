@@ -1,12 +1,42 @@
-HeaderFilterRegex: 'rexlib/.*'
+HeaderFilterRegex: '.*'
 Checks: >
   -*,
-  performance-*,
-  readability-*,
   bugprone-*,
   clang-analyzer-*,
   cppcoreguidelines-*,
-  misc-*
+  misc-*,
+  performance-*,
+  readability-*,
+  -bugprone-crtp-constructor-accessibility,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-signed-bitwise,
+  -bugprone-throwing-static-initialization,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-explicit-constructor,
+  -cppcoreguidelines-macro-to-enum,
+  -cppcoreguidelines-macro-usage,
+  -cppcoreguidelines-narrowing-conversions,
+  -cppcoreguidelines-owning-memory,
+  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-use-default-member-init,
+  -misc-explicit-constructor,
+  -misc-header-include-cycle,
+  -misc-include-cleaner,
+  -misc-no-recursion,
+  -performance-enum-size,
+  -readability-convert-member-functions-to-static,
+  -readability-function-cognitive-complexity,
+  -readability-identifier-length,
+  -readability-implicit-bool-conversion,
+  -readability-magic-numbers,
+  -readability-math-missing-parentheses,
+  -readability-named-parameter,
+  -readability-trailing-comma,
+  -readability-use-concise-preprocessor-directives
 
 CheckOptions:
   - key:    readability-identifier-naming.MacroDefinitionCase
@@ -46,3 +76,8 @@ CheckOptions:
 
   - key:    readability-identifier-naming.TemplateParameterCase
     value:  CamelCase
+
+  - key:    readability-simplify-boolean-expr.SimplifyDeMorgan
+    value:  false
+  - key:    cppcoreguidelines-rvalue-reference-param-not-moved.AllowPartialMove
+    value:  true

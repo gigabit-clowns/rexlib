@@ -103,7 +103,7 @@ public:
 		{
 			return true;
 		}
-		else if(lhs.get_backend_name() == rhs.get_backend_name())
+		if(lhs.get_backend_name() == rhs.get_backend_name())
 		{
 			return lhs.get_device_id() < rhs.get_device_id();
 		}
@@ -117,7 +117,7 @@ public:
 		{
 			return true;
 		}
-		else if(lhs.get_backend_name() == rhs.get_backend_name())
+		if(lhs.get_backend_name() == rhs.get_backend_name())
 		{
 			return lhs.get_device_id() <= rhs.get_device_id();
 		}

@@ -44,7 +44,7 @@ std::shared_ptr<buffer> host_memory_allocator::allocate(
 
 host_memory_allocator& host_memory_allocator::get()
 {
-	return *(create());
+	return *create();
 }
 
 const std::shared_ptr<host_memory_allocator>& host_memory_allocator::create()

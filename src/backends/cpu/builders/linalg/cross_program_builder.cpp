@@ -64,10 +64,10 @@ public:
 		using vector3 = Eigen::Matrix<T, 3, 1>;
 		using stride_t = Eigen::InnerStride<Eigen::Dynamic>;
 
-		Eigen::Map<const vector3, 0, stride_t> left_map(
+		const Eigen::Map<const vector3, 0, stride_t> left_map(
 			left, stride_t(m_left_stride)
 		);
-		Eigen::Map<const vector3, 0, stride_t> right_map(
+		const Eigen::Map<const vector3, 0, stride_t> right_map(
 			right, stride_t(m_right_stride)
 		);
 		Eigen::Map<vector3, 0, stride_t> out_map(
@@ -101,7 +101,14 @@ class cross_program_builder final
 {
 public:
 	cross_program_builder() noexcept = default;
+	cross_program_builder(const cross_program_builder &other) = delete;
+	cross_program_builder(cross_program_builder &&other) = delete;
 	~cross_program_builder() override = default;
+
+	cross_program_builder& operator=(
+		const cross_program_builder &other
+	) = delete;
+	cross_program_builder& operator=(cross_program_builder &&other) = delete;
 
 	operation_id get_operation_id() const noexcept override
 	{
@@ -135,8 +142,8 @@ public:
 			return backend_priority::unsupported;
 		}
 
-		std::array<numerical_type, output_count> output_types;
-		std::array<numerical_type, input_count> input_types;
+		std::array<numerical_type, output_count> output_types{};
+		std::array<numerical_type, input_count> input_types{};
 		extract_data_types(output_types, output_descriptors);
 		extract_data_types(input_types, input_descriptors);
 		const auto operation_data_types = get_operation_data_types(
@@ -193,8 +200,8 @@ public:
 			operation_cast<ops::cross_operation>(operation);
 		const auto axis = typed_operation.get_parameters().get_axes()[0];
 
-		std::array<numerical_type, output_count> output_types;
-		std::array<numerical_type, input_count> input_types;
+		std::array<numerical_type, output_count> output_types{};
+		std::array<numerical_type, input_count> input_types{};
 		extract_data_types(output_types, output_descriptors);
 		extract_data_types(input_types, input_descriptors);
 		const auto operation_data_types =

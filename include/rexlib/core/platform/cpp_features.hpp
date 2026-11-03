@@ -17,8 +17,8 @@
  *
  */
 #define REXLIB_HAS_CPP_FEATURE(feature, version) \
-	((__cpp_##feature >= version) || \
-	(REXLIB_HAS_C_FEATURE(cxx_##feature) && REXLIB_CPLUSPLUS >= version))
+	((__cpp_##feature >= (version)) || \
+	(REXLIB_HAS_C_FEATURE(cxx_##feature) && REXLIB_CPLUSPLUS >= (version)))
 
 /**
  * @def REXLIB_HAS_CONSTEXPR

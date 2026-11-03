@@ -248,8 +248,7 @@ private:
 
 inline
 strided_layout_implementation::strided_layout_implementation() noexcept
-	: m_axes()
-	, m_offset(0UL)
+	: m_offset(0UL)
 {
 }
 
@@ -477,21 +476,17 @@ strided_layout_implementation strided_layout_implementation::matrix_diagonal(
 	strided_axis_vector_type axes;
 	axes.reserve(n - 1);
 	REXLIB_ASSERT(index1 < index2);
-	std::copy(
+	const auto first = std::next(
 		m_axes.cbegin(),
-		std::next(m_axes.cbegin(), index1),
-		std::back_inserter(axes)
+		static_cast<std::ptrdiff_t>(index1)
 	);
-	std::copy(
-		std::next(m_axes.cbegin(), index1+1),
-		std::next(m_axes.cbegin(), index2),
-		std::back_inserter(axes)
+	const auto second = std::next(
+		m_axes.cbegin(),
+		static_cast<std::ptrdiff_t>(index2)
 	);
-	std::copy(
-		std::next(m_axes.cbegin(), index2+1),
-		m_axes.cend(),
-		std::back_inserter(axes)
-	);
+	std::copy(m_axes.cbegin(), first, std::back_inserter(axes));
+	std::copy(std::next(first), second, std::back_inserter(axes));
+	std::copy(std::next(second), m_axes.cend(), std::back_inserter(axes));
 	REXLIB_ASSERT(axes.size() == (n - 2));
 
 	const auto &axis_a = m_axes[index1];

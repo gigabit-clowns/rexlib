@@ -33,6 +33,9 @@ contrast_transfer_function<T>::contrast_transfer_function(
 	double astigmatism_angle,
 	double phase_shift
 ) noexcept
+	: m_phase(static_cast<T>(
+		phase_shift + std::asin(optics.get_amplitude_contrast())
+	))
 {
 	const auto angstroms_per_millimetre = 1e7;
 	const auto wavelength = optics.get_wavelength();
@@ -58,9 +61,6 @@ contrast_transfer_function<T>::contrast_transfer_function(
 	m_aberration = static_cast<T>(
 		0.5 * pi * aberration * wavelength * wavelength * wavelength *
 			squared_scale * squared_scale
-	);
-	m_phase = static_cast<T>(
-		phase_shift + std::asin(optics.get_amplitude_contrast())
 	);
 }
 

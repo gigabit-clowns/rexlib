@@ -26,7 +26,7 @@ namespace detail
 template <typename InnerLoop, typename... Pointers, std::size_t... Is>
 inline
 void run_elementwise_outer_loop_impl(
-	InnerLoop &&inner_loop,
+	const InnerLoop &inner_loop,
 	const joint_layout &layout,
 	std::size_t begin,
 	std::size_t end,
@@ -358,7 +358,7 @@ void run_elementwise_outer_loop(
 template <typename InnerLoop, typename... Pointers>
 inline
 void run_elementwise_outer_loop_range(
-	InnerLoop &&inner_loop,
+	const InnerLoop &inner_loop,
 	const joint_layout &layout,
 	std::size_t begin,
 	std::size_t end,

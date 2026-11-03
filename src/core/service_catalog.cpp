@@ -21,7 +21,12 @@ public:
 	{
 	}
 
+	implementation(const implementation &other) = delete;
+	implementation(implementation &&other) = delete;
 	~implementation() = default;
+
+	implementation& operator=(const implementation &other) = delete;
+	implementation& operator=(implementation &&other) = delete;
 
 	std::shared_ptr<service_manager>
 	get_service_manager(std::type_index key)

@@ -19,7 +19,8 @@ namespace rexlib
 template <typename T>
 inline
 scalar_value::scalar_value(const T &value) noexcept
-	: m_data_type(numerical_type_of<T>::value)
+	: m_storage()
+	, m_data_type(numerical_type_of<T>::value)
 {
 	static_assert(
 		sizeof(T) <= storage_size,

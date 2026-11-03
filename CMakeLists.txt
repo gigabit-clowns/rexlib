@@ -71,6 +71,12 @@ option(
 	OFF
 )
 option(
+	REXLIB_CLANG_TIDY
+	"Run clang-tidy on rexlib's own sources as they are compiled, failing \
+the build on any finding"
+	OFF
+)
+option(
 	REXLIB_CHECK_STYLE
 	"Test every file git tracks against .editorconfig, which needs \
 editorconfig-checker"
@@ -211,6 +217,10 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/config/rexlib-plugin.cmake)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(REXLIB_CLANG_TIDY)
+	find_program(REXLIB_CLANG_TIDY_EXECUTABLE NAMES clang-tidy REQUIRED)
+endif()
 
 add_subdirectory(src)
 

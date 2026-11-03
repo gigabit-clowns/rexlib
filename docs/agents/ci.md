@@ -25,15 +25,15 @@ and a newer push to a pull request cancels the run it supersedes; runs on
 | Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
 | CMake 3.18 | The one job without presets: CMake 3.18.0, Release with warnings as errors, and the suites |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
-| Lint | The `lint` preset: every file git tracks against `.editorconfig` |
+| Lint | The `lint` preset: clang-tidy, pinned, on the library's sources as they compile, and every file git tracks against `.editorconfig`. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
 
 The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the
 sanitizer jobs build with the newest clang.
 
-Every job with warnings as errors builds against installed dependencies,
-whose headers count as system headers, so that only rexlib's warnings fail
-it. vcpkg installs them into a prefix at the baseline
+Every job with warnings as errors, and Lint, builds against installed
+dependencies, whose headers count as system headers, so that only rexlib's
+warnings and findings fail it. vcpkg installs them into a prefix at the baseline
 `.github/vcpkg/vcpkg.json` names, for the row's triplet (static libraries,
 with the dynamic C runtime on Windows), and the `find_package` branch of each
 finds them, as a packager's would.

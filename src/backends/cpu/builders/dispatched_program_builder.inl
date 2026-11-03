@@ -86,8 +86,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		return backend_priority::unsupported;
 	}
 
-	std::array<numerical_type, output_count> output_types;
-	std::array<numerical_type, input_count> input_types;
+	std::array<numerical_type, output_count> output_types{};
+	std::array<numerical_type, input_count> input_types{};
 	extract_data_types(output_types, output_descriptors);
 	extract_data_types(input_types, input_descriptors);
 	const auto operation_data_types =
@@ -143,8 +143,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 		);
 	}
 
-	std::array<numerical_type, output_count> output_types;
-	std::array<numerical_type, input_count> input_types;
+	std::array<numerical_type, output_count> output_types{};
+	std::array<numerical_type, input_count> input_types{};
 	extract_data_types(output_types, output_descriptors);
 	extract_data_types(input_types, input_descriptors);
 	const auto operation_data_types = get_operation_data_types(typed_operation);

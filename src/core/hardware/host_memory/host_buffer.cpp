@@ -17,9 +17,8 @@ host_buffer::host_buffer(
 	std::size_t alignment
 )
 	: m_data(nullptr)
-	, m_size(0UL)
+	, m_size(align_ceil(size, alignment))
 {
-	m_size = align_ceil(size, alignment);
 	m_data = aligned_alloc(m_size, alignment);
 
 	if (m_size > 0 && m_data == nullptr)

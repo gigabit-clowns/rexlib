@@ -17,8 +17,11 @@ so a test run behaves as CI's. `coverage`, on Linux only, adds coverage
 instrumentation, registers the tests per binary and passes valgrind the
 options CI uses, for `ctest --test-dir build/coverage -T MemCheck`. `docs`
 configures for the Doxygen reference alone and builds `rexlib-docs`.
-`lint` registers the static checks: for now `ctest --preset lint` runs
-editorconfig-checker, which has to be installed.
+`lint` runs the static checks: `cmake --build --preset lint` compiles the
+library through clang-tidy, and `ctest --preset lint` runs editorconfig-checker;
+both have to be installed. clang-tidy reports what it finds in every header
+that is not a system header, so the lint build needs the dependencies
+installed, as a build with warnings as errors does.
 Every test preset fails when it finds no test, runs the tests in a random
 order and gives each ten minutes. Settings of a machine of one's own, such as
 a compiler cache, go in a `CMakeUserPresets.json`, which git ignores.
@@ -50,6 +53,7 @@ Options:
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
 | `REXLIB_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail rexlib's own targets (`-Werror`, `/WX`) |
+| `REXLIB_CLANG_TIDY` | `OFF`, `ON` in `lint` | Runs clang-tidy on the library's own sources as they compile; a finding fails the build |
 | `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 

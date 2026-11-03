@@ -317,7 +317,7 @@ std::size_t joint_layout_implementation::next(
 	// by n
 	if (n > 1)
 	{
-		const auto base_increment = n - 1;
+		const auto base_increment = static_cast<std::ptrdiff_t>(n - 1);
 		apply_strides(offsets, first_dim, base_increment);
 		indices[first_dim] += base_increment;
 	}
@@ -438,18 +438,16 @@ bool joint_layout_implementation::can_coalesce_axes(
 		return true; // Trivial, as any stride_j is meaningless.
 	}
 
-	for (const auto &operand : m_operands)
-	{
-		const auto strides = operand.get_strides();
-		const auto stride_i = strides[i];
-		const auto stride_j = strides[j];
-		if (static_cast<std::ptrdiff_t>(extent_i) * stride_i != stride_j)
+	return std::all_of(
+		m_operands.begin(),
+		m_operands.end(),
+		[extent_i, i, j](const joint_layout_operand &operand)
 		{
-			return false;
+			const auto strides = operand.get_strides();
+			return static_cast<std::ptrdiff_t>(extent_i) * strides[i] ==
+				strides[j];
 		}
-	}
-
-	return true;
+	);
 }
 
 inline

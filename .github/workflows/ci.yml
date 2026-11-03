@@ -337,32 +337,61 @@ jobs:
           name: documentation
           path: build/docs/docs/doxygen/html
 
-  # The checks that need no build: the .editorconfig rules, through the lint
-  # preset.
+  # The static checks, through the lint preset: clang-tidy, pinned, on
+  # rexlib's own sources as they are built, with every dependency installed
+  # by vcpkg, and the .editorconfig rules.
   lint:
     name: Lint
-    timeout-minutes: 20
+    timeout-minutes: 60
     runs-on: ubuntu-24.04
+    env:
+      CC: clang
+      CXX: clang++
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - name: Install editorconfig-checker
-        run: pipx install editorconfig-checker==3.11.1
+      - name: Install clang-tidy and editorconfig-checker
+        run: |
+          pipx install clang-tidy==23.1.3
+          pipx install editorconfig-checker==3.11.1
 
-      - name: Keep the fetched sources
+      - name: Keep the packages vcpkg builds
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: |
-            ${{ runner.temp }}/fetched
-            !${{ runner.temp }}/fetched/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-          restore-keys: fetched-${{ runner.os }}-
+          path: ${{ runner.temp }}/vcpkg-archives
+          key: vcpkg-ubuntu-24.04-clang++-x64-linux-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-ubuntu-24.04-clang++-x64-linux-
+
+      - name: Install the dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
+          vcpkg install --x-manifest-root=.github/vcpkg \
+            --x-install-root="$RUNNER_TEMP/vcpkg" \
+            --triplet=x64-linux \
+            --host-triplet=x64-linux \
+            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        with:
+          key: ubuntu-24.04-clang++-lint
+          max-size: 500M
+          evict-old-files: job
 
       - name: Configure
-        run: cmake --preset lint -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        run: >-
+          cmake --preset lint
+          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/x64-linux"
+
+      - name: Build
+        run: cmake --build --preset lint
 
       - name: Test
         run: ctest --preset lint

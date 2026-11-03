@@ -161,7 +161,7 @@ bool get_axis_last_offset(
 	if (success)
 	{
 		const auto stride = axis.get_stride();
-		result = (extent-1)*stride;
+		result = static_cast<std::ptrdiff_t>(extent-1)*stride;
 	}
 
 	return success;
@@ -233,7 +233,7 @@ void apply_index(
 	std::size_t index
 ) noexcept
 {
-	const auto increment = index*axis.get_stride();
+	const auto increment = static_cast<std::ptrdiff_t>(index)*axis.get_stride();
 	offset += increment;
 }
 

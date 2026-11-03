@@ -16,7 +16,14 @@ class host_memory_allocator final
 {
 public:
 	host_memory_allocator() = default;
+	host_memory_allocator(const host_memory_allocator &other) = delete;
+	host_memory_allocator(host_memory_allocator &&other) = delete;
 	~host_memory_allocator() override = default;
+
+	host_memory_allocator& operator=(
+		const host_memory_allocator &other
+	) = delete;
+	host_memory_allocator& operator=(host_memory_allocator &&other) = delete;
 
 	const memory_resource& get_memory_resource() const noexcept override;
 

@@ -21,9 +21,11 @@ public:
 		std::uint32_t patch
 	) noexcept;
 	version(const version& other) = default;
+	version(version&& other) noexcept = default;
 	~version() = default;
 
 	version& operator=(const version& other) = default;
+	version& operator=(version&& other) noexcept = default;
 
 	REXLIB_CONSTEXPR void set_major(std::uint32_t major) noexcept;
 	REXLIB_CONSTEXPR std::uint32_t get_major() const noexcept;

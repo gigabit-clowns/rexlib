@@ -98,7 +98,7 @@ array to_device_copy(
 )
 {
 	return transfer_copy(
-		std::move(input),
+		input,
 		memory_resource_affinity::device,
 		context,
 		out
@@ -124,7 +124,7 @@ array to_host_copy(
 )
 {
 	return transfer_copy(
-		std::move(input),
+		input,
 		memory_resource_affinity::host,
 		context,
 		out

@@ -7,20 +7,25 @@
 namespace rexlib
 {
 
-static
+namespace
+{
+
 void format_extents(std::ostream &os, const std::vector<std::size_t>& extents)
 {
 	const auto n = extents.size();
 
 	os << "(";
-	for (size_t i = 0; i < n; ++i) {
+	for (std::size_t i = 0; i < n; ++i)
+	{
 		os << extents[i];
-		if (i + 1 < n) os << ", ";
+		if (i + 1 < n)
+		{
+			os << ", ";
+		}
 	}
 	os << ")";
 }
 
-static
 std::string build_message(
 	const std::vector<std::size_t>& a,
 	const std::vector<std::size_t>& b,
@@ -44,6 +49,7 @@ std::string build_message(
 	return oss.str();
 }
 
+} // anonymous namespace
 
 broadcast_error::broadcast_error(
 	std::vector<std::size_t> first_extents,

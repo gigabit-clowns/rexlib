@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace rexlib
 {
@@ -128,8 +129,8 @@ std::size_t whole_number_range_length(
 	std::int64_t step
 )
 {
-	std::uint64_t distance;
-	std::uint64_t magnitude;
+	std::uint64_t distance = 0;
+	std::uint64_t magnitude = 0;
 	if (step > 0)
 	{
 		if (stop <= start)
@@ -305,7 +306,7 @@ array zeros(
 )
 {
 	return full(
-		descriptor,
+		std::move(descriptor),
 		affinity,
 		0,
 		context,
@@ -321,7 +322,7 @@ array ones(
 )
 {
 	return full(
-		descriptor,
+		std::move(descriptor),
 		affinity,
 		1,
 		context,
@@ -338,7 +339,7 @@ array full(
 )
 {
 	std::array<array, 1> outputs = {
-		empty(descriptor, affinity, context, out)
+		empty(std::move(descriptor), affinity, context, out)
 	};
 
 	execute(

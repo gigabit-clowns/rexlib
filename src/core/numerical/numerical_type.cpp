@@ -108,7 +108,7 @@ std::size_t get_size(numerical_type type) noexcept
 	case numerical_type::boolean: return sizeof(bool);
 	case numerical_type::char8: return sizeof(char);
 	case numerical_type::int8: return sizeof(std::int8_t);
-	case numerical_type::uint8: return sizeof(std::int8_t);
+	case numerical_type::uint8: return sizeof(std::uint8_t);
 	case numerical_type::int16: return sizeof(std::int16_t);
 	case numerical_type::uint16: return sizeof(std::uint16_t);
 	case numerical_type::int32: return sizeof(std::int32_t);

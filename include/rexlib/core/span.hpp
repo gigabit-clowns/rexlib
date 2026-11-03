@@ -31,11 +31,9 @@ namespace detail
  * @tparam S Static size
  */
 template <typename T, std::size_t S>
-struct span_storage
+class span_storage
 {
-	T* data;
-	static REXLIB_CONST_CONSTEXPR std::size_t size = S;
-
+public:
 	span_storage() = delete;
 	REXLIB_CONSTEXPR span_storage(T* ptr, std::size_t count) noexcept;
 	span_storage(const span_storage &other) = default;
@@ -44,6 +42,23 @@ struct span_storage
 
 	span_storage& operator=(const span_storage &other) = default;
 	span_storage& operator=(span_storage &&other) = default;
+
+	/**
+	 * @brief Get the pointer to the first element.
+	 *
+	 * @return T* The pointer.
+	 */
+	REXLIB_CONSTEXPR T* get_data() const noexcept;
+
+	/**
+	 * @brief Get the number of elements.
+	 *
+	 * @return std::size_t The number of elements.
+	 */
+	REXLIB_CONSTEXPR std::size_t get_size() const noexcept;
+
+private:
+	T* m_data;
 };
 
 /**
@@ -52,11 +67,9 @@ struct span_storage
  * @tparam T
  */
 template <typename T>
-struct span_storage<T, dynamic_extent>
+class span_storage<T, dynamic_extent>
 {
-	T* data;
-	std::size_t size;
-
+public:
 	REXLIB_CONSTEXPR span_storage() noexcept;
 	REXLIB_CONSTEXPR span_storage(T* ptr, std::size_t count) noexcept;
 	span_storage(const span_storage &other) = default;
@@ -65,14 +78,30 @@ struct span_storage<T, dynamic_extent>
 
 	span_storage& operator=(const span_storage &other) = default;
 	span_storage& operator=(span_storage &&other) = default;
+
+	/**
+	 * @brief Get the pointer to the first element.
+	 *
+	 * @return T* The pointer.
+	 */
+	REXLIB_CONSTEXPR T* get_data() const noexcept;
+
+	/**
+	 * @brief Get the number of elements.
+	 *
+	 * @return std::size_t The number of elements.
+	 */
+	REXLIB_CONSTEXPR std::size_t get_size() const noexcept;
+
+private:
+	T* m_data;
+	std::size_t m_size;
 };
 
 template <typename T>
-struct span_storage<T, 0>
+class span_storage<T, 0>
 {
-	static REXLIB_CONST_CONSTEXPR T* data = nullptr;
-	static REXLIB_CONST_CONSTEXPR std::size_t size = 0;
-
+public:
 	span_storage() = default;
 	REXLIB_CONSTEXPR span_storage(T* ptr, std::size_t count) noexcept;
 	span_storage(const span_storage &other) = default;
@@ -81,6 +110,20 @@ struct span_storage<T, 0>
 
 	span_storage& operator=(const span_storage &other) = default;
 	span_storage& operator=(span_storage &&other) = default;
+
+	/**
+	 * @brief Get the pointer to the first element.
+	 *
+	 * @return T* The pointer.
+	 */
+	REXLIB_CONSTEXPR T* get_data() const noexcept;
+
+	/**
+	 * @brief Get the number of elements.
+	 *
+	 * @return std::size_t The number of elements.
+	 */
+	REXLIB_CONSTEXPR std::size_t get_size() const noexcept;
 };
 
 } // namespace detail
