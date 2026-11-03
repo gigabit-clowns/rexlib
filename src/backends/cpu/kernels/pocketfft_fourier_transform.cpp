@@ -25,7 +25,7 @@
 //
 // This is the only translation unit that includes pocketfft, so defining it
 // here cannot make one build of the header disagree with another.
-#ifdef REXLIB_MINGW
+#if REXLIB_MINGW
 	#define POCKETFFT_NO_MULTITHREADING
 #endif
 #define POCKETFFT_CACHE_SIZE REXLIB_POCKETFFT_CACHE_SIZE

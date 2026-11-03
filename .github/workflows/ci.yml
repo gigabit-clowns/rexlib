@@ -32,9 +32,10 @@ env:
   CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
 
 jobs:
-  # One row per platform and toolchain rexlib supports. The oldest gcc and
-  # clang of the supported LTS images are among them; the newest clang is
-  # what the sanitizer jobs build with.
+  # One row per platform and toolchain rexlib supports, with warnings as
+  # errors and every dependency installed by vcpkg. The oldest gcc and clang
+  # of the supported LTS images are among them; the newest clang is what the
+  # sanitizer jobs build with.
   build-and-test:
     name: ${{ matrix.name }}
     timeout-minutes: 90
@@ -46,38 +47,45 @@ jobs:
             os: ubuntu-24.04
             cc: gcc
             cxx: g++
+            triplet: x64-linux
             preset: coverage
           - name: Linux x86_64, clang
             os: ubuntu-22.04
             cc: clang
             cxx: clang++
+            triplet: x64-linux
             preset: debug
           - name: Linux aarch64, gcc
             os: ubuntu-22.04-arm
             cc: gcc
             cxx: g++
+            triplet: arm64-linux
             preset: debug
           - name: macOS arm64, Apple clang
             os: macos-15
             cc: clang
             cxx: clang++
+            triplet: arm64-osx
             preset: debug
           - name: Windows x86_64, MSVC
             os: windows-2025
             cc: cl
             cxx: cl
             msvc: x64
+            triplet: x64-windows-static-md
             preset: debug
           - name: Windows arm64, MSVC
             os: windows-11-arm
             cc: cl
             cxx: cl
             msvc: arm64
+            triplet: arm64-windows-static-md
             preset: debug
           - name: Windows x86_64, MinGW
             os: windows-2025
             cc: gcc
             cxx: g++
+            triplet: x64-mingw-static
             preset: debug
     runs-on: ${{ matrix.os }}
     defaults:
@@ -86,8 +94,6 @@ jobs:
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
-      CMAKE_C_COMPILER_LAUNCHER: ccache
-      CMAKE_CXX_COMPILER_LAUNCHER: ccache
       SONAR_TOKEN: ${{ matrix.preset == 'coverage' && secrets.SONAR_TOKEN || '' }}
     steps:
       # Sonar reads the history to tell new code from old.
@@ -112,6 +118,22 @@ jobs:
           sudo apt-get install --yes valgrind
           pipx install gcovr==8.7
 
+      - name: Keep the packages vcpkg builds
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/vcpkg-archives
+          key: vcpkg-${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.triplet }}-
+
+      - name: Install the dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
+          vcpkg install --x-manifest-root=.github/vcpkg \
+            --x-install-root="$RUNNER_TEMP/vcpkg" \
+            --triplet=${{ matrix.triplet }} \
+            --host-triplet=${{ matrix.triplet }} \
+            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
+
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
         with:
@@ -119,21 +141,17 @@ jobs:
           max-size: 500M
           evict-old-files: job
 
-      - name: Keep the fetched sources
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: |
-            ${{ runner.temp }}/fetched
-            !${{ runner.temp }}/fetched/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-          restore-keys: fetched-${{ runner.os }}-
-
       # MSVC keeps its debug information beside each object only when it is
       # embedded, which is what lets ccache cache what it compiles.
       - name: Configure
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: >-
           cmake --preset ${{ matrix.preset }}
-          -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
+          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
           ${{ matrix.msvc && '-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
 
       - name: Build
@@ -168,6 +186,7 @@ jobs:
         if: env.SONAR_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8
 
+  # The default build, with the dependencies fetched and built with rexlib.
   sanitize:
     name: ${{ matrix.name }}
     timeout-minutes: 90
@@ -183,8 +202,6 @@ jobs:
     env:
       CC: clang
       CXX: clang++
-      CMAKE_C_COMPILER_LAUNCHER: ccache
-      CMAKE_CXX_COMPILER_LAUNCHER: ccache
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -208,6 +225,9 @@ jobs:
           restore-keys: fetched-${{ runner.os }}-
 
       - name: Configure
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: cmake --preset ${{ matrix.preset }} -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
 
       - name: Build
@@ -216,20 +236,16 @@ jobs:
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 
-  # The one job without presets, which need CMake 3.25, and so the one that
-  # holds cmake_minimum_required to its word. It builds against installed
-  # dependencies, as a packager does: vcpkg installs every one of them into a
-  # prefix, at the baseline its manifest names, and the find_package branch of
-  # each is what finds it. Release.
+  # The one job without presets, which need CMake 3.21, and so the one that
+  # holds cmake_minimum_required to its word. Release, with warnings as errors
+  # and every dependency installed by vcpkg.
   minimum-cmake:
-    name: CMake 3.18, installed dependencies
+    name: CMake 3.18
     timeout-minutes: 60
     runs-on: ubuntu-24.04
     env:
       CC: gcc
       CXX: g++
-      CMAKE_C_COMPILER_LAUNCHER: ccache
-      CMAKE_CXX_COMPILER_LAUNCHER: ccache
     steps:
       - name: Check out the repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -239,14 +255,18 @@ jobs:
       - name: Keep the packages vcpkg builds
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ~/.cache/vcpkg/archives
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          path: ${{ runner.temp }}/vcpkg-archives
+          key: vcpkg-ubuntu-24.04-g++-x64-linux-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-ubuntu-24.04-g++-x64-linux-
 
       - name: Install the dependencies
-        run: >-
-          "$VCPKG_INSTALLATION_ROOT/vcpkg" install
-          --x-manifest-root=.github/vcpkg
-          --x-install-root="$RUNNER_TEMP/vcpkg"
+        run: |
+          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
+          vcpkg install --x-manifest-root=.github/vcpkg \
+            --x-install-root="$RUNNER_TEMP/vcpkg" \
+            --triplet=x64-linux \
+            --host-triplet=x64-linux \
+            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
 
       - name: Install CMake 3.18
         run: |
@@ -262,6 +282,9 @@ jobs:
           evict-old-files: job
 
       - name: Configure
+        env:
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: >-
           "$RUNNER_TEMP/cmake/bin/cmake" -S . -B build
           -DCMAKE_BUILD_TYPE=Release
@@ -277,21 +300,6 @@ jobs:
         working-directory: build
         run: >-
           "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
-
-      # Installed dependencies must not reach rexlib's own install: every one
-      # of them is private and none appears in a public header.
-      - name: Check that no dependency reached the install
-        run: |
-          "$RUNNER_TEMP/cmake/bin/cmake" --install build --prefix "$RUNNER_TEMP/install"
-          found=$(find "$RUNNER_TEMP/install" \
-            \( -iname '*catch*' -o -iname '*eigen*' -o -iname '*spdlog*' \
-              -o -iname '*boost*' -o -iname 'half.hpp' -o -iname '*pocketfft*' \) \
-            -print)
-          if [ -n "$found" ]; then
-            echo "A dependency reached the install tree:"
-            echo "$found"
-            exit 1
-          fi
 
   documentation:
     name: Documentation

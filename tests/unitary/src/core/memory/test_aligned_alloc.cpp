@@ -37,9 +37,19 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"aligned_alloc should return nullptr for a size of zero",
+	"aligned_alloc should return distinct aligned areas for a size of zero",
 	"[aligned_alloc]"
 )
 {
-	REQUIRE( rexlib::aligned_alloc(0, 64) == nullptr );
+	const std::size_t alignment = 64;
+
+	auto *first = rexlib::aligned_alloc(0, alignment);
+	auto *second = rexlib::aligned_alloc(0, alignment);
+
+	CHECK( first != nullptr );
+	CHECK( second != nullptr );
+	CHECK( first != second );
+	CHECK( get_alignment(first) >= alignment );
+	aligned_free(first);
+	aligned_free(second);
 }

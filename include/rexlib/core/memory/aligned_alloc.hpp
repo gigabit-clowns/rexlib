@@ -16,8 +16,8 @@ namespace rexlib
  * @param size Number of bytes to allocate.
  * It must be multiple of the alignment.
  * @param alignment The alignment of the data. Must be power of two.
- * @return void* The allocated memory area. nullptr on failure, and when
- * size is zero.
+ * @return void* The allocated memory area. nullptr on failure. A size of
+ * zero still returns a distinct area, to be released with aligned_free.
  *
  * @see aligned_free
  *
