@@ -62,7 +62,9 @@ on, so two pull requests that pass apart but fail together cannot both merge
 untested.
 
 Each job keeps its compiler cache through `hendrikmuhs/ccache-action`, capped
-at 500 MB and cleared of what the job did not use. `main` saves the caches
+at 500 MB and cleared of what the job did not use. The action installs its
+own ccache binary on every runner, the version its pinned commit names, and
+reports the cache's hit rate in the job summary. `main` saves the caches
 every pull request starts from; a pull request saves its own, which only its
 later pushes read; GitHub evicts the least recently used once the
 repository's 10 GB are full. The fetched sources of the dependencies are

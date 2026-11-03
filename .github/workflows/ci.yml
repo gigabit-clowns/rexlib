@@ -140,6 +140,7 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.preset }}
           max-size: 500M
           evict-old-files: job
+          install: binary
 
       # MSVC keeps its debug information beside each object only when it is
       # embedded, which is what lets ccache cache what it compiles.
@@ -214,6 +215,7 @@ jobs:
           key: ubuntu-24.04-clang++-${{ matrix.preset }}
           max-size: 500M
           evict-old-files: job
+          install: binary
 
       - name: Keep the fetched sources
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -280,6 +282,7 @@ jobs:
           key: ubuntu-24.04-g++-minimum-cmake
           max-size: 500M
           evict-old-files: job
+          install: binary
 
       - name: Configure
         env:
@@ -380,6 +383,7 @@ jobs:
           key: ubuntu-24.04-clang++-lint
           max-size: 500M
           evict-old-files: job
+          install: binary
 
       - name: Configure
         env:
