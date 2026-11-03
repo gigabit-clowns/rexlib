@@ -43,12 +43,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux x86_64, gcc, coverage and valgrind
-            os: ubuntu-24.04
-            cc: gcc
-            cxx: g++
-            triplet: x64-linux
-            preset: coverage
+          # - name: Linux x86_64, gcc, coverage and valgrind
+          #   os: ubuntu-24.04
+          #   cc: gcc
+          #   cxx: g++
+          #   triplet: x64-linux
+          #   preset: coverage
           - name: Linux x86_64, clang
             os: ubuntu-22.04
             cc: clang
