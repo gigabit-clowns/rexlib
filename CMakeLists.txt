@@ -65,6 +65,11 @@ option(
 compiler supports"
 	OFF
 )
+option(
+	REXLIB_WARNINGS_AS_ERRORS
+	"Fail the build of rexlib's own targets on a compiler warning"
+	OFF
+)
 # Only while BUILD_TESTING, the switch of CTest, is on: tests built without
 # it could not be registered with CTest. Its own option lets a project that
 # embeds rexlib drop rexlib's tests without dropping its own.

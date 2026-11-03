@@ -84,7 +84,11 @@ insertion_result<T> run(
 				ctf_weight
 			>
 		>(
-			em::insert_ctf_slices_operation(window, make_optics(), pixel_size),
+			em::insert_ctf_slices_operation(
+				window,
+				make_optics(),
+				case_pixel_size
+			),
 			data,
 			pool,
 			in_place

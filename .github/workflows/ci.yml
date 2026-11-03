@@ -1,0 +1,364 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: CI
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+  workflow_call:
+
+  workflow_dispatch:
+
+# A newer push to a pull request cancels the run it supersedes; runs on main
+# are never cancelled, since each one saves the caches pull requests start
+# from.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  CMAKE_GENERATOR: Ninja
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CMAKE_C_COMPILER_LAUNCHER: ccache
+  CMAKE_CXX_COMPILER_LAUNCHER: ccache
+  CTEST_PARALLEL_LEVEL: 4
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_NOHASHDIR: 1
+  CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
+
+jobs:
+  # One row per platform and toolchain rexlib supports. The oldest gcc and
+  # clang of the supported LTS images are among them; the newest clang is
+  # what the sanitizer jobs build with.
+  build-and-test:
+    name: ${{ matrix.name }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x86_64, gcc, coverage and valgrind
+            os: ubuntu-24.04
+            cc: gcc
+            cxx: g++
+            preset: coverage
+          - name: Linux x86_64, clang 14
+            os: ubuntu-22.04
+            cc: clang
+            cxx: clang++
+            preset: debug
+          - name: Linux aarch64, gcc 11
+            os: ubuntu-22.04-arm
+            cc: gcc
+            cxx: g++
+            preset: debug
+          - name: macOS arm64, Apple clang
+            os: macos-15
+            cc: clang
+            cxx: clang++
+            preset: debug
+          - name: Windows x86_64, MSVC
+            os: windows-2025
+            cc: cl
+            cxx: cl
+            msvc: x64
+            preset: debug
+          - name: Windows arm64, MSVC
+            os: windows-11-arm
+            cc: cl
+            cxx: cl
+            msvc: arm64
+            preset: debug
+          - name: Windows x86_64, MinGW
+            os: windows-2025
+            cc: gcc
+            cxx: g++
+            preset: debug
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      FETCHED: ${{ startsWith(matrix.os, 'windows') && 'C:/fetched' || '/tmp/fetched' }}
+      SONAR_TOKEN: ${{ matrix.preset == 'coverage' && secrets.SONAR_TOKEN || '' }}
+    steps:
+      # Sonar reads the history to tell new code from old.
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: ${{ matrix.preset == 'coverage' && 0 || 1 }}
+
+      # Ninja does not find MSVC on its own, as the Visual Studio generator
+      # does.
+      - name: Set up MSVC
+        if: matrix.msvc
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+        with:
+          arch: ${{ matrix.msvc }}
+
+      - name: Install valgrind and gcovr
+        if: matrix.preset == 'coverage'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes valgrind
+          pipx install gcovr==8.7
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.preset }}
+          max-size: 500M
+          evict-old-files: job
+
+      - name: Keep the fetched sources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ env.FETCHED }}
+            !${{ env.FETCHED }}/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+
+      # MSVC keeps its debug information beside each object only when it is
+      # embedded, which is what lets ccache cache what it compiles.
+      - name: Configure
+        run: >-
+          cmake --preset ${{ matrix.preset }}
+          -DFETCHCONTENT_BASE_DIR="$FETCHED"
+          ${{ matrix.msvc && '-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        if: matrix.preset != 'coverage'
+        run: ctest --preset ${{ matrix.preset }}
+
+      # ctest looks for what -T needs in the directory it is given, not in
+      # that of a test preset, so this one names the build directory.
+      - name: Test under valgrind
+        if: matrix.preset == 'coverage'
+        run: >-
+          ctest --test-dir build/coverage -T MemCheck
+          --output-on-failure --no-tests=error
+
+      - name: Show what valgrind found
+        if: failure() && matrix.preset == 'coverage'
+        run: >-
+          find build/coverage/Testing/Temporary -name 'MemoryChecker.*.log'
+          -size +0 -exec tail -n 200 {} +
+
+      - name: Measure the coverage
+        if: matrix.preset == 'coverage'
+        run: >-
+          gcovr --root . --object-directory build/coverage
+          --merge-lines --exclude-throw-branches --exclude-unreachable-branches
+          --sonarqube build/coverage/coverage.xml --print-summary
+
+      - name: Scan with SonarQube
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8
+
+  sanitize:
+    name: ${{ matrix.name }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Address and undefined behaviour sanitizers
+            preset: sanitize
+          - name: Thread sanitizer
+            preset: sanitize-thread
+    runs-on: ubuntu-24.04
+    env:
+      CC: clang
+      CXX: clang++
+      FETCHED: /tmp/fetched
+      ASAN_OPTIONS: detect_leaks=1:strict_string_checks=1
+      UBSAN_OPTIONS: print_stacktrace=1
+      TSAN_OPTIONS: halt_on_error=1
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        with:
+          key: ubuntu-24.04-clang++-${{ matrix.preset }}
+          max-size: 500M
+          evict-old-files: job
+
+      - name: Keep the fetched sources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ env.FETCHED }}
+            !${{ env.FETCHED }}/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }} -DFETCHCONTENT_BASE_DIR="$FETCHED"
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}
+
+  # The one job without presets, which need CMake 3.21, and so the one that
+  # holds cmake_minimum_required to its word. It builds as a distribution
+  # does: every dependency installed on the system, in Release.
+  minimum-cmake:
+    name: CMake 3.18, system packages
+    timeout-minutes: 60
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc
+      CXX: g++
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install the dependencies the distribution carries
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends --yes \
+            libboost-container-dev \
+            libboost-filesystem-dev \
+            libeigen3-dev \
+            libspdlog-dev \
+            libtrompeloeil-cpp-dev \
+            catch2
+
+      # half and pocketfft are packaged nowhere, so a system build of them is
+      # a packager dropping the header on the include path. Doing the same
+      # here is what covers Findhalf.cmake and Findpocketfft.cmake.
+      - name: Place the headers no distribution packages
+        run: |
+          commit=$(sed -n '/rexlib_fetch_pocketfft(/{n;s/.*COMMIT \([0-9a-f]*\).*/\1/p}' CMakeLists.txt)
+          version=$(sed -n '/rexlib_fetch_half(/{n;s/.*VERSION \([^ ]*\).*/\1/p}' CMakeLists.txt)
+          sha256=$(sed -n '/rexlib_fetch_half(/{n;n;s/.*SHA256 \([0-9a-f]*\).*/\1/p}' CMakeLists.txt)
+          curl -fsS -o pocketfft_hdronly.h \
+            "https://raw.githubusercontent.com/mreineck/pocketfft/${commit}/pocketfft_hdronly.h"
+          # SourceForge always redirects to a geo-selected mirror, so this
+          # download has to follow redirects; the checksum is what makes
+          # trusting whichever mirror answers unnecessary.
+          curl -fsSL --proto '=https' --proto-redir '=https' -o half.zip \
+            "https://downloads.sourceforge.net/project/half/half/${version}/half-${version}.zip"
+          echo "${sha256}  half.zip" | sha256sum -c -
+          unzip -q half.zip -d half
+          sudo install -m 644 pocketfft_hdronly.h half/include/half.hpp /usr/local/include/
+
+      - name: Install CMake 3.18
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cmake"
+          "$RUNNER_TEMP/cmake/bin/pip" install --quiet cmake==3.18.0
+          "$RUNNER_TEMP/cmake/bin/cmake" --version
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        with:
+          key: ubuntu-24.04-g++-minimum-cmake
+          max-size: 500M
+          evict-old-files: job
+
+      - name: Configure
+        run: >-
+          "$RUNNER_TEMP/cmake/bin/cmake" -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DREXLIB_BUILD_DEPENDENCIES=OFF
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: >-
+          "$RUNNER_TEMP/cmake/bin/cmake" --build build
+
+      - name: Test
+        working-directory: build
+        run: >-
+          "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
+
+      # A system build must not drag a dependency into the install: every one
+      # of them is private and none appears in a public header.
+      - name: Check that no dependency reached the install
+        run: |
+          "$RUNNER_TEMP/cmake/bin/cmake" --install build --prefix "$RUNNER_TEMP/install"
+          found=$(find "$RUNNER_TEMP/install" \
+            \( -iname '*catch*' -o -iname '*eigen*' -o -iname '*spdlog*' \
+               -o -iname '*boost*' -o -iname 'half.hpp' -o -iname '*pocketfft*' \) \
+            -print)
+          if [ -n "$found" ]; then
+            echo "A dependency reached the install tree:"
+            echo "$found"
+            exit 1
+          fi
+
+  documentation:
+    name: Documentation
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    env:
+      FETCHED: /tmp/fetched
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes doxygen
+
+      - name: Keep the fetched sources
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ env.FETCHED }}
+            !${{ env.FETCHED }}/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'tests/CMakeLists.txt', 'cmake/modules/rexlib_fetch_*.cmake') }}
+
+      - name: Configure
+        run: cmake --preset docs -DFETCHCONTENT_BASE_DIR="$FETCHED"
+
+      - name: Build
+        run: cmake --build --preset docs
+
+      - name: Keep the reference
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: documentation
+          path: build/docs/docs/doxygen/html
+
+  # The one check the branch rules require besides SonarCloud's. It runs
+  # whatever happened before it, and fails unless every job it needs
+  # succeeded: a job that a failure skipped would otherwise count as passed.
+  all-checks:
+    name: All checks
+    timeout-minutes: 10
+    if: always()
+    needs:
+      - build-and-test
+      - sanitize
+      - minimum-cmake
+      - documentation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Decide whether every check passed
+        uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}

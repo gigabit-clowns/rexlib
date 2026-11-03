@@ -1,7 +1,7 @@
 # rexlib
 
 <!-- docs-badges:start -->
-[![Build and test](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml)
+[![CI](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml)
 <!-- docs-badges:end -->
 
 rexlib is a device-agnostic array computing library with a pluggable backend
