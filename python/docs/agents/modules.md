@@ -44,7 +44,8 @@ declarations need.
 
 | Module | Adds |
 |---|---|
-| `_paths.py` | Locates the rexlib shipped inside the package; on Windows puts it on the DLL search path |
+| `_dll_directories.py` | On Windows, puts the prefix's `bin` on the DLL search path, for a wheel and for the default layout |
+| `_paths.py` | Locates the CMake package and headers of the rexlib loaded, from where the library itself is |
 | `_catalog.py` | The process-wide default `ServiceCatalog` |
 | `_session_pool.py` | One `DeviceSession` per device, process-wide |
 | `_context.py` | The execution context active on the current thread |
@@ -53,8 +54,8 @@ declarations need.
 | `_ndarray.py` | Installs onto `Array` the Python operators, `__array__` and the two DLPack methods; holds `from_dlpack` |
 | `em/` | The operations of `rexlib::em`, flat, with `context` defaulting to the active one |
 
-`_paths` is imported first in `__init__.py`, and the order matters: on Windows
-nothing else imports until the bundled library is findable. `_ndarray` is
+`_dll_directories` is imported first in `__init__.py`, and the order matters:
+on Windows nothing else imports until the library is findable. `_ndarray` is
 imported for its side effect, before anything can hand out an `Array`.
 
 DLPack is split between the two sides the way everything else is. The binding

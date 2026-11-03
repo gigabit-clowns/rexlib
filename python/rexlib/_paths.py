@@ -1,31 +1,24 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-"""Locate the C++ side of rexlib that ships inside this package."""
+"""Locate the C++ side of rexlib that this package uses."""
 
 from __future__ import annotations
 
-import os
 import pathlib
-import sys
 
-# The wheel nests a rexlib install prefix in the package directory, so
-# these are the paths a standalone install exposes, rooted here.
-__PREFIX = pathlib.Path(__file__).parent
+from ._binding import get_default_plugin_directory
 
-# Which of these the prefix uses is the platform's choice, made when the
-# library was built: 64-bit Red Hat installs into lib64, everything else
-# into lib. Both are looked for rather than one being imposed.
-__LIBRARY_DIRECTORIES = (__PREFIX / "lib64", __PREFIX / "lib")
 
-# Windows has no RPATH, and the shared library does not sit beside the
-# extension that needs it, so the loader has to be told where to look.
-# Kept alive for the life of the process: dropping the handle takes the
-# directory back off the search path.
-__dll_directories = [
-	os.add_dll_directory(str(directory))
-	for directory in (__PREFIX / "bin", *__LIBRARY_DIRECTORIES)
-	if sys.platform == "win32" and directory.is_dir()
-]
+def __get_library_directory() -> pathlib.Path:
+	"""
+	Get the directory librexlib was loaded from.
+
+	The default plugin directory is named after it, whatever the layout.
+
+	Returns:
+		pathlib.Path: The directory.
+	"""
+	return pathlib.Path(get_default_plugin_directory()).resolve().parent
 
 
 def get_cmake_dir() -> str:
@@ -33,18 +26,21 @@ def get_cmake_dir() -> str:
 	Get the directory holding rexlib's CMake package configuration.
 
 	Pass it to CMake as `rexlib_DIR` to build a plugin, or anything else
-	that links rexlib, against the copy shipped in this package.
+	that links rexlib, against the rexlib this package uses.
 
 	Returns:
 		str: Directory containing rexlib-config.cmake.
 	"""
-	for directory in __LIBRARY_DIRECTORIES:
+	library = __get_library_directory()
+	# On Windows the DLL is in bin, beside the prefix's library directory:
+	# lib64 on 64-bit Red Hat, lib everywhere else.
+	for directory in (library, library.parent / "lib64", library.parent / "lib"):
 		candidate = directory / "cmake" / "rexlib"
 		if candidate.is_dir():
 			return str(candidate)
 
 	raise FileNotFoundError(
-		f"No rexlib CMake package configuration under {__PREFIX}"
+		f"No rexlib CMake package configuration beside {library}"
 	)
 
 
@@ -55,4 +51,10 @@ def get_include() -> str:
 	Returns:
 		str: Directory to add to a compiler's include path.
 	"""
-	return str(__PREFIX / "include")
+	library = __get_library_directory()
+	for prefix in library.parents:
+		candidate = prefix / "include"
+		if (candidate / "rexlib").is_dir():
+			return str(candidate)
+
+	raise FileNotFoundError(f"No rexlib headers in a prefix of {library}")

@@ -55,6 +55,7 @@ Options:
 | `REXLIB_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail rexlib's own targets (`-Werror`, `/WX`) |
 | `REXLIB_CLANG_TIDY` | `OFF`, `ON` in `lint` | Runs clang-tidy on the library's own sources as they compile; a finding fails the build |
 | `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks |
+| `REXLIB_BUILD_PYTHON` | `OFF` | Adds the Python binding in `python/`, which needs an interpreter with nanobind; see [python/docs/agents/building.md](../../python/docs/agents/building.md) |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without

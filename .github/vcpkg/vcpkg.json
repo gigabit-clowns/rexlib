@@ -1,10 +1,11 @@
 {
-  "$comment": "Every dependency of rexlib, which the CMake 3.18 job of ci.yml installs with vcpkg",
+  "$comment": "Every dependency of rexlib and its Python binding, for the jobs of ci.yml that build against installed dependencies",
   "dependencies": [
     "boost-container",
     "boost-container-hash",
     "boost-filesystem",
     "catch2",
+    "dlpack",
     "eigen3",
     "half",
     "pocketfft",
