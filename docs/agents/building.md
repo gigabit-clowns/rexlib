@@ -18,8 +18,8 @@ instrumentation, registers the tests per binary and passes valgrind the
 options CI uses, for `ctest --test-dir build/coverage -T MemCheck`. `docs`
 configures for the Doxygen reference alone and builds `rexlib-docs`.
 `lint` runs the static checks: `cmake --build --preset lint` compiles the
-library through clang-tidy, and `ctest --preset lint` runs editorconfig-checker;
-both have to be installed. clang-tidy reports what it finds in every header
+library through clang-tidy, and `ctest --preset lint` runs editorconfig-checker
+and ruff; all three have to be installed. clang-tidy reports what it finds in every header
 that is not a system header, so the lint build needs the dependencies
 installed, as a build with warnings as errors does.
 Every test preset fails when it finds no test, runs the tests in a random
@@ -54,7 +54,7 @@ Options:
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
 | `REXLIB_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail rexlib's own targets (`-Werror`, `/WX`) |
 | `REXLIB_CLANG_TIDY` | `OFF`, `ON` in `lint` | Runs clang-tidy on the library's own sources as they compile; a finding fails the build |
-| `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks |
+| `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks, and `rexlib-ruff`, a test running ruff over the Python files `ruff.toml` names |
 | `REXLIB_BUILD_PYTHON` | `OFF` | Adds the Python binding in `python/`, which needs an interpreter with nanobind; see [python/docs/agents/building.md](../../python/docs/agents/building.md) |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 

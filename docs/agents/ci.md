@@ -29,11 +29,11 @@ commits both files.
 
 | Job | What it checks |
 |---|---|
-| One per platform and toolchain | Linux x86_64 with gcc and with clang, Linux aarch64 with gcc, macOS arm64, Windows x86_64 and arm64 with MSVC, Windows x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test |
+| One per platform and toolchain | Linux x86_64 with gcc and with clang, Linux aarch64 with gcc, macOS arm64, Windows x86_64 and arm64 with MSVC, Windows x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests |
 | Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
-| CMake 3.18 | The one job without presets: CMake 3.18.0, Release with warnings as errors, and the suites |
+| CMake 3.18 | The one job without presets: CMake 3.18.0, Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
-| Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset: clang-tidy, pinned, on the library's sources as they compile, and every file git tracks against `.editorconfig`. The dependencies are installed, as in the jobs with warnings as errors |
+| Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset: clang-tidy, pinned, on the library's sources as they compile, every file git tracks against `.editorconfig`, and the Python files against ruff. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
 
 The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the
@@ -61,6 +61,12 @@ reads them from the context (`${{ runner.temp }}`).
 MSVC builds through Ninja, which is what lets ccache cache it, with its debug
 information embedded in each object for the same reason;
 `ilammy/msvc-dev-cmd` sets up its environment.
+
+A job that builds the Python binding takes uv from `astral-sh/setup-uv`, at
+the version `[tool.uv] required-version` names, and the job's Python, in a
+virtual environment that the later steps see. `uv sync --locked
+--no-install-project` installs the `dev` group into it, exactly as
+`uv.lock` pins it, and CMake's FindPython finds that interpreter first.
 
 The branch rules require two checks: All checks, and SonarCloud's own report.
 All checks runs whatever happened before it, because a job that a failure

@@ -78,8 +78,8 @@ the build on any finding"
 )
 option(
 	REXLIB_CHECK_STYLE
-	"Test every file git tracks against .editorconfig, which needs \
-editorconfig-checker"
+	"Test every file git tracks against .editorconfig, and the Python files \
+with ruff, which need editorconfig-checker and ruff"
 	OFF
 )
 option(
