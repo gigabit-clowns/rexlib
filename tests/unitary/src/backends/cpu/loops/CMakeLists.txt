@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_claimed_loop.cpp
 		test_elementwise_loop.cpp
 		test_inner_loop_stride_dispatch.cpp
 		test_multidimensional_index.cpp

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "linalg_operand_core.hpp"
+#include "operand_core.hpp"
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>
@@ -27,7 +27,7 @@ namespace cpu
  * the batch and hand the core, raw, to the kernel.
  *
  * @see run_elementwise_loop
- * @see linalg_operand_core
+ * @see operand_core
  */
 class linalg_core_layout_plan
 {
@@ -81,9 +81,9 @@ public:
 
 	linalg_core_layout_plan(
 		joint_layout batch_layout,
-		const linalg_operand_core &output_core,
-		const linalg_operand_core &left_core,
-		const linalg_operand_core &right_core
+		const operand_core &output_core,
+		const operand_core &left_core,
+		const operand_core &right_core
 	) noexcept;
 
 	/**
@@ -95,9 +95,9 @@ public:
 	 */
 	const joint_layout& get_batch_layout() const noexcept;
 
-	const linalg_operand_core& get_output_core() const noexcept;
-	const linalg_operand_core& get_left_core() const noexcept;
-	const linalg_operand_core& get_right_core() const noexcept;
+	const operand_core& get_output_core() const noexcept;
+	const operand_core& get_left_core() const noexcept;
+	const operand_core& get_right_core() const noexcept;
 
 	/**
 	 * @brief The arithmetic one batch element costs.
@@ -117,9 +117,9 @@ public:
 
 private:
 	joint_layout m_batch_layout;
-	linalg_operand_core m_output_core;
-	linalg_operand_core m_left_core;
-	linalg_operand_core m_right_core;
+	operand_core m_output_core;
+	operand_core m_left_core;
+	operand_core m_right_core;
 };
 
 } // namespace cpu

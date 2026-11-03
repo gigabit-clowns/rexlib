@@ -31,9 +31,9 @@ class matmul_core_kernel
 {
 public:
 	matmul_core_kernel(
-		const linalg_operand_core &out_core,
-		const linalg_operand_core &left_core,
-		const linalg_operand_core &right_core
+		const operand_core &out_core,
+		const operand_core &left_core,
+		const operand_core &right_core
 	)
 		: m_out_core(out_core)
 		, m_left_core(left_core)
@@ -54,9 +54,9 @@ public:
 	}
 
 private:
-	linalg_operand_core m_out_core;
-	linalg_operand_core m_left_core;
-	linalg_operand_core m_right_core;
+	operand_core m_out_core;
+	operand_core m_left_core;
+	operand_core m_right_core;
 	gemm_fn<T> m_gemm;
 };
 

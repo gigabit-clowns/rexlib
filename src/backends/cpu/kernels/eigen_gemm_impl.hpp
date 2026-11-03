@@ -142,9 +142,9 @@ void gemm_call_contiguous(
 	T *out,
 	const T *left,
 	const T *right,
-	const linalg_operand_core &out_core,
-	const linalg_operand_core &left_core,
-	const linalg_operand_core &right_core
+	const operand_core &out_core,
+	const operand_core &left_core,
+	const operand_core &right_core
 )
 {
 	using left_matrix =
@@ -190,9 +190,9 @@ void gemm_call_strided(
 	T *out,
 	const T *left,
 	const T *right,
-	const linalg_operand_core &out_core,
-	const linalg_operand_core &left_core,
-	const linalg_operand_core &right_core
+	const operand_core &out_core,
+	const operand_core &left_core,
+	const operand_core &right_core
 )
 {
 	using dynamic_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;

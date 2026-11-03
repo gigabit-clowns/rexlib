@@ -4,6 +4,8 @@
 
 #include <backends/cpu/plans/index_operands.hpp>
 
+#include <core/layout/axis_values.hpp>
+
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/broadcast.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>
@@ -43,31 +45,6 @@ std::vector<std::size_t> broadcast_input_extents(
 	}
 
 	return extents;
-}
-
-template <typename T>
-std::vector<T> select_axes(
-	const std::vector<T> &values,
-	const std::vector<std::size_t> &axes
-)
-{
-	std::vector<T> result;
-	result.reserve(axes.size());
-	for (const auto axis : axes)
-	{
-		result.push_back(values[axis]);
-	}
-	return result;
-}
-
-std::size_t element_count(const std::vector<std::size_t> &extents) noexcept
-{
-	std::size_t result = 1;
-	for (const auto extent : extents)
-	{
-		result *= extent;
-	}
-	return result;
 }
 
 /**
@@ -228,8 +205,10 @@ void reduction_layout_plan::plan(
 		}
 	}
 
-	const auto kept_extents = select_axes(extents, kept_axes);
-	const auto reduced_extents = select_axes(extents, reduced_axes);
+	const auto kept_extents =
+		select_axes(make_span(extents), make_span(kept_axes));
+	const auto reduced_extents =
+		select_axes(make_span(extents), make_span(reduced_axes));
 
 	joint_layout_builder kept_builder;
 	joint_layout_builder reduced_builder;
@@ -246,7 +225,8 @@ void reduction_layout_plan::plan(
 			descriptor.get_layout().broadcast_to(make_span(extents));
 		layout.get_strides(strides);
 
-		const auto kept_strides = select_axes(strides, kept_axes);
+		const auto kept_strides =
+			select_axes(make_span(strides), make_span(kept_axes));
 		kept_builder.add_operand(
 			make_span(kept_extents),
 			make_span(kept_strides),
@@ -255,7 +235,8 @@ void reduction_layout_plan::plan(
 
 		// The offset belongs to the kept layout alone. The reduced cursor
 		// displaces the pointer the kept one has already placed.
-		const auto reduced_strides = select_axes(strides, reduced_axes);
+		const auto reduced_strides =
+			select_axes(make_span(strides), make_span(reduced_axes));
 		reduced_builder.add_operand(
 			make_span(reduced_extents),
 			make_span(reduced_strides),
@@ -283,7 +264,7 @@ void reduction_layout_plan::plan(
 
 	m_kept_layout = kept_builder.build();
 	m_reduced_layout = reduced_builder.build();
-	m_reduction_count = element_count(reduced_extents);
+	m_reduction_count = m_reduced_layout.compute_element_count();
 }
 
 } // namespace cpu

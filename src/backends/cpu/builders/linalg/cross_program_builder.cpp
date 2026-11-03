@@ -49,9 +49,9 @@ class cross_core_kernel
 {
 public:
 	cross_core_kernel(
-		const linalg_operand_core &out_core,
-		const linalg_operand_core &left_core,
-		const linalg_operand_core &right_core
+		const operand_core &out_core,
+		const operand_core &left_core,
+		const operand_core &right_core
 	)
 		: m_out_stride(out_core.get_stride(0))
 		, m_left_stride(left_core.get_stride(0))

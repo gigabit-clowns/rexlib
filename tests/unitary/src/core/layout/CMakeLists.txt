@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_axis_values.cpp
 		test_broadcast.cpp
 		test_dynamic_subscript.cpp
 		test_index.cpp

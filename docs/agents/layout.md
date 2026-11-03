@@ -13,6 +13,7 @@ Where the code, the tests and the build files of rexlib live.
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
 | `tests/headers/` | The check that compiles each public header on its own, under every C++ standard the compiler has |
 | `tests/install/` | The test that installs rexlib and builds `consumer/`, a project of its own, against the install |
+| `benchmarks/` | Catch2 benchmarks, mirroring the layout of `src/`, which reuse the fixtures of `tests/unitary/` |
 | `cmake/modules/` | One `rexlib_fetch_*.cmake` per dependency, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The template for the installed CMake package config |
 | `docs/doxygen/` | The reference of the C++ headers, with Doxygen |

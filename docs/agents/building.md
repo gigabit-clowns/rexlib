@@ -35,6 +35,7 @@ Options:
 | `REXLIB_ENABLE_COVERAGE` | `OFF` | Adds coverage instrumentation |
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
+| `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
 turning off `BUILD_TESTING` for its own.

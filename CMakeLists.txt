@@ -72,6 +72,11 @@ cmake_dependent_option(
 	REXLIB_BUILD_TESTING "Build rexlib's tests" ON
 	"BUILD_TESTING" OFF
 )
+# The benchmarks use the Catch2 the tests fetch or find.
+cmake_dependent_option(
+	REXLIB_BUILD_BENCHMARKS "Build rexlib's benchmarks" OFF
+	"REXLIB_BUILD_TESTING" OFF
+)
 
 # Every dependency is private and none appears in a public header, so building
 # one here or finding an installed one changes nothing for a consumer of the
@@ -200,6 +205,10 @@ add_subdirectory(src)
 
 if(REXLIB_BUILD_TESTING)
 	add_subdirectory(tests)
+endif()
+
+if(REXLIB_BUILD_BENCHMARKS)
+	add_subdirectory(benchmarks)
 endif()
 
 if(REXLIB_CHECK_HEADERS)

@@ -16,12 +16,12 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	const linalg_operand_core contiguous(1, { 5, 0 }, { 1, 0 });
+	const operand_core contiguous(1, { 5, 0 }, { 1, 0 });
 	CHECK(
 		classify_core_layout(contiguous) == core_layout_kind::vector_contiguous
 	);
 
-	const linalg_operand_core strided(1, { 5, 0 }, { 2, 0 });
+	const operand_core strided(1, { 5, 0 }, { 2, 0 });
 	CHECK( classify_core_layout(strided) == core_layout_kind::generic );
 }
 
@@ -30,7 +30,7 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	const linalg_operand_core core(2, { 2, 3 }, { 3, 1 });
+	const operand_core core(2, { 2, 3 }, { 3, 1 });
 	CHECK(
 		classify_core_layout(core) == core_layout_kind::row_major_contiguous
 	);
@@ -41,7 +41,7 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	const linalg_operand_core core(2, { 2, 3 }, { 1, 2 });
+	const operand_core core(2, { 2, 3 }, { 1, 2 });
 	CHECK(
 		classify_core_layout(core) ==
 		core_layout_kind::column_major_contiguous
@@ -54,7 +54,7 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	const linalg_operand_core core(2, { 2, 3 }, { 5, 2 });
+	const operand_core core(2, { 2, 3 }, { 5, 2 });
 	CHECK( classify_core_layout(core) == core_layout_kind::generic );
 }
 
@@ -90,7 +90,7 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	const linalg_operand_core vector_core(1, { 5, 0 }, { 2, 0 });
+	const operand_core vector_core(1, { 5, 0 }, { 2, 0 });
 	const auto padded = pad_as_column(vector_core);
 
 	CHECK( padded.get_rank() == 2 );
@@ -104,7 +104,7 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	const linalg_operand_core vector_core(1, { 5, 0 }, { 2, 0 });
+	const operand_core vector_core(1, { 5, 0 }, { 2, 0 });
 	const auto padded = pad_as_row(vector_core);
 
 	CHECK( padded.get_rank() == 2 );
@@ -170,16 +170,16 @@ TEST_CASE(
 namespace
 {
 
-linalg_operand_core row_major_core(std::size_t rows, std::size_t cols)
+operand_core row_major_core(std::size_t rows, std::size_t cols)
 {
-	return linalg_operand_core(
+	return operand_core(
 		2, { rows, cols }, { static_cast<std::ptrdiff_t>(cols), 1 }
 	);
 }
 
-linalg_operand_core column_major_core(std::size_t rows, std::size_t cols)
+operand_core column_major_core(std::size_t rows, std::size_t cols)
 {
-	return linalg_operand_core(
+	return operand_core(
 		2, { rows, cols }, { 1, static_cast<std::ptrdiff_t>(rows) }
 	);
 }
@@ -296,10 +296,10 @@ TEST_CASE(
 	const std::vector<float> right = { 10, 20 };
 	std::vector<float> out(3, 0.0f);
 
-	const auto out_core = pad_as_column(linalg_operand_core(1, { 3, 0 }, { 1, 0 }));
+	const auto out_core = pad_as_column(operand_core(1, { 3, 0 }, { 1, 0 }));
 	const auto left_core = row_major_core(3, 2);
 	const auto right_core =
-		pad_as_column(linalg_operand_core(1, { 2, 0 }, { 1, 0 }));
+		pad_as_column(operand_core(1, { 2, 0 }, { 1, 0 }));
 
 	const auto gemv = resolve_gemv<float>(
 		3, 2,
@@ -324,9 +324,9 @@ TEST_CASE(
 	const std::vector<float> right = { 1, 2, 3, 4, 5, 6 }; // 2x3
 	std::vector<float> out(3, 0.0f);
 
-	const auto out_core = pad_as_row(linalg_operand_core(1, { 3, 0 }, { 1, 0 }));
+	const auto out_core = pad_as_row(operand_core(1, { 3, 0 }, { 1, 0 }));
 	const auto left_core =
-		pad_as_row(linalg_operand_core(1, { 2, 0 }, { 1, 0 }));
+		pad_as_row(operand_core(1, { 2, 0 }, { 1, 0 }));
 	const auto right_core = row_major_core(2, 3);
 
 	const auto vecgemm = resolve_vecgemm<float>(
@@ -393,10 +393,10 @@ TEST_CASE(
 	std::vector<complex> out(2);
 
 	const auto out_core =
-		pad_as_column(linalg_operand_core(1, { 2, 0 }, { 1, 0 }));
+		pad_as_column(operand_core(1, { 2, 0 }, { 1, 0 }));
 	const auto left_core = row_major_core(2, 2);
 	const auto right_core =
-		pad_as_column(linalg_operand_core(1, { 2, 0 }, { 1, 0 }));
+		pad_as_column(operand_core(1, { 2, 0 }, { 1, 0 }));
 
 	const auto gemv = resolve_gemv<complex>(
 		2, 2,
@@ -425,9 +425,9 @@ TEST_CASE(
 	std::vector<complex> out(2);
 
 	const auto out_core =
-		pad_as_row(linalg_operand_core(1, { 2, 0 }, { 1, 0 }));
+		pad_as_row(operand_core(1, { 2, 0 }, { 1, 0 }));
 	const auto left_core =
-		pad_as_row(linalg_operand_core(1, { 2, 0 }, { 1, 0 }));
+		pad_as_row(operand_core(1, { 2, 0 }, { 1, 0 }));
 	const auto right_core = row_major_core(2, 2);
 
 	const auto vecgemm = resolve_vecgemm<complex>(
