@@ -1,4 +1,0 @@
-[submodule "external/rexlib"]
-	path = external/rexlib
-	url = https://github.com/gigabit-clowns/rexlib.git
-	branch = main
