@@ -5,11 +5,11 @@ How each dependency is fetched or found, and how it is pinned.
 Every dependency but rexlib and the CUDA Toolkit is fetched and built with
 the plugin by default, static and position independent: Boost (Container,
 Intrusive and Unordered, linked as `Boost::headers`) and spdlog, and for the
-tests Catch2 and trompeloeil. Turning `REXLIB_CUDA_BUILD_DEPENDENCIES` off
-finds them all installed instead, with `find_package`. Turning off
-`REXLIB_CUDA_BUILD_<DEP>` (`BOOST`, `SPDLOG`, `CATCH2`, `TROMPELOEIL`) does
-that for one of them. `cmake_dependent_option` declares those toggles, so
-that the global one forces the others off.
+tests Catch2 and trompeloeil. Turning `REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES`
+on finds them all installed instead, with `find_package`. Turning on
+`REXLIB_CUDA_USE_SYSTEM_<DEP>` (`BOOST`, `SPDLOG`, `CATCH2`, `TROMPELOEIL`)
+does that for one of them. `cmake_dependent_option` declares those toggles,
+so that the global one forces the others on.
 
 A dependency is a branch where it is used, in `CMakeLists.txt` for the
 plugin and in `tests/CMakeLists.txt` for the tests. Built, it is a call to

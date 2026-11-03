@@ -56,21 +56,27 @@ set(
 
 # Every dependency but rexlib is private to the plugin, which has no public
 # interface, so building one here or finding an installed one changes nothing
-# for whoever loads it. Turning the global switch off turns every one of the
-# others off, on every configure.
+# for whoever loads it. Turning the global switch on turns every one of the
+# others on, on every configure.
 option(
-	REXLIB_CUDA_BUILD_DEPENDENCIES
-	"Build the dependencies with the plugin, rather than finding installed \
-ones"
+	REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES
+	"Find every dependency installed, rather than fetching it and building it \
+with the plugin"
+	OFF
+)
+cmake_dependent_option(
+	REXLIB_CUDA_USE_SYSTEM_BOOST
+	"Find an installed Boost rather than fetching it"
+	OFF
+	"NOT REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES"
 	ON
 )
 cmake_dependent_option(
-	REXLIB_CUDA_BUILD_BOOST "Fetch Boost and build it with the plugin" ON
-	"REXLIB_CUDA_BUILD_DEPENDENCIES" OFF
-)
-cmake_dependent_option(
-	REXLIB_CUDA_BUILD_SPDLOG "Fetch spdlog and build it with the plugin" ON
-	"REXLIB_CUDA_BUILD_DEPENDENCIES" OFF
+	REXLIB_CUDA_USE_SYSTEM_SPDLOG
+	"Find an installed spdlog rather than fetching it"
+	OFF
+	"NOT REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES"
+	ON
 )
 
 # The plugin is C++20. The standard is required rather than preferred, so
@@ -92,24 +98,24 @@ endif()
 
 enable_language(CUDA)
 
-if(REXLIB_CUDA_BUILD_BOOST)
+if(REXLIB_CUDA_USE_SYSTEM_BOOST)
+	# unordered_flat_map arrived in Boost 1.81.
+	find_package(Boost 1.81 REQUIRED CONFIG)
+else()
 	include(rexlib_cuda_fetch_boost)
 	rexlib_cuda_fetch_boost(
 		TAG boost-1.92.0
 		SHA256 9bed76128d4e46755dbe818487788c6fceb6f72b378f4daa49b7e1e600d9088d
 	)
-else()
-	# unordered_flat_map arrived in Boost 1.81.
-	find_package(Boost 1.81 REQUIRED CONFIG)
 endif()
 
-if(REXLIB_CUDA_BUILD_SPDLOG)
+if(REXLIB_CUDA_USE_SYSTEM_SPDLOG)
+	find_package(spdlog 1.4 REQUIRED CONFIG)
+else()
 	include(rexlib_cuda_fetch_spdlog)
 	rexlib_cuda_fetch_spdlog(
 		COMMIT 79524ddd08a4ec981b7fea76afd08ee05f83755d
 	) # v1.17.0
-else()
-	find_package(spdlog 1.4 REQUIRED CONFIG)
 endif()
 
 # The plugin is built against an installed rexlib, as any third-party

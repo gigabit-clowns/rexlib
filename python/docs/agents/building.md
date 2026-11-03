@@ -68,22 +68,22 @@ DLPack is fetched by default, through `rexlib_python_fetch_dlpack()` in
 `cmake/modules/`, pinned as `COMMIT <sha>) # <tag>` in `CMakeLists.txt`,
 which Renovate keeps up to date. It is one header, and only the header is
 taken: its own build file is not read. The library's
-`REXLIB_BUILD_DEPENDENCIES`, or `REXLIB_BUILD_DLPACK` alone, off finds an
-installed one instead; no version is asked of it, since its package reports
-0.6 whatever the release.
+`REXLIB_USE_SYSTEM_DEPENDENCIES`, or `REXLIB_USE_SYSTEM_DLPACK` alone, on
+finds an installed one instead; no version is asked of it, since its package
+reports 0.6 whatever the release.
 
 Options:
 
 | Option | Default | Effect |
 |---|---|---|
 | `REXLIB_BUILD_PYTHON` | `OFF` | Adds the binding to the library's build |
-| `REXLIB_BUILD_DLPACK` | `ON`, and only with `REXLIB_BUILD_DEPENDENCIES` | Fetches DLPack rather than finding an installed one |
+| `REXLIB_USE_SYSTEM_DLPACK` | `OFF`, forced `ON` by `REXLIB_USE_SYSTEM_DEPENDENCIES` | Finds an installed DLPack rather than fetching it |
 | `REXLIB_PYTHON_INSTALL_DIR` | The interpreter's platform library directory, relative to the prefix; under scikit-build-core, the wheel's | Where the package is installed |
 | `REXLIB_PYTHON_STABLE_ABI` | `OFF`, `ON` from `pyproject.toml` | Builds the extension against the stable ABI of Python 3.12 |
 
 Built alone, the binding also reads the library's `REXLIB_INSTALL`,
 `REXLIB_BUILD_TESTING`, `REXLIB_WARNINGS_AS_ERRORS` and
-`REXLIB_BUILD_DEPENDENCIES`.
+`REXLIB_USE_SYSTEM_DEPENDENCIES`.
 
 `REXLIB_PYTHON_STABLE_ABI` is what makes one wheel serve Python 3.12 and every
 later one, with `wheel.py-api = "cp312"` beside it in `pyproject.toml`.
