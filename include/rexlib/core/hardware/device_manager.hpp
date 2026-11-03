@@ -136,10 +136,10 @@ public:
 
 private:
 	class implementation;
-	REXLIB_STD_MEMBER_INTERFACE 
+	REXLIB_STD_MEMBER_INTERFACE
 	std::unique_ptr<implementation> m_implementation;
 
 	void create_implementation_if_null();
-}; 
+};
 
 } // namespace rexlib

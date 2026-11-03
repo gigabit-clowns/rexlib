@@ -13,7 +13,7 @@ namespace rexlib
 /**
  * @brief Representation of all considered numerical types for
  * computations.
- * 
+ *
  */
 enum class numerical_type
 {
@@ -47,7 +47,7 @@ enum class numerical_type
 
 /**
  * @brief Broad categorical classification of `numerical_type`.
- * 
+ *
  * @see numerical_type
  */
 enum class numerical_type_category
@@ -68,7 +68,7 @@ enum class numerical_type_category
 
 /**
  * @brief Get the size of a numerical type.
- * 
+ *
  * @param type The type for which the size should be obtained.
  * @return std::size_t The size.
  */
@@ -77,11 +77,11 @@ std::size_t get_size(numerical_type type) noexcept;
 
 /**
  * @brief Create a complex version, if exists.
- * 
+ *
  * Create the complex version of a numerical type, if this exists.
  * Otherwise unknown is returned. This includes an already complex type.
- * 
- * @param type 
+ *
+ * @param type
  * @return numerical_type.
  */
 REXLIB_API
@@ -91,7 +91,7 @@ numerical_type make_complex(numerical_type type) noexcept;
  * @brief Get the real equivalent of a numerical type.
  *
  * For complex types, returns the corresponding floating-point type
- * (e.g. complex_float32 -> float32). For other valid types it returns the 
+ * (e.g. complex_float32 -> float32). For other valid types it returns the
  * type itself.
  *
  * @param type A potentially complex numerical type.
@@ -122,23 +122,23 @@ numerical_type make_inexact(numerical_type type) noexcept;
 
 /**
  * @brief Get the common type of two numerical types.
- * 
+ *
  * The type promotion mechanism is heavily influenced by JAX's approach:
  * https://docs.jax.dev/en/latest/jep/9407-type-promotion.html
- * 
+ *
  * However, unlike JAX, it allows type promotion from uint64 to int64.
- * 
+ *
  * @param type1 First numerical type.
  * @param type2 Second numerical type.
  * @return numerical_type The common type.
  */
 REXLIB_API
-numerical_type 
+numerical_type
 promote_types(numerical_type type1, numerical_type type2) noexcept;
 
 /**
  * @brief Get the category of the provided numerical type.
- * 
+ *
  * @param type The type from which the category is inferred.
  * @return numerical_type_category The category of the input type or
  * `numerical_type_category::unknown` if error.

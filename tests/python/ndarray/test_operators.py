@@ -53,7 +53,9 @@ def test_binary_operator_rejects_a_non_array(name, operator, __setup_arrays):
 		operator(x, 1)
 
 @pytest.mark.parametrize('name, operator', BINARY_OPERATORS)
-def test_binary_operator_needs_an_active_context(name, operator, __setup_arrays):
+def test_binary_operator_needs_an_active_context(
+	name, operator, __setup_arrays
+):
 	x, y = __setup_arrays
 	with pytest.raises(RuntimeError):
 		operator(x, y)

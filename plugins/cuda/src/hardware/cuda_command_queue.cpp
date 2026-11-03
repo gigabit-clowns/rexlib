@@ -197,9 +197,11 @@ command_token cuda_command_queue::track(const command &cmd) const
 {
 	// Nobody would keep the memory of a buffer of another kind until the
 	// work ends, so the work ends here.
-	if (!are_own_buffers(cmd.get_outputs()) ||
-	    !are_own_buffers(cmd.get_inputs()) ||
-	    !are_own_buffers(cmd.get_scratch()))
+	if (
+		!are_own_buffers(cmd.get_outputs()) ||
+		!are_own_buffers(cmd.get_inputs()) ||
+		!are_own_buffers(cmd.get_scratch())
+	)
 	{
 		synchronize();
 		return command_token();

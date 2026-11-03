@@ -4,7 +4,7 @@
 
 #include <rexlib/core/hardware/buffer.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**

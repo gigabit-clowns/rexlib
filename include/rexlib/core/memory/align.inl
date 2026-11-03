@@ -8,13 +8,13 @@ namespace rexlib
 {
 
 template <typename T>
-REXLIB_NODISCARD inline 
+REXLIB_NODISCARD inline
 std::size_t get_alignment(T* address) noexcept
 {
 	return get_alignment(reinterpret_cast<std::uintptr_t>(address));
 }
 
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 std::size_t get_alignment(std::uintptr_t address) noexcept
 {
 	return mask_trailing_zeros(address) + 1;
@@ -27,7 +27,7 @@ bool is_aligned(T* address, std::size_t alignment) noexcept
 	return is_aligned(reinterpret_cast<std::uintptr_t>(address), alignment);
 }
 
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 bool is_aligned(std::uintptr_t address, std::size_t alignment) noexcept
 {
 	return address % alignment == 0;
@@ -42,15 +42,21 @@ T* align_floor(T* address, std::size_t alignment) noexcept
 	return reinterpret_cast<T*>(value);
 }
 
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
-std::uintptr_t align_floor(std::uintptr_t address, std::size_t alignment) noexcept
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
+std::uintptr_t align_floor(
+	std::uintptr_t address,
+	std::size_t alignment
+) noexcept
 {
 	align_floor_inplace(address, alignment);
 	return address;
 }
 
-REXLIB_INLINE_CONSTEXPR 
-std::uintptr_t& align_floor_inplace(std::uintptr_t& address, std::size_t alignment) noexcept
+REXLIB_INLINE_CONSTEXPR
+std::uintptr_t& align_floor_inplace(
+	std::uintptr_t& address,
+	std::size_t alignment
+) noexcept
 {
 	address /= alignment;
 	address *= alignment;
@@ -66,15 +72,21 @@ T* align_ceil(T* address, std::size_t alignment) noexcept
 	return reinterpret_cast<T*>(value);
 }
 
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
-std::uintptr_t align_ceil(std::uintptr_t address, std::size_t alignment) noexcept
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
+std::uintptr_t align_ceil(
+	std::uintptr_t address,
+	std::size_t alignment
+) noexcept
 {
 	align_ceil_inplace(address, alignment);
 	return address;
 }
 
-REXLIB_INLINE_CONSTEXPR 
-std::uintptr_t& align_ceil_inplace(std::uintptr_t& address, std::size_t alignment) noexcept
+REXLIB_INLINE_CONSTEXPR
+std::uintptr_t& align_ceil_inplace(
+	std::uintptr_t& address,
+	std::size_t alignment
+) noexcept
 {
 	address += (alignment - 1);
 	return align_floor_inplace(address, alignment);

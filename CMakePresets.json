@@ -82,6 +82,15 @@
         "REXLIB_BUILD_DOCS": "ON",
         "BUILD_TESTING": "OFF"
       }
+    },
+    {
+      "name": "lint",
+      "displayName": "Static checks: the .editorconfig rules",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "REXLIB_BUILD_TESTING": "OFF",
+        "REXLIB_CHECK_STYLE": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -180,6 +189,16 @@
         "noTestsAction": "error",
         "scheduleRandom": true,
         "timeout": 600
+      }
+    },
+    {
+      "name": "lint",
+      "configurePreset": "lint",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
       }
     }
   ]

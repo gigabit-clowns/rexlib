@@ -24,7 +24,9 @@ TEST_CASE(
 	);
 	STATIC_REQUIRE(
 		std::is_same<
-			decltype(numerical_cast<std::complex<double>>(std::complex<float>())),
+			decltype(
+				numerical_cast<std::complex<double>>(std::complex<float>())
+			),
 			std::complex<double>
 		>::value
 	);

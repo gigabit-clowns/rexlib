@@ -17,11 +17,11 @@ class memory_resource;
 /**
  * @brief Abstract allocator of @ref buffer objects on a @ref memory_resource.
  *
- * Concrete implementations are free to back themselves with anything that fits 
+ * Concrete implementations are free to back themselves with anything that fits
  * the underlying backend.
  *
- * The allocator is also in charge of tracking the asynchronous use of the 
- * buffers it produces: when a buffer's shared ownership is dropped while device 
+ * The allocator is also in charge of tracking the asynchronous use of the
+ * buffers it produces: when a buffer's shared ownership is dropped while device
  * work referencing it is still in flight, the allocator either defers the
  * actual release until that work has completed, or hands the memory out
  * again together with the token of that work.
@@ -48,7 +48,7 @@ public:
 	/**
 	 * @brief Get the largest alignment this allocator can satisfy.
 	 *
-	 * The returned value is the strictest alignment that may be passed to 
+	 * The returned value is the strictest alignment that may be passed to
 	 * @ref allocate. It is a power of two and is constant over the lifetime of
 	 * the allocator.
 	 *
@@ -60,10 +60,10 @@ public:
 	 * @brief Allocate a new buffer on the backing memory resource.
 	 *
 	 * The allocator may round @p size up to satisfy internal alignment or page
-	 * granularity constraints; the resulting buffer's @ref buffer::get_size 
+	 * granularity constraints; the resulting buffer's @ref buffer::get_size
 	 * may return a number greater than or equal to @p size .
 	 *
-	 * @param size Requested minimum size, in bytes. 
+	 * @param size Requested minimum size, in bytes.
 	 * @param alignment Requested alignment, in bytes. Must be a power
 	 * of two and not greater than @ref get_max_alignment.
 	 * @param queue_hint Optional non-owning pointer to the queue on

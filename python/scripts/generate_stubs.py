@@ -5,8 +5,8 @@
 Generate the type stubs for the compiled extension.
 
 Runs nanobind's stub generator against an installed copy of the package
-and marks every stub as generated. Invoked from CMake during the build, and usable
-by hand against a development install.
+and marks every stub as generated. Invoked from CMake during the build,
+and usable by hand against a development install.
 """
 
 from __future__ import annotations

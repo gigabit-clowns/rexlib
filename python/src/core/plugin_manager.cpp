@@ -28,15 +28,15 @@ void define_plugin_manager(plugin_manager_class &c, nb::module_ &m)
 	c
 		.def(nb::init<>())
 		.def(
-			"add_plugin", 
-			&plugin_manager::add_plugin, 
+			"add_plugin",
+			&plugin_manager::add_plugin,
 			nb::arg("plugin"),
 			nb::keep_alive<1, 2>() //Don't destroy the plugin before the manager
 		)
 		.def(
-			"load_plugin", 
-			&plugin_manager::load_plugin, 
-			nb::arg("path"), 
+			"load_plugin",
+			&plugin_manager::load_plugin,
+			nb::arg("path"),
 			nb::rv_policy::reference_internal
 		)
 		.def(
@@ -69,7 +69,7 @@ void define_plugin_manager(plugin_manager_class &c, nb::module_ &m)
 				for (std::size_t i = 0; i < count; ++i)
 				{
 					auto object = nb::cast(
-						manager.get_plugin(i), 
+						manager.get_plugin(i),
 						nb::rv_policy::reference_internal,
 						self
 					);

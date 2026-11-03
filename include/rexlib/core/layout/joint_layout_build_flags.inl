@@ -3,20 +3,20 @@
 #include "joint_layout_build_flags.hpp"
 #include "../platform/enum_helpers.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 const char* to_string(joint_layout_build_flag_bits x) noexcept
 {
 	switch (x)
 	{
 	REXLIB_ENUM_TO_STR_CASE(
-		joint_layout_build_flag_bits, 
+		joint_layout_build_flag_bits,
 		enable_reordering
 	)
 	REXLIB_ENUM_TO_STR_CASE(
-		joint_layout_build_flag_bits, 
+		joint_layout_build_flag_bits,
 		enable_coalescing
 	)
 	default: return "";
@@ -26,7 +26,7 @@ const char* to_string(joint_layout_build_flag_bits x) noexcept
 template<typename T>
 inline
 std::basic_ostream<T>& operator<<(
-	std::basic_ostream<T>& os, 
+	std::basic_ostream<T>& os,
 	joint_layout_build_flag_bits x
 )
 {

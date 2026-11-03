@@ -11,7 +11,9 @@ INTEGER_TYPES = [
 FLOAT_TYPES = ['float16', 'float32', 'float64']
 COMPLEX_TYPES = ['complex_float16', 'complex_float32', 'complex_float64']
 
-@pytest.mark.parametrize('name', INTEGER_TYPES + FLOAT_TYPES + COMPLEX_TYPES + ['boolean'])
+@pytest.mark.parametrize(
+	'name', INTEGER_TYPES + FLOAT_TYPES + COMPLEX_TYPES + ['boolean']
+)
 def test_full_supports_numerical_type(name, __setup_context):
 	descriptor = rexlib.make_contiguous_array_descriptor(
 		[2, 2], getattr(rexlib.NumericalType, name)
@@ -103,7 +105,9 @@ def test_numerical_type_exposes_its_value():
 def __setup_context():
 	catalog = rexlib.ServiceCatalog()
 	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	session = manager.create_device_session(
+		rexlib.hardware.DeviceIndex('cpu', 0)
+	)
 	device_context = rexlib.hardware.DeviceContext(session)
 	program_manager = rexlib.dispatch.get_program_manager(catalog)
 	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)

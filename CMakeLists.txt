@@ -70,6 +70,12 @@ option(
 	"Fail the build of rexlib's own targets on a compiler warning"
 	OFF
 )
+option(
+	REXLIB_CHECK_STYLE
+	"Test every file git tracks against .editorconfig, which needs \
+editorconfig-checker"
+	OFF
+)
 # Only while BUILD_TESTING, the switch of CTest, is on: tests built without
 # it could not be registered with CTest. Its own option lets a project that
 # embeds rexlib drop rexlib's tests without dropping its own.
@@ -218,6 +224,10 @@ endif()
 
 if(REXLIB_CHECK_HEADERS)
 	add_subdirectory(tests/headers)
+endif()
+
+if(REXLIB_CHECK_STYLE)
+	add_subdirectory(tests/style)
 endif()
 
 if(REXLIB_BUILD_DOCS)

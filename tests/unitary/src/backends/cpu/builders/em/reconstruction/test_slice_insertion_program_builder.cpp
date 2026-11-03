@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
+// editorconfig-checker-disable-next-line
 #include <backends/cpu/builders/em/reconstruction/slice_insertion_program_builder.hpp>
 
 #include <backends/cpu/builders/em/reconstruction/ctf_weight.hpp>

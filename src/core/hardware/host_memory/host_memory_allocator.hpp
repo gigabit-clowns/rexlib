@@ -4,7 +4,7 @@
 
 #include <rexlib/core/hardware/memory_allocator.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
@@ -23,8 +23,8 @@ public:
 	std::size_t get_max_alignment() const noexcept override;
 
 	std::shared_ptr<buffer> allocate(
-		std::size_t size, 
-		std::size_t alignment, 
+		std::size_t size,
+		std::size_t alignment,
 		command_queue *queue_hint,
 		command_token &pending
 	) override;

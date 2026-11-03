@@ -35,8 +35,10 @@ TEST_CASE(
 	// which case it is what they compute out of and saying otherwise would be
 	// describing hardware that is not there.
 	CHECK(
-		(kind == memory_resource_kind::host_staging ||
-		 kind == memory_resource_kind::unified)
+		(
+			kind == memory_resource_kind::host_staging ||
+			kind == memory_resource_kind::unified
+		)
 	);
 	if (kind == memory_resource_kind::unified)
 	{

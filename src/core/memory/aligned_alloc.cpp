@@ -16,7 +16,7 @@ void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 		return _aligned_malloc(size, alignment);
 	#elif REXLIB_POSIX
 		void *result;
-		
+
 		alignment = std::max(alignment, sizeof(void*));
 		if(posix_memalign(&result, alignment, size) != 0)
 		{

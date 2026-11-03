@@ -12,13 +12,13 @@ namespace rexlib
 template <typename ForwardIte, typename F>
 inline
 ForwardIte find_most_suitable_backend(
-	ForwardIte first, 
-	ForwardIte last, 
+	ForwardIte first,
+	ForwardIte last,
 	const F& suitability_evaluator
 )
 {
 	std::pair<ForwardIte, backend_priority> best(
-		last, 
+		last,
 		backend_priority::unsupported
 	);
 

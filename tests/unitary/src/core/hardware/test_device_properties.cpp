@@ -8,7 +8,10 @@
 
 using namespace rexlib;
 
-TEST_CASE( "setting and getting attributes in device_properties should preserve them", "[hardware]" )
+TEST_CASE(
+	"setting and getting attributes in device_properties should preserve them",
+	"[hardware]"
+)
 {
 	device_properties prop;
 	prop.set_name("REXLIB A1234 SuperFast");

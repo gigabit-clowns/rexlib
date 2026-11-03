@@ -6,8 +6,11 @@ The naming, formatting and file rules every source file follows.
 `lower_case` for everything but template parameters, which are `CamelCase`;
 private members carry `m_`; macros are `UPPER_CASE` with a `REXLIB_` prefix.
 
-Indentation is tabs. Lines stay within 80 columns; the handful that do not are
-the exception rather than the rule.
+Indentation is tabs, four columns wide, and lines stay within 80 columns;
+`.editorconfig` states both, with the rules for the other kinds of file. CI
+checks every file git tracks against it with editorconfig-checker, which
+counts a tab as one character: it holds lines to 80 characters, and the 80
+columns are for the editor's ruler and review to hold.
 
 Every source file, the CMake files included, starts with
 `SPDX-License-Identifier: GPL-3.0-only`.

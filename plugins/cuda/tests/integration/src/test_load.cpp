@@ -42,7 +42,8 @@ TEST_CASE( "register the CUDA device backend", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
+	const auto device_manager =
+		catalog.get_service_manager<rexlib::device_manager>();
 	REQUIRE( device_manager != nullptr );
 
 	std::vector<std::string> names;
@@ -66,7 +67,8 @@ TEST_CASE( "enumerate the CUDA devices", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager = catalog.get_service_manager<rexlib::device_manager>();
+	const auto device_manager =
+		catalog.get_service_manager<rexlib::device_manager>();
 	auto *backend = device_manager->get_backend("cuda");
 	REQUIRE( backend != nullptr );
 
@@ -82,8 +84,10 @@ TEST_CASE( "enumerate the CUDA devices", "[cuda]" )
 		REQUIRE_FALSE( properties.get_name().empty() );
 		REQUIRE( properties.get_total_memory_bytes() > 0 );
 		REQUIRE(
-			(properties.get_type() == device_type::gpu ||
-			 properties.get_type() == device_type::integrated_gpu)
+			(
+				properties.get_type() == device_type::gpu ||
+				properties.get_type() == device_type::integrated_gpu
+			)
 		);
 
 		REQUIRE( backend->create_device(id) != nullptr );

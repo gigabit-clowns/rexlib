@@ -13,7 +13,7 @@ namespace rexlib
 {
 
 host_buffer::host_buffer(
-	std::size_t size, 
+	std::size_t size,
 	std::size_t alignment
 )
 	: m_data(nullptr)

@@ -8,7 +8,10 @@
 
 using namespace rexlib;
 
-TEST_CASE( "aligned_alloc should produce aligned allocations", "[aligned_alloc]" ) 
+TEST_CASE(
+	"aligned_alloc should produce aligned allocations",
+	"[aligned_alloc]"
+)
 {
 	const std::size_t repetitions = 8192;
 	const std::size_t alignment = 512; // Large enough power of two.
@@ -19,7 +22,7 @@ TEST_CASE( "aligned_alloc should produce aligned allocations", "[aligned_alloc]"
 		auto *data = static_cast<unsigned char*>(
 			rexlib::aligned_alloc(size, alignment)
 		);
-		REQUIRE( data != nullptr ); // Assuming no OOM situation. 
+		REQUIRE( data != nullptr ); // Assuming no OOM situation.
 		REQUIRE( get_alignment(data) >= alignment );
 
 		// Test that it can be written (no segfault)

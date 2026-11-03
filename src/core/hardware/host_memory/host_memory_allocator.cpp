@@ -18,7 +18,7 @@ namespace rexlib
 
 std::shared_ptr<host_memory_allocator> host_memory_allocator::m_instance;
 
-const memory_resource& 
+const memory_resource&
 host_memory_allocator::get_memory_resource() const noexcept
 {
 	return host_memory_resource::get();
@@ -26,12 +26,12 @@ host_memory_allocator::get_memory_resource() const noexcept
 
 std::size_t host_memory_allocator::get_max_alignment() const noexcept
 {
-    return get_page_size();
+	return get_page_size();
 }
 
 std::shared_ptr<buffer> host_memory_allocator::allocate(
-	std::size_t size, 
-	std::size_t alignment, 
+	std::size_t size,
+	std::size_t alignment,
 	command_queue* /*queue_hint*/,
 	command_token &pending
 )

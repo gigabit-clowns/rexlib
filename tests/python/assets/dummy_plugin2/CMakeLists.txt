@@ -25,6 +25,6 @@ if(REXLIB_PYTHON_INSTALL)
 	install(
 		TARGETS dummy_plugin2
 		LIBRARY DESTINATION
-			${REXLIB_PYTHON_PACKAGE_DIR}/${MODULE_INSTALL_DIR}/rexlib-dummy-plugins/
+		${REXLIB_PYTHON_PACKAGE_DIR}/${MODULE_INSTALL_DIR}/rexlib-dummy-plugins/
 	)
 endif()

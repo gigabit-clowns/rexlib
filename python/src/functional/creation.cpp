@@ -27,7 +27,10 @@ namespace nb = nanobind;
 // Kept out of the dispatch below, which would otherwise build this message
 // once per numerical type. Nothing here depends on the type being cast to.
 [[noreturn]]
-static void throw_scalar_cast_error(numerical_type type, const nb::object &value)
+static void throw_scalar_cast_error(
+	numerical_type type,
+	const nb::object &value
+)
 {
 	const auto given =
 		nb::cast<std::string>(value.type().attr("__name__"));
@@ -74,7 +77,10 @@ bool load_scalar<bool>(const nb::object &value, bool &result)
 	return true;
 }
 
-static scalar_value make_scalar_value(numerical_type type, const nb::object &value)
+static scalar_value make_scalar_value(
+	numerical_type type,
+	const nb::object &value
+)
 {
 	return dispatch_numerical_types(
 		[&value, type](auto tag)
@@ -99,13 +105,19 @@ static array py_full(
 	array *out
 )
 {
-	const auto scalar = make_scalar_value(descriptor.get_data_type(), fill_value);
+	const auto scalar =
+		make_scalar_value(descriptor.get_data_type(), fill_value);
 	return rexlib::full(std::move(descriptor), affinity, scalar, context, out);
 }
 
-static void py_fill(array &out, const nb::object &fill_value, const execution_context &context)
+static void py_fill(
+	array &out,
+	const nb::object &fill_value,
+	const execution_context &context
+)
 {
-	const auto scalar = make_scalar_value(out.get_descriptor().get_data_type(), fill_value);
+	const auto scalar =
+		make_scalar_value(out.get_descriptor().get_data_type(), fill_value);
 	rexlib::fill(out, scalar, context);
 }
 

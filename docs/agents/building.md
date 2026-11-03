@@ -16,6 +16,8 @@ presets are not offered on Windows. `coverage`, on Linux only, adds coverage
 instrumentation, registers the tests per binary and passes valgrind the
 options CI uses, for `ctest --test-dir build/coverage -T MemCheck`. `docs`
 configures for the Doxygen reference alone and builds `rexlib-docs`.
+`lint` registers the static checks: for now `ctest --preset lint` runs
+editorconfig-checker, which has to be installed.
 Every preset but `docs` turns `REXLIB_WARNINGS_AS_ERRORS` on, and its
 test preset fails when it finds no test, runs the tests in a random order and
 gives each ten minutes; 3.25 is what lets the fetched dependencies' headers
@@ -44,6 +46,7 @@ Options:
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
 | `REXLIB_WARNINGS_AS_ERRORS` | `OFF`, `ON` in the presets | Makes a compiler warning fail rexlib's own targets (`-Werror`, `/WX`) |
+| `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without

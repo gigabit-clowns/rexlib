@@ -11,7 +11,9 @@ namespace rexlib
 
 namespace nb = nanobind;
 
-static std::shared_ptr<program_manager> get_program_manager(service_catalog &catalog)
+static std::shared_ptr<program_manager> get_program_manager(
+	service_catalog &catalog
+)
 {
 	return catalog.get_service_manager<program_manager>();
 }

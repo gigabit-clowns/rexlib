@@ -122,8 +122,10 @@ TEST_CASE(
 	CHECK_FALSE( properties.get_name().empty() );
 	CHECK_FALSE( properties.get_physical_location().empty() );
 	CHECK(
-		(properties.get_type() == device_type::gpu ||
-		 properties.get_type() == device_type::integrated_gpu)
+		(
+			properties.get_type() == device_type::gpu ||
+			properties.get_type() == device_type::integrated_gpu
+		)
 	);
 	CHECK( properties.get_total_memory_bytes() > 0 );
 	CHECK(

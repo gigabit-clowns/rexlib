@@ -10,25 +10,25 @@ namespace cpu
 
 namespace detail
 {
-	
+
 template <typename F>
 REXLIB_INLINE_CONSTEXPR
-auto dispatch_single_stride(F&& visitor, std::ptrdiff_t stride) 
+auto dispatch_single_stride(F&& visitor, std::ptrdiff_t stride)
 {
-	switch (stride) 
+	switch (stride)
 	{
-	case 0: 
+	case 0:
 		return std::forward<F>(visitor)(broadcasting_stride_tag());
-	case 1: 
+	case 1:
 		return std::forward<F>(visitor)(contiguous_stride_tag());
-	default: 
+	default:
 		return std::forward<F>(visitor)(stride);
 	}
 }
 
 template <typename F>
 REXLIB_INLINE_CONSTEXPR
-auto dispatch_strides(F&& visitor) 
+auto dispatch_strides(F&& visitor)
 {
 	return std::forward<F>(visitor)();
 }
@@ -36,24 +36,24 @@ auto dispatch_strides(F&& visitor)
 template <typename F, typename... Integers>
 REXLIB_INLINE_CONSTEXPR
 auto dispatch_strides(
-	F&& visitor, 
-	std::ptrdiff_t stride, 
+	F&& visitor,
+	std::ptrdiff_t stride,
 	Integers ...other_strides
-) 
+)
 {
 	return dispatch_single_stride(
-		[&visitor, &other_strides...](auto tag) 
+		[&visitor, &other_strides...](auto tag)
 		{
-			const auto bound_visitor = [tag, &visitor](auto... other_tags) 
+			const auto bound_visitor = [tag, &visitor](auto... other_tags)
 			{
-   				return std::forward<F>(visitor)(tag, other_tags...);
+				return std::forward<F>(visitor)(tag, other_tags...);
 			};
 
 			return dispatch_strides(
 				bound_visitor,
 				other_strides...
 			);
-   		},
+		},
 		stride
 	);
 }
@@ -63,13 +63,13 @@ auto dispatch_strides(
 template <typename F, std::size_t N>
 inline
 auto dispatch_inner_loop_strides(
-	F &&callable, 
+	F &&callable,
 	const joint_layout &layout,
 	std::integral_constant<std::size_t, N>
 )
 {
 	return dispatch_inner_loop_strides(
-		std::forward<F>(callable), 
+		std::forward<F>(callable),
 		layout,
 		std::make_index_sequence<N>()
 	);
@@ -78,7 +78,7 @@ auto dispatch_inner_loop_strides(
 template <typename F, std::size_t... Is>
 inline
 auto dispatch_inner_loop_strides(
-	F &&callable, 
+	F &&callable,
 	const joint_layout &layout,
 	std::index_sequence<Is...>
 )

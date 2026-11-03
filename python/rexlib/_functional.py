@@ -119,7 +119,7 @@ def transfer_copy(
 	context: ExecutionContext | None = None,
 	out: Array | None = None
 ) -> Array:
-	"""Move an array to a different memory resource affinity, returning a copy."""
+	"""Move an array to a different memory resource affinity as a copy."""
 	return _raw.transfer_copy(input, affinity, _resolve_context(context), out)
 
 def to_device(
@@ -134,7 +134,7 @@ def to_device_copy(
 	context: ExecutionContext | None = None,
 	out: Array | None = None
 ) -> Array:
-	"""Move an array to the device's memory resource affinity, returning a copy."""
+	"""Move an array to the device's memory resource affinity as a copy."""
 	return _raw.to_device_copy(input, _resolve_context(context), out)
 
 def to_host(
@@ -149,7 +149,7 @@ def to_host_copy(
 	context: ExecutionContext | None = None,
 	out: Array | None = None
 ) -> Array:
-	"""Move an array to the host's memory resource affinity, returning a copy."""
+	"""Move an array to the host's memory resource affinity as a copy."""
 	return _raw.to_host_copy(input, _resolve_context(context), out)
 
 # -- creation -----------------------------------------------------------
@@ -179,12 +179,16 @@ def ones(
 	return _raw.ones(descriptor, affinity, _resolve_context(context), out)
 
 def full(
-	descriptor: ArrayDescriptor, affinity: MemoryResourceAffinity, fill_value: Any,
+	descriptor: ArrayDescriptor, affinity: MemoryResourceAffinity,
+	fill_value: Any,
 	context: ExecutionContext | None = None,
 	out: Array | None = None
 ) -> Array:
 	"""Create an array filled with the given value."""
-	return _raw.full(descriptor, affinity, fill_value, _resolve_context(context), out)
+	return _raw.full(
+		descriptor, affinity, fill_value,
+		_resolve_context(context), out
+	)
 
 def copy(
 	source: Array,

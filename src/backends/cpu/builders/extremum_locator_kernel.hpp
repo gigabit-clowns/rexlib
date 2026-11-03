@@ -134,9 +134,9 @@ private:
 		const std::int64_t &candidate_where
 	) const noexcept
 	{
-		// m_order(best, candidate) and m_order(candidate, best) are likely 
+		// m_order(best, candidate) and m_order(candidate, best) are likely
 		// to be decisive comparisons: They are the ones evaluated first.
-		// Only when best and candidate tie, candidate_where < where is 
+		// Only when best and candidate tie, candidate_where < where is
 		// evaluated, saving memory bandwidth.
 		return
 			!m_order(best, candidate) &&

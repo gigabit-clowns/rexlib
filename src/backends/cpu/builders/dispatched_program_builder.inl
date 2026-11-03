@@ -70,8 +70,10 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		return base;
 	}
 
-	if (output_descriptors.size() != output_count ||
-	    input_descriptors.size() != input_count)
+	if (
+		output_descriptors.size() != output_count ||
+		input_descriptors.size() != input_count
+	)
 	{
 		return backend_priority::unsupported;
 	}

@@ -48,7 +48,11 @@ if(UNIX AND NOT REXLIB_PYTHON_STAGE_PREFIX)
 	get_target_property(REXLIB_IMPORTED rexlib::rexlib IMPORTED)
 	if(REXLIB_IMPORTED)
 		get_target_property(REXLIB_LOCATION rexlib::rexlib LOCATION)
-		get_filename_component(REXLIB_LIBRARY_DIR "${REXLIB_LOCATION}" DIRECTORY)
+		get_filename_component(
+			REXLIB_LIBRARY_DIR
+			"${REXLIB_LOCATION}"
+			DIRECTORY
+		)
 		set_property(
 			TARGET _binding
 			APPEND PROPERTY INSTALL_RPATH "${REXLIB_LIBRARY_DIR}"

@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
@@ -24,8 +24,8 @@ public:
 
 	/**
 	 * @brief Construct a cursor at its initial state.
-	 * 
-	 * @param ndim Number of dimensions. Initial indices will correspond to 
+	 *
+	 * @param ndim Number of dimensions. Initial indices will correspond to
 	 * this amount of zeros.
 	 * @param offsets The base offsets for each operand.
 	 */
@@ -49,10 +49,10 @@ public:
 
 	/**
 	 * @brief Get the current multidimensional indices.
-	 * 
-	 * Unless assigned to another iterator, the pointed span is guaranteed to 
+	 *
+	 * Unless assigned to another iterator, the pointed span is guaranteed to
 	 * remain constant.
-	 * 
+	 *
 	 * @return span<const std::size_t> The indices.
 	 */
 	REXLIB_API
@@ -60,10 +60,10 @@ public:
 
 	/**
 	 * @brief Get the current multidimensional indices.
-	 * 
-	 * Unless assigned to another iterator, the pointed span is guaranteed to 
+	 *
+	 * Unless assigned to another iterator, the pointed span is guaranteed to
 	 * remain constant.
-	 * 
+	 *
 	 * @return span<std::size_t> The indices.
 	 */
 	REXLIB_API
@@ -71,10 +71,10 @@ public:
 
 	/**
 	 * @brief Get the current offsets for each operand.
-	 * 
-	 * Unless assigned to another iterator, the pointed span is guaranteed to 
+	 *
+	 * Unless assigned to another iterator, the pointed span is guaranteed to
 	 * remain constant.
-	 * 
+	 *
 	 * @return span<const std::ptrdiff_t> The offsets.
 	 */
 	REXLIB_API
@@ -82,10 +82,10 @@ public:
 
 	/**
 	 * @brief Get the current offsets for each operand.
-	 * 
-	 * Unless assigned to another iterator, the pointed span is guaranteed to 
+	 *
+	 * Unless assigned to another iterator, the pointed span is guaranteed to
 	 * remain constant.
-	 * 
+	 *
 	 * @return span<std::ptrdiff_t> The offsets.
 	 */
 	REXLIB_API

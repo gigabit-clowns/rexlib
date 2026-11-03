@@ -42,7 +42,7 @@ public:
 	/**
 	 * @brief Retrieve the unique instance of a concrete service_manager.
 	 *
-	 * Always returns the same instance of @p T held by this catalog, 
+	 * Always returns the same instance of @p T held by this catalog,
 	 * constructing it on first access, so within a given catalog the returned
 	 * pointer behaves like a singleton. These are not true singletons:
 	 * the uniqueness is scoped to the owning service_catalog rather than

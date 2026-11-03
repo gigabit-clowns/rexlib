@@ -230,7 +230,8 @@ protected:
 		REQUIRE(manager->register_builder(std::move(builder)));
 	}
 
-	// Make @ref program report the given scratch requirements (none by default).
+	// Make @ref program report the given scratch requirements
+	// (none by default).
 	void expect_program_scratch(
 		span<const program_scratch_requirement> requirements = {}
 	)
@@ -281,8 +282,10 @@ protected:
 				.WITH(_1.get_inputs()[0] == input_storage)
 				.WITH(
 					scratch_buffer
-						? (_1.get_scratch().size() == 1 &&
-						   _1.get_scratch()[0] == scratch_buffer)
+						? (
+							_1.get_scratch().size() == 1 &&
+							_1.get_scratch()[0] == scratch_buffer
+						)
 						: _1.get_scratch().empty()
 				)
 				.RETURN(command_token())
@@ -430,7 +433,8 @@ TEST_CASE_METHOD(
 	expect_program_scratch(); // No scratch required.
 
 	// The pre-allocated output already owns storage, so no allocation happens:
-	// the existing buffer is reused as-is and the command is submitted normally.
+	// the existing buffer is reused as-is and the command is submitted
+	// normally.
 	const auto output_buffer = make_buffer();
 	array output(output_buffer, make_descriptor(user_shape, user_type));
 
@@ -522,7 +526,8 @@ TEST_CASE_METHOD(
 	)
 		.RETURN(output_buffer);
 
-	const const_array input_owner = make_input_with_storage(out_shape, out_type);
+	const const_array input_owner =
+		make_input_with_storage(out_shape, out_type);
 	const const_array_ref input = input_owner;
 	expect_command_submission(output_buffer, input.share_storage());
 
@@ -566,7 +571,8 @@ TEST_CASE_METHOD(
 	const auto output_buffer = make_buffer();
 	array output(output_buffer, make_descriptor(out_shape, out_type));
 
-	const const_array input_owner = make_input_with_storage(out_shape, out_type);
+	const const_array input_owner =
+		make_input_with_storage(out_shape, out_type);
 	const const_array_ref input = input_owner;
 	expect_command_submission(output_buffer, input.share_storage());
 
@@ -610,8 +616,9 @@ TEST_CASE_METHOD(
 
 	// The output (16 bytes) and the scratch buffers are both allocated from the
 	// device allocator, distinguished here by their size.
-	const auto output_size =
-		compute_storage_requirement(make_descriptor(shape_type{4}, numerical_type::float32));
+	const auto output_size = compute_storage_requirement(
+		make_descriptor(shape_type{4}, numerical_type::float32)
+	);
 	REQUIRE( output_size != scratch_size );
 
 	const auto output_buffer = make_buffer();

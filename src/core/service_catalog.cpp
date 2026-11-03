@@ -49,7 +49,7 @@ public:
 	}
 
 private:
-	using catalog_type = 
+	using catalog_type =
 		std::unordered_map<std::type_index, std::shared_ptr<service_manager>>;
 
 	bool m_register_builtin_backends;
@@ -67,7 +67,7 @@ service_catalog::service_catalog(service_catalog&& other) noexcept = default;
 
 service_catalog::~service_catalog() = default;
 
-service_catalog& 
+service_catalog&
 service_catalog::operator=(service_catalog&& other) noexcept = default;
 
 std::shared_ptr<service_manager>
@@ -75,7 +75,7 @@ service_catalog::get_service_manager(std::type_index key)
 {
 	return m_implementation->get_service_manager(key);
 }
-		
+
 void service_catalog::create_service_manager(
 	std::type_index key,
 	std::shared_ptr<service_manager> value

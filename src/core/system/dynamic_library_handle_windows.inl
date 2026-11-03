@@ -44,11 +44,11 @@ inline std::string dynamic_library_symbol_filename_lookup(const void* symbol)
 	std::string result;
 
 	HMODULE module;
-	REXLIB_CONST_CONSTEXPR DWORD flags = 
+	REXLIB_CONST_CONSTEXPR DWORD flags =
 		GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
 		GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT ;
 
-	if (::GetModuleHandleEx(flags, reinterpret_cast<LPCTSTR>(symbol), &module)) 
+	if (::GetModuleHandleEx(flags, reinterpret_cast<LPCTSTR>(symbol), &module))
 	{
 		char path[MAX_PATH];
 		int count;

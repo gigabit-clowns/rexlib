@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <sstream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 namespace
@@ -39,7 +39,7 @@ bool broadcast_extent(std::size_t &extent1, std::size_t &extent2)
 }
 
 void pad_extents(
-	std::vector<std::size_t> &extents, 
+	std::vector<std::size_t> &extents,
 	std::size_t target_size
 )
 {
@@ -50,7 +50,7 @@ void pad_extents(
 }
 
 bool is_axis_broadcast_compatible(
-	std::size_t extent1, 
+	std::size_t extent1,
 	std::size_t extent2
 ) noexcept
 {
@@ -58,7 +58,7 @@ bool is_axis_broadcast_compatible(
 }
 
 bool is_axis_broadcastable_to(
-	std::size_t from_extent, 
+	std::size_t from_extent,
 	std::size_t to_extent
 ) noexcept
 {
@@ -69,15 +69,15 @@ bool is_axis_broadcastable_to(
 
 
 void broadcast_extents(
-	std::vector<std::size_t> &extents1, 
-	std::vector<std::size_t> &extents2 
+	std::vector<std::size_t> &extents1,
+	std::vector<std::size_t> &extents2
 )
 {
 	if (extents1.size() < extents2.size())
 	{
 		pad_extents(extents1, extents2.size());
 	}
-	
+
 	if (extents2.size() < extents1.size())
 	{
 		pad_extents(extents2, extents1.size());
@@ -95,7 +95,7 @@ void broadcast_extents(
 }
 
 void broadcast_extents_accumulate(
-	std::vector<std::size_t> &result, 
+	std::vector<std::size_t> &result,
 	span<const std::size_t> other
 )
 {

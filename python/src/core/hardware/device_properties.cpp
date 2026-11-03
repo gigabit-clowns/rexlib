@@ -26,8 +26,8 @@ void define_device_properties(device_properties_class &c)
 	c
 		.def(nb::init<>())
 		.def_prop_rw(
-			"type", 
-			&device_properties::get_type, 
+			"type",
+			&device_properties::get_type,
 			&device_properties::set_type
 		)
 		.def_prop_rw(

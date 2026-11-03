@@ -15,7 +15,7 @@ static const plugin* query_plugin(const dynamic_library& lib)
 	const auto func = reinterpret_cast<get_plugin_function_type>(
 		lib.get_symbol(symbol_name.c_str())
 	);
-	
+
 	if (!func)
 	{
 		throw plugin_load_error(

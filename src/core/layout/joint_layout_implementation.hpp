@@ -9,24 +9,24 @@
 #include <boost/container/small_vector.hpp>
 
 /**
- * Some of the algorithms and data structured featured in this code are based 
+ * Some of the algorithms and data structured featured in this code are based
  * on:
  * https://github.com/pytorch/pytorch/blob/main/aten/src/ATen/TensorIterator.cpp
- * 
+ *
  */
 
-namespace rexlib 
+namespace rexlib
 {
 
 class joint_layout_implementation
 {
-public:    
+public:
 	using extent_vector_type = boost::container::small_vector<
-		std::size_t, 
+		std::size_t,
 		REXLIB_SMALL_AXIS_COUNT
 	>;
 	using operand_vector_type = boost::container::small_vector<
-		joint_layout_operand, 
+		joint_layout_operand,
 		REXLIB_SMALL_OPERAND_COUNT
 	>;
 	using stride_vector_type = joint_layout_operand::stride_vector_type;
@@ -59,14 +59,14 @@ public:
 	span<const std::size_t> get_extents() const noexcept;
 
 	std::size_t compute_element_count() const noexcept;
-	
+
 	span<const std::ptrdiff_t> get_strides(std::size_t operand) const;
 
 	std::ptrdiff_t get_offset(std::size_t operand) const;
 
 	std::size_t iter(
-		joint_cursor &ite, 
-		std::size_t first_dim, 
+		joint_cursor &ite,
+		std::size_t first_dim,
 		std::size_t last_dim
 	) const;
 
@@ -106,8 +106,8 @@ private:
 	void trim_axes(std::size_t n);
 
 	void apply_strides(
-		span<std::ptrdiff_t> offsets, 
-		std::size_t position, 
+		span<std::ptrdiff_t> offsets,
+		std::size_t position,
 		std::ptrdiff_t multiplier
 	) const noexcept;
 };

@@ -31,8 +31,8 @@ memory_block_allocator::memory_block_allocator(
 	if (!m_source)
 	{
 		throw std::invalid_argument(
-			"memory_block_allocator::memory_block_allocator: A memory source is "
-			"required."
+			"memory_block_allocator::memory_block_allocator: A memory source "
+			"is required."
 		);
 	}
 }

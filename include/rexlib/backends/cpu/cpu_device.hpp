@@ -37,7 +37,7 @@ public:
 	explicit cpu_device(std::shared_ptr<thread_pool> pool = nullptr);
 	~cpu_device() override;
 
-	const memory_resource& 
+	const memory_resource&
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
 	std::shared_ptr<command_queue> create_command_queue() const override;

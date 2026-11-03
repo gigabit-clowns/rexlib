@@ -133,7 +133,7 @@ public:
 	 * The override must produce buffers reachable by the role implied by the
 	 * slot: an allocator bound to @ref memory_resource_affinity::host must be
 	 * host-accessible, and one bound to @ref memory_resource_affinity::device
-	 * must be device-accessible. 
+	 * must be device-accessible.
 	 *
 	 * @param affinity The affinity slot to update.
 	 * @param allocator The override to install, or null to revert to the

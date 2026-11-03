@@ -28,7 +28,7 @@ static std::string to_string(const device_index &l)
 static std::string to_repr(const device_index &l)
 {
 	std::ostringstream oss;
-	oss << "DeviceIndex(backend=\"" << l.get_backend_name() << "\", " 
+	oss << "DeviceIndex(backend=\"" << l.get_backend_name() << "\", "
 		<< "id=" << l.get_device_id() << ")";
 	return oss.str();
 }

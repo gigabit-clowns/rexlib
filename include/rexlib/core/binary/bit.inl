@@ -11,7 +11,7 @@
 namespace rexlib
 {
 
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 std::size_t bit(std::size_t i) noexcept
 {
 	REXLIB_CONSTEXPR auto n_bits = std::numeric_limits<std::size_t>::digits;
@@ -26,7 +26,7 @@ std::size_t bit(std::size_t i) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_range_mask(std::size_t start, std::size_t end) noexcept
 {
@@ -34,7 +34,7 @@ bit_range_mask(std::size_t start, std::size_t end) noexcept
 }
 
 template<typename T>
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T&>::type
 set_lowest_zero_inplace(T& x) noexcept
 {
@@ -43,7 +43,7 @@ set_lowest_zero_inplace(T& x) noexcept
 }
 
 template<typename T>
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T&>::type
 clear_lowest_one_inplace(T& x) noexcept
 {
@@ -52,7 +52,7 @@ clear_lowest_one_inplace(T& x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 mask_trailing_zeros(T x) noexcept
 {
@@ -60,7 +60,7 @@ mask_trailing_zeros(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 mask_trailing_ones(T x) noexcept
 {
@@ -68,7 +68,7 @@ mask_trailing_ones(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 rotate_left(T x, int s) noexcept
 {
@@ -77,10 +77,10 @@ rotate_left(T x, int s) noexcept
 #else
 	if (s >= 0)
 	{
-		REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
+		REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits;
 		const auto r = static_cast<unsigned>(s) % N;
 		if(r > 0)
-			return (x << r) | (x >> (N - r)); 
+			return (x << r) | (x >> (N - r));
 		else
 			return x;
 	}
@@ -92,7 +92,7 @@ rotate_left(T x, int s) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 rotate_right(T x, int s) noexcept
 {
@@ -101,10 +101,10 @@ rotate_right(T x, int s) noexcept
 #else
 	if (s >= 0)
 	{
-		REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
+		REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits;
 		const auto r = static_cast<unsigned>(s) % N;
 		if(r > 0)
-			return (x >> r) | (x << (N - r)); 
+			return (x >> r) | (x << (N - r));
 		else
 			return x;
 	}
@@ -116,7 +116,7 @@ rotate_right(T x, int s) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 has_single_bit(T x) noexcept
 {
@@ -127,7 +127,7 @@ has_single_bit(T x) noexcept
 	{
 		// If it has a single one, it should be zero
 		// after clearing its lowest one
-		clear_lowest_one_inplace(x); 
+		clear_lowest_one_inplace(x);
 		return !x;
 	}
 	else
@@ -138,14 +138,14 @@ has_single_bit(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_floor(T x) noexcept
 {
 #if REXLIB_HAS_LIB_POW2
 	return std::bit_floor(x);
 #else
-	if(x) 
+	if(x)
 	{
 		return T(1) << (bit_width(x) - 1);
 	}
@@ -157,7 +157,7 @@ bit_floor(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, T>::type
 bit_ceil(T x) noexcept
 {
@@ -169,15 +169,15 @@ bit_ceil(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 bit_width(T x) noexcept
 {
 #if REXLIB_HAS_LIB_POW2
 	return std::bit_width(x);
 #else
-	REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits; 
-	return N - count_leading_zeros(x); 
+	REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits;
+	return N - count_leading_zeros(x);
 #endif
 }
 
@@ -185,7 +185,7 @@ namespace detail
 {
 
 template<typename T>
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_zeros(T x) noexcept
 {
@@ -236,7 +236,7 @@ count_leading_zeros(unsigned long long x) noexcept
 } // namespace detail
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_zeros(T x) noexcept
 {
@@ -248,7 +248,7 @@ count_leading_zeros(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_ones(T x) noexcept
 {
@@ -263,7 +263,7 @@ namespace detail
 {
 
 template<typename T>
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_zeros(T x) noexcept
 {
@@ -314,7 +314,7 @@ count_trailing_zeros(unsigned long long x) noexcept
 } // namespace detail
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_zeros(T x) noexcept
 {
@@ -326,7 +326,7 @@ count_trailing_zeros(T x) noexcept
 }
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_ones(T x) noexcept
 {
@@ -341,7 +341,7 @@ namespace detail
 {
 
 template<typename T>
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 popcount(T x) noexcept
 {
@@ -373,7 +373,7 @@ popcount(unsigned long long x) noexcept
 } // namespace detail
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 popcount(T x) noexcept
 {
@@ -388,7 +388,7 @@ namespace detail
 {
 
 template<typename T>
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 parity(T x) noexcept
 {
@@ -405,7 +405,7 @@ parity(T x) noexcept
 REXLIB_INLINE_CONSTEXPR bool
 parity(unsigned int x) noexcept
 {
-	return REXLIB_BUILTIN(parity)(x); 
+	return REXLIB_BUILTIN(parity)(x);
 }
 #endif
 
@@ -413,14 +413,14 @@ parity(unsigned int x) noexcept
 REXLIB_INLINE_CONSTEXPR bool
 parity(unsigned long long x) noexcept
 {
-	return REXLIB_BUILTIN(parityll)(x); 
+	return REXLIB_BUILTIN(parityll)(x);
 }
 #endif
 
 } // namespace detail
 
 template<typename T>
-REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR 
+REXLIB_NODISCARD REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, bool>::type
 parity(T x) noexcept
 {

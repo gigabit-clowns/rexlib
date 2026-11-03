@@ -4,7 +4,7 @@
 
 #include <boost/functional/hash.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 array_descriptor::array_descriptor() noexcept

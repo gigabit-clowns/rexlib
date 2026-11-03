@@ -6,10 +6,10 @@
 #include <limits>
 #include <exception>
 
-namespace rexlib 
+namespace rexlib
 {
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 slice::slice(start_type start, count_type count, step_type step ) noexcept
 	: m_start(start)
 	, m_count(count)
@@ -17,37 +17,37 @@ slice::slice(start_type start, count_type count, step_type step ) noexcept
 {
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 void slice::set_start(start_type start) noexcept
 {
 	m_start = start;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 const slice::start_type& slice::get_start() const noexcept
 {
 	return m_start;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 void slice::set_count(count_type count) noexcept
 {
 	m_count = count;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 const slice::count_type& slice::get_count() const noexcept
 {
 	return m_count;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 void slice::set_step(step_type step) noexcept
 {
 	m_step = step;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 const typename slice::step_type& slice::get_step() const noexcept
 {
 	return m_step;
@@ -73,22 +73,22 @@ REXLIB_INLINE_CONSTEXPR slice odd() noexcept
 	return slice(1, end(), 2);
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 slice make_slice(std::size_t count) noexcept
 {
 	return slice(0, count, 1);
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 slice make_slice(std::ptrdiff_t start, std::size_t count) noexcept
 {
 	return slice(start, count, 1);
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 slice make_slice(
-	std::ptrdiff_t start, 
-	std::size_t count, 
+	std::ptrdiff_t start,
+	std::size_t count,
 	std::ptrdiff_t step
 ) noexcept
 {
@@ -108,7 +108,7 @@ void sanitize_slice_start(slice &slice, std::size_t extent)
 	if (start < -static_cast<std::ptrdiff_t>(extent))
 	{
 		std::ostringstream oss;
-		oss << "Slice's negative start index " << start 
+		oss << "Slice's negative start index " << start
 			<< " is out of bounds for extent " << extent << ".";
 		throw std::out_of_range(oss.str());
 	}
@@ -118,7 +118,7 @@ void sanitize_slice_start(slice &slice, std::size_t extent)
 		if (start > static_cast<std::ptrdiff_t>(extent) )
 		{
 			std::ostringstream oss;
-			oss << "Slice's start index " << start 
+			oss << "Slice's start index " << start
 				<< " is out of bounds for extent " << extent << ".";
 			throw std::out_of_range(oss.str());
 		}
@@ -128,7 +128,7 @@ void sanitize_slice_start(slice &slice, std::size_t extent)
 		if (start >= static_cast<std::ptrdiff_t>(extent) )
 		{
 			std::ostringstream oss;
-			oss << "Backwards slice's start index " << start 
+			oss << "Backwards slice's start index " << start
 				<< " is out of bounds for extent " << extent << ".";
 			throw std::out_of_range(oss.str());
 		}
@@ -157,9 +157,9 @@ void sanitize_slice_count(slice &slice, std::size_t extent)
 		else if (count > 0U && start + step*(count-1) >= extent)
 		{
 			std::ostringstream oss;
-			oss << "Slice count " << count 
+			oss << "Slice count " << count
 				<< " start index " << start
-				<< " and step " << step 
+				<< " and step " << step
 				<< " overflows extent " << extent;
 			throw std::out_of_range(oss.str());
 		}
@@ -172,12 +172,15 @@ void sanitize_slice_count(slice &slice, std::size_t extent)
 			const auto new_count = start / abs_step + 1;
 			slice.set_count(new_count);
 		}
-		else if (count > 0U && abs_step*static_cast<std::ptrdiff_t>(count-1) > start)
+		else if (
+			count > 0U &&
+			abs_step*static_cast<std::ptrdiff_t>(count-1) > start
+		)
 		{
 			std::ostringstream oss;
-			oss << "Reversed slice with count " << count 
+			oss << "Reversed slice with count " << count
 				<< " start index " << start
-				<< " and step " << step 
+				<< " and step " << step
 				<< " underflows 0";
 			throw std::out_of_range(oss.str());
 		}

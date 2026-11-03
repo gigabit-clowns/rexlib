@@ -9,13 +9,13 @@
 #include <sstream>
 
 /**
- * Some of the algorithms and data structured featured in this code are based 
+ * Some of the algorithms and data structured featured in this code are based
  * on:
  * https://github.com/pytorch/pytorch/blob/main/aten/src/ATen/TensorIterator.cpp
- * 
+ *
  */
 
-namespace rexlib 
+namespace rexlib
 {
 
 inline
@@ -52,7 +52,7 @@ void joint_layout_implementation::add_operand(
 }
 
 inline
-const joint_layout_operand& 
+const joint_layout_operand&
 joint_layout_implementation::get_operand(std::size_t index) const
 {
 	if (index >= m_operands.size())
@@ -105,8 +105,8 @@ void joint_layout_implementation::sort_axes_by_locality()
 	> permutation(n);
 	const auto permutation_view = span<std::size_t>(permutation.data(), n);
 	std::generate(
-		permutation.begin(), 
-		permutation.end(), 
+		permutation.begin(),
+		permutation.end(),
 		[n = n]() mutable { return --n; }
 	);
 
@@ -145,14 +145,14 @@ void joint_layout_implementation::coalesce_contiguous_axes()
 }
 
 inline
-std::size_t 
+std::size_t
 joint_layout_implementation::get_rank() const noexcept
 {
 	return m_extents.size();
 }
 
 inline
-std::size_t 
+std::size_t
 joint_layout_implementation::get_number_of_operands(
 ) const noexcept
 {
@@ -160,21 +160,21 @@ joint_layout_implementation::get_number_of_operands(
 }
 
 inline
-span<const std::size_t> 
+span<const std::size_t>
 joint_layout_implementation::get_extents() const noexcept
 {
 	return span<const std::size_t>(m_extents.data(), m_extents.size());
 }
 
 inline
-span<const std::ptrdiff_t> 
+span<const std::ptrdiff_t>
 joint_layout_implementation::get_strides(std::size_t operand) const
 {
 	return get_operand(operand).get_strides();
 }
 
 inline
-std::ptrdiff_t 
+std::ptrdiff_t
 joint_layout_implementation::get_offset(std::size_t operand) const
 {
 	return get_operand(operand).get_offset();
@@ -188,7 +188,7 @@ std::size_t joint_layout_implementation::iter(
 ) const
 {
 	const auto valid = std::all_of(
-		m_extents.cbegin(), 
+		m_extents.cbegin(),
 		m_extents.cend(),
 		[] (auto extent)
 		{
@@ -301,7 +301,7 @@ std::size_t joint_layout_implementation::next(
 		// No "outer" loop to process.
 		return 0;
 	}
-	
+
 	const auto indices = ite.get_indices();
 	REXLIB_ASSERT( indices.size() == n_dim );
 
@@ -322,7 +322,7 @@ std::size_t joint_layout_implementation::next(
 		indices[first_dim] += base_increment;
 	}
 
-	for (std::size_t i = first_dim; i < last_dim; ++i) 
+	for (std::size_t i = first_dim; i < last_dim; ++i)
 	{
 		const auto next_index = indices[i] + 1;
 		const auto extent = extents[i];
@@ -338,13 +338,13 @@ std::size_t joint_layout_implementation::next(
 		apply_strides(offsets, i, -static_cast<std::ptrdiff_t>(indices[i]));
 		indices[i] = 0;
 	}
-	
-	return 0UL; 
+
+	return 0UL;
 }
 
 inline
 int joint_layout_implementation::compare_strides(
-	std::size_t i, 
+	std::size_t i,
 	std::size_t j
 ) noexcept
 {
@@ -406,7 +406,7 @@ void joint_layout_implementation::permute_axes(
 
 inline
 bool joint_layout_implementation::try_coalesce_axes(
-	std::size_t i, 
+	std::size_t i,
 	std::size_t j
 )
 {
@@ -427,7 +427,7 @@ bool joint_layout_implementation::try_coalesce_axes(
 
 inline
 bool joint_layout_implementation::can_coalesce_axes(
-	std::size_t i, 
+	std::size_t i,
 	std::size_t j
 )
 {
@@ -443,7 +443,7 @@ bool joint_layout_implementation::can_coalesce_axes(
 		const auto strides = operand.get_strides();
 		const auto stride_i = strides[i];
 		const auto stride_j = strides[j];
-		if (static_cast<std::ptrdiff_t>(extent_i) * stride_i != stride_j) 
+		if (static_cast<std::ptrdiff_t>(extent_i) * stride_i != stride_j)
 		{
 			return false;
 		}
@@ -464,14 +464,14 @@ void joint_layout_implementation::trim_axes(std::size_t n)
 
 inline
 void joint_layout_implementation::apply_strides(
-	span<std::ptrdiff_t> offsets, 
-	std::size_t position, 
+	span<std::ptrdiff_t> offsets,
+	std::size_t position,
 	std::ptrdiff_t multiplier
 ) const noexcept
 {
 	const auto n_operands = offsets.size();
 	REXLIB_ASSERT( m_operands.size() == n_operands );
-	for (std::size_t j = 0; j < n_operands; ++j) 
+	for (std::size_t j = 0; j < n_operands; ++j)
 	{
 		const auto strides = m_operands[j].get_strides();
 		offsets[j] += multiplier*strides[position];

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from types import TracebackType
 
-from ._context import _set_active_execution_context, get_active_execution_context
+from ._context import (
+	_set_active_execution_context,
+	get_active_execution_context,
+)
 from ._binding import dispatch, hardware
 from ._session_pool import get_pooled_device_session
 
@@ -37,7 +40,9 @@ class _ActiveDeviceContext:
 
 	def __enter__(self) -> dispatch.ExecutionContext:
 		device_context = _resolve_device_context(self.__spec)
-		context = get_active_execution_context().with_device_context(device_context)
+		context = get_active_execution_context().with_device_context(
+			device_context
+		)
 		self.__previous = _set_active_execution_context(context)
 		return context
 
@@ -62,13 +67,13 @@ def device(spec: DeviceSpec) -> _ActiveDeviceContext:
 	Args:
 		spec: The device to activate. One of:
 			- A "backend:id" / "backend" string, or a `DeviceIndex`
-			  (see `rexlib.hardware.DeviceIndex`): its `DeviceSession` is
-			  taken from a process-wide pool, so repeatedly activating the
-			  same device reuses one session instead of building a new one.
+				(see `rexlib.hardware.DeviceIndex`): its `DeviceSession` is
+				taken from a process-wide pool, so repeatedly activating the
+				same device reuses one session instead of building a new one.
 			- A `DeviceSession` (see `rexlib.hardware.DeviceSession`),
-			  reused as-is, bypassing the pool.
+				reused as-is, bypassing the pool.
 			- A `DeviceContext` (see `rexlib.hardware.DeviceContext`),
-			  used as-is.
+				used as-is.
 
 	Returns:
 		A context manager yielding the activated ExecutionContext.

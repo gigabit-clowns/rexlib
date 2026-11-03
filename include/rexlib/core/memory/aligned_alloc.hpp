@@ -12,21 +12,21 @@ namespace rexlib
 
 /**
  * @brief Allocate memory with an alignment specification.
- * 
- * @param size Number of bytes to allocate. 
+ *
+ * @param size Number of bytes to allocate.
  * It must be multiple of the alignment.
  * @param alignment The alignment of the data. Must be power of two.
  * @return void* The allocated memory area. nullptr on failure.
- * 
+ *
  * @see aligned_free
- * 
+ *
  */
 REXLIB_API
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept;
 
 /**
  * @brief Release a memory block previously allocated with aligned_alloc
- * 
+ *
  * @param ptr Pointer to the data to be freed.
 
  * @see aligned_alloc

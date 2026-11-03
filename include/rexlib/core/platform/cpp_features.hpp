@@ -14,16 +14,16 @@
  * @param feature Name of the feature (without the __cpp_ prefix)
  * @param version Requested standard version as YYYYMM
  * @see https://en.cppreference.com/w/cpp/feature_test
- * 
+ *
  */
 #define REXLIB_HAS_CPP_FEATURE(feature, version) \
 	((__cpp_##feature >= version) || \
 	(REXLIB_HAS_C_FEATURE(cxx_##feature) && REXLIB_CPLUSPLUS >= version))
 
 /**
- * @def REXLIB_HAS_CONSTEXPR 
+ * @def REXLIB_HAS_CONSTEXPR
  * @brief Tests if constexpr is supported by the compiler
- * 
+ *
  */
 #if REXLIB_HAS_CPP_FEATURE(constexpr, 200704L)
 #	define REXLIB_HAS_CONSTEXPR 1
@@ -41,4 +41,5 @@
 #define REXLIB_HAS_LIB_BITOPS REXLIB_HAS_CPP_FEATURE(lib_bitops, 201907)
 #define REXLIB_HAS_LIB_POW2 REXLIB_HAS_CPP_FEATURE(lib_pow2, 202002)
 #define REXLIB_HAS_LIB_EXECUTION REXLIB_HAS_CPP_FEATURE(lib_execution, 201603)
-#define REXLIB_HAS_CONDITIONAL_EXPLICIT REXLIB_HAS_CPP_FEATURE(conditional_explicit, 201806L)
+#define REXLIB_HAS_CONDITIONAL_EXPLICIT \
+	REXLIB_HAS_CPP_FEATURE(conditional_explicit, 201806L)
