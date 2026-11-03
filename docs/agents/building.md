@@ -8,11 +8,19 @@ cmake --build build -j
 ctest --test-dir build
 ```
 
-With CMake 3.21 or newer the presets do the same: `cmake --preset debug`,
+With CMake 3.25 or newer the presets do the same: `cmake --preset debug`,
 `cmake --build --preset debug`, `ctest --preset debug`, which build into
 `build/debug`. There are `release`, `sanitize` (the address and undefined
 behaviour sanitizers) and `sanitize-thread` presets too; the two sanitizer
-presets are not offered on Windows. Settings of a machine of one's own, such
+presets are not offered on Windows. `coverage`, on Linux only, adds coverage
+instrumentation, registers the tests per binary and passes valgrind the
+options CI uses, for `ctest --test-dir build/coverage -T MemCheck`. `docs`
+configures for the Doxygen reference alone and builds `rexlib-docs`.
+Every preset but `docs` turns `REXLIB_WARNINGS_AS_ERRORS` on, and its
+test preset fails when it finds no test, runs the tests in a random order and
+gives each ten minutes; 3.25 is what lets the fetched dependencies' headers
+count as system headers, whose warnings are not rexlib's. Settings of a
+machine of one's own, such
 as a compiler cache, go in a `CMakeUserPresets.json`, which git ignores.
 
 CMake 3.18 is the minimum. The sources are written to C++14 and reach anything
@@ -35,6 +43,7 @@ Options:
 | `REXLIB_ENABLE_COVERAGE` | `OFF` | Adds coverage instrumentation |
 | `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
+| `REXLIB_WARNINGS_AS_ERRORS` | `OFF`, `ON` in the presets | Makes a compiler warning fail rexlib's own targets (`-Werror`, `/WX`) |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without

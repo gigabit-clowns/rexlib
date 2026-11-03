@@ -24,8 +24,15 @@ function(rexlib_fetch_boost)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 	set(releases "https://github.com/boostorg/boost/releases/download")
+	# From CMake 3.25 its headers count as system headers, whose
+	# warnings are not rexlib's.
+	set(system "")
+	if(NOT CMAKE_VERSION VERSION_LESS 3.25)
+		set(system SYSTEM)
+	endif()
 	FetchContent_Declare(
 		Boost
+		${system}
 		URL "${releases}/${arg_TAG}/${arg_TAG}-cmake.tar.xz"
 		URL_HASH SHA256=${arg_SHA256}
 	)

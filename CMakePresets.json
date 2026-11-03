@@ -2,7 +2,7 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 21,
+    "minor": 25,
     "patch": 0
   },
   "configurePresets": [
@@ -13,7 +13,8 @@
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "REXLIB_BUILD_TESTING": "ON",
-        "REXLIB_CHECK_HEADERS": "ON"
+        "REXLIB_CHECK_HEADERS": "ON",
+        "REXLIB_WARNINGS_AS_ERRORS": "ON"
       }
     },
     {
@@ -57,6 +58,30 @@
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer"
       }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Debug with coverage, tests run under valgrind by ctest -T MemCheck",
+      "inherits": "debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "REXLIB_ENABLE_COVERAGE": "ON",
+        "REXLIB_REGISTER_TESTS_PER_BINARY": "ON",
+        "MEMORYCHECK_COMMAND_OPTIONS": "--leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1 --num-callers=50"
+      }
+    },
+    {
+      "name": "docs",
+      "displayName": "The Doxygen reference of the public headers",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "REXLIB_BUILD_DOCS": "ON",
+        "BUILD_TESTING": "OFF"
+      }
     }
   ],
   "buildPresets": [
@@ -79,6 +104,16 @@
       "name": "sanitize-thread",
       "configurePreset": "sanitize-thread",
       "configuration": "Debug"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug"
+    },
+    {
+      "name": "docs",
+      "configurePreset": "docs",
+      "targets": ["rexlib-docs"]
     }
   ],
   "testPresets": [
@@ -88,6 +123,11 @@
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     },
     {
@@ -96,6 +136,11 @@
       "configuration": "Release",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     },
     {
@@ -104,6 +149,11 @@
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     },
     {
@@ -112,6 +162,24 @@
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     }
   ]
