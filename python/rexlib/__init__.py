@@ -29,7 +29,6 @@ from ._binding import (
 	Version as Version,
 	get_default_plugin_directory as get_default_plugin_directory,
 	get_plugin_search_path as get_plugin_search_path,
-	rexlib_binding_version as rexlib_binding_version,
 	rexlib_version as rexlib_version,
 )
 from ._binding.numerical import NumericalType as NumericalType
@@ -139,7 +138,6 @@ __all__ = [
 	"multiply",
 	"negate",
 	"ones",
-	"rexlib_binding_version",
 	"rexlib_version",
 	"rfft",
 	"rfft2",
@@ -154,4 +152,4 @@ __all__ = [
 	"zeros",
 ]
 
-__version__ = str(rexlib_binding_version)
+__version__ = str(rexlib_version)

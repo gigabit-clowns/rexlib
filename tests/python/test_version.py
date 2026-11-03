@@ -125,10 +125,10 @@ def test_pickle():
 	unpickled = pickle.loads(pickled)
 	assert v == unpickled
 
-def test_binding_version_is_the_distribution_version():
-	# Not the C++ library's: the two are versioned independently.
-	assert isinstance(rexlib.__version__, str)
+def test_version_is_the_library_version():
+	assert rexlib.__version__ == str(rexlib.rexlib_version)
 
+def test_version_is_the_distribution_version():
 	try:
 		installed = metadata.version("rexlib")
 	except metadata.PackageNotFoundError:
@@ -136,7 +136,6 @@ def test_binding_version_is_the_distribution_version():
 	assert rexlib.__version__ == installed
 
 def test_reports_the_rexlib_version():
-	# The C++ library's, versioned independently of this binding.
 	v = rexlib.rexlib_version
 	assert isinstance(v, rexlib.Version)
 	assert (v.major, v.minor, v.patch) >= (0, 1, 0)

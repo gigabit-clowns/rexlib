@@ -17,18 +17,10 @@ add_subdirectory(em)
 add_subdirectory(functional)
 add_subdirectory(ops)
 
-target_compile_definitions(
-	_binding
-	PRIVATE
-		REXLIB_PYTHON_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-		REXLIB_PYTHON_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-		REXLIB_PYTHON_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-)
-
 # librexlib is in the library directory of the install prefix, which the
 # loader is told relative to the extension. Windows has no RPATH: the
-# package's _paths module adds the prefix's bin directory to the DLL search
-# path.
+# package's _dll_directories module adds the prefix's bin directory to the
+# DLL search path.
 set(
 	REXLIB_PYTHON_LIBRARY_FROM_PACKAGE
 	"${REXLIB_PYTHON_PREFIX_FROM_PACKAGE}/${CMAKE_INSTALL_LIBDIR}"

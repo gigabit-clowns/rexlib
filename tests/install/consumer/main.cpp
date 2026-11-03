@@ -12,16 +12,30 @@
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/service_catalog.hpp>
+#include <rexlib/core/version.hpp>
+#include <rexlib/core/version_macros.h>
 #include <rexlib/functional/creation.hpp>
 
 #include <cstdint>
 #include <iostream>
 
-// Counts to five on the CPU, which takes the library, its services and its
-// CPU backend.
+// Checks that the installed headers state the version of the installed
+// library, and counts to five on the CPU, which takes the library, its
+// services and its CPU backend.
 int main()
 {
-	std::cout << "rexlib " << rexlib::get_library_version() << "\n";
+	const rexlib::version library = rexlib::get_library_version();
+	const rexlib::version headers(
+		REXLIB_VERSION_MAJOR,
+		REXLIB_VERSION_MINOR,
+		REXLIB_VERSION_PATCH
+	);
+	std::cout << "rexlib " << library << "\n";
+	if (library != headers)
+	{
+		std::cerr << "The headers state version " << headers << ".\n";
+		return 1;
+	}
 
 	rexlib::service_catalog catalog;
 	const auto devices =

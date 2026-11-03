@@ -24,7 +24,7 @@ them. See #143.
 
 | Module | From | Holds |
 |---|---|---|
-| `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version`, `rexlib_binding_version` |
+| `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version` |
 | `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
 | `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, the functions that put an array's memory in a DLPack capsule and take one out, and the type caster that loads `const_array_ref` and `array_ref` from an `Array` |
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |

@@ -171,6 +171,9 @@ if(WIN32 AND NOT DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 endif()
 
+# Where the public headers CMake writes, such as the version, go.
+set(REXLIB_GENERATED_INCLUDE_DIR ${PROJECT_BINARY_DIR}/include)
+
 find_package(Threads REQUIRED)
 
 if(REXLIB_USE_SYSTEM_BOOST)
