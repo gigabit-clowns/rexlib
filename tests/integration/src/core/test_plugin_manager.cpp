@@ -4,6 +4,7 @@
 
 #include <rexlib/core/plugin.hpp>
 #include <rexlib/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/platform/operating_system.h>
 
 #include <rexlib/tests/assets.hpp>
 

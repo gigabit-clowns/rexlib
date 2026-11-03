@@ -13,8 +13,7 @@ changes, and so on.
 
 `.github/workflows/ci.yml` runs on every pull request and every push to
 `main`, with no path filter: a change runs every job it could break. The jobs
-run the preset commands a developer runs, so a compiler warning fails them
-as it fails a contributor's build. They use public actions only, pinned by
+run the preset commands a developer runs. They use public actions only, pinned by
 digest, on runner images named by version rather than `-latest`, and check
 the repository out without keeping its credentials. Every job has a timeout,
 and a newer push to a pull request cancels the run it supersedes; runs on
@@ -22,15 +21,22 @@ and a newer push to a pull request cancels the run it supersedes; runs on
 
 | Job | What it checks |
 |---|---|
-| One per platform and toolchain | Linux x86_64 with gcc and with clang, Linux aarch64 with gcc, macOS arm64, Windows x86_64 and arm64 with MSVC, Windows x86_64 with MinGW. Each builds the `debug` preset and runs every suite, the header check and the install test |
-| Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang |
-| CMake 3.18, installed dependencies | The one job without presets: CMake 3.18.0, Release, the suites, and a check that no dependency reaches rexlib's install. vcpkg installs every dependency into a prefix at the baseline `.github/vcpkg/vcpkg.json` names, and the `find_package` branch of each finds it, as a packager's would |
+| One per platform and toolchain | Linux x86_64 with gcc and with clang, Linux aarch64 with gcc, macOS arm64, Windows x86_64 and arm64 with MSVC, Windows x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test |
+| Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
+| CMake 3.18 | The one job without presets: CMake 3.18.0, Release with warnings as errors, and the suites |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
 | Lint | The `lint` preset: every file git tracks against `.editorconfig` |
 | All checks | Fails unless every other job succeeded |
 
 The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the
 sanitizer jobs build with the newest clang.
+
+Every job with warnings as errors builds against installed dependencies,
+whose headers count as system headers, so that only rexlib's warnings fail
+it. vcpkg installs them into a prefix at the baseline
+`.github/vcpkg/vcpkg.json` names, for the row's triplet (static libraries,
+with the dynamic C runtime on Windows), and the `find_package` branch of each
+finds them, as a packager's would.
 
 The Linux gcc row builds the `coverage` preset instead of `debug`. It runs the
 suites under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the
@@ -63,7 +69,8 @@ repository's 10 GB are full. The fetched sources of the dependencies are
 cached per operating system, keyed on every CMake file; a pull request whose
 key is new starts from the newest such cache, and FetchContent downloads
 again only what a changed declaration names. The packages vcpkg builds are
-cached keyed on its manifest. Nothing else
+cached per runner image, compiler and triplet, keyed on its manifest; a new
+key starts from the newest such cache, and vcpkg builds only what changed. Nothing else
 manages the caches: an eviction makes a run slower, never wrong.
 
 No workflow publishes releases yet.

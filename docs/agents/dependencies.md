@@ -5,7 +5,10 @@ How rexlib fetches, pins or finds what it depends on.
 Every dependency is fetched and built with rexlib by default, static, and
 ends up inside its library. Turning `REXLIB_BUILD_DEPENDENCIES` off finds
 them all installed instead, with `find_package`, as a distribution builds
-rexlib. Turning off `REXLIB_BUILD_<DEP>` (`BOOST`, `SPDLOG`, `HALF`,
+rexlib. `.github/vcpkg/vcpkg.json` installs every one of them at the
+baseline it names: `vcpkg install --x-manifest-root=.github/vcpkg
+--x-install-root=<dir>`, then configure with `-DREXLIB_BUILD_DEPENDENCIES=OFF
+-DCMAKE_PREFIX_PATH=<dir>/<triplet>`. Turning off `REXLIB_BUILD_<DEP>` (`BOOST`, `SPDLOG`, `HALF`,
 `POCKETFFT`, `EIGEN`, and for the tests `CATCH2` and `TROMPELOEIL`) does that
 for one of them. `cmake_dependent_option` declares those toggles, so that the
 global one forces the others off.

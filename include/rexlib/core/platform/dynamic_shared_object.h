@@ -10,7 +10,7 @@
  * @brief Declares that the function should be imported from a shared object
  *
  */
-#if defined(REXLIB_WINDOWS)
+#if REXLIB_WINDOWS
 	#if REXLIB_HAS_GCC_ATTRIBUTE(dllimport)
 		#define REXLIB_IMPORT REXLIB_GCC_ATTRIBUTE(dllimport)
 	#else
@@ -27,7 +27,7 @@
  * @brief Declares that the function should be exported to a shared object
  *
  */
-#if defined(REXLIB_WINDOWS)
+#if REXLIB_WINDOWS
 	#if REXLIB_HAS_GCC_ATTRIBUTE(dllexport)
 		#define REXLIB_EXPORT REXLIB_GCC_ATTRIBUTE(dllexport)
 	#else
@@ -45,7 +45,7 @@
  * shared object
  *
  */
-#if defined(REXLIB_WINDOWS)
+#if REXLIB_WINDOWS
 	#define REXLIB_LOCAL
 #elif REXLIB_HAS_GCC_ATTRIBUTE(visibility)
 	#define REXLIB_LOCAL REXLIB_GCC_ATTRIBUTE(visibility("hidden"))

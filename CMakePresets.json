@@ -2,7 +2,7 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 25,
+    "minor": 21,
     "patch": 0
   },
   "configurePresets": [
@@ -13,8 +13,7 @@
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "REXLIB_BUILD_TESTING": "ON",
-        "REXLIB_CHECK_HEADERS": "ON",
-        "REXLIB_WARNINGS_AS_ERRORS": "ON"
+        "REXLIB_CHECK_HEADERS": "ON"
       }
     },
     {
