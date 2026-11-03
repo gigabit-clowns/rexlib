@@ -5,6 +5,11 @@
 #include <cstddef>
 #include <cstdint>
 
+// Where the standard library of MSVC defines _ITERATOR_DEBUG_LEVEL.
+#if defined(_MSVC_STL_VERSION)
+	#include <yvals.h>
+#endif
+
 /**
  * @file
  * @brief Macros that name the C++ ABI the code is compiled for.
@@ -44,7 +49,7 @@
 #elif defined(__GLIBCXX__)
 	#define REXLIB_CPP_STANDARD_LIBRARY REXLIB_CPP_LIBSTDCXX
 	#define REXLIB_CPP_STANDARD_LIBRARY_ABI _GLIBCXX_USE_CXX11_ABI
-#elif defined(_MSVC_STL_VERSION) || defined(_CPPLIB_VER)
+#elif defined(_MSVC_STL_VERSION)
 	#if !defined(_ITERATOR_DEBUG_LEVEL)
 		#error "The standard library of MSVC left _ITERATOR_DEBUG_LEVEL out"
 	#endif
