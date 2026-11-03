@@ -14,15 +14,15 @@ workflow — update it in the same pull request that causes it.
 ## Build and test
 
 ```
-git submodule update --init
 cmake --preset debug
 cmake --build --preset debug
 ctest --preset debug
 ```
 
-The presets need CMake 3.21 and a `rexlib_ROOT` that reaches an installed
-rexlib. [building.md](docs/agents/building.md) says how to build one from the
-submodule.
+The presets need CMake 3.21 and a `rexlib_ROOT`, on the command line or in
+the environment, that reaches an installed rexlib.
+[building.md](docs/agents/building.md) says how to install one from the root
+of the repository.
 
 ## Always
 
