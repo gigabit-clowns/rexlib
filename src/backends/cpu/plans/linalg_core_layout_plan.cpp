@@ -135,7 +135,7 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 	joint_layout_builder builder;
 	std::vector<std::size_t> batch_extents;
 	std::vector<std::ptrdiff_t> batch_strides;
-	std::ptrdiff_t offset;
+	std::ptrdiff_t offset = 0;
 
 	const auto output_core = split_named_core(
 		output_descriptors[0].get_layout(),

@@ -155,12 +155,12 @@ void gemm_call_contiguous(
 	using out_matrix =
 		Eigen::Matrix<T, M, N, eigen_matrix_options<M, N, RowMajor>::value>;
 
-	Eigen::Map<const left_matrix> left_map(
+	const Eigen::Map<const left_matrix> left_map(
 		left,
 		static_cast<Eigen::Index>(left_core.get_extent(0)),
 		static_cast<Eigen::Index>(left_core.get_extent(1))
 	);
-	Eigen::Map<const right_matrix> right_map(
+	const Eigen::Map<const right_matrix> right_map(
 		right,
 		static_cast<Eigen::Index>(right_core.get_extent(0)),
 		static_cast<Eigen::Index>(right_core.get_extent(1))
@@ -199,13 +199,13 @@ void gemm_call_strided(
 	using dynamic_matrix = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 	using stride_t = Eigen::Stride<Eigen::Dynamic, Eigen::Dynamic>;
 
-	Eigen::Map<const dynamic_matrix, 0, stride_t> left_map(
+	const Eigen::Map<const dynamic_matrix, 0, stride_t> left_map(
 		left,
 		static_cast<Eigen::Index>(left_core.get_extent(0)),
 		static_cast<Eigen::Index>(left_core.get_extent(1)),
 		stride_t(left_core.get_stride(1), left_core.get_stride(0))
 	);
-	Eigen::Map<const dynamic_matrix, 0, stride_t> right_map(
+	const Eigen::Map<const dynamic_matrix, 0, stride_t> right_map(
 		right,
 		static_cast<Eigen::Index>(right_core.get_extent(0)),
 		static_cast<Eigen::Index>(right_core.get_extent(1)),
@@ -316,26 +316,33 @@ gemm_fn<T> select_gemm_n(std::size_t n) noexcept
  * @see select_gemm_n_visitor
  */
 template <int M, typename T>
-struct select_gemm_kn_visitor
+class select_gemm_kn_visitor
 {
-	std::size_t n;
+public:
+	explicit select_gemm_kn_visitor(std::size_t n) noexcept
+		: m_n(n)
+	{
+	}
 
 	template <int K>
 	gemm_fn<T> operator()(std::integral_constant<int, K>) const noexcept
 	{
-		return select_gemm_n<M, K, T>(n);
+		return select_gemm_n<M, K, T>(m_n);
 	}
 
 	gemm_fn<T> operator()(std::size_t) const noexcept
 	{
-		return select_gemm_n<M, Eigen::Dynamic, T>(n);
+		return select_gemm_n<M, Eigen::Dynamic, T>(m_n);
 	}
+
+private:
+	std::size_t m_n;
 };
 
 template <int M, typename T>
 gemm_fn<T> select_gemm_kn(std::size_t k, std::size_t n) noexcept
 {
-	return dispatch_extent(k, select_gemm_kn_visitor<M, T>{ n });
+	return dispatch_extent(k, select_gemm_kn_visitor<M, T>(n));
 }
 
 /**
@@ -344,27 +351,35 @@ gemm_fn<T> select_gemm_kn(std::size_t k, std::size_t n) noexcept
  * @see select_gemm_n_visitor
  */
 template <typename T>
-struct select_gemm_mkn_visitor
+class select_gemm_mkn_visitor
 {
-	std::size_t k;
-	std::size_t n;
+public:
+	explicit select_gemm_mkn_visitor(std::size_t k, std::size_t n) noexcept
+		: m_k(k)
+		, m_n(n)
+	{
+	}
 
 	template <int M>
 	gemm_fn<T> operator()(std::integral_constant<int, M>) const noexcept
 	{
-		return select_gemm_kn<M, T>(k, n);
+		return select_gemm_kn<M, T>(m_k, m_n);
 	}
 
 	gemm_fn<T> operator()(std::size_t) const noexcept
 	{
-		return select_gemm_kn<Eigen::Dynamic, T>(k, n);
+		return select_gemm_kn<Eigen::Dynamic, T>(m_k, m_n);
 	}
+
+private:
+	std::size_t m_k;
+	std::size_t m_n;
 };
 
 template <typename T>
 gemm_fn<T> select_gemm_mkn(std::size_t m, std::size_t k, std::size_t n) noexcept
 {
-	return dispatch_extent(m, select_gemm_mkn_visitor<T>{ k, n });
+	return dispatch_extent(m, select_gemm_mkn_visitor<T>(k, n));
 }
 
 /**
@@ -401,26 +416,33 @@ gemm_fn<T> select_gemv_k(std::size_t k) noexcept
  * @see select_gemm_n_visitor
  */
 template <typename T>
-struct select_gemv_mk_visitor
+class select_gemv_mk_visitor
 {
-	std::size_t k;
+public:
+	explicit select_gemv_mk_visitor(std::size_t k) noexcept
+		: m_k(k)
+	{
+	}
 
 	template <int M>
 	gemm_fn<T> operator()(std::integral_constant<int, M>) const noexcept
 	{
-		return select_gemv_k<M, T>(k);
+		return select_gemv_k<M, T>(m_k);
 	}
 
 	gemm_fn<T> operator()(std::size_t) const noexcept
 	{
-		return select_gemv_k<Eigen::Dynamic, T>(k);
+		return select_gemv_k<Eigen::Dynamic, T>(m_k);
 	}
+
+private:
+	std::size_t m_k;
 };
 
 template <typename T>
 gemm_fn<T> select_gemv_mk(std::size_t m, std::size_t k) noexcept
 {
-	return dispatch_extent(m, select_gemv_mk_visitor<T>{ k });
+	return dispatch_extent(m, select_gemv_mk_visitor<T>(k));
 }
 
 /**
@@ -457,26 +479,33 @@ gemm_fn<T> select_vecgemm_n(std::size_t n) noexcept
  * @see select_gemm_n_visitor
  */
 template <typename T>
-struct select_vecgemm_kn_visitor
+class select_vecgemm_kn_visitor
 {
-	std::size_t n;
+public:
+	explicit select_vecgemm_kn_visitor(std::size_t n) noexcept
+		: m_n(n)
+	{
+	}
 
 	template <int K>
 	gemm_fn<T> operator()(std::integral_constant<int, K>) const noexcept
 	{
-		return select_vecgemm_n<K, T>(n);
+		return select_vecgemm_n<K, T>(m_n);
 	}
 
 	gemm_fn<T> operator()(std::size_t) const noexcept
 	{
-		return select_vecgemm_n<Eigen::Dynamic, T>(n);
+		return select_vecgemm_n<Eigen::Dynamic, T>(m_n);
 	}
+
+private:
+	std::size_t m_n;
 };
 
 template <typename T>
 gemm_fn<T> select_vecgemm_kn(std::size_t k, std::size_t n) noexcept
 {
-	return dispatch_extent(k, select_vecgemm_kn_visitor<T>{ n });
+	return dispatch_extent(k, select_vecgemm_kn_visitor<T>(n));
 }
 
 template <typename T>

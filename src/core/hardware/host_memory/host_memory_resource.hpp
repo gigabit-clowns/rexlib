@@ -26,6 +26,11 @@ private:
 	) = delete; // Singleton
 	host_memory_resource(host_memory_resource &&other) = delete; // Singleton
 
+	host_memory_resource& operator=(
+		const host_memory_resource &other
+	) = delete;
+	host_memory_resource& operator=(host_memory_resource &&other) = delete;
+
 	static const host_memory_resource m_instance;
 };
 

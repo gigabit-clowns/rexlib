@@ -44,12 +44,12 @@ std::size_t strided_layout::get_rank() const noexcept
 
 void strided_layout::get_extents(std::vector<std::size_t> &extents) const
 {
-	return get_implementation().get_extents(extents);
+	get_implementation().get_extents(extents);
 }
 
 void strided_layout::get_strides(std::vector<std::ptrdiff_t> &strides) const
 {
-	return get_implementation().get_strides(strides);
+	get_implementation().get_strides(strides);
 }
 
 REXLIB_NODISCARD
@@ -136,10 +136,7 @@ strided_layout strided_layout::squeeze() const
 		const auto &impl = *m_implementation;
 		return strided_layout(impl.squeeze());
 	}
-	else
-	{
-		return strided_layout();
-	}
+	return strided_layout();
 }
 
 REXLIB_NODISCARD
@@ -186,7 +183,7 @@ strided_layout strided_layout::make_contiguous_layout(
 	for (auto ite = axes.rbegin(); ite != axes.rend(); ++ite)
 	{
 		ite->set_stride(stride);
-		stride *= ite->get_extent();
+		stride *= static_cast<std::ptrdiff_t>(ite->get_extent());
 	}
 
 	return strided_layout(strided_layout_implementation(axes, 0));

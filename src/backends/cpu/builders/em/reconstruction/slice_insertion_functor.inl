@@ -173,7 +173,8 @@ void slice_insertion_functor<T, SampleWeight>::settle_slices(
 	const auto count = m_plan.get_kept_count() * reduced_count;
 	const auto scale = static_cast<double>(m_plan.get_volume_extent()) /
 		static_cast<double>(n);
-	const auto centre = static_cast<double>(n / 2);
+	const auto half = n / 2;
+	const auto centre = static_cast<double>(half);
 
 	entries.resize(count);
 	states.resize(count);

@@ -213,7 +213,7 @@ make_operand_descriptors(
 		REXLIB_ASSERT(storages[i]);
 		result[i] = operand_descriptor(
 			std::move(descriptors[i]), // Steal descriptors
-			&(storages[i]->get_memory_resource())
+			&storages[i]->get_memory_resource()
 		);
 	}
 

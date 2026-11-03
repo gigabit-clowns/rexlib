@@ -8,7 +8,6 @@
 #include <backends/cpu/hardware/cpu_device_backend.hpp>
 
 #include <stdexcept>
-#include <tuple>
 #include <unordered_map>
 
 namespace rexlib
@@ -25,13 +24,10 @@ public:
 		}
 
 		auto name = backend->get_name();
-		bool inserted;
-		std::tie(std::ignore, inserted) = m_backends.emplace(
+		return m_backends.emplace(
 			std::move(name),
 			std::move(backend)
-		);
-
-		return inserted;
+		).second;
 	}
 
 	void enumerate_backends(std::vector<std::string> &names) const
@@ -123,7 +119,7 @@ void device_manager::enumerate_devices(std::vector<device_index> &indices) const
 
 bool device_manager::get_device_properties(
 	const device_index &index,
-	device_properties &desc
+	device_properties &properties
 ) const
 {
 	const auto *backend = get_backend(index.get_backend_name());
@@ -132,7 +128,7 @@ bool device_manager::get_device_properties(
 		return false;
 	}
 
-	return backend->get_device_properties(index.get_device_id(), desc);
+	return backend->get_device_properties(index.get_device_id(), properties);
 }
 
 std::shared_ptr<device_session>

@@ -165,7 +165,7 @@ void check_named_axes(
 	}
 
 	const auto cores = rule.get_input_cores();
-	const auto carrier = std::find_if(
+	const auto *const carrier = std::find_if(
 		cores.begin(),
 		cores.end(),
 		[](const core_dimensions_descriptor &core) { return !core.is_empty(); }

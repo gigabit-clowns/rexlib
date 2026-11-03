@@ -42,7 +42,7 @@ std::string get_hostname()
 std::size_t get_total_system_memory()
 {
 	#if REXLIB_LINUX
-		struct sysinfo info;
+		struct sysinfo info = {};
 		sysinfo(&info);
 		return info.totalram * info.mem_unit;
 
@@ -73,7 +73,7 @@ std::size_t get_total_system_memory()
 std::size_t get_available_system_memory()
 {
 	#if REXLIB_LINUX
-		struct sysinfo info;
+		struct sysinfo info = {};
 		sysinfo(&info);
 		return info.freeram * info.mem_unit;
 

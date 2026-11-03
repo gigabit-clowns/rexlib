@@ -136,7 +136,7 @@ void sanitize_slice_start(slice &slice, std::size_t extent)
 
 	if (start < 0)
 	{
-		slice.set_start(start + extent);
+		slice.set_start(start + static_cast<std::ptrdiff_t>(extent));
 	}
 }
 

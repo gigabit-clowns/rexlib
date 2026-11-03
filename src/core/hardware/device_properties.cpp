@@ -90,10 +90,19 @@ device_properties::~device_properties() = default;
 device_properties&
 device_properties::operator=(const device_properties &other)
 {
+	if (this == &other)
+	{
+		return *this;
+	}
+
 	if (other.m_implementation)
 	{
 		m_implementation =
 			std::make_unique<implementation>(*other.m_implementation);
+	}
+	else
+	{
+		m_implementation.reset();
 	}
 
 	return *this;

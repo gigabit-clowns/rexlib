@@ -100,7 +100,7 @@ auto dispatch_inner_loop_strides(
 		{
 			return std::forward<F>(callable)(std::make_tuple(stride_tags...));
 		},
-		(layout.get_strides(Is)[0])...
+		layout.get_strides(Is)[0]...
 	);
 }
 

@@ -25,10 +25,12 @@
 //
 // This is the only translation unit that includes pocketfft, so defining it
 // here cannot make one build of the header disagree with another.
+// NOLINTBEGIN(readability-identifier-naming)
 #if REXLIB_MINGW
 	#define POCKETFFT_NO_MULTITHREADING
 #endif
 #define POCKETFFT_CACHE_SIZE REXLIB_POCKETFFT_CACHE_SIZE
+// NOLINTEND(readability-identifier-naming)
 #include <pocketfft_hdronly.h>
 
 namespace rexlib

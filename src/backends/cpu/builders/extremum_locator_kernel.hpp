@@ -139,6 +139,7 @@ private:
 		// Only when best and candidate tie, candidate_where < where is
 		// evaluated, saving memory bandwidth.
 		return
+			// NOLINTNEXTLINE(readability-suspicious-call-argument)
 			!m_order(best, candidate) &&
 			(m_order(candidate, best) || candidate_where < where);
 	}

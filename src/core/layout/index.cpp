@@ -22,7 +22,7 @@ std::size_t sanitize_index(std::ptrdiff_t index, std::size_t extent)
 			throw std::out_of_range(oss.str());
 		}
 
-		result += extent;
+		result += static_cast<std::ptrdiff_t>(extent);
 	}
 	else if (result >= static_cast<std::ptrdiff_t>(extent))
 	{

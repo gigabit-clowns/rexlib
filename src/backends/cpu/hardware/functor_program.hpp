@@ -117,7 +117,12 @@ public:
 		scratch_requirement_array_type scratch_requirements
 	);
 
+	functor_program(const functor_program &other) = delete;
+	functor_program(functor_program &&other) = delete;
 	~functor_program() override = default;
+
+	functor_program& operator=(const functor_program &other) = delete;
+	functor_program& operator=(functor_program &&other) = delete;
 
 	void execute(
 		span<const std::shared_ptr<buffer>> output_operands,

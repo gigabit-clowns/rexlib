@@ -23,7 +23,7 @@ const_array::const_array(
 
 const array_descriptor& const_array::get_descriptor() const noexcept
 {
-	static array_descriptor empty_descriptor;
+	static const array_descriptor empty_descriptor;
 	return
 		m_implementation ?
 		m_implementation->get_descriptor() :

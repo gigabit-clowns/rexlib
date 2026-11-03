@@ -18,13 +18,22 @@
 
 #include <boost/filesystem.hpp>
 
-static const char REXLIB_PLUGINS_DIRECTORY_NAME[] = "rexlib-plugins";
-static const char REXLIB_PLUGINS_ENV_VARIABLE[] = "REXLIB_PLUGINS_PATH";
-
 namespace rexlib
 {
 
-static void try_load_plugin(
+namespace
+{
+
+const char *const plugins_directory_name = "rexlib-plugins";
+const char *const plugins_environment_variable = "REXLIB_PLUGINS_PATH";
+
+#if REXLIB_WINDOWS
+	const char path_separator = ';';
+#else
+	const char path_separator = ':';
+#endif
+
+void try_load_plugin(
 	plugin_manager &manager,
 	const std::string &path
 )
@@ -46,6 +55,46 @@ static void try_load_plugin(
 		);
 	}
 }
+
+void append_unique(
+	std::vector<std::string> &destination,
+	std::string value
+)
+{
+	const auto pos = std::find(destination.cbegin(), destination.cend(), value);
+	if (pos == destination.cend())
+	{
+		destination.push_back(std::move(value));
+	}
+}
+
+void split_path(
+	const std::string &path,
+	std::vector<std::string> &destination
+)
+{
+	std::string::size_type begin = 0;
+	while (begin <= path.size())
+	{
+		auto end = path.find(path_separator, begin);
+		if (end == std::string::npos)
+		{
+			end = path.size();
+		}
+
+		// An empty entry carries no directory. Skipping it also means a
+		// trailing or repeated separator is not read as the current
+		// working directory, which is never what was meant.
+		if (end > begin)
+		{
+			append_unique(destination, path.substr(begin, end - begin));
+		}
+
+		begin = end + 1;
+	}
+}
+
+} // anonymous namespace
 
 class plugin_manager::implementation
 {
@@ -115,10 +164,7 @@ std::size_t plugin_manager::get_plugin_count() const noexcept
 	{
 		return 0;
 	}
-	else
-	{
-		return m_implementation->get_plugin_count();
-	}
+	return m_implementation->get_plugin_count();
 }
 
 const plugin& plugin_manager::get_plugin(std::size_t index) const
@@ -127,7 +173,7 @@ const plugin& plugin_manager::get_plugin(std::size_t index) const
 	{
 		throw std::out_of_range("No plugins loaded");
 	}
-		return m_implementation->get_plugin(index);
+	return m_implementation->get_plugin(index);
 }
 
 void plugin_manager::create_if_null()
@@ -154,60 +200,17 @@ std::string get_default_plugin_directory()
 		);
 	}
 
-	path.replace_filename(REXLIB_PLUGINS_DIRECTORY_NAME);
+	path.replace_filename(plugins_directory_name);
 	return path.string();
-}
-
-#if REXLIB_WINDOWS
-	static const char PATH_SEPARATOR = ';';
-#else
-	static const char PATH_SEPARATOR = ':';
-#endif
-
-static void append_unique(
-	std::vector<std::string> &destination,
-	std::string value
-)
-{
-	const auto pos = std::find(destination.cbegin(), destination.cend(), value);
-	if (pos == destination.cend())
-	{
-		destination.push_back(std::move(value));
-	}
-}
-
-static void split_path(
-	const std::string &path,
-	std::vector<std::string> &destination
-)
-{
-	std::string::size_type begin = 0;
-	while (begin <= path.size())
-	{
-		auto end = path.find(PATH_SEPARATOR, begin);
-		if (end == std::string::npos)
-		{
-			end = path.size();
-		}
-
-		// An empty entry carries no directory. Skipping it also means a
-		// trailing or repeated separator is not read as the current
-		// working directory, which is never what was meant.
-		if (end > begin)
-		{
-			append_unique(destination, path.substr(begin, end - begin));
-		}
-
-		begin = end + 1;
-	}
 }
 
 std::vector<std::string> get_plugin_search_path()
 {
 	std::vector<std::string> result;
 
-	const char* environment_variable;
-	if((environment_variable = std::getenv(REXLIB_PLUGINS_ENV_VARIABLE)))
+	const char *const environment_variable =
+		std::getenv(plugins_environment_variable);
+	if (environment_variable)
 	{
 		split_path(environment_variable, result);
 	}

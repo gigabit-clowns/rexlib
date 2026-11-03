@@ -16,15 +16,29 @@ namespace detail
 template <typename T, std::size_t S>
 REXLIB_INLINE_CONSTEXPR
 span_storage<T, S>::span_storage(T* ptr, std::size_t) noexcept
-	: data(ptr)
+	: m_data(ptr)
 {
+}
+
+template <typename T, std::size_t S>
+REXLIB_INLINE_CONSTEXPR
+T* span_storage<T, S>::get_data() const noexcept
+{
+	return m_data;
+}
+
+template <typename T, std::size_t S>
+REXLIB_INLINE_CONSTEXPR
+std::size_t span_storage<T, S>::get_size() const noexcept
+{
+	return S;
 }
 
 template <typename T>
 REXLIB_INLINE_CONSTEXPR
 span_storage<T, dynamic_extent>::span_storage() noexcept
-	: data(nullptr)
-	, size(0)
+	: m_data(nullptr)
+	, m_size(0)
 {
 }
 
@@ -34,15 +48,43 @@ span_storage<T, dynamic_extent>::span_storage(
 	T* ptr,
 	std::size_t count
 ) noexcept
-	: data(ptr)
-	, size(count)
+	: m_data(ptr)
+	, m_size(count)
 {
+}
+
+template <typename T>
+REXLIB_INLINE_CONSTEXPR
+T* span_storage<T, dynamic_extent>::get_data() const noexcept
+{
+	return m_data;
+}
+
+template <typename T>
+REXLIB_INLINE_CONSTEXPR
+std::size_t span_storage<T, dynamic_extent>::get_size() const noexcept
+{
+	return m_size;
 }
 
 template <typename T>
 REXLIB_INLINE_CONSTEXPR
 span_storage<T, 0>::span_storage(T*, std::size_t) noexcept
 {
+}
+
+template <typename T>
+REXLIB_INLINE_CONSTEXPR
+T* span_storage<T, 0>::get_data() const noexcept
+{
+	return nullptr;
+}
+
+template <typename T>
+REXLIB_INLINE_CONSTEXPR
+std::size_t span_storage<T, 0>::get_size() const noexcept
+{
+	return 0;
 }
 
 } // namespace detail
@@ -79,7 +121,7 @@ template <typename T, std::size_t Extent>
 REXLIB_INLINE_CONSTEXPR
 typename span<T, Extent>::size_type span<T, Extent>::size() const noexcept
 {
-	return m_storage.size;
+	return m_storage.get_size();
 }
 
 template <typename T, std::size_t Extent>
@@ -108,7 +150,7 @@ template <typename T, std::size_t Extent>
 REXLIB_INLINE_CONSTEXPR
 typename span<T, Extent>::reference span<T, Extent>::front() const noexcept
 {
-	return *(data());
+	return *data();
 }
 
 template <typename T, std::size_t Extent>
@@ -122,7 +164,7 @@ template <typename T, std::size_t Extent>
 REXLIB_INLINE_CONSTEXPR
 typename span<T, Extent>::pointer span<T, Extent>::data() const noexcept
 {
-	return m_storage.data;
+	return m_storage.get_data();
 }
 
 template <typename T, std::size_t Extent>

@@ -63,6 +63,15 @@ function(rexlib_add_component NAME)
 
 	rexlib_enable_warnings(${NAME})
 
+	if(REXLIB_CLANG_TIDY)
+		set_target_properties(
+			${NAME}
+			PROPERTIES
+				CXX_CLANG_TIDY
+					"${REXLIB_CLANG_TIDY_EXECUTABLE};--warnings-as-errors=*"
+		)
+	endif()
+
 	# Add coverage flags if requested
 	if(REXLIB_ENABLE_COVERAGE)
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

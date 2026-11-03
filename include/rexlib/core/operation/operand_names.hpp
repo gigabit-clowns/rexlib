@@ -24,21 +24,29 @@ namespace rexlib
  * @tparam N The number of operands.
  */
 template <std::size_t N>
-struct operand_names
+class operand_names
 {
+public:
 	static REXLIB_CONST_CONSTEXPR std::size_t count = N;
 
-	std::array<const char*, N> values;
+	/**
+	 * @brief Construct the list from its names.
+	 *
+	 * @param names The operand names, in signature order.
+	 */
+	REXLIB_CONSTEXPR explicit operand_names(
+		std::array<const char*, N> names
+	) noexcept;
 
 	/**
 	 * @brief Get the names as a span.
 	 *
 	 * @return span<const char* const> The names.
 	 */
-	span<const char* const> get() const noexcept
-	{
-		return make_span(values.data(), N);
-	}
+	span<const char* const> get() const noexcept;
+
+private:
+	std::array<const char*, N> m_names;
 };
 
 /**
@@ -49,10 +57,7 @@ struct operand_names
  */
 template <typename... Names>
 REXLIB_CONSTEXPR
-operand_names<sizeof...(Names)> make_operand_names(Names... names) noexcept
-{
-	return operand_names<sizeof...(Names)>{ { names... } };
-}
+operand_names<sizeof...(Names)> make_operand_names(Names... names) noexcept;
 
 /**
  * @brief Get the operand count of an operand name list.
@@ -72,3 +77,5 @@ struct operand_names_count
 };
 
 } // namespace rexlib
+
+#include "operand_names.inl"

@@ -19,10 +19,7 @@ std::size_t bit(std::size_t i) noexcept
 	{
 		return 0;
 	}
-	else
-	{
-		return std::size_t(1) << i;
-	}
+	return std::size_t(1) << i;
 }
 
 template<typename T>
@@ -77,17 +74,15 @@ rotate_left(T x, int s) noexcept
 #else
 	if (s >= 0)
 	{
-		REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits;
-		const auto r = static_cast<unsigned>(s) % N;
-		if(r > 0)
-			return (x << r) | (x >> (N - r));
-		else
-			return x;
+		REXLIB_CONST_CONSTEXPR auto digits = std::numeric_limits<T>::digits;
+		const auto r = static_cast<unsigned>(s) % digits;
+		if (r > 0)
+		{
+			return (x << r) | (x >> (digits - r));
+		}
+		return x;
 	}
-	else
-	{
-		return rotate_right(x, -s);
-	}
+	return rotate_right(x, -s);
 #endif
 }
 
@@ -101,17 +96,15 @@ rotate_right(T x, int s) noexcept
 #else
 	if (s >= 0)
 	{
-		REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits;
-		const auto r = static_cast<unsigned>(s) % N;
-		if(r > 0)
-			return (x >> r) | (x << (N - r));
-		else
-			return x;
+		REXLIB_CONST_CONSTEXPR auto digits = std::numeric_limits<T>::digits;
+		const auto r = static_cast<unsigned>(s) % digits;
+		if (r > 0)
+		{
+			return (x >> r) | (x << (digits - r));
+		}
+		return x;
 	}
-	else
-	{
-		return rotate_left(x, -s);
-	}
+	return rotate_left(x, -s);
 #endif
 }
 
@@ -130,10 +123,7 @@ has_single_bit(T x) noexcept
 		clear_lowest_one_inplace(x);
 		return !x;
 	}
-	else
-	{
-		return false;
-	}
+	return false;
 #endif
 }
 
@@ -149,10 +139,7 @@ bit_floor(T x) noexcept
 	{
 		return T(1) << (bit_width(x) - 1);
 	}
-	else
-	{
-		return T(0);
-	}
+	return T(0);
 #endif
 }
 
@@ -176,8 +163,8 @@ bit_width(T x) noexcept
 #if REXLIB_HAS_LIB_POW2
 	return std::bit_width(x);
 #else
-	REXLIB_CONST_CONSTEXPR auto N = std::numeric_limits<T>::digits;
-	return N - count_leading_zeros(x);
+	REXLIB_CONST_CONSTEXPR auto digits = std::numeric_limits<T>::digits;
+	return digits - count_leading_zeros(x);
 #endif
 }
 
@@ -189,10 +176,10 @@ REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_leading_zeros(T x) noexcept
 {
-	REXLIB_CONSTEXPR auto N = std::numeric_limits<T>::digits;
+	REXLIB_CONSTEXPR auto digits = std::numeric_limits<T>::digits;
 
-	auto count = N;
-	for(auto n = N >> 1; n; n >>= 1)
+	auto count = digits;
+	for(auto n = digits >> 1; n; n >>= 1)
 	{
 		const auto y = T(x >> n);
 		if(y)
@@ -267,10 +254,10 @@ REXLIB_INLINE_CONSTEXPR
 typename std::enable_if<std::is_unsigned<T>::value, int>::type
 count_trailing_zeros(T x) noexcept
 {
-	REXLIB_CONSTEXPR auto N = std::numeric_limits<T>::digits;
+	REXLIB_CONSTEXPR auto digits = std::numeric_limits<T>::digits;
 
-	auto count = N;
-	for(auto n = N >> 1; n; n >>= 1)
+	auto count = digits;
+	for(auto n = digits >> 1; n; n >>= 1)
 	{
 		const auto y = T(x << n);
 		if(y)
