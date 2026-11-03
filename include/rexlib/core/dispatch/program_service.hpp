@@ -3,7 +3,7 @@
 #pragma once
 
 #include "../platform/dynamic_shared_object.h"
-#include "../service_manager.hpp"
+#include "../service.hpp"
 #include "../numerical/numerical_type.hpp"
 #include "../span.hpp"
 
@@ -27,19 +27,19 @@ class program_cache;
  * The operation program builders are cataloged by their intended operation such
  * that it allows fast retrieval.
  */
-class REXLIB_API program_manager
-	: public service_manager
+class REXLIB_API program_service
+	: public service
 {
 public:
-	program_manager() noexcept;
-	program_manager(const program_manager &other) = delete;
-	program_manager(program_manager &&other) = delete;
-	~program_manager() override;
+	program_service() noexcept;
+	program_service(const program_service &other) = delete;
+	program_service(program_service &&other) = delete;
+	~program_service() override;
 
-	program_manager&
-	operator=(const program_manager &other) = delete;
-	program_manager&
-	operator=(program_manager &&other) = delete;
+	program_service&
+	operator=(const program_service &other) = delete;
+	program_service&
+	operator=(program_service &&other) = delete;
 
 	/**
 	 * @brief Register a new operation program builder.

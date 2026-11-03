@@ -7,7 +7,7 @@ target_sources(
 		test_command_token.cpp
 		test_device_context.cpp
 		test_device_index.cpp
-		test_device_manager.cpp
+		test_device_service.cpp
 		test_device_properties.cpp
 		test_device_session.cpp
 		test_device_type.cpp

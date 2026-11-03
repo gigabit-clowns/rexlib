@@ -99,8 +99,8 @@ def test_arrays_can_be_created_on_a_python_device(
 @pytest.fixture
 def __setup_queue():
 	catalog = rexlib.ServiceCatalog()
-	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(
+	devices = rexlib.hardware.get_device_service(catalog)
+	session = devices.create_device_session(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 	return session.default_queue

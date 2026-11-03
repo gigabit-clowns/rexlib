@@ -19,7 +19,7 @@ class const_array_ref;
 
 
 class operation;
-class program_manager;
+class program_service;
 
 /**
  * @brief Abstract interface that executes operations on a set of operands.
@@ -27,7 +27,7 @@ class program_manager;
  * A dispatcher takes the immutable description of an operation together with
  * its input and output operands and turns it into work submitted to a device.
  * It owns whatever machinery is required to select and build an executable
- * program for the operation (e.g. an operation program manager and a cache of
+ * program for the operation (e.g. a program service and a cache of
  * backend-private resources), so that callers only need to provide the
  * operands and the hardware resources on which the work is to be carried out.
  *
@@ -84,15 +84,15 @@ public:
  * (compiled kernels, FFT plans, ...) so they are reused across builds with
  * matching launch configurations.
  *
- * @param program_manager The manager queried to build the program for each
+ * @param program_service The service queried to build the program for each
  * operation. Must not be null.
  * @return A newly created eager dispatcher.
  *
- * @throws std::invalid_argument if @p program_manager is null.
+ * @throws std::invalid_argument if @p program_service is null.
  */
 REXLIB_API
 std::shared_ptr<dispatcher> make_eager_dispatcher(
-	std::shared_ptr<const program_manager> program_manager
+	std::shared_ptr<const program_service> program_service
 );
 
 } // namespace rexlib

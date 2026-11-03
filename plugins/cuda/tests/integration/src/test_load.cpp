@@ -8,7 +8,7 @@
 #include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/hardware/device_backend.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/device_properties.hpp>
 #include <rexlib/core/hardware/device_type.hpp>
 #include <rexlib/core/plugin.hpp>
@@ -42,17 +42,17 @@ TEST_CASE( "register the CUDA device backend", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager =
-		catalog.get_service_manager<rexlib::device_manager>();
-	REQUIRE( device_manager != nullptr );
+	const auto device_service =
+		catalog.get_service<rexlib::device_service>();
+	REQUIRE( device_service != nullptr );
 
 	std::vector<std::string> names;
-	device_manager->enumerate_backends(names);
+	device_service->enumerate_backends(names);
 	REQUIRE(
 		std::find(names.cbegin(), names.cend(), "cuda") != names.cend()
 	);
 
-	auto *backend = device_manager->get_backend("cuda");
+	auto *backend = device_service->get_backend("cuda");
 	REQUIRE( backend != nullptr );
 	REQUIRE( backend->get_version().get_major() >= 11 );
 }
@@ -67,9 +67,9 @@ TEST_CASE( "enumerate the CUDA devices", "[cuda]" )
 	service_catalog catalog;
 	register_all_plugins_at(manager, catalog);
 
-	const auto device_manager =
-		catalog.get_service_manager<rexlib::device_manager>();
-	auto *backend = device_manager->get_backend("cuda");
+	const auto device_service =
+		catalog.get_service<rexlib::device_service>();
+	auto *backend = device_service->get_backend("cuda");
 	REQUIRE( backend != nullptr );
 
 	// Enumeration must succeed even when no CUDA capable device or driver is

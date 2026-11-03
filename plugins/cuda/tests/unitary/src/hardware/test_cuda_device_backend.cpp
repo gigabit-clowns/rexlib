@@ -10,7 +10,7 @@
 
 #include <config.hpp>
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/device_properties.hpp>
 #include <rexlib/core/hardware/device_type.hpp>
 
@@ -155,19 +155,19 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"a cuda_device_backend should register itself once at a device manager",
+	"a cuda_device_backend should register itself once at a device service",
 	"[device_backend]"
 )
 {
-	device_manager manager;
+	device_service devices;
 
-	REQUIRE( cuda::cuda_device_backend::register_at(manager) );
+	REQUIRE( cuda::cuda_device_backend::register_at(devices) );
 
-	const auto *backend = manager.get_backend("cuda");
+	const auto *backend = devices.get_backend("cuda");
 	REQUIRE( backend != nullptr );
 	CHECK(
 		dynamic_cast<const cuda::cuda_device_backend*>(backend) != nullptr
 	);
 
-	CHECK_FALSE( cuda::cuda_device_backend::register_at(manager) );
+	CHECK_FALSE( cuda::cuda_device_backend::register_at(devices) );
 }

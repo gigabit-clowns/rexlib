@@ -12,16 +12,16 @@ namespace rexlib
 
 template <typename T>
 inline
-std::shared_ptr<T> service_catalog::get_service_manager()
+std::shared_ptr<T> service_catalog::get_service()
 {
 	const std::type_index key(typeid(T));
 
-	auto value = std::static_pointer_cast<T>(get_service_manager(key));
+	auto value = std::static_pointer_cast<T>(get_service(key));
 	if(!value)
 	{
-		// Interface does not exist. Create it
+		// The service does not exist yet: create it.
 		value = std::make_shared<T>();
-		create_service_manager(key, value);
+		create_service(key, value);
 	}
 
 	return value;

@@ -21,8 +21,8 @@ public:
 	implementation& operator=(const implementation &other) = delete;
 	implementation& operator=(implementation &&other) = delete;
 
-	std::shared_ptr<service_manager>
-	get_service_manager(std::type_index key)
+	std::shared_ptr<service>
+	get_service(std::type_index key)
 	{
 		const auto ite = m_interfaces.find(key);
 		if(ite != m_interfaces.end())
@@ -33,9 +33,9 @@ public:
 		return nullptr;
 	}
 
-	void create_service_manager(
+	void create_service(
 		std::type_index key,
-		std::shared_ptr<service_manager> value
+		std::shared_ptr<service> value
 	)
 	{
 		m_interfaces.emplace(key, std::move(value));
@@ -43,7 +43,7 @@ public:
 
 private:
 	using catalog_type =
-		std::unordered_map<std::type_index, std::shared_ptr<service_manager>>;
+		std::unordered_map<std::type_index, std::shared_ptr<service>>;
 
 	catalog_type m_interfaces;
 };
@@ -64,18 +64,18 @@ service_catalog::~service_catalog() = default;
 service_catalog&
 service_catalog::operator=(service_catalog&& other) noexcept = default;
 
-std::shared_ptr<service_manager>
-service_catalog::get_service_manager(std::type_index key)
+std::shared_ptr<service>
+service_catalog::get_service(std::type_index key)
 {
-	return m_implementation->get_service_manager(key);
+	return m_implementation->get_service(key);
 }
 
-void service_catalog::create_service_manager(
+void service_catalog::create_service(
 	std::type_index key,
-	std::shared_ptr<service_manager> value
+	std::shared_ptr<service> value
 )
 {
-	m_implementation->create_service_manager(key, std::move(value));
+	m_implementation->create_service(key, std::move(value));
 }
 
 } // namespace rexlib

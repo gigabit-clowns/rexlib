@@ -6,5 +6,5 @@ target_sources(
 		dispatcher.cpp
 		execution_context.cpp
 		main.cpp
-		program_manager.cpp
+		program_service.cpp
 )

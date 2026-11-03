@@ -28,7 +28,7 @@ them. See #143.
 | `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
 | `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, the functions that put an array's memory in a DLPack capsule and take one out, and the type caster that loads `const_array_ref` and `array_ref` from an `Array` |
 | `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |
-| `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramManager` |
+| `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramService` |
 | `_binding.ops.fourier` | `src/ops/fourier/` | `FourierNormalization`, the convention of the Fourier transforms |
 | `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
 | `_binding.em.ops.parameters` | `src/em/ops/parameters/` | The types the parameters of the operations of `rexlib::em` are made of: `GriddingProfile`, `GriddingWindow`, `CtfOptics` |

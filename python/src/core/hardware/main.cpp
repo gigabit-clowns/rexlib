@@ -7,7 +7,7 @@
 #include "device_backend.hpp"
 #include "device_context.hpp"
 #include "device_index.hpp"
-#include "device_manager.hpp"
+#include "device_service.hpp"
 #include "device_properties.hpp"
 #include "device_session.hpp"
 #include "device_type.hpp"
@@ -28,7 +28,7 @@ void bind_hardware(nb::module_ &m)
 	auto device_backend = declare_device_backend(m);
 	auto device_context = declare_device_context(m);
 	auto device_index = declare_device_index(m);
-	auto device_manager = declare_device_manager(m);
+	auto device_service = declare_device_service(m);
 	auto device_properties = declare_device_properties(m);
 	auto device_session = declare_device_session(m);
 	auto device_type = declare_device_type(m);
@@ -42,7 +42,7 @@ void bind_hardware(nb::module_ &m)
 	define_device_backend(device_backend);
 	define_device_context(device_context);
 	define_device_index(device_index);
-	define_device_manager(device_manager, m);
+	define_device_service(device_service, m);
 	define_device_properties(device_properties);
 	define_device_session(device_session);
 	define_device_type(device_type);

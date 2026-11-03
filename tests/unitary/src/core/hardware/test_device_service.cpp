@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/hardware/device_session.hpp>
@@ -25,10 +25,10 @@ using namespace rexlib;
 namespace
 {
 
-class device_manager_fixture
+class device_service_fixture
 {
 public:
-	device_manager_fixture()
+	device_service_fixture()
 		: device(std::make_shared<mock_device>())
 		, host_allocator(std::make_shared<mock_memory_allocator>())
 		, device_allocator(std::make_shared<mock_memory_allocator>())
@@ -39,7 +39,7 @@ public:
 protected:
 	using expectation_ptr = std::unique_ptr<trompeloeil::expectation>;
 
-	device_manager manager;
+	device_service service_under_test;
 	std::shared_ptr<mock_device> device;
 	std::shared_ptr<memory_allocator> host_allocator;
 	std::shared_ptr<memory_allocator> device_allocator;
@@ -52,7 +52,7 @@ protected:
 		auto backend = std::make_unique<mock_device_backend>();
 		REQUIRE_CALL(*backend, get_name())
 			.RETURN(name);
-		manager.register_backend(std::move(backend));
+		service_under_test.register_backend(std::move(backend));
 	}
 
 	std::vector<expectation_ptr>
@@ -101,7 +101,7 @@ protected:
 			.RETURN(default_queue)
 		);
 
-		manager.register_backend(std::move(backend));
+		service_under_test.register_backend(std::move(backend));
 		return expectations;
 	}
 };
@@ -110,11 +110,11 @@ protected:
 
 
 TEST_CASE(
-	"device_manager should allow registering backends",
-	"[device_manager]"
+	"device_service should allow registering backends",
+	"[device_service]"
 )
 {
-	device_manager manager;
+	device_service service_under_test;
 
 	auto mock1 = std::make_unique<mock_device_backend>();
 	REQUIRE_CALL(*mock1, get_name())
@@ -123,42 +123,42 @@ TEST_CASE(
 	REQUIRE_CALL(*mock2, get_name())
 		.RETURN("mock2");
 
-	CHECK( manager.register_backend(std::move(mock1)) == true );
-	CHECK( manager.register_backend(std::move(mock2)) == true );
+	CHECK( service_under_test.register_backend(std::move(mock1)) == true );
+	CHECK( service_under_test.register_backend(std::move(mock2)) == true );
 }
 
 TEST_CASE(
-	"device_manager should not allow registering duplicate backends",
-	"[device_manager]"
+	"device_service should not allow registering duplicate backends",
+	"[device_service]"
 )
 {
-	device_manager manager;
+	device_service service_under_test;
 
 	auto mock = std::make_unique<mock_device_backend>();
 	REQUIRE_CALL(*mock, get_name())
 		.RETURN("mock");
 
-	CHECK( manager.register_backend(std::move(mock)) == true );
+	CHECK( service_under_test.register_backend(std::move(mock)) == true );
 
 	mock = std::make_unique<mock_device_backend>();
 	REQUIRE_CALL(*mock, get_name())
 		.RETURN("mock");
-	CHECK( manager.register_backend(std::move(mock)) == false );
+	CHECK( service_under_test.register_backend(std::move(mock)) == false );
 }
 
 TEST_CASE(
-	"device_manager should not allow registering null backend",
-	"[device_manager]"
+	"device_service should not allow registering null backend",
+	"[device_service]"
 )
 {
-	device_manager manager;
+	device_service service_under_test;
 
-	CHECK( manager.register_backend(nullptr) == false );
+	CHECK( service_under_test.register_backend(nullptr) == false );
 }
 
 TEST_CASE(
-	"enumerate devices in device_manager should list all items",
-	"[device_manager]"
+	"enumerate devices in device_service should list all items",
+	"[device_service]"
 )
 {
 	auto mock1 = std::make_unique<mock_device_backend>();
@@ -175,12 +175,12 @@ TEST_CASE(
 	REQUIRE_CALL(*mock2, enumerate_devices(ANY(std::vector<std::size_t>&)))
 		.SIDE_EFFECT(_1 = {6, 7, 8, 9});
 
-	device_manager manager;
-	manager.register_backend(std::move(mock1));
-	manager.register_backend(std::move(mock2));
+	device_service service_under_test;
+	service_under_test.register_backend(std::move(mock1));
+	service_under_test.register_backend(std::move(mock2));
 
 	std::vector<device_index> devices;
-	manager.enumerate_devices(devices);
+	service_under_test.enumerate_devices(devices);
 	std::sort(devices.begin(), devices.end()); // Ordering not defined.
 
 	REQUIRE( devices.size() == 9 );
@@ -197,10 +197,10 @@ TEST_CASE(
 }
 
 TEST_CASE_METHOD(
-	device_manager_fixture,
-	"create_device_session in device_manager routes to the matching backend "
+	device_service_fixture,
+	"create_device_session in device_service routes to the matching backend "
 	"and wraps its device in a device_session",
-	"[device_manager]"
+	"[device_service]"
 )
 {
 	const std::size_t device_id = 154433421;
@@ -210,23 +210,23 @@ TEST_CASE_METHOD(
 	const auto expectations = register_creating_backend("mock", device_id);
 
 	const auto result =
-		manager.create_device_session(device_index("mock", device_id));
+		service_under_test.create_device_session(device_index("mock", device_id));
 
 	REQUIRE( result != nullptr );
 	CHECK( result->get_device() == device );
 }
 
 TEST_CASE_METHOD(
-	device_manager_fixture,
-	"create_device_session in device_manager should throw when the backend "
+	device_service_fixture,
+	"create_device_session in device_service should throw when the backend "
 	"does not exist",
-	"[device_manager]"
+	"[device_service]"
 )
 {
 	register_named_backend("mock");
 
 	REQUIRE_THROWS_MATCHES(
-		manager.create_device_session(device_index("error", 0)),
+		service_under_test.create_device_session(device_index("error", 0)),
 		std::invalid_argument,
 		Catch::Matchers::Message(
 			"Requested backend does not exist"

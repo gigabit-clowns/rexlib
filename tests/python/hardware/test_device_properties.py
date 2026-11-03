@@ -4,8 +4,8 @@ import pytest
 
 import rexlib
 
-def test_manager_returns_device_properties(__setup_device_manager):
-	properties = __setup_device_manager.get_device_properties(
+def test_manager_returns_device_properties(__setup_device_service):
+	properties = __setup_device_service.get_device_properties(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 	assert isinstance(properties, rexlib.hardware.DeviceProperties)
@@ -49,8 +49,8 @@ def test_device_types_are_distinct():
 def test_device_type_converts_to_string():
 	assert 'CPU' in str(rexlib.hardware.DeviceType.CPU)
 
-def test_manager_returns_backend_by_name(__setup_device_manager):
-	backend = __setup_device_manager.get_backend('cpu')
+def test_manager_returns_backend_by_name(__setup_device_service):
+	backend = __setup_device_service.get_backend('cpu')
 	assert isinstance(backend, rexlib.hardware.DeviceBackend)
 
 def test_backend_reports_name_and_version(__setup_backend):
@@ -70,22 +70,22 @@ def test_backend_creates_a_device(__setup_backend):
 	)
 
 @pytest.fixture
-def __setup_device_manager():
+def __setup_device_service():
 	catalog = rexlib.ServiceCatalog()
-	return rexlib.hardware.get_device_manager(catalog)
+	return rexlib.hardware.get_device_service(catalog)
 
 @pytest.fixture
-def __setup_session(__setup_device_manager):
-	return __setup_device_manager.create_device_session(
+def __setup_session(__setup_device_service):
+	return __setup_device_service.create_device_session(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 
 @pytest.fixture
-def __setup_properties(__setup_device_manager):
-	return __setup_device_manager.get_device_properties(
+def __setup_properties(__setup_device_service):
+	return __setup_device_service.get_device_properties(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 
 @pytest.fixture
-def __setup_backend(__setup_device_manager):
-	return __setup_device_manager.get_backend('cpu')
+def __setup_backend(__setup_device_service):
+	return __setup_device_service.get_backend('cpu')

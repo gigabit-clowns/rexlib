@@ -5,7 +5,7 @@
 #include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/hardware/device.hpp>
 #include <rexlib/core/hardware/device_backend.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/memory_allocator.hpp>
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/platform/operating_system.h>
@@ -21,7 +21,7 @@ namespace cuda
 {
 
 cuda_fixture::cuda_fixture()
-	: m_devices(m_catalog.get_service_manager<rexlib::device_manager>())
+	: m_devices(m_catalog.get_service<rexlib::device_service>())
 {
 	if (!m_manager.load_plugin(get_plugin_path()))
 	{

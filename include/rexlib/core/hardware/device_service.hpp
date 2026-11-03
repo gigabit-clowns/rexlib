@@ -5,7 +5,7 @@
 #include "device_index.hpp"
 #include "device_properties.hpp"
 #include "device_backend.hpp"
-#include "../service_manager.hpp"
+#include "../service.hpp"
 #include "../platform/dynamic_shared_object.h"
 
 #include <string>
@@ -23,22 +23,22 @@ class device_session;
  * @brief Centralize multiple @ref device_backend sessions and route
  * device queries to the appropriate one.
  *
- * The manager owns the registered backends and exposes a unified view of
+ * The service owns the registered backends and exposes a unified view of
  * all devices known to the framework, identified across backends by
  * @ref device_index. Backends are contributed by plugins, those built into
  * the library included, through @ref register_backend.
  */
-class REXLIB_API device_manager final
-	: public service_manager
+class REXLIB_API device_service final
+	: public service
 {
 public:
-	device_manager();
-	device_manager(const device_manager &other) = delete;
-	device_manager(device_manager &&other) noexcept = delete;
-	~device_manager() override;
+	device_service();
+	device_service(const device_service &other) = delete;
+	device_service(device_service &&other) noexcept = delete;
+	~device_service() override;
 
-	device_manager& operator=(const device_manager &other) = delete;
-	device_manager& operator=(device_manager &&other) = delete;
+	device_service& operator=(const device_service &other) = delete;
+	device_service& operator=(device_service &&other) = delete;
 
 	/**
 	 * @brief Enumerate the names of all registered backends.
@@ -49,7 +49,7 @@ public:
 	void enumerate_backends(std::vector<std::string> &names) const;
 
 	/**
-	 * @brief Get a backend contained in this manager by its name.
+	 * @brief Get a backend contained in this service by its name.
 	 *
 	 * @param name The name of the backend.
 	 * @return device_backend* The retrieved backend. nullptr if none is
@@ -61,18 +61,18 @@ public:
 	 * @brief Register a new backend.
 	 *
 	 * Takes ownership of @p backend and keeps it alive for the rest of
-	 * the manager's lifetime, indexed by the name it reports through
+	 * the service's lifetime, indexed by the name it reports through
 	 * @ref device_backend::get_name. Registration fails if another backend
 	 * with the same name is already registered or if @p backend is null;
 	 * on failure, ownership of @p backend remains with the caller (the
-	 * unique_ptr is not consumed) and the manager state is unchanged.
+	 * unique_ptr is not consumed) and the service's state is unchanged.
 	 *
 	 * @param[in] backend The backend to be registered. Must be non-null
 	 * for registration to succeed.
 	 * @return true The backend was successfully registered and is now
-	 * owned by the manager.
+	 * owned by the service.
 	 * @return false A name collision occurred or @p backend was null;
-	 * the manager is left unchanged.
+	 * the service is left unchanged.
 	 */
 	bool register_backend(std::unique_ptr<device_backend> backend);
 

@@ -15,10 +15,10 @@ def test_context_wraps_device_context_and_dispatcher(__setup_context):
 
 def test_eager_dispatcher_is_a_dispatcher():
 	catalog = rexlib.ServiceCatalog()
-	program_manager = rexlib.dispatch.get_program_manager(catalog)
-	assert isinstance(program_manager, rexlib.dispatch.ProgramManager)
+	program_service = rexlib.dispatch.get_program_service(catalog)
+	assert isinstance(program_service, rexlib.dispatch.ProgramService)
 	assert isinstance(
-		rexlib.dispatch.make_eager_dispatcher(program_manager),
+		rexlib.dispatch.make_eager_dispatcher(program_service),
 		rexlib.dispatch.Dispatcher
 	)
 
@@ -36,7 +36,7 @@ def test_with_dispatcher_returns_updated_copy(__setup_context):
 	device_context, dispatcher, ctx = __setup_context
 	catalog = rexlib.ServiceCatalog()
 	other = rexlib.dispatch.make_eager_dispatcher(
-		rexlib.dispatch.get_program_manager(catalog)
+		rexlib.dispatch.get_program_service(catalog)
 	)
 	updated = ctx.with_dispatcher(other)
 	assert updated.dispatcher is other
@@ -57,12 +57,12 @@ def test_with_device_context_returns_updated_copy(__setup_context):
 @pytest.fixture
 def __setup_context():
 	catalog = rexlib.ServiceCatalog()
-	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(
+	devices = rexlib.hardware.get_device_service(catalog)
+	session = devices.create_device_session(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 	device_context = rexlib.hardware.DeviceContext(session)
-	program_manager = rexlib.dispatch.get_program_manager(catalog)
-	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)
+	program_service = rexlib.dispatch.get_program_service(catalog)
+	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_service)
 	ctx = rexlib.dispatch.ExecutionContext(device_context, dispatcher)
 	return device_context, dispatcher, ctx

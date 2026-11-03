@@ -25,8 +25,8 @@ def test_device_index_and_string_share_the_session():
 
 def test_explicit_session_bypasses_the_pool():
 	catalog = rexlib.ServiceCatalog()
-	manager = rexlib.hardware.get_device_manager(catalog)
-	own = manager.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
+	devices = rexlib.hardware.get_device_service(catalog)
+	own = devices.create_device_session(rexlib.hardware.DeviceIndex('cpu', 0))
 	with rexlib.device(own) as ctx:
 		assert ctx.device_context.device_session is own
 	with rexlib.device('cpu') as pooled:

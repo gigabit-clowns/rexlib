@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 
 #include <rexlib/core/dispatch/program_builder.hpp>
 #include <rexlib/core/exceptions/unsupported_operation_error.hpp>
@@ -15,7 +15,7 @@
 namespace rexlib
 {
 
-class program_manager::implementation
+class program_service::implementation
 {
 public:
 	bool register_builder(
@@ -106,10 +106,10 @@ private:
 
 };
 
-program_manager::program_manager() noexcept = default;
-program_manager::~program_manager() = default;
+program_service::program_service() noexcept = default;
+program_service::~program_service() = default;
 
-bool program_manager::register_builder(
+bool program_service::register_builder(
 	std::unique_ptr<program_builder> builder
 )
 {
@@ -122,7 +122,7 @@ bool program_manager::register_builder(
 }
 
 std::shared_ptr<program>
-program_manager::build(
+program_service::build(
 	const operation &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
@@ -139,8 +139,8 @@ program_manager::build(
 	);
 }
 
-program_manager::implementation&
-program_manager::create_if_null()
+program_service::implementation&
+program_service::create_if_null()
 {
 	if (!m_implementation)
 	{
@@ -150,8 +150,8 @@ program_manager::create_if_null()
 	return *m_implementation;
 }
 
-const program_manager::implementation&
-program_manager::get_implementation() const noexcept
+const program_service::implementation&
+program_service::get_implementation() const noexcept
 {
 	static const implementation empty_implementation;
 	return m_implementation ? *m_implementation : empty_implementation;

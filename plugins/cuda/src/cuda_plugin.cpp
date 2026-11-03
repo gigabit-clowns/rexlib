@@ -4,7 +4,7 @@
 
 #include "hardware/cuda_device_backend.hpp"
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/service_catalog.hpp>
 
 namespace rexlib
@@ -30,9 +30,9 @@ version cuda_plugin::get_version() const noexcept
 
 void cuda_plugin::register_at(service_catalog& catalog) const
 {
-	const auto device_manager =
-		catalog.get_service_manager<rexlib::device_manager>();
-	cuda_device_backend::register_at(*device_manager);
+	const auto device_service =
+		catalog.get_service<rexlib::device_service>();
+	cuda_device_backend::register_at(*device_service);
 }
 
 } // namespace cuda

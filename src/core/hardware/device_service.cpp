@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 
 #include <rexlib/core/hardware/device_session.hpp>
 #include <rexlib/core/platform/assert.hpp>
@@ -12,7 +12,7 @@
 namespace rexlib
 {
 
-class device_manager::implementation
+class device_service::implementation
 {
 public:
 	bool register_backend(std::unique_ptr<device_backend> backend)
@@ -71,17 +71,17 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<device_backend>> m_backends;
 };
 
-device_manager::device_manager() = default;
+device_service::device_service() = default;
 
-device_manager::~device_manager() = default;
+device_service::~device_service() = default;
 
-bool device_manager::register_backend(std::unique_ptr<device_backend> backend)
+bool device_service::register_backend(std::unique_ptr<device_backend> backend)
 {
 	create_implementation_if_null();
 	return m_implementation->register_backend(std::move(backend));
 }
 
-void device_manager::enumerate_backends(
+void device_service::enumerate_backends(
 	std::vector<std::string> &names
 ) const
 {
@@ -92,7 +92,7 @@ void device_manager::enumerate_backends(
 	}
 }
 
-device_backend* device_manager::get_backend(const std::string &name) const
+device_backend* device_service::get_backend(const std::string &name) const
 {
 	if (!m_implementation)
 	{
@@ -102,7 +102,7 @@ device_backend* device_manager::get_backend(const std::string &name) const
 	return m_implementation->get_backend(name);
 }
 
-void device_manager::enumerate_devices(std::vector<device_index> &indices) const
+void device_service::enumerate_devices(std::vector<device_index> &indices) const
 {
 	indices.clear();
 	if (m_implementation)
@@ -111,7 +111,7 @@ void device_manager::enumerate_devices(std::vector<device_index> &indices) const
 	}
 }
 
-bool device_manager::get_device_properties(
+bool device_service::get_device_properties(
 	const device_index &index,
 	device_properties &properties
 ) const
@@ -126,7 +126,7 @@ bool device_manager::get_device_properties(
 }
 
 std::shared_ptr<device_session>
-device_manager::create_device_session(const device_index& index) const
+device_service::create_device_session(const device_index& index) const
 {
 	const auto *backend = get_backend(index.get_backend_name());
 	if (!backend)
@@ -149,7 +149,7 @@ device_manager::create_device_session(const device_index& index) const
 	);
 }
 
-void device_manager::create_implementation_if_null()
+void device_service::create_implementation_if_null()
 {
 	if (!m_implementation)
 	{

@@ -66,7 +66,7 @@ public:
 	 * @brief Check whether this backend can serve the given operand types.
 	 *
 	 * Answers without throwing, so that a builder can report itself
-	 * unsupported and let the program manager try another backend, rather
+	 * unsupported and let the program service try another backend, rather
 	 * than an unsupported type combination surfacing as an error from deep
 	 * inside program construction.
 	 *

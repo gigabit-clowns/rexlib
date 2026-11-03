@@ -6,7 +6,7 @@
 
 #include <hardware/cuda_device_backend.hpp>
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/service_catalog.hpp>
 
 #include <string>
@@ -34,7 +34,7 @@ TEST_CASE(
 
 	plugin.register_at(catalog);
 
-	const auto devices = catalog.get_service_manager<device_manager>();
+	const auto devices = catalog.get_service<device_service>();
 	REQUIRE( devices != nullptr );
 
 	std::vector<std::string> names;

@@ -3,7 +3,7 @@
 rexlib-cuda is the CUDA hardware backend of
 [rexlib](https://github.com/gigabit-clowns/rexlib). It is a plugin: a shared
 object that rexlib's plugin manager loads at run time, which registers a CUDA
-`device_backend` with the device manager. It has no public headers and no
+`device_backend` with the device service. It has no public headers and no
 interface of its own beyond the one rexlib defines.
 
 This file is a map. The detail is in the docs under `docs/agents/`, listed

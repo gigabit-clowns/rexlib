@@ -23,13 +23,13 @@ def test_uses_active_context_when_none_given():
 
 def test_explicit_context_still_works_outside_a_with_block():
 	catalog = rexlib.ServiceCatalog()
-	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(
+	devices = rexlib.hardware.get_device_service(catalog)
+	session = devices.create_device_session(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 	device_context = rexlib.hardware.DeviceContext(session)
-	program_manager = rexlib.dispatch.get_program_manager(catalog)
-	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)
+	program_service = rexlib.dispatch.get_program_service(catalog)
+	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_service)
 	context = rexlib.dispatch.ExecutionContext(device_context, dispatcher)
 
 	descriptor = rexlib.make_contiguous_array_descriptor(
@@ -42,13 +42,13 @@ def test_explicit_context_still_works_outside_a_with_block():
 
 def test_explicit_context_overrides_active_context():
 	catalog = rexlib.ServiceCatalog()
-	manager = rexlib.hardware.get_device_manager(catalog)
-	session = manager.create_device_session(
+	devices = rexlib.hardware.get_device_service(catalog)
+	session = devices.create_device_session(
 		rexlib.hardware.DeviceIndex('cpu', 0)
 	)
 	device_context = rexlib.hardware.DeviceContext(session)
-	program_manager = rexlib.dispatch.get_program_manager(catalog)
-	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_manager)
+	program_service = rexlib.dispatch.get_program_service(catalog)
+	dispatcher = rexlib.dispatch.make_eager_dispatcher(program_service)
 	explicit_context = rexlib.dispatch.ExecutionContext(
 		device_context, dispatcher
 	)

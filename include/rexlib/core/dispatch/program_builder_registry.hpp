@@ -11,7 +11,7 @@ namespace rexlib
 {
 
 class program_builder;
-class program_manager;
+class program_service;
 
 /**
  * @brief Factory function that creates a fresh program_builder instance.
@@ -21,7 +21,7 @@ using program_builder_factory =
 
 /**
  * @brief Collects program_builder factories for bulk registration into a
- * program_manager.
+ * program_service.
  *
  * @note @ref add is not thread-safe. It is meant to run during the owning
  * module's static initialization, before any concurrent access. Reads
@@ -51,12 +51,12 @@ public:
 
 	/**
 	 * @brief Instantiate one builder per registered factory and register them
-	 * into a manager.
+	 * into a program service.
 	 *
-	 * @param manager The manager where the builders are registered.
+	 * @param programs The program service where the builders are registered.
 	 */
 	REXLIB_API
-	void register_all(program_manager &manager) const;
+	void register_all(program_service &programs) const;
 
 private:
 	std::vector<program_builder_factory> m_factories;

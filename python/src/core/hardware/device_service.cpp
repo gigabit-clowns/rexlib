@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "device_manager.hpp"
+#include "device_service.hpp"
 
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 
 #include <rexlib/core/service_catalog.hpp>
 #include <rexlib/core/hardware/device_backend.hpp>
@@ -17,24 +17,24 @@ namespace rexlib
 
 namespace nb = nanobind;
 
-static std::shared_ptr<device_manager> get_device_manager(
+static std::shared_ptr<device_service> get_device_service(
 	service_catalog &catalog
 )
 {
-	return catalog.get_service_manager<device_manager>();
+	return catalog.get_service<device_service>();
 }
 
-device_manager_class declare_device_manager(nb::module_ &m)
+device_service_class declare_device_service(nb::module_ &m)
 {
-	return device_manager_class(m, "DeviceManager");
+	return device_service_class(m, "DeviceService");
 }
 
-void define_device_manager(device_manager_class &c, nb::module_ &m)
+void define_device_service(device_service_class &c, nb::module_ &m)
 {
 	c
 		.def_prop_ro(
 			"backends",
-			[](const device_manager &self)
+			[](const device_service &self)
 			{
 				std::vector<std::string> backends;
 				self.enumerate_backends(backends);
@@ -43,13 +43,13 @@ void define_device_manager(device_manager_class &c, nb::module_ &m)
 		)
 		.def(
 			"get_backend",
-			&device_manager::get_backend,
+			&device_service::get_backend,
 			nb::arg("name"),
 			nb::rv_policy::reference_internal
 		)
 		.def_prop_ro(
 			"devices",
-			[](const device_manager &self)
+			[](const device_service &self)
 			{
 				std::vector<device_index> indices;
 				self.enumerate_devices(indices);
@@ -58,7 +58,7 @@ void define_device_manager(device_manager_class &c, nb::module_ &m)
 		)
 		.def(
 			"get_device_properties",
-			[](const device_manager &self, const device_index &index)
+			[](const device_service &self, const device_index &index)
 			{
 				device_properties desc;
 				if(!self.get_device_properties(index, desc)) {
@@ -71,11 +71,11 @@ void define_device_manager(device_manager_class &c, nb::module_ &m)
 		)
 		.def(
 			"create_device_session",
-			&device_manager::create_device_session,
+			&device_service::create_device_session,
 			nb::arg("index")
 		);
 
-	m.def("get_device_manager", &get_device_manager);
+	m.def("get_device_service", &get_device_service);
 
 }
 

@@ -14,7 +14,7 @@ namespace rexlib
 /**
  * @brief Location of a device as a (backend, id) tuple.
  *
- * A @ref device_index is a unique identifier within a @ref device_manager of a
+ * A @ref device_index is a unique identifier within a @ref device_service of a
  * physical device.
  *
  * Default-constructed indices hold an empty backend name and a zero
