@@ -19,6 +19,7 @@ function(rexlib_enable_warnings TARGET)
 				-Wall
 				-Wextra
 				-Wpedantic
+				-Wundef
 				$<$<BOOL:${REXLIB_WARNINGS_AS_ERRORS}>:-Werror>
 		)
 	endif()

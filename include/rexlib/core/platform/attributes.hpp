@@ -7,14 +7,17 @@
  * @brief Macro definitions for supported attributes
  *
  * This file declares a variety of C++ attributes through
- * macros. When an attribute is not supported, first it
- * tries to provide an alternative though compiler intrinsic
+ * macros. A standard attribute is spelled as such only from the
+ * standard that introduced it, so that an older standard does not
+ * get it as an extension. When an attribute is not available, first
+ * it tries to provide an alternative though compiler intrinsic
  * macros. If no alternative is available, a dummy declaration
  * is provided. This allows the programmer to use the attributes
  * through macro definitions with no compatibility check, and
  * then its declaration will handle the best option available.
  */
 
+#include "cpp_version.hpp"
 #include "cpp_attributes.hpp"
 #include "c_attributes.h"
 #include "builtin.h"
@@ -38,7 +41,7 @@
  * is not desired in a switch statement
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(fallthrough)
+#if REXLIB_HAS_CPP17 && REXLIB_HAS_CPP_ATTRIBUTE(fallthrough)
 	#define REXLIB_FALLTHROUGH REXLIB_CPP_ATTRIBUTE(fallthrough)
 #elif REXLIB_HAS_GCC_ATTRIBUTE(fallthrough)
 	#define REXLIB_FALLTHROUGH REXLIB_GCC_ATTRIBUTE(fallthrough)
@@ -69,7 +72,7 @@
  * @brief Indicates that the return value should be used
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(nodiscard)
+#if REXLIB_HAS_CPP17 && REXLIB_HAS_CPP_ATTRIBUTE(nodiscard)
 	#define REXLIB_NODISCARD REXLIB_CPP_ATTRIBUTE(nodiscard)
 #elif REXLIB_HAS_GCC_ATTRIBUTE(warn_unused_result)
 	#define REXLIB_NODISCARD REXLIB_GCC_ATTRIBUTE(warn_unused_result)
@@ -82,7 +85,7 @@
  * @brief Indicates that a variable is intentionally declared and but unused.
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(maybe_unused)
+#if REXLIB_HAS_CPP17 && REXLIB_HAS_CPP_ATTRIBUTE(maybe_unused)
 	#define REXLIB_UNUSED REXLIB_CPP_ATTRIBUTE(maybe_unused)
 #elif REXLIB_HAS_GCC_ATTRIBUTE(unused)
 	#define REXLIB_UNUSED REXLIB_GCC_ATTRIBUTE(unused)
@@ -95,7 +98,7 @@
  * @brief Indicates that the return value should be used, proving a message
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(nodiscard)
+#if REXLIB_HAS_CPP17 && REXLIB_HAS_CPP_ATTRIBUTE(nodiscard)
 	#if REXLIB_HAS_CPP20
 		#define REXLIB_NODISCARD_MESSAGE(reason) \
 			REXLIB_CPP_ATTRIBUTE(nodiscard(reason))
@@ -140,7 +143,7 @@
  * for compiler optimizations
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(assume)
+#if REXLIB_HAS_CPP23 && REXLIB_HAS_CPP_ATTRIBUTE(assume)
 	#define REXLIB_ASSUME(expr) REXLIB_CPP_ATTRIBUTE(assume(expr))
 #elif REXLIB_HAS_GCC_ATTRIBUTE(assume)
 	#define REXLIB_ASSUME(expr) REXLIB_GCC_ATTRIBUTE(assume(expr))
@@ -157,7 +160,7 @@
  * @brief Indicates to the compiler that a particular branch is likely
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(likely)
+#if REXLIB_HAS_CPP20 && REXLIB_HAS_CPP_ATTRIBUTE(likely)
 	#define REXLIB_LIKELY REXLIB_CPP_ATTRIBUTE(likely)
 #else
 	#define REXLIB_LIKELY
@@ -168,7 +171,7 @@
  * @brief Indicates to the compiler that a particular branch is unlikely
  *
  */
-#if REXLIB_HAS_CPP_ATTRIBUTE(unlikely)
+#if REXLIB_HAS_CPP20 && REXLIB_HAS_CPP_ATTRIBUTE(unlikely)
 	#define REXLIB_UNLIKELY REXLIB_CPP_ATTRIBUTE(unlikely)
 #else
 	#define REXLIB_UNLIKELY
