@@ -40,6 +40,16 @@ definition does not follow this, `parse_device_index` in
 `src/core/hardware/device_index.cpp`, which uses `std::from_chars`. The
 public headers do, and `REXLIB_CHECK_HEADERS` holds them to it.
 
+`VERSION` holds the version of the library and the binding; the CUDA plugin
+has its own in `plugins/cuda/VERSION`. CMake writes it into the public header
+`rexlib/core/version_macros.h`, in `include/` of the build tree, and installs
+it with the other headers; it is the one source file CMake writes.
+`get_library_version()` returns the version of the library that is loaded.
+Before 1.0 a minor version may break the ABI, so the SONAME is `0.<minor>`
+(`librexlib.so.0.1`) and `find_package(rexlib)` accepts only the same minor;
+from 1.0 both follow the major version. The library's file is named by its
+SONAME, beside the namelink.
+
 Options:
 
 | Option | Default | Effect |

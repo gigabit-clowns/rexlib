@@ -108,12 +108,6 @@ wheel.py-api = "cp312"
 # stubs imports the extension, which does not load until rexlib is in place.
 install.components = ["rexlib_runtime", "rexlib_development", "rexlib_python"]
 
-# The versioned names, beside which rexlib installs a soname.
-wheel.exclude = [
-    "librexlib.so.*.*.*",
-    "librexlib.*.*.*.dylib",
-]
-
 cmake.version = ">=3.26"
 cmake.args = []
 build.verbose = false

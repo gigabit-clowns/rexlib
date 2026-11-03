@@ -53,11 +53,16 @@ set_target_properties(
 target_compile_definitions(
 	rexlib-cuda-objects
 	PRIVATE
+		# CMake only defines this automatically for SHARED and MODULE targets.
+		REXLIB_CUDA_EXPORTING
+)
+# The version reaches only the file that reports it.
+set_property(
+	SOURCE cuda_plugin.cpp
+	APPEND PROPERTY COMPILE_DEFINITIONS
 		REXLIB_CUDA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
 		REXLIB_CUDA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
 		REXLIB_CUDA_VERSION_PATCH=${PROJECT_VERSION_PATCH}
-		# CMake only defines this automatically for SHARED and MODULE targets.
-		REXLIB_CUDA_EXPORTING
 )
 target_link_libraries(
 	rexlib-cuda-objects

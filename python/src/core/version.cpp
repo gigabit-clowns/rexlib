@@ -34,15 +34,6 @@ static std::string to_repr(const version &v)
 	return oss.str();
 }
 
-static version get_binding_version() noexcept
-{
-	return version(
-		REXLIB_PYTHON_VERSION_MAJOR,
-		REXLIB_PYTHON_VERSION_MINOR,
-		REXLIB_PYTHON_VERSION_PATCH
-	);
-}
-
 version_class declare_version(nb::module_ &m)
 {
 	return version_class(m, "Version");
@@ -96,7 +87,6 @@ void define_version(version_class &c, nb::module_ &m)
 	c.attr("__hash__") = nb::none();
 
 	m.attr("rexlib_version") = nb::cast(get_library_version());
-	m.attr("rexlib_binding_version") = nb::cast(get_binding_version());
 }
 
 } // namespace rexlib

@@ -5,6 +5,7 @@ target_sources(
 	PRIVATE
 		test_builtin_plugin_registration.cpp
 		test_builtin_plugin_registry.cpp
+		test_library_version.cpp
 		test_service_catalog.cpp
 		test_span.cpp
 		test_version.cpp

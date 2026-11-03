@@ -168,8 +168,9 @@ else()
 	) # v1.3
 endif()
 
+# The binding and the library are one release.
 if(NOT TARGET rexlib::rexlib)
-	find_package(rexlib ${PROJECT_VERSION} REQUIRED)
+	find_package(rexlib ${PROJECT_VERSION} EXACT REQUIRED)
 endif()
 
 add_subdirectory(src)
