@@ -4,7 +4,6 @@ add_library(dummy_plugin1 MODULE plugin.cpp)
 set_target_properties(
 	dummy_plugin1
 	PROPERTIES
-		DEFINE_SYMBOL "REXLIB_DUMMY_PLUGIN1_EXPORTING"
 		LIBRARY_OUTPUT_DIRECTORY "$<1:${REXLIB_PYTHON_TEST_PLUGINS_DIR}>"
 )
 target_link_libraries(

@@ -15,8 +15,9 @@ The C++ API reference is generated from the public headers under
 
 - **Device-agnostic execution model.** Operations are dispatched through
   services and execution contexts instead of being tied to one device API.
-- **Pluggable backends.** A backend plugin is a shared object exporting
-  `rexlib_get_plugin`, loaded by the core plugin system.
+- **Pluggable backends.** A backend plugin is a shared object defined with
+  `REXLIB_DEFINE_PLUGIN`, which the core loads only if it was built for a
+  compatible rexlib and C++ ABI.
 - **Public headers as contract.** The public interface is the headers in
   `include/rexlib/`, documented directly in the C++ reference.
 - **C++14 public surface.** Public headers are consumable from C++14.

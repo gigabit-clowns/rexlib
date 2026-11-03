@@ -2,9 +2,20 @@
 
 # Build the mock plugins consumed by the tests as runtime assets.
 add_subdirectory(dummy_plugin)
-add_subdirectory(faulty_plugin1)
-add_subdirectory(faulty_plugin2)
-set(REXLIB_TEST_PLUGINS dummy-plugin faulty-plugin1 faulty-plugin2)
+add_subdirectory(plugin_for_another_abi)
+add_subdirectory(plugin_for_another_minor)
+add_subdirectory(plugin_returning_null)
+add_subdirectory(plugin_without_compatibility)
+add_subdirectory(plugin_without_entry_point)
+set(
+	REXLIB_TEST_PLUGINS
+	dummy-plugin
+	plugin-for-another-abi
+	plugin-for-another-minor
+	plugin-returning-null
+	plugin-without-compatibility
+	plugin-without-entry-point
+)
 
 # Only the linkers of Unix leave an unresolved symbol to the loader.
 if(UNIX)

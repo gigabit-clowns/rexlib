@@ -30,9 +30,11 @@ public:
 	REXLIB_API plugin_manager& operator=(plugin_manager&& other) noexcept;
 
 	/**
-	 * @brief Add a already loaded plugin.
+	 * @brief Add an already loaded plugin.
 	 *
 	 * @param plugin The plugin to be added.
+	 * @throws std::invalid_argument If the manager already holds a plugin
+	 * of the same name.
 	 */
 	REXLIB_API void add_plugin(const plugin& plugin);
 
@@ -43,7 +45,9 @@ public:
 	 * dynamic_library resolves it.
 	 * @return const plugin* The loaded plugin, never null.
 	 * @throws dynamic_library_error If the shared object cannot be loaded.
-	 * @throws plugin_load_error If the shared object is not a plugin.
+	 * @throws plugin_load_error If the shared object is not a plugin, was
+	 * built for a version of rexlib or a C++ ABI this one cannot run with,
+	 * or holds a plugin named as one the manager already holds.
 	 */
 	REXLIB_API const plugin* load_plugin(const std::string &path);
 

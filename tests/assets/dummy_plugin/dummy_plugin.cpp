@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <rexlib/core/plugin.hpp>
-#include <rexlib/core/platform/dynamic_shared_object.h>
+#include <rexlib/core/plugin_definition.hpp>
 
-#if defined(REXLIB_DUMMY_PLUGIN_EXPORTING)
-	#define REXLIB_DUMMY_PLUGIN_API REXLIB_EXPORT
-#else
-	#define REXLIB_DUMMY_PLUGIN_API REXLIB_IMPORT
-#endif
+#include <string>
 
 namespace rexlib
 {
@@ -27,7 +23,7 @@ class dummy_plugin final
 		return version(1, 2, 3);
 	}
 
-	void register_at(service_catalog&) const
+	void register_at(service_catalog&) const final
 	{
 		// NO-OP
 	}
@@ -35,12 +31,4 @@ class dummy_plugin final
 
 } // namespace rexlib
 
-static const rexlib::dummy_plugin instance;
-
-extern "C"
-{
-REXLIB_DUMMY_PLUGIN_API const rexlib::plugin* rexlib_get_plugin()
-{
-	return &instance;
-}
-}
+REXLIB_DEFINE_PLUGIN(rexlib::dummy_plugin);
