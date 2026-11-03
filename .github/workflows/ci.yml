@@ -98,7 +98,7 @@ jobs:
     steps:
       # Sonar reads the history to tell new code from old.
       - name: Check out the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           fetch-depth: ${{ matrix.preset == 'coverage' && 0 || 1 }}
@@ -107,7 +107,7 @@ jobs:
       # does.
       - name: Set up MSVC
         if: matrix.msvc
-        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
+        uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
           arch: ${{ matrix.msvc }}
 
@@ -119,7 +119,7 @@ jobs:
           pipx install gcovr==8.7
 
       - name: Keep the packages vcpkg builds
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
           key: vcpkg-${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -135,7 +135,7 @@ jobs:
             --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.preset }}
           max-size: 500M
@@ -185,7 +185,7 @@ jobs:
 
       - name: Scan with SonarQube
         if: env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8
+        uses: SonarSource/sonarqube-scan-action@v8.3.0
 
   # The default build, with the dependencies fetched and built with rexlib.
   sanitize:
@@ -205,12 +205,12 @@ jobs:
       CXX: clang++
     steps:
       - name: Check out the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ubuntu-24.04-clang++-${{ matrix.preset }}
           max-size: 500M
@@ -218,7 +218,7 @@ jobs:
           install: binary
 
       - name: Keep the fetched sources
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ${{ runner.temp }}/fetched
@@ -250,12 +250,12 @@ jobs:
       CXX: g++
     steps:
       - name: Check out the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
       - name: Keep the packages vcpkg builds
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
           key: vcpkg-ubuntu-24.04-g++-x64-linux-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -277,7 +277,7 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/cmake" --version
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ubuntu-24.04-g++-minimum-cmake
           max-size: 500M
@@ -310,7 +310,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
 
@@ -320,7 +320,7 @@ jobs:
           sudo apt-get install --yes doxygen
 
       - name: Keep the fetched sources
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ${{ runner.temp }}/fetched
@@ -335,14 +335,14 @@ jobs:
         run: cmake --build --preset docs
 
       - name: Keep the reference
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: documentation
           path: build/docs/docs/doxygen/html
 
-  # The static checks, through the lint preset: clang-tidy, pinned, on
-  # rexlib's own sources as they are built, with every dependency installed
-  # by vcpkg, and the .editorconfig rules.
+  # The static checks: the lockfile of the actions, then, through the lint
+  # preset, clang-tidy, pinned, on rexlib's own sources as they are built,
+  # with every dependency installed by vcpkg, and the .editorconfig rules.
   lint:
     name: Lint
     timeout-minutes: 60
@@ -352,9 +352,16 @@ jobs:
       CXX: clang++
     steps:
       - name: Check out the repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
+
+      - name: Verify the lockfile of the actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh extension install github/gh-actions-lock --pin v0.4.1
+          gh actions-lock --verify
 
       - name: Install clang-tidy and editorconfig-checker
         run: |
@@ -362,7 +369,7 @@ jobs:
           pipx install editorconfig-checker==3.11.1
 
       - name: Keep the packages vcpkg builds
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
           key: vcpkg-ubuntu-24.04-clang++-x64-linux-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -378,7 +385,7 @@ jobs:
             --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@f09c25b45002a07be2955cbe52e8cee55643f89d # v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ubuntu-24.04-clang++-lint
           max-size: 500M
@@ -416,6 +423,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Decide whether every check passed
-        uses: re-actors/alls-green@b5b5b37504aa4183270bd3d855c52a67f212be35 # v1.3.0
+        uses: re-actors/alls-green@v1.3.0
         with:
           jobs: ${{ toJSON(needs) }}
