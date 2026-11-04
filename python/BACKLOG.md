@@ -14,7 +14,7 @@ names reach Python; roughly ninety-seven do not.
 
 This is the largest gap in the package and what most of the rest leans on. It
 is also the cheapest work here: each block is a mechanical translation against
-a template that exists twice over, in `src/functional/arithmetic.cpp` and
+a template that exists twice over, in `python/src/functional/arithmetic.cpp` and
 `python/rexlib/_functional.py`.
 
 Sequenced by what each one unblocks rather than by size:
@@ -39,7 +39,7 @@ Per block: a `.cpp`/`.hpp` pair binding rexlib's functions by pointer, with
 every argument required and the optional out parameter as
 `nb::arg("out").none() = nb::none()`; a section
 in `_functional.py` where `context` falls back to the active one; a re-export
-with `as` plus a line in `__all__`; a file under `tests/functional/`.
+with `as` plus a line in `__all__`; a file under `tests/python/functional/`.
 
 ## 2. Finish `Array`'s Python operators
 
@@ -60,7 +60,7 @@ them.
 
 ## 3. Translate the library's exceptions
 
-There is no `nb::exception` anywhere in `src/`, so everything rexlib throws
+There is no `nb::exception` anywhere in `python/src/`, so everything rexlib throws
 arrives through nanobind's default translation. `unsupported_operation_error`
 and `unsupported_capability_error` derive from `std::runtime_error`, which
 nanobind does not special-case, so both land as a bare `RuntimeError`.

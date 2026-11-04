@@ -4,23 +4,61 @@
 [![CI](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml)
 <!-- docs-badges:end -->
 
-rexlib is a device-agnostic array computing library with a pluggable backend
-architecture. It provides ND-arrays, operation dispatch and execution services,
-and backend loading for hardware-specific implementations.
+rexlib is a high-performance Cryo-EM and Cryo-ET image processing library,
+written in C++ with a Python binding. Its operations run on whichever device a
+backend plugin provides: the CPU backend is built in, and a CUDA plugin runs
+them on NVIDIA GPUs.
 
-The C++ API reference is generated from the public headers under
-`include/rexlib/`.
+## Installing
+
+```bash
+pip install rexlib
+```
+
+Wheels are built for Python 3.11 and later on Linux x86_64 and aarch64, macOS
+arm64, and Windows x86_64 and arm64. On Linux, the CUDA plugin comes as an
+extra, for CUDA 12 or CUDA 13:
+
+```bash
+pip install "rexlib[cuda12]"
+```
+
+The C++ library is installed from source with CMake, as below, and the wheel
+carries its headers and CMake package too.
+
+## Using it from Python
+
+```python
+import rexlib
+
+descriptor = rexlib.make_contiguous_array_descriptor(
+    [2, 2], rexlib.NumericalType.float32
+)
+zeros = rexlib.zeros(descriptor, rexlib.hardware.MemoryResourceAffinity.host)
+
+with rexlib.device("cuda"):
+    on_gpu = rexlib.zeros(
+        descriptor, rexlib.hardware.MemoryResourceAffinity.device
+    )
+```
+
+The default catalog loads every installed plugin wheel on first use.
 
 ## Highlights
 
+- **Cryo-EM and Cryo-ET operations** in `rexlib::em` and `rexlib.em`, beside
+  the array operations they are built on.
 - **Device-agnostic execution model.** Operations are dispatched through
   services and execution contexts instead of being tied to one device API.
 - **Pluggable backends.** A backend plugin is a shared object defined with
   `REXLIB_DEFINE_PLUGIN`, which the core loads only if it was built for a
-  compatible rexlib and C++ ABI.
+  compatible rexlib and C++ ABI. A third party builds one against the
+  installed library; the
+  [plugin guide](https://github.com/gigabit-clowns/rexlib/blob/main/docs/agents/plugins.md)
+  says how.
 - **Public headers as contract.** The public interface is the headers in
-  `include/rexlib/`, documented directly in the C++ reference.
-- **C++14 public surface.** Public headers are consumable from C++14.
+  `include/rexlib/`, documented directly in the C++ reference, and consumable
+  from C++14.
 
 ## Components
 
@@ -28,8 +66,10 @@ The C++ API reference is generated from the public headers under
   layouts and numerical infrastructure.
 - `ops`: operation declarations.
 - `functional`: user-facing functions that reach operation declarations.
-- `em`: CryoEM and CryoET operations and functions in `rexlib::em`.
-- `backends/cpu`: the CPU backend implementation.
+- `em`: Cryo-EM and Cryo-ET operations and functions in `rexlib::em`.
+- `backends/cpu`: the CPU backend.
+- `python/`: the Python binding.
+- `plugins/cuda/`: the CUDA plugin.
 
 Image I/O is out of scope for rexlib and lives in
 [vitrio](https://github.com/gigabit-clowns/vitrio).
@@ -113,6 +153,12 @@ cmake --preset debug
 cmake --build --preset debug
 ctest --preset debug
 ```
+
+With `-DREXLIB_BUILD_PYTHON=ON` the build includes the Python binding, and
+`pip install .` builds the `rexlib` wheel. The CUDA plugin, in `plugins/cuda/`,
+is built against an installed rexlib, as any plugin is. The
+[build guide](https://github.com/gigabit-clowns/rexlib/blob/main/docs/agents/building.md)
+has the details.
 
 To generate the C++ API reference:
 

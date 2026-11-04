@@ -21,7 +21,7 @@ the header includes at its end, and everything else goes in a `.cpp`.
 
 ## Comments
 
-Say **what**, never **why**. The why belongs in the commit message and the pull
+In C++, Python and CMake alike, say **what**, never **why**. The why belongs in the commit message and the pull
 request. And only say the what when the code does not already: if a reader
 understands the line without the comment, the comment does not go in.
 

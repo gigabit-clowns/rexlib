@@ -4,13 +4,13 @@ How the stubs of the extension are generated and carried into the package.
 
 The extension's `.pyi` files are generated when the package is installed,
 last, by the stubgen of the nanobind pip installed, through
-`nanobind_add_stub(INSTALL_TIME RECURSIVE)`, and land in `rexlib/_binding/`
-beside the extension. They are not in the repository and there is nothing to
-run by hand.
+`nanobind_add_stub(INSTALL_TIME RECURSIVE)`, and land in `rexlib/_binding/` of
+the installed package, beside the extension. They are not in the repository
+and there is nothing to run by hand.
 
 Generating them imports the installed package, so the library has to be
 installed before it: in the library's build, `python/` is added after
-`src/`. nanobind does not fail the install when stubgen fails, so
+`src/`, the library's. nanobind does not fail the install when stubgen fails, so
 `tests/python/test_stubs.py` checks that the stubs are there.
 
 The package is typed — `py.typed` ships — so a change to the binding's

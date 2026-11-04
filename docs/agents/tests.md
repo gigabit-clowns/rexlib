@@ -1,6 +1,33 @@
 # Tests
 
-How the tests run, where a test goes, and what they may depend on.
+How the suites of the library, the binding and the CUDA plugin run, where a
+test goes, and what the tests may depend on. How a test stands in for an
+interface is in [test-doubles](test-doubles.md); the install test is in
+[building](building.md).
+
+## The library
+
+```
+ctest --test-dir build
+```
+
+`tests/unitary/` and `tests/integration/` are Catch2 suites. Each suite
+carries its name as a CTest label, so `ctest -L unitary` and
+`ctest -L integration` run one of them. The label is set whichever way the
+cases were registered. Under CMake 3.18 each suite is a single test, since
+listing the cases needs the JSON support of CMake 3.19.
+
+`REXLIB_REGISTER_TESTS_PER_BINARY` registers one test per executable rather
+than one per case, because a memory checker pays its start-up on every test
+CTest runs. Discovering each case makes it re-analyse the whole binary once per
+case, which took the memcheck job past six hours.
+
+On Windows the library and the test executables are built into one
+directory, `bin/` of the build tree, unless `CMAKE_RUNTIME_OUTPUT_DIRECTORY`
+is given: Windows finds a library beside the executable that loads it, and
+a plugin a test loads finds `rexlib.dll` there too.
+
+## The binding
 
 They are Python tests against the installed package. There are no C++ tests:
 the binding has no logic of its own worth testing from C++, and what it does
@@ -23,17 +50,12 @@ a directory of the build tree, and `rexlib-python` runs pytest on
 `python/rexlib`.
 
 What the tests need is the `test` group of `pyproject.toml` (`pip install
---group test`, which `dev` includes).
-
-`uv.lock` pins every package of the groups, those they pull in included, for
-every Python and platform, with the hash of each file. CI installs the
-`test` group from it, `uv export --frozen --only-group test` given to
-`pip install --require-hashes --only-binary :all:`, so a file that changed
-or a source distribution of a dependency is refused. Only the uv of
-`[tool.uv] required-version` writes it: after a change to a group, run
-`uv lock`. Renovate regenerates it with every bump of a pin of
-`pyproject.toml`, refreshes what the pins pull in through its lock file
-maintenance, and bumps `required-version`.
+--group test`, which `dev` includes, or `uv sync`). `uv.lock` pins every
+package of the groups, those they pull in included, for every Python and
+platform, with the hash of each file; CI installs from it with
+`uv sync --locked`, which refuses a lockfile that no longer matches
+`pyproject.toml`. Only the uv of `[tool.uv] required-version` writes it:
+after a change to a group, run `uv lock`.
 
 The dummy plugins in `tests/python/assets/` are built into a directory of the
 build tree and never installed; the CTest test names that directory to
@@ -48,7 +70,7 @@ Tests for what `_binding` exposes at its top level stay at the root.
 
 | Directory | Covers |
 |---|---|
-| `tests/python/` | `Version`, `PluginManager`, `ServiceCatalog`, the type stubs |
+| `tests/python/` | `Version`, `PluginManager`, `ServiceCatalog`, the entry-point plugins, the type stubs |
 | `tests/python/numerical/` | `NumericalType` |
 | `tests/python/ndarray/` | `ArrayDescriptor`, the operators installed onto `Array`, the buffer protocol and DLPack |
 | `tests/python/hardware/` | Devices, sessions, memory resources, the session pool |
@@ -68,10 +90,26 @@ share them.
 CTest tests: the Python files are collected by pytest from where they are,
 so moving one needs no change to CMake.
 
-numpy is a test requirement, pinned per Python version from 2.2 to 2.5, all of
-which take and give versioned DLPack tensors. What the binding itself does
+numpy is a test requirement, pinned per Python version, and every version
+pinned takes and gives versioned DLPack tensors. What the binding itself does
 with a versioned or a read-only tensor is tested with the hand-made one.
 
 torch and JAX are not test requirements. A test that needs one starts with
 `pytest.importorskip`, so it runs where the library is installed and is
 skipped in CI.
+
+## The CUDA plugin
+
+```
+ctest --test-dir build/cuda --output-on-failure
+```
+
+The unitary suite embeds the plugin's objects and exercises its internals,
+mostly the caching allocator against mocks. The integration suite loads the
+built plugin through rexlib's plugin manager, which is why the plugin is
+copied beside the test executable. The labels and the registration under
+CMake 3.18 are as the library's. A test that needs a GPU skips itself when no
+CUDA capable device is present, which is always the case in CI.
+
+On Windows the rexlib DLL is copied beside each test executable, since nothing
+else puts it on the loader's search path.
