@@ -527,15 +527,12 @@ jobs:
             os: ubuntu-24.04-arm
           - name: macOS arm64
             os: macos-15
-            ccache-basedir: /
           - name: Windows x86_64
             os: windows-2025
             msvc: x64
-            ccache-basedir: 'C:/'
           - name: Windows arm64
             os: windows-11-arm
             msvc: arm64
-            ccache-basedir: 'C:/'
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -547,9 +544,12 @@ jobs:
           name: sdist
           path: dist
 
-      - name: Find the source distribution
-        id: sdist
-        run: echo "path=$(ls dist/*.tar.gz)" >> "$GITHUB_OUTPUT"
+      # At the same path in every run, unlike the temporary directory
+      # cibuildwheel would unpack it into.
+      - name: Unpack the source distribution
+        run: |
+          mkdir source
+          tar -xzf dist/*.tar.gz -C source --strip-components=1
 
       # Ninja does not find MSVC on its own, as the Visual Studio generator
       # does.
@@ -574,12 +574,11 @@ jobs:
       - name: Build the wheels
         uses: pypa/cibuildwheel@v4.3.5
         with:
-          package-dir: ${{ steps.sdist.outputs.path }}
+          package-dir: source
         env:
           CIBW_CONFIG_SETTINGS: build-dir=build/{wheel_tag}
           CMAKE_C_COMPILER_LAUNCHER: ccache
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
-          CCACHE_BASEDIR: ${{ matrix.ccache-basedir }}
           CIBW_ENVIRONMENT_LINUX: >-
             CMAKE_BUILD_PARALLEL_LEVEL=4
             CMAKE_C_COMPILER_LAUNCHER=/host/usr/local/bin/ccache
@@ -604,12 +603,6 @@ jobs:
       # The sample plugin of the install test, built as a wheel against the
       # abi3 wheel just built, as a third party builds one, and loaded
       # through the default catalog.
-      - name: Unpack the source distribution
-        run: |
-          mkdir source
-          tar -xzf "${{ steps.sdist.outputs.path }}" -C source \
-            --strip-components=1
-
       - name: Set up uv, Python and a virtual environment
         uses: astral-sh/setup-uv@v10.3.3
         with:
