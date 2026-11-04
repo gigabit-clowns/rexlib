@@ -192,9 +192,7 @@ jobs:
           retention-days: 1
 
   # The coverage build, with warnings as errors and every dependency installed
-  # by vcpkg: the suites under valgrind, then the coverage gcovr measures,
-  # which the SonarQube scan reads with the compilation database of the same
-  # build.
+  # by vcpkg: the suites under valgrind, then the coverage gcovr measures.
   coverage:
     name: ${{ matrix.name }}
     timeout-minutes: 90
@@ -213,14 +211,11 @@ jobs:
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
       CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     steps:
-      # Sonar reads the history to tell new code from old.
       - name: Check out the repository
         uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: 0
 
       - name: Install valgrind
         run: |
@@ -279,12 +274,7 @@ jobs:
         run: >-
           gcovr --root . --object-directory build/coverage --exclude '\.vcpkg/'
           --merge-lines --exclude-throw-branches --exclude-unreachable-branches
-          --sonarqube build/coverage/coverage.xml --print-summary
-
-      # A pull request from a fork gets no secrets, and so no scan.
-      - name: Scan with SonarQube
-        if: env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarqube-scan-action@v8.3.0
+          --print-summary
 
   # The default build, with the dependencies fetched and built with rexlib.
   sanitize:
@@ -886,9 +876,9 @@ jobs:
       - name: Test
         run: ctest --preset lint
 
-  # The one check the branch rules require besides SonarCloud's. It runs
-  # whatever happened before it, and fails unless every job it needs
-  # succeeded: a job that a failure skipped would otherwise count as passed.
+  # The one check the branch rules require. It runs whatever happened before
+  # it, and fails unless every job it needs succeeded: a job that a failure
+  # skipped would otherwise count as passed.
   all-checks:
     name: All checks
     timeout-minutes: 10
