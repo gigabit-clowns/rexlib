@@ -31,8 +31,8 @@ commits both files.
 |---|---|
 | One per platform and toolchain | Linux x86_64 with gcc and with clang, Linux aarch64 with gcc, macOS arm64, Windows x86_64 and arm64 with MSVC, Windows x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two Linux rows also install the library without its debug information and keep that install as an artifact |
 | Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
-| CMake 3.18 | The one job without presets: CMake 3.18.0, Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
-| CUDA 12, Linux x86_64; CUDA 13, Linux aarch64 | The CUDA plugin, built as a third party builds a plugin: against the library the Linux row of its architecture installed, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
+| Minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of Ubuntu 22.04, the oldest supported LTS image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
+| CUDA 12, Linux x86_64; CUDA 13, Linux aarch64 | The CUDA plugin, built as a third party builds a plugin: against the library the Linux row of its architecture installed, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
 | Wheels: Linux x86_64 and aarch64, macOS arm64, Windows x86_64 and arm64 | cibuildwheel builds the `rexlib` wheels from the source distribution, as `pyproject.toml` sets it up: one per CPython before 3.12, one abi3 wheel for 3.12 and every later CPython, which abi3audit checks, and one per free-threaded CPython. Each is imported on every interpreter it serves. The compiler cache carries the library from one interpreter's build to the next; on Linux, where the wheels are built in a container, the container runs the runner's ccache from `/host`. Each job then builds the install test's sample plugin as a wheel against the abi3 wheel, with Python 3.14 and without build isolation, and checks that the default catalog loads it |
 | CUDA 12 and 13 wheels, Linux x86_64 and aarch64 | cibuildwheel builds the CUDA plugin's wheel of each CUDA major, as `plugins/cuda/cuda12/` and `cuda13/` set it up, against the rexlib wheels of the run, and checks that the default catalog loads the plugin, which needs no GPU |
@@ -41,8 +41,9 @@ commits both files.
 | Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset, with the `lint` group installed: clang-tidy on the library's sources as they compile, every file git tracks against `.editorconfig`, and the Python files against ruff. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
 
-The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the
-sanitizer jobs build with the newest clang.
+The Linux rows, the sanitizer jobs and Lint build on Ubuntu 24.04, with its
+gcc and clang; the minimum versions job builds with the gcc of Ubuntu 22.04,
+the oldest supported LTS image.
 
 Every job with warnings as errors, and Lint, builds against installed
 dependencies, whose headers count as system headers, so that only rexlib's
@@ -95,8 +96,16 @@ cached per operating system, keyed on every CMake file; a pull request whose
 key is new starts from the newest such cache, and FetchContent downloads
 again only what a changed declaration names. The packages vcpkg builds are
 cached per runner image, compiler and triplet, keyed on its manifest; a new
-key starts from the newest such cache, and vcpkg builds only what changed. Nothing else
-manages the caches: an eviction makes a run slower, never wrong.
+key starts from the newest such cache, and vcpkg builds only what changed.
+Nothing else manages the caches: an eviction makes a run slower, never wrong.
+
+A key is built from the job's own values, never written out: the runner image
+of `matrix.os`, the compiler of `CXX`, the triplet of `matrix.triplet`, and
+the preset or the job's name. A job moved to another image or compiler gets
+caches of its own without a key being edited, and the packages vcpkg built
+for the old one are never restored as if they were for the new one. A job
+with a single configuration names its runner in a matrix of one row, as
+`runs-on` can read only the matrix.
 
 ## Wheels
 

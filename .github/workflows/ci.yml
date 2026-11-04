@@ -34,9 +34,7 @@ env:
 jobs:
   # One row per platform and toolchain rexlib supports, with warnings as
   # errors and every dependency installed by vcpkg, and the Python binding
-  # where a row names a Python. The oldest gcc and clang of the supported LTS
-  # images are among them; the newest clang is what the sanitizer jobs build
-  # with.
+  # where a row names a Python.
   build-and-test:
     name: ${{ matrix.name }}
     timeout-minutes: 90
@@ -51,7 +49,7 @@ jobs:
             triplet: x64-linux
             preset: coverage
           - name: Linux x86_64, clang
-            os: ubuntu-22.04
+            os: ubuntu-24.04
             cc: clang
             cxx: clang++
             triplet: x64-linux
@@ -59,7 +57,7 @@ jobs:
             python: '3.14'
             install-artifact: rexlib-x64-linux
           - name: Linux aarch64, gcc
-            os: ubuntu-22.04-arm
+            os: ubuntu-24.04-arm
             cc: gcc
             cxx: g++
             triplet: arm64-linux
@@ -237,10 +235,12 @@ jobs:
       matrix:
         include:
           - name: Address and undefined behaviour sanitizers
+            os: ubuntu-24.04
             preset: sanitize
           - name: Thread sanitizer
+            os: ubuntu-24.04
             preset: sanitize-thread
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.os }}
     env:
       CC: clang
       CXX: clang++
@@ -253,7 +253,7 @@ jobs:
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
-          key: ubuntu-24.04-clang++-${{ matrix.preset }}
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ matrix.preset }}
           max-size: 500M
           evict-old-files: job
           install: binary
@@ -279,15 +279,21 @@ jobs:
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 
-  # The one job without presets, which need CMake 3.21, and so the one that
-  # holds cmake_minimum_required to its word. Release, with warnings as errors
-  # and every dependency installed by vcpkg. The library is installed, and
-  # the Python binding, with the oldest Python it supports, is built alone
+  # The oldest versions rexlib supports, together: CMake 3.18.0, without
+  # presets, which need CMake 3.21, so that cmake_minimum_required holds to
+  # its word; the gcc of the oldest supported Ubuntu LTS image; and the oldest
+  # Python. Release, with warnings as errors and every dependency installed by
+  # vcpkg. The library is installed, and the Python binding is built alone
   # against that install, as a distribution packages the two.
-  minimum-cmake:
-    name: CMake 3.18
+  minimum-versions:
+    name: Minimum versions
     timeout-minutes: 60
-    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            triplet: x64-linux
+    runs-on: ${{ matrix.os }}
     env:
       CC: gcc
       CXX: g++
@@ -301,16 +307,16 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-ubuntu-24.04-g++-x64-linux-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-ubuntu-24.04-g++-x64-linux-
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-
 
       - name: Install the dependencies
         run: |
           mkdir -p "$RUNNER_TEMP/vcpkg-archives"
           vcpkg install --x-manifest-root=.github/vcpkg \
             --x-install-root="$RUNNER_TEMP/vcpkg" \
-            --triplet=x64-linux \
-            --host-triplet=x64-linux \
+            --triplet=${{ matrix.triplet }} \
+            --host-triplet=${{ matrix.triplet }} \
             --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
 
       - name: Install CMake 3.18
@@ -331,7 +337,7 @@ jobs:
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
-          key: ubuntu-24.04-g++-minimum-cmake
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           max-size: 500M
           evict-old-files: job
           install: binary
@@ -344,7 +350,7 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/cmake" -S . -B build
           -DCMAKE_BUILD_TYPE=Release
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/x64-linux"
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
@@ -369,7 +375,7 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/cmake" -S python -B build-python
           -DCMAKE_BUILD_TYPE=Release
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/x64-linux"
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build the binding
@@ -382,8 +388,7 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
 
   # The CUDA plugin, built as a third party builds a plugin: against the
-  # library installed by the Linux build-and-test row of its architecture,
-  # which a newer image and another compiler then build the plugin against.
+  # library installed by the Linux build-and-test row of its architecture.
   # The toolkit comes from NVIDIA's repository, every other dependency is
   # installed by vcpkg, and warnings are errors. The CUDA 12 row builds the
   # plugin with CMake 3.18. The runners have no GPU, so the tests that need
@@ -423,8 +428,8 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-${{ matrix.os }}-g++-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.os }}-g++-${{ matrix.triplet }}-
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-
 
       - name: Install the dependencies
         run: |
@@ -775,7 +780,12 @@ jobs:
   lint:
     name: Lint
     timeout-minutes: 60
-    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            triplet: x64-linux
+    runs-on: ${{ matrix.os }}
     env:
       CC: clang
       CXX: clang++
@@ -806,22 +816,22 @@ jobs:
         uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-ubuntu-24.04-clang++-x64-linux-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-ubuntu-24.04-clang++-x64-linux-
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-
 
       - name: Install the dependencies
         run: |
           mkdir -p "$RUNNER_TEMP/vcpkg-archives"
           vcpkg install --x-manifest-root=.github/vcpkg \
             --x-install-root="$RUNNER_TEMP/vcpkg" \
-            --triplet=x64-linux \
-            --host-triplet=x64-linux \
+            --triplet=${{ matrix.triplet }} \
+            --host-triplet=${{ matrix.triplet }} \
             --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
 
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
-          key: ubuntu-24.04-clang++-lint
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           max-size: 500M
           evict-old-files: job
           install: binary
@@ -833,7 +843,7 @@ jobs:
         run: >-
           cmake --preset lint
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/x64-linux"
+          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
 
       - name: Build
         run: cmake --build --preset lint
@@ -851,7 +861,7 @@ jobs:
     needs:
       - build-and-test
       - sanitize
-      - minimum-cmake
+      - minimum-versions
       - cuda-build-and-test
       - sdist
       - wheels
