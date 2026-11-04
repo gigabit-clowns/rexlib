@@ -23,3 +23,17 @@ target_link_libraries(
 
 enable_testing()
 add_test(NAME rexlib-install-consumer COMMAND rexlib-install-consumer)
+
+# Windows finds a library beside the program or on the PATH, and the
+# installed one is in neither place.
+if(WIN32)
+	string(REPLACE ";" "\\;" REXLIB_INSTALL_CONSUMER_PATH "$ENV{PATH}")
+	set(
+		REXLIB_INSTALL_CONSUMER_PATH
+		"$<TARGET_FILE_DIR:rexlib::rexlib>\;${REXLIB_INSTALL_CONSUMER_PATH}"
+	)
+	set_tests_properties(
+		rexlib-install-consumer
+		PROPERTIES ENVIRONMENT "PATH=${REXLIB_INSTALL_CONSUMER_PATH}"
+	)
+endif()

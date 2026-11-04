@@ -51,3 +51,10 @@ builders, which add themselves to `get_cpu_program_builder_registry()` through
 `service_catalog` constructed with `register_builtin_backends` registers
 every built-in plugin at itself on construction, through the same
 `register_at` as a loaded plugin.
+
+`tests/install/plugin` is a plugin built as a third party builds one, against
+the installed rexlib and with nothing but the installed CMake package. It adds a device
+backend named `sample`, over host memory, with its own queue and program type,
+and a program for `arange` into int32 that only that queue accepts, so the
+install consumer, counting on that device, runs the plugin's program or fails.
+It is the template for a new backend plugin.
