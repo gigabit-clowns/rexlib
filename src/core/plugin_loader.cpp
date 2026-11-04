@@ -94,6 +94,11 @@ bool plugin_loader::is_open() const noexcept
 	return m_dynamic_library.is_open();
 }
 
+void plugin_loader::release() noexcept
+{
+	m_dynamic_library.release();
+}
+
 void plugin_loader::reset()
 {
 	*this = plugin_loader();

@@ -129,8 +129,8 @@ public:
 			throw plugin_load_error(get_duplicate_message(loaded.get_name()));
 		}
 
-		m_loaders.push_back(std::move(loader));
 		m_plugins.emplace_back(loaded);
+		loader.release();
 		return &loaded;
 	}
 
@@ -145,7 +145,6 @@ public:
 	}
 
 private:
-	std::vector<plugin_loader> m_loaders;
 	std::vector<std::reference_wrapper<const plugin>> m_plugins;
 
 	bool contains(const std::string &name) const

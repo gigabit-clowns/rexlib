@@ -12,7 +12,8 @@ class plugin;
 /**
  * @brief Helper class to load plugins from shared objects.
  *
- * RAII style to free resources when destroyed.
+ * RAII style: it unloads the shared object when destroyed, unless it was
+ * released.
  *
  */
 class plugin_loader
@@ -55,6 +56,14 @@ public:
 	 * @return false The shared object is not loaded.
 	 */
 	bool is_open() const noexcept;
+
+	/**
+	 * @brief Keeps the shared object loaded for the rest of the process.
+	 *
+	 * The plugin, and whatever its code creates, stays valid however long
+	 * this object lives. is_open() returns false afterwards.
+	 */
+	void release() noexcept;
 
 	/**
 	 * @brief Unloads the plugin.

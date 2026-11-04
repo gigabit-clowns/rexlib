@@ -109,6 +109,21 @@ TEST_CASE( "load good plugin in the plugin manager", "[plugin_manager]" )
 }
 
 TEST_CASE(
+	"a plugin the plugin manager loaded should stay valid after the manager "
+	"is destroyed",
+	"[plugin_manager]"
+)
+{
+	const plugin* loaded = nullptr;
+	{
+		plugin_manager manager;
+		loaded = manager.load_plugin(get_mock_plugin_path("dummy-plugin"));
+	}
+
+	REQUIRE( loaded->get_name() == "dummy-plugin" );
+}
+
+TEST_CASE(
 	"load invalid plugin in the plugin manager should throw",
 	"[plugin_manager]"
 )

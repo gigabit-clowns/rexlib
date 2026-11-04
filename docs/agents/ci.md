@@ -54,7 +54,10 @@ finds them, as a packager's would.
 The Linux gcc row builds the `coverage` preset instead of `debug`. It runs the
 suites under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the
 preset registers one test per binary and gives valgrind the options that make
-a leak of any kind, or any other error it reports, fail the test. Then gcovr
+a leak of any kind, or any other error it reports, fail the test, except what
+`tests/valgrind.supp` suppresses: the dynamic linker's records of a library
+still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
+gcovr
 measures the coverage, and the SonarQube scan reads it with the compilation
 database of the same build.
 

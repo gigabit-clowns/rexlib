@@ -88,6 +88,16 @@ public:
 	void close() noexcept;
 
 	/**
+	 * @brief Forgets the stored dynamic library, if any, without freeing it
+	 *
+	 * The library stays loaded until the process exits. A symbol's address,
+	 * or an object its code built, stays valid however long this object
+	 * lives.
+	 *
+	 */
+	void release() noexcept;
+
+	/**
 	 * @brief Get the address of a symbol
 	 *
 	 * @param name Name of the symbol

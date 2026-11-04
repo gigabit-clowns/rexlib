@@ -30,7 +30,12 @@ minor version, from 1.0 another major version or a newer minor version, and
 any other C++ ABI (`src/core/plugin_compatibility_check.cpp`). The family is
 the ABI, not the compiler, so a core built with GCC loads a plugin built with
 Clang. `plugin_manager` refuses a second plugin of a name it already holds,
-which `discover_plugins` logs and skips.
+which `discover_plugins` logs and skips. The shared object of a plugin it
+accepts is never unloaded: once registered, what the plugin's code created
+(backends, devices, queues, programs, builders) can be held anywhere, such as
+a dispatcher, a Python pool or a user's variable, and outlive the manager, so
+unloading it would leave them pointing at unmapped code. A shared object it
+refuses is unloaded.
 
 `dynamic_library` takes paths in UTF-8 on every platform and resolves every
 symbol a library needs as it loads (`RTLD_NOW | RTLD_LOCAL`; Windows binds a
