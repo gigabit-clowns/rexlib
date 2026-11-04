@@ -675,6 +675,61 @@ jobs:
           name: cuda${{ matrix.cuda }}-wheel-${{ matrix.os }}
           path: wheelhouse/*.whl
 
+  # Report only: the exported symbols of librexlib against those of the latest
+  # release, compared by abidiff in the abi3 wheels of Linux x86_64, on pushes
+  # to main. It skips itself until a release carries that wheel, and never
+  # fails.
+  abi-report:
+    name: ABI report
+    needs: wheels
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fetch the wheels
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: wheels-ubuntu-24.04
+          path: current
+
+      - name: Fetch the latest release's wheel
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          tag="$(gh release list --exclude-drafts --exclude-pre-releases \
+            --limit 1 --json tagName --jq '.[0].tagName')"
+          if [ -n "$tag" ] && gh release download "$tag" --dir baseline \
+            --pattern 'rexlib-*-abi3-manylinux*_x86_64.whl'; then
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No release carries the wheel to compare with"
+          fi
+
+      - name: Install libabigail
+        if: steps.baseline.outputs.tag
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes abigail-tools
+
+      - name: Compare the exported symbols
+        if: steps.baseline.outputs.tag
+        env:
+          TAG: ${{ steps.baseline.outputs.tag }}
+        run: |
+          for wheel in baseline current; do
+            unzip -q -o -j "$wheel"/rexlib-*-abi3-*.whl \
+              'rexlib/lib*/librexlib.so*' -d "$wheel/lib"
+          done
+          {
+            echo "## librexlib against $TAG"
+            echo '```'
+            abidiff baseline/lib/librexlib.so* current/lib/librexlib.so* \
+              || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
   documentation:
     name: Documentation
     timeout-minutes: 20

@@ -1,4 +1,4 @@
-# Pull requests and continuous integration
+# Pull requests, continuous integration and releases
 
 How a pull request is opened and what the workflows check.
 
@@ -36,6 +36,7 @@ commits both files.
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
 | Wheels: Linux x86_64 and aarch64, macOS arm64, Windows x86_64 and arm64 | cibuildwheel builds the `rexlib` wheels from the source distribution, as `pyproject.toml` sets it up: one per CPython before 3.12, one abi3 wheel for 3.12 and every later CPython, which abi3audit checks, and one per free-threaded CPython. Each is imported on every interpreter it serves. The compiler cache carries the library from one interpreter's build to the next; on Linux, where the wheels are built in a container, the container runs the runner's ccache from `/host`. Each job then builds the install test's sample plugin as a wheel against the abi3 wheel, with Python 3.14 and without build isolation, and checks that the default catalog loads it |
 | CUDA 12 and 13 wheels, Linux x86_64 and aarch64 | cibuildwheel builds the CUDA plugin's wheel of each CUDA major, as `plugins/cuda/cuda12/` and `cuda13/` set it up, against the rexlib wheels of the run, and checks that the default catalog loads the plugin, which needs no GPU |
+| ABI report, on pushes to `main` only | Report only: abidiff compares the exported symbols of librexlib in the Linux x86_64 abi3 wheel with those of the latest release's, in the job summary. It skips itself until a release carries that wheel, never fails, and the gate does not wait for it. The wheels carry no debug information, so a change of a class's layout goes unseen |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
 | Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset: clang-tidy, pinned, on the library's sources as they compile, every file git tracks against `.editorconfig`, and the Python files against ruff. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
@@ -93,4 +94,28 @@ cached per runner image, compiler and triplet, keyed on its manifest; a new
 key starts from the newest such cache, and vcpkg builds only what changed. Nothing else
 manages the caches: an eviction makes a run slower, never wrong.
 
-No workflow publishes releases yet.
+## Releases
+
+A release is a tag `v<version>` on `main`, where `<version>` is what
+`VERSION` holds; before 1.0, `plugins/cuda/VERSION` holds the same. Both are
+bumped in a pull request, and once it is merged whoever releases pushes the
+tag.
+
+The tag starts `.github/workflows/release.yml`. It calls `ci.yml` whole, so a
+release is built and tested by the jobs every pull request runs, and then:
+
+- checks the tag against `VERSION`, `VERSION` against `plugins/cuda/VERSION`,
+  and every wheel and the source distribution against that version, and stops
+  on any difference;
+- publishes the `rexlib`, `rexlib-cuda12` and `rexlib-cuda13` wheels and the
+  source distribution to PyPI by trusted publishing, from the environment
+  `pypi`, with no token stored;
+- creates the GitHub release, with notes GitHub generates from the pull
+  requests merged since the last release and the distributions attached, which
+  the ABI report compares against;
+- deploys the documentation CI built to GitHub Pages, from the environment
+  `github-pages`.
+
+Run by hand (`workflow_dispatch`), it runs CI and checks the versions, and
+publishes nothing: the dry run before a tag. GitHub offers it only for a
+workflow on the default branch.

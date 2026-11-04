@@ -49,4 +49,4 @@ ctest --test-dir build
 | [operators-and-exports.md](docs/agents/operators-and-exports.md) | Overloading an operator, marking something `REXLIB_API` or changing how the library links |
 | [arrays-and-commands.md](docs/agents/arrays-and-commands.md) | Touching the memory of an array, a dispatcher, an allocator or a view over another array |
 | [plugins.md](docs/agents/plugins.md) | Touching plugin loading or the boundary with a backend plugin |
-| [ci.md](docs/agents/ci.md) | Opening a pull request, or changing `.github/workflows/` |
+| [ci.md](docs/agents/ci.md) | Opening a pull request, changing `.github/workflows/`, or making a release |
