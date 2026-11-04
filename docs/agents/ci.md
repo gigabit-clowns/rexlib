@@ -53,10 +53,12 @@ on Ubuntu 24.04, whose packages NVIDIA publishes for both majors.
 
 Every job with warnings as errors, and Lint, builds against installed
 dependencies, whose headers count as system headers, so that only rexlib's
-warnings and findings fail it. vcpkg installs them into a prefix at the baseline
-`.github/vcpkg/vcpkg.json` names, for the row's triplet (static libraries,
-with the dynamic C runtime on Windows), and the `find_package` branch of each
-finds them, as a packager's would.
+warnings and findings fail it. vcpkg installs them into `.vcpkg/installed` of
+the workspace, at the baseline `.github/vcpkg/vcpkg.json` names, for the row's
+triplet (static libraries, with the dynamic C runtime on Windows), and the
+`find_package` branch of each finds them, as a packager's would. The packages
+it builds are kept in `.vcpkg/archives`. Both are inside the workspace, so the
+coverage job's gcovr leaves out `.vcpkg/`.
 
 The coverage and valgrind job builds the `coverage` preset. It runs the suites
 under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the preset
@@ -83,21 +85,19 @@ an action's `with`, which no shell expands, reads them from the context
 shell, on Windows too.
 
 The rows of a matrix differ by data, which a step reads (`if: matrix.msvc`,
-`-DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}`), never by comparing a
-row's name or preset; a build that runs other steps is a job of its own, as
-the coverage and valgrind one is. The tools are configured through the
-environment variables they read themselves: vcpkg through
-`VCPKG_DEFAULT_TRIPLET`, `VCPKG_DEFAULT_HOST_TRIPLET` and
-`VCPKG_BINARY_SOURCES`; CMake through `CMAKE_PREFIX_PATH`, which the step that
-installs the dependencies exports to the later steps, and through
-`rexlib_ROOT`, `CUDAToolkit_ROOT` and `CUDACXX` where a job builds against an
-installed rexlib or CUDA. A step that several jobs share word for word is
-written once, at its first use, under a YAML anchor (`&checkout`,
-`&vcpkg-cache`, `&install-dependencies`, `&ccache`, `&ccache-launcher`,
-`&fetched-sources`, `&msvc`, `&use-cmake`), and repeated as its alias; GitHub
-reads anchors but not merge keys, so a step that differs in anything is
-written out. There are no local composite actions: `gh actions-lock` cannot
-lock the remote actions one would use.
+`-DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}`), never by comparing a row's
+name or preset; a build that runs other steps is a job of its own, as the
+coverage and valgrind one is. A job states its configuration once, in its
+`env`, through the variables the tools read themselves: the compiler (`CC`,
+`CXX`), ccache as CMake's compiler launcher (`CMAKE_C_COMPILER_LAUNCHER`,
+`CMAKE_CXX_COMPILER_LAUNCHER`), vcpkg's triplets (`VCPKG_DEFAULT_TRIPLET`,
+`VCPKG_DEFAULT_HOST_TRIPLET`) and the prefix of what it installs
+(`CMAKE_PREFIX_PATH`); `VCPKG_BINARY_SOURCES` and the ccache settings are the
+workflow's. A step that builds against an installed rexlib or CUDA names them
+with `rexlib_ROOT`, `CUDAToolkit_ROOT` and `CUDACXX`. The steps are then plain
+commands, written out in each job that runs them: no YAML anchors, which some
+tools do not read, and no local composite actions, whose remote actions
+`gh actions-lock` cannot lock.
 
 MSVC builds through Ninja, which is what lets ccache cache it, with its debug
 information embedded in each object for the same reason;
