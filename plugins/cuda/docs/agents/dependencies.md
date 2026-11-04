@@ -28,6 +28,7 @@ since the archive of a commit lacks its libraries, which are submodules.
 Renovate bumps the versions, not the hashes, so a bump of Boost fails to
 configure until the hash CMake reports is pasted in.
 
-The `cuda-toolkit` requirement in `pyproject.toml` is not a version this
-project follows: it is a placeholder `select_cuda_major.py` rewrites for each
-wheel, and Renovate leaves it alone.
+Each wheel's `pyproject.toml` requires `cuda-toolkit[cudart]` of its CUDA
+major, `==12.*` or `==13.*`, which NVIDIA's runtime wheels satisfy; the
+toolkit its build installs is pinned to a minor version, 12.9 or 13.4, in its
+`before-all`.

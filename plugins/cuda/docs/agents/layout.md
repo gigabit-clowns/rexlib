@@ -12,6 +12,6 @@ Where each part of the plugin lives.
 | `src/logger.hpp` | The `REXLIB_CUDA_LOG_*` macros over spdlog |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
 | `cmake/modules/` | One `rexlib_cuda_fetch_*.cmake` per dependency, `rexlib_cuda_architectures` and `rexlib_cuda_enable_warnings` |
-| `scripts/select_cuda_major.py` | Rewrites `pyproject.toml` for one CUDA major before a wheel is built |
+| `cuda12/`, `cuda13/` | The `pyproject.toml` of the wheel for each CUDA major, built from the project one directory up |
 
 Everything is in `namespace rexlib::cuda`.

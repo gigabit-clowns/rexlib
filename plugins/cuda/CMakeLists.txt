@@ -49,10 +49,6 @@ option(
 	OFF
 )
 
-set(
-	REXLIB_CUDA_RUNTIME_RPATH ""
-	CACHE STRING "RPATH entry reaching the CUDA runtime"
-)
 
 # Every dependency but rexlib is private to the plugin, which has no public
 # interface, so building one here or finding an installed one changes nothing

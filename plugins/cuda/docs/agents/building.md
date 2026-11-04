@@ -54,7 +54,6 @@ Options:
 | `REXLIB_CUDA_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
 | `REXLIB_CUDA_INSTALL` | `ON` | Generates the install rules |
 | `REXLIB_CUDA_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail the plugin's own targets (`-Werror`, `/WX`) |
-| `REXLIB_CUDA_RUNTIME_RPATH` | empty | An extra RPATH entry reaching the CUDA runtime |
 
 The sources are compiled once, into the object library `rexlib-cuda-objects`,
 which both the plugin and the unitary tests are built from: a `MODULE` cannot

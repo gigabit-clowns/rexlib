@@ -7,7 +7,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "rexlib"
-dynamic = ["version"]
+dynamic = ["version", "optional-dependencies"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
     { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" },
@@ -66,9 +66,15 @@ rexlib = "rexlib"
 
 # uv.lock pins every package of the groups, those they pull in included, for
 # every Python and platform, with the hash of each file. Only uv writes it,
-# and only this version of uv, which CI installs too.
+# and only this version of uv, which CI installs too. The CUDA plugins come
+# from their projects in this repository, and their extras exclude each other.
 [tool.uv]
 required-version = "==0.13.3"
+conflicts = [[{ extra = "cuda12" }, { extra = "cuda13" }]]
+
+[tool.uv.sources]
+rexlib-cuda12 = { path = "plugins/cuda/cuda12" }
+rexlib-cuda13 = { path = "plugins/cuda/cuda13" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests/python"]
@@ -128,6 +134,12 @@ provider = "scikit_build_core.metadata.regex"
 field = "version"
 input = "VERSION"
 regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
+
+# The CUDA plugin of the same release, for CUDA 12 or 13.
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.template"
+field = "optional-dependencies"
+result = { cuda12 = ["rexlib-cuda12=={project[version]}"], cuda13 = ["rexlib-cuda13=={project[version]}"] }
 
 # Every CPython from requires-python on, for 64-bit architectures and without
 # musllinux. From 3.12 on the first wheel is an abi3 one: cibuildwheel finds
