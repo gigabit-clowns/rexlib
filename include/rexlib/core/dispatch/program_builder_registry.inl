@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <rexlib/core/dispatch/program_builder_registry.hpp>
+#pragma once
 
-#include <rexlib/core/dispatch/program_builder.hpp>
-#include <rexlib/core/dispatch/program_service.hpp>
+#include "program_builder_registry.hpp"
+
+#include "program_builder.hpp"
+#include "program_service.hpp"
 
 namespace rexlib
 {
 
-program_builder_registry::program_builder_registry() = default;
-program_builder_registry::~program_builder_registry() = default;
-
+inline
 void program_builder_registry::add(program_builder_factory factory)
 {
 	if (factory != nullptr)
@@ -19,6 +19,7 @@ void program_builder_registry::add(program_builder_factory factory)
 	}
 }
 
+inline
 void program_builder_registry::register_all(program_service &programs) const
 {
 	for (const auto factory : m_factories)

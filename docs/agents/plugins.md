@@ -6,8 +6,14 @@ A plugin is a shared object that expands `REXLIB_DEFINE_PLUGIN(type)`, from
 `rexlib/core/plugin_definition.hpp`, once. It defines two functions with C
 linkage: `rexlib_get_plugin_compatibility`, returning the
 `plugin_compatibility` the plugin was built for, and `rexlib_get_plugin`,
-returning the plugin, which it constructs on the first call. Nothing of the
-plugin's C++ runs before the loader has checked the first.
+returning the plugin, which it constructs on the first call. The loader
+calls the first before anything else of the plugin; only the plugin's static
+initializers run earlier, as the shared object loads. They must not call into
+librexlib: a plugin the check would refuse could corrupt memory before it is
+refused. `program_builder_registry` and `program_builder_registration` are
+defined in their headers, so a plugin's builders can add themselves to a
+registry of its own during static initialization, as the CPU's do, and the
+plugin hands that registry to the `program_service` in `register_at`.
 
 `plugin_compatibility` is plain data of a fixed layout, filled by the
 `REXLIB_PLUGIN_COMPATIBILITY` macro where it is expanded: the version of
