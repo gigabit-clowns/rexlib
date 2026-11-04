@@ -49,60 +49,60 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux x86_64, oldest clang
+          - name: Ubuntu 22.04 x86_64, clang
             os: ubuntu-22.04
             cc: clang
             cxx: clang++
             vcpkg-triplet: x64-linux
             python: '3.14'
             install-artifact: install-linux-x86_64
-          - name: Linux x86_64, newest clang
+          - name: Ubuntu 26.04 x86_64, clang
             os: ubuntu-26.04
             cc: clang
             cxx: clang++
             vcpkg-triplet: x64-linux
             python: '3.14'
-          - name: Linux aarch64, oldest gcc
+          - name: Ubuntu 22.04 aarch64, gcc
             os: ubuntu-22.04-arm
             cc: gcc
             cxx: g++
             vcpkg-triplet: arm64-linux
             python: '3.14'
             install-artifact: install-linux-aarch64
-          - name: macOS arm64, oldest Apple clang
+          - name: macOS 15 arm64, Apple clang
             os: macos-15
             cc: clang
             cxx: clang++
             vcpkg-triplet: arm64-osx
             python: '3.14'
-          - name: macOS arm64, newest Apple clang
+          - name: macOS 26 arm64, Apple clang
             os: macos-26
             cc: clang
             cxx: clang++
             vcpkg-triplet: arm64-osx
             python: '3.14'
-          - name: Windows x86_64, oldest MSVC
+          - name: Windows Server 2022 x86_64, MSVC
             os: windows-2022
             cc: cl
             cxx: cl
             msvc: x64
             vcpkg-triplet: x64-windows-static-md
             python: '3.14'
-          - name: Windows x86_64, newest MSVC
+          - name: Windows Server 2025 x86_64, MSVC
             os: windows-2025
             cc: cl
             cxx: cl
             msvc: x64
             vcpkg-triplet: x64-windows-static-md
             python: '3.14'
-          - name: Windows arm64, MSVC
+          - name: Windows 11 arm64, MSVC
             os: windows-11-arm
             cc: cl
             cxx: cl
             msvc: arm64
             vcpkg-triplet: arm64-windows-static-md
             python: '3.14'
-          - name: Windows x86_64, newest MinGW
+          - name: Windows Server 2025 x86_64, MinGW
             os: windows-2025
             cc: gcc
             cxx: g++
@@ -201,7 +201,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux x86_64, newest gcc, coverage and valgrind
+          - name: Ubuntu 26.04 x86_64, gcc, coverage and valgrind
             os: ubuntu-26.04
             vcpkg-triplet: x64-linux
     runs-on: ${{ matrix.os }}
@@ -294,10 +294,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux x86_64, newest clang, address and undefined behaviour sanitizers
+          - name: Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers
             os: ubuntu-26.04
             preset: sanitize
-          - name: Linux x86_64, newest clang, thread sanitizer
+          - name: Ubuntu 26.04 x86_64, clang, thread sanitizer
             os: ubuntu-26.04
             preset: sanitize-thread
     runs-on: ${{ matrix.os }}
@@ -351,7 +351,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Linux x86_64, oldest gcc, minimum versions
+          - name: Ubuntu 22.04 x86_64, gcc, minimum versions
             os: ubuntu-22.04
             vcpkg-triplet: x64-linux
     runs-on: ${{ matrix.os }}
@@ -447,14 +447,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux x86_64, CUDA 12
+          - name: Ubuntu 24.04 x86_64, CUDA 12
             os: ubuntu-24.04
             repository: x86_64
             cuda: '12.9'
             vcpkg-triplet: x64-linux
             cmake: '3.18.0'
             install-artifact: install-linux-x86_64
-          - name: Linux aarch64, CUDA 13
+          - name: Ubuntu 24.04 aarch64, CUDA 13
             os: ubuntu-24.04-arm
             repository: sbsa
             cuda: '13.4'
