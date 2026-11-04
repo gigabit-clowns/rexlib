@@ -24,18 +24,18 @@ them. See #143.
 
 | Module | From | Holds |
 |---|---|---|
-| `_binding` | `src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version` |
-| `_binding.numerical` | `src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
-| `_binding.ndarray` | `src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, the functions that put an array's memory in a DLPack capsule and take one out, and the type caster that loads `const_array_ref` and `array_ref` from an `Array` |
-| `_binding.hardware` | `src/core/hardware/` | Devices, sessions, queues, memory resources |
-| `_binding.dispatch` | `src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramService` |
-| `_binding.ops.fourier` | `src/ops/fourier/` | `FourierNormalization`, the convention of the Fourier transforms |
-| `_binding.functional` | `src/functional/` | The operations, each taking an explicit context |
-| `_binding.em.ops.parameters` | `src/em/ops/parameters/` | The types the parameters of the operations of `rexlib::em` are made of: `GriddingProfile`, `GriddingWindow`, `CtfOptics` |
-| `_binding.em.functional` | `src/em/functional/` | The operations of `rexlib::em`, each taking an explicit context |
+| `_binding` | `python/src/core/*.cpp` | `Version`, `Plugin`, `PluginManager`, `ServiceCatalog`, `rexlib_version` |
+| `_binding.numerical` | `python/src/core/numerical/` | `NumericalType`, and the `float16_t` type caster |
+| `_binding.ndarray` | `python/src/core/ndarray/` | `Array` and its buffer protocol, `ArrayDescriptor`, the functions that put an array's memory in a DLPack capsule and take one out, and the type caster that loads `const_array_ref` and `array_ref` from an `Array` |
+| `_binding.hardware` | `python/src/core/hardware/` | Devices, sessions, queues, memory resources |
+| `_binding.dispatch` | `python/src/core/dispatch/` | `ExecutionContext`, `Dispatcher`, `ProgramService` |
+| `_binding.ops.fourier` | `python/src/ops/fourier/` | `FourierNormalization`, the convention of the Fourier transforms |
+| `_binding.functional` | `python/src/functional/` | The operations, each taking an explicit context |
+| `_binding.em.ops.parameters` | `python/src/em/ops/parameters/` | The types the parameters of the operations of `rexlib::em` are made of: `GriddingProfile`, `GriddingWindow`, `CtfOptics` |
+| `_binding.em.functional` | `python/src/em/functional/` | The operations of `rexlib::em`, each taking an explicit context |
 
 A submodule is created by the `main.cpp` above it, which then hands it to the
-`bind_` function of the directory it stands for: `src/main.cpp` creates
+`bind_` function of the directory it stands for: `python/src/main.cpp` creates
 `hardware` and hands it to `bind_hardware`, and a directory that nests does
 the same one level down. Each names its submodules in the order the
 declarations need.

@@ -16,7 +16,7 @@ A capsule handed out owns a `shared_ptr` to the buffer, not a reference to the
 GIL, on whatever thread the consumer calls it from.
 
 Memory taken in is held by `dlpack_buffer`, a `rexlib::buffer` the binding
-implements. It is the one class in `src/` that binds nothing. rexlib has no
+implements. It is the one class in `python/src/` that binds nothing. rexlib has no
 call that adopts foreign memory and needs none: `buffer` is the interface,
 and whoever holds the memory implements it.
 

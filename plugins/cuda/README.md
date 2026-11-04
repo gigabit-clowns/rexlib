@@ -1,18 +1,29 @@
-# rexlib-cuda
-CUDA hardware backend for rexlib
+# The CUDA plugin of rexlib
 
-## SonarCloud status
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
+The CUDA hardware backend of [rexlib](../../README.md), a high-performance
+Cryo-EM and Cryo-ET image processing library. It is a plugin: a shared object
+that rexlib's plugin manager loads at run time, which registers a CUDA
+`device_backend`, built against an installed rexlib as any third-party plugin
+is.
 
-### Ratings
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
+From Python, install it as an extra of rexlib, for CUDA 12 or 13, on Linux
+x86_64 or aarch64:
 
-### Specific metrics
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=bugs)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib-cuda&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib-cuda)
+```
+pip install "rexlib[cuda12]"
+```
+
+From C++, install the library, then build the plugin against it from the root
+of the repository:
+
+```
+cmake -S . -B build/rexlib -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+cmake --build build/rexlib --parallel
+cmake --install build/rexlib --prefix build/rexlib-install
+cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install
+cmake --build build/cuda --parallel
+cmake --install build/cuda --prefix build/rexlib-install
+```
+
+Its conventions are in [AGENTS.md](../../AGENTS.md) and
+[docs/agents/](../../docs/agents/).

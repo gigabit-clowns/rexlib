@@ -1,6 +1,6 @@
 # The binding
 
-The conventions of the C++ code under `src/`.
+The conventions of the binding's C++ code, under `python/src/`.
 
 Every bound entity gets a `.hpp` and a `.cpp`. The header declares a class
 alias and the two functions the source defines:

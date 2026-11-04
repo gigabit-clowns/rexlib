@@ -97,6 +97,76 @@ cached per runner image, compiler and triplet, keyed on its manifest; a new
 key starts from the newest such cache, and vcpkg builds only what changed. Nothing else
 manages the caches: an eviction makes a run slower, never wrong.
 
+## Wheels
+
+### The rexlib wheels
+
+`ci.yml` builds them in the `wheels` jobs, one per platform, from the source
+distribution the `sdist` job builds, so that every platform also checks that
+the source distribution builds. cibuildwheel takes its
+settings from `pyproject.toml`; the workflow adds only the compiler cache.
+
+A platform gets a wheel for each CPython older than 3.12, one abi3 wheel for
+3.12 and every later CPython, and one for each free-threaded interpreter
+cibuildwheel builds for, which from cibuildwheel 4 starts at 3.14.
+cibuildwheel builds the abi3 one for 3.12, finds it compatible with each
+later interpreter, tests it there instead of building again, and checks it
+with `abi3audit`. The binding does not declare that it runs without the GIL,
+so a free-threaded interpreter turns the GIL on when it imports it.
+
+The wheel carries librexlib itself, put there by the library's install
+rules, and every repair tool is told to leave it alone: `auditwheel
+--exclude`, `delvewheel --exclude`, `delocate --ignore-missing-dependencies`.
+Vendoring it would rename it under a hash-mangled SONAME, which breaks
+`find_package` for plugin authors and the sibling directory the plugins are
+discovered in. The namelink is excluded from the wheel instead, since a
+wheel stores a symlink as another full copy.
+
+musllinux is skipped: NVIDIA ships no CUDA for musl, so the CUDA plugin is
+manylinux only and an Alpine install could never reach the GPU backend.
+Alpine can still build from the source distribution.
+
+The wheel jobs build with the setting `build-dir=build/{wheel_tag}`, which
+is what lets the compiler cache work. scikit-build-core otherwise builds in a
+temporary directory of its own, unrelated to the one the archive is unpacked
+into, so the sources sit at a different place relative to the build directory
+on every run and `CCACHE_BASEDIR` has nothing stable to rewrite against. The
+value has to stay relative: scikit-build-core resolves it against the source
+directory, and an absolute one would leave the sources where they were.
+
+For the same reason cibuildwheel is given the source distribution unpacked
+at the same path of the workspace in every run, not the archive itself, which
+it would unpack into a new temporary directory each time. MSVC puts absolute
+paths into what the cache hashes, so on Windows nothing an earlier run cached
+would match, and the first wheel of every run would compile from scratch.
+
+### The CUDA plugin's wheels
+
+There is one distribution per CUDA major, `rexlib-cuda12` and
+`rexlib-cuda13`, each with its `pyproject.toml` in `plugins/cuda/cuda12/` or
+`cuda13/`, which builds the project one directory up
+(`cmake.source-dir = ".."`). Both take their version from
+`plugins/cuda/VERSION` and require `rexlib` of the same version,
+and the root's extras `rexlib[cuda12]` and `rexlib[cuda13]` require them in
+turn; the two extras exclude each other, since both plugins are named
+`rexlib-cuda` and the second would be refused.
+
+A wheel is Python-agnostic (`wheel.py-api = "py3"`) and manylinux only, for
+Linux x86_64 and aarch64. Its package directory, `rexlib_cuda12/` or
+`rexlib_cuda13/`, is the install prefix, so the plugin lands in its
+`lib/rexlib-plugins/`, and the entry point `rexlib-cuda` in the group
+`rexlib.plugins` names it for the default catalog. `CMAKE_INSTALL_RPATH`
+reaches the CUDA runtime of NVIDIA's wheel three levels up, in
+`nvidia/cuda_runtime/lib` for 12 and `nvidia/cu13/lib` for 13, and auditwheel
+leaves both librexlib and libcudart out of the wheel.
+
+cibuildwheel builds it once, with the newest CPython, in the manylinux image
+after installing NVIDIA's compiler and runtime from its RHEL 8 repository,
+without build isolation against the rexlib wheel of the same release, which
+`REXLIB_WHEELHOUSE` names. It is tested by loading the plugin through the
+default catalog, which needs no GPU. `ci.yml` does this in its `cuda-wheels`
+jobs, with the rexlib wheels of the run.
+
 ## Releases
 
 A release is a tag `v<version>` on `main`, where `<version>` is what

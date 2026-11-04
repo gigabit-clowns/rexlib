@@ -1,6 +1,9 @@
 # Building
 
-How rexlib is configured, built and tested, and what its options do.
+How the library, its Python binding and its CUDA plugin are configured, built
+and tested, and what their options do.
+
+## The library
 
 ```
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
@@ -60,12 +63,12 @@ Options:
 | `REXLIB_DOCS_USE_README_AS_MAINPAGE` | `ON` | Uses `README.md` as Doxygen's main page |
 | `REXLIB_DOCS_STRIP_BADGES_FROM_MAINPAGE` | `ON` | Uses a generated copy of `README.md` without badge blocks as Doxygen's main page |
 | `REXLIB_ENABLE_COVERAGE` | `OFF` | Adds coverage instrumentation |
-| `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
+| `REXLIB_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case; see [tests](tests.md) |
 | `REXLIB_CHECK_HEADERS` | `OFF`, `ON` in the presets | Compiles every public header on its own as C++14, 17, 20 and 23 |
 | `REXLIB_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail rexlib's own targets (`-Werror`, `/WX`) |
 | `REXLIB_CLANG_TIDY` | `OFF`, `ON` in `lint` | Runs clang-tidy on the library's own sources as they compile; a finding fails the build |
 | `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks, and `rexlib-ruff`, a test running ruff over the Python files `ruff.toml` names |
-| `REXLIB_BUILD_PYTHON` | `OFF` | Adds the Python binding in `python/`, which needs an interpreter with nanobind; see [python/docs/agents/building.md](../../python/docs/agents/building.md) |
+| `REXLIB_BUILD_PYTHON` | `OFF` | Adds the Python binding in `python/`, which needs an interpreter with nanobind; see [the binding](#the-binding) |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
@@ -97,19 +100,163 @@ With `REXLIB_DOCS_STRIP_BADGES_FROM_MAINPAGE=ON`, Doxygen reads a generated
 copy where everything between `<!-- docs-badges:start -->` and
 `<!-- docs-badges:end -->` is removed.
 
-Each suite carries its name as a CTest label, so `ctest -L unitary` and
-`ctest -L integration` run one of them. The label is set whichever way the
-cases were registered. Under CMake 3.18 each suite is a single test, since
-listing the cases needs the JSON support of CMake 3.19.
+## The binding
 
-On Windows the library and the test executables are built into one
-directory, `bin/` of the build tree, unless `CMAKE_RUNTIME_OUTPUT_DIRECTORY`
-is given: Windows finds a library beside the executable that loads it, and
-a plugin a test loads finds `rexlib.dll` there too.
+The binding is part of rexlib's build, off by default. It needs an
+interpreter with the `dev` group of `pyproject.toml` installed
+(`pip install --group dev`, pip 25.1 or newer, or `uv sync`):
 
-The last one exists because a memory checker pays its start-up on every test
-CTest runs. Discovering each case makes it re-analyse the whole binary once per
-case, which took the memcheck job past six hours.
+```
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DREXLIB_BUILD_PYTHON=ON \
+  -DPython_EXECUTABLE=$(which python)
+cmake --build build -j
+ctest --test-dir build -L python
+```
+
+`ctest -L python` installs the build into a directory of the build tree and
+runs the tests against that install; see [tests](tests.md).
+
+Built alone, the binding finds an installed rexlib of the same version, as
+a distribution that packages the two apart does:
+
+```
+cmake -S python -B build/python -Drexlib_ROOT=<prefix> \
+  -DPython_EXECUTABLE=$(which python)
+cmake --build build/python -j
+cmake --install build/python --prefix <prefix>
+```
+
+`pip install .` builds a wheel of the whole repository with the binding on,
+as `pyproject.toml` sets it up. That build is thrown away with its
+directory, so installing twice compiles the binding twice.
+`SKBUILD_BUILD_DIR` names one to keep and is left to whoever is installing
+rather than set in `pyproject.toml`: the gain is a developer's repeated
+install, while the cost, a CMake cache that outlives the options it was
+configured with, would fall on every user and on every wheel job.
+
+The package is installed into `REXLIB_PYTHON_INSTALL_DIR` under the install
+prefix: by default the platform library directory that the interpreter's
+install scheme names, such as `lib/python3.11/site-packages`. A wheel's
+prefix is the package directory itself, with the library and its CMake
+package in `lib/` on every platform. Its `cmake.root` entry point names the
+package, so that a project built with scikit-build-core against the installed
+wheel finds rexlib's CMake package with `find_package(rexlib)`.
+`pyproject.toml` sets `CMAKE_INSTALL_LIBDIR` because GNUInstallDirs would
+pick `lib64` in the manylinux containers, and CMake does not search `lib64`
+for a package on Debian, Ubuntu or Arch, so a wheel built that way is not
+found there. The build writes the path from the
+package to the prefix into the extension's RPATH; built against an installed
+rexlib, the RPATH also names the directory that rexlib was found in. Windows
+has no RPATH: `_dll_directories` adds the `bin` of the package directory and
+of the prefix the default layout implies to the DLL search path, and in any
+other layout the DLL has to be on the search path already. `_paths` finds
+rexlib's CMake package and headers from where the loaded library is, whatever
+the layout.
+
+Everything the binding installs is in the `rexlib_python` component. The
+type stubs are generated last, by importing the installed package; see
+[type-stubs](type-stubs.md).
+
+CMake 3.18 is the minimum, and 3.26 with `REXLIB_PYTHON_STABLE_ABI`, the
+first whose FindPython has `Development.SABIModule`. The binding is C++20,
+unlike rexlib itself, which is C++14: nothing here has to build on the
+compilers rexlib supports, only on the ones that build wheels. CMake
+requires that standard rather than preferring it, so that nothing newer gets
+in unnoticed. The binding's targets get the library's warnings, which
+`REXLIB_WARNINGS_AS_ERRORS` turns into errors.
+
+Options:
+
+| Option | Default | Effect |
+|---|---|---|
+| `REXLIB_BUILD_PYTHON` | `OFF` | Adds the binding to the library's build |
+| `REXLIB_USE_SYSTEM_DLPACK` | `OFF`, forced `ON` by `REXLIB_USE_SYSTEM_DEPENDENCIES` | Finds an installed DLPack rather than fetching it |
+| `REXLIB_PYTHON_INSTALL_DIR` | The interpreter's platform library directory, relative to the prefix; under scikit-build-core, the wheel's | Where the package is installed |
+| `REXLIB_PYTHON_STABLE_ABI` | `OFF`, `ON` from `pyproject.toml` | Builds the extension against the stable ABI of Python 3.12 |
+
+Built alone, the binding also reads the library's `REXLIB_INSTALL`,
+`REXLIB_BUILD_TESTING`, `REXLIB_WARNINGS_AS_ERRORS` and
+`REXLIB_USE_SYSTEM_DEPENDENCIES`.
+
+`REXLIB_PYTHON_STABLE_ABI` is what makes one wheel serve Python 3.12 and every
+later one, with `wheel.py-api = "cp312"` beside it in `pyproject.toml`.
+nanobind falls back to the interpreter's own ABI where the stable one cannot
+serve — before 3.12, and on a free-threaded interpreter — and
+scikit-build-core tags those wheels accordingly. The suffix of the module is
+nanobind's to choose from what scikit-build-core reports, which is the target
+interpreter's when cibuildwheel cross-compiles.
+
+Its CMakeLists.txt files name their sources as the library's do (see
+[layout](layout.md)) and add them to `_binding`. nanobind and DLPack are in
+[dependencies](dependencies.md).
+
+## The CUDA plugin
+
+The plugin is built as any third-party plugin is: against an installed
+rexlib, which it finds with `find_package`, of the minor version it shares
+with the library. From the root of the repository, install the library into
+a prefix and point `rexlib_ROOT` at it, on the command line or in the
+environment:
+
+```
+cmake -S . -B build/rexlib -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
+cmake --build build/rexlib --parallel
+cmake --install build/rexlib --prefix build/rexlib-install
+cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install
+cmake --build build/cuda --parallel
+```
+
+With CMake 3.21 or newer the presets of `plugins/cuda/` do the same, run
+from that directory: `cmake --preset debug`, `cmake --build --preset debug`,
+`ctest --preset debug`, which build into `plugins/cuda/build/debug`. There are
+`release`, `sanitize` (the address and undefined behaviour sanitizers) and
+`sanitize-thread` presets too; the two sanitizer presets are not offered on
+Windows. The `sanitize` test preset sets
+`ASAN_OPTIONS=protect_shadow_gap=0`, without which the address sanitizer and
+the CUDA runtime fight over the same memory. The `sanitize-thread` one points
+`TSAN_OPTIONS` at `tests/tsan.supp`, which leaves out the lock cycles that go
+through trompeloeil's own lock: a mocked call holds it through its actions,
+and a case that calls back into the code under test from one takes that
+code's lock under it. What only one machine has, such
+as `rexlib_ROOT`, the CUDA paths or a compiler cache, goes in a
+`CMakeUserPresets.json`, which git ignores.
+
+A CUDA toolkit of 11 or newer is required. Unless `CMAKE_CUDA_ARCHITECTURES`
+is set, `rexlib_cuda_all_major_architectures` asks nvcc which architectures it
+supports and keeps the oldest of each major family as SASS, plus the PTX of
+the newest. That needs CUDA 11.1; an older toolkit needs the architectures set
+by hand. CUDA is enabled with `enable_language` after that, not in
+`project()`.
+
+nvcc accepts only the host compilers its release supports, and the C library
+headers of their time: a GCC or glibc newer than the toolkit fails as soon as
+CUDA is enabled, before any source is compiled. `CUDAHOSTCXX` names another
+host compiler, as the wheel builds do; a glibc too new needs a newer toolkit.
+
+CMake 3.18 is the minimum. The plugin is C++20, and CMake requires that
+standard rather than preferring it, so that nothing newer gets in unnoticed.
+
+Options:
+
+| Option | Default | Effect |
+|---|---|---|
+| `REXLIB_CUDA_BUILD_TESTING` | `ON` while `BUILD_TESTING` is on, forced `OFF` otherwise | Builds the test suites |
+| `REXLIB_CUDA_REGISTER_TESTS_PER_BINARY` | `OFF` | Registers one CTest entry per test executable instead of one per Catch2 case |
+| `REXLIB_CUDA_INSTALL` | `ON` | Generates the install rules |
+| `REXLIB_CUDA_WARNINGS_AS_ERRORS` | `OFF` | Makes a compiler warning fail the plugin's own targets (`-Werror`, `/WX`) |
+
+The sources are compiled once, into the object library `rexlib-cuda-objects`,
+which both the plugin and the unitary tests are built from: a `MODULE` cannot
+be linked against. Their usage requirements travel through the interface
+target `rexlib-cuda-deps`, because `$<TARGET_OBJECTS:>` carries only the
+objects. Device code is compiled separately and linked into the module, so a
+kernel may be called across translation units.
+
+Its CMakeLists.txt files name their sources as the library's do (see
+[layout](layout.md)).
+
+The plugin installs through rexlib's `rexlib_install_plugin`, which owns where
+a plugin goes and the RPATH back to the library.
 
 ## Coverage
 
