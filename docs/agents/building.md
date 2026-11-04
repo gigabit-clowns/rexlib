@@ -71,12 +71,16 @@ Options:
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
 turning off `BUILD_TESTING` for its own.
 
-With `REXLIB_INSTALL` on, the tests include two labelled `install`: the first
-installs the build into a directory of the build tree, and the second builds
-`tests/install/consumer`, a C++14 project that finds rexlib with
-`find_package` and nothing else, and runs it except on Windows. A header that
-is not installed, or a package that does not describe the library, fails
-there.
+With `REXLIB_INSTALL` on, the tests include four labelled `install`, chained by
+fixtures. The first installs the build into a directory of the build tree. The
+next two build `tests/install/plugin`, a plugin of its own, against that
+install, and install it beside the library with `rexlib_install_plugin`. The
+last builds `tests/install/consumer`, a C++14 project that finds rexlib with
+`find_package` and nothing else, and runs it, on Windows with the installed
+library's directory on `PATH`. The consumer loads the plugin from the default
+plugin directory and runs its program on the device the plugin adds. A header
+that is not installed, a package that does not describe the library, or a
+plugin SDK that is not enough fails there.
 
 `rexlib-docs` writes the documentation of the public headers under
 `docs/doxygen/html` of the build tree. A warning of Doxygen fails it, so a
