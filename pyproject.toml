@@ -10,18 +10,19 @@ name = "rexlib"
 dynamic = ["version"]
 authors = [
     { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
-    { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" }
+    { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" },
+    { name = "Mikel Iceta Tena", email = "miceta@gmail.com" }
 ]
-description = "Python binding for the rexlib framework"
+description = "High-performance Cryo-EM and Cryo-ET image processing library"
 classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
+    "Programming Language :: C++",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -33,13 +34,12 @@ classifiers = [
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "GPL-3.0-only"
 
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = []
 
 # Installed with pip install --group, which pip has had since 25.1.
 [dependency-groups]
 test = [
-    "numpy==2.2.6; python_version == '3.10' and platform_machine != 'ARM64'",
     "numpy==2.4.6; python_version == '3.11'",
     "numpy==2.5.4; python_version >= '3.12'",
     "pytest==9.1.1",
@@ -56,8 +56,13 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/gigabit-clowns/rexlib-python"
-Issues = "https://github.com/gigabit-clowns/rexlib-python/issues"
+Homepage = "https://github.com/gigabit-clowns/rexlib"
+Issues = "https://github.com/gigabit-clowns/rexlib/issues"
+
+# A project built with scikit-build-core against an installed wheel finds
+# rexlib's CMake package with find_package(rexlib).
+[project.entry-points."cmake.root"]
+rexlib = "rexlib"
 
 # uv.lock pins every package of the groups, those they pull in included, for
 # every Python and platform, with the hash of each file. Only uv writes it,
@@ -79,20 +84,18 @@ source = ["python/rexlib", "*/site-packages/rexlib"]
 output = "coverage.xml"
 
 [tool.scikit-build]
-# git ls-files does not report a submodule's contents, so the rexlib source
-# has to be named explicitly or the sdist would carry an empty directory and
-# fail to build.
-sdist.include = ["external/rexlib/**"]
+# Leaves out the plugins and the repository's own settings.
 sdist.exclude = [
     ".github/**",
     ".vscode/**",
+    "plugins/**",
     "renovate.json",
     "sonar-project.properties",
 ]
 
-# The wheel's install prefix is the package directory, so anything installed
-# relative to it - a rexlib built from this source distribution - lands beside
-# the extension under the ordinary lib/ and include/.
+# The wheel's install prefix is the package directory, so the library, its
+# headers and its CMake package land beside the extension under the ordinary
+# lib/ and include/.
 wheel.install-dir = "rexlib"
 
 # One wheel serves Python 3.12 and every later one. An older or a
@@ -124,12 +127,25 @@ field = "version"
 input = "VERSION"
 regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
 
+# Every CPython from requires-python on, for 64-bit architectures and without
+# musllinux. From 3.12 on the first wheel is an abi3 one: cibuildwheel finds
+# it compatible with each later interpreter, tests it there and builds nothing
+# more. A free-threaded interpreter gets a wheel of its own.
 [tool.cibuildwheel]
+skip = ["*-musllinux_*", "*-win32", "*_i686", "*_armv7l"]
+
 # Run from a temporary directory, so this imports the installed wheel rather
 # than the source tree beside it. It is the one check that the library the
 # wheel carries is found at run time, which no amount of building proves.
+# The suites run in CI's build-and-test jobs.
 test-command = "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\""
 
-# The full suite is not run here; build-and-test already does that per
-# platform, and this has to stay cheap enough for every wheel.
-#test-groups = ["test"]
+# The repair tools leave librexlib, which the wheel already carries, as it is.
+[tool.cibuildwheel.linux]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --exclude 'librexlib.so*'"
+
+[tool.cibuildwheel.macos]
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
+
+[tool.cibuildwheel.windows]
+repair-wheel-command = "delvewheel repair -w {dest_dir} -v {wheel} --exclude rexlib.dll"

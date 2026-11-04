@@ -17,14 +17,18 @@ The binding is built and tested by the library's workflow; see
 
 ## Wheels
 
-No workflow builds wheels yet. These are the decisions the wheels of the
-binding's own repository were built on, which the wheels of this one keep.
+The library's workflow builds them: the `wheels` jobs, one per platform,
+from the source distribution the `sdist` job builds, so that every platform
+also checks that the source distribution builds. cibuildwheel takes its
+settings from `pyproject.toml`; the workflow adds only the compiler cache.
 
 A platform gets a wheel for each CPython older than 3.12, one abi3 wheel for
-3.12 and every later CPython, and one for each free-threaded interpreter.
+3.12 and every later CPython, and one for each free-threaded interpreter
+cibuildwheel builds for, which from cibuildwheel 4 starts at 3.14.
 cibuildwheel builds the abi3 one for 3.12, finds it compatible with each
 later interpreter, tests it there instead of building again, and checks it
-with `abi3audit`.
+with `abi3audit`. The binding does not declare that it runs without the GIL,
+so a free-threaded interpreter turns the GIL on when it imports it.
 
 The wheel carries librexlib itself, put there by the library's install
 rules, and every repair tool is told to leave it alone: `auditwheel
@@ -38,9 +42,9 @@ musllinux is skipped: NVIDIA ships no CUDA for musl, so the CUDA plugin is
 manylinux only and an Alpine install could never reach the GPU backend.
 Alpine can still build from the source distribution.
 
-A job that installs the source distribution sets `SKBUILD_BUILD_DIR`, which
-is what lets its compiler cache work. scikit-build-core otherwise builds in a
-temporary directory of its own, unrelated to the one pip unpacked the archive
+The wheel jobs build with the setting `build-dir=build/{wheel_tag}`, which
+is what lets the compiler cache work. scikit-build-core otherwise builds in a
+temporary directory of its own, unrelated to the one the archive is unpacked
 into, so the sources sit at a different place relative to the build directory
 on every run and `CCACHE_BASEDIR` has nothing stable to rewrite against. The
 value has to stay relative: scikit-build-core resolves it against the source
