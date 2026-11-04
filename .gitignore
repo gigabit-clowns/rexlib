@@ -38,6 +38,9 @@ CMakeUserPresets.json
 # Compiler cache
 .ccache
 
+# vcpkg's install tree and packages
+.vcpkg
+
 # Python
 __pycache__/
 *.pyc

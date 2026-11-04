@@ -58,8 +58,9 @@ warnings and findings fail it. vcpkg installs them into `.vcpkg/installed` of
 the workspace, at the baseline `.github/vcpkg/vcpkg.json` names, for the row's
 triplet (static libraries, with the dynamic C runtime on Windows), and the
 `find_package` branch of each finds them, as a packager's would. The packages
-it builds are kept in `.vcpkg/archives`. Both are inside the workspace, so the
-coverage job's gcovr leaves out `.vcpkg/`.
+it builds are kept in `.vcpkg/archives`. Both are inside the workspace, so
+`.gitignore` names `.vcpkg`, which editorconfig-checker then skips, and the
+coverage job's gcovr leaves it out.
 
 The coverage and valgrind job builds the `coverage` preset. It runs the suites
 under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the preset
