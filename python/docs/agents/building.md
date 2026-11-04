@@ -38,9 +38,14 @@ configured with, would fall on every user and on every wheel job.
 The package is installed into `REXLIB_PYTHON_INSTALL_DIR` under the install
 prefix: by default the platform library directory that the interpreter's
 install scheme names, such as `lib/python3.11/site-packages`. A wheel's
-prefix is the package directory itself. Its `cmake.root` entry point names
-the package, so that a project built with scikit-build-core against the
-installed wheel finds rexlib's CMake package with `find_package(rexlib)`. The build writes the path from the
+prefix is the package directory itself, with the library and its CMake
+package in `lib/` on every platform. Its `cmake.root` entry point names the
+package, so that a project built with scikit-build-core against the installed
+wheel finds rexlib's CMake package with `find_package(rexlib)`.
+`pyproject.toml` sets `CMAKE_INSTALL_LIBDIR` because GNUInstallDirs would
+pick `lib64` in the manylinux containers, and CMake does not search `lib64`
+for a package on Debian, Ubuntu or Arch, so a wheel built that way is not
+found there. The build writes the path from the
 package to the prefix into the extension's RPATH; built against an installed
 rexlib, the RPATH also names the directory that rexlib was found in. Windows
 has no RPATH: `_dll_directories` adds the `bin` of the package directory and

@@ -116,10 +116,12 @@ cmake.args = []
 build.verbose = false
 cmake.build-type = "Release"
 
+# The library and its CMake package go to lib/ on every platform.
 [tool.scikit-build.cmake.define]
 REXLIB_BUILD_PYTHON = "ON"
 REXLIB_PYTHON_STABLE_ABI = "ON"
 BUILD_TESTING = "OFF"
+CMAKE_INSTALL_LIBDIR = "lib"
 
 [[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"
