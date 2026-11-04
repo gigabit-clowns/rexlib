@@ -59,15 +59,16 @@ result = ["rexlib=={project[version]}", "cuda-toolkit[cudart]==12.*"]
 
 # One build, for the newest CPython, whose wheel serves every Python 3, in the
 # manylinux image with NVIDIA's compiler and runtime. It is built without
-# build isolation against the rexlib wheel of the same release, which
-# REXLIB_WHEELHOUSE names, and tested by loading the plugin through the
-# default catalog, which needs no GPU. The repair leaves out librexlib and the
-# CUDA runtime, which come from their own wheels.
+# build isolation, with the build group of the repository's pyproject.toml,
+# against the rexlib wheel of the same release, which REXLIB_WHEELHOUSE
+# names, and tested by loading the plugin through the default catalog, which
+# needs no GPU. The repair leaves out librexlib and the CUDA runtime, which
+# come from their own wheels.
 [tool.cibuildwheel]
 build = "cp314-manylinux_*"
 build-frontend = { name = "build", args = ["--no-isolation"] }
 before-build = [
-    "pip install scikit-build-core==1.1.1 cmake ninja",
+    "pip install --group {package}/../../../pyproject.toml:build",
     "pip install --no-index --find-links \"$REXLIB_WHEELHOUSE\" rexlib",
 ]
 before-test = "pip install --no-index --find-links \"$REXLIB_WHEELHOUSE\" rexlib"

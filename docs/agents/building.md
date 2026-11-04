@@ -22,9 +22,10 @@ options CI uses, for `ctest --test-dir build/coverage -T MemCheck`. `docs`
 configures for the Doxygen reference alone and builds `rexlib-docs`.
 `lint` runs the static checks: `cmake --build --preset lint` compiles the
 library through clang-tidy, and `ctest --preset lint` runs editorconfig-checker
-and ruff; all three have to be installed. clang-tidy reports what it finds in every header
-that is not a system header, so the lint build needs the dependencies
-installed, as a build with warnings as errors does.
+and ruff; the `lint` group of `pyproject.toml` installs all three
+(`uv sync --group lint`, or `pip install --group lint`). clang-tidy reports
+what it finds in every header that is not a system header, so the lint build
+needs the dependencies installed, as a build with warnings as errors does.
 Every test preset fails when it finds no test, runs the tests in a random
 order and gives each ten minutes. Settings of a machine of one's own, such as
 a compiler cache, go in a `CMakeUserPresets.json`, which git ignores.

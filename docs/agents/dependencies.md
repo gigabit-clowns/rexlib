@@ -50,7 +50,8 @@ and an archive of a default build is self contained.
 ## The binding
 
 nanobind comes from pip and is never fetched: it is in `build-system.requires`
-for pip, and in the `dev` group for a build by CMake itself. CMake asks the
+for pip, and in the `build` group, which `dev` includes, for a build by CMake
+itself. CMake asks the
 interpreter it found where nanobind's package is, `python -m nanobind
 --cmake_dir`, unless `nanobind_ROOT` or `nanobind_DIR` says so.
 
@@ -62,7 +63,7 @@ read. The library's `REXLIB_USE_SYSTEM_DEPENDENCIES`, or
 version is asked of it, since its package reports 0.6 whatever the release.
 
 What the Python tests and the development tools need is in the dependency
-groups of `pyproject.toml`, which `uv.lock` pins; see [tests](tests.md).
+groups of `pyproject.toml`; see [the tools from PyPI](#the-tools-from-pypi).
 
 ## The CUDA plugin
 
@@ -89,3 +90,22 @@ Each wheel's `pyproject.toml` requires `cuda-toolkit[cudart]` of its CUDA
 major, `==12.*` or `==13.*`, which NVIDIA's runtime wheels satisfy; the
 toolkit its build installs is pinned to a minor version, 12.9 or 13.4, in its
 `before-all`.
+
+## The tools from PyPI
+
+What the builds, the tests and the checks take from PyPI is in the dependency
+groups of `pyproject.toml`, which `uv.lock` pins with the hash of each file
+(see [tests](tests.md)):
+
+- `build`: scikit-build-core, CMake, Ninja and nanobind, what a build without
+  build isolation, or by CMake itself, needs;
+- `test`: numpy, pytest and pytest-cov;
+- `dev`: `build` and `test`, what `uv sync` installs;
+- `lint`: clang-tidy, editorconfig-checker and ruff, what the `lint` preset
+  runs;
+- `coverage`: gcovr.
+
+editorconfig-checker's package is a source distribution that downloads the
+program from its GitHub release when it is built, so `uv.lock` holds the hash
+of the package, not of the program. CMake 3.18.0, the oldest the projects
+support, is in no group: the jobs that build with it install it themselves.
