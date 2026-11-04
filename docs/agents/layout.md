@@ -19,7 +19,7 @@ tests and build files.
 | `python/src/` | The nanobind binding, compiled into the `rexlib._binding` extension |
 | `python/rexlib/` | The Python package: everything the binding cannot express |
 | `python/DECISIONS.md`, `python/BACKLOG.md` | The binding's open questions, and its settled work waiting to be scheduled |
-| `plugins/cuda/` | The CUDA plugin, a CMake project of its own built against an installed rexlib: `src/`, `tests/`, its own `cmake/modules/` and presets |
+| `plugins/cuda/` | The CUDA plugin, a CMake project of its own built against an installed rexlib, or inside the library's build with `REXLIB_BUILD_CUDA_PLUGIN`: `src/`, `tests/`, its own `cmake/modules/` and presets |
 | `plugins/cuda/cuda12/`, `plugins/cuda/cuda13/` | The `pyproject.toml` of the plugin's wheel for each CUDA major, built from the project one directory up |
 | `cmake/modules/` | One `rexlib_fetch_*.cmake` per dependency of the library and `rexlib_python_fetch_dlpack.cmake` for the binding, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The templates of the installed CMake package and of the version header, and `rexlib-plugin.cmake`, the CMake helpers of the plugin SDK |
