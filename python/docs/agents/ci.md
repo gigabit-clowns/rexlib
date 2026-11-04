@@ -49,3 +49,9 @@ into, so the sources sit at a different place relative to the build directory
 on every run and `CCACHE_BASEDIR` has nothing stable to rewrite against. The
 value has to stay relative: scikit-build-core resolves it against the source
 directory, and an absolute one would leave the sources where they were.
+
+For the same reason cibuildwheel is given the source distribution unpacked
+at the same path of the workspace in every run, not the archive itself, which
+it would unpack into a new temporary directory each time. MSVC puts absolute
+paths into what the cache hashes, so on Windows nothing an earlier run cached
+would match, and the first wheel of every run would compile from scratch.
