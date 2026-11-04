@@ -601,6 +601,40 @@ jobs:
           name: wheels-${{ matrix.os }}
           path: wheelhouse/*.whl
 
+      # The sample plugin of the install test, built as a wheel against the
+      # abi3 wheel just built, as a third party builds one, and loaded
+      # through the default catalog.
+      - name: Unpack the source distribution
+        run: |
+          mkdir source
+          tar -xzf "${{ steps.sdist.outputs.path }}" -C source \
+            --strip-components=1
+
+      - name: Set up uv, Python and a virtual environment
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: '3.14'
+          activate-environment: true
+          working-directory: source
+          enable-cache: false
+
+      - name: Install the plugin's build and test dependencies
+        working-directory: source
+        run: uv sync --locked --no-install-project --group dev
+
+      - name: Install the rexlib wheel
+        run: uv pip install --no-index --find-links wheelhouse rexlib
+
+      - name: Build and install the sample plugin
+        run: >-
+          uv pip install --no-build-isolation --no-deps
+          source/tests/install/plugin
+
+      - name: Test the sample plugin
+        run: >-
+          python -m pytest -p no:cacheprovider
+          source/tests/install/plugin/test_wheel.py
+
   documentation:
     name: Documentation
     timeout-minutes: 20
