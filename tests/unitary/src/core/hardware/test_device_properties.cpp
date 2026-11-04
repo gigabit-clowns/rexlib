@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 #include <rexlib/core/hardware/device_properties.hpp>
 
 #include <array>
+#include <cstddef>
+#include <stdexcept>
 
 using namespace rexlib;
 
@@ -54,4 +57,36 @@ TEST_CASE(
 	prop = self;
 
 	CHECK( prop.get_name() == "REXLIB A1234 SuperFast" );
+}
+
+TEST_CASE(
+	"device_properties should report the alignment of std::max_align_t when "
+	"no optimal data alignment is set",
+	"[hardware]"
+)
+{
+	const device_properties prop;
+
+	CHECK( prop.get_optimal_data_alignment() == alignof(std::max_align_t) );
+}
+
+TEST_CASE(
+	"device_properties::set_optimal_data_alignment should refuse a value "
+	"that is not a power of two",
+	"[hardware]"
+)
+{
+	const auto alignment = GENERATE(
+		std::size_t(0),
+		std::size_t(3),
+		std::size_t(48)
+	);
+	device_properties prop;
+	prop.set_optimal_data_alignment(64);
+
+	REQUIRE_THROWS_AS(
+		prop.set_optimal_data_alignment(alignment),
+		std::invalid_argument
+	);
+	CHECK( prop.get_optimal_data_alignment() == 64 );
 }
