@@ -29,21 +29,26 @@ commits both files.
 
 | Job | What it checks |
 |---|---|
-| One per platform and toolchain | Linux x86_64 with gcc and with clang, Linux aarch64 with gcc, macOS arm64, Windows x86_64 and arm64 with MSVC, Windows x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two Linux rows also install the library without its debug information and keep that install as an artifact |
-| Address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets, built with clang. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
-| Minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of Ubuntu 22.04, the oldest supported LTS image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
-| CUDA 12, Linux x86_64; CUDA 13, Linux aarch64 | The CUDA plugin, built as a third party builds a plugin: against the library the Linux row of its architecture installed, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
+| One per platform and toolchain | Linux x86_64 with the newest gcc (the coverage and valgrind row) and with the oldest and the newest clang, Linux aarch64 with the oldest gcc, macOS arm64 with the oldest and the newest Apple clang, Windows x86_64 with the oldest and the newest MSVC, Windows arm64 with MSVC, Windows x86_64 with the newest MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two oldest Linux rows also install the library without its debug information and keep that install as an artifact |
+| Linux x86_64, newest clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
+| Linux x86_64, oldest gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the oldest gcc; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
+| Linux x86_64, CUDA 12; Linux aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the oldest Linux row of its architecture installed, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
-| Wheels: Linux x86_64 and aarch64, macOS arm64, Windows x86_64 and arm64 | cibuildwheel builds the `rexlib` wheels from the source distribution, as `pyproject.toml` sets it up: one per CPython before 3.12, one abi3 wheel for 3.12 and every later CPython, which abi3audit checks, and one per free-threaded CPython. Each is imported on every interpreter it serves. The compiler cache carries the library from one interpreter's build to the next; on Linux, where the wheels are built in a container, the container runs the runner's ccache from `/host`. Each job then builds the install test's sample plugin as a wheel against the abi3 wheel, with Python 3.14 and without build isolation, and checks that the default catalog loads it |
-| CUDA 12 and 13 wheels, Linux x86_64 and aarch64 | cibuildwheel builds the CUDA plugin's wheel of each CUDA major, as `plugins/cuda/cuda12/` and `cuda13/` set it up, against the rexlib wheels of the run, and checks that the default catalog loads the plugin, which needs no GPU |
+| Linux x86_64 and aarch64, macOS arm64, Windows x86_64 and arm64, wheels | cibuildwheel builds the `rexlib` wheels from the source distribution, as `pyproject.toml` sets it up: one per CPython before 3.12, one abi3 wheel for 3.12 and every later CPython, which abi3audit checks, and one per free-threaded CPython. Each is imported on every interpreter it serves. The compiler cache carries the library from one interpreter's build to the next; on Linux, where the wheels are built in a container, the container runs the runner's ccache from `/host`. Each job then builds the install test's sample plugin as a wheel against the abi3 wheel, with Python 3.14 and without build isolation, and checks that the default catalog loads it |
+| Linux x86_64 and aarch64, CUDA 12 and 13, wheel | cibuildwheel builds the CUDA plugin's wheel of each CUDA major, as `plugins/cuda/cuda12/` and `cuda13/` set it up, against the rexlib wheels of the run, and checks that the default catalog loads the plugin, which needs no GPU |
 | ABI report, on pushes to `main` only | Report only: abidiff compares the exported symbols of librexlib in the Linux x86_64 abi3 wheel with those of the latest release's, in the job summary. It skips itself until a release carries that wheel, never fails, and the gate does not wait for it. The wheels carry no debug information, so a change of a class's layout goes unseen |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
 | Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset, with the `lint` group installed: clang-tidy on the library's sources as they compile, every file git tracks against `.editorconfig`, and the Python files against ruff. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
 
-The Linux rows, the sanitizer jobs and Lint build on Ubuntu 24.04, with its
-gcc and clang; the minimum versions job builds with the gcc of Ubuntu 22.04,
-the oldest supported LTS image.
+A toolchain that the supported runner images carry in more than one version is
+built with the default of the oldest image and with that of the newest: gcc and
+clang on Ubuntu 22.04 and 26.04, Apple clang on macOS 15 and 26, and MSVC on
+Windows Server 2022 and 2025. MinGW, which ships no wheel, is built at the
+newest end alone. Each end has a row of its own unless another job builds it:
+the oldest gcc of Linux x86_64 is the minimum versions job's, and the newest
+clang is the sanitizer jobs' and Lint's besides its own row. The CUDA jobs stay
+on Ubuntu 24.04, whose packages NVIDIA publishes for both majors.
 
 Every job with warnings as errors, and Lint, builds against installed
 dependencies, whose headers count as system headers, so that only rexlib's
@@ -52,19 +57,29 @@ warnings and findings fail it. vcpkg installs them into a prefix at the baseline
 with the dynamic C runtime on Windows), and the `find_package` branch of each
 finds them, as a packager's would.
 
-The Linux gcc row builds the `coverage` preset instead of `debug`. It runs the
-suites under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the
-preset registers one test per binary and gives valgrind the options that make
-a leak of any kind, or any other error it reports, fail the test, except what
-`tests/valgrind.supp` suppresses: the dynamic linker's records of a library
-still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
-gcovr, from the `coverage` group, measures the coverage, and the SonarQube
-scan reads it with the compilation database of the same build.
+The coverage and valgrind row builds the `coverage` preset instead of `debug`.
+It runs the suites under valgrind with
+`ctest --test-dir build/coverage -T MemCheck`: the preset registers one test
+per binary and gives valgrind the options that make a leak of any kind, or any
+other error it reports, fail the test, except what `tests/valgrind.supp`
+suppresses: the dynamic linker's records of a library still loaded at exit,
+which every plugin a `plugin_manager` accepted is. Then gcovr, from the
+`coverage` group, measures the coverage, and the SonarQube scan reads it with
+the compilation database of the same build.
 
-A row is named by platform and toolchain, never by compiler version, which
-is the runner image's to choose. A `run` step reads the runner's values from
-the environment (`$RUNNER_TEMP`); an action's `with`, which no shell expands,
-reads them from the context (`${{ runner.temp }}`).
+A job is named by platform, toolchain and purpose, in that order, each left
+out when it says nothing: `Linux x86_64, oldest clang`, `Linux x86_64, newest
+clang, thread sanitizer`, `Linux aarch64, CUDA 13, wheel`, `Documentation`. A
+toolchain is qualified by the end of the supported images it is taken from,
+oldest or newest, never by its version, which is the image's to choose; one
+that a single image carries is not qualified. A build-and-test row names no
+purpose, unless it does more than build and test. Artifacts are named by
+content and platform, `wheels-linux-x86_64` or `install-linux-aarch64`, so the
+job that reads one does not repeat the runner image of the job that wrote it.
+
+A `run` step reads the runner's values from the environment (`$RUNNER_TEMP`);
+an action's `with`, which no shell expands, reads them from the context
+(`${{ runner.temp }}`).
 
 MSVC builds through Ninja, which is what lets ccache cache it, with its debug
 information embedded in each object for the same reason;
