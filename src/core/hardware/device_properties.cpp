@@ -2,6 +2,11 @@
 
 #include <rexlib/core/hardware/device_properties.hpp>
 
+#include <rexlib/core/binary/bit.hpp>
+
+#include <cstddef>
+#include <stdexcept>
+
 namespace rexlib
 {
 
@@ -11,7 +16,7 @@ public:
 	implementation() noexcept
 		: m_type(device_type::unknown)
 		, m_total_memory_bytes(0)
-		, m_optimal_data_alignment(0)
+		, m_optimal_data_alignment(alignof(std::max_align_t))
 	{
 	}
 
@@ -155,6 +160,13 @@ void device_properties::set_optimal_data_alignment(
 	std::size_t alignment
 )
 {
+	if (!has_single_bit(alignment))
+	{
+		throw std::invalid_argument(
+			"The optimal data alignment must be a power of two."
+		);
+	}
+
 	create_implementation_if_null().set_optimal_data_alignment(alignment);
 }
 
