@@ -23,6 +23,10 @@ concurrency:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 env:
   CMAKE_GENERATOR: Ninja
   CMAKE_BUILD_PARALLEL_LEVEL: 4
@@ -44,176 +48,149 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: Linux x86_64, newest gcc, coverage and valgrind
-            os: ubuntu-26.04
-            cc: gcc
-            cxx: g++
-            triplet: x64-linux
-            preset: coverage
           - name: Linux x86_64, oldest clang
             os: ubuntu-22.04
             cc: clang
             cxx: clang++
-            triplet: x64-linux
-            preset: debug
+            vcpkg-triplet: x64-linux
             python: '3.14'
             install-artifact: install-linux-x86_64
           - name: Linux x86_64, newest clang
             os: ubuntu-26.04
             cc: clang
             cxx: clang++
-            triplet: x64-linux
-            preset: debug
+            vcpkg-triplet: x64-linux
             python: '3.14'
           - name: Linux aarch64, oldest gcc
             os: ubuntu-22.04-arm
             cc: gcc
             cxx: g++
-            triplet: arm64-linux
-            preset: debug
+            vcpkg-triplet: arm64-linux
             python: '3.14'
             install-artifact: install-linux-aarch64
           - name: macOS arm64, oldest Apple clang
             os: macos-15
             cc: clang
             cxx: clang++
-            triplet: arm64-osx
-            preset: debug
+            vcpkg-triplet: arm64-osx
             python: '3.14'
           - name: macOS arm64, newest Apple clang
             os: macos-26
             cc: clang
             cxx: clang++
-            triplet: arm64-osx
-            preset: debug
+            vcpkg-triplet: arm64-osx
             python: '3.14'
           - name: Windows x86_64, oldest MSVC
             os: windows-2022
             cc: cl
             cxx: cl
             msvc: x64
-            triplet: x64-windows-static-md
-            preset: debug
+            vcpkg-triplet: x64-windows-static-md
             python: '3.14'
           - name: Windows x86_64, newest MSVC
             os: windows-2025
             cc: cl
             cxx: cl
             msvc: x64
-            triplet: x64-windows-static-md
-            preset: debug
+            vcpkg-triplet: x64-windows-static-md
             python: '3.14'
           - name: Windows arm64, MSVC
             os: windows-11-arm
             cc: cl
             cxx: cl
             msvc: arm64
-            triplet: arm64-windows-static-md
-            preset: debug
+            vcpkg-triplet: arm64-windows-static-md
             python: '3.14'
           - name: Windows x86_64, newest MinGW
             os: windows-2025
             cc: gcc
             cxx: g++
-            triplet: x64-mingw-static
-            preset: debug
+            vcpkg-triplet: x64-mingw-static
     runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cxx }}
-      SONAR_TOKEN: ${{ matrix.preset == 'coverage' && secrets.SONAR_TOKEN || '' }}
     steps:
-      # Sonar reads the history to tell new code from old.
-      - name: Check out the repository
+      - &checkout
+        name: Check out the repository
         uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-          fetch-depth: ${{ matrix.preset == 'coverage' && 0 || 1 }}
 
       # Ninja does not find MSVC on its own, as the Visual Studio generator
       # does.
-      - name: Set up MSVC
+      - &msvc
+        name: Set up MSVC
         if: matrix.msvc
         uses: ilammy/msvc-dev-cmd@v1.13.0
         with:
           arch: ${{ matrix.msvc }}
 
-      - name: Install valgrind
-        if: matrix.preset == 'coverage'
-        run: |
-          sudo apt-get update
-          sudo apt-get install --yes valgrind
-
-      - name: Keep the packages vcpkg builds
+      - &vcpkg-cache
+        name: Keep the packages vcpkg builds
         uses: actions/cache@v6.1.0
         with:
           path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.triplet }}-
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
-      - name: Install the dependencies
+      # Into a prefix that CMAKE_PREFIX_PATH names from here on.
+      - &install-dependencies
+        name: Install the dependencies
+        env:
+          VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
+          VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
+          VCPKG_BINARY_SOURCES: clear;files,${{ runner.temp }}/vcpkg-archives,readwrite
         run: |
           mkdir -p "$RUNNER_TEMP/vcpkg-archives"
-          vcpkg install --x-manifest-root=.github/vcpkg \
-            --x-install-root="$RUNNER_TEMP/vcpkg" \
-            --triplet=${{ matrix.triplet }} \
-            --host-triplet=${{ matrix.triplet }} \
-            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
+          vcpkg install --x-manifest-root=.github/vcpkg --x-install-root="$RUNNER_TEMP/vcpkg"
+          echo "CMAKE_PREFIX_PATH=$RUNNER_TEMP/vcpkg/$VCPKG_DEFAULT_TRIPLET" >> "$GITHUB_ENV"
 
       - name: Set up uv, Python and a virtual environment
-        if: matrix.python || matrix.preset == 'coverage'
+        if: matrix.python
         uses: astral-sh/setup-uv@v10.3.3
         with:
-          python-version: ${{ matrix.python || '3.14' }}
+          python-version: ${{ matrix.python }}
           activate-environment: true
 
       - name: Install the binding's dependencies
         if: matrix.python
         run: uv sync --locked --no-install-project
 
-      - name: Install gcovr
-        if: matrix.preset == 'coverage'
-        run: uv sync --locked --inexact --only-group coverage
-
-      - name: Set up the compiler cache
+      - &ccache
+        name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
-          key: ${{ matrix.os }}-${{ matrix.cxx }}-${{ matrix.preset }}
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           max-size: 500M
           evict-old-files: job
           install: binary
 
-      # MSVC keeps its debug information beside each object only when it is
-      # embedded, which is what lets ccache cache what it compiles.
+      # Only MSVC reads the debug information format: embedded in each object,
+      # which is what lets ccache cache what it compiles.
       - name: Configure
-        env:
+        env: &ccache-launcher
           CMAKE_C_COMPILER_LAUNCHER: ccache
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
         run: >-
-          cmake --preset ${{ matrix.preset }}
+          cmake --preset debug
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
-          ${{ matrix.python && '-DREXLIB_BUILD_PYTHON=ON' || '' }}
-          ${{ matrix.msvc && '-DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded' || '' }}
+          -DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}
+          -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded
 
       - name: Build
-        run: cmake --build --preset ${{ matrix.preset }}
+        run: cmake --build --preset debug
 
       - name: Test
-        if: matrix.preset != 'coverage'
-        run: ctest --preset ${{ matrix.preset }}
+        run: ctest --preset debug
 
       # The library installed without its debug information, archived with
       # tar.
       - name: Install the library
         if: matrix.install-artifact
         run: |
-          cmake --install build/${{ matrix.preset }} \
-            --prefix "$RUNNER_TEMP/rexlib" --strip
+          cmake --install build/debug --prefix "$RUNNER_TEMP/rexlib" --strip
           tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/rexlib.tar.gz" rexlib
 
       - name: Keep the install
@@ -225,27 +202,81 @@ jobs:
           compression-level: 0
           retention-days: 1
 
+  # The coverage build, with warnings as errors and every dependency installed
+  # by vcpkg: the suites under valgrind, then the coverage gcovr measures,
+  # which the SonarQube scan reads with the compilation database of the same
+  # build.
+  coverage:
+    name: Linux x86_64, newest gcc, coverage and valgrind
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-26.04
+            vcpkg-triplet: x64-linux
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: gcc
+      CXX: g++
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    steps:
+      # Sonar reads the history to tell new code from old.
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Install valgrind
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes valgrind
+
+      - *vcpkg-cache
+
+      - *install-dependencies
+
+      - name: Set up uv, Python and a virtual environment
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: '3.14'
+          activate-environment: true
+
+      - name: Install gcovr
+        run: uv sync --locked --only-group coverage
+
+      - *ccache
+
+      - name: Configure
+        env: *ccache-launcher
+        run: >-
+          cmake --preset coverage
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build --preset coverage
+
       # ctest looks for what -T needs in the directory it is given, not in
       # that of a test preset, so this one names the build directory.
       - name: Test under valgrind
-        if: matrix.preset == 'coverage'
         run: >-
           ctest --test-dir build/coverage -T MemCheck
           --output-on-failure --no-tests=error
 
       - name: Show what valgrind found
-        if: failure() && matrix.preset == 'coverage'
+        if: failure()
         run: >-
           find build/coverage/Testing/Temporary -name 'MemoryChecker.*.log'
           -size +0 -exec tail -n 200 {} +
 
       - name: Measure the coverage
-        if: matrix.preset == 'coverage'
         run: >-
           gcovr --root . --object-directory build/coverage
           --merge-lines --exclude-throw-branches --exclude-unreachable-branches
           --sonarqube build/coverage/coverage.xml --print-summary
 
+      # A pull request from a fork gets no secrets, and so no scan.
       - name: Scan with SonarQube
         if: env.SONAR_TOKEN != ''
         uses: SonarSource/sonarqube-scan-action@v8.3.0
@@ -269,10 +300,17 @@ jobs:
       CC: clang
       CXX: clang++
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
+      - *checkout
+
+      - &fetched-sources
+        name: Keep the fetched sources
+        uses: actions/cache@v6.1.0
         with:
-          persist-credentials: false
+          path: |
+            ${{ runner.temp }}/fetched
+            !${{ runner.temp }}/fetched/*-build
+          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
+          restore-keys: fetched-${{ runner.os }}-
 
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
@@ -282,20 +320,11 @@ jobs:
           evict-old-files: job
           install: binary
 
-      - name: Keep the fetched sources
-        uses: actions/cache@v6.1.0
-        with:
-          path: |
-            ${{ runner.temp }}/fetched
-            !${{ runner.temp }}/fetched/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-          restore-keys: fetched-${{ runner.os }}-
-
       - name: Configure
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-        run: cmake --preset ${{ matrix.preset }} -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
+        env: *ccache-launcher
+        run: >-
+          cmake --preset ${{ matrix.preset }}
+          -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
@@ -316,38 +345,18 @@ jobs:
       matrix:
         include:
           - os: ubuntu-22.04
-            triplet: x64-linux
+            vcpkg-triplet: x64-linux
+            cmake: '3.18.0'
     runs-on: ${{ matrix.os }}
     env:
       CC: gcc
       CXX: g++
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
+      - *checkout
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
-        with:
-          path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-
+      - *vcpkg-cache
 
-      - name: Install the dependencies
-        run: |
-          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
-          vcpkg install --x-manifest-root=.github/vcpkg \
-            --x-install-root="$RUNNER_TEMP/vcpkg" \
-            --triplet=${{ matrix.triplet }} \
-            --host-triplet=${{ matrix.triplet }} \
-            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
-
-      - name: Install CMake 3.18
-        run: |
-          python3 -m venv "$RUNNER_TEMP/cmake"
-          "$RUNNER_TEMP/cmake/bin/pip" install --quiet cmake==3.18.0
-          "$RUNNER_TEMP/cmake/bin/cmake" --version
+      - *install-dependencies
 
       - name: Set up uv, Python and a virtual environment
         uses: astral-sh/setup-uv@v10.3.3
@@ -358,58 +367,55 @@ jobs:
       - name: Install the binding's dependencies
         run: uv sync --locked --no-install-project
 
-      - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
-        with:
-          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
-          max-size: 500M
-          evict-old-files: job
-          install: binary
+      # Ahead, on PATH, of the CMake that the binding's dependencies put in
+      # the virtual environment.
+      - &use-cmake
+        name: Use CMake ${{ matrix.cmake }} from here on
+        if: matrix.cmake
+        env:
+          CMAKE: ${{ matrix.cmake }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cmake"
+          "$RUNNER_TEMP/cmake/bin/pip" install --quiet "cmake==$CMAKE"
+          echo "$RUNNER_TEMP/cmake/bin" >> "$GITHUB_PATH"
+
+      - *ccache
 
       - name: Configure
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+        env: *ccache-launcher
         run: >-
-          "$RUNNER_TEMP/cmake/bin/cmake" -S . -B build
+          cmake -S . -B build
           -DCMAKE_BUILD_TYPE=Release
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
-        run: >-
-          "$RUNNER_TEMP/cmake/bin/cmake" --build build
+        run: cmake --build build
 
       - name: Test
         working-directory: build
-        run: >-
-          "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
+        run: ctest --output-on-failure --no-tests=error
 
       - name: Install
-        run: >-
-          "$RUNNER_TEMP/cmake/bin/cmake" --install build
-          --prefix "$RUNNER_TEMP/rexlib"
+        run: cmake --install build --prefix "$RUNNER_TEMP/rexlib"
 
       - name: Configure the binding
         env:
           CMAKE_C_COMPILER_LAUNCHER: ccache
           CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          rexlib_ROOT: ${{ runner.temp }}/rexlib
         run: >-
-          "$RUNNER_TEMP/cmake/bin/cmake" -S python -B build-python
+          cmake -S python -B build-python
           -DCMAKE_BUILD_TYPE=Release
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build the binding
-        run: >-
-          "$RUNNER_TEMP/cmake/bin/cmake" --build build-python
+        run: cmake --build build-python
 
       - name: Test the binding
         working-directory: build-python
-        run: >-
-          "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
+        run: ctest --output-on-failure --no-tests=error
 
   # The CUDA plugin, built as a third party builds a plugin: against the
   # library that the oldest Linux build-and-test row of its architecture
@@ -429,40 +435,25 @@ jobs:
             os: ubuntu-24.04
             repository: x86_64
             cuda: '12.9'
-            triplet: x64-linux
+            vcpkg-triplet: x64-linux
             cmake: '3.18.0'
             install-artifact: install-linux-x86_64
           - name: Linux aarch64, CUDA 13
             os: ubuntu-24.04-arm
             repository: sbsa
             cuda: '13.4'
-            triplet: arm64-linux
+            vcpkg-triplet: arm64-linux
             install-artifact: install-linux-aarch64
     runs-on: ${{ matrix.os }}
     env:
       CC: gcc
       CXX: g++
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
+      - *checkout
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
-        with:
-          path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-
+      - *vcpkg-cache
 
-      - name: Install the dependencies
-        run: |
-          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
-          vcpkg install --x-manifest-root=.github/vcpkg \
-            --x-install-root="$RUNNER_TEMP/vcpkg" \
-            --triplet=${{ matrix.triplet }} \
-            --host-triplet=${{ matrix.triplet }} \
-            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
+      - *install-dependencies
 
       - name: Install the CUDA toolkit
         env:
@@ -484,30 +475,21 @@ jobs:
       - name: Unpack the installed library
         run: tar -C "$RUNNER_TEMP" -xzf "$RUNNER_TEMP/rexlib.tar.gz"
 
-      - name: Use CMake ${{ matrix.cmake }} from here on
-        if: matrix.cmake
-        env:
-          CMAKE: ${{ matrix.cmake }}
-        run: |
-          python3 -m venv "$RUNNER_TEMP/cmake"
-          "$RUNNER_TEMP/cmake/bin/pip" install --quiet "cmake==$CMAKE"
-          "$RUNNER_TEMP/cmake/bin/cmake" --version
-          echo "$RUNNER_TEMP/cmake/bin" >> "$GITHUB_PATH"
+      - *use-cmake
 
       # One architecture is enough to compile for, and the oldest that CUDA 13
       # still supports.
       - name: Configure the plugin
         env:
-          TOOLKIT: /usr/local/cuda-${{ matrix.cuda }}
+          rexlib_ROOT: ${{ runner.temp }}/rexlib
+          CUDAToolkit_ROOT: /usr/local/cuda-${{ matrix.cuda }}
+          CUDACXX: /usr/local/cuda-${{ matrix.cuda }}/bin/nvcc
         run: >-
           cmake -S plugins/cuda -B build-cuda
           -DCMAKE_BUILD_TYPE=Debug
           -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/rexlib;$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
-          -DCUDAToolkit_ROOT="$TOOLKIT"
-          -DCMAKE_CUDA_COMPILER="$TOOLKIT/bin/nvcc"
-          -DCMAKE_CUDA_ARCHITECTURES=75
           -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
+          -DCMAKE_CUDA_ARCHITECTURES=75
 
       - name: Build the plugin
         run: cmake --build build-cuda
@@ -522,10 +504,7 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
+      - *checkout
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v10.3.3
@@ -571,9 +550,6 @@ jobs:
             os: windows-11-arm
             msvc: arm64
     runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Fetch the source distribution
         uses: actions/download-artifact@v8.0.2
@@ -588,13 +564,7 @@ jobs:
           mkdir source
           tar -xzf dist/*.tar.gz -C source --strip-components=1
 
-      # Ninja does not find MSVC on its own, as the Visual Studio generator
-      # does.
-      - name: Set up MSVC
-        if: matrix.msvc
-        uses: ilammy/msvc-dev-cmd@v1.13.0
-        with:
-          arch: ${{ matrix.msvc }}
+      - *msvc
 
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
@@ -687,10 +657,7 @@ jobs:
             os: ubuntu-24.04-arm
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
+      - *checkout
 
       - name: Fetch the rexlib wheels
         uses: actions/download-artifact@v8.0.2
@@ -735,10 +702,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          tag="$(gh release list --exclude-drafts --exclude-pre-releases \
-            --limit 1 --json tagName --jq '.[0].tagName')"
-          if [ -n "$tag" ] && gh release download "$tag" --dir baseline \
-            --pattern 'rexlib-*-abi3-manylinux*_x86_64.whl'; then
+          if tag="$(gh release view --json tagName --jq .tagName)" &&
+            gh release download "$tag" --dir baseline \
+              --pattern 'rexlib-*-abi3-manylinux*_x86_64.whl'; then
             echo "tag=$tag" >> "$GITHUB_OUTPUT"
           else
             echo "::notice::No release carries the wheel to compare with"
@@ -772,24 +738,14 @@ jobs:
     timeout-minutes: 20
     runs-on: ubuntu-24.04
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
+      - *checkout
 
       - name: Install Doxygen
         run: |
           sudo apt-get update
           sudo apt-get install --yes doxygen
 
-      - name: Keep the fetched sources
-        uses: actions/cache@v6.1.0
-        with:
-          path: |
-            ${{ runner.temp }}/fetched
-            !${{ runner.temp }}/fetched/*-build
-          key: fetched-${{ runner.os }}-${{ hashFiles('**/CMakeLists.txt', '**/*.cmake') }}
-          restore-keys: fetched-${{ runner.os }}-
+      - *fetched-sources
 
       - name: Configure
         run: cmake --preset docs -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
@@ -813,16 +769,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-26.04
-            triplet: x64-linux
+            vcpkg-triplet: x64-linux
     runs-on: ${{ matrix.os }}
     env:
       CC: clang
       CXX: clang++
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
+      - *checkout
 
       - name: Verify the lockfile of the actions
         env:
@@ -841,38 +794,15 @@ jobs:
       - name: Install clang-tidy, editorconfig-checker and ruff
         run: uv sync --locked --only-group lint
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
-        with:
-          path: ${{ runner.temp }}/vcpkg-archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
-          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.triplet }}-
+      - *vcpkg-cache
 
-      - name: Install the dependencies
-        run: |
-          mkdir -p "$RUNNER_TEMP/vcpkg-archives"
-          vcpkg install --x-manifest-root=.github/vcpkg \
-            --x-install-root="$RUNNER_TEMP/vcpkg" \
-            --triplet=${{ matrix.triplet }} \
-            --host-triplet=${{ matrix.triplet }} \
-            --binarysource="clear;files,$RUNNER_TEMP/vcpkg-archives,readwrite"
+      - *install-dependencies
 
-      - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
-        with:
-          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
-          max-size: 500M
-          evict-old-files: job
-          install: binary
+      - *ccache
 
       - name: Configure
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-        run: >-
-          cmake --preset lint
-          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
+        env: *ccache-launcher
+        run: cmake --preset lint -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
 
       - name: Build
         run: cmake --build --preset lint
@@ -889,6 +819,7 @@ jobs:
     if: always()
     needs:
       - build-and-test
+      - coverage
       - sanitize
       - minimum-versions
       - cuda-build-and-test

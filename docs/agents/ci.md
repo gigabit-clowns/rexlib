@@ -29,7 +29,8 @@ commits both files.
 
 | Job | What it checks |
 |---|---|
-| One per platform and toolchain | Linux x86_64 with the newest gcc (the coverage and valgrind row) and with the oldest and the newest clang, Linux aarch64 with the oldest gcc, macOS arm64 with the oldest and the newest Apple clang, Windows x86_64 with the oldest and the newest MSVC, Windows arm64 with MSVC, Windows x86_64 with the newest MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two oldest Linux rows also install the library without its debug information and keep that install as an artifact |
+| One per platform and toolchain | Linux x86_64 with the oldest and the newest clang, Linux aarch64 with the oldest gcc, macOS arm64 with the oldest and the newest Apple clang, Windows x86_64 with the oldest and the newest MSVC, Windows arm64 with MSVC, Windows x86_64 with the newest MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two oldest Linux rows also install the library without its debug information and keep that install as an artifact |
+| Linux x86_64, newest gcc, coverage and valgrind | The `coverage` preset, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the coverage, which the SonarQube scan reads |
 | Linux x86_64, newest clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
 | Linux x86_64, oldest gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the oldest gcc; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Linux x86_64, CUDA 12; Linux aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the oldest Linux row of its architecture installed, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
@@ -57,15 +58,14 @@ warnings and findings fail it. vcpkg installs them into a prefix at the baseline
 with the dynamic C runtime on Windows), and the `find_package` branch of each
 finds them, as a packager's would.
 
-The coverage and valgrind row builds the `coverage` preset instead of `debug`.
-It runs the suites under valgrind with
-`ctest --test-dir build/coverage -T MemCheck`: the preset registers one test
-per binary and gives valgrind the options that make a leak of any kind, or any
-other error it reports, fail the test, except what `tests/valgrind.supp`
-suppresses: the dynamic linker's records of a library still loaded at exit,
-which every plugin a `plugin_manager` accepted is. Then gcovr, from the
-`coverage` group, measures the coverage, and the SonarQube scan reads it with
-the compilation database of the same build.
+The coverage and valgrind job builds the `coverage` preset. It runs the suites
+under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the preset
+registers one test per binary and gives valgrind the options that make a leak
+of any kind, or any other error it reports, fail the test, except what
+`tests/valgrind.supp` suppresses: the dynamic linker's records of a library
+still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
+gcovr, from the `coverage` group, measures the coverage, and the SonarQube scan
+reads it with the compilation database of the same build.
 
 A job is named by platform, toolchain and purpose, in that order, each left
 out when it says nothing: `Linux x86_64, oldest clang`, `Linux x86_64, newest
@@ -73,13 +73,31 @@ clang, thread sanitizer`, `Linux aarch64, CUDA 13, wheel`, `Documentation`. A
 toolchain is qualified by the end of the supported images it is taken from,
 oldest or newest, never by its version, which is the image's to choose; one
 that a single image carries is not qualified. A build-and-test row names no
-purpose, unless it does more than build and test. Artifacts are named by
+purpose. Artifacts are named by
 content and platform, `wheels-linux-x86_64` or `install-linux-aarch64`, so the
 job that reads one does not repeat the runner image of the job that wrote it.
 
 A `run` step reads the runner's values from the environment (`$RUNNER_TEMP`);
 an action's `with`, which no shell expands, reads them from the context
-(`${{ runner.temp }}`).
+(`${{ runner.temp }}`). Every `run` step uses bash, the workflow's default
+shell, on Windows too.
+
+The rows of a matrix differ by data, which a step reads (`if: matrix.msvc`,
+`-DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}`), never by comparing a
+row's name or preset; a build that runs other steps is a job of its own, as
+the coverage and valgrind one is. The tools are configured through the
+environment variables they read themselves: vcpkg through
+`VCPKG_DEFAULT_TRIPLET`, `VCPKG_DEFAULT_HOST_TRIPLET` and
+`VCPKG_BINARY_SOURCES`; CMake through `CMAKE_PREFIX_PATH`, which the step that
+installs the dependencies exports to the later steps, and through
+`rexlib_ROOT`, `CUDAToolkit_ROOT` and `CUDACXX` where a job builds against an
+installed rexlib or CUDA. A step that several jobs share word for word is
+written once, at its first use, under a YAML anchor (`&checkout`,
+`&vcpkg-cache`, `&install-dependencies`, `&ccache`, `&ccache-launcher`,
+`&fetched-sources`, `&msvc`, `&use-cmake`), and repeated as its alias; GitHub
+reads anchors but not merge keys, so a step that differs in anything is
+written out. There are no local composite actions: `gh actions-lock` cannot
+lock the remote actions one would use.
 
 MSVC builds through Ninja, which is what lets ccache cache it, with its debug
 information embedded in each object for the same reason;
@@ -90,8 +108,8 @@ the version `[tool.uv] required-version` names, and the job's Python, in a
 virtual environment that the later steps see. `uv sync --locked
 --no-install-project` installs the `dev` group into it, exactly as
 `uv.lock` pins it, and CMake's FindPython finds that interpreter first. The
-Lint job and the coverage row take uv the same way, and install the `lint`
-or the `coverage` group alone, with `--only-group`.
+Lint and coverage jobs take uv the same way, and install the `lint` or the
+`coverage` group alone, with `--only-group`.
 
 The branch rules require two checks: All checks, and SonarCloud's own report.
 All checks runs whatever happened before it, because a job that a failure
@@ -115,12 +133,12 @@ key starts from the newest such cache, and vcpkg builds only what changed.
 Nothing else manages the caches: an eviction makes a run slower, never wrong.
 
 A key is built from the job's own values, never written out: the runner image
-of `matrix.os`, the compiler of `CXX`, the triplet of `matrix.triplet`, and
-the preset or the job's name. A job moved to another image or compiler gets
-caches of its own without a key being edited, and the packages vcpkg built
-for the old one are never restored as if they were for the new one. A job
-with a single configuration names its runner in a matrix of one row, as
-`runs-on` can read only the matrix.
+of `matrix.os`, the compiler of `CXX`, the vcpkg triplet of
+`matrix.vcpkg-triplet`, and the preset or the job's name. A job moved to
+another image or compiler gets caches of its own without a key being edited,
+and the packages vcpkg built for the old one are never restored as if they were
+for the new one. A job with a single configuration names its runner in a matrix
+of one row, as `runs-on` can read only the matrix.
 
 ## Wheels
 
