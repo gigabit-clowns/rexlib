@@ -50,10 +50,10 @@ already carry.
 
 ### The stable ABI of 3.12, not split mode
 
-nanobind's split mode builds one wheel per platform for Python 3.10 and
-every later one, against a backend published on PyPI that the package then
-depends on at run time. The binding stays in linked mode, whose stable ABI
-starts at 3.12, and 3.10 and 3.11 keep a wheel each.
+nanobind's split mode builds one wheel per platform for every Python,
+against a backend published on PyPI that the package then depends on at run
+time. The binding stays in linked mode, whose stable ABI starts at 3.12, and
+3.11 keeps a wheel of its own.
 
 **Revisit when** 3.11 is dropped, which leaves one wheel per platform without
 split mode, or split mode needs no package beside this one.
