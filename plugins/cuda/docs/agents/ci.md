@@ -26,6 +26,6 @@ changes, and so on.
 ## Continuous integration
 
 The plugin is built and tested by the library's workflow, one job per CUDA
-major; see [the library's CI](../../../../docs/agents/ci.md). Each installs
-the library first and builds the plugin against that install, as a third
-party would.
+major; see [the library's CI](../../../../docs/agents/ci.md). Each builds
+the plugin against the library that the library's Linux job of the same
+architecture installed, as a third party builds against an installed rexlib.

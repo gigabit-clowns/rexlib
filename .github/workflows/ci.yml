@@ -57,6 +57,7 @@ jobs:
             triplet: x64-linux
             preset: debug
             python: '3.14'
+            install-artifact: rexlib-x64-linux
           - name: Linux aarch64, gcc
             os: ubuntu-22.04-arm
             cc: gcc
@@ -64,6 +65,7 @@ jobs:
             triplet: arm64-linux
             preset: debug
             python: '3.14'
+            install-artifact: rexlib-arm64-linux
           - name: macOS arm64, Apple clang
             os: macos-15
             cc: clang
@@ -179,6 +181,24 @@ jobs:
       - name: Test
         if: matrix.preset != 'coverage'
         run: ctest --preset ${{ matrix.preset }}
+
+      # The library installed without its debug information, archived with
+      # tar.
+      - name: Install the library
+        if: matrix.install-artifact
+        run: |
+          cmake --install build/${{ matrix.preset }} \
+            --prefix "$RUNNER_TEMP/rexlib" --strip
+          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/rexlib.tar.gz" rexlib
+
+      - name: Keep the install
+        if: matrix.install-artifact
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: ${{ matrix.install-artifact }}
+          path: ${{ runner.temp }}/rexlib.tar.gz
+          compression-level: 0
+          retention-days: 1
 
       # ctest looks for what -T needs in the directory it is given, not in
       # that of a test preset, so this one names the build directory.
@@ -359,13 +379,16 @@ jobs:
           "$RUNNER_TEMP/cmake/bin/ctest" --output-on-failure --no-tests=error
 
   # The CUDA plugin, built as a third party builds a plugin: against the
-  # library, installed. The toolkit comes from NVIDIA's repository, every
-  # other dependency is installed by vcpkg, and warnings are errors. The
-  # CUDA 12 row builds the plugin with CMake 3.18. The runners have no GPU,
-  # so the tests that need one skip themselves.
+  # library installed by the Linux build-and-test row of its architecture,
+  # which a newer image and another compiler then build the plugin against.
+  # The toolkit comes from NVIDIA's repository, every other dependency is
+  # installed by vcpkg, and warnings are errors. The CUDA 12 row builds the
+  # plugin with CMake 3.18. The runners have no GPU, so the tests that need
+  # one skip themselves.
   cuda:
     name: ${{ matrix.name }}
-    timeout-minutes: 60
+    needs: build-and-test
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -376,11 +399,13 @@ jobs:
             cuda: '12.9'
             triplet: x64-linux
             cmake: '3.18.0'
+            install-artifact: rexlib-x64-linux
           - name: CUDA 13, Linux aarch64
             os: ubuntu-24.04-arm
             repository: sbsa
             cuda: '13.4'
             triplet: arm64-linux
+            install-artifact: rexlib-arm64-linux
     runs-on: ${{ matrix.os }}
     env:
       CC: gcc
@@ -418,31 +443,14 @@ jobs:
           sudo apt-get install --yes --no-install-recommends \
             "cuda-nvcc-${CUDA/./-}" "cuda-cudart-dev-${CUDA/./-}"
 
-      - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+      - name: Fetch the installed library
+        uses: actions/download-artifact@v8.0.2
         with:
-          key: ${{ matrix.os }}-g++-cuda-${{ matrix.cuda }}
-          max-size: 500M
-          evict-old-files: job
-          install: binary
+          name: ${{ matrix.install-artifact }}
+          path: ${{ runner.temp }}
 
-      - name: Configure the library
-        env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-        run: >-
-          cmake -S . -B build
-          -DCMAKE_BUILD_TYPE=Release
-          -DREXLIB_BUILD_TESTING=OFF
-          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
-          -DCMAKE_PREFIX_PATH="$RUNNER_TEMP/vcpkg/${{ matrix.triplet }}"
-          -DREXLIB_WARNINGS_AS_ERRORS=ON
-
-      - name: Build the library
-        run: cmake --build build
-
-      - name: Install the library
-        run: cmake --install build --prefix "$RUNNER_TEMP/rexlib"
+      - name: Unpack the installed library
+        run: tar -C "$RUNNER_TEMP" -xzf "$RUNNER_TEMP/rexlib.tar.gz"
 
       - name: Use CMake ${{ matrix.cmake }} from here on
         if: matrix.cmake
@@ -458,9 +466,6 @@ jobs:
       # still supports.
       - name: Configure the plugin
         env:
-          CMAKE_C_COMPILER_LAUNCHER: ccache
-          CMAKE_CXX_COMPILER_LAUNCHER: ccache
-          CMAKE_CUDA_COMPILER_LAUNCHER: ccache
           TOOLKIT: /usr/local/cuda-${{ matrix.cuda }}
         run: >-
           cmake -S plugins/cuda -B build-cuda
