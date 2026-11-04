@@ -5,6 +5,10 @@ resolution-markers = [
     "python_full_version >= '3.12'",
     "python_full_version < '3.12'",
 ]
+conflicts = [[
+    { package = "rexlib", extra = "cuda12" },
+    { package = "rexlib", extra = "cuda13" },
+]]
 
 [[package]]
 name = "cmake"
@@ -165,6 +169,40 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f0/3f/514d294319c5eac11494394545de209079f33993e14526c220eab29b2a96/coverage-7.17.0-cp315-cp315t-win_amd64.whl", hash = "sha256:c3e11b81faafb1f063248735c3e2c5c4183fc1db2c7f46782170dd7760dffcbc", size = 229146, upload-time = "2026-10-22T16:06:45.262Z" },
     { url = "https://files.pythonhosted.org/packages/f6/82/c0d8bb0a67df838fc7bc6f4060ffc404fd1154fd18e624d83e6abc41aeef/coverage-7.17.0-cp315-cp315t-win_arm64.whl", hash = "sha256:d472ee1c64868a917a47f02ffb4ac8c22b477f7589d57a3eb0c58b1ad4f0137c", size = 228716, upload-time = "2026-10-22T16:06:47.097Z" },
     { url = "https://files.pythonhosted.org/packages/c9/17/48032919343afa2906112d458aceda2043afdb24a2ee8eb4c60904d8ddf1/coverage-7.17.0-py3-none-any.whl", hash = "sha256:bac487dce0d2aff28ddf1a533a916f771416eee0e493960f611e49037b878e9d", size = 217383, upload-time = "2026-10-22T16:06:48.471Z" },
+]
+
+[[package]]
+name = "cuda-toolkit"
+version = "12.9.2.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version < '3.12'",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/7e/f61db087382a2114a93abc0b38f7872f86f2c7c36839da7f9403c9044b47/cuda_toolkit-12.9.2.0-py2.py3-none-any.whl", hash = "sha256:b54b8f2fd4200090b44843d48fc5411198e8b3e47a3db56e2518ab588c0ef1e0", size = 2431, upload-time = "2026-04-14T00:40:05.972Z" },
+]
+
+[package.optional-dependencies]
+cudart = [
+    { name = "nvidia-cuda-runtime-cu12", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32')" },
+]
+
+[[package]]
+name = "cuda-toolkit"
+version = "13.4.3"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.12'",
+    "python_full_version < '3.12'",
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/5f/016d1ea09ce3a627e8b607068ba8c92696af5298fc34586069bf60067985/cuda_toolkit-13.4.3-py2.py3-none-any.whl", hash = "sha256:c56be2a9f538653ef5b1aa27787ed046ea08afa10bd55e95335a35fd196ac14e", size = 2690, upload-time = "2026-10-14T19:45:07.466Z" },
+]
+
+[package.optional-dependencies]
+cudart = [
+    { name = "nvidia-cuda-runtime", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine == 'AMD64' and sys_platform == 'win32') or (platform_machine == 'ARM64' and sys_platform == 'win32')" },
 ]
 
 [[package]]
@@ -344,6 +382,27 @@ wheels = [
 ]
 
 [[package]]
+name = "nvidia-cuda-runtime"
+version = "13.4.92"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/3b/2c6e9d88efa7b3585572760bca5e7da83fa9e06098a9386c7b29c81c46b2/nvidia_cuda_runtime-13.4.92-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:bef071788589550ab02846fcbc732a2b88c2b16f2cd8a0f45d98e68e8c5fb0c8", size = 2509438, upload-time = "2026-09-16T20:37:16.36Z" },
+    { url = "https://files.pythonhosted.org/packages/98/8a/3431271f6344874b8f1ac03f16b3d679c91493f8da63f716160403e6d0a0/nvidia_cuda_runtime-13.4.92-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:9641f797da20ce1dd8e779b6e96d08cf9ba564cec8e8225458811ee26423f3a5", size = 2494438, upload-time = "2026-09-16T20:37:21.89Z" },
+    { url = "https://files.pythonhosted.org/packages/86/00/d5436004268f049214193659ebc36550b5ef3925c3d13b4cc980e13be6f5/nvidia_cuda_runtime-13.4.92-py3-none-win_amd64.whl", hash = "sha256:08dca5e4aba480c2fd5b55075c0fa71b84ef9dcf0521f2d58baa14a803a7311c", size = 2778543, upload-time = "2026-09-16T20:46:42.459Z" },
+    { url = "https://files.pythonhosted.org/packages/b5/bc/9a141b73d65b9f09e548fcb9b7f4415da22f35e0fe78c60e3c0a9b458efd/nvidia_cuda_runtime-13.4.92-py3-none-win_arm64.whl", hash = "sha256:43972819798ca06ad6354f6cbdb82a0a113f88b94e9ea90256d660027b0b3b60", size = 2770284, upload-time = "2026-09-16T20:53:45.718Z" },
+]
+
+[[package]]
+name = "nvidia-cuda-runtime-cu12"
+version = "12.9.79"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/bc/e0/0279bd94539fda525e0c8538db29b72a5a8495b0c12173113471d28bce78/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:83469a846206f2a733db0c42e223589ab62fd2fabac4432d2f8802de4bded0a4", size = 3515012, upload-time = "2025-06-05T20:00:35.519Z" },
+    { url = "https://files.pythonhosted.org/packages/bc/46/a92db19b8309581092a3add7e6fceb4c301a3fd233969856a8cbf042cd3c/nvidia_cuda_runtime_cu12-12.9.79-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:25bba2dfb01d48a9b59ca474a1ac43c6ebf7011f1b0b8cc44f54eb6ac48a96c3", size = 3493179, upload-time = "2025-06-05T20:00:53.735Z" },
+    { url = "https://files.pythonhosted.org/packages/59/df/e7c3a360be4f7b93cee39271b792669baeb3846c58a4df6dfcf187a7ffab/nvidia_cuda_runtime_cu12-12.9.79-py3-none-win_amd64.whl", hash = "sha256:8e018af8fa02363876860388bd10ccb89eb9ab8fb0aa749aaf58430a9f7c4891", size = 3591604, upload-time = "2025-06-05T20:11:17.036Z" },
+]
+
+[[package]]
 name = "packaging"
 version = "26.3"
 source = { registry = "https://pypi.org/simple" }
@@ -413,6 +472,14 @@ wheels = [
 name = "rexlib"
 source = { editable = "." }
 
+[package.optional-dependencies]
+cuda12 = [
+    { name = "rexlib-cuda12" },
+]
+cuda13 = [
+    { name = "rexlib-cuda13" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "cmake" },
@@ -433,6 +500,11 @@ test = [
 ]
 
 [package.metadata]
+requires-dist = [
+    { name = "rexlib-cuda12", marker = "extra == 'cuda12'", directory = "plugins/cuda/cuda12" },
+    { name = "rexlib-cuda13", marker = "extra == 'cuda13'", directory = "plugins/cuda/cuda13" },
+]
+provides-extras = ["cuda12", "cuda13"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -451,6 +523,34 @@ test = [
     { name = "pytest", specifier = "==9.1.1" },
     { name = "pytest-cov", specifier = "==7.1.0" },
     { name = "ruff", specifier = "==0.17.1" },
+]
+
+[[package]]
+name = "rexlib-cuda12"
+source = { directory = "plugins/cuda/cuda12" }
+dependencies = [
+    { name = "cuda-toolkit", version = "12.9.2.0", source = { registry = "https://pypi.org/simple" }, extra = ["cudart"], marker = "extra == 'extra-6-rexlib-cuda12'" },
+    { name = "rexlib" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cuda-toolkit", extras = ["cudart"], specifier = "==12.*" },
+    { name = "rexlib", specifier = "==0.1.0" },
+]
+
+[[package]]
+name = "rexlib-cuda13"
+source = { directory = "plugins/cuda/cuda13" }
+dependencies = [
+    { name = "cuda-toolkit", version = "13.4.3", source = { registry = "https://pypi.org/simple" }, extra = ["cudart"], marker = "extra == 'extra-6-rexlib-cuda13'" },
+    { name = "rexlib" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "cuda-toolkit", extras = ["cudart"], specifier = "==13.*" },
+    { name = "rexlib", specifier = "==0.1.0" },
 ]
 
 [[package]]

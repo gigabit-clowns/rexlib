@@ -5,16 +5,29 @@ workflow does.
 
 ## Wheels
 
-No workflow builds wheels yet. These are the decisions the wheels of the
-plugin's own repository were built on, which the wheels of this one keep:
-one distribution per CUDA major, `rexlib-cuda12` and `rexlib-cuda13`.
+There is one distribution per CUDA major, `rexlib-cuda12` and
+`rexlib-cuda13`, each with its `pyproject.toml` in `cuda12/` or `cuda13/`,
+which builds the project one directory up (`cmake.source-dir = ".."`). Both
+take their version from `VERSION` and require `rexlib` of the same version,
+and the root's extras `rexlib[cuda12]` and `rexlib[cuda13]` require them in
+turn; the two extras exclude each other, since both plugins are named
+`rexlib-cuda` and the second would be refused.
 
-A wheel is Python-agnostic (`wheel.py-api = "py3"`) and manylinux only. It
-installs into the `rexlib` package directory (`wheel.install-dir = "rexlib"`),
-because rexlib reports its plugin directory relative to its own prefix. The
-plugin's RPATH reaches the CUDA runtime of NVIDIA's own wheels, three levels
-up in site-packages, through `REXLIB_CUDA_RUNTIME_RPATH`, and auditwheel is
-told to leave both librexlib and libcudart out of the wheel.
+A wheel is Python-agnostic (`wheel.py-api = "py3"`) and manylinux only, for
+Linux x86_64 and aarch64. Its package directory, `rexlib_cuda12/` or
+`rexlib_cuda13/`, is the install prefix, so the plugin lands in its
+`lib/rexlib-plugins/`, and the entry point `rexlib-cuda` in the group
+`rexlib.plugins` names it for the default catalog. `CMAKE_INSTALL_RPATH`
+reaches the CUDA runtime of NVIDIA's wheel three levels up, in
+`nvidia/cuda_runtime/lib` for 12 and `nvidia/cu13/lib` for 13, and auditwheel
+leaves both librexlib and libcudart out of the wheel.
+
+cibuildwheel builds it once, with the newest CPython, in the manylinux image
+after installing NVIDIA's compiler and runtime from its RHEL 8 repository,
+without build isolation against the rexlib wheel of the same release, which
+`REXLIB_WHEELHOUSE` names. It is tested by loading the plugin through the
+default catalog, which needs no GPU. The library's workflow does this in its
+`cuda-wheels` jobs, with the rexlib wheels of the run.
 
 ## Pull requests
 

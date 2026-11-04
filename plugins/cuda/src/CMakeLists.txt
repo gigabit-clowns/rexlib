@@ -81,13 +81,6 @@ target_link_libraries(
 		rexlib-cuda-deps
 )
 
-if(REXLIB_CUDA_RUNTIME_RPATH)
-	set_property(
-		TARGET rexlib-cuda
-		APPEND PROPERTY INSTALL_RPATH "${REXLIB_CUDA_RUNTIME_RPATH}"
-	)
-endif()
-
 # No headers and no exported config: the plugin has no public interface.
 # rexlib owns where a plugin goes and how it reaches the library, so the
 # destination and the RPATH back to it come from its exported helper.
