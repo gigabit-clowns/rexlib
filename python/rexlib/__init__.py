@@ -40,6 +40,9 @@ from ._context import (
 )
 from ._device import device as device
 from ._paths import get_cmake_dir as get_cmake_dir, get_include as get_include
+from ._plugins import (
+	discover_entry_point_plugins as discover_entry_point_plugins,
+)
 
 from . import em as em
 
@@ -107,6 +110,7 @@ __all__ = [
 	"cast_copy",
 	"copy",
 	"device",
+	"discover_entry_point_plugins",
 	"dispatch",
 	"divide",
 	"em",

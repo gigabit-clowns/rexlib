@@ -46,7 +46,8 @@ declarations need.
 |---|---|
 | `_dll_directories.py` | On Windows, puts the prefix's `bin` on the DLL search path, for a wheel and for the default layout |
 | `_paths.py` | Locates the CMake package and headers of the rexlib loaded, from where the library itself is |
-| `_catalog.py` | The process-wide default `ServiceCatalog` |
+| `_catalog.py` | The process-wide default `ServiceCatalog`, which registers the plugins installed distributions declare when it is built |
+| `_plugins.py` | `discover_entry_point_plugins`: loads the plugins of the `rexlib.plugins` entry points |
 | `_session_pool.py` | One `DeviceSession` per device, process-wide |
 | `_context.py` | The execution context active on the current thread |
 | `_device.py` | `rexlib.device(...)`, the `with` block that activates one |
