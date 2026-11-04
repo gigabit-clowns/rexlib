@@ -13,6 +13,7 @@ import warnings
 from ._binding import PluginManager
 
 __ENTRY_POINT_GROUP = "rexlib.plugins"
+__PLUGIN_DIRECTORY_NAME = "rexlib-plugins"
 
 
 def __get_shared_object_suffixes() -> tuple[str, ...]:
@@ -52,15 +53,41 @@ def __find_package_directories(package: str) -> list[pathlib.Path]:
 	]
 
 
+def __find_plugin_files(
+	directories: list[pathlib.Path], suffixes: tuple[str, ...]
+) -> list[pathlib.Path]:
+	"""
+	Find the shared objects in the plugin directories of a package.
+
+	Args:
+		directories: The directories the package spans.
+		suffixes: The suffixes a shared object has on this platform.
+
+	Returns:
+		list[pathlib.Path]: The shared objects directly in a directory named
+		`rexlib-plugins`, at any depth, sorted.
+	"""
+	return sorted(
+		path
+		for directory in directories
+		for plugins in directory.rglob(__PLUGIN_DIRECTORY_NAME)
+		if plugins.is_dir()
+		for path in plugins.iterdir()
+		if path.suffix in suffixes and path.is_file()
+	)
+
+
 def discover_entry_point_plugins(manager: PluginManager) -> None:
 	"""
 	Load the plugins that installed distributions declare.
 
 	A distribution declares a plugin with an entry point in the group
-	`rexlib.plugins` whose value names a package. Every shared object
-	directly in that package's directory is loaded into the manager as a
-	plugin. A package that is not installed, or a shared object the manager
-	refuses, is skipped with a `RuntimeWarning`.
+	`rexlib.plugins` whose value names a package, which holds the plugin as
+	an install prefix does: in a directory named `rexlib-plugins`. Every
+	shared object directly in such a directory, at any depth of the package,
+	is loaded into the manager as a plugin. A package that is not installed,
+	or a shared object the manager refuses, is skipped with a
+	`RuntimeWarning`.
 
 	Args:
 		manager: The plugin manager the plugins are loaded into.
@@ -78,16 +105,13 @@ def discover_entry_point_plugins(manager: PluginManager) -> None:
 			)
 			continue
 
-		for directory in directories:
-			for path in sorted(directory.iterdir()):
-				if path.suffix not in suffixes or not path.is_file():
-					continue
-				try:
-					manager.load_plugin(str(path))
-				except RuntimeError as error:
-					warnings.warn(
-						f"rexlib skipped the plugin {path}, which "
-						f"{entry_point.name!r} declares: {error}",
-						RuntimeWarning,
-						stacklevel=2,
-					)
+		for path in __find_plugin_files(directories, suffixes):
+			try:
+				manager.load_plugin(str(path))
+			except RuntimeError as error:
+				warnings.warn(
+					f"rexlib skipped the plugin {path}, which "
+					f"{entry_point.name!r} declares: {error}",
+					RuntimeWarning,
+					stacklevel=2,
+				)

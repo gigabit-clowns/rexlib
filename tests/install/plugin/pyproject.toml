@@ -1,5 +1,5 @@
-# The plugin as a wheel: its shared object in a package directory of its
-# own, which the entry point names.
+# The plugin as a wheel: the package directory the entry point names is the
+# install prefix, which holds the plugin in its rexlib-plugins directory.
 [build-system]
 requires = ["scikit-build-core==1.1.1"]
 build-backend = "scikit_build_core.build"
@@ -22,9 +22,6 @@ wheel.install-dir = "rexlib_sample"
 wheel.packages = []
 wheel.py-api = "py3"
 cmake.version = ">=3.18"
-
-[tool.scikit-build.cmake.define]
-REXLIB_SAMPLE_DESTINATION = "."
 
 [[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"

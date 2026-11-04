@@ -49,18 +49,4 @@ set_property(
 		SAMPLE_VERSION_PATCH=${PROJECT_VERSION_PATCH}
 )
 
-# Empty installs the plugin beside the library, where rexlib looks for
-# plugins; a wheel names its package directory instead.
-set(
-	REXLIB_SAMPLE_DESTINATION ""
-	CACHE STRING
-	"Directory, relative to the install prefix, the plugin is installed into"
-)
-if(REXLIB_SAMPLE_DESTINATION)
-	rexlib_install_plugin(
-		rexlib-sample
-		DESTINATION "${REXLIB_SAMPLE_DESTINATION}"
-	)
-else()
-	rexlib_install_plugin(rexlib-sample)
-endif()
+rexlib_install_plugin(rexlib-sample)

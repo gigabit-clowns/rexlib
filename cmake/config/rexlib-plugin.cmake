@@ -4,42 +4,20 @@
 # build and from the installed package config, so that an in-tree
 # superbuild and a find_package() consumer see the same contract.
 
-# Installs a plugin module.
+# Installs a plugin module where rexlib's plugin manager looks for it.
 #
-#   rexlib_install_plugin(<target> [DESTINATION <dir>])
-#
-# Without DESTINATION, the plugin goes where rexlib's plugin manager looks
-# for it: a directory named "rexlib-plugins" beside the rexlib shared
-# library, whatever the prefix. That holds for a standalone install and for
-# a Python wheel that nests the prefix inside the package, so the relative
-# path from a plugin to the library is always the same and a single RPATH
-# serves both.
-#
-# With DESTINATION, a directory relative to the install prefix, the plugin
-# goes there and no RPATH is added, as for a plugin wheel installed into a
-# package directory of its own. Its reference to librexlib resolves to the
-# copy already loaded by whatever loads the plugin.
+# Plugins are discovered in a directory named "rexlib-plugins" beside the
+# rexlib shared library, whatever the prefix. That holds for a standalone
+# install and for a Python wheel that nests the prefix inside the package,
+# so the relative path from a plugin to the library is always the same and
+# a single RPATH serves both.
 function(rexlib_install_plugin TARGET)
-	cmake_parse_arguments(PARSE_ARGV 1 arg "" "DESTINATION" "")
-	if(arg_UNPARSED_ARGUMENTS OR arg_KEYWORDS_MISSING_VALUES)
-		message(FATAL_ERROR
-			"rexlib_install_plugin takes a target and an optional "
-			"DESTINATION <dir>"
-		)
-	endif()
-
-	if(DEFINED arg_DESTINATION)
-		set(DESTINATION "${arg_DESTINATION}")
-		set(RPATH "")
+	if(APPLE)
+		set(RPATH "@loader_path/..")
+	elseif(UNIX)
+		set(RPATH "$ORIGIN/..")
 	else()
-		set(DESTINATION "${REXLIB_PLUGINS_INSTALL_DIR}")
-		if(APPLE)
-			set(RPATH "@loader_path/..")
-		elseif(UNIX)
-			set(RPATH "$ORIGIN/..")
-		else()
-			set(RPATH "")
-		endif()
+		set(RPATH "")
 	endif()
 
 	if(RPATH)
@@ -51,7 +29,7 @@ function(rexlib_install_plugin TARGET)
 
 	install(
 		TARGETS ${TARGET}
-		LIBRARY DESTINATION "${DESTINATION}"
-		RUNTIME DESTINATION "${DESTINATION}"
+		LIBRARY DESTINATION ${REXLIB_PLUGINS_INSTALL_DIR}
+		RUNTIME DESTINATION ${REXLIB_PLUGINS_INSTALL_DIR}
 	)
 endfunction()
