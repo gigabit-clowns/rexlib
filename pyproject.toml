@@ -110,7 +110,6 @@ sdist.exclude = [
     ".vscode/**",
     "plugins/**",
     "renovate.json",
-    "sonar-project.properties",
 ]
 
 # The wheel's install prefix is the package directory, so the library, its

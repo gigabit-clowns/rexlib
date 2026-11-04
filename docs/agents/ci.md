@@ -30,7 +30,7 @@ commits both files.
 | Job | What it checks |
 |---|---|
 | One per platform and toolchain | Ubuntu 22.04 and 26.04 x86_64 with clang, Ubuntu 22.04 aarch64 with gcc, macOS 15 and 26 arm64 with Apple clang, Windows Server 2022 and 2025 x86_64 with MSVC, Windows 11 arm64 with MSVC, Windows Server 2025 x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two oldest Linux rows also install the library without its debug information and keep that install as an artifact |
-| Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the coverage, which the SonarQube scan reads |
+| Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the coverage, which gcovr reports in the log |
 | Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
 | Ubuntu 22.04 x86_64, gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of the oldest supported image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the Ubuntu 22.04 row of its architecture installed, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
@@ -67,8 +67,8 @@ registers one test per binary and gives valgrind the options that make a leak
 of any kind, or any other error it reports, fail the test, except what
 `tests/valgrind.supp` suppresses: the dynamic linker's records of a library
 still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
-gcovr, from the `coverage` group, measures the coverage, and the SonarQube scan
-reads it with the compilation database of the same build.
+gcovr, from the `coverage` group, measures the coverage and prints its summary
+in the log.
 
 A job is named by platform, toolchain and purpose, in that order, each left out
 when it says nothing. A job that builds and tests on a runner names the
@@ -115,12 +115,11 @@ virtual environment that the later steps see. `uv sync --locked
 Lint and coverage jobs take uv the same way, and install the `lint` or the
 `coverage` group alone, with `--only-group`.
 
-The branch rules require two checks: All checks, and SonarCloud's own report.
-All checks runs whatever happened before it, because a job that a failure
-skipped would otherwise count as passed, and it keeps the names of matrix
-rows out of the rules. "Require branches to be up to date before merging" is
-on, so two pull requests that pass apart but fail together cannot both merge
-untested.
+The branch rules require one check, All checks. It runs whatever happened
+before it, because a job that a failure skipped would otherwise count as
+passed, and it keeps the names of matrix rows out of the rules. "Require
+branches to be up to date before merging" is on, so two pull requests that pass
+apart but fail together cannot both merge untested.
 
 Each job keeps its compiler cache through `hendrikmuhs/ccache-action`, capped
 at 500 MB and cleared of what the job did not use. The action installs its
