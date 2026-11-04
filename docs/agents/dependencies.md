@@ -30,14 +30,14 @@ manager in `renovate.json`.
 
 Those calls hold the only pins, in forms Renovate keeps up to date. What is
 released on GitHub or GitLab is pinned by the commit of its release tag,
-`COMMIT <sha>) # <tag>`, as the actions of the workflows are; pocketfft,
-which makes no releases, by a commit of its `cpp` branch, `# cpp`. Boost is
-pinned by its tag and the SHA256 of the archive it attaches to the release,
-since the archive of a commit lacks its libraries, which are submodules, and
-half by its version and the SHA256 of its archive on SourceForge. Renovate
-bumps the versions, not the hashes, so such a bump fails to configure until
-the hash CMake reports is pasted in. `FETCHCONTENT_SOURCE_DIR_<NAME>` points a
-fetch at a local checkout.
+`COMMIT <sha>) # <tag>`; pocketfft, which makes no releases, by a commit of
+its `cpp` branch, `# cpp`. Boost is pinned by its tag and the SHA256 of the
+archive it attaches to the release, since the archive of a commit lacks its
+libraries, which are submodules, and half by its version and the SHA256 of
+its archive on SourceForge. Renovate updates Boost's hash with its tag, from
+the new release's archive; half's it cannot, so a bump of half fails to
+configure until the hash CMake reports is pasted in.
+`FETCHCONTENT_SOURCE_DIR_<NAME>` points a fetch at a local checkout.
 
 half and pocketfft ship no CMake package config anywhere, so their system path
 goes through this project's own `Findhalf.cmake` and `Findpocketfft.cmake`.
@@ -83,8 +83,8 @@ the release it fetches, each with a module of its own in
 `plugins/cuda/cmake/modules/`; found, the `find_package` call, with the oldest
 version that works. The pins take the forms of the library's: the commit of a
 release tag, `COMMIT <sha>) # <tag>`, and for Boost its tag and the SHA256 of
-the archive it attaches to the release. `renovate.json` has managers for the
-library's pins alone, not for these nor for the binding's DLPack.
+the archive it attaches to the release. The managers of `renovate.json` match
+`rexlib_fetch_`, `rexlib_cuda_fetch_` and `rexlib_python_fetch_` alike.
 
 Each wheel's `pyproject.toml` requires `cuda-toolkit[cudart]` of its CUDA
 major, `==12.*` or `==13.*`, which NVIDIA's runtime wheels satisfy; the
@@ -109,3 +109,23 @@ editorconfig-checker's package is a source distribution that downloads the
 program from its GitHub release when it is built, so `uv.lock` holds the hash
 of the package, not of the program. CMake 3.18.0, the oldest the projects
 support, is in no group: the jobs that build with it install it themselves.
+
+## Updates
+
+Renovate keeps the pins up to date through `renovate.json`, each update
+14 days after its release:
+
+- the actions of the workflows, with `actions.lock` regenerated in the same
+  pull request by the `gh-actions-lock` version of `constraints`;
+- the dependency groups and build requirements of every `pyproject.toml`,
+  with `uv.lock`, and once a month the packages `uv.lock` pins beyond them;
+- the `rexlib*_fetch_<dep>()` calls;
+- the baseline of `.github/vcpkg/vcpkg.json`, to vcpkg's newest commit, once
+  a month;
+- uv's `required-version`, and the `gh-actions-lock` version of the Lint job
+  and of `constraints`, in one pull request.
+
+Renovate also opens pull requests for the vulnerabilities that GitHub's
+Dependabot alerts report. By hand: half's hash, the CUDA toolkit minors of
+the CUDA jobs and wheels, CMake 3.18.0, the runner images, and the Python
+versions of `requires-python` and of the workflows.
