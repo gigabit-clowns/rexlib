@@ -45,11 +45,6 @@ option(
 	ON
 )
 option(
-	REXLIB_DOCS_STRIP_BADGES_FROM_MAINPAGE
-	"Strip badge blocks from the README copy used as Doxygen main page"
-	ON
-)
-option(
 	REXLIB_ENABLE_COVERAGE
 	"Instrument the library and the tests for code coverage"
 	OFF

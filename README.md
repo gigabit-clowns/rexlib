@@ -1,8 +1,6 @@
 # rexlib
 
-<!-- docs-badges:start -->
 [![CI](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml)
-<!-- docs-badges:end -->
 
 rexlib is a high-performance Cryo-EM and Cryo-ET image processing library,
 written in C++ with a Python binding. Its operations run on whichever device a
@@ -167,7 +165,6 @@ cmake -S . -B build -DREXLIB_BUILD_DOCS=ON -DBUILD_TESTING=OFF
 cmake --build build --target rexlib-docs
 ```
 
-<!-- docs-badges:start -->
 ## SonarCloud status
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 
@@ -183,4 +180,3 @@ cmake --build build --target rexlib-docs
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-<!-- docs-badges:end -->
