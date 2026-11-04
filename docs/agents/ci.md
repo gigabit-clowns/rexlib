@@ -38,7 +38,7 @@ commits both files.
 | CUDA 12 and 13 wheels, Linux x86_64 and aarch64 | cibuildwheel builds the CUDA plugin's wheel of each CUDA major, as `plugins/cuda/cuda12/` and `cuda13/` set it up, against the rexlib wheels of the run, and checks that the default catalog loads the plugin, which needs no GPU |
 | ABI report, on pushes to `main` only | Report only: abidiff compares the exported symbols of librexlib in the Linux x86_64 abi3 wheel with those of the latest release's, in the job summary. It skips itself until a release carries that wheel, never fails, and the gate does not wait for it. The wheels carry no debug information, so a change of a class's layout goes unseen |
 | Documentation | The `docs` preset; a Doxygen warning fails it |
-| Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset: clang-tidy, pinned, on the library's sources as they compile, every file git tracks against `.editorconfig`, and the Python files against ruff. The dependencies are installed, as in the jobs with warnings as errors |
+| Lint | `gh actions-lock --verify`, which fails when the lockfile misses an action or a locked commit no longer verifies; then the `lint` preset, with the `lint` group installed: clang-tidy on the library's sources as they compile, every file git tracks against `.editorconfig`, and the Python files against ruff. The dependencies are installed, as in the jobs with warnings as errors |
 | All checks | Fails unless every other job succeeded |
 
 The rows hold the oldest gcc and clang of the supported Ubuntu LTS images; the
@@ -57,9 +57,8 @@ preset registers one test per binary and gives valgrind the options that make
 a leak of any kind, or any other error it reports, fail the test, except what
 `tests/valgrind.supp` suppresses: the dynamic linker's records of a library
 still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
-gcovr
-measures the coverage, and the SonarQube scan reads it with the compilation
-database of the same build.
+gcovr, from the `coverage` group, measures the coverage, and the SonarQube
+scan reads it with the compilation database of the same build.
 
 A row is named by platform and toolchain, never by compiler version, which
 is the runner image's to choose. A `run` step reads the runner's values from
@@ -74,7 +73,9 @@ A job that builds the Python binding takes uv from `astral-sh/setup-uv`, at
 the version `[tool.uv] required-version` names, and the job's Python, in a
 virtual environment that the later steps see. `uv sync --locked
 --no-install-project` installs the `dev` group into it, exactly as
-`uv.lock` pins it, and CMake's FindPython finds that interpreter first.
+`uv.lock` pins it, and CMake's FindPython finds that interpreter first. The
+Lint job and the coverage row take uv the same way, and install the `lint`
+or the `coverage` group alone, with `--only-group`.
 
 The branch rules require two checks: All checks, and SonarCloud's own report.
 All checks runs whatever happened before it, because a job that a failure
