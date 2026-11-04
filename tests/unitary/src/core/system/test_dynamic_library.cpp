@@ -4,6 +4,7 @@
 
 #include <rexlib/core/system/dynamic_library.hpp>
 #include <rexlib/core/exceptions/dynamic_library_error.hpp>
+#include <rexlib/core/plugin_compatibility.hpp>
 #include <rexlib/core/platform/operating_system.h>
 
 #include <catch2/catch_test_macros.hpp>
@@ -24,6 +25,29 @@ TEST_CASE( "open a dynamic library", "[dynamic_library]" )
 
 	const auto *symbol = dl.get_symbol("rexlib_get_plugin");
 	REQUIRE( symbol != nullptr );
+}
+
+TEST_CASE(
+	"dynamic_library::release should leave the library loaded after the "
+	"object is destroyed",
+	"[dynamic_library]"
+)
+{
+	using get_compatibility_type = const plugin_compatibility* (*)();
+	get_compatibility_type get_compatibility = nullptr;
+	{
+		dynamic_library library(get_mock_plugin_path("dummy-plugin"));
+		get_compatibility = reinterpret_cast<get_compatibility_type>(
+			library.get_symbol("rexlib_get_plugin_compatibility")
+		);
+		REQUIRE( get_compatibility != nullptr );
+
+		library.release();
+
+		REQUIRE_FALSE( library.is_open() );
+	}
+
+	REQUIRE( get_compatibility()->size == sizeof(plugin_compatibility) );
 }
 
 TEST_CASE( "default construct dynamic_library", "[dynamic_library]" )

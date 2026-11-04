@@ -77,7 +77,8 @@
       "cacheVariables": {
         "REXLIB_ENABLE_COVERAGE": "ON",
         "REXLIB_REGISTER_TESTS_PER_BINARY": "ON",
-        "MEMORYCHECK_COMMAND_OPTIONS": "--leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1 --num-callers=50"
+        "MEMORYCHECK_COMMAND_OPTIONS": "--leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1 --num-callers=50",
+        "MEMORYCHECK_SUPPRESSIONS_FILE": "${sourceDir}/tests/valgrind.supp"
       }
     },
     {

@@ -41,6 +41,11 @@ public:
 	/**
 	 * @brief Load a plugin from a shared object and add it.
 	 *
+	 * The shared object of a plugin the manager accepts stays loaded until
+	 * the process exits, so the plugin, and whatever its code creates,
+	 * stays valid after the manager is destroyed. A shared object it
+	 * refuses is unloaded.
+	 *
 	 * @param path Path to the shared object, in UTF-8, resolved as
 	 * dynamic_library resolves it.
 	 * @return const plugin* The loaded plugin, never null.
