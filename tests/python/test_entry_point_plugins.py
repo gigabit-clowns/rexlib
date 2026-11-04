@@ -18,7 +18,7 @@ def test_discover_entry_point_plugins_loads_the_plugins_a_package_holds(
 	monkeypatch, tmp_path
 ):
 	package = __make_package_name()
-	__copy_dummy_plugins(tmp_path / package)
+	__copy_dummy_plugins(tmp_path / package / "lib" / "rexlib-plugins")
 	__install_distribution(monkeypatch, tmp_path, {"dummy": package})
 	manager = rexlib.PluginManager()
 
@@ -26,13 +26,28 @@ def test_discover_entry_point_plugins_loads_the_plugins_a_package_holds(
 
 	assert {"dummy-plugin1", "dummy-plugin2"} <= __get_names(manager)
 
-def test_discover_entry_point_plugins_ignores_files_that_are_no_shared_object(
+def test_discover_entry_point_plugins_ignores_plugins_outside_their_directory(
 	monkeypatch, tmp_path
 ):
 	package = __make_package_name()
 	__copy_dummy_plugins(tmp_path / package)
+	__install_distribution(monkeypatch, tmp_path, {"dummy": package})
+	manager = rexlib.PluginManager()
+
+	with warnings.catch_warnings():
+		warnings.simplefilter("error")
+		rexlib.discover_entry_point_plugins(manager)
+
+	assert manager.plugins == []
+
+def test_discover_entry_point_plugins_ignores_files_that_are_no_shared_object(
+	monkeypatch, tmp_path
+):
+	package = __make_package_name()
+	plugins = tmp_path / package / "lib" / "rexlib-plugins"
+	__copy_dummy_plugins(plugins)
 	(tmp_path / package / "__init__.py").write_text("")
-	(tmp_path / package / "README.txt").write_text("Not a plugin")
+	(plugins / "README.txt").write_text("Not a plugin")
 	__install_distribution(monkeypatch, tmp_path, {"dummy": package})
 	manager = rexlib.PluginManager()
 
@@ -46,8 +61,9 @@ def test_discover_entry_point_plugins_warns_of_a_shared_object_it_cannot_load(
 	monkeypatch, tmp_path
 ):
 	package = __make_package_name()
-	suffix = __copy_dummy_plugins(tmp_path / package)
-	broken = tmp_path / package / f"broken{suffix}"
+	plugins = tmp_path / package / "lib" / "rexlib-plugins"
+	suffix = __copy_dummy_plugins(plugins)
+	broken = plugins / f"broken{suffix}"
 	broken.write_bytes(b"Not a shared object")
 	__install_distribution(monkeypatch, tmp_path, {"dummy": package})
 	manager = rexlib.PluginManager()
@@ -72,8 +88,8 @@ def test_discover_entry_point_plugins_warns_of_a_plugin_already_loaded(
 ):
 	first = __make_package_name()
 	second = __make_package_name()
-	__copy_dummy_plugins(tmp_path / first)
-	__copy_dummy_plugins(tmp_path / second)
+	__copy_dummy_plugins(tmp_path / first / "lib" / "rexlib-plugins")
+	__copy_dummy_plugins(tmp_path / second / "lib" / "rexlib-plugins")
 	__install_distribution(
 		monkeypatch, tmp_path, {"first": first, "second": second}
 	)
@@ -113,7 +129,7 @@ def __make_package_name() -> str:
 	return f"rexlib_test_plugins_{uuid.uuid4().hex}"
 
 def __copy_dummy_plugins(directory: pathlib.Path) -> str:
-	directory.mkdir()
+	directory.mkdir(parents=True)
 	source = pathlib.Path(os.environ["REXLIB_PYTHON_TEST_PLUGINS_DIR"])
 	suffix = ""
 	for path in source.iterdir():

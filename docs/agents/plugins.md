@@ -52,19 +52,22 @@ builders, which add themselves to `get_cpu_program_builder_registry()` through
 every built-in plugin at itself on construction, through the same
 `register_at` as a loaded plugin.
 
-A plugin can also ship as a Python wheel. It installs into a package
-directory of its own, never into `rexlib/`, with
-`rexlib_install_plugin(<target> DESTINATION <dir>)`, which adds no RPATH: the
-plugin's reference to librexlib resolves to the copy that `import rexlib`
-already loaded, by SONAME on Linux, install name on macOS and module name on
-Windows. The wheel declares an entry point in the group `rexlib.plugins`
-whose value names that package. `rexlib.discover_entry_point_plugins(manager)`
-(`python/rexlib/_plugins.py`) loads every shared object directly in the
-directory of each such package, and warns of and skips what it cannot load;
-the default catalog does so when it is built, and a catalog the user builds
-loads only what it is told. That is the one discovery route in Python; C++
-has the search path, `rexlib-plugins/` beside the library and
-`REXLIB_PLUGINS_PATH`.
+A plugin can also ship as a Python wheel. Its `pyproject.toml` makes a
+package directory of its own, never `rexlib/`, the install prefix
+(`wheel.install-dir`), so `rexlib_install_plugin` puts the plugin in that
+prefix's `rexlib-plugins` directory as it does in any other, and the plugin's
+CMake knows nothing of wheels; what only a wheel needs, such as an RPATH to a
+library of another wheel, is a standard CMake variable the `pyproject.toml`
+sets. The plugin's reference to librexlib resolves to the copy that
+`import rexlib` already loaded, by SONAME on Linux, install name on macOS and
+module name on Windows. The wheel declares an entry point in the group
+`rexlib.plugins` whose value names that package.
+`rexlib.discover_entry_point_plugins(manager)` (`python/rexlib/_plugins.py`)
+loads every shared object directly in a `rexlib-plugins` directory of each
+such package, and warns of and skips what it cannot load; the default catalog
+does so when it is built, and a catalog the user builds loads only what it is
+told. That is the one discovery route in Python; C++ has the search path,
+`rexlib-plugins/` beside the library and `REXLIB_PLUGINS_PATH`.
 
 `tests/install/plugin` is a plugin built as a third party builds one, against
 the installed rexlib and with nothing but the installed CMake package. It adds
@@ -72,6 +75,6 @@ a device backend named `sample`, over host memory, with its own queue and
 program type, and a program for `arange` into int32 that only that queue
 accepts, so the install consumer, counting on that device, runs the plugin's
 program or fails. Its `pyproject.toml` builds it as the wheel
-`rexlib-sample`, installed into `rexlib_sample/` with an entry point, and
+`rexlib-sample`, with `rexlib_sample/` as its prefix and an entry point, and
 `test_wheel.py` checks that the default catalog loads it. It is the template
 for a new backend plugin.
