@@ -1,5 +1,5 @@
 {
-  "$comment": "Every dependency of rexlib, its Python binding and its CUDA plugin, for the jobs of ci.yml that build against installed dependencies",
+  "$comment": "Every dependency of rexlib, its Python binding and its CUDA plugin, for the builds against installed dependencies: those of ci.yml, and a build with REXLIB_BUILD_CUDA_PLUGIN",
   "dependencies": [
     "boost-container",
     "boost-container-hash",

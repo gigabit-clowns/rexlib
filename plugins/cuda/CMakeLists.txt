@@ -115,10 +115,13 @@ else()
 endif()
 
 # The plugin is built against an installed rexlib, as any third-party
-# plugin is, of the minor version it shares with the library.
-find_package(
-	rexlib ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR} REQUIRED
-)
+# plugin is, of the minor version it shares with the library; inside rexlib's
+# own build, against the library being built.
+if(NOT TARGET rexlib::rexlib)
+	find_package(
+		rexlib ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR} REQUIRED
+	)
+endif()
 
 add_subdirectory(src)
 

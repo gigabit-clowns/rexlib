@@ -25,7 +25,8 @@ With the binding, once the `dev` group of `pyproject.toml` is installed
 (`uv sync`, or `pip install --group dev`): add
 `-DREXLIB_BUILD_PYTHON=ON -DPython_EXECUTABLE=$(which python)` and run
 `ctest --test-dir build -L python`. The CUDA plugin builds against an
-installed rexlib, as a third party's does; see
+installed rexlib, as a third party's does, or, for development, inside the
+library's build with `REXLIB_BUILD_CUDA_PLUGIN`; see
 [building](docs/agents/building.md#the-cuda-plugin).
 
 ## Always
