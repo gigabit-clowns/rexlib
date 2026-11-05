@@ -145,11 +145,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -247,11 +247,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -405,11 +405,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -511,11 +511,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -918,11 +918,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
