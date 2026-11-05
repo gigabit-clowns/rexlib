@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 
 #include <core/hardware/host_memory/host_memory_allocator.hpp>
@@ -13,6 +14,7 @@
 #include "../mock/mock_command_timeline.hpp"
 
 #include <memory>
+#include <stdexcept>
 #include <sstream>
 
 using namespace rexlib;
@@ -54,6 +56,37 @@ TEST_CASE(
 		0
 	);
 	REQUIRE( buffer->get_size() >= size );
+}
+
+TEST_CASE(
+	"allocate in host_memory_allocator should throw when the alignment is not "
+	"a power of two",
+	"[host_memory_allocator]"
+)
+{
+	const std::size_t alignment = GENERATE(as<std::size_t>{}, 0, 3, 48);
+
+	host_memory_allocator allocator;
+	command_token pending;
+	CHECK_THROWS_AS(
+		allocator.allocate(1024, alignment, nullptr, pending),
+		std::invalid_argument
+	);
+}
+
+TEST_CASE(
+	"allocate in host_memory_allocator should throw when the alignment "
+	"exceeds the maximum alignment",
+	"[host_memory_allocator]"
+)
+{
+	host_memory_allocator allocator;
+	const std::size_t alignment = 2 * allocator.get_max_alignment();
+	command_token pending;
+	CHECK_THROWS_AS(
+		allocator.allocate(1024, alignment, nullptr, pending),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
