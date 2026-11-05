@@ -40,10 +40,8 @@ therefore fails the pull request rather than being found afterwards.
 
 Compilation is cached with ccache. The Actions cache is 10 GB for the whole
 repository while access is per branch, so entries pile up faster than they look
-like they should; caches are saved only on `main`, and after a build there
-`clean-up-caches.yml` drops what a newer run replaced. It names every cache
-family, `*` for what varies; a new one is added there and to
-`keep-caches-warm.yml`.
+like they should; `clean-up-caches.yml` drops what a newer run replaced, and
+everything belonging to a pull request when it closes.
 
 The scan runs in a job of its own, so the `ubuntu-latest` gcc entry hands it
 what it reads as an artifact. That is `compile_commands.json` and the include
