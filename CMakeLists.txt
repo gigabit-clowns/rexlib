@@ -81,8 +81,7 @@ option(
 # installed one.
 option(
 	REXLIB_BUILD_CUDA_PLUGIN
-	"Build the CUDA plugin with rexlib, which needs the CUDA Toolkit and finds \
-every dependency installed"
+	"Build the CUDA plugin with rexlib, which needs the CUDA Toolkit"
 	OFF
 )
 # Only while BUILD_TESTING, the switch of CTest, is on: tests built without
@@ -92,59 +91,10 @@ cmake_dependent_option(
 	REXLIB_BUILD_TESTING "Build rexlib's tests" ON
 	"BUILD_TESTING" OFF
 )
-# The benchmarks use the Catch2 the tests fetch or find.
+# The benchmarks use the Catch2 the tests find.
 cmake_dependent_option(
 	REXLIB_BUILD_BENCHMARKS "Build rexlib's benchmarks" OFF
 	"REXLIB_BUILD_TESTING" OFF
-)
-
-# Every dependency is private and none appears in a public header, so building
-# one here or finding an installed one changes nothing for a consumer of the
-# installed library. Turning the global switch on turns every one of the
-# others on, on every configure, and building the CUDA plugin here turns the
-# global switch on.
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_DEPENDENCIES
-	"Find every dependency installed, rather than fetching it and building it \
-with rexlib"
-	OFF
-	"NOT REXLIB_BUILD_CUDA_PLUGIN"
-	ON
-)
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_BOOST
-	"Find an installed Boost rather than fetching it"
-	OFF
-	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_SPDLOG
-	"Find an installed spdlog rather than fetching it"
-	OFF
-	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_HALF
-	"Find an installed half rather than fetching it"
-	OFF
-	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_POCKETFFT
-	"Find an installed pocketfft rather than fetching it"
-	OFF
-	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_EIGEN
-	"Find an installed Eigen rather than fetching it"
-	OFF
-	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
-	ON
 )
 
 # The default goes through a variable of its own: assigning to the cache
@@ -177,50 +127,24 @@ set(REXLIB_GENERATED_INCLUDE_DIR ${PROJECT_BINARY_DIR}/include)
 
 find_package(Threads REQUIRED)
 
-if(REXLIB_USE_SYSTEM_BOOST)
-	# CONFIG mode, because only the BoostConfig.cmake that Boost has
-	# installed since 1.70 defines Boost::headers.
-	find_package(Boost 1.70 REQUIRED CONFIG COMPONENTS filesystem)
-else()
-	include(rexlib_add_boost)
-	rexlib_add_boost(
-		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/boost
-		LIBRARIES container container_hash filesystem
-	)
-endif()
-
-if(REXLIB_USE_SYSTEM_HALF)
-	# The header carries no version, so none is asked for.
-	find_package(half REQUIRED MODULE)
-else()
-	include(rexlib_add_half)
-	rexlib_add_half(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/half)
-endif()
-
-if(REXLIB_USE_SYSTEM_SPDLOG)
-	find_package(spdlog 1.4 REQUIRED CONFIG)
-else()
-	include(rexlib_add_spdlog)
-	rexlib_add_spdlog(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/spdlog)
-endif()
-
-if(REXLIB_USE_SYSTEM_POCKETFFT)
-	# pocketfft makes no releases, so no version is asked for.
-	find_package(pocketfft REQUIRED MODULE)
-else()
-	include(rexlib_add_pocketfft)
-	rexlib_add_pocketfft(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/pocketfft)
-endif()
-
-if(REXLIB_USE_SYSTEM_EIGEN)
-	# No version is asked for: the package of Eigen takes one for a major
-	# version to match rather than for a floor, so asking for the 3.3 every
-	# distribution carries would refuse the 5 in third_party.
-	find_package(Eigen3 REQUIRED CONFIG)
-else()
-	include(rexlib_add_eigen)
-	rexlib_add_eigen(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/eigen)
-endif()
+# Every dependency is private and none appears in a public header, so how
+# one is got changes nothing for a consumer of the installed library. Where
+# each comes from is the business of whoever configures: installed, as a
+# distribution builds rexlib, or built from third_party/ by the dependency
+# provider the presets and pyproject.toml inject.
+#
+# CONFIG mode, because only the BoostConfig.cmake that Boost has installed
+# since 1.70 defines Boost::headers.
+find_package(Boost 1.70 REQUIRED CONFIG COMPONENTS filesystem)
+# The header carries no version, so none is asked for.
+find_package(half REQUIRED MODULE)
+find_package(spdlog 1.4 REQUIRED CONFIG)
+# pocketfft makes no releases, so no version is asked for.
+find_package(pocketfft REQUIRED MODULE)
+# No version is asked for: the package of Eigen takes one for a major version
+# to match rather than for a floor, so asking for the 3.3 every distribution
+# carries would refuse the 5 in third_party.
+find_package(Eigen3 REQUIRED CONFIG)
 
 # Same helper the installed package config offers, so that a plugin built
 # inside a superbuild installs itself exactly as an out-of-tree one does.
@@ -246,9 +170,9 @@ if(REXLIB_BUILD_PYTHON)
 	add_subdirectory(python)
 endif()
 
-# The plugin finds its dependencies installed, as the library does here.
+# The plugin's find_package() calls get what the library's do: installed, or
+# from the library's dependency provider.
 if(REXLIB_BUILD_CUDA_PLUGIN)
-	set(REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES ON)
 	add_subdirectory(plugins/cuda)
 endif()
 

@@ -145,11 +145,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -170,12 +170,14 @@ jobs:
         if: matrix.python
         run: uv sync --locked --no-install-project
 
-      # Only MSVC reads the debug information format: embedded in each object,
-      # which is what lets ccache cache what it compiles.
+      # Without the dependency provider the presets inject, every dependency
+      # is found installed. Only MSVC reads the debug information format:
+      # embedded in each object, which is what lets ccache cache what it
+      # compiles.
       - name: Configure
         run: >-
           cmake --preset debug
-          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=
           -DREXLIB_WARNINGS_AS_ERRORS=ON
           -DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}
           -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded
@@ -247,11 +249,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -270,10 +272,12 @@ jobs:
       - name: Install gcovr
         run: uv sync --locked --only-group coverage
 
+      # Without the dependency provider the presets inject, every dependency
+      # is found installed.
       - name: Configure
         run: >-
           cmake --preset coverage
-          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
@@ -386,11 +390,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -418,7 +422,6 @@ jobs:
         run: >-
           cmake -S . -B build
           -DCMAKE_BUILD_TYPE=Release
-          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
@@ -437,7 +440,6 @@ jobs:
         run: >-
           cmake -S python -B build-python
           -DCMAKE_BUILD_TYPE=Release
-          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build the binding
@@ -492,11 +494,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -544,7 +546,6 @@ jobs:
         run: >-
           cmake -S plugins/cuda -B build-cuda
           -DCMAKE_BUILD_TYPE=Debug
-          -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
           -DCMAKE_CUDA_ARCHITECTURES=75
 
@@ -892,11 +893,11 @@ jobs:
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
-        run: vcpkg install --x-install-root=.vcpkg/installed
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
       - name: Save the packages vcpkg built
         if: env.SAVE_CACHES == 'true'
@@ -905,8 +906,10 @@ jobs:
           path: .vcpkg/archives
           key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
+      # Without the dependency provider the presets inject, every dependency
+      # is found installed.
       - name: Configure
-        run: cmake --preset lint -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+        run: cmake --preset lint -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=
 
       - name: Build
         run: cmake --build --preset lint

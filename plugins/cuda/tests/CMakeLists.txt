@@ -1,37 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-# Declared here rather than beside the other toggles, because these two
-# dependencies exist only while the tests are built.
-cmake_dependent_option(
-	REXLIB_CUDA_USE_SYSTEM_CATCH2
-	"Find an installed Catch2 rather than fetching it"
-	OFF
-	"NOT REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-cmake_dependent_option(
-	REXLIB_CUDA_USE_SYSTEM_TROMPELOEIL
-	"Find an installed trompeloeil rather than fetching it"
-	OFF
-	"NOT REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-
-if(REXLIB_CUDA_USE_SYSTEM_CATCH2)
-	find_package(Catch2 3 REQUIRED CONFIG)
-else()
-	include(rexlib_cuda_add_catch2)
-	rexlib_cuda_add_catch2(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/catch2)
-endif()
-
-if(REXLIB_CUDA_USE_SYSTEM_TROMPELOEIL)
-	find_package(trompeloeil REQUIRED CONFIG)
-else()
-	include(rexlib_cuda_add_trompeloeil)
-	rexlib_cuda_add_trompeloeil(
-		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/trompeloeil
-	)
-endif()
+find_package(Catch2 3 REQUIRED CONFIG)
+find_package(trompeloeil REQUIRED CONFIG)
 
 include(Catch)
 

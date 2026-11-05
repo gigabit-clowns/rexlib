@@ -31,7 +31,7 @@ commits both files.
 |---|---|
 | One per platform and toolchain | Ubuntu 22.04 and 26.04 x86_64 with clang, Ubuntu 22.04 aarch64 with gcc, macOS 15 and 26 arm64 with Apple clang, Windows Server 2022 and 2025 x86_64 with MSVC, Windows 11 arm64 with MSVC, Windows Server 2025 x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two oldest Linux rows also install the library without its debug information and keep that install as an artifact |
 | Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the coverage, which gcovr reports in the log |
-| Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are built with rexlib from their submodules, and warnings do not fail it |
+| Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These build the dependencies from their submodules, through the dependency provider the presets inject, and warnings do not fail them |
 | Ubuntu 22.04 x86_64, gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of the oldest supported image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the Ubuntu 22.04 row of its architecture installed, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.24.0, the oldest it supports. The runners have no GPU, so the tests that need one skip themselves |
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
@@ -54,11 +54,13 @@ NVIDIA publishes for both majors.
 
 Every job with warnings as errors, and Lint, builds against installed
 dependencies, whose headers count as system headers, so that only rexlib's
-warnings and findings fail it. vcpkg installs them into `.vcpkg/installed` of
-the workspace, at the baseline `vcpkg.json` names, for the row's triplet
-(static libraries, with the dynamic C runtime on Windows), and the
-`find_package` branch of each finds them, as a packager's would. The packages
-it builds are kept in `.vcpkg/archives`. Both are inside the workspace, so
+warnings and findings fail it. Those that run a preset turn its dependency
+provider off with `-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=`. vcpkg installs the
+dependencies into `.vcpkg/installed` of the workspace, at the baseline
+`.github/vcpkg/vcpkg.json` names, for the row's triplet (static libraries,
+with the dynamic C runtime on Windows), and the `find_package` calls find
+them, as a packager's would. The packages it builds are kept in
+`.vcpkg/archives`. Both are inside the workspace, so
 `.gitignore` names `.vcpkg`, which editorconfig-checker then skips, and the
 coverage job's gcovr leaves it out.
 
