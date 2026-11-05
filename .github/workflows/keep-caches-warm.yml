@@ -24,6 +24,7 @@ jobs:
         [
           {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-g++"},
           {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-clang++"},
+          {"os": "ubuntu-latest", "prefix": "ccache-ubuntu-latest-system-dependencies"},
           {"os": "ubuntu-22.04", "prefix": "ccache-ubuntu-22.04-g++"},
           {"os": "ubuntu-22.04", "prefix": "ccache-ubuntu-22.04-clang++"},
           {"os": "macos-latest", "prefix": "ccache-macos-latest-clang++"},
