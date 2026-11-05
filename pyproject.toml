@@ -110,6 +110,7 @@ sdist.exclude = [
     ".vscode/**",
     "plugins/**",
     "renovate.json",
+    "vcpkg.json",
 ]
 
 # The wheel's install prefix is the package directory, so the library, its

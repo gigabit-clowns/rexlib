@@ -225,14 +225,14 @@ adds the plugin to the library's build, where it links the library being built
 instead of an installed one. One configure holds one copy of each dependency,
 so the option turns `REXLIB_USE_SYSTEM_DEPENDENCIES` on, for the library and
 the plugin alike, and every dependency of both has to be installed. vcpkg
-installs them all from the manifest CI uses, `.github/vcpkg/vcpkg.json`, when
+installs them all from the manifest CI uses, `vcpkg.json` at the root, when
 its toolchain file is given; settings of one's own like these go in a
 `CMakeUserPresets.json`. CI builds the plugin against an installed rexlib only.
 
 ```
 cmake -S . -B build/cuda -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
-  -DVCPKG_MANIFEST_DIR=$PWD/.github/vcpkg -DREXLIB_BUILD_CUDA_PLUGIN=ON
+  -DREXLIB_BUILD_CUDA_PLUGIN=ON
 cmake --build build/cuda --parallel
 ctest --test-dir build/cuda
 ```

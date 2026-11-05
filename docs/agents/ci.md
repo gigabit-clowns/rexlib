@@ -55,8 +55,8 @@ NVIDIA publishes for both majors.
 Every job with warnings as errors, and Lint, builds against installed
 dependencies, whose headers count as system headers, so that only rexlib's
 warnings and findings fail it. vcpkg installs them into `.vcpkg/installed` of
-the workspace, at the baseline `.github/vcpkg/vcpkg.json` names, for the row's
-triplet (static libraries, with the dynamic C runtime on Windows), and the
+the workspace, at the baseline `vcpkg.json` names, for the row's triplet
+(static libraries, with the dynamic C runtime on Windows), and the
 `find_package` branch of each finds them, as a packager's would. The packages
 it builds are kept in `.vcpkg/archives`. Both are inside the workspace, so
 `.gitignore` names `.vcpkg`, which editorconfig-checker then skips, and the

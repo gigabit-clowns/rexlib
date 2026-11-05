@@ -28,6 +28,7 @@ tests and build files.
 | `docs/agents/` | The docs that `AGENTS.md` indexes |
 | `VERSION` | The version of the library, the binding and every distribution of a release; `plugins/cuda/VERSION` holds the plugin's, the same before 1.0 |
 | `pyproject.toml`, `uv.lock` | The `rexlib` wheel, the dependency groups of development, and the lock that pins them |
+| `vcpkg.json` | Every dependency of the library, the binding and the CUDA plugin, for vcpkg to install at the baseline it names; see [dependencies](dependencies.md) |
 | `.github/workflows/` | `ci.yml`, which every pull request runs, and `release.yml`; see [ci](ci.md) |
 
 ## The library

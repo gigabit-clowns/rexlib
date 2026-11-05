@@ -8,10 +8,9 @@ depend on.
 Every dependency is fetched and built with rexlib by default, static, and
 ends up inside its library. Turning `REXLIB_USE_SYSTEM_DEPENDENCIES` on
 finds them all installed instead, with `find_package`, as a distribution
-builds rexlib. `.github/vcpkg/vcpkg.json` installs every one of them at the
-baseline it names: `vcpkg install --x-manifest-root=.github/vcpkg
---x-install-root=<dir>`, then configure with
-`-DREXLIB_USE_SYSTEM_DEPENDENCIES=ON -DCMAKE_PREFIX_PATH=<dir>/<triplet>`.
+builds rexlib. `vcpkg.json` installs every one of them at the baseline it
+names: `vcpkg install --x-install-root=<dir>` from the root, then configure
+with `-DREXLIB_USE_SYSTEM_DEPENDENCIES=ON -DCMAKE_PREFIX_PATH=<dir>/<triplet>`.
 Turning on `REXLIB_USE_SYSTEM_<DEP>` (`BOOST`, `SPDLOG`, `HALF`,
 `POCKETFFT`, `EIGEN`, and for the tests `CATCH2` and `TROMPELOEIL`) does that
 for one of them. `cmake_dependent_option` declares those toggles, so that the
@@ -122,8 +121,7 @@ Renovate keeps the pins up to date through `renovate.json`, each update
 - the dependency groups and build requirements of every `pyproject.toml`,
   with `uv.lock`, and once a month the packages `uv.lock` pins beyond them;
 - the `rexlib*_fetch_<dep>()` calls;
-- the baseline of `.github/vcpkg/vcpkg.json`, to vcpkg's newest commit, once
-  a month;
+- the baseline of `vcpkg.json`, to vcpkg's newest commit, once a month;
 - uv's `required-version`, and the `gh-actions-lock` version of the Lint job
   and of `constraints`, in one pull request.
 
