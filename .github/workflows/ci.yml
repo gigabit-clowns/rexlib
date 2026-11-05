@@ -35,6 +35,8 @@ env:
   CCACHE_NOHASHDIR: 1
   CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
   VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg/archives,readwrite
+  # Runs on main save the caches; every other run only restores them.
+  SAVE_CACHES: ${{ github.ref == 'refs/heads/main' }}
 
 jobs:
   # One row per platform and toolchain rexlib supports, with warnings as
@@ -134,11 +136,13 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
           key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -147,12 +151,20 @@ jobs:
       - name: Install the dependencies
         run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
       - name: Set up uv, Python and a virtual environment
         if: matrix.python
         uses: astral-sh/setup-uv@v10.3.3
         with:
           python-version: ${{ matrix.python }}
           activate-environment: true
+          save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install the binding's dependencies
         if: matrix.python
@@ -226,11 +238,13 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
           key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -239,11 +253,19 @@ jobs:
       - name: Install the dependencies
         run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
       - name: Set up uv, Python and a virtual environment
         uses: astral-sh/setup-uv@v10.3.3
         with:
           python-version: '3.14'
           activate-environment: true
+          save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install gcovr
         run: uv sync --locked --only-group coverage
@@ -306,11 +328,13 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ matrix.preset }}
+          save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
 
-      - name: Keep the fetched sources
-        uses: actions/cache@v6.1.0
+      - name: Restore the fetched sources
+        id: fetched-cache
+        uses: actions/cache/restore@v6.1.0
         with:
           path: |
             ${{ runner.temp }}/fetched
@@ -322,6 +346,15 @@ jobs:
         run: >-
           cmake --preset ${{ matrix.preset }}
           -DFETCHCONTENT_BASE_DIR="$RUNNER_TEMP/fetched"
+
+      - name: Save the fetched sources
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/fetched
+            !${{ runner.temp }}/fetched/*-build
+          key: ${{ steps.fetched-cache.outputs.cache-primary-key }}
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
@@ -363,11 +396,13 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
           key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -376,11 +411,19 @@ jobs:
       - name: Install the dependencies
         run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
 
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
       - name: Set up uv, Python and a virtual environment
         uses: astral-sh/setup-uv@v10.3.3
         with:
           python-version: '3.11'
           activate-environment: true
+          save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install the binding's dependencies
         run: uv sync --locked --no-install-project
@@ -463,8 +506,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
           key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -472,6 +516,13 @@ jobs:
 
       - name: Install the dependencies
         run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Install the CUDA toolkit
         env:
@@ -536,6 +587,8 @@ jobs:
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v10.3.3
+        with:
+          save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Build the source distribution
         run: uv build --sdist
@@ -605,6 +658,7 @@ jobs:
         with:
           key: ${{ matrix.os }}-${{ github.job }}
           max-size: 1G
+          save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
 
@@ -785,8 +839,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes doxygen
 
-      - name: Keep the fetched sources
-        uses: actions/cache@v6.1.0
+      # Saved by the sanitize jobs, which fetch the test frameworks too.
+      - name: Restore the fetched sources
+        uses: actions/cache/restore@v6.1.0
         with:
           path: |
             ${{ runner.temp }}/fetched
@@ -854,11 +909,13 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
 
-      - name: Keep the packages vcpkg builds
-        uses: actions/cache@v6.1.0
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
           key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
@@ -866,6 +923,13 @@ jobs:
 
       - name: Install the dependencies
         run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
       - name: Configure
         run: cmake --preset lint -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
