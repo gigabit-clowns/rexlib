@@ -35,7 +35,7 @@ rexlib-cuda = "rexlib_cuda13"
 # plugin's RPATH reaches the CUDA runtime of NVIDIA's wheel in site-packages.
 [tool.scikit-build]
 cmake.source-dir = ".."
-cmake.version = ">=3.18"
+cmake.version = ">=3.24"
 cmake.build-type = "Release"
 wheel.install-dir = "rexlib_cuda13"
 wheel.packages = []

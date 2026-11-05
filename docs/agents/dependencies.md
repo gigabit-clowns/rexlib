@@ -124,8 +124,9 @@ groups of `pyproject.toml`, which `uv.lock` pins with the hash of each file
 
 editorconfig-checker's package is a source distribution that downloads the
 program from its GitHub release when it is built, so `uv.lock` holds the hash
-of the package, not of the program. CMake 3.18.0, the oldest the projects
-support, is in no group: the jobs that build with it install it themselves.
+of the package, not of the program. CMake 3.18.0 and 3.24.0, the oldest the
+library and the plugin support, are in no group: the jobs that build with
+them install them themselves.
 
 ## Updates
 
@@ -146,5 +147,5 @@ Renovate keeps the pins up to date through `renovate.json`, each update
 
 Renovate also opens pull requests for the vulnerabilities that GitHub's
 Dependabot alerts report. By hand: half's copy, the CUDA toolkit minors of
-the CUDA jobs and wheels, CMake 3.18.0, the runner images, and the Python
-versions of `requires-python` and of the workflows.
+the CUDA jobs and wheels, CMake 3.18.0 and 3.24.0, the runner images, and the
+Python versions of `requires-python` and of the workflows.

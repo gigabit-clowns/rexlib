@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.24)
 
 # Without this CMAKE_MSVC_DEBUG_INFORMATION_FORMAT is silently ignored.
 if(POLICY CMP0141)
@@ -21,7 +21,6 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules)
 include(CTest)
 include(GNUInstallDirs)
 include(CMakeDependentOption)
-include(rexlib_cuda_architectures)
 include(rexlib_cuda_enable_warnings)
 
 option(REXLIB_CUDA_INSTALL "Generate the plugin's install rules" ON)
@@ -76,14 +75,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # CUDA is enabled here rather than in project() because the architectures have
-# to be settled first, and the compiler is what reports them. enable_language()
-# would otherwise pick a default and leave nothing to settle.
+# to be settled first: enable_language() would otherwise pick the compiler's
+# default. Unless the build or CUDAARCHS names them, they are every major
+# architecture the toolkit supports, the oldest of each as SASS, plus the PTX
+# of the newest.
 find_package(CUDAToolkit 11 REQUIRED)
 
-if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-	rexlib_cuda_all_major_architectures(
-		CMAKE_CUDA_ARCHITECTURES "${CUDAToolkit_NVCC_EXECUTABLE}"
-	)
+if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES AND NOT DEFINED ENV{CUDAARCHS})
+	set(CMAKE_CUDA_ARCHITECTURES all-major)
 endif()
 
 enable_language(CUDA)

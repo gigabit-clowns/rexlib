@@ -88,7 +88,7 @@ to keep matching rexlib.
 | `src/config.hpp` | Every tunable of the backend, as a macro the build may override |
 | `src/logger.hpp` | The `REXLIB_CUDA_LOG_*` macros over spdlog |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
-| `cmake/modules/` | One `rexlib_cuda_add_*.cmake` per dependency, `rexlib_cuda_add_dependency`, which they add theirs through, `rexlib_cuda_architectures` and `rexlib_cuda_enable_warnings` |
+| `cmake/modules/` | One `rexlib_cuda_add_*.cmake` per dependency, `rexlib_cuda_add_dependency`, which they add theirs through, and `rexlib_cuda_enable_warnings` |
 | `third_party/` | The plugin's own dependencies, as in the library: git submodules, Boost one per library |
 
 Everything is in `namespace rexlib::cuda`.
