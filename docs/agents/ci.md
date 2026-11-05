@@ -125,16 +125,25 @@ apart but fail together cannot both merge untested.
 Each job keeps its compiler cache through `hendrikmuhs/ccache-action`, capped
 at 500 MB and cleared of what the job did not use. The action installs its
 own ccache binary on every runner, the version its pinned commit names, and
-reports the cache's hit rate in the job summary. `main` saves the caches
-every pull request starts from; a pull request saves its own, which only its
-later pushes read; GitHub evicts the least recently used once the
-repository's 10 GB are full. The fetched sources of the dependencies are
-cached per operating system, keyed on every CMake file; a pull request whose
-key is new starts from the newest such cache, and FetchContent downloads
-again only what a changed declaration names. The packages vcpkg builds are
-cached per runner image, compiler and triplet, keyed on its manifest; a new
-key starts from the newest such cache, and vcpkg builds only what changed.
-Nothing else manages the caches: an eviction makes a run slower, never wrong.
+reports the cache's hit rate in the job summary. The fetched sources of the
+dependencies are cached per operating system, keyed on every CMake file; a
+new key starts from the newest such cache, and FetchContent downloads again
+only what a changed declaration names. The packages vcpkg builds are cached
+per runner image, compiler and triplet, keyed on its manifest; a new key
+starts from the newest such cache, and vcpkg builds only what changed.
+setup-uv caches what uv downloads, keyed on `uv.lock` and every
+`pyproject.toml`.
+
+Only runs on `main` save caches, as the workflow's `SAVE_CACHES` says; every
+other run restores them and saves none. A pull request therefore starts from
+`main`'s caches at every push, and the repository's 10 GB hold one set, about
+6 GB. A compiler cache is saved at the end of its job, under a new key each
+time. The packages vcpkg built are saved once it has installed them, the
+fetched sources once CMake has configured, and uv's cache at the end of a
+job that passed; a key saved once is never saved again. The documentation
+job saves no fetched sources, as it fetches no test framework. GitHub evicts
+what goes unused for a week, or the least recently used beyond 10 GB; nothing
+else manages the caches, and an eviction makes a run slower, never wrong.
 
 A key is built from the job's own values, never written out: the runner image
 of `matrix.os`, the compiler of `CXX`, the vcpkg triplet of
