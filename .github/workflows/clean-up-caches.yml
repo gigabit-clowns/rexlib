@@ -5,10 +5,9 @@ on:
   workflow_run:
     workflows:
       - Build and Test
+      - CodeQL Cpp
     types:
       - completed
-    branches:
-      - main
 
   workflow_dispatch:
     inputs:
@@ -36,21 +35,6 @@ jobs:
     uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
     with:
       scope: superseded
-      ref: main
-      patterns: &patterns |
-        ccache-ubuntu-latest-g++-*
-        ccache-ubuntu-latest-clang++-*
-        ccache-ubuntu-latest-system-dependencies-*
-        ccache-ubuntu-22.04-g++-*
-        ccache-ubuntu-22.04-clang++-*
-        ccache-macos-latest-clang++-*
-        ccache-windows-latest-cl-*
-        ccache-windows-latest-g++-*
-        ccache-windows-11-arm-cl-*
-        ccache-windows-11-arm-g++-*
-        fetched-Linux-*
-        fetched-macOS-*
-        fetched-Windows-*
 
   on_request:
     permissions:
@@ -61,4 +45,3 @@ jobs:
     with:
       scope: ${{ inputs.scope }}
       ref: ${{ inputs.ref != '' && inputs.ref || github.ref_name }}
-      patterns: *patterns
