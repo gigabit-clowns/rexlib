@@ -33,20 +33,6 @@ cmake_dependent_option(
 	"BUILD_TESTING" OFF
 )
 option(
-	REXLIB_USE_SYSTEM_DEPENDENCIES
-	"Find every dependency installed, rather than fetching it and building it \
-with rexlib"
-	OFF
-)
-
-cmake_dependent_option(
-	REXLIB_USE_SYSTEM_DLPACK
-	"Find an installed DLPack rather than fetching it"
-	OFF
-	"NOT REXLIB_USE_SYSTEM_DEPENDENCIES"
-	ON
-)
-option(
 	REXLIB_PYTHON_STABLE_ABI
 	"Build the extension against the stable ABI, so that one build serves \
 Python 3.12 and newer. Needs CMake 3.26"
@@ -150,17 +136,10 @@ if(NOT nanobind_ROOT AND NOT nanobind_DIR)
 endif()
 find_package(nanobind 3.0 REQUIRED CONFIG)
 
-if(REXLIB_USE_SYSTEM_DLPACK)
-	# No version is asked for: the package of DLPack reports 0.6 whatever
-	# the release, so asking for the 1.0 the versioned tensors arrived in
-	# would refuse every release that has them.
-	find_package(dlpack REQUIRED CONFIG)
-else()
-	include(rexlib_python_add_dlpack)
-	rexlib_python_add_dlpack(
-		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/dlpack
-	)
-endif()
+# No version is asked for: the package of DLPack reports 0.6 whatever the
+# release, so asking for the 1.0 the versioned tensors arrived in would refuse
+# every release that has them.
+find_package(dlpack REQUIRED CONFIG)
 
 # The binding and the library are one release.
 if(NOT TARGET rexlib::rexlib)

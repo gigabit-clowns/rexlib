@@ -138,23 +138,21 @@ int main()
 
 ## Building from source
 
-The dependencies' sources are git submodules, so clone with them:
+The dependencies' sources are git submodules, so clone with them. The
+presets, which need CMake 3.24, build the dependencies from those sources:
 
 ```bash
 git clone --recurse-submodules https://github.com/gigabit-clowns/rexlib.git
 cd rexlib
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build -j
-ctest --test-dir build
-```
-
-With CMake 3.21 or newer, presets provide the same flow:
-
-```bash
 cmake --preset debug
 cmake --build --preset debug
 ctest --preset debug
 ```
+
+Without a preset, `cmake -S . -B build` finds every dependency installed, from
+CMake 3.18 on, and
+`-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/rexlib_dependency_provider.cmake`
+builds them from the sources instead.
 
 With `-DREXLIB_BUILD_PYTHON=ON` the build includes the Python binding, and
 `pip install .` builds the `rexlib` wheel. The CUDA plugin, in `plugins/cuda/`,
@@ -165,6 +163,6 @@ has the details.
 To generate the C++ API reference:
 
 ```bash
-cmake -S . -B build -DREXLIB_BUILD_DOCS=ON -DBUILD_TESTING=OFF
-cmake --build build --target rexlib-docs
+cmake --preset docs
+cmake --build --preset docs
 ```

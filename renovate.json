@@ -96,7 +96,7 @@
     {
       "customType": "regex",
       "description": "The baseline of the vcpkg manifest, a commit of vcpkg's master",
-      "managerFilePatterns": ["vcpkg.json"],
+      "managerFilePatterns": [".github/vcpkg/vcpkg.json"],
       "matchStrings": ["\"baseline\": \"(?<currentDigest>[0-9a-f]{40})\""],
       "depNameTemplate": "vcpkg",
       "packageNameTemplate": "https://github.com/microsoft/vcpkg",
