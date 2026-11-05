@@ -31,7 +31,7 @@ commits both files.
 |---|---|
 | One per platform and toolchain | Ubuntu 22.04 and 26.04 x86_64 with clang, Ubuntu 22.04 aarch64 with gcc, macOS 15 and 26 arm64 with Apple clang, Windows Server 2022 and 2025 x86_64 with MSVC, Windows 11 arm64 with MSVC, Windows Server 2025 x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. The two oldest Linux rows also install the library without its debug information and keep that install as an artifact |
 | Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the coverage, which gcovr reports in the log |
-| Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are fetched and built with rexlib, and warnings do not fail it |
+| Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are built with rexlib from their submodules, and warnings do not fail it |
 | Ubuntu 22.04 x86_64, gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of the oldest supported image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the Ubuntu 22.04 row of its architecture installed, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.18.0. The runners have no GPU, so the tests that need one skip themselves |
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
@@ -61,6 +61,12 @@ the workspace, at the baseline `vcpkg.json` names, for the row's triplet
 it builds are kept in `.vcpkg/archives`. Both are inside the workspace, so
 `.gitignore` names `.vcpkg`, which editorconfig-checker then skips, and the
 coverage job's gcovr leaves it out.
+
+The jobs that build the dependencies from their sources check the submodules
+out with the repository (`submodules: true`), each at the depth of one
+commit: the sanitizer jobs and Documentation, the source distribution, which
+carries them, and the CUDA wheels, which build the plugin's. The jobs against
+installed dependencies leave them out.
 
 The coverage and valgrind job builds the `coverage` preset. It runs the suites
 under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the preset
@@ -125,12 +131,10 @@ apart but fail together cannot both merge untested.
 Each job keeps its compiler cache through `hendrikmuhs/ccache-action`, capped
 at 500 MB and cleared of what the job did not use. The action installs its
 own ccache binary on every runner, the version its pinned commit names, and
-reports the cache's hit rate in the job summary. The fetched sources of the
-dependencies are cached per operating system, keyed on every CMake file; a
-new key starts from the newest such cache, and FetchContent downloads again
-only what a changed declaration names. The packages vcpkg builds are cached
-per runner image, compiler and triplet, keyed on its manifest; a new key
-starts from the newest such cache, and vcpkg builds only what changed.
+reports the cache's hit rate in the job summary. The packages vcpkg builds
+are cached per runner image, compiler and triplet, keyed on its manifest; a
+new key starts from the newest such cache, and vcpkg builds only what
+changed.
 setup-uv caches what uv downloads, keyed on `uv.lock` and every
 `pyproject.toml`.
 
@@ -138,10 +142,9 @@ Only runs on `main` save caches, as the workflow's `SAVE_CACHES` says; every
 other run restores them and saves none. A pull request therefore starts from
 `main`'s caches at every push, and the repository's 10 GB hold one set, about
 6 GB. A compiler cache is saved at the end of its job, under a new key each
-time. The packages vcpkg built are saved once it has installed them, the
-fetched sources once CMake has configured, and uv's cache at the end of a
-job that passed; a key saved once is never saved again. The documentation
-job saves no fetched sources, as it fetches no test framework. GitHub evicts
+time. The packages vcpkg built are saved once it has installed them, and
+uv's cache at the end of a job that passed; a key saved once is never saved
+again. GitHub evicts
 what goes unused for a week, or the least recently used beyond 10 GB; nothing
 else manages the caches, and an eviction makes a run slower, never wrong.
 

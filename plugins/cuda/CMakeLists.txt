@@ -7,12 +7,6 @@ if(POLICY CMP0141)
 	cmake_policy(SET CMP0141 NEW)
 endif()
 
-# What a fetched archive holds takes the time it is extracted at, so that a
-# new archive always rebuilds what came from it.
-if(POLICY CMP0135)
-	cmake_policy(SET CMP0135 NEW)
-endif()
-
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
 project(
@@ -98,20 +92,18 @@ if(REXLIB_CUDA_USE_SYSTEM_BOOST)
 	# unordered_flat_map arrived in Boost 1.81.
 	find_package(Boost 1.81 REQUIRED CONFIG)
 else()
-	include(rexlib_cuda_fetch_boost)
-	rexlib_cuda_fetch_boost(
-		TAG boost-1.92.0
-		SHA256 9bed76128d4e46755dbe818487788c6fceb6f72b378f4daa49b7e1e600d9088d
+	include(rexlib_cuda_add_boost)
+	rexlib_cuda_add_boost(
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/boost
+		LIBRARIES container intrusive unordered
 	)
 endif()
 
 if(REXLIB_CUDA_USE_SYSTEM_SPDLOG)
 	find_package(spdlog 1.4 REQUIRED CONFIG)
 else()
-	include(rexlib_cuda_fetch_spdlog)
-	rexlib_cuda_fetch_spdlog(
-		COMMIT 79524ddd08a4ec981b7fea76afd08ee05f83755d
-	) # v1.17.0
+	include(rexlib_cuda_add_spdlog)
+	rexlib_cuda_add_spdlog(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/spdlog)
 endif()
 
 # The plugin is built against an installed rexlib, as any third-party

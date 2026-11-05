@@ -23,6 +23,10 @@
     "description": "Not a poetry project, but supersedes the pep621 manager if left enabled",
     "enabled": false
   },
+  "git-submodules": {
+    "description": "The sources of the dependencies, in third_party/ and plugins/cuda/third_party/",
+    "enabled": true
+  },
   "packageRules": [
     {
       "description": "The Python versions of requires-python and of the workflows",
@@ -42,13 +46,44 @@
       "constraintsFiltering": "strict"
     },
     {
-      "matchDatasources": ["custom.half"],
-      "extractVersion": "^/projects/half/files/half/(?<version>[0-9.]+)/$"
+      "description": "Updates the vcpkg baseline, a commit, which carries no release date, without waiting for one",
+      "matchDatasources": ["git-refs"],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
     },
     {
-      "description": "Updates from a commit or a SourceForge listing, which carry no release date, without waiting for one",
-      "matchDatasources": ["git-refs", "custom.half"],
+      "description": "The dependencies' submodules, pinned to release tags read as versions, without waiting for a release date, which a tag does not carry",
+      "matchManagers": ["git-submodules"],
+      "versioning": "semver-coerced",
       "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
+      "description": "pocketfft makes no releases: its submodule follows its cpp branch",
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/mreineck/pocketfft.git"],
+      "versioning": "git"
+    },
+    {
+      "description": "Every Boost library at the same release, in one pull request",
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["/^https://github\\.com/boostorg//"],
+      "versioning": "regex:^boost-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      "groupName": "Boost"
+    },
+    {
+      "description": "A dependency the library and the CUDA plugin share moves in both in one pull request",
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/gabime/spdlog.git"],
+      "groupName": "spdlog"
+    },
+    {
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/catchorg/Catch2.git"],
+      "groupName": "Catch2"
+    },
+    {
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/rollbear/trompeloeil.git"],
+      "groupName": "trompeloeil"
     },
     {
       "description": "Moves the vcpkg baseline once a month",
@@ -57,77 +92,7 @@
       "updateNotScheduled": false
     }
   ],
-  "customDatasources": {
-    "half": {
-      "defaultRegistryUrlTemplate": "https://sourceforge.net/projects/half/files/half/",
-      "format": "html"
-    }
-  },
   "customManagers": [
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_boost\\(\\s*TAG (?<currentValue>\\S+)\\s+SHA256 (?<currentDigest>[0-9a-f]{64})"],
-      "depNameTemplate": "boost",
-      "packageNameTemplate": "boostorg/boost",
-      "datasourceTemplate": "github-release-attachments",
-      "versioningTemplate": "regex:^boost-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_half\\(\\s*VERSION (?<currentValue>\\S+)"],
-      "depNameTemplate": "half",
-      "datasourceTemplate": "custom.half"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_spdlog\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "spdlog",
-      "packageNameTemplate": "gabime/spdlog",
-      "datasourceTemplate": "github-tags"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_pocketfft\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "pocketfft",
-      "packageNameTemplate": "https://github.com/mreineck/pocketfft",
-      "datasourceTemplate": "git-refs"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_eigen\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "eigen",
-      "packageNameTemplate": "libeigen/eigen",
-      "datasourceTemplate": "gitlab-tags"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_catch2\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "catch2",
-      "packageNameTemplate": "catchorg/Catch2",
-      "datasourceTemplate": "github-tags"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_trompeloeil\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "trompeloeil",
-      "packageNameTemplate": "rollbear/trompeloeil",
-      "datasourceTemplate": "github-tags"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib(?:_cuda|_python)?_fetch_dlpack\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "dlpack",
-      "packageNameTemplate": "dmlc/dlpack",
-      "datasourceTemplate": "github-tags"
-    },
     {
       "customType": "regex",
       "description": "The baseline of the vcpkg manifest, a commit of vcpkg's master",
