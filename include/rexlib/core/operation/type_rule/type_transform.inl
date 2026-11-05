@@ -9,11 +9,11 @@ namespace rexlib
 
 inline
 type_transform::type_transform(
-	apply_function_type apply,
+	apply_function_type apply_function,
 	const numerical_type_domain &domain,
 	const char *relation
 ) noexcept
-	: m_apply(apply)
+	: m_apply(apply_function)
 	, m_domain(domain)
 	, m_relation(relation)
 {
