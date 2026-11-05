@@ -2,6 +2,7 @@
 
 #include "host_memory_allocator.hpp"
 
+#include <rexlib/core/binary/bit.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/memory/align.hpp>
@@ -36,6 +37,21 @@ std::shared_ptr<buffer> host_memory_allocator::allocate(
 	command_token &pending
 )
 {
+	if (!has_single_bit(alignment))
+	{
+		throw std::invalid_argument(
+			"host_memory_allocator::allocate: The alignment must be a power "
+			"of two."
+		);
+	}
+	if (alignment > get_max_alignment())
+	{
+		throw std::invalid_argument(
+			"host_memory_allocator::allocate: The alignment exceeds the "
+			"maximum alignment of this allocator."
+		);
+	}
+
 	size = align_ceil(size, alignment);
 	auto result = std::make_shared<host_buffer>(size, alignment);
 	pending = command_token();
