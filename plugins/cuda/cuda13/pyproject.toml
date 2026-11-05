@@ -1,0 +1,85 @@
+# The CUDA plugin as the wheel for CUDA 13, built from the project one
+# directory up.
+[build-system]
+requires = ["scikit-build-core==1.1.1"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "rexlib-cuda13"
+dynamic = ["version", "dependencies"]
+authors = [
+    { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
+    { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" },
+    { name = "Mikel Iceta Tena", email = "miceta@gmail.com" }
+]
+description = "CUDA 13 backend for rexlib"
+classifiers = [
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: C++",
+]
+license = "GPL-3.0-only"
+requires-python = ">=3.11"
+
+[project.urls]
+Homepage = "https://github.com/gigabit-clowns/rexlib"
+Issues = "https://github.com/gigabit-clowns/rexlib/issues"
+
+[project.entry-points."rexlib.plugins"]
+rexlib-cuda = "rexlib_cuda13"
+
+# The package directory the entry point names is the install prefix, which
+# holds the plugin in its rexlib-plugins directory, for any Python 3. The
+# plugin's RPATH reaches the CUDA runtime of NVIDIA's wheel in site-packages.
+[tool.scikit-build]
+cmake.source-dir = ".."
+cmake.version = ">=3.24"
+cmake.build-type = "Release"
+wheel.install-dir = "rexlib_cuda13"
+wheel.packages = []
+wheel.py-api = "py3"
+
+[tool.scikit-build.cmake.define]
+CMAKE_PROJECT_TOP_LEVEL_INCLUDES = "cmake/rexlib_cuda_dependency_provider.cmake"
+REXLIB_CUDA_BUILD_TESTING = "OFF"
+CMAKE_INSTALL_RPATH = "$ORIGIN/../../../nvidia/cu13/lib"
+
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.regex"
+field = "version"
+input = "../VERSION"
+regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
+
+# The release of rexlib the plugin is part of, and the runtime of CUDA 13.
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.template"
+field = "dependencies"
+result = ["rexlib=={project[version]}", "cuda-toolkit[cudart]==13.*"]
+
+# One build, for the newest CPython, whose wheel serves every Python 3, in the
+# manylinux image with NVIDIA's compiler and runtime. It is built without
+# build isolation, with the build group of the repository's pyproject.toml,
+# against the rexlib wheel of the same release, which REXLIB_WHEELHOUSE
+# names, and tested by loading the plugin through the default catalog, which
+# needs no GPU. The repair leaves out librexlib and the CUDA runtime, which
+# come from their own wheels.
+[tool.cibuildwheel]
+build = "cp314-manylinux_*"
+build-frontend = { name = "build", args = ["--no-isolation"] }
+before-build = [
+    "pip install --group {package}/../../../pyproject.toml:build",
+    "pip install --no-index --find-links \"$REXLIB_WHEELHOUSE\" rexlib",
+]
+before-test = "pip install --no-index --find-links \"$REXLIB_WHEELHOUSE\" rexlib"
+test-command = "python -c \"import rexlib; assert 'cuda' in rexlib.hardware.get_device_service(rexlib.get_default_catalog()).backends\""
+
+[tool.cibuildwheel.linux]
+before-all = [
+    "curl -fsSLo /etc/yum.repos.d/cuda.repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/$(uname -m | sed s/aarch64/sbsa/)/cuda-rhel8.repo",
+    "dnf install -y cuda-nvcc-13-4 cuda-cudart-devel-13-4",
+]
+environment = { PATH = "/usr/local/cuda-13.4/bin:$PATH" }
+environment-pass = ["REXLIB_WHEELHOUSE"]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --exclude 'librexlib.so*' --exclude 'libcudart.so*'"

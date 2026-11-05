@@ -52,8 +52,10 @@ TEST_CASE_METHOD(
 
 	const array result = real(x);
 
-	CHECK( result.get_descriptor().get_data_type() ==
-	       numerical_type::float32 );
+	CHECK(
+		result.get_descriptor().get_data_type() ==
+		numerical_type::float32
+	);
 	CHECK( extents_of(result) == extents_of(x) );
 
 	// One float32 step of the view spans one whole complex_float32
@@ -88,8 +90,10 @@ TEST_CASE_METHOD(
 
 	const array result = imag(x);
 
-	CHECK( result.get_descriptor().get_data_type() ==
-	       numerical_type::float64 );
+	CHECK(
+		result.get_descriptor().get_data_type() ==
+		numerical_type::float64
+	);
 	CHECK( extents_of(result) == extents_of(x) );
 
 	// The only difference from the real part is where the view starts.
@@ -112,8 +116,10 @@ TEST_CASE_METHOD(
 
 	const array result = real(x);
 
-	CHECK( result.get_descriptor().get_data_type() ==
-	       numerical_type::float32 );
+	CHECK(
+		result.get_descriptor().get_data_type() ==
+		numerical_type::float32
+	);
 	CHECK( strides_of(result) == strides_of(x) );
 	CHECK( result.get_storage() == storage.get() );
 }

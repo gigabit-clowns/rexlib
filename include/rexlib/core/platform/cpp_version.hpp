@@ -5,7 +5,7 @@
 /**
  * @def REXLIB_CPLUSPLUS
  * @brief C++ standard version
- * 
+ *
  */
 #if defined(_MSVC_LANG)
 # define REXLIB_CPLUSPLUS (_MSVC_LANG)

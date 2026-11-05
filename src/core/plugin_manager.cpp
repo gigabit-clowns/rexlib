@@ -3,8 +3,11 @@
 #include <rexlib/core/plugin_manager.hpp>
 
 #include "plugin_loader.hpp"
+#include "system/environment.hpp"
+#include "system/utf8_path.hpp"
 
 #include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/dynamic_library_error.hpp>
 #include <rexlib/core/exceptions/plugin_load_error.hpp>
 
 #include <core/logger.hpp>
@@ -13,18 +16,27 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
-#include <system_error>
-#include <cstdlib>
+#include <stdexcept>
+#include <utility>
 
 #include <boost/filesystem.hpp>
-
-static const char REXLIB_PLUGINS_DIRECTORY_NAME[] = "rexlib-plugins";
-static const char REXLIB_PLUGINS_ENV_VARIABLE[] = "REXLIB_PLUGINS_PATH";
 
 namespace rexlib
 {
 
-static void try_load_plugin(
+namespace
+{
+
+const char *const plugins_directory_name = "rexlib-plugins";
+const char *const plugins_environment_variable = "REXLIB_PLUGINS_PATH";
+
+#if REXLIB_WINDOWS
+	const char path_separator = ';';
+#else
+	const char path_separator = ':';
+#endif
+
+void try_load_plugin(
 	plugin_manager &manager,
 	const std::string &path
 )
@@ -39,13 +51,58 @@ static void try_load_plugin(
 			"Failed to load plugin from {}: {}", path, error.what()
 		);
 	}
-	catch(const std::system_error& error)
+	catch(const dynamic_library_error& error)
 	{
 		REXLIB_LOG_ERROR(
 			"Failed to load shared library {}: {}", path, error.what()
 		);
 	}
 }
+
+void append_unique(
+	std::vector<std::string> &destination,
+	std::string value
+)
+{
+	const auto pos = std::find(destination.cbegin(), destination.cend(), value);
+	if (pos == destination.cend())
+	{
+		destination.push_back(std::move(value));
+	}
+}
+
+void split_path(
+	const std::string &path,
+	std::vector<std::string> &destination
+)
+{
+	std::string::size_type begin = 0;
+	while (begin <= path.size())
+	{
+		auto end = path.find(path_separator, begin);
+		if (end == std::string::npos)
+		{
+			end = path.size();
+		}
+
+		// An empty entry carries no directory. Skipping it also means a
+		// trailing or repeated separator is not read as the current
+		// working directory, which is never what was meant.
+		if (end > begin)
+		{
+			append_unique(destination, path.substr(begin, end - begin));
+		}
+
+		begin = end + 1;
+	}
+}
+
+std::string get_duplicate_message(const std::string &name)
+{
+	return "A plugin named \"" + name + "\" is already in this manager.";
+}
+
+} // anonymous namespace
 
 class plugin_manager::implementation
 {
@@ -54,23 +111,27 @@ public:
 
 	void add_plugin(const plugin& plugin)
 	{
+		if (contains(plugin.get_name()))
+		{
+			throw std::invalid_argument(
+				get_duplicate_message(plugin.get_name())
+			);
+		}
 		m_plugins.emplace_back(plugin);
 	}
 
 	const plugin* load_plugin(const std::string &path)
 	{
-		const auto ite = m_loaders.emplace(m_loaders.cend(), path);
-		const auto* plugin = ite->get_plugin();
-		if (plugin)
+		plugin_loader loader(path);
+		const plugin &loaded = *loader.get_plugin();
+		if (contains(loaded.get_name()))
 		{
-			add_plugin(*plugin);
-		}
-		else
-		{
-			m_loaders.erase(ite); // Did not load anything
+			throw plugin_load_error(get_duplicate_message(loaded.get_name()));
 		}
 
-		return plugin;
+		m_plugins.emplace_back(loaded);
+		loader.release();
+		return &loaded;
 	}
 
 	std::size_t get_plugin_count() const noexcept
@@ -84,8 +145,19 @@ public:
 	}
 
 private:
-	std::vector<plugin_loader> m_loaders;
 	std::vector<std::reference_wrapper<const plugin>> m_plugins;
+
+	bool contains(const std::string &name) const
+	{
+		return std::any_of(
+			m_plugins.cbegin(),
+			m_plugins.cend(),
+			[&name](const plugin &held)
+			{
+				return held.get_name() == name;
+			}
+		);
+	}
 };
 
 plugin_manager::plugin_manager() = default;
@@ -115,10 +187,7 @@ std::size_t plugin_manager::get_plugin_count() const noexcept
 	{
 		return 0;
 	}
-	else
-	{
-		return m_implementation->get_plugin_count();
-	}
+	return m_implementation->get_plugin_count();
 }
 
 const plugin& plugin_manager::get_plugin(std::size_t index) const
@@ -127,7 +196,7 @@ const plugin& plugin_manager::get_plugin(std::size_t index) const
 	{
 		throw std::out_of_range("No plugins loaded");
 	}
-		return m_implementation->get_plugin(index);
+	return m_implementation->get_plugin(index);
 }
 
 void plugin_manager::create_if_null()
@@ -141,12 +210,10 @@ void plugin_manager::create_if_null()
 std::string get_default_plugin_directory()
 {
 	// Address of any core function
-	const auto* symbol = 
+	const auto* symbol =
 		reinterpret_cast<const void*>(&get_default_plugin_directory);
 
-	auto path = boost::filesystem::path(
-		dynamic_library::query_symbol_filename(symbol)
-	);
+	auto path = utf8_to_path(dynamic_library::query_symbol_filename(symbol));
 	if(path.empty())
 	{
 		throw plugin_load_error(
@@ -154,63 +221,15 @@ std::string get_default_plugin_directory()
 		);
 	}
 
-	path.replace_filename(REXLIB_PLUGINS_DIRECTORY_NAME);
-	return path.string();
-}
-
-#if REXLIB_WINDOWS
-	static const char PATH_SEPARATOR = ';';
-#else
-	static const char PATH_SEPARATOR = ':';
-#endif
-
-static void append_unique(
-	std::vector<std::string> &destination,
-	std::string value
-)
-{
-	const auto pos = std::find(destination.cbegin(), destination.cend(), value);
-	if (pos == destination.cend())
-	{
-		destination.push_back(std::move(value));
-	}
-}
-
-static void split_path(
-	const std::string &path,
-	std::vector<std::string> &destination
-)
-{
-	std::string::size_type begin = 0;
-	while (begin <= path.size())
-	{
-		auto end = path.find(PATH_SEPARATOR, begin);
-		if (end == std::string::npos)
-		{
-			end = path.size();
-		}
-
-		// An empty entry carries no directory. Skipping it also means a
-		// trailing or repeated separator is not read as the current
-		// working directory, which is never what was meant.
-		if (end > begin)
-		{
-			append_unique(destination, path.substr(begin, end - begin));
-		}
-
-		begin = end + 1;
-	}
+	path.replace_filename(plugins_directory_name);
+	return path_to_utf8(path);
 }
 
 std::vector<std::string> get_plugin_search_path()
 {
 	std::vector<std::string> result;
 
-	const char* environment_variable;
-	if((environment_variable = std::getenv(REXLIB_PLUGINS_ENV_VARIABLE)))
-	{
-		split_path(environment_variable, result);
-	}
+	split_path(get_environment_variable(plugins_environment_variable), result);
 
 	append_unique(result, get_default_plugin_directory());
 
@@ -222,22 +241,24 @@ void discover_plugins(const std::string& directory, plugin_manager &manager)
 	boost::filesystem::directory_iterator iterator;
 	try
 	{
-		iterator = boost::filesystem::directory_iterator(directory);
+		iterator = boost::filesystem::directory_iterator(
+			utf8_to_path(directory)
+		);
 	}
 	catch(const boost::filesystem::filesystem_error& e)
 	{
 		REXLIB_LOG_DEBUG(
-			"Failed to open plugin directory {}: {}", 
-			directory, 
+			"Failed to open plugin directory {}: {}",
+			directory,
 			e.what()
 		);
 
 		std::ignore = e; // To avoid compiler warnings with log disabled
 	}
 
-	for (const auto& entry : iterator) 
+	for (const auto& entry : iterator)
 	{
-		try_load_plugin(manager, entry.path().string());
+		try_load_plugin(manager, path_to_utf8(entry.path()));
 	}
 }
 
@@ -250,7 +271,7 @@ void discover_plugins(plugin_manager &manager)
 }
 
 std::size_t register_all_plugins_at(
-	const plugin_manager &manager, 
+	const plugin_manager &manager,
 	service_catalog &catalog
 )
 {

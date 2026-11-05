@@ -64,7 +64,8 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,
-	"greater_equal dispatches a greater_equal_operation with both inputs in order",
+	"greater_equal dispatches a greater_equal_operation with both inputs in "
+	"order",
 	"[array_compare]"
 )
 {

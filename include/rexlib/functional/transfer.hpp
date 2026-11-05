@@ -60,16 +60,16 @@ array transfer_copy(
 
 /**
  * @brief Transfer an array from host to device memory.
- * 
+ *
  * If the array is already device-accessible, this operation returns an
  * alias of the input array. Otherwise it behaves like `to_device_copy`
- * 
+ *
  * @param input Array to be transferred.
  * @param context The execution environment.
  * @return array The transferred array.
- * 
+ *
  * @warning The returned array may alias the input array. Thus modifications
- * to it may have side-effects on the input array and vice-versa. Prefer 
+ * to it may have side-effects on the input array and vice-versa. Prefer
  * @ref to_device_copy if this is a concern.
  */
 REXLIB_API
@@ -80,7 +80,7 @@ array to_device(
 
 /**
  * @brief Transfer an array to device memory enforcing a copy.
- * 
+ *
  * @param input Array to be transferred.
  * @param context The execution environment.
  * @param out Optional array to reuse. If provided, its resources may be re-used
@@ -96,17 +96,17 @@ array to_device_copy(
 
 /**
  * @brief Transfer an array to host accessible memory.
- * 
+ *
  * If the array is already host-accessible, this operation returns an
  * alias of the input array. Otherwise it behaves like `to_host_copy`
- * 
+ *
  * @param input Array to be transferred.
  * @param context The execution environment.
  * @return array The transferred array.
- * 
+ *
  * @warning The returned array may alias the input array. Thus modifications
- * to it may have side-effects on the input array and vice-versa. Prefer 
- * @ref to_host_copy if this is a concern. 
+ * to it may have side-effects on the input array and vice-versa. Prefer
+ * @ref to_host_copy if this is a concern.
  */
 REXLIB_API
 array to_host(
@@ -116,7 +116,7 @@ array to_host(
 
 /**
  * @brief Transfer an array to host accessible memory enforcing a copy.
- * 
+ *
  * @param input Array to be transferred.
  * @param context The execution environment.
  * @param out Optional array to reuse. If provided, its resources may be re-used

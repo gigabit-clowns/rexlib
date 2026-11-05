@@ -1,25 +1,62 @@
 # rexlib
 
-<!-- docs-badges:start -->
-[![Build and test](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/build-and-test.yml)
-<!-- docs-badges:end -->
+[![CI](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml/badge.svg)](https://github.com/gigabit-clowns/rexlib/actions/workflows/ci.yml)
 
-rexlib is a device-agnostic array computing library with a pluggable backend
-architecture. It provides ND-arrays, operation dispatch and execution services,
-and backend loading for hardware-specific implementations.
+rexlib is a high-performance Cryo-EM and Cryo-ET image processing library,
+written in C++ with a Python binding. Its operations run on whichever device a
+backend plugin provides: the CPU backend is built in, and a CUDA plugin runs
+them on NVIDIA GPUs.
 
-The C++ API reference is generated from the public headers under
-`include/rexlib/`.
+## Installing
+
+```bash
+pip install rexlib
+```
+
+Wheels are built for Python 3.11 and later on Linux x86_64 and aarch64, macOS
+arm64, and Windows x86_64 and arm64. On Linux, the CUDA plugin comes as an
+extra, for CUDA 12 or CUDA 13:
+
+```bash
+pip install "rexlib[cuda12]"
+```
+
+The C++ library is installed from source with CMake, as below, and the wheel
+carries its headers and CMake package too.
+
+## Using it from Python
+
+```python
+import rexlib
+
+descriptor = rexlib.make_contiguous_array_descriptor(
+    [2, 2], rexlib.NumericalType.float32
+)
+zeros = rexlib.zeros(descriptor, rexlib.hardware.MemoryResourceAffinity.host)
+
+with rexlib.device("cuda"):
+    on_gpu = rexlib.zeros(
+        descriptor, rexlib.hardware.MemoryResourceAffinity.device
+    )
+```
+
+The default catalog loads every installed plugin wheel on first use.
 
 ## Highlights
 
+- **Cryo-EM and Cryo-ET operations** in `rexlib::em` and `rexlib.em`, beside
+  the array operations they are built on.
 - **Device-agnostic execution model.** Operations are dispatched through
   services and execution contexts instead of being tied to one device API.
-- **Pluggable backends.** A backend plugin is a shared object exporting
-  `rexlib_get_plugin`, loaded by the core plugin system.
+- **Pluggable backends.** A backend plugin is a shared object defined with
+  `REXLIB_DEFINE_PLUGIN`, which the core loads only if it was built for a
+  compatible rexlib and C++ ABI. A third party builds one against the
+  installed library; the
+  [plugin guide](https://github.com/gigabit-clowns/rexlib/blob/main/docs/agents/plugins.md)
+  says how.
 - **Public headers as contract.** The public interface is the headers in
-  `include/rexlib/`, documented directly in the C++ reference.
-- **C++14 public surface.** Public headers are consumable from C++14.
+  `include/rexlib/`, documented directly in the C++ reference, and consumable
+  from C++14.
 
 ## Components
 
@@ -27,8 +64,10 @@ The C++ API reference is generated from the public headers under
   layouts and numerical infrastructure.
 - `ops`: operation declarations.
 - `functional`: user-facing functions that reach operation declarations.
-- `em`: CryoEM and CryoET operations and functions in `rexlib::em`.
-- `backends/cpu`: the CPU backend implementation.
+- `em`: Cryo-EM and Cryo-ET operations and functions in `rexlib::em`.
+- `backends/cpu`: the CPU backend.
+- `python/`: the Python binding.
+- `plugins/cuda/`: the CUDA plugin.
 
 Image I/O is out of scope for rexlib and lives in
 [vitrio](https://github.com/gigabit-clowns/vitrio).
@@ -45,11 +84,11 @@ target_link_libraries(my_program PRIVATE rexlib::rexlib)
 ```cpp
 #include <rexlib/core/dispatch/dispatcher.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/device_context.hpp>
 #include <rexlib/core/hardware/device_index.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/library_version.hpp>
 #include <rexlib/core/numerical/numerical_type.hpp>
@@ -65,9 +104,9 @@ int main()
 
 	rexlib::service_catalog catalog;
 	const auto devices =
-		catalog.get_service_manager<rexlib::device_manager>();
+		catalog.get_service<rexlib::device_service>();
 	const auto programs =
-		catalog.get_service_manager<rexlib::program_manager>();
+		catalog.get_service<rexlib::program_service>();
 	const rexlib::execution_context context(
 		rexlib::device_context(
 			devices->create_device_session(rexlib::device_index("cpu", 0))
@@ -99,41 +138,31 @@ int main()
 
 ## Building from source
 
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build -j
-ctest --test-dir build
-```
-
-With CMake 3.21 or newer, presets provide the same flow:
+The dependencies' sources are git submodules, so clone with them. The
+presets, which need CMake 3.24, build the dependencies from those sources:
 
 ```bash
+git clone --recurse-submodules https://github.com/gigabit-clowns/rexlib.git
+cd rexlib
 cmake --preset debug
 cmake --build --preset debug
 ctest --preset debug
 ```
 
+Without a preset, `cmake -S . -B build` finds every dependency installed, from
+CMake 3.18 on, and
+`-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/rexlib_dependency_provider.cmake`
+builds them from the sources instead.
+
+With `-DREXLIB_BUILD_PYTHON=ON` the build includes the Python binding, and
+`pip install .` builds the `rexlib` wheel. The CUDA plugin, in `plugins/cuda/`,
+is built against an installed rexlib, as any plugin is. The
+[build guide](https://github.com/gigabit-clowns/rexlib/blob/main/docs/agents/building.md)
+has the details.
+
 To generate the C++ API reference:
 
 ```bash
-cmake -S . -B build -DREXLIB_BUILD_DOCS=ON -DBUILD_TESTING=OFF
-cmake --build build --target rexlib-docs
+cmake --preset docs
+cmake --build --preset docs
 ```
-
-<!-- docs-badges:start -->
-## SonarCloud status
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-
-### Ratings
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-
-### Specific metrics
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=bugs)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=gigabit-clowns_rexlib&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=gigabit-clowns_rexlib)
-<!-- docs-badges:end -->

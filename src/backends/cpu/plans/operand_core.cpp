@@ -64,8 +64,9 @@ operand_core split_trailing_core(
 	}
 
 	const auto batch_rank = extents.size() - core_rank;
-	batch_extents.assign(extents.begin(), extents.begin() + batch_rank);
-	batch_strides.assign(strides.begin(), strides.begin() + batch_rank);
+	const auto batch_end = static_cast<std::ptrdiff_t>(batch_rank);
+	batch_extents.assign(extents.begin(), extents.begin() + batch_end);
+	batch_strides.assign(strides.begin(), strides.begin() + batch_end);
 
 	std::array<std::size_t, 3> core_extents{};
 	std::array<std::ptrdiff_t, 3> core_strides{};

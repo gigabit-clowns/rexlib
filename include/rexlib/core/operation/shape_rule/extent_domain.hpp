@@ -25,13 +25,13 @@ public:
 	/**
 	 * @brief Construct a domain.
 	 *
-	 * @param contains The membership test. Must not be null.
+	 * @param contains_function The membership test. Must not be null.
 	 * @param description What the domain admits, for diagnostics, such as
 	 * "at least one". Must not be null and must have static storage
 	 * duration.
 	 */
 	extent_domain(
-		contains_function_type contains,
+		contains_function_type contains_function,
 		const char *description
 	) noexcept;
 

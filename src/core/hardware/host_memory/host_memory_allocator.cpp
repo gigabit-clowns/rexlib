@@ -2,6 +2,7 @@
 
 #include "host_memory_allocator.hpp"
 
+#include <rexlib/core/binary/bit.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
 #include <rexlib/core/memory/align.hpp>
@@ -18,7 +19,7 @@ namespace rexlib
 
 std::shared_ptr<host_memory_allocator> host_memory_allocator::m_instance;
 
-const memory_resource& 
+const memory_resource&
 host_memory_allocator::get_memory_resource() const noexcept
 {
 	return host_memory_resource::get();
@@ -26,16 +27,31 @@ host_memory_allocator::get_memory_resource() const noexcept
 
 std::size_t host_memory_allocator::get_max_alignment() const noexcept
 {
-    return get_page_size();
+	return get_page_size();
 }
 
 std::shared_ptr<buffer> host_memory_allocator::allocate(
-	std::size_t size, 
-	std::size_t alignment, 
+	std::size_t size,
+	std::size_t alignment,
 	command_queue* /*queue_hint*/,
 	command_token &pending
 )
 {
+	if (!has_single_bit(alignment))
+	{
+		throw std::invalid_argument(
+			"host_memory_allocator::allocate: The alignment must be a power "
+			"of two."
+		);
+	}
+	if (alignment > get_max_alignment())
+	{
+		throw std::invalid_argument(
+			"host_memory_allocator::allocate: The alignment exceeds the "
+			"maximum alignment of this allocator."
+		);
+	}
+
 	size = align_ceil(size, alignment);
 	auto result = std::make_shared<host_buffer>(size, alignment);
 	pending = command_token();
@@ -44,7 +60,7 @@ std::shared_ptr<buffer> host_memory_allocator::allocate(
 
 host_memory_allocator& host_memory_allocator::get()
 {
-	return *(create());
+	return *create();
 }
 
 const std::shared_ptr<host_memory_allocator>& host_memory_allocator::create()

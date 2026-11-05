@@ -8,7 +8,7 @@
 #include <ostream>
 #include <cstdint>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class version
@@ -16,14 +16,16 @@ class version
 public:
 	version() = default;
 	REXLIB_CONSTEXPR version(
-		std::uint32_t major, 
-		std::uint32_t minor, 
+		std::uint32_t major,
+		std::uint32_t minor,
 		std::uint32_t patch
 	) noexcept;
 	version(const version& other) = default;
+	version(version&& other) noexcept = default;
 	~version() = default;
 
 	version& operator=(const version& other) = default;
+	version& operator=(version&& other) noexcept = default;
 
 	REXLIB_CONSTEXPR void set_major(std::uint32_t major) noexcept;
 	REXLIB_CONSTEXPR std::uint32_t get_major() const noexcept;
@@ -89,14 +91,16 @@ private:
 	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t major_bits = 12;
 
 	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t patch_offset = 0;
-	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t minor_offset = patch_offset + patch_bits;
-	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t major_offset = minor_offset + minor_bits;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t minor_offset =
+		patch_offset + patch_bits;
+	static REXLIB_INLINE_CONST_CONSTEXPR std::size_t major_offset =
+		minor_offset + minor_bits;
 
-	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t patch_mask = 
+	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t patch_mask =
 		bit_range_mask<std::uint32_t>(patch_offset, patch_offset+patch_bits);
-	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t minor_mask = 
+	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t minor_mask =
 		bit_range_mask<std::uint32_t>(minor_offset, minor_offset+minor_bits);
-	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t major_mask = 
+	static REXLIB_INLINE_CONST_CONSTEXPR std::uint32_t major_mask =
 		bit_range_mask<std::uint32_t>(major_offset, major_offset+major_bits);
 
 	std::uint32_t m_data;

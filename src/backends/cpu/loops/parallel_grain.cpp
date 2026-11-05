@@ -14,18 +14,19 @@ namespace rexlib
 namespace cpu
 {
 
-static const char REXLIB_GRAIN_SIZE_ENV_VARIABLE[] =
-	"REXLIB_PARALLEL_GRAIN_SIZE";
-
 namespace
 {
+
+const char *const grain_size_environment_variable =
+	"REXLIB_PARALLEL_GRAIN_SIZE";
 
 std::size_t read_parallel_grain_size()
 {
 	std::size_t result = REXLIB_PARALLEL_GRAIN_SIZE;
 
-	const char* environment_variable;
-	if ((environment_variable = std::getenv(REXLIB_GRAIN_SIZE_ENV_VARIABLE)))
+	const char *const environment_variable =
+		std::getenv(grain_size_environment_variable);
+	if (environment_variable)
 	{
 		char *end = nullptr;
 		const auto parsed = std::strtoul(environment_variable, &end, 10);
@@ -37,7 +38,7 @@ std::size_t read_parallel_grain_size()
 		{
 			REXLIB_LOG_WARN(
 				"Ignoring {}=\"{}\": expected a positive integer.",
-				REXLIB_GRAIN_SIZE_ENV_VARIABLE,
+				grain_size_environment_variable,
 				environment_variable
 			);
 		}

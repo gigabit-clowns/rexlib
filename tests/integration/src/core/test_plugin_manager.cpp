@@ -3,15 +3,19 @@
 #include <rexlib/core/plugin_manager.hpp>
 
 #include <rexlib/core/plugin.hpp>
+#include <rexlib/core/exceptions/dynamic_library_error.hpp>
 #include <rexlib/core/exceptions/plugin_load_error.hpp>
+#include <rexlib/core/platform/operating_system.h>
 
 #include <rexlib/tests/assets.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 #include <cstdlib>
+#include <stdexcept>
 
 using namespace rexlib;
 
@@ -23,10 +27,10 @@ using namespace rexlib;
 
 /**
  * @brief Sets REXLIB_PLUGINS_PATH for the duration of a test case.
- * 
+ *
  * The variable is read on every call, so it has to be restored before
  * the next test case runs.
- * 
+ *
  */
 class scoped_plugins_path
 {
@@ -92,48 +96,166 @@ private:
 };
 
 
-TEST_CASE( "load good plugin in the plugin manager", "[plugin_manager]" ) 
+TEST_CASE( "load good plugin in the plugin manager", "[plugin_manager]" )
 {
 	plugin_manager manager;
-	const auto* plugin = manager.load_plugin(get_mock_plugin_path("dummy-plugin"));
+	const auto* plugin = manager.load_plugin(
+		get_mock_plugin_path("dummy-plugin")
+	);
 	REQUIRE( plugin->get_name() == "dummy-plugin" );
 	REQUIRE( plugin->get_version() == version(1, 2, 3) );
 	REQUIRE( manager.get_plugin_count() == 1 );
 	REQUIRE( &(manager.get_plugin(0)) == plugin );
 }
 
-TEST_CASE( "load invalid plugin in the plugin manager should throw", "[plugin_manager]" ) 
+TEST_CASE(
+	"a plugin the plugin manager loaded should stay valid after the manager "
+	"is destroyed",
+	"[plugin_manager]"
+)
+{
+	const plugin* loaded = nullptr;
+	{
+		plugin_manager manager;
+		loaded = manager.load_plugin(get_mock_plugin_path("dummy-plugin"));
+	}
+
+	REQUIRE( loaded->get_name() == "dummy-plugin" );
+}
+
+TEST_CASE(
+	"load invalid plugin in the plugin manager should throw",
+	"[plugin_manager]"
+)
 {
 	plugin_manager manager;
 
 	REQUIRE_THROWS_AS(
-		manager.load_plugin("path_to_nowhere"), 
-		std::system_error
+		manager.load_plugin("path_to_nowhere"),
+		dynamic_library_error
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
-	REQUIRE_THROWS_AS( 
-		manager.load_plugin(get_text_file_path()), 
-		std::system_error
+	REQUIRE_THROWS_AS(
+		manager.load_plugin(get_text_file_path()),
+		dynamic_library_error
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
-	REQUIRE_THROWS_MATCHES( 
-		manager.load_plugin(get_mock_plugin_path("faulty-plugin1")),
+	REQUIRE_THROWS_MATCHES(
+		manager.load_plugin(get_mock_plugin_path("plugin-returning-null")),
 		plugin_load_error,
 		Catch::Matchers::Message("rexlib_get_plugin returned NULL.")
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 
-	REQUIRE_THROWS_MATCHES( 
-		manager.load_plugin(get_mock_plugin_path("faulty-plugin2")),
+	REQUIRE_THROWS_MATCHES(
+		manager.load_plugin(
+			get_mock_plugin_path("plugin-without-entry-point")
+		),
 		plugin_load_error,
-		Catch::Matchers::Message("rexlib_get_plugin symbol could not be found in shared object.")
+		Catch::Matchers::Message(
+			"rexlib_get_plugin symbol could not be found in shared object."
+		)
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 }
 
-TEST_CASE( "querying out out range plugin from plugin manager should throw", "[plugin_manager]" ) 
+TEST_CASE(
+	"load a plugin that states no compatibility should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+
+	REQUIRE_THROWS_MATCHES(
+		manager.load_plugin(
+			get_mock_plugin_path("plugin-without-compatibility")
+		),
+		plugin_load_error,
+		Catch::Matchers::Message(
+			"rexlib_get_plugin_compatibility symbol could not be found in "
+			"shared object; a plugin defines it with REXLIB_DEFINE_PLUGIN."
+		)
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin built against another minor version should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+
+	REQUIRE_THROWS_AS(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-minor")),
+		plugin_load_error
+	);
+	REQUIRE_THROWS_WITH(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-minor")),
+		Catch::Matchers::ContainsSubstring("The plugin was built against")
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin built for another C++ ABI should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+
+	REQUIRE_THROWS_AS(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-abi")),
+		plugin_load_error
+	);
+	REQUIRE_THROWS_WITH(
+		manager.load_plugin(get_mock_plugin_path("plugin-for-another-abi")),
+		Catch::Matchers::ContainsSubstring("but rexlib was built for")
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+}
+
+TEST_CASE(
+	"load a plugin the plugin manager holds should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+	const auto* plugin = manager.load_plugin(
+		get_mock_plugin_path("dummy-plugin")
+	);
+
+	REQUIRE_THROWS_MATCHES(
+		manager.load_plugin(get_mock_plugin_path("dummy-plugin")),
+		plugin_load_error,
+		Catch::Matchers::Message(
+			"A plugin named \"dummy-plugin\" is already in this manager."
+		)
+	);
+	REQUIRE( manager.get_plugin_count() == 1 );
+	REQUIRE( &(manager.get_plugin(0)) == plugin );
+}
+
+TEST_CASE(
+	"add a plugin the plugin manager holds should throw",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+	const auto* plugin = manager.load_plugin(
+		get_mock_plugin_path("dummy-plugin")
+	);
+
+	REQUIRE_THROWS_AS( manager.add_plugin(*plugin), std::invalid_argument );
+	REQUIRE( manager.get_plugin_count() == 1 );
+}
+
+TEST_CASE(
+	"querying out out range plugin from plugin manager should throw",
+	"[plugin_manager]"
+)
 {
 	plugin_manager manager;
 	manager.load_plugin(get_mock_plugin_path("dummy-plugin"));
@@ -141,7 +263,10 @@ TEST_CASE( "querying out out range plugin from plugin manager should throw", "[p
 	REQUIRE_THROWS_AS( manager.get_plugin(10), std::out_of_range );
 }
 
-TEST_CASE( "discover_plugins should tolerate invalid plugins", "[plugin_manager]" ) 
+TEST_CASE(
+	"discover_plugins should tolerate invalid plugins",
+	"[plugin_manager]"
+)
 {
 	plugin_manager manager;
 	REQUIRE_NOTHROW( discover_plugins(get_test_plugin_directory(), manager) );
@@ -152,10 +277,29 @@ TEST_CASE( "discover_plugins should tolerate invalid plugins", "[plugin_manager]
 	REQUIRE( plugin.get_version() == version(1, 2, 3) );
 }
 
-TEST_CASE( "discover_plugins should tolerate non-existing directories", "[plugin_manager]" ) 
+TEST_CASE(
+	"discover_plugins should find plugins in a directory whose name is not "
+	"ASCII",
+	"[plugin_manager]"
+)
 {
 	plugin_manager manager;
-	REQUIRE_NOTHROW( discover_plugins("/path/to/nowhere/dshfjbfnmxbcusdfj", manager) );
+	REQUIRE_NOTHROW(
+		discover_plugins(get_non_ascii_test_plugin_directory(), manager)
+	);
+	REQUIRE( manager.get_plugin_count() == 1 );
+	REQUIRE( manager.get_plugin(0).get_name() == "dummy-plugin" );
+}
+
+TEST_CASE(
+	"discover_plugins should tolerate non-existing directories",
+	"[plugin_manager]"
+)
+{
+	plugin_manager manager;
+	REQUIRE_NOTHROW(
+		discover_plugins("/path/to/nowhere/dshfjbfnmxbcusdfj", manager)
+	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 }
 

@@ -2,7 +2,7 @@
 
 #pragma once
 
-namespace rexlib 
+namespace rexlib
 {
 
 } // namespace rexlib

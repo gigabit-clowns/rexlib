@@ -8,7 +8,7 @@
 
 #include "memory_resource_affinity.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 class command_queue;
@@ -58,7 +58,7 @@ public:
 	/**
 	 * @brief Create a new command queue on this device.
 	 *
-	 * The returned queue is independent from any previously created queue on 
+	 * The returned queue is independent from any previously created queue on
 	 * the same device, including the default queue and may execute its commands
 	 * concurrently with them. A command of one queue is ordered after a
 	 * command of another by depending on it.

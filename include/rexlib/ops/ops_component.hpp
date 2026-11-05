@@ -12,7 +12,7 @@ namespace ops
  *
  * Every operation declaration names the component it belongs to, which
  * qualifies it in diagnostics and keeps the names of different components
- * apart. 
+ * apart.
  *
  * @see REXLIB_DECLARE_OPERATION
  */

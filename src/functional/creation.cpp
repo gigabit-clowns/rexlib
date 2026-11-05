@@ -27,6 +27,7 @@
 #include <cstdint>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 
 namespace rexlib
 {
@@ -110,8 +111,9 @@ array_descriptor make_sequence_descriptor(
 bool is_whole_number(const scalar_value &value) noexcept
 {
 	const auto category = get_category(value.get_data_type());
-	return category == numerical_type_category::signed_integer ||
-	       category == numerical_type_category::unsigned_integer;
+	return
+		category == numerical_type_category::signed_integer ||
+		category == numerical_type_category::unsigned_integer;
 }
 
 /**
@@ -127,16 +129,17 @@ std::size_t whole_number_range_length(
 	std::int64_t step
 )
 {
-	std::uint64_t distance;
-	std::uint64_t magnitude;
+	std::uint64_t distance = 0;
+	std::uint64_t magnitude = 0;
 	if (step > 0)
 	{
 		if (stop <= start)
 		{
 			return 0;
 		}
-		distance = static_cast<std::uint64_t>(stop) -
-		           static_cast<std::uint64_t>(start);
+		distance =
+			static_cast<std::uint64_t>(stop) -
+			static_cast<std::uint64_t>(start);
 		magnitude = static_cast<std::uint64_t>(step);
 	}
 	else
@@ -145,8 +148,9 @@ std::size_t whole_number_range_length(
 		{
 			return 0;
 		}
-		distance = static_cast<std::uint64_t>(start) -
-		           static_cast<std::uint64_t>(stop);
+		distance =
+			static_cast<std::uint64_t>(start) -
+			static_cast<std::uint64_t>(stop);
 		// Negated in two halves, so that the most negative step, whose
 		// magnitude the signed domain cannot hold, is not a special case.
 		magnitude = static_cast<std::uint64_t>(-(step + 1)) + 1;
@@ -169,8 +173,10 @@ std::size_t compute_arange_length(
 	const scalar_value &step
 )
 {
-	if (is_whole_number(start) && is_whole_number(stop) &&
-	    is_whole_number(step))
+	if (
+		is_whole_number(start) && is_whole_number(stop) &&
+		is_whole_number(step)
+	)
 	{
 		const auto integral_step = scalar_value_cast<std::int64_t>(step);
 		if (integral_step == 0)
@@ -198,8 +204,10 @@ std::size_t compute_arange_length(
 	}
 
 	const auto length = std::ceil(
-		(scalar_value_cast<float64_t>(stop) -
-		 scalar_value_cast<float64_t>(start)) / real_step
+		(
+			scalar_value_cast<float64_t>(stop) -
+			scalar_value_cast<float64_t>(start)
+		) / real_step
 	);
 
 	// Written as a rejection of everything positive rather than as a test for
@@ -243,8 +251,8 @@ array empty(
 	if (out)
 	{
 		storage = reuse_array_storage(
-			*out, 
-			size, 
+			*out,
+			size,
 			allocator->get_memory_resource()
 		);
 	}
@@ -298,7 +306,7 @@ array zeros(
 )
 {
 	return full(
-		descriptor,
+		std::move(descriptor),
 		affinity,
 		0,
 		context,
@@ -314,7 +322,7 @@ array ones(
 )
 {
 	return full(
-		descriptor,
+		std::move(descriptor),
 		affinity,
 		1,
 		context,
@@ -331,7 +339,7 @@ array full(
 )
 {
 	std::array<array, 1> outputs = {
-		empty(descriptor, affinity, context, out) 
+		empty(std::move(descriptor), affinity, context, out)
 	};
 
 	execute(

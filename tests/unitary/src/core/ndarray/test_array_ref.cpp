@@ -25,7 +25,10 @@ TEST_CASE("Default constructed array_ref should have no storage", "[array_ref]")
 	CHECK( ref.get_implementation() == nullptr );
 }
 
-TEST_CASE("Default constructed array_ref should have an empty descriptor", "[array_ref]")
+TEST_CASE(
+	"Default constructed array_ref should have an empty descriptor",
+	"[array_ref]"
+)
 {
 	array_ref ref;
 	CHECK( ref.get_descriptor() == array_descriptor() );
@@ -77,7 +80,10 @@ TEST_CASE("array_ref should not extend ownership", "[array_ref]")
 	CHECK( ref.get_storage() == storage.get() );
 }
 
-TEST_CASE("array_ref should only be constructible from a mutable array", "[array_ref]")
+TEST_CASE(
+	"array_ref should only be constructible from a mutable array",
+	"[array_ref]"
+)
 {
 	CHECK( std::is_convertible<array&, array_ref>::value );
 	CHECK_FALSE( std::is_convertible<const array&, array_ref>::value );

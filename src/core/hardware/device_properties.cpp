@@ -2,6 +2,11 @@
 
 #include <rexlib/core/hardware/device_properties.hpp>
 
+#include <rexlib/core/binary/bit.hpp>
+
+#include <cstddef>
+#include <stdexcept>
+
 namespace rexlib
 {
 
@@ -11,7 +16,7 @@ public:
 	implementation() noexcept
 		: m_type(device_type::unknown)
 		, m_total_memory_bytes(0)
-		, m_optimal_data_alignment(0)
+		, m_optimal_data_alignment(alignof(std::max_align_t))
 	{
 	}
 
@@ -87,19 +92,28 @@ device_properties::device_properties(
 
 device_properties::~device_properties() = default;
 
-device_properties& 
+device_properties&
 device_properties::operator=(const device_properties &other)
 {
+	if (this == &other)
+	{
+		return *this;
+	}
+
 	if (other.m_implementation)
 	{
-		m_implementation = 
+		m_implementation =
 			std::make_unique<implementation>(*other.m_implementation);
+	}
+	else
+	{
+		m_implementation.reset();
 	}
 
 	return *this;
 }
 
-device_properties& 
+device_properties&
 device_properties::operator=(device_properties&& other) noexcept = default;
 
 void device_properties::set_type(device_type type)
@@ -146,6 +160,13 @@ void device_properties::set_optimal_data_alignment(
 	std::size_t alignment
 )
 {
+	if (!has_single_bit(alignment))
+	{
+		throw std::invalid_argument(
+			"The optimal data alignment must be a power of two."
+		);
+	}
+
 	create_implementation_if_null().set_optimal_data_alignment(alignment);
 }
 
@@ -154,7 +175,7 @@ std::size_t device_properties::get_optimal_data_alignment() const noexcept
 	return get_implementation().get_optimal_data_alignment();
 }
 
-device_properties::implementation& 
+device_properties::implementation&
 device_properties::create_implementation_if_null()
 {
 	if (!m_implementation)
@@ -165,7 +186,7 @@ device_properties::create_implementation_if_null()
 	return *m_implementation;
 }
 
-const device_properties::implementation& 
+const device_properties::implementation&
 device_properties::get_implementation() const noexcept
 {
 	static const implementation empty;

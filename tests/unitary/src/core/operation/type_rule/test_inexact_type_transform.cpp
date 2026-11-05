@@ -42,18 +42,30 @@ TEST_CASE(
 	"[inexact_type_transform]"
 )
 {
-	CHECK( inexact_type_transform::apply(numerical_type::int32) ==
-	       numerical_type::float64 );
-	CHECK( inexact_type_transform::apply(numerical_type::uint64) ==
-	       numerical_type::float64 );
-	CHECK( inexact_type_transform::apply(numerical_type::boolean) ==
-	       numerical_type::float64 );
-	CHECK( inexact_type_transform::apply(numerical_type::float16) ==
-	       numerical_type::float16 );
-	CHECK( inexact_type_transform::apply(numerical_type::float32) ==
-	       numerical_type::float32 );
-	CHECK( inexact_type_transform::apply(numerical_type::complex_float32) ==
-	       numerical_type::complex_float32 );
+	CHECK(
+		inexact_type_transform::apply(numerical_type::int32) ==
+		numerical_type::float64
+	);
+	CHECK(
+		inexact_type_transform::apply(numerical_type::uint64) ==
+		numerical_type::float64
+	);
+	CHECK(
+		inexact_type_transform::apply(numerical_type::boolean) ==
+		numerical_type::float64
+	);
+	CHECK(
+		inexact_type_transform::apply(numerical_type::float16) ==
+		numerical_type::float16
+	);
+	CHECK(
+		inexact_type_transform::apply(numerical_type::float32) ==
+		numerical_type::float32
+	);
+	CHECK(
+		inexact_type_transform::apply(numerical_type::complex_float32) ==
+		numerical_type::complex_float32
+	);
 
 	STATIC_REQUIRE( std::is_same<
 		inexact_type_transform::apply_type<std::int32_t>::type,
@@ -74,6 +86,8 @@ TEST_CASE(
 	"[inexact_type_transform]"
 )
 {
-	CHECK( std::string(inexact_type_transform::get_relation()) ==
-	       "the inexact counterpart of" );
+	CHECK(
+		std::string(inexact_type_transform::get_relation()) ==
+		"the inexact counterpart of"
+	);
 }

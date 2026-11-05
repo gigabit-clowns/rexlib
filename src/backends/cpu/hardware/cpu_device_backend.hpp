@@ -4,16 +4,16 @@
 
 #include <rexlib/core/hardware/device_backend.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
-class device_manager;
+class device_service;
 
 namespace cpu
 {
 
 /**
- * @brief Implementation of the @ref device_backend interface to retrieve the 
+ * @brief Implementation of the @ref device_backend interface to retrieve the
  * CPU device.
  */
 class cpu_device_backend final
@@ -26,15 +26,15 @@ public:
 	void enumerate_devices(std::vector<std::size_t> &ids) const override;
 
 	bool get_device_properties(
-		std::size_t id, 
+		std::size_t id,
 		device_properties &desc
 	) const override;
 
 	std::shared_ptr<device>
 	create_device(std::size_t id) const override;
 
-	static bool register_at(device_manager &manager);
-}; 
+	static bool register_at(device_service &devices);
+};
 
 } // namespace cpu
 } // namespace rexlib

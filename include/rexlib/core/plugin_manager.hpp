@@ -16,7 +16,7 @@ class service_catalog;
 
 /**
  * @brief Class managing a set of plugins.
- * 
+ *
  */
 class plugin_manager
 {
@@ -30,35 +30,42 @@ public:
 	REXLIB_API plugin_manager& operator=(plugin_manager&& other) noexcept;
 
 	/**
-	 * @brief Add a already loaded plugin.
-	 * 
+	 * @brief Add an already loaded plugin.
+	 *
 	 * @param plugin The plugin to be added.
+	 * @throws std::invalid_argument If the manager already holds a plugin
+	 * of the same name.
 	 */
 	REXLIB_API void add_plugin(const plugin& plugin);
 
 	/**
-	 * @brief Load a plugin from a Shared Object and add it.
-	 * 
-	 * The path to the shared object can be provided without a extension,
-	 * in which case it will be inferred from the platform. Relative paths
-	 * will be searched in LD_LIBRARY_PATH.
-	 * 
-	 * @param path Path to the plugin. 
-	 * @return const plugin* The loaded plugin. nullptr if it could not be 
-	 * loaded.
+	 * @brief Load a plugin from a shared object and add it.
+	 *
+	 * The shared object of a plugin the manager accepts stays loaded until
+	 * the process exits, so the plugin, and whatever its code creates,
+	 * stays valid after the manager is destroyed. A shared object it
+	 * refuses is unloaded.
+	 *
+	 * @param path Path to the shared object, in UTF-8, resolved as
+	 * dynamic_library resolves it.
+	 * @return const plugin* The loaded plugin, never null.
+	 * @throws dynamic_library_error If the shared object cannot be loaded.
+	 * @throws plugin_load_error If the shared object is not a plugin, was
+	 * built for a version of rexlib or a C++ ABI this one cannot run with,
+	 * or holds a plugin named as one the manager already holds.
 	 */
 	REXLIB_API const plugin* load_plugin(const std::string &path);
 
 	/**
 	 * @brief Get the number of plugins known by this manager.
-	 * 
+	 *
 	 * @return std::size_t The number of plugins.
 	 */
 	REXLIB_API std::size_t get_plugin_count() const noexcept;
 
 	/**
 	 * @brief Get the i-th plugin.
-	 * 
+	 *
 	 * @param index The index of the requested plugin. Must be less than
 	 * the plugin count.
 	 * @return const plugin& The requested plugin.
@@ -75,48 +82,50 @@ private:
 
 /**
  * @brief Get the default plugin directory.
- * 
- * Returns the path to a sub-directory named as "plugins" located
+ *
+ * Returns the path to a sub-directory named "rexlib-plugins" located
  * in the same directory as the shared library of the core.
- * 
- * @return std::string Default plugin directory.
- * 
+ *
+ * @return std::string Default plugin directory, in UTF-8.
+ *
  */
-REXLIB_API 
+REXLIB_API
 std::string get_default_plugin_directory();
 
 /**
  * @brief Get the directories where plugins are searched for.
- * 
+ *
  * The entries of the REXLIB_PLUGINS_PATH environment variable come
  * first, in the order they are written, separated by the platform's
  * path separator. The default plugin directory is always searched
  * last, so that setting the variable adds locations rather than
  * hiding the installed plugins. Duplicates are removed.
- * 
- * @return std::vector<std::string> The plugin search path.
+ *
+ * @return std::vector<std::string> The plugin search path, in UTF-8.
  * @see get_default_plugin_directory
- * 
+ *
  */
-REXLIB_API 
+REXLIB_API
 std::vector<std::string> get_plugin_search_path();
 
 /**
  * @brief Discover and load all plugins in a directory.
- * 
- * @param directory Directory where plugins are searched.
+ *
+ * A file that cannot be loaded as a plugin is logged and skipped.
+ *
+ * @param directory Directory where plugins are searched, in UTF-8.
  * @param manager Plugin manager where plugins are loaded.
- * 
+ *
  */
 REXLIB_API
 void discover_plugins(const std::string& directory, plugin_manager &manager);
 
 /**
  * @brief Discover and load all plugins in the search path.
- * 
+ *
  * @param manager Plugin manager where plugins are loaded.
  * @see get_plugin_search_path
- * 
+ *
  */
 REXLIB_API
 void discover_plugins(plugin_manager &manager);
@@ -124,7 +133,7 @@ void discover_plugins(plugin_manager &manager);
 /**
  * @brief Register all plugins from a plugin manager into an
  * interface catalog.
- * 
+ *
  * @param manager The plugin_manager that contains the plugins to
  * be registered.
  * @param catalog Interface catalog where plugins will be registered.
@@ -132,7 +141,7 @@ void discover_plugins(plugin_manager &manager);
  */
 REXLIB_API
 std::size_t register_all_plugins_at(
-	const plugin_manager &manager, 
+	const plugin_manager &manager,
 	service_catalog &catalog
 	);
 

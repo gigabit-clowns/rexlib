@@ -13,9 +13,9 @@ namespace rexlib
 
 enum class example_flag_bits
 {
-    first = binary::bit(0),
-    second = binary::bit(1),
-    third = binary::bit(2),
+	first = binary::bit(0),
+	second = binary::bit(1),
+	third = binary::bit(2),
 };
 
 using example_flags = binary::flagset<example_flag_bits>;
@@ -32,14 +32,14 @@ struct flag_traits;
 template<>
 struct flag_traits<hardware::example_flag_bits>
 {
-    using flagset_type = hardware::example_flags;
+	using flagset_type = hardware::example_flags;
 
-    static inline REXLIB_CONST_CONSTEXPR flagset_type all = 
-    {
-        example_flag_bits::first,
-        example_flag_bits::second,
-        example_flag_bits::third,
-    };
+	static inline REXLIB_CONST_CONSTEXPR flagset_type all =
+	{
+		example_flag_bits::first,
+		example_flag_bits::second,
+		example_flag_bits::third,
+	};
 };
 
 } // namespace rexlib

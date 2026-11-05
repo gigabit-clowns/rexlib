@@ -98,6 +98,21 @@ protected:
 	}
 
 	/**
+	 * @brief Build an operand of a type the operation rejects.
+	 *
+	 * Its elements are zero, which every element type holds, whereas the
+	 * value a case names may be one the rejected type cannot hold.
+	 *
+	 * @tparam T The element type.
+	 * @return array The operand, of input_extents().
+	 */
+	template <typename T>
+	array make_rejected_operand() const
+	{
+		return make_operand<T>(input_extents(), element_value());
+	}
+
+	/**
 	 * @brief Build an operand holding a given sequence of values.
 	 *
 	 * A constant operand cannot tell an extremum from an average or from the
@@ -339,7 +354,10 @@ private:
 		check_output<output_type>(
 			result,
 			output_extents(extents, axes, keep_dimensions),
-			reference(widen(x.as<input_type>()), reduction_count(extents, axes)),
+			reference(
+				widen(x.as<input_type>()),
+				reduction_count(extents, axes)
+			),
 			mode
 		);
 	}
@@ -350,7 +368,7 @@ private:
 		verb_type verb,
 		const std::vector<std::ptrdiff_t> &axes,
 		bool keep_dimensions,
-		element_value x,
+		element_value,
 		Reference&,
 		comparison_mode
 	) const
@@ -358,7 +376,7 @@ private:
 		using operands = operand_element_types<Op, T>;
 		using input_type = typename operands::template input_type<0>;
 
-		auto operand = make_operand<input_type>(input_extents(), x);
+		auto operand = make_rejected_operand<input_type>();
 		const const_array_ref operand_ref = operand;
 
 		CHECK_THROWS_AS(

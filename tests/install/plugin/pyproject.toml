@@ -1,0 +1,30 @@
+# The plugin as a wheel: the package directory the entry point names is the
+# install prefix, which holds the plugin in its rexlib-plugins directory.
+[build-system]
+requires = ["scikit-build-core==1.1.1"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "rexlib-sample"
+dynamic = ["version"]
+description = "A sample rexlib plugin: a device over host memory and a program for it"
+license = "GPL-3.0-only"
+requires-python = ">=3.11"
+dependencies = ["rexlib"]
+
+[project.entry-points."rexlib.plugins"]
+rexlib-sample = "rexlib_sample"
+
+# No Python package and no extension module: the wheel holds the plugin
+# alone, for any Python 3.
+[tool.scikit-build]
+wheel.install-dir = "rexlib_sample"
+wheel.packages = []
+wheel.py-api = "py3"
+cmake.version = ">=3.18"
+
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.regex"
+field = "version"
+input = "CMakeLists.txt"
+regex = "project\\(rexlib-install-plugin VERSION (?P<value>\\d+\\.\\d+\\.\\d+)"

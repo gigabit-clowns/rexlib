@@ -1,13 +1,170 @@
-name: Generate release
-permissions:
-  contents: write
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: Release
 
 on:
+  push:
+    tags:
+      - 'v*'
+
   workflow_dispatch:
 
+# A release is never cancelled, and two of the same ref never overlap.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
-  tag_and_release:
-    uses: gigabit-clowns/.github/.github/workflows/release.yml@main
-    secrets:
-      W2W_CLIENT_ID: ${{ secrets.W2W_CLIENT_ID }}
-      W2W_APP_PRIVATE_KEY: ${{ secrets.W2W_APP_PRIVATE_KEY }}
+  # Everything a pull request runs, on the commit the tag names.
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  # Every distribution the release publishes against VERSION, and on a tag,
+  # VERSION against the tag. Before 1.0 the CUDA plugin's VERSION is the
+  # root's.
+  versions:
+    name: Versions
+    needs: ci
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Fetch the source distribution
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: sdist
+          path: dist
+
+      - name: Fetch the wheels
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: '*wheel*'
+          path: dist
+          merge-multiple: true
+
+      - name: Check the versions
+        env:
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="$(cat VERSION)"
+          status=0
+          if [ "$EVENT" = push ] && [ "$TAG" != "v$version" ]; then
+            echo "::error::The tag $TAG does not name version $version"
+            status=1
+          fi
+          if [ "$(cat plugins/cuda/VERSION)" != "$version" ]; then
+            echo "::error::plugins/cuda/VERSION is not version $version"
+            status=1
+          fi
+          for dist in dist/*; do
+            case "$(basename "$dist")" in
+              *-"$version"-*.whl | *-"$version".tar.gz) ;;
+              *)
+                echo "::error::$(basename "$dist") is not version $version"
+                status=1
+                ;;
+            esac
+          done
+          exit "$status"
+
+  # The wheels and the source distribution, by trusted publishing: PyPI
+  # accepts them from this workflow and environment for rexlib,
+  # rexlib-cuda12 and rexlib-cuda13, with no token stored.
+  pypi:
+    name: PyPI
+    needs: versions
+    if: github.event_name == 'push'
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/rexlib/
+    permissions:
+      id-token: write
+    steps:
+      - name: Fetch the source distribution
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: sdist
+          path: dist
+
+      - name: Fetch the wheels
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: '*wheel*'
+          path: dist
+          merge-multiple: true
+
+      - name: Publish
+        uses: pypa/gh-action-pypi-publish@v1.14.3
+        with:
+          packages-dir: dist
+
+  # The release on GitHub, with notes generated from the pull requests merged
+  # since the last one, and the distributions attached.
+  github-release:
+    name: GitHub release
+    needs: pypi
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Fetch the source distribution
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: sdist
+          path: dist
+
+      - name: Fetch the wheels
+        uses: actions/download-artifact@v8.0.2
+        with:
+          pattern: '*wheel*'
+          path: dist
+          merge-multiple: true
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" dist/* --verify-tag --generate-notes
+
+  # The documentation CI built, on GitHub Pages.
+  pages:
+    name: Documentation
+    needs: versions
+    if: github.event_name == 'push'
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Fetch the documentation
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: documentation
+          path: documentation
+
+      - name: Keep the documentation for Pages
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: documentation
+
+      - name: Deploy the documentation
+        id: deploy
+        uses: actions/deploy-pages@v5.0.1

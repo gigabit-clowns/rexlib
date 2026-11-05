@@ -48,8 +48,9 @@ numerical_type_domain_all_bits() noexcept
 REXLIB_INLINE_CONSTEXPR
 bool is_domain_representable(numerical_type type) noexcept
 {
-	return static_cast<int>(type) >= 0 &&
-	       static_cast<int>(type) < static_cast<int>(numerical_type::count);
+	return
+		static_cast<int>(type) >= 0 &&
+		static_cast<int>(type) < static_cast<int>(numerical_type::count);
 }
 
 REXLIB_INLINE_CONSTEXPR
@@ -82,8 +83,9 @@ numerical_type_domain::numerical_type_domain(
 REXLIB_INLINE_CONSTEXPR
 bool numerical_type_domain::contains(numerical_type type) const noexcept
 {
-	return is_domain_representable(type) &&
-	       (m_mask & detail::numerical_type_domain_bit(type)) != 0;
+	return
+		is_domain_representable(type) &&
+		(m_mask & detail::numerical_type_domain_bit(type)) != 0;
 }
 
 REXLIB_INLINE_CONSTEXPR

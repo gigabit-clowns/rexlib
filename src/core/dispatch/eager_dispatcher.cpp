@@ -4,7 +4,7 @@
 
 #include <rexlib/core/binary/bit.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/command.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
@@ -189,7 +189,7 @@ std::vector<std::shared_ptr<const buffer>> extract_input_storage(
 			std::ostringstream oss;
 			oss << "eager_dispatcher::dispatch: Input operand at "
 				<< "index " << i << " does not have associated storage.";
-			
+
 			throw std::invalid_argument(oss.str());
 		}
 	}
@@ -213,7 +213,7 @@ make_operand_descriptors(
 		REXLIB_ASSERT(storages[i]);
 		result[i] = operand_descriptor(
 			std::move(descriptors[i]), // Steal descriptors
-			&(storages[i]->get_memory_resource())
+			&storages[i]->get_memory_resource()
 		);
 	}
 
@@ -315,16 +315,16 @@ void track_accesses(
 } // anonymous namespace
 
 eager_dispatcher::eager_dispatcher(
-	std::shared_ptr<const program_manager> program_manager,
+	std::shared_ptr<const program_service> program_service,
 	std::size_t cache_capacity
 )
-	: m_program_manager(std::move(program_manager))
+	: m_program_service(std::move(program_service))
 	, m_program_cache(cache_capacity)
 {
-	if (!m_program_manager)
+	if (!m_program_service)
 	{
 		throw std::invalid_argument(
-			"program_manager cannot be null"
+			"program_service cannot be null"
 		);
 	}
 }
@@ -350,7 +350,7 @@ void eager_dispatcher::dispatch(
 			"Expected a device context with a dereferenceable active queue."
 		);
 	}
-	
+
 	const auto n_outputs = output_operands.size();
 	const auto n_inputs = input_operands.size();
 	validate_arity(
@@ -420,8 +420,8 @@ void eager_dispatcher::dispatch(
 		make_span(input_storages.data(), n_inputs)
 	);
 
-	REXLIB_ASSERT(m_program_manager);
-	auto prog = m_program_manager->build(
+	REXLIB_ASSERT(m_program_service);
+	auto prog = m_program_service->build(
 		op,
 		make_span(output_operand_descriptors.data(), n_outputs),
 		make_span(input_operand_descriptors.data(), n_inputs),
@@ -450,11 +450,11 @@ void eager_dispatcher::dispatch(
 
 // Declared in dispatcher.hpp.
 std::shared_ptr<dispatcher> make_eager_dispatcher(
-	std::shared_ptr<const program_manager> program_manager
+	std::shared_ptr<const program_service> program_service
 )
 {
 	return std::make_shared<eager_dispatcher>(
-		std::move(program_manager),
+		std::move(program_service),
 		REXLIB_DEFAULT_OPERATION_PROGRAM_CACHE_CAPACITY
 	);
 }

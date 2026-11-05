@@ -9,13 +9,13 @@
 namespace rexlib
 {
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 strided_axis::strided_axis(std::size_t extent, std::ptrdiff_t stride) noexcept
 	: m_extent(extent)
 	, m_stride(stride)
-{   
+{
 }
-		
+
 REXLIB_INLINE_CONSTEXPR_CPP20
 void strided_axis::swap(strided_axis &other) noexcept
 {
@@ -31,35 +31,35 @@ std::size_t strided_axis::hash() const noexcept
 	return seed;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 void strided_axis::set_extent(std::size_t extent) noexcept
 {
 	m_extent = extent;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 std::size_t strided_axis::get_extent() const noexcept
 {
 	return m_extent;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 void strided_axis::set_stride(std::ptrdiff_t stride) noexcept
 {
 	m_stride = stride;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 std::ptrdiff_t strided_axis::get_stride() const noexcept
 {
 	return m_stride;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 std::size_t strided_axis::get_stride_magnitude() const noexcept
 {
 	return
-		m_stride < 0 ? 
+		m_stride < 0 ?
 		static_cast<std::size_t>(-m_stride) :
 		static_cast<std::size_t>(m_stride);
 }
@@ -82,27 +82,27 @@ strided_axis make_phantom_axis(std::size_t extent) noexcept
 	return strided_axis(extent, 0);
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool compare_strides_equal(
-	const strided_axis &lhs, 
+	const strided_axis &lhs,
 	const strided_axis &rhs
 ) noexcept
 {
 	return lhs.get_stride_magnitude() == rhs.get_stride_magnitude();
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool compare_strides_less(
-	const strided_axis &lhs, 
+	const strided_axis &lhs,
 	const strided_axis &rhs
 ) noexcept
 {
 	return lhs.get_stride_magnitude() < rhs.get_stride_magnitude();
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool compare_strides_greater(
-	const strided_axis &lhs, 
+	const strided_axis &lhs,
 	const strided_axis &rhs
 ) noexcept
 {
@@ -121,7 +121,7 @@ bool is_contiguous(
 	const strided_axis &minor
 ) noexcept
 {
-	const auto expected = 
+	const auto expected =
 		major.get_stride()*static_cast<std::ptrdiff_t>(major.get_extent());
 	return expected == minor.get_stride();
 }
@@ -152,7 +152,7 @@ bool is_significant(const strided_axis &axis) noexcept
 
 REXLIB_INLINE_CONSTEXPR
 bool get_axis_last_offset(
-	const strided_axis &axis, 
+	const strided_axis &axis,
 	std::ptrdiff_t &result
 ) noexcept
 {
@@ -161,7 +161,7 @@ bool get_axis_last_offset(
 	if (success)
 	{
 		const auto stride = axis.get_stride();
-		result = (extent-1)*stride;
+		result = static_cast<std::ptrdiff_t>(extent-1)*stride;
 	}
 
 	return success;
@@ -172,7 +172,10 @@ std::size_t get_axis_pivot_offset(const strided_axis &axis) noexcept
 {
 	const auto extent = axis.get_extent();
 	const auto stride = axis.get_stride();
-	return (stride < 0) && (extent > 1) ? (extent-1)*axis.get_stride_magnitude() : 0;
+	return
+		(stride < 0) && (extent > 1) ?
+		(extent-1)*axis.get_stride_magnitude() :
+		0;
 }
 
 REXLIB_INLINE_CONSTEXPR
@@ -225,12 +228,12 @@ namespace detail
 
 REXLIB_INLINE_CONSTEXPR
 void apply_index(
-	const strided_axis &axis, 
+	const strided_axis &axis,
 	std::ptrdiff_t &offset,
 	std::size_t index
 ) noexcept
 {
-	const auto increment = index*axis.get_stride();
+	const auto increment = static_cast<std::ptrdiff_t>(index)*axis.get_stride();
 	offset += increment;
 }
 
@@ -238,7 +241,7 @@ void apply_index(
 
 inline
 void apply_index(
-	const strided_axis &axis, 
+	const strided_axis &axis,
 	std::ptrdiff_t &offset,
 	std::ptrdiff_t index
 )
@@ -247,7 +250,7 @@ void apply_index(
 	detail::apply_index(axis, offset, sanitized_index);
 }
 
-namespace detail 
+namespace detail
 {
 
 REXLIB_INLINE_CONSTEXPR
