@@ -243,19 +243,19 @@ ctest --test-dir build/cuda
 ```
 
 A CUDA toolkit of 11 or newer is required. Unless `CMAKE_CUDA_ARCHITECTURES`
-is set, `rexlib_cuda_all_major_architectures` asks nvcc which architectures it
-supports and keeps the oldest of each major family as SASS, plus the PTX of
-the newest. That needs CUDA 11.1; an older toolkit needs the architectures set
-by hand. CUDA is enabled with `enable_language` after that, not in
-`project()`.
+or the environment's `CUDAARCHS` names them, the architectures are CMake's
+`all-major`: the oldest of each major family the toolkit supports as SASS,
+plus the PTX of the newest. CUDA is enabled with `enable_language` after that,
+not in `project()`.
 
 nvcc accepts only the host compilers its release supports, and the C library
 headers of their time: a GCC or glibc newer than the toolkit fails as soon as
 CUDA is enabled, before any source is compiled. `CUDAHOSTCXX` names another
 host compiler, as the wheel builds do; a glibc too new needs a newer toolkit.
 
-CMake 3.18 is the minimum. The plugin is C++20, and CMake requires that
-standard rather than preferring it, so that nothing newer gets in unnoticed.
+CMake 3.24 is the minimum, the first with `all-major`. The plugin is C++20,
+and CMake requires that standard rather than preferring it, so that nothing
+newer gets in unnoticed.
 
 Options:
 

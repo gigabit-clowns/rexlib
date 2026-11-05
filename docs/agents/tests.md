@@ -107,9 +107,9 @@ ctest --test-dir build/cuda --output-on-failure
 The unitary suite embeds the plugin's objects and exercises its internals,
 mostly the caching allocator against mocks. The integration suite loads the
 built plugin through rexlib's plugin manager, which is why the plugin is
-copied beside the test executable. The labels and the registration under
-CMake 3.18 are as the library's. A test that needs a GPU skips itself when no
-CUDA capable device is present, which is always the case in CI.
+copied beside the test executable. The labels and the registration are as
+the library's. A test that needs a GPU skips itself when no CUDA capable
+device is present, which is always the case in CI.
 
 On Windows the rexlib DLL is copied beside each test executable, since nothing
 else puts it on the loader's search path.
