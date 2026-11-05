@@ -5,6 +5,11 @@ and tested, and what their options do.
 
 ## The library
 
+The dependencies' sources are git submodules (see
+[dependencies](dependencies.md)), so a clone needs them first:
+`git clone --recurse-submodules`, or `git submodule update --init` in an
+existing clone.
+
 ```
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
@@ -31,8 +36,8 @@ order and gives each ten minutes. Settings of a machine of one's own, such as
 a compiler cache, go in a `CMakeUserPresets.json`, which git ignores.
 
 `REXLIB_WARNINGS_AS_ERRORS` makes a warning fail rexlib's own targets. The
-headers of a fetched dependency are not system headers, so its warnings
-count too; with the dependencies installed (see
+headers of a dependency built with rexlib are not system headers, so its
+warnings count too; with the dependencies installed (see
 [dependencies.md](dependencies.md)) they are, and only rexlib's warnings
 fail the build. CI builds this way.
 
@@ -169,7 +174,7 @@ Options:
 | Option | Default | Effect |
 |---|---|---|
 | `REXLIB_BUILD_PYTHON` | `OFF` | Adds the binding to the library's build |
-| `REXLIB_USE_SYSTEM_DLPACK` | `OFF`, forced `ON` by `REXLIB_USE_SYSTEM_DEPENDENCIES` | Finds an installed DLPack rather than fetching it |
+| `REXLIB_USE_SYSTEM_DLPACK` | `OFF`, forced `ON` by `REXLIB_USE_SYSTEM_DEPENDENCIES` | Finds an installed DLPack rather than building it from `third_party/` |
 | `REXLIB_PYTHON_INSTALL_DIR` | The interpreter's platform library directory, relative to the prefix; under scikit-build-core, the wheel's | Where the package is installed |
 | `REXLIB_PYTHON_STABLE_ABI` | `OFF`, `ON` from `pyproject.toml` | Builds the extension against the stable ABI of Python 3.12 |
 

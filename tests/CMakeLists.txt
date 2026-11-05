@@ -20,19 +20,17 @@ cmake_dependent_option(
 if(REXLIB_USE_SYSTEM_CATCH2)
 	find_package(Catch2 3.0.1 REQUIRED CONFIG)
 else()
-	include(rexlib_fetch_catch2)
-	rexlib_fetch_catch2(
-		COMMIT 08092139210881f01a34e60c5f2fd6afa0ea4024
-	) # v3.16.1
+	include(rexlib_add_catch2)
+	rexlib_add_catch2(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/catch2)
 endif()
 
 if(REXLIB_USE_SYSTEM_TROMPELOEIL)
 	find_package(trompeloeil 42 REQUIRED CONFIG)
 else()
-	include(rexlib_fetch_trompeloeil)
-	rexlib_fetch_trompeloeil(
-		COMMIT eaeb89c1ce9d354b0ba7eb921fd5712cdbd78adf
-	) # v49
+	include(rexlib_add_trompeloeil)
+	rexlib_add_trompeloeil(
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/trompeloeil
+	)
 endif()
 
 include(Catch)

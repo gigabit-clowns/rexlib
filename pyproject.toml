@@ -104,13 +104,22 @@ source = ["python/rexlib", "*/site-packages/rexlib"]
 output = "coverage.xml"
 
 [tool.scikit-build]
-# Leaves out the plugins and the repository's own settings.
+# Leaves out the plugins, the repository's own settings, and the tests,
+# documentation and examples of the dependencies.
 sdist.exclude = [
     ".github/**",
     ".vscode/**",
     "plugins/**",
     "renovate.json",
     "vcpkg.json",
+    "third_party/**/test/**",
+    "third_party/**/tests/**",
+    "third_party/**/doc/**",
+    "third_party/**/docs/**",
+    "third_party/**/example/**",
+    "third_party/**/examples/**",
+    "third_party/**/bench/**",
+    "third_party/**/benchmarks/**",
 ]
 
 # The wheel's install prefix is the package directory, so the library, its

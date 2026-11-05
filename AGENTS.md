@@ -13,7 +13,8 @@ that causes it.
 
 ## Building
 
-The library and its tests:
+The library and its tests, once the dependencies' submodules are checked out
+(`git submodule update --init`):
 
 ```
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug

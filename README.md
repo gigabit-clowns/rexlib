@@ -138,7 +138,11 @@ int main()
 
 ## Building from source
 
+The dependencies' sources are git submodules, so clone with them:
+
 ```bash
+git clone --recurse-submodules https://github.com/gigabit-clowns/rexlib.git
+cd rexlib
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
 ctest --test-dir build

@@ -7,12 +7,6 @@ if(POLICY CMP0141)
 	cmake_policy(SET CMP0141 NEW)
 endif()
 
-# What a fetched archive holds takes the time it is extracted at, so that a
-# new archive always rebuilds what came from it.
-if(POLICY CMP0135)
-	cmake_policy(SET CMP0135 NEW)
-endif()
-
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/VERSION PROJECT_VERSION)
 string(STRIP "${PROJECT_VERSION}" PROJECT_VERSION)
 project(
@@ -188,10 +182,10 @@ if(REXLIB_USE_SYSTEM_BOOST)
 	# installed since 1.70 defines Boost::headers.
 	find_package(Boost 1.70 REQUIRED CONFIG COMPONENTS filesystem)
 else()
-	include(rexlib_fetch_boost)
-	rexlib_fetch_boost(
-		TAG boost-1.92.0
-		SHA256 9bed76128d4e46755dbe818487788c6fceb6f72b378f4daa49b7e1e600d9088d
+	include(rexlib_add_boost)
+	rexlib_add_boost(
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/boost
+		LIBRARIES container container_hash filesystem
 	)
 endif()
 
@@ -199,42 +193,33 @@ if(REXLIB_USE_SYSTEM_HALF)
 	# The header carries no version, so none is asked for.
 	find_package(half REQUIRED MODULE)
 else()
-	include(rexlib_fetch_half)
-	rexlib_fetch_half(
-		VERSION 2.2.1
-		SHA256 76ddbf406e9d9b772ec73af2bf925b38b290b4390cc4064720a08d4b4bca0aa9
-	)
+	include(rexlib_add_half)
+	rexlib_add_half(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/half)
 endif()
 
 if(REXLIB_USE_SYSTEM_SPDLOG)
 	find_package(spdlog 1.4 REQUIRED CONFIG)
 else()
-	include(rexlib_fetch_spdlog)
-	rexlib_fetch_spdlog(
-		COMMIT 79524ddd08a4ec981b7fea76afd08ee05f83755d
-	) # v1.17.0
+	include(rexlib_add_spdlog)
+	rexlib_add_spdlog(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/spdlog)
 endif()
 
 if(REXLIB_USE_SYSTEM_POCKETFFT)
 	# pocketfft makes no releases, so no version is asked for.
 	find_package(pocketfft REQUIRED MODULE)
 else()
-	include(rexlib_fetch_pocketfft)
-	rexlib_fetch_pocketfft(
-		COMMIT 4d865cba24359b05b37da4e75aee24498c3b78e7
-	) # cpp
+	include(rexlib_add_pocketfft)
+	rexlib_add_pocketfft(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/pocketfft)
 endif()
 
 if(REXLIB_USE_SYSTEM_EIGEN)
 	# No version is asked for: the package of Eigen takes one for a major
 	# version to match rather than for a floor, so asking for the 3.3 every
-	# distribution carries would refuse the 5 that is fetched.
+	# distribution carries would refuse the 5 in third_party.
 	find_package(Eigen3 REQUIRED CONFIG)
 else()
-	include(rexlib_fetch_eigen)
-	rexlib_fetch_eigen(
-		COMMIT bc3b39870ecb690a623a3f49149a358b95c5781d
-	) # 5.0.1
+	include(rexlib_add_eigen)
+	rexlib_add_eigen(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/eigen)
 endif()
 
 # Same helper the installed package config offers, so that a plugin built

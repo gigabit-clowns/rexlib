@@ -2,12 +2,6 @@
 
 cmake_minimum_required(VERSION 3.18)
 
-# What a fetched archive holds takes the time it is extracted at, so that a
-# new archive always rebuilds what came from it.
-if(POLICY CMP0135)
-	cmake_policy(SET CMP0135 NEW)
-endif()
-
 # The version and the CMake modules are the library's, whether the binding
 # is built inside the library's build or alone against an installed rexlib.
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/../VERSION REXLIB_PYTHON_VERSION)
@@ -162,10 +156,10 @@ if(REXLIB_USE_SYSTEM_DLPACK)
 	# would refuse every release that has them.
 	find_package(dlpack REQUIRED CONFIG)
 else()
-	include(rexlib_python_fetch_dlpack)
-	rexlib_python_fetch_dlpack(
-		COMMIT 84d107bf416c6bab9ae68ad285876600d230490d
-	) # v1.3
+	include(rexlib_python_add_dlpack)
+	rexlib_python_add_dlpack(
+		SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../third_party/dlpack
+	)
 endif()
 
 # The binding and the library are one release.
