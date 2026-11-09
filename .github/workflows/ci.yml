@@ -58,7 +58,6 @@ jobs:
             cxx: clang++
             vcpkg-triplet: x64-linux
             python: '3.15'
-            install-artifact: install-linux-x86_64
           - name: Ubuntu 26.04 x86_64, clang
             os: ubuntu-26.04
             cc: clang
@@ -71,7 +70,6 @@ jobs:
             cxx: g++
             vcpkg-triplet: arm64-linux
             python: '3.15'
-            install-artifact: install-linux-aarch64
           - name: macOS 15 arm64, Apple clang
             os: macos-15
             cc: clang
@@ -188,23 +186,6 @@ jobs:
 
       - name: Test
         run: ctest --preset debug
-
-      # The library installed without its debug information, archived with
-      # tar.
-      - name: Install the library
-        if: matrix.install-artifact
-        run: |
-          cmake --install build/debug --prefix "$RUNNER_TEMP/rexlib" --strip
-          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/rexlib.tar.gz" rexlib
-
-      - name: Keep the install
-        if: matrix.install-artifact
-        uses: actions/upload-artifact@v7.0.2
-        with:
-          name: ${{ matrix.install-artifact }}
-          path: ${{ runner.temp }}/rexlib.tar.gz
-          compression-level: 0
-          retention-days: 1
 
   # The coverage build, with warnings as errors and every dependency installed
   # by vcpkg: the suites under valgrind, then the coverage gcovr measures.
@@ -450,15 +431,79 @@ jobs:
         working-directory: build-python
         run: ctest --output-on-failure --no-tests=error
 
+  # The library a third party's plugin is built against, for the CUDA jobs:
+  # the release preset with the dependencies built from their submodules,
+  # without the tests, installed without its debug information and archived
+  # with tar, by the oldest Linux image and toolchain of each architecture.
+  install:
+    name: ${{ matrix.name }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 22.04 x86_64, clang, install
+            os: ubuntu-22.04
+            cc: clang
+            cxx: clang++
+            artifact: install-linux-x86_64
+          - name: Ubuntu 22.04 aarch64, gcc, install
+            os: ubuntu-22.04-arm
+            cc: gcc
+            cxx: g++
+            artifact: install-linux-aarch64
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Configure
+        run: >-
+          cmake --preset release
+          -DBUILD_TESTING=OFF
+          -DREXLIB_CHECK_HEADERS=OFF
+
+      - name: Build
+        run: cmake --build --preset release
+
+      - name: Install the library
+        run: |
+          cmake --install build/release --prefix "$RUNNER_TEMP/rexlib" --strip
+          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/rexlib.tar.gz" rexlib
+
+      - name: Keep the install
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ runner.temp }}/rexlib.tar.gz
+          compression-level: 0
+          retention-days: 1
+
   # The CUDA plugin, built as a third party builds a plugin: against the
-  # library that the oldest Linux build-and-test row of its architecture
-  # installed, on a newer image and with another compiler. The toolkit comes
+  # library the install job made for its architecture, on a newer image and
+  # with another compiler. The toolkit comes
   # from NVIDIA's repository, every other dependency is installed by vcpkg,
   # and warnings are errors. The CUDA 12 row builds the plugin with CMake
   # 3.24. The runners have no GPU, so the tests that need one skip themselves.
   cuda-build-and-test:
     name: ${{ matrix.name }}
-    needs: build-and-test
+    needs: install
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -927,6 +972,7 @@ jobs:
     if: always()
     needs:
       - build-and-test
+      - install
       - coverage
       - sanitize
       - minimum-versions
