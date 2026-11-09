@@ -1,7 +1,9 @@
 # The plugin as a wheel: the package directory the entry point names is the
-# install prefix, which holds the plugin in its rexlib-plugins directory.
+# install prefix, which holds the plugin in its rexlib-plugins directory. It
+# is built against the rexlib it runs with, which a plugin pins to its minor
+# version before 1.0, as rexlib==0.1.*.
 [build-system]
-requires = ["scikit-build-core==1.1.1"]
+requires = ["scikit-build-core==1.1.1", "rexlib"]
 build-backend = "scikit_build_core.build"
 
 [project]

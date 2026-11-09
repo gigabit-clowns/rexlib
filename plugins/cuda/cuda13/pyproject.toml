@@ -20,7 +20,9 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: C++",
 ]
+readme = {file = "../README.md", content-type = "text/markdown"}
 license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 
 [project.urls]
