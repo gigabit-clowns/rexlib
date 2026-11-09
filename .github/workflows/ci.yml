@@ -13,11 +13,12 @@ on:
 
   workflow_dispatch:
 
-# A newer push to a pull request cancels the run it supersedes; runs on main
-# are never cancelled, since each one saves the caches pull requests start
-# from.
+# A newer push to a pull request cancels the run it supersedes. Any other run
+# is grouped by its commit, so that a run on main is never cancelled, nor
+# replaced while pending by a later one, since each saves the caches pull
+# requests start from.
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
