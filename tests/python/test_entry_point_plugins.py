@@ -14,6 +14,7 @@ import rexlib
 
 __SHARED_OBJECT_SUFFIXES = {".so", ".dylib", ".dll"}
 
+@pytest.mark.dummy_plugins
 def test_discover_entry_point_plugins_loads_the_plugins_a_package_holds(
 	monkeypatch, tmp_path
 ):
@@ -26,6 +27,7 @@ def test_discover_entry_point_plugins_loads_the_plugins_a_package_holds(
 
 	assert {"dummy-plugin1", "dummy-plugin2"} <= __get_names(manager)
 
+@pytest.mark.dummy_plugins
 def test_discover_entry_point_plugins_ignores_plugins_outside_their_directory(
 	monkeypatch, tmp_path
 ):
@@ -40,6 +42,7 @@ def test_discover_entry_point_plugins_ignores_plugins_outside_their_directory(
 
 	assert manager.plugins == []
 
+@pytest.mark.dummy_plugins
 def test_discover_entry_point_plugins_ignores_files_that_are_no_shared_object(
 	monkeypatch, tmp_path
 ):
@@ -57,6 +60,7 @@ def test_discover_entry_point_plugins_ignores_files_that_are_no_shared_object(
 
 	assert {"dummy-plugin1", "dummy-plugin2"} <= __get_names(manager)
 
+@pytest.mark.dummy_plugins
 def test_discover_entry_point_plugins_warns_of_a_shared_object_it_cannot_load(
 	monkeypatch, tmp_path
 ):
@@ -83,6 +87,7 @@ def test_discover_entry_point_plugins_warns_of_a_package_not_installed(
 	with pytest.warns(RuntimeWarning, match=package):
 		rexlib.discover_entry_point_plugins(manager)
 
+@pytest.mark.dummy_plugins
 def test_discover_entry_point_plugins_warns_of_a_plugin_already_loaded(
 	monkeypatch, tmp_path
 ):

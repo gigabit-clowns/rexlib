@@ -150,8 +150,8 @@ TEST_CASE(
 	std::shared_ptr<rexlib::buffer> owner;
 	auto &buf = allocate_buffer(fixture, 1024, owner);
 
-	const std::size_t count = 1000;
-	const auto record = [&buf, count] (
+	constexpr std::size_t count = 1000;
+	const auto record = [&buf] (
 		const std::shared_ptr<cuda::mock_command_timeline> &timeline
 	)
 	{

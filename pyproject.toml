@@ -92,6 +92,9 @@ rexlib-cuda13 = { path = "plugins/cuda/cuda13" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests/python"]
+markers = [
+    "dummy_plugins: loads the plugins only a test build makes, which a wheel does not carry",
+]
 
 [tool.coverage.run]
 source = ["rexlib"]
@@ -174,10 +177,14 @@ result = { cuda12 = ["rexlib-cuda12=={project[version]}"], cuda13 = ["rexlib-cud
 skip = ["*-musllinux_*", "*-win32", "*_i686", "*_armv7l"]
 
 # Run from a temporary directory, so this imports the installed wheel rather
-# than the source tree beside it. It is the one check that the library the
-# wheel carries is found at run time, which no amount of building proves.
-# The suites run in CI's build-and-test jobs.
-test-command = "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\""
+# than the source tree beside it: the import checks that the library the
+# wheel carries is found at run time, and the suite runs against the wheel,
+# but for the tests of the plugins only a test build makes.
+test-groups = ["test"]
+test-command = [
+    "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\"",
+    "pytest {project}/tests/python -m \"not dummy_plugins\" -p no:cacheprovider",
+]
 
 # The repair tools leave librexlib, which the wheel already carries, as it is.
 [tool.cibuildwheel.linux]

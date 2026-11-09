@@ -119,11 +119,10 @@ def test_norm_takes_a_fourier_normalization(__setup_context):
 	)
 
 def test_norm_rejects_an_unknown_name(__setup_context):
+	x = rexlib.from_dlpack(__setup_complex((8,)))
+
 	with pytest.raises(KeyError):
-		rexlib.fft(
-			rexlib.from_dlpack(__setup_complex((8,))), norm="both",
-			context=__setup_context
-		)
+		rexlib.fft(x, norm="both", context=__setup_context)
 
 @pytest.mark.parametrize("shape", [(6, 7), (5,)])
 def test_fftshift_and_ifftshift_match_numpy(shape, __setup_context):

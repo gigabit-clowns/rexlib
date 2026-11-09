@@ -59,7 +59,9 @@ after a change to a group, run `uv lock`.
 
 The dummy plugins in `tests/python/assets/` are built into a directory of the
 build tree and never installed; the CTest test names that directory to
-pytest in `REXLIB_PYTHON_TEST_PLUGINS_DIR`.
+pytest in `REXLIB_PYTHON_TEST_PLUGINS_DIR`. A test that loads them is marked
+`dummy_plugins`, so that every wheel, which never carries them, runs the rest
+of the suite as cibuildwheel's test.
 
 `tests/python/` mirrors the binding's module structure. A test goes in the
 directory named after the module whose surface it exercises, not the module
