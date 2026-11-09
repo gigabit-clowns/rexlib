@@ -17,7 +17,8 @@
  * returns the plugin_compatibility of that source file, which the loader
  * compares with its own before it touches anything else.
  * rexlib_get_plugin constructs the plugin on its first call and returns
- * it.
+ * it, or returns null when the constructor throws, since no exception may
+ * leave a function with C linkage.
  *
  * @param type The plugin: a default constructible class derived from
  * rexlib::plugin.
@@ -30,10 +31,18 @@
 			REXLIB_PLUGIN_COMPATIBILITY; \
 		return &compatibility; \
 	} \
-	extern "C" REXLIB_EXPORT const ::rexlib::plugin* rexlib_get_plugin() \
+	extern "C" REXLIB_EXPORT \
+	const ::rexlib::plugin* rexlib_get_plugin() noexcept \
 	{ \
-		static const type instance{}; \
-		return &instance; \
+		try \
+		{ \
+			static const type instance{}; \
+			return &instance; \
+		} \
+		catch (...) \
+		{ \
+			return nullptr; \
+		} \
 	} \
 	static_assert( \
 		std::is_base_of<::rexlib::plugin, type>::value, \

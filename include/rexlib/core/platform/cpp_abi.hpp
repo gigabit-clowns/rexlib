@@ -25,8 +25,12 @@
  *   of that standard library: `_GLIBCXX_USE_CXX11_ABI` for libstdc++,
  *   `_LIBCPP_ABI_VERSION` for libc++, `_ITERATOR_DEBUG_LEVEL` for the
  *   standard library of MSVC, and 0 for any other.
- * - `REXLIB_CPP_DEBUG_RUNTIME`: 1 when the code is built against the
- *   debug runtime of MSVC, and 0 otherwise.
+ * - `REXLIB_CPP_RUNTIME`: the C runtime of MSVC the code is built against:
+ *   `REXLIB_CPP_MSVC_STATIC_RUNTIME` (`/MT`),
+ *   `REXLIB_CPP_MSVC_STATIC_DEBUG_RUNTIME` (`/MTd`),
+ *   `REXLIB_CPP_MSVC_DYNAMIC_RUNTIME` (`/MD`) or
+ *   `REXLIB_CPP_MSVC_DYNAMIC_DEBUG_RUNTIME` (`/MDd`), and
+ *   `REXLIB_CPP_NO_MSVC_RUNTIME` for any other compiler.
  */
 
 #define REXLIB_CPP_ABI_ITANIUM 1
@@ -36,6 +40,12 @@
 #define REXLIB_CPP_LIBSTDCXX 1
 #define REXLIB_CPP_LIBCXX 2
 #define REXLIB_CPP_MSVC_STL 3
+
+#define REXLIB_CPP_NO_MSVC_RUNTIME 0
+#define REXLIB_CPP_MSVC_STATIC_RUNTIME 1
+#define REXLIB_CPP_MSVC_STATIC_DEBUG_RUNTIME 2
+#define REXLIB_CPP_MSVC_DYNAMIC_RUNTIME 3
+#define REXLIB_CPP_MSVC_DYNAMIC_DEBUG_RUNTIME 4
 
 #if defined(_MSC_VER)
 	#define REXLIB_CPP_ABI_FAMILY REXLIB_CPP_ABI_MSVC
@@ -60,8 +70,14 @@
 	#define REXLIB_CPP_STANDARD_LIBRARY_ABI 0
 #endif
 
-#if defined(_MSC_VER) && defined(_DEBUG)
-	#define REXLIB_CPP_DEBUG_RUNTIME 1
+#if !defined(_MSC_VER)
+	#define REXLIB_CPP_RUNTIME REXLIB_CPP_NO_MSVC_RUNTIME
+#elif defined(_DLL) && defined(_DEBUG)
+	#define REXLIB_CPP_RUNTIME REXLIB_CPP_MSVC_DYNAMIC_DEBUG_RUNTIME
+#elif defined(_DLL)
+	#define REXLIB_CPP_RUNTIME REXLIB_CPP_MSVC_DYNAMIC_RUNTIME
+#elif defined(_DEBUG)
+	#define REXLIB_CPP_RUNTIME REXLIB_CPP_MSVC_STATIC_DEBUG_RUNTIME
 #else
-	#define REXLIB_CPP_DEBUG_RUNTIME 0
+	#define REXLIB_CPP_RUNTIME REXLIB_CPP_MSVC_STATIC_RUNTIME
 #endif

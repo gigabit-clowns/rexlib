@@ -13,6 +13,7 @@
 #include <core/logger.hpp>
 #include <rexlib/core/platform/operating_system.h>
 
+#include <exception>
 #include <vector>
 #include <algorithm>
 #include <functional>
@@ -55,6 +56,12 @@ void try_load_plugin(
 	{
 		REXLIB_LOG_ERROR(
 			"Failed to load shared library {}: {}", path, error.what()
+		);
+	}
+	catch(const std::exception& error)
+	{
+		REXLIB_LOG_ERROR(
+			"Failed to load plugin from {}: {}", path, error.what()
 		);
 	}
 }

@@ -36,8 +36,8 @@ struct plugin_compatibility
 	std::uint32_t standard_library;
 	/** @brief The value of REXLIB_CPP_STANDARD_LIBRARY_ABI. */
 	std::uint32_t standard_library_abi;
-	/** @brief The value of REXLIB_CPP_DEBUG_RUNTIME. */
-	std::uint32_t debug_runtime;
+	/** @brief The value of REXLIB_CPP_RUNTIME. */
+	std::uint32_t runtime;
 };
 
 } // namespace rexlib
@@ -58,5 +58,5 @@ struct plugin_compatibility
 		REXLIB_CPP_ABI_FAMILY, \
 		REXLIB_CPP_STANDARD_LIBRARY, \
 		REXLIB_CPP_STANDARD_LIBRARY_ABI, \
-		REXLIB_CPP_DEBUG_RUNTIME \
+		REXLIB_CPP_RUNTIME \
 	}

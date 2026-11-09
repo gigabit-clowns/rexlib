@@ -138,13 +138,14 @@ TEST_CASE(
 	{
 		const plugin_compatibility plugin = {
 			sizeof(plugin_compatibility), 0, 1, 0,
-			REXLIB_CPP_ABI_MSVC, REXLIB_CPP_MSVC_STL, 0, 1
+			REXLIB_CPP_ABI_MSVC, REXLIB_CPP_MSVC_STL, 0,
+			REXLIB_CPP_MSVC_DYNAMIC_DEBUG_RUNTIME
 		};
 		REQUIRE_THROWS_WITH(
 			check_plugin_compatibility(plugin, library),
 			ContainsSubstring(
 				"built for the MSVC C++ ABI with the MSVC standard library "
-				"(_ITERATOR_DEBUG_LEVEL=0) and the debug runtime"
+				"(_ITERATOR_DEBUG_LEVEL=0) and the dynamic debug runtime (/MDd)"
 			) &&
 			ContainsSubstring(
 				"rexlib was built for the Itanium C++ ABI with libstdc++ "
@@ -183,19 +184,34 @@ TEST_CASE(
 	"[plugin_compatibility_check]"
 )
 {
+	const auto runtimes = GENERATE(
+		std::make_pair(
+			std::uint32_t(REXLIB_CPP_MSVC_DYNAMIC_DEBUG_RUNTIME),
+			std::string("the dynamic debug runtime (/MDd)")
+		),
+		std::make_pair(
+			std::uint32_t(REXLIB_CPP_MSVC_STATIC_RUNTIME),
+			std::string("the static release runtime (/MT)")
+		),
+		std::make_pair(
+			std::uint32_t(REXLIB_CPP_MSVC_STATIC_DEBUG_RUNTIME),
+			std::string("the static debug runtime (/MTd)")
+		)
+	);
 	const plugin_compatibility plugin = {
 		sizeof(plugin_compatibility), 0, 1, 0,
-		REXLIB_CPP_ABI_MSVC, REXLIB_CPP_MSVC_STL, 2, 1
+		REXLIB_CPP_ABI_MSVC, REXLIB_CPP_MSVC_STL, 2, runtimes.first
 	};
 	const plugin_compatibility library = {
 		sizeof(plugin_compatibility), 0, 1, 0,
-		REXLIB_CPP_ABI_MSVC, REXLIB_CPP_MSVC_STL, 2, 0
+		REXLIB_CPP_ABI_MSVC, REXLIB_CPP_MSVC_STL, 2,
+		REXLIB_CPP_MSVC_DYNAMIC_RUNTIME
 	};
 
 	REQUIRE_THROWS_WITH(
 		check_plugin_compatibility(plugin, library),
-		ContainsSubstring("(_ITERATOR_DEBUG_LEVEL=2) and the debug runtime") &&
-		ContainsSubstring("(_ITERATOR_DEBUG_LEVEL=2) and the release runtime")
+		ContainsSubstring(runtimes.second) &&
+		ContainsSubstring("the dynamic release runtime (/MD)")
 	);
 }
 

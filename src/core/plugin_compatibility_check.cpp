@@ -17,7 +17,7 @@ namespace
 
 // The record up to its last field when rexlib first published it.
 const std::size_t first_record_size =
-	offsetof(plugin_compatibility, debug_runtime) + sizeof(std::uint32_t);
+	offsetof(plugin_compatibility, runtime) + sizeof(std::uint32_t);
 
 version get_rexlib_version(const plugin_compatibility& record)
 {
@@ -52,7 +52,7 @@ bool is_abi_compatible(
 	return plugin.abi_family == library.abi_family &&
 		plugin.standard_library == library.standard_library &&
 		plugin.standard_library_abi == library.standard_library_abi &&
-		plugin.debug_runtime == library.debug_runtime;
+		plugin.runtime == library.runtime;
 }
 
 std::string describe_abi(const plugin_compatibility& record)
@@ -92,11 +92,25 @@ std::string describe_abi(const plugin_compatibility& record)
 		break;
 	}
 
-	if (record.abi_family == REXLIB_CPP_ABI_MSVC)
+	switch (record.runtime)
 	{
-		description << (record.debug_runtime != 0
-			? " and the debug runtime"
-			: " and the release runtime");
+	case REXLIB_CPP_NO_MSVC_RUNTIME:
+		break;
+	case REXLIB_CPP_MSVC_STATIC_RUNTIME:
+		description << " and the static release runtime (/MT)";
+		break;
+	case REXLIB_CPP_MSVC_STATIC_DEBUG_RUNTIME:
+		description << " and the static debug runtime (/MTd)";
+		break;
+	case REXLIB_CPP_MSVC_DYNAMIC_RUNTIME:
+		description << " and the dynamic release runtime (/MD)";
+		break;
+	case REXLIB_CPP_MSVC_DYNAMIC_DEBUG_RUNTIME:
+		description << " and the dynamic debug runtime (/MDd)";
+		break;
+	default:
+		description << " and runtime " << record.runtime;
+		break;
 	}
 
 	return description.str();

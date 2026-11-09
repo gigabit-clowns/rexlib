@@ -65,7 +65,10 @@ const plugin* query_plugin(const dynamic_library& lib)
 	const auto* result = func();
 	if(!result)
 	{
-		throw plugin_load_error(symbol_name + " returned NULL.");
+		throw plugin_load_error(
+			symbol_name + " returned NULL, as REXLIB_DEFINE_PLUGIN does when "
+			"the constructor of the plugin throws."
+		);
 	}
 
 	return result;

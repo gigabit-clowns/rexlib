@@ -145,7 +145,18 @@ TEST_CASE(
 	REQUIRE_THROWS_MATCHES(
 		manager.load_plugin(get_mock_plugin_path("plugin-returning-null")),
 		plugin_load_error,
-		Catch::Matchers::Message("rexlib_get_plugin returned NULL.")
+		Catch::Matchers::Message(
+			"rexlib_get_plugin returned NULL, as REXLIB_DEFINE_PLUGIN does "
+			"when the constructor of the plugin throws."
+		)
+	);
+	REQUIRE( manager.get_plugin_count() == 0 );
+
+	REQUIRE_THROWS_AS(
+		manager.load_plugin(
+			get_mock_plugin_path("plugin-throwing-on-construction")
+		),
+		plugin_load_error
 	);
 	REQUIRE( manager.get_plugin_count() == 0 );
 

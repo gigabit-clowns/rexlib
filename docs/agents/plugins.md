@@ -10,7 +10,9 @@ A plugin is a shared object that expands `REXLIB_DEFINE_PLUGIN(type)`, from
 `rexlib/core/plugin_definition.hpp`, once. It defines two functions with C
 linkage: `rexlib_get_plugin_compatibility`, returning the
 `plugin_compatibility` the plugin was built for, and `rexlib_get_plugin`,
-returning the plugin, which it constructs on the first call. The loader
+returning the plugin, which it constructs on the first call, or null when the
+constructor throws, since no exception may leave a function with C linkage,
+which the loader refuses with a message saying so. The loader
 calls the first before anything else of the plugin; only the plugin's static
 initializers run earlier, as the shared object loads. They must not call into
 librexlib: a plugin the check would refuse could corrupt memory before it is
@@ -23,7 +25,8 @@ plugin hands that registry to the `program_service` in `register_at`.
 `REXLIB_PLUGIN_COMPATIBILITY` macro where it is expanded: the version of
 rexlib from `rexlib/core/version_macros.h`, and the C++ ABI from
 `rexlib/core/platform/cpp_abi.hpp` (the Itanium or MSVC family, the standard
-library and the setting that changes its ABI, the debug runtime of MSVC). A
+library and the setting that changes its ABI, and with MSVC the C runtime,
+static or dynamic and release or debug). A
 macro rather than a function, because an inline function could resolve to the
 core's copy and report the core's build. Fields are only appended; `size`
 says how many the plugin knows.
@@ -35,8 +38,10 @@ states no compatibility, or one the core cannot run with: before 1.0 another
 minor version, from 1.0 another major version or a newer minor version, and
 any other C++ ABI (`src/core/plugin_compatibility_check.cpp`). The family is
 the ABI, not the compiler, so a core built with GCC loads a plugin built with
-Clang. `plugin_manager` refuses a second plugin of a name it already holds,
-which `discover_plugins` logs and skips. The shared object of a plugin it
+Clang. `plugin_manager` refuses a second plugin of a name it already holds.
+`discover_plugins` logs and skips any plugin it fails to load, whatever the
+error, so that one broken plugin leaves the others and the default catalog
+usable. The shared object of a plugin it
 accepts is never unloaded: once registered, what the plugin's code created
 (backends, devices, queues, programs, builders) can be held anywhere, such as
 a dispatcher, a Python pool or a user's variable, and outlive the manager, so
@@ -46,7 +51,10 @@ refuses is unloaded.
 `dynamic_library` takes paths in UTF-8 on every platform and resolves every
 symbol a library needs as it loads (`RTLD_NOW | RTLD_LOCAL`; Windows binds a
 DLL's imports at load), so a plugin that needs a symbol the running rexlib
-lacks fails with `dynamic_library_error` instead of at its first call. On
+lacks fails with `dynamic_library_error` instead of at its first call. So
+does, on Linux and macOS, a plugin built against another SONAME of rexlib,
+which the dynamic loader cannot resolve, before the compatibility check
+runs. On
 Windows it loads with `LoadLibraryExW` and
 `LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS`, so the
 DLLs a plugin needs are found beside it, and neither `PATH` nor the working

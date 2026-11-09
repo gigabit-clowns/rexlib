@@ -5,6 +5,7 @@ add_subdirectory(dummy_plugin)
 add_subdirectory(plugin_for_another_abi)
 add_subdirectory(plugin_for_another_minor)
 add_subdirectory(plugin_returning_null)
+add_subdirectory(plugin_throwing_on_construction)
 add_subdirectory(plugin_without_compatibility)
 add_subdirectory(plugin_without_entry_point)
 set(
@@ -13,6 +14,7 @@ set(
 	plugin-for-another-abi
 	plugin-for-another-minor
 	plugin-returning-null
+	plugin-throwing-on-construction
 	plugin-without-compatibility
 	plugin-without-entry-point
 )
