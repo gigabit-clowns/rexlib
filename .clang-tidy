@@ -1,4 +1,5 @@
 HeaderFilterRegex: '.*'
+ExcludeHeaderFilterRegex: '.*/third_party/.*'
 Checks: >
   -*,
   bugprone-*,

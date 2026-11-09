@@ -39,8 +39,9 @@ configures for the Doxygen reference alone and builds `rexlib-docs`.
 library through clang-tidy, and `ctest --preset lint` runs editorconfig-checker
 and ruff; the `lint` group of `pyproject.toml` installs all three
 (`uv sync --group lint`, or `pip install --group lint`). clang-tidy reports
-what it finds in every header that is not a system header, so the lint build
-needs the dependencies installed, as a build with warnings as errors does.
+what it finds in every header that is neither a system header nor in a
+`third_party/`, so the lint build runs on the dependencies the provider
+builds or on installed ones alike.
 Every test preset fails when it finds no test, runs the tests in a random
 order and gives each ten minutes. Settings of a machine of one's own, such as
 a compiler cache, go in a `CMakeUserPresets.json`, which git ignores.
