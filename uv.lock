@@ -824,10 +824,10 @@ source = { editable = "." }
 
 [package.optional-dependencies]
 cuda12 = [
-    { name = "rexlib-cuda12" },
+    { name = "rexlib-cuda12", marker = "sys_platform == 'linux'" },
 ]
 cuda13 = [
-    { name = "rexlib-cuda13" },
+    { name = "rexlib-cuda13", marker = "sys_platform == 'linux'" },
 ]
 
 [package.dev-dependencies]
@@ -864,8 +864,8 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "rexlib-cuda12", marker = "extra == 'cuda12'", directory = "plugins/cuda/cuda12" },
-    { name = "rexlib-cuda13", marker = "extra == 'cuda13'", directory = "plugins/cuda/cuda13" },
+    { name = "rexlib-cuda12", marker = "sys_platform == 'linux' and extra == 'cuda12'", directory = "plugins/cuda/cuda12" },
+    { name = "rexlib-cuda13", marker = "sys_platform == 'linux' and extra == 'cuda13'", directory = "plugins/cuda/cuda13" },
 ]
 provides-extras = ["cuda12", "cuda13"]
 

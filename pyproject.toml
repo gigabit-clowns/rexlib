@@ -163,11 +163,12 @@ field = "version"
 input = "VERSION"
 regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
 
-# The CUDA plugin of the same release, for CUDA 12 or 13.
+# The CUDA plugin of the same release, for CUDA 12 or 13, on Linux, the one
+# system its wheels are built for.
 [[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.template"
 field = "optional-dependencies"
-result = { cuda12 = ["rexlib-cuda12=={project[version]}"], cuda13 = ["rexlib-cuda13=={project[version]}"] }
+result = { cuda12 = ["rexlib-cuda12=={project[version]}; sys_platform == 'linux'"], cuda13 = ["rexlib-cuda13=={project[version]}; sys_platform == 'linux'"] }
 
 # Every CPython from requires-python on, for 64-bit architectures and without
 # musllinux. From 3.12 on the first wheel is an abi3 one: cibuildwheel finds

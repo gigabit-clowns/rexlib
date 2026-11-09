@@ -209,8 +209,10 @@ There is one distribution per CUDA major, `rexlib-cuda12` and
 (`cmake.source-dir = ".."`). Both take their version from
 `plugins/cuda/VERSION` and require `rexlib` of the same version,
 and the root's extras `rexlib[cuda12]` and `rexlib[cuda13]` require them in
-turn; the two extras exclude each other, since both plugins are named
-`rexlib-cuda` and the second would be refused.
+turn, on Linux only, the one system the wheels are built for, so that the
+extras install nothing elsewhere instead of failing to resolve. uv's lock
+declares the two extras conflicting, since both plugins are named
+`rexlib-cuda`; pip installs both if asked, and the loader refuses the second.
 
 A wheel is Python-agnostic (`wheel.py-api = "py3"`) and manylinux only, for
 Linux x86_64 and aarch64. Its package directory, `rexlib_cuda12/` or
