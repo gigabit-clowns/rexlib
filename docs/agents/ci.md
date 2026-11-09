@@ -245,12 +245,13 @@ release is built and tested by the jobs every pull request runs, and then:
   on any difference;
 - publishes the `rexlib`, `rexlib-cuda12` and `rexlib-cuda13` wheels and the
   source distribution to PyPI by trusted publishing, from the environment
-  `pypi`, with no token stored;
+  `pypi`, with no token stored, skipping a file PyPI already holds, so that
+  a release whose upload failed partway runs again;
 - creates the GitHub release, with notes GitHub generates from the pull
   requests merged since the last release and the distributions attached, which
   the ABI report compares against;
-- deploys the documentation CI built to GitHub Pages, from the environment
-  `github-pages`.
+- once the distributions are on PyPI, deploys the documentation CI built to
+  GitHub Pages, from the environment `github-pages`.
 
 Run by hand (`workflow_dispatch`), it runs CI and checks the versions, and
 publishes nothing: the dry run before a tag. GitHub offers it only for a

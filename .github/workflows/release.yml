@@ -105,10 +105,13 @@ jobs:
           path: dist
           merge-multiple: true
 
+      # A file PyPI already holds is skipped, so that a release whose upload
+      # failed partway is run again.
       - name: Publish
         uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           packages-dir: dist
+          skip-existing: true
 
   # The release on GitHub, with notes generated from the pull requests merged
   # since the last one, and the distributions attached.
@@ -140,10 +143,11 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: gh release create "$TAG" dist/* --verify-tag --generate-notes
 
-  # The documentation CI built, on GitHub Pages.
+  # The documentation CI built, on GitHub Pages, once the distributions are on
+  # PyPI.
   pages:
     name: Documentation
-    needs: versions
+    needs: pypi
     if: github.event_name == 'push'
     timeout-minutes: 10
     runs-on: ubuntu-24.04
