@@ -184,7 +184,7 @@ skip = ["*-musllinux_*", "*-win32", "*_i686", "*_armv7l"]
 test-groups = ["test"]
 test-command = [
     "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\"",
-    "pytest {project}/tests/python -m \"not dummy_plugins\" -p no:cacheprovider",
+    "pytest {package}/tests/python -m \"not dummy_plugins\" -p no:cacheprovider",
 ]
 
 # numpy publishes no wheel for the free-threaded 3.15, so that wheel is tested
