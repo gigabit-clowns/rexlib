@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <limits>
 
-#include <boost/math/policies/policy.hpp>
 #include <boost/math/special_functions/bessel.hpp>
 
 namespace rexlib
@@ -27,16 +27,11 @@ kaiser_bessel_window<T>::kaiser_bessel_window(
 {
 	REXLIB_ASSERT(half_width > 0.0);
 	REXLIB_ASSERT(shape >= 0.0);
+	REXLIB_ASSERT(shape <= std::log(std::numeric_limits<double>::max()));
 
-	// I0 overflows to infinity rather than throwing.
-	using i0_policy = boost::math::policies::policy<
-		boost::math::policies::overflow_error<
-			boost::math::policies::ignore_error
-		>
-	>;
 	const auto i0 = [](double x)
 	{
-		return boost::math::cyl_bessel_i(0, x, i0_policy());
+		return boost::math::cyl_bessel_i(0, x);
 	};
 
 	const auto normalization = 1.0 / i0(shape);

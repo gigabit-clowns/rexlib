@@ -9,6 +9,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 #include <boost/math/special_functions/bessel.hpp>
@@ -112,5 +113,26 @@ TEST_CASE(
 		CHECK( first[i] == static_cast<std::int32_t>(i) - 50 );
 		CHECK( weights[i] == 1.0f );
 		CHECK( weights[coordinates.size() + i] == 0.0f );
+	}
+}
+
+TEST_CASE(
+	"kaiser_bessel_window should stay finite at the largest shape",
+	"[kaiser_bessel_window]"
+)
+{
+	const kaiser_bessel_window<double> window(
+		2,
+		std::log(std::numeric_limits<double>::max())
+	);
+
+	CHECK_THAT( window.evaluate(0.0), WithinAbs(1.0, 1e-12) );
+	for (int step = 1; step < 20; ++step)
+	{
+		const auto value = window.evaluate(0.1 * step);
+		INFO( "distance " << 0.1 * step );
+		CHECK( std::isfinite(value) );
+		CHECK( value >= 0.0 );
+		CHECK( value <= 1.0 );
 	}
 }

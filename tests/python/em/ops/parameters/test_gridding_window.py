@@ -25,7 +25,7 @@ def test_kaiser_bessel_keeps_its_half_width_and_shape():
 	assert window.shape == 9.5
 	assert "kaiser_bessel" in repr(window)
 
-@pytest.mark.parametrize("half_width, shape", [(0, 1), (2, -1)])
+@pytest.mark.parametrize("half_width, shape", [(0, 1), (2, -1), (2, 710)])
 def test_kaiser_bessel_rejects_invalid_values(half_width, shape):
 	with pytest.raises(ValueError):
 		rexlib.em.GriddingWindow.kaiser_bessel(half_width, shape)

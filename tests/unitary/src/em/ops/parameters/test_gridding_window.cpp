@@ -7,6 +7,7 @@
 
 #include <rexlib/core/platform/constexpr.hpp>
 
+#include <cmath>
 #include <limits>
 #include <stdexcept>
 
@@ -68,6 +69,18 @@ TEST_CASE(
 }
 
 TEST_CASE(
+	"gridding_window::kaiser_bessel should accept a shape of ln of the "
+	"largest double",
+	"[gridding_window]"
+)
+{
+	const auto largest = std::log(std::numeric_limits<double>::max());
+	const auto window = gridding_window::kaiser_bessel(1.5, largest);
+
+	CHECK( window.get_shape() == largest );
+}
+
+TEST_CASE(
 	"gridding_window::kaiser_bessel should reject a half-width that is not "
 	"finite and positive",
 	"[gridding_window]"
@@ -82,12 +95,12 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"gridding_window::kaiser_bessel should reject a shape that is not finite "
-	"and 0 or more",
+	"gridding_window::kaiser_bessel should reject a shape that is not from 0 "
+	"to ln of the largest double",
 	"[gridding_window]"
 )
 {
-	const auto shape = GENERATE(-1.0, infinity, not_a_number);
+	const auto shape = GENERATE(-1.0, 710.0, infinity, not_a_number);
 
 	CHECK_THROWS_AS(
 		gridding_window::kaiser_bessel(2.0, shape),

@@ -44,7 +44,8 @@ public:
 	 * @brief Construct the window of a half-width and a shape.
 	 *
 	 * @param half_width The half-width w, in voxels. Positive.
-	 * @param shape The shape parameter beta. Not negative.
+	 * @param shape The shape parameter beta. From 0 to ln of the largest
+	 * double.
 	 */
 	kaiser_bessel_window(double half_width, double shape);
 
