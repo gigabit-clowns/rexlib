@@ -25,9 +25,5 @@ cmake --build build/cuda --parallel
 cmake --install build/cuda --prefix build/rexlib-install
 ```
 
-To work on the library and the plugin together, `REXLIB_BUILD_CUDA_PLUGIN`
-builds the plugin inside the library's build, against dependencies installed
-by vcpkg; see the [build guide](../../docs/agents/building.md#the-cuda-plugin).
-
 Its conventions are in [AGENTS.md](../../AGENTS.md) and
 [docs/agents/](../../docs/agents/).

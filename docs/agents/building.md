@@ -75,7 +75,6 @@ Options:
 | `REXLIB_CLANG_TIDY` | `OFF`, `ON` in `lint` | Runs clang-tidy on the library's own sources as they compile; a finding fails the build |
 | `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks, and `rexlib-ruff`, a test running ruff over the Python files `ruff.toml` names |
 | `REXLIB_BUILD_PYTHON` | `OFF` | Adds the Python binding in `python/`, which needs an interpreter with nanobind; see [the binding](#the-binding) |
-| `REXLIB_BUILD_CUDA_PLUGIN` | `OFF` | Adds the CUDA plugin in `plugins/cuda/`, built against the library being built, and forces `REXLIB_USE_SYSTEM_DEPENDENCIES` on; see [the CUDA plugin](#the-cuda-plugin) |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
@@ -225,23 +224,6 @@ and a case that calls back into the code under test from one takes that
 code's lock under it. What only one machine has, such
 as `rexlib_ROOT`, the CUDA paths or a compiler cache, goes in a
 `CMakeUserPresets.json`, which git ignores.
-
-For working on the library and the plugin together, `REXLIB_BUILD_CUDA_PLUGIN`
-adds the plugin to the library's build, where it links the library being built
-instead of an installed one. One configure holds one copy of each dependency,
-so the option turns `REXLIB_USE_SYSTEM_DEPENDENCIES` on, for the library and
-the plugin alike, and every dependency of both has to be installed. vcpkg
-installs them all from the manifest CI uses, `vcpkg.json` at the root, when
-its toolchain file is given; settings of one's own like these go in a
-`CMakeUserPresets.json`. CI builds the plugin against an installed rexlib only.
-
-```
-cmake -S . -B build/cuda -DCMAKE_BUILD_TYPE=Debug \
-  -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
-  -DREXLIB_BUILD_CUDA_PLUGIN=ON
-cmake --build build/cuda --parallel
-ctest --test-dir build/cuda
-```
 
 A CUDA toolkit of 11 or newer is required. Unless `CMAKE_CUDA_ARCHITECTURES`
 or the environment's `CUDAARCHS` names them, the architectures are CMake's

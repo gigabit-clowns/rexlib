@@ -93,9 +93,7 @@ spdlog, and for the tests Catch2 and trompeloeil. Turning
 with `find_package`. Turning on `REXLIB_CUDA_USE_SYSTEM_<DEP>` (`BOOST`,
 `SPDLOG`, `CATCH2`, `TROMPELOEIL`) does that for one of them.
 `cmake_dependent_option` declares those toggles, so that the global one forces
-the others on. Inside the library's build (`REXLIB_BUILD_CUDA_PLUGIN`), the
-library turns the plugin's global switch on, as its own, and both find every
-dependency installed.
+the others on.
 
 A dependency is a branch where it is used, in `plugins/cuda/CMakeLists.txt`
 for the plugin and in `plugins/cuda/tests/CMakeLists.txt` for the tests, as
