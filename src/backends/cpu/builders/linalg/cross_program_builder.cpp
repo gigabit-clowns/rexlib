@@ -2,14 +2,14 @@
 
 #include <rexlib/ops/linalg/cross_operation.hpp>
 
-#include <backends/cpu/builders/dispatcher_support_query.hpp>
-#include <backends/cpu/builders/linalg_program_builder.hpp>
+#include <backends/cpu/builders/type_dispatch_support_query.hpp>
+#include <backends/cpu/builders/batched_core_program_builder.hpp>
 #include <backends/cpu/builders/operand_data_types.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
 #include <backends/cpu/load_store.hpp>
-#include <backends/cpu/plans/linalg_core_layout_plan.hpp>
+#include <backends/cpu/plans/batched_core_layout_plan.hpp>
 
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
@@ -76,15 +76,15 @@ private:
 	std::ptrdiff_t m_right_stride;
 };
 
-using cross_type_dispatcher =
-	rule_type_dispatcher<ops::cross_operation::type_rule_type>;
+using cross_type_dispatch =
+	rule_type_dispatch<ops::cross_operation::type_rule_type>;
 
 /**
  * @brief CPU program builder for cross.
  *
- * Not built from linalg_program_builder: cross's core axis is a caller
+ * Not built from batched_core_program_builder: cross's core axis is a caller
  * chosen parameter rather than always the trailing one, so it uses
- * linalg_core_layout_plan::for_named_axis instead of for_trailing_core and
+ * batched_core_layout_plan::for_named_axis instead of for_trailing_core and
  * needs the operation's own axis at build() time.
  */
 class cross_program_builder final
@@ -142,8 +142,8 @@ public:
 		);
 
 		const auto supported =
-			detail::dispatcher_support_query<
-				cross_type_dispatcher
+			detail::type_dispatch_support_query<
+				cross_type_dispatch
 			>::is_supported(
 				make_span(output_types.data(), output_count),
 				make_span(input_types.data(), input_count),
@@ -198,11 +198,11 @@ public:
 		const auto operation_data_types =
 			get_operation_data_types(typed_operation);
 
-		auto plan = linalg_core_layout_plan::for_named_axis(
+		auto plan = batched_core_layout_plan::for_named_axis(
 			output_descriptors, input_descriptors, axis
 		);
 
-		return cross_type_dispatcher::dispatch(
+		return cross_type_dispatch::dispatch(
 			ops::cross_operation::get_static_descriptor(),
 			[&plan] (auto output_element_types, auto input_element_types)
 			{
@@ -215,7 +215,7 @@ public:
 					plan.get_left_core(),
 					plan.get_right_core()
 				);
-				using loop_functor_type = linalg_loop_functor<
+				using loop_functor_type = batched_core_loop_functor<
 					decltype(kernel),
 					decltype(output_element_types),
 					decltype(input_element_types)

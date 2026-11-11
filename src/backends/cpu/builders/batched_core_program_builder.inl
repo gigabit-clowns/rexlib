@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "linalg_program_builder.hpp"
+#include "batched_core_program_builder.hpp"
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
@@ -27,13 +27,13 @@ namespace cpu
  * pointer and two input pointers per batch element.
  */
 template <typename F, typename Outputs, typename Inputs>
-class linalg_loop_functor;
+class batched_core_loop_functor;
 
 template <typename F, typename Out, typename Left, typename Right>
-class linalg_loop_functor<F, type_list<Out>, type_list<Left, Right>>
+class batched_core_loop_functor<F, type_list<Out>, type_list<Left, Right>>
 {
 public:
-	linalg_loop_functor(F functor, linalg_core_layout_plan plan)
+	batched_core_loop_functor(F functor, batched_core_layout_plan plan)
 		: m_functor(std::move(functor))
 		, m_plan(std::move(plan))
 	{
@@ -61,18 +61,18 @@ public:
 
 private:
 	REXLIB_NO_UNIQUE_ADDRESS F m_functor;
-	linalg_core_layout_plan m_plan;
+	batched_core_layout_plan m_plan;
 };
 
-template <typename Op, typename KernelFactory, typename TypeDispatcher>
+template <typename Op, typename KernelFactory, typename TypeDispatch>
 bool
-linalg_program_builder<Op, KernelFactory, TypeDispatcher>
+batched_core_program_builder<Op, KernelFactory, TypeDispatch>
 ::accepts_descriptors(
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors
 ) const noexcept
 {
-	using core_ranks = linalg_core_ranks<Op>;
+	using core_ranks = batched_core_ranks<Op>;
 
 	return
 		output_descriptors[0].get_layout().get_rank() >= core_ranks::output &&
@@ -80,17 +80,17 @@ linalg_program_builder<Op, KernelFactory, TypeDispatcher>
 		input_descriptors[1].get_layout().get_rank() >= core_ranks::right;
 }
 
-template <typename Op, typename KernelFactory, typename TypeDispatcher>
-linalg_core_layout_plan
-linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_plan(
+template <typename Op, typename KernelFactory, typename TypeDispatch>
+batched_core_layout_plan
+batched_core_program_builder<Op, KernelFactory, TypeDispatch>::make_plan(
 	const Op& /*operation*/,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors
 ) const
 {
-	using core_ranks = linalg_core_ranks<Op>;
+	using core_ranks = batched_core_ranks<Op>;
 
-	return linalg_core_layout_plan::for_trailing_core(
+	return batched_core_layout_plan::for_trailing_core(
 		output_descriptors,
 		input_descriptors,
 		core_ranks::output,
@@ -99,12 +99,16 @@ linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_plan(
 	);
 }
 
-template <typename Op, typename KernelFactory, typename TypeDispatcher>
+template <typename Op, typename KernelFactory, typename TypeDispatch>
 template <typename... Outs, typename... Ins>
 auto
-linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_loop_functor(
+batched_core_program_builder<
+	Op,
+	KernelFactory,
+	TypeDispatch
+>::make_loop_functor(
 	const Op &operation,
-	linalg_core_layout_plan &plan,
+	batched_core_layout_plan &plan,
 	type_list<Outs...> output_element_types,
 	type_list<Ins...> input_element_types
 ) const
@@ -116,7 +120,7 @@ linalg_program_builder<Op, KernelFactory, TypeDispatcher>::make_loop_functor(
 		plan
 	);
 
-	return linalg_loop_functor<
+	return batched_core_loop_functor<
 		decltype(kernel),
 		type_list<Outs...>,
 		type_list<Ins...>

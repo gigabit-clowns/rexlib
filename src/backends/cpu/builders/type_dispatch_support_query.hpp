@@ -13,16 +13,16 @@ namespace detail
 {
 
 /**
- * @brief Ask a type dispatcher whether it supports some operand types.
+ * @brief Ask a type dispatch policy whether it supports some operand types.
  *
- * Kept as an indirection so that a builder can be given a dispatcher that
+ * Kept as an indirection so that a builder can be given a type dispatch that
  * cannot answer, in which case it is assumed to support everything and an
  * unsupported combination surfaces from build() as it used to.
  *
- * @tparam Dispatcher The type dispatcher.
+ * @tparam Dispatch The type dispatch policy.
  */
-template <typename Dispatcher, typename = void>
-struct dispatcher_support_query
+template <typename Dispatch, typename = void>
+struct type_dispatch_support_query
 {
 	static bool is_supported(
 		span<const numerical_type>,
@@ -34,10 +34,10 @@ struct dispatcher_support_query
 	}
 };
 
-template <typename Dispatcher>
-struct dispatcher_support_query<
-	Dispatcher,
-	decltype(void(&Dispatcher::is_supported))
+template <typename Dispatch>
+struct type_dispatch_support_query<
+	Dispatch,
+	decltype(void(&Dispatch::is_supported))
 >
 {
 	static bool is_supported(
@@ -46,7 +46,7 @@ struct dispatcher_support_query<
 		span<const numerical_type> operation_data_types
 	) noexcept
 	{
-		return Dispatcher::is_supported(
+		return Dispatch::is_supported(
 			output_types,
 			input_types,
 			operation_data_types

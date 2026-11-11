@@ -79,9 +79,9 @@ private:
 	std::vector<joint_layout> m_blocks;
 };
 
-template <typename Op, typename ShiftPolicy, typename TypeDispatcher>
+template <typename Op, typename ShiftPolicy, typename TypeDispatch>
 std::vector<joint_layout>
-roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_plan(
+roll_program_builder<Op, ShiftPolicy, TypeDispatch>::make_plan(
 	const Op &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors
@@ -120,10 +120,10 @@ roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_plan(
 	);
 }
 
-template <typename Op, typename ShiftPolicy, typename TypeDispatcher>
+template <typename Op, typename ShiftPolicy, typename TypeDispatch>
 template <typename... Outs, typename... Ins>
 auto
-roll_program_builder<Op, ShiftPolicy, TypeDispatcher>::make_loop_functor(
+roll_program_builder<Op, ShiftPolicy, TypeDispatch>::make_loop_functor(
 	const Op& /*operation*/,
 	std::vector<joint_layout> &blocks,
 	type_list<Outs...> output_element_types,

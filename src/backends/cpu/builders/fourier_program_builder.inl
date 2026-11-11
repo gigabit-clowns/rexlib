@@ -63,9 +63,9 @@ private:
 	fourier_layout_plan m_plan;
 };
 
-template <typename Op, typename Transform, typename TypeDispatcher>
+template <typename Op, typename Transform, typename TypeDispatch>
 fourier_layout_plan
-fourier_program_builder<Op, Transform, TypeDispatcher>::make_plan(
+fourier_program_builder<Op, Transform, TypeDispatch>::make_plan(
 	const Op &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors
@@ -79,10 +79,10 @@ fourier_program_builder<Op, Transform, TypeDispatcher>::make_plan(
 	);
 }
 
-template <typename Op, typename Transform, typename TypeDispatcher>
+template <typename Op, typename Transform, typename TypeDispatch>
 template <typename... Outs, typename... Ins>
 auto
-fourier_program_builder<Op, Transform, TypeDispatcher>::make_loop_functor(
+fourier_program_builder<Op, Transform, TypeDispatch>::make_loop_functor(
 	const Op &operation,
 	fourier_layout_plan &plan,
 	type_list<Outs...> /*output_element_types*/,

@@ -8,9 +8,9 @@
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/loops/element_index_tags.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
@@ -48,7 +48,7 @@ namespace cpu
  * output operand, in signature order, followed by one const pointer per input
  * operand, in signature order, followed by the index @p Indexing asks for.
  * Use default_kernel_factory for stateless kernels.
- * @tparam TypeDispatcher The type dispatch policy. It resolves the runtime
+ * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
  * operand data types into compile-time element types. It defaults to
  * interpreting the operation's own typing rule, so a builder only names one
  * when this backend supports a narrower set of element types than the
@@ -61,19 +61,19 @@ namespace cpu
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>,
+	typename TypeDispatch = rule_type_dispatch<typename Op::type_rule_type>,
 	typename Indexing = no_index_tag
 >
 class elementwise_program_builder final
-	: public dispatched_program_builder<
+	: public typed_program_builder<
 		elementwise_program_builder<
 			Op,
 			KernelFactory,
-			TypeDispatcher,
+			TypeDispatch,
 			Indexing
 		>,
 		Op,
-		TypeDispatcher
+		TypeDispatch
 	>
 {
 public:
@@ -144,7 +144,7 @@ using linear_indexed_elementwise_program_builder =
 	elementwise_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule_type>,
+		rule_type_dispatch<typename Op::type_rule_type>,
 		linear_index_tag
 	>;
 
@@ -160,7 +160,7 @@ using multidimensional_indexed_elementwise_program_builder =
 	elementwise_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule_type>,
+		rule_type_dispatch<typename Op::type_rule_type>,
 		multidimensional_index_tag
 	>;
 
@@ -220,7 +220,7 @@ using multidimensional_indexed_elementwise_program_builder =
 	)
 
 /**
- * @brief Register a CPU elementwise builder with an explicit dispatcher.
+ * @brief Register a CPU elementwise builder with an explicit type dispatch.
  *
  * Only needed when this backend supports a narrower set of element types
  * than the operation allows, or for an operation that does not declare a
@@ -229,7 +229,7 @@ using multidimensional_indexed_elementwise_program_builder =
  * @param name Identifier of the registration object.
  * @param op The operation type.
  * @param kernel_factory Factory producing the per-element kernel.
- * @param ... The type dispatcher. It comes last so that the commas in its
+ * @param ... The type dispatch policy. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
 #define REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX( \

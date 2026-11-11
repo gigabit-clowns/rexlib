@@ -8,9 +8,9 @@
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/kernels/pocketfft_fourier_transform.hpp>
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
@@ -47,7 +47,7 @@ namespace cpu
  * by their offsets. See @ref complex_fourier_transform,
  * @ref real_to_complex_fourier_transform and
  * @ref complex_to_real_fourier_transform.
- * @tparam TypeDispatcher The type dispatch policy. It resolves the runtime
+ * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
  * operand data types into compile time element types. It defaults to
  * interpreting the operation's own typing rule, narrowed to the precisions
  * pocketfft computes in.
@@ -55,16 +55,16 @@ namespace cpu
 template <
 	typename Op,
 	typename Transform,
-	typename TypeDispatcher = rule_type_dispatcher<
+	typename TypeDispatch = rule_type_dispatch<
 		typename Op::type_rule_type,
 		fourier_transform_support
 	>
 >
 class fourier_program_builder final
-	: public dispatched_program_builder<
-		fourier_program_builder<Op, Transform, TypeDispatcher>,
+	: public typed_program_builder<
+		fourier_program_builder<Op, Transform, TypeDispatch>,
 		Op,
-		TypeDispatcher
+		TypeDispatch
 	>
 {
 public:
@@ -141,7 +141,7 @@ public:
 	)
 
 /**
- * @brief Register a CPU Fourier program builder with an explicit dispatcher.
+ * @brief Register a CPU Fourier program builder with an explicit type dispatch.
  *
  * Only needed when this backend supports a narrower set of element types than
  * the default narrowing already expresses.
@@ -149,7 +149,7 @@ public:
  * @param name Identifier of the registration object.
  * @param op The operation type.
  * @param transform The transform to perform.
- * @param ... The type dispatcher. It comes last so that the commas in its
+ * @param ... The type dispatch policy. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
 #define REXLIB_REGISTER_FOURIER_PROGRAM_BUILDER_EX( \

@@ -271,7 +271,7 @@ private:
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename ReductionIndexing,
 	typename MapIndexing
 >
@@ -279,7 +279,7 @@ batch_reduce_map_plan
 batch_reduce_map_program_builder<
 	Op,
 	KernelFactory,
-	TypeDispatcher,
+	TypeDispatch,
 	ReductionIndexing,
 	MapIndexing
 >::make_plan(
@@ -304,7 +304,7 @@ batch_reduce_map_program_builder<
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename ReductionIndexing,
 	typename MapIndexing
 >
@@ -313,7 +313,7 @@ auto
 batch_reduce_map_program_builder<
 	Op,
 	KernelFactory,
-	TypeDispatcher,
+	TypeDispatch,
 	ReductionIndexing,
 	MapIndexing
 >::make_loop_functor(

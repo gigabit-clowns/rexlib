@@ -29,7 +29,7 @@ namespace cpu
  * @see run_elementwise_loop
  * @see operand_core
  */
-class linalg_core_layout_plan
+class batched_core_layout_plan
 {
 public:
 	/**
@@ -53,7 +53,7 @@ public:
 	 * @throws std::invalid_argument If an operand's rank is smaller than
 	 * its declared core rank.
 	 */
-	static linalg_core_layout_plan for_trailing_core(
+	static batched_core_layout_plan for_trailing_core(
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
 		std::size_t output_core_rank,
@@ -73,13 +73,13 @@ public:
 	 * @param core_axis Index into the canonical (post-broadcast) rank,
 	 * the same index for every operand.
 	 */
-	static linalg_core_layout_plan for_named_axis(
+	static batched_core_layout_plan for_named_axis(
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors,
 		std::size_t core_axis
 	);
 
-	linalg_core_layout_plan(
+	batched_core_layout_plan(
 		joint_layout batch_layout,
 		const operand_core &output_core,
 		const operand_core &left_core,

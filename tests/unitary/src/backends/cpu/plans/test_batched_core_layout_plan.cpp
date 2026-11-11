@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/plans/linalg_core_layout_plan.hpp>
+#include <backends/cpu/plans/batched_core_layout_plan.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
@@ -31,9 +31,9 @@ operand_descriptor make_operand_descriptor(std::vector<std::size_t> extents)
 } // anonymous namespace
 
 TEST_CASE(
-	"linalg_core_layout_plan::for_trailing_core splits whole-matrix operands "
+	"batched_core_layout_plan::for_trailing_core splits whole-matrix operands "
 	"into a rank zero batch",
-	"[linalg_core_layout_plan]"
+	"[batched_core_layout_plan]"
 )
 {
 	const auto output = make_operand_descriptor({ 2, 4 });
@@ -42,7 +42,7 @@ TEST_CASE(
 	};
 	const std::array<operand_descriptor, 1> outputs = { output };
 
-	const auto plan = linalg_core_layout_plan::for_trailing_core(
+	const auto plan = batched_core_layout_plan::for_trailing_core(
 		make_span(outputs), make_span(inputs), 2, 2, 2
 	);
 
@@ -69,9 +69,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"linalg_core_layout_plan::for_trailing_core broadcasts an operand with "
+	"batched_core_layout_plan::for_trailing_core broadcasts an operand with "
 	"no batch axis of its own",
-	"[linalg_core_layout_plan]"
+	"[batched_core_layout_plan]"
 )
 {
 	// Every operand's core rank is 2, so only output's leading axis (5) is
@@ -84,7 +84,7 @@ TEST_CASE(
 	};
 	const std::array<operand_descriptor, 1> outputs = { output };
 
-	const auto plan = linalg_core_layout_plan::for_trailing_core(
+	const auto plan = batched_core_layout_plan::for_trailing_core(
 		make_span(outputs), make_span(inputs), 2, 2, 2
 	);
 
@@ -106,9 +106,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"linalg_core_layout_plan::for_trailing_core rejects an operand without "
+	"batched_core_layout_plan::for_trailing_core rejects an operand without "
 	"enough axes for its core",
-	"[linalg_core_layout_plan]"
+	"[batched_core_layout_plan]"
 )
 {
 	const auto output = make_operand_descriptor({ 2 });
@@ -118,7 +118,7 @@ TEST_CASE(
 	const std::array<operand_descriptor, 1> outputs = { output };
 
 	CHECK_THROWS_AS(
-		linalg_core_layout_plan::for_trailing_core(
+		batched_core_layout_plan::for_trailing_core(
 			make_span(outputs), make_span(inputs), 1, 2, 2
 		),
 		std::invalid_argument
@@ -126,9 +126,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"linalg_core_layout_plan::for_named_axis pulls a non-trailing axis out, "
+	"batched_core_layout_plan::for_named_axis pulls a non-trailing axis out, "
 	"keeping the rest in order",
-	"[linalg_core_layout_plan]"
+	"[batched_core_layout_plan]"
 )
 {
 	const auto output = make_operand_descriptor({ 3, 4 });
@@ -138,7 +138,7 @@ TEST_CASE(
 	const std::array<operand_descriptor, 1> outputs = { output };
 
 	const auto plan =
-		linalg_core_layout_plan::for_named_axis(
+		batched_core_layout_plan::for_named_axis(
 			make_span(outputs), make_span(inputs), 0
 		);
 
@@ -153,9 +153,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"linalg_core_layout_plan::for_named_axis broadcasts an operand before "
+	"batched_core_layout_plan::for_named_axis broadcasts an operand before "
 	"slicing its core axis out of it",
-	"[linalg_core_layout_plan]"
+	"[batched_core_layout_plan]"
 )
 {
 	const auto output = make_operand_descriptor({ 3, 4 });
@@ -165,7 +165,7 @@ TEST_CASE(
 	const std::array<operand_descriptor, 1> outputs = { output };
 
 	const auto plan =
-		linalg_core_layout_plan::for_named_axis(
+		batched_core_layout_plan::for_named_axis(
 			make_span(outputs), make_span(inputs), 0
 		);
 

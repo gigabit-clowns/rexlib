@@ -2,10 +2,10 @@
 
 #include <rexlib/ops/linalg/vecmat_operation.hpp>
 
-#include <backends/cpu/builders/linalg_program_builder.hpp>
-#include <backends/cpu/plans/linalg_core_layout_plan.hpp>
+#include <backends/cpu/builders/batched_core_program_builder.hpp>
+#include <backends/cpu/plans/batched_core_layout_plan.hpp>
 #include <backends/cpu/kernels/eigen_gemm.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
 
@@ -66,7 +66,7 @@ struct vecmat_kernel_factory
 		const Op &/*operation*/,
 		type_list<Out>,
 		type_list<In0, In1>,
-		const linalg_core_layout_plan &plan
+		const batched_core_layout_plan &plan
 	) const
 	{
 		return vecmat_core_kernel<Out>(
@@ -79,11 +79,11 @@ struct vecmat_kernel_factory
 
 } // anonymous namespace
 
-REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX(
+REXLIB_REGISTER_BATCHED_CORE_PROGRAM_BUILDER_EX(
 	vecmat,
 	ops::vecmat_operation,
 	vecmat_kernel_factory,
-	rule_type_dispatcher<
+	rule_type_dispatch<
 		ops::vecmat_operation::type_rule_type,
 		eigen_scalar_support
 	>

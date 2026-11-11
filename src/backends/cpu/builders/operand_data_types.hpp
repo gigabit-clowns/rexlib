@@ -18,7 +18,7 @@ namespace cpu
  * @brief Copy the data type of every operand descriptor into an array.
  *
  * The array carries the operand count in its type, which is what the type
- * dispatchers deduce their arity from.
+ * dispatch policies deduce their arity from.
  *
  * @tparam Count The operand count.
  * @param types Destination, sized to the operand count.

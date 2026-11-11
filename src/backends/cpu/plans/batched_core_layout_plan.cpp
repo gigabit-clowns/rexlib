@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "linalg_core_layout_plan.hpp"
+#include "batched_core_layout_plan.hpp"
 
 #include "operand_core.hpp"
 
@@ -62,7 +62,7 @@ operand_core split_named_core(
 
 } // anonymous namespace
 
-linalg_core_layout_plan::linalg_core_layout_plan(
+batched_core_layout_plan::batched_core_layout_plan(
 	joint_layout batch_layout,
 	const operand_core &output_core,
 	const operand_core &left_core,
@@ -75,7 +75,7 @@ linalg_core_layout_plan::linalg_core_layout_plan(
 {
 }
 
-linalg_core_layout_plan linalg_core_layout_plan::for_trailing_core(
+batched_core_layout_plan batched_core_layout_plan::for_trailing_core(
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
 	std::size_t output_core_rank,
@@ -118,12 +118,12 @@ linalg_core_layout_plan linalg_core_layout_plan::for_trailing_core(
 		right_layout.get_offset()
 	);
 
-	return linalg_core_layout_plan(
+	return batched_core_layout_plan(
 		builder.build(), output_core, left_core, right_core
 	);
 }
 
-linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
+batched_core_layout_plan batched_core_layout_plan::for_named_axis(
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
 	std::size_t core_axis
@@ -173,17 +173,17 @@ linalg_core_layout_plan linalg_core_layout_plan::for_named_axis(
 		offset
 	);
 
-	return linalg_core_layout_plan(
+	return batched_core_layout_plan(
 		builder.build(), output_core, left_core, right_core
 	);
 }
 
-const joint_layout& linalg_core_layout_plan::get_batch_layout() const noexcept
+const joint_layout& batched_core_layout_plan::get_batch_layout() const noexcept
 {
 	return m_batch_layout;
 }
 
-std::size_t linalg_core_layout_plan::get_core_cost() const noexcept
+std::size_t batched_core_layout_plan::get_core_cost() const noexcept
 {
 	std::size_t result = 1;
 	for (std::size_t i = 0; i < m_left_core.get_rank(); ++i)
@@ -202,19 +202,19 @@ std::size_t linalg_core_layout_plan::get_core_cost() const noexcept
 }
 
 const operand_core&
-linalg_core_layout_plan::get_output_core() const noexcept
+batched_core_layout_plan::get_output_core() const noexcept
 {
 	return m_output_core;
 }
 
 const operand_core&
-linalg_core_layout_plan::get_left_core() const noexcept
+batched_core_layout_plan::get_left_core() const noexcept
 {
 	return m_left_core;
 }
 
 const operand_core&
-linalg_core_layout_plan::get_right_core() const noexcept
+batched_core_layout_plan::get_right_core() const noexcept
 {
 	return m_right_core;
 }

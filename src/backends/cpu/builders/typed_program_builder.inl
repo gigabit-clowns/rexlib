@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "dispatched_program_builder.hpp"
+#include "typed_program_builder.hpp"
 
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_cast.hpp>
 #include <rexlib/core/operation/type_rule/operation_data_types.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
-#include <backends/cpu/builders/dispatcher_support_query.hpp>
+#include <backends/cpu/builders/type_dispatch_support_query.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
 
 #include <stdexcept>
@@ -19,17 +19,17 @@ namespace rexlib
 namespace cpu
 {
 
-template <typename Derived, typename Op, typename TypeDispatcher>
+template <typename Derived, typename Op, typename TypeDispatch>
 const Derived&
-dispatched_program_builder<Derived, Op, TypeDispatcher>
+typed_program_builder<Derived, Op, TypeDispatch>
 ::get_derived() const noexcept
 {
 	return static_cast<const Derived&>(*this);
 }
 
-template <typename Derived, typename Op, typename TypeDispatcher>
+template <typename Derived, typename Op, typename TypeDispatch>
 bool
-dispatched_program_builder<Derived, Op, TypeDispatcher>::accepts_descriptors(
+typed_program_builder<Derived, Op, TypeDispatch>::accepts_descriptors(
 	span<const operand_descriptor> /*output_descriptors*/,
 	span<const operand_descriptor> /*input_descriptors*/
 ) const noexcept
@@ -37,17 +37,17 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::accepts_descriptors(
 	return true;
 }
 
-template <typename Derived, typename Op, typename TypeDispatcher>
+template <typename Derived, typename Op, typename TypeDispatch>
 operation_id
-dispatched_program_builder<Derived, Op, TypeDispatcher>
+typed_program_builder<Derived, Op, TypeDispatch>
 ::get_operation_id() const noexcept
 {
 	return operation_id::of<Op>();
 }
 
-template <typename Derived, typename Op, typename TypeDispatcher>
+template <typename Derived, typename Op, typename TypeDispatch>
 backend_priority
-dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
+typed_program_builder<Derived, Op, TypeDispatch>::get_suitability(
 	const operation &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
@@ -96,7 +96,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	// Reporting an unsupported element type here, rather than throwing from
 	// build(), is what lets the program service fall through to another backend.
 	const auto supported =
-		detail::dispatcher_support_query<TypeDispatcher>::is_supported(
+		detail::type_dispatch_support_query<TypeDispatch>::is_supported(
 			make_span(output_types.data(), output_count),
 			make_span(input_types.data(), input_count),
 			make_span(operation_data_types.data(), operation_data_types.size())
@@ -109,9 +109,9 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 	return base;
 }
 
-template <typename Derived, typename Op, typename TypeDispatcher>
+template <typename Derived, typename Op, typename TypeDispatch>
 std::shared_ptr<program>
-dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
+typed_program_builder<Derived, Op, TypeDispatch>::build(
 	const operation &operation,
 	span<const operand_descriptor> output_descriptors,
 	span<const operand_descriptor> input_descriptors,
@@ -158,7 +158,7 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 		input_descriptors
 	);
 
-	return TypeDispatcher::dispatch(
+	return TypeDispatch::dispatch(
 		Op::get_static_descriptor(),
 		[&derived, &typed_operation, &plan]
 		(auto output_element_types, auto input_element_types)

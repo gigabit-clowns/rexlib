@@ -16,12 +16,12 @@ namespace rexlib
 {
 
 /**
- * @brief Program factory mock for the type dispatcher tests.
+ * @brief Program factory mock for the type dispatch tests.
  *
  * operator() reduces the resolved element type_lists to their runtime
  * numerical_type so they can be matched with trompeloeil, forwarding to the
  * mocked call. It is non-const so it binds as the lvalue reference the
- * dispatchers forward.
+ * type dispatch policies forward.
  */
 class mock_factory
 {

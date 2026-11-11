@@ -187,7 +187,7 @@ template <std::size_t PassCount>
 using mean_subtraction_builder = batch_reduce_map_program_builder<
 	ops::fftshift_operation,
 	mean_subtraction_factory<PassCount>,
-	rule_type_dispatcher<
+	rule_type_dispatch<
 		ops::fftshift_operation::type_rule_type,
 		float64_only
 	>
@@ -325,7 +325,7 @@ struct counter_writer_factory
 using counter_writer_builder = batch_reduce_map_program_builder<
 	em::standardize_background_operation,
 	counter_writer_factory,
-	rule_type_dispatcher<
+	rule_type_dispatch<
 		em::standardize_background_operation::type_rule_type,
 		float64_only
 	>,

@@ -29,14 +29,14 @@ namespace cpu
 /**
  * @brief Support predicate accepting every pivot type combination.
  *
- * Default predicate of rule_type_dispatcher. A backend only needs its own
+ * Default predicate of rule_type_dispatch. A backend only needs its own
  * when it cannot execute something the operation itself allows.
  */
 template <typename... Types>
 struct rule_always_supported : std::true_type {};
 
 /**
- * @brief Type dispatcher driven by an operation's typing rule.
+ * @brief Type dispatch driven by an operation's typing rule.
  *
  * Resolves the rule's pivots from the operand data types, dispatches over
  * the pivots alone, and derives each operand's element type by applying its
@@ -45,7 +45,7 @@ struct rule_always_supported : std::true_type {};
  * count: a rule with one free element type costs 16 instantiations no
  * matter how many operands it has.
  *
- * The rule is the operation's own declaration, so this dispatcher restates
+ * The rule is the operation's own declaration, so this policy restates
  * none of it. @p Support is for the separate question of what this backend
  * can execute, which is legitimately narrower than what the operation
  * allows.
@@ -59,7 +59,7 @@ template <
 	typename Rule,
 	template <typename...> class Support = rule_always_supported
 >
-class rule_type_dispatcher
+class rule_type_dispatch
 {
 public:
 	/**
@@ -170,4 +170,4 @@ private:
 } // namespace cpu
 } // namespace rexlib
 
-#include "rule_type_dispatcher.inl"
+#include "rule_type_dispatch.inl"

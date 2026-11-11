@@ -4,8 +4,8 @@
 
 #include "slice_insertion_functor.hpp"
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/plans/slice_insertion_layout_plan.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
@@ -25,10 +25,10 @@ namespace cpu
  */
 template <typename Op, typename SampleWeight>
 class slice_insertion_program_builder final
-	: public dispatched_program_builder<
+	: public typed_program_builder<
 		slice_insertion_program_builder<Op, SampleWeight>,
 		Op,
-		rule_type_dispatcher<typename Op::type_rule_type>
+		rule_type_dispatch<typename Op::type_rule_type>
 	>
 {
 public:

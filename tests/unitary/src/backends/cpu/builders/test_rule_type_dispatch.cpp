@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/operation/operation_descriptor.hpp>
@@ -36,7 +36,7 @@ struct reject_float16<T>
 {
 };
 
-// The dispatcher names the operation when it rejects one, so the tests
+// The type dispatch names the operation when it rejects one, so the tests
 // need something for it to name.
 const operation_descriptor& probe_descriptor()
 {
@@ -60,8 +60,8 @@ using convert_rule = ops::converting_rule<>;
 } // anonymous namespace
 
 TEST_CASE(
-	"rule_type_dispatcher repeats the pivot across a homogeneous rule",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch repeats the pivot across a homogeneous rule",
+	"[rule_type_dispatch]"
 )
 {
 	mock_factory factory;
@@ -77,7 +77,7 @@ TEST_CASE(
 		)
 	).RETURN(nullptr);
 
-	rule_type_dispatcher<binary_rule>::dispatch(
+	rule_type_dispatch<binary_rule>::dispatch(
 		probe_descriptor(),
 		factory,
 		std::array<numerical_type, 1>{ numerical_type::float32 },
@@ -89,13 +89,13 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"rule_type_dispatcher derives an operand type from its transform",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch derives an operand type from its transform",
+	"[rule_type_dispatch]"
 )
 {
 	mock_factory factory;
 
-	// This is what abs needed a hand written dispatcher for: the output is
+	// This is what abs needed a hand written type dispatch for: the output is
 	// the real counterpart of the input, and the rule already says so.
 	REQUIRE_CALL(
 		factory,
@@ -105,7 +105,7 @@ TEST_CASE(
 		)
 	).RETURN(nullptr);
 
-	rule_type_dispatcher<abs_rule>::dispatch(
+	rule_type_dispatch<abs_rule>::dispatch(
 		probe_descriptor(),
 		factory,
 		std::array<numerical_type, 1>{ numerical_type::float64 },
@@ -114,8 +114,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"rule_type_dispatcher resolves independent pivots for a converting rule",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch resolves independent pivots for a converting rule",
+	"[rule_type_dispatch]"
 )
 {
 	mock_factory factory;
@@ -128,7 +128,7 @@ TEST_CASE(
 		)
 	).RETURN(nullptr);
 
-	rule_type_dispatcher<convert_rule>::dispatch(
+	rule_type_dispatch<convert_rule>::dispatch(
 		probe_descriptor(),
 		factory,
 		std::array<numerical_type, 1>{ numerical_type::int16 },
@@ -137,8 +137,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"rule_type_dispatcher rejects operands the rule does not admit",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch rejects operands the rule does not admit",
+	"[rule_type_dispatch]"
 )
 {
 	using trompeloeil::_;
@@ -147,7 +147,7 @@ TEST_CASE(
 	FORBID_CALL(factory, call(_, _));
 
 	CHECK_THROWS_AS(
-		rule_type_dispatcher<binary_rule>::dispatch(
+		rule_type_dispatch<binary_rule>::dispatch(
 			probe_descriptor(),
 			factory,
 			std::array<numerical_type, 1>{ numerical_type::float32 },
@@ -161,8 +161,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"rule_type_dispatcher does not instantiate a rejected combination",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch does not instantiate a rejected combination",
+	"[rule_type_dispatch]"
 )
 {
 	using trompeloeil::_;
@@ -171,7 +171,7 @@ TEST_CASE(
 	FORBID_CALL(factory, call(_, _));
 
 	CHECK_THROWS_AS(
-		(rule_type_dispatcher<binary_rule, reject_float16>::dispatch(
+		(rule_type_dispatch<binary_rule, reject_float16>::dispatch(
 			probe_descriptor(),
 			factory,
 			std::array<numerical_type, 1>{ numerical_type::float16 },
@@ -185,8 +185,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"rule_type_dispatcher reports support without throwing",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch reports support without throwing",
+	"[rule_type_dispatch]"
 )
 {
 	// Asking whether a configuration can be served is not an error, which
@@ -202,20 +202,20 @@ TEST_CASE(
 		numerical_type::float64
 	};
 
-	CHECK( rule_type_dispatcher<binary_rule>::is_supported(
+	CHECK( rule_type_dispatch<binary_rule>::is_supported(
 		make_span(output.data(), output.size()),
 		make_span(matching.data(), matching.size())
 	) );
 
-	CHECK( !rule_type_dispatcher<binary_rule>::is_supported(
+	CHECK( !rule_type_dispatch<binary_rule>::is_supported(
 		make_span(output.data(), output.size()),
 		make_span(mismatching.data(), mismatching.size())
 	) );
 }
 
 TEST_CASE(
-	"rule_type_dispatcher reports a backend narrowing as unsupported",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch reports a backend narrowing as unsupported",
+	"[rule_type_dispatch]"
 )
 {
 	const std::array<numerical_type, 1> output = { numerical_type::float16 };
@@ -226,34 +226,34 @@ TEST_CASE(
 
 	// The operation admits float16; this backend does not. The rule is not
 	// restated, only intersected.
-	CHECK( rule_type_dispatcher<binary_rule>::is_supported(
+	CHECK( rule_type_dispatch<binary_rule>::is_supported(
 		make_span(output.data(), output.size()),
 		make_span(inputs.data(), inputs.size())
 	) );
 
-	CHECK( !(rule_type_dispatcher<binary_rule, reject_float16>::is_supported(
+	CHECK( !(rule_type_dispatch<binary_rule, reject_float16>::is_supported(
 		make_span(output.data(), output.size()),
 		make_span(inputs.data(), inputs.size())
 	)) );
 }
 
 TEST_CASE(
-	"rule_type_dispatcher reports mismatching operand counts as unsupported",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch reports mismatching operand counts as unsupported",
+	"[rule_type_dispatch]"
 )
 {
 	const std::array<numerical_type, 1> output = { numerical_type::float32 };
 	const std::array<numerical_type, 1> too_few = { numerical_type::float32 };
 
-	CHECK( !rule_type_dispatcher<binary_rule>::is_supported(
+	CHECK( !rule_type_dispatch<binary_rule>::is_supported(
 		make_span(output.data(), output.size()),
 		make_span(too_few.data(), too_few.size())
 	) );
 }
 
 TEST_CASE(
-	"rule_type_dispatcher reports an unknown data type as unsupported",
-	"[rule_type_dispatcher]"
+	"rule_type_dispatch reports an unknown data type as unsupported",
+	"[rule_type_dispatch]"
 )
 {
 	const std::array<numerical_type, 1> output = { numerical_type::unknown };
@@ -262,7 +262,7 @@ TEST_CASE(
 		numerical_type::unknown
 	};
 
-	CHECK( !rule_type_dispatcher<binary_rule>::is_supported(
+	CHECK( !rule_type_dispatch<binary_rule>::is_supported(
 		make_span(output.data(), output.size()),
 		make_span(inputs.data(), inputs.size())
 	) );

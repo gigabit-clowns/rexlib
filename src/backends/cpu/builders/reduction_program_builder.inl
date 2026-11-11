@@ -71,11 +71,11 @@ private:
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename Indexing
 >
 reduction_layout_plan
-reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
+reduction_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
 ::make_plan(
 	const Op &operation,
 	span<const operand_descriptor> output_descriptors,
@@ -95,12 +95,12 @@ reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename Indexing
 >
 template <typename... Outs, typename... Ins>
 auto
-reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
+reduction_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
 ::make_loop_functor(
 	const Op &operation,
 	reduction_layout_plan &plan,

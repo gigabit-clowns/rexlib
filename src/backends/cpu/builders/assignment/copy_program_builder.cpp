@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/load_store.hpp>
 
 namespace rexlib
@@ -37,7 +37,7 @@ REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER_EX(
 	copy,
 	ops::copy_operation,
 	default_kernel_factory<copy_kernel>,
-	rule_type_dispatcher<ops::copy_operation::type_rule_type, copy_support>
+	rule_type_dispatch<ops::copy_operation::type_rule_type, copy_support>
 );
 
 } // namespace cpu

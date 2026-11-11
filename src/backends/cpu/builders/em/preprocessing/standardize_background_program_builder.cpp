@@ -6,7 +6,7 @@
 #include "standardize_background_kernel.hpp"
 
 #include <backends/cpu/builders/batch_reduce_map_program_builder.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/loops/element_index_tags.hpp>
 #include <backends/cpu/plans/batch_reduce_map_plan.hpp>
 
@@ -51,7 +51,7 @@ REXLIB_REGISTER_BATCH_REDUCE_MAP_PROGRAM_BUILDER_EX(
 	standardize_background,
 	em::standardize_background_operation,
 	standardize_background_kernel_factory,
-	rule_type_dispatcher<em::standardize_background_operation::type_rule_type>,
+	rule_type_dispatch<em::standardize_background_operation::type_rule_type>,
 	multidimensional_index_tag,
 	linear_index_tag
 );

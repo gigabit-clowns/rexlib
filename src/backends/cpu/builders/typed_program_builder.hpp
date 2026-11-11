@@ -56,27 +56,27 @@ namespace cpu
  * @tparam Derived The builder deriving from this, for static dispatch to the
  * members above.
  * @tparam Op The operation type the derived builder targets.
- * @tparam TypeDispatcher The type dispatch policy. It resolves the runtime
+ * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
  * operand data types into compile-time element types, and is used through its
  * static members, so it is a policy rather than a stored object.
  */
-template <typename Derived, typename Op, typename TypeDispatcher>
-class dispatched_program_builder
+template <typename Derived, typename Op, typename TypeDispatch>
+class typed_program_builder
 	: public cpu_program_builder
 {
 public:
-	dispatched_program_builder() noexcept = default;
-	dispatched_program_builder(
-		const dispatched_program_builder &other
+	typed_program_builder() noexcept = default;
+	typed_program_builder(
+		const typed_program_builder &other
 	) = delete;
-	dispatched_program_builder(dispatched_program_builder &&other) = delete;
-	~dispatched_program_builder() override = default;
+	typed_program_builder(typed_program_builder &&other) = delete;
+	~typed_program_builder() override = default;
 
-	dispatched_program_builder& operator=(
-		const dispatched_program_builder &other
+	typed_program_builder& operator=(
+		const typed_program_builder &other
 	) = delete;
-	dispatched_program_builder& operator=(
-		dispatched_program_builder &&other
+	typed_program_builder& operator=(
+		typed_program_builder &&other
 	) = delete;
 
 	operation_id get_operation_id() const noexcept override;
@@ -125,4 +125,4 @@ private:
 } // namespace cpu
 } // namespace rexlib
 
-#include "dispatched_program_builder.inl"
+#include "typed_program_builder.inl"

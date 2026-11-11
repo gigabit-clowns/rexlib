@@ -20,7 +20,7 @@ namespace cpu
  * decides what to do with it (a GEMM/GEMV size and layout dispatch, a cross
  * product formula, a volume to insert into). Its rank is at most three.
  *
- * @see linalg_core_layout_plan
+ * @see batched_core_layout_plan
  * @see slice_insertion_layout_plan
  */
 class operand_core

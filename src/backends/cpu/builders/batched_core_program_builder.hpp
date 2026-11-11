@@ -8,10 +8,10 @@
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
-#include <backends/cpu/plans/linalg_core_layout_plan.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
+#include <backends/cpu/plans/batched_core_layout_plan.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/operation/shape_rule/core_placement.hpp>
@@ -35,19 +35,19 @@ namespace cpu
  * last, and describe one output and two inputs.
  */
 template <typename Op>
-struct linalg_core_ranks
+struct batched_core_ranks
 {
 	using shape_rule_type = typename Op::shape_rule_type;
 
 	static_assert(
 		shape_rule_type::placement_type::placement == core_placement::trailing,
-		"A linalg builder walks the trailing axes of its operands, so the "
+		"A batched core builder walks the trailing axes of its operands, so the "
 		"operation's shape rule must place the core axes last."
 	);
 
 	static_assert(
 		shape_rule_type::output_count == 1 && shape_rule_type::input_count == 2,
-		"A linalg builder serves operations of one output and two inputs."
+		"A batched core builder serves operations of one output and two inputs."
 	);
 
 	static REXLIB_CONST_CONSTEXPR std::size_t output = type_list_element<
@@ -70,7 +70,7 @@ struct linalg_core_ranks
  * @brief Generic program builder for the matmul/matvec/vecmat family.
  *
  * These operations all walk broadcastable batch axes plus a small, fixed
- * number of trailing "core" axes per operand (see linalg_core_layout_plan).
+ * number of trailing "core" axes per operand (see batched_core_layout_plan).
  * This builder owns the scaffolding shared by every one of them: operation
  * type check, operand-count validation, the batch/core split, and type
  * dispatch. cross is not one of them: its core axis is a caller-chosen
@@ -78,29 +78,29 @@ struct linalg_core_ranks
  * program_builder directly instead of going through this template.
  *
  * @tparam Op The operation type this builder targets. Its shape rule must
- * place the core axes last, as linalg_core_ranks reads them.
+ * place the core axes last, as batched_core_ranks reads them.
  * @tparam KernelFactory Factory producing the per-batch-element kernel.
  * Invoked as factory(operation, output_types, input_types, plan), where the
  * type arguments are type_list-s of the resolved element types and plan is
- * the linalg_core_layout_plan built for this call. The returned kernel is
+ * the batched_core_layout_plan built for this call. The returned kernel is
  * invoked once per batch element as kernel(out_ptr, left_ptr, right_ptr).
- * @tparam TypeDispatcher The type dispatch policy. Defaults to interpreting
+ * @tparam TypeDispatch The type dispatch policy. Defaults to interpreting
  * the operation's own typing rule.
  */
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>
+	typename TypeDispatch = rule_type_dispatch<typename Op::type_rule_type>
 >
-class linalg_program_builder final
-	: public dispatched_program_builder<
-		linalg_program_builder<Op, KernelFactory, TypeDispatcher>,
+class batched_core_program_builder final
+	: public typed_program_builder<
+		batched_core_program_builder<Op, KernelFactory, TypeDispatch>,
 		Op,
-		TypeDispatcher
+		TypeDispatch
 	>
 {
 public:
-	linalg_program_builder() noexcept = default;
+	batched_core_program_builder() noexcept = default;
 
 	/**
 	 * @brief Whether every operand reaches the rank its core needs.
@@ -123,9 +123,9 @@ public:
 	 * @param operation The operation.
 	 * @param output_descriptors The output operand descriptors.
 	 * @param input_descriptors The input operand descriptors.
-	 * @return linalg_core_layout_plan The planned iteration.
+	 * @return batched_core_layout_plan The planned iteration.
 	 */
-	linalg_core_layout_plan make_plan(
+	batched_core_layout_plan make_plan(
 		const Op &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors
@@ -148,7 +148,7 @@ public:
 	template <typename... Outs, typename... Ins>
 	auto make_loop_functor(
 		const Op &operation,
-		linalg_core_layout_plan &plan,
+		batched_core_layout_plan &plan,
 		type_list<Outs...> output_element_types,
 		type_list<Ins...> input_element_types
 	) const;
@@ -171,14 +171,14 @@ private:
  * last.
  * @param kernel_factory Factory producing the per-batch-element kernel.
  */
-#define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER(name, op, kernel_factory) \
+#define REXLIB_REGISTER_BATCHED_CORE_PROGRAM_BUILDER(name, op, kernel_factory) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rexlib::cpu::linalg_program_builder<op, kernel_factory> \
+		::rexlib::cpu::batched_core_program_builder<op, kernel_factory> \
 	)
 
 /**
- * @brief Register a CPU linalg builder with an explicit dispatcher.
+ * @brief Register a CPU batched core builder with an explicit type dispatch.
  *
  * Only needed when this backend supports a narrower set of element types
  * than the operation allows.
@@ -186,17 +186,17 @@ private:
  * @param name Identifier of the registration object.
  * @param op The operation type.
  * @param kernel_factory Factory producing the per-batch-element kernel.
- * @param ... The type dispatcher. It comes last so that the commas in its
+ * @param ... The type dispatch policy. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
-#define REXLIB_REGISTER_LINALG_PROGRAM_BUILDER_EX( \
+#define REXLIB_REGISTER_BATCHED_CORE_PROGRAM_BUILDER_EX( \
 	name, op, kernel_factory, ... \
 ) \
 	REXLIB_REGISTER_CPU_PROGRAM_BUILDER( \
 		name, \
-		::rexlib::cpu::linalg_program_builder< \
+		::rexlib::cpu::batched_core_program_builder< \
 			op, kernel_factory, __VA_ARGS__ \
 		> \
 	)
 
-#include "linalg_program_builder.inl"
+#include "batched_core_program_builder.inl"

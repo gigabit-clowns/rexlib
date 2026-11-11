@@ -8,9 +8,9 @@
 #include <rexlib/core/platform/cpp_attributes.hpp>
 #include <rexlib/core/span.hpp>
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/loops/element_index_tags.hpp>
 #include <backends/cpu/plans/batch_reduce_map_plan.hpp>
 
@@ -63,7 +63,7 @@ namespace cpu
  *
  * @tparam Op The operation. Its shape rule names its core axes.
  * @tparam KernelFactory The kernel factory.
- * @tparam TypeDispatcher The type dispatcher.
+ * @tparam TypeDispatch The type dispatch policy.
  * @tparam ReductionIndexing The index handed to the reduction kernels,
  * over the core axes in ascending order.
  * @tparam MapIndexing no_index_tag, or linear_index_tag to hand the map the
@@ -73,21 +73,21 @@ namespace cpu
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>,
+	typename TypeDispatch = rule_type_dispatch<typename Op::type_rule_type>,
 	typename ReductionIndexing = no_index_tag,
 	typename MapIndexing = no_index_tag
 >
 class batch_reduce_map_program_builder final
-	: public dispatched_program_builder<
+	: public typed_program_builder<
 		batch_reduce_map_program_builder<
 			Op,
 			KernelFactory,
-			TypeDispatcher,
+			TypeDispatch,
 			ReductionIndexing,
 			MapIndexing
 		>,
 		Op,
-		TypeDispatcher
+		TypeDispatch
 	>
 {
 	static_assert(
@@ -145,12 +145,12 @@ private:
 
 /**
  * @brief Register a CPU batch reduce-map builder with an explicit
- * dispatcher and indexing.
+ * type dispatch and indexing.
  *
  * @param name Identifier of the registration object.
  * @param op The operation.
  * @param kernel_factory The kernel factory.
- * @param ... The type dispatcher, followed optionally by the reduction
+ * @param ... The type dispatch policy, followed optionally by the reduction
  * indexing and then the map indexing.
  */
 #define REXLIB_REGISTER_BATCH_REDUCE_MAP_PROGRAM_BUILDER_EX( \

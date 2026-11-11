@@ -7,9 +7,9 @@
 #include <rexlib/core/dispatch/program_builder_registry.hpp>
 
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
@@ -35,20 +35,20 @@ namespace cpu
  * @tparam ShiftPolicy Provides
  * `static std::size_t shift_amount(std::size_t extent) noexcept`, the
  * distance an axis of that extent is cyclically shifted by.
- * @tparam TypeDispatcher The type dispatch policy. A shift moves elements
+ * @tparam TypeDispatch The type dispatch policy. A shift moves elements
  * without converting them, so the operation's own typing rule says all there
  * is to say and this is only named to keep the family uniform.
  */
 template <
 	typename Op,
 	typename ShiftPolicy,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>
+	typename TypeDispatch = rule_type_dispatch<typename Op::type_rule_type>
 >
 class roll_program_builder final
-	: public dispatched_program_builder<
-		roll_program_builder<Op, ShiftPolicy, TypeDispatcher>,
+	: public typed_program_builder<
+		roll_program_builder<Op, ShiftPolicy, TypeDispatch>,
 		Op,
-		TypeDispatcher
+		TypeDispatch
 	>
 {
 public:

@@ -2,10 +2,10 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include "../serial_pool.hpp"
@@ -86,10 +86,10 @@ private:
  */
 template <bool Accepts>
 class probe_program_builder final
-	: public dispatched_program_builder<
+	: public typed_program_builder<
 		probe_program_builder<Accepts>,
 		probe_operation,
-		rule_type_dispatcher<typename probe_operation::type_rule_type>
+		rule_type_dispatch<typename probe_operation::type_rule_type>
 	>
 {
 public:
@@ -128,10 +128,10 @@ public:
 // A family that says nothing beyond its operand counts and typing rule, so
 // that the base's own accepts_descriptors is the one answering.
 class silent_program_builder final
-	: public dispatched_program_builder<
+	: public typed_program_builder<
 		silent_program_builder,
 		probe_operation,
-		rule_type_dispatcher<typename probe_operation::type_rule_type>
+		rule_type_dispatch<typename probe_operation::type_rule_type>
 	>
 {
 public:
@@ -213,10 +213,10 @@ public:
 };
 
 class astype_probe_program_builder final
-	: public dispatched_program_builder<
+	: public typed_program_builder<
 		astype_probe_program_builder,
 		astype_probe_operation,
-		rule_type_dispatcher<typename astype_probe_operation::type_rule_type>
+		rule_type_dispatch<typename astype_probe_operation::type_rule_type>
 	>
 {
 public:
@@ -257,8 +257,8 @@ operand_descriptor make_operand_descriptor(
 } // anonymous namespace
 
 TEST_CASE(
-	"dispatched_program_builder reports the operation it targets",
-	"[dispatched_program_builder]"
+	"typed_program_builder reports the operation it targets",
+	"[typed_program_builder]"
 )
 {
 	const silent_program_builder builder;
@@ -267,8 +267,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder accepts by default",
-	"[dispatched_program_builder]"
+	"typed_program_builder accepts by default",
+	"[typed_program_builder]"
 )
 {
 	// A family whose whole requirement its operand counts and typing rule
@@ -297,9 +297,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder declines when the family declines the "
+	"typed_program_builder declines when the family declines the "
 	"descriptors",
-	"[dispatched_program_builder]"
+	"[typed_program_builder]"
 )
 {
 	mock_memory_resource host_resource;
@@ -333,8 +333,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder declines an operand count it cannot serve",
-	"[dispatched_program_builder]"
+	"typed_program_builder declines an operand count it cannot serve",
+	"[typed_program_builder]"
 )
 {
 	mock_memory_resource host_resource;
@@ -362,8 +362,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder declines an operand not on the host",
-	"[dispatched_program_builder]"
+	"typed_program_builder declines an operand not on the host",
+	"[typed_program_builder]"
 )
 {
 	mock_memory_resource device_resource;
@@ -389,8 +389,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder builds through the family's plan and functor",
-	"[dispatched_program_builder]"
+	"typed_program_builder builds through the family's plan and functor",
+	"[typed_program_builder]"
 )
 {
 	const silent_program_builder builder;
@@ -416,9 +416,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder names the operation when the operand count "
+	"typed_program_builder names the operation when the operand count "
 	"is wrong",
-	"[dispatched_program_builder]"
+	"[typed_program_builder]"
 )
 {
 	const silent_program_builder builder;
@@ -455,9 +455,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder resolves the data types the operation "
+	"typed_program_builder resolves the data types the operation "
 	"supplies",
-	"[dispatched_program_builder]"
+	"[typed_program_builder]"
 )
 {
 	mock_memory_resource host_resource;
@@ -490,9 +490,9 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatched_program_builder builds with the data types the operation "
+	"typed_program_builder builds with the data types the operation "
 	"supplies",
-	"[dispatched_program_builder]"
+	"[typed_program_builder]"
 )
 {
 	const astype_probe_program_builder builder;

@@ -122,7 +122,7 @@
 //
 // Stated in elementwise operations, so that a loop whose iteration costs more
 // than one of them divides it down rather than inventing a unit of its own: a
-// reduction's surviving element costs as many as it folds, and a linalg batch
+// reduction's surviving element costs as many as it folds, and a matmul batch
 // element costs a whole matrix product. See grain_for_cost.
 //
 // This is the default. It may be overridden at run time through the

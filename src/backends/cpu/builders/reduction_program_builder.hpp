@@ -8,9 +8,9 @@
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
 
-#include <backends/cpu/builders/dispatched_program_builder.hpp>
+#include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/loops/element_index_tags.hpp>
 #include <backends/cpu/plans/reduction_layout_plan.hpp>
 
@@ -46,7 +46,7 @@ namespace cpu
  * @ref run_indexed_reduction_loop documents. Use default_kernel_factory for
  * stateless kernels, and fold_reduction_kernel for an operation that is no
  * more than a binary fold with a neutral element.
- * @tparam TypeDispatcher The type dispatch policy. It resolves the runtime
+ * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
  * operand data types into compile-time element types. It defaults to
  * interpreting the operation's own typing rule, so a builder only names one
  * when this backend supports a narrower set of element types than the
@@ -59,14 +59,14 @@ namespace cpu
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher = rule_type_dispatcher<typename Op::type_rule_type>,
+	typename TypeDispatch = rule_type_dispatch<typename Op::type_rule_type>,
 	typename Indexing = no_index_tag
 >
 class reduction_program_builder final
-	: public dispatched_program_builder<
-		reduction_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>,
+	: public typed_program_builder<
+		reduction_program_builder<Op, KernelFactory, TypeDispatch, Indexing>,
 		Op,
-		TypeDispatcher
+		TypeDispatch
 	>
 {
 public:
@@ -119,7 +119,7 @@ private:
  * element within the reduced space.
  *
  * Names the index so that a registration does not have to respell the
- * default type dispatcher merely to reach past it.
+ * default type dispatch merely to reach past it.
  *
  * @tparam Op The operation type this builder targets.
  * @tparam KernelFactory Factory producing the reduction kernel.
@@ -129,7 +129,7 @@ using linear_indexed_reduction_program_builder =
 	reduction_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule_type>,
+		rule_type_dispatch<typename Op::type_rule_type>,
 		linear_index_tag
 	>;
 
@@ -145,7 +145,7 @@ using multidimensional_indexed_reduction_program_builder =
 	reduction_program_builder<
 		Op,
 		KernelFactory,
-		rule_type_dispatcher<typename Op::type_rule_type>,
+		rule_type_dispatch<typename Op::type_rule_type>,
 		multidimensional_index_tag
 	>;
 
@@ -205,7 +205,7 @@ using multidimensional_indexed_reduction_program_builder =
 	)
 
 /**
- * @brief Register a CPU reduction builder with an explicit dispatcher.
+ * @brief Register a CPU reduction builder with an explicit type dispatch.
  *
  * Only needed when this backend supports a narrower set of element types
  * than the operation allows, or for an operation that does not declare a
@@ -214,7 +214,7 @@ using multidimensional_indexed_reduction_program_builder =
  * @param name Identifier of the registration object.
  * @param op The operation type.
  * @param kernel_factory Factory producing the reduction kernel.
- * @param ... The type dispatcher. It comes last so that the commas in its
+ * @param ... The type dispatch policy. It comes last so that the commas in its
  * template arguments do not split the macro arguments.
  */
 #define REXLIB_REGISTER_REDUCTION_PROGRAM_BUILDER_EX( \

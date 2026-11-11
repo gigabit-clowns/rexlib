@@ -96,11 +96,11 @@ private:
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename Indexing
 >
 joint_layout
-elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
+elementwise_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
 ::make_plan(
 	const Op& /*operation*/,
 	span<const operand_descriptor> output_descriptors,
@@ -145,12 +145,12 @@ elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename Indexing
 >
 template <typename... Outs, typename... Ins>
 auto
-elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
+elementwise_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
 ::make_loop_functor(
 	const Op &operation,
 	joint_layout &layout,
@@ -175,11 +175,11 @@ elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename Indexing
 >
 void
-elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
+elementwise_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
 ::append_index_operands(
 	joint_layout_builder& /*layout_builder*/,
 	span<const operand_descriptor> /*output_descriptors*/,
@@ -191,12 +191,12 @@ elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
 template <
 	typename Op,
 	typename KernelFactory,
-	typename TypeDispatcher,
+	typename TypeDispatch,
 	typename Indexing
 >
 template <typename IndexTag>
 void
-elementwise_program_builder<Op, KernelFactory, TypeDispatcher, Indexing>
+elementwise_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
 ::append_index_operands(
 	joint_layout_builder &layout_builder,
 	span<const operand_descriptor> output_descriptors,

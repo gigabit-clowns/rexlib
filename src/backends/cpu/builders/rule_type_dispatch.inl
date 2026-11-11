@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "rule_type_dispatcher.hpp"
+#include "rule_type_dispatch.hpp"
 
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/numerical/numerical_type_dispatch.hpp>
@@ -15,14 +15,14 @@ namespace cpu
 
 template <typename Rule, template <typename...> class Support>
 type_rule_interpreter
-rule_type_dispatcher<Rule, Support>::get_interpreter() noexcept
+rule_type_dispatch<Rule, Support>::get_interpreter() noexcept
 {
 	return type_rule_interpreter(type_rule_descriptor_of<Rule>::get());
 }
 
 template <typename Rule, template <typename...> class Support>
 template <std::size_t... PivotIndices>
-bool rule_type_dispatcher<Rule, Support>::check_support(
+bool rule_type_dispatch<Rule, Support>::check_support(
 	const type_rule_resolution &resolution,
 	std::index_sequence<PivotIndices...>
 )
@@ -39,7 +39,7 @@ bool rule_type_dispatcher<Rule, Support>::check_support(
 }
 
 template <typename Rule, template <typename...> class Support>
-bool rule_type_dispatcher<Rule, Support>::is_supported(
+bool rule_type_dispatch<Rule, Support>::is_supported(
 	span<const numerical_type> output_types,
 	span<const numerical_type> input_types,
 	span<const numerical_type> operation_data_types
@@ -70,7 +70,7 @@ bool rule_type_dispatcher<Rule, Support>::is_supported(
 template <typename Rule, template <typename...> class Support>
 template <typename F, typename Pivots>
 std::shared_ptr<program>
-rule_type_dispatcher<Rule, Support>::invoke_if(
+rule_type_dispatch<Rule, Support>::invoke_if(
 	std::true_type /*supported*/,
 	F &&factory,
 	Pivots /*pivot_types*/
@@ -91,14 +91,14 @@ rule_type_dispatcher<Rule, Support>::invoke_if(
 template <typename Rule, template <typename...> class Support>
 template <typename F, typename Pivots>
 std::shared_ptr<program>
-rule_type_dispatcher<Rule, Support>::invoke_if(
+rule_type_dispatch<Rule, Support>::invoke_if(
 	std::false_type /*supported*/,
 	F&& /*factory*/,
 	Pivots /*pivot_types*/
 )
 {
 	throw std::invalid_argument(
-		"rule_type_dispatcher: this backend does not support the requested "
+		"rule_type_dispatch: this backend does not support the requested "
 		"element type."
 	);
 }
@@ -106,7 +106,7 @@ rule_type_dispatcher<Rule, Support>::invoke_if(
 template <typename Rule, template <typename...> class Support>
 template <typename F, std::size_t... PivotIndices>
 std::shared_ptr<program>
-rule_type_dispatcher<Rule, Support>::dispatch_pivots(
+rule_type_dispatch<Rule, Support>::dispatch_pivots(
 	F &&factory,
 	const type_rule_resolution &resolution,
 	std::index_sequence<PivotIndices...>
@@ -137,7 +137,7 @@ rule_type_dispatcher<Rule, Support>::dispatch_pivots(
 template <typename Rule, template <typename...> class Support>
 template <typename F, std::size_t OutputCount, std::size_t InputCount>
 std::shared_ptr<program>
-rule_type_dispatcher<Rule, Support>::dispatch(
+rule_type_dispatch<Rule, Support>::dispatch(
 	const operation_descriptor &descriptor,
 	F &&factory,
 	const std::array<numerical_type, OutputCount> &output_types,
