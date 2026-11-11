@@ -5,7 +5,7 @@
 #include <backends/cpu/skeletons/reduction/reduction_program_builder.hpp>
 #include <backends/cpu/skeletons/default_kernel_factory.hpp>
 #include <backends/cpu/skeletons/reduction/fold_reduction_kernel.hpp>
-#include <backends/cpu/kernels/ordering.hpp>
+#include <backends/cpu/math/scalar/ordering.hpp>
 
 namespace rexlib
 {

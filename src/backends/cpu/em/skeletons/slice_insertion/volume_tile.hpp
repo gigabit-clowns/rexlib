@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/plans/frequency_interval.hpp>
+#include <backends/cpu/math/fourier/frequency_interval.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 

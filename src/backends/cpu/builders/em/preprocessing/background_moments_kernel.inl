@@ -24,13 +24,13 @@ REXLIB_CONST_CONSTEXPR std::size_t background_moment_lane_count = 4;
 
 inline
 background_moments_kernel::background_moments_kernel(
-	const background_geometry &geometry,
+	const centred_ball &background,
 	double mean,
 	double scale,
 	double lower_bound,
 	double upper_bound
 ) noexcept
-	: m_geometry(&geometry)
+	: m_background(&background)
 	, m_mean(mean)
 	, m_scale(scale)
 	, m_lower_bound(lower_bound)
@@ -49,7 +49,7 @@ void background_moments_kernel::seed(
 ) const noexcept
 {
 	const auto x = static_cast<double>(load(value));
-	const auto valid = is_valid(x) && m_geometry->is_background(index);
+	const auto valid = is_valid(x) && m_background->is_outside(index);
 	count = valid ? 1 : 0;
 	sum = valid ? x : 0.0;
 	sum_of_squares = valid ? x * x : 0.0;
@@ -65,15 +65,15 @@ void background_moments_kernel::combine_run(
 	const multidimensional_index &index
 ) const noexcept
 {
-	const auto excluded = m_geometry->find_excluded_range(index, count);
+	const auto inside = m_background->find_inside_range(index, count);
 	auto &total = *std::get<0>(moments);
 	auto &sum = *std::get<1>(moments);
 	auto &sum_of_squares = *std::get<2>(moments);
 	const auto *value = std::get<0>(values);
 	const auto stride = std::get<0>(strides);
 
-	fold(total, sum, sum_of_squares, value, stride, 0, excluded.first);
-	fold(total, sum, sum_of_squares, value, stride, excluded.second, count);
+	fold(total, sum, sum_of_squares, value, stride, 0, inside.first);
+	fold(total, sum, sum_of_squares, value, stride, inside.second, count);
 }
 
 template <typename T, typename KeptStride, typename ReducedStride>

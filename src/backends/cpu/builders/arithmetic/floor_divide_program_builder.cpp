@@ -4,7 +4,7 @@
 
 #include <backends/cpu/skeletons/elementwise/elementwise_program_builder.hpp>
 #include <backends/cpu/skeletons/default_kernel_factory.hpp>
-#include <backends/cpu/kernels/floor_division.hpp>
+#include <backends/cpu/math/scalar/floor_division.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 
 namespace rexlib

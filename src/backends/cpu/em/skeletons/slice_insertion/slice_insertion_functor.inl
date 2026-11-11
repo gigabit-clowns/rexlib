@@ -2,16 +2,16 @@
 
 #include "slice_insertion_functor.hpp"
 
-#include <backends/cpu/builders/em/reconstruction/alternating_sign.hpp>
+#include <backends/cpu/math/fourier/alternating_sign.hpp>
 #include "row_insertion_kernel.hpp"
-#include <backends/cpu/builders/em/reconstruction/tabulated_phase.hpp>
+#include <backends/cpu/math/fourier/tabulated_phase.hpp>
 #include "virtual_row.hpp"
 
-#include <backends/cpu/kernels/axis_phase.hpp>
-#include <backends/cpu/kernels/box_window.hpp>
-#include <backends/cpu/kernels/kaiser_bessel_window.hpp>
-#include <backends/cpu/kernels/row_interval.hpp>
-#include <backends/cpu/kernels/triangle_window.hpp>
+#include <backends/cpu/math/fourier/axis_phase.hpp>
+#include <backends/cpu/math/windows/box_window.hpp>
+#include <backends/cpu/math/windows/kaiser_bessel_window.hpp>
+#include <backends/cpu/math/fourier/row_interval.hpp>
+#include <backends/cpu/math/windows/triangle_window.hpp>
 #include <backends/cpu/loops/claimed_loop.hpp>
 #include <backends/cpu/em/skeletons/slice_insertion/volume_tiling.hpp>
 

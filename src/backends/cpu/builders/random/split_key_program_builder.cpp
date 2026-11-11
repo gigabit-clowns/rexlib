@@ -4,7 +4,7 @@
 
 #include <backends/cpu/skeletons/default_kernel_factory.hpp>
 #include <backends/cpu/skeletons/elementwise/elementwise_program_builder.hpp>
-#include <backends/cpu/kernels/random_key.hpp>
+#include <backends/cpu/math/random/random_key.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 

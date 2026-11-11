@@ -2,7 +2,7 @@
 
 #include <rexlib/em/ops/preprocessing/standardize_background_operation.hpp>
 
-#include "background_geometry.hpp"
+#include <backends/cpu/math/geometry/centred_ball.hpp>
 #include "standardize_background_kernel.hpp"
 
 #include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_program_builder.hpp>
@@ -38,7 +38,7 @@ struct standardize_background_kernel_factory
 	{
 		const auto extents = plan.get_frame().get_core_extents();
 		return standardize_background_kernel(
-			background_geometry(make_span(extents), operation.get_radius()),
+			centred_ball(make_span(extents), operation.get_radius()),
 			operation.get_lower_bound(),
 			operation.get_upper_bound()
 		);

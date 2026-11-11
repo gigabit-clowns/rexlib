@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/kernels/slice_frame.hpp>
+#include <backends/cpu/math/fourier/slice_frame.hpp>
 
 #include <cstddef>
 

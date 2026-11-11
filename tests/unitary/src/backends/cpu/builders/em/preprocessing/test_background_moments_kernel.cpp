@@ -5,7 +5,7 @@
 
 #include <backends/cpu/builders/em/preprocessing/background_moments_kernel.hpp>
 
-#include <backends/cpu/builders/em/preprocessing/background_geometry.hpp>
+#include <backends/cpu/math/geometry/centred_ball.hpp>
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 
@@ -36,15 +36,15 @@ REXLIB_CONST_CONSTEXPR double not_a_number =
  * @brief A row of nine elements whose centre, at index 4, lies within a
  * radius of 1 together with indices 3 and 5.
  */
-background_geometry make_row_geometry()
+centred_ball make_row_background()
 {
 	const std::array<std::size_t, 1> extents = {{ 9 }};
-	return background_geometry(make_span(extents), 1);
+	return centred_ball(make_span(extents), 1);
 }
 
-background_moments_kernel make_unbounded(const background_geometry &geometry)
+background_moments_kernel make_unbounded(const centred_ball &background)
 {
-	return background_moments_kernel(geometry, 0, 1, -infinity, infinity);
+	return background_moments_kernel(background, 0, 1, -infinity, infinity);
 }
 
 /**
@@ -112,10 +112,10 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
+	const auto background = make_row_background();
 	const std::vector<double> row = { 1, 3, 1, 99, 99, 99, 3, 1, 3 };
 
-	const auto statistics = fold(make_unbounded(geometry), row);
+	const auto statistics = fold(make_unbounded(background), row);
 
 	CHECK( statistics[0] == 2 );
 	CHECK( statistics[1] == 1 );
@@ -126,12 +126,12 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
+	const auto background = make_row_background();
 	const std::vector<double> row = {
 		1, not_a_number, 3, 0, 0, 0, infinity, 1, -infinity
 	};
 
-	const auto statistics = fold(make_unbounded(geometry), row);
+	const auto statistics = fold(make_unbounded(background), row);
 
 	// The background left is 1, 3 and 1.
 	CHECK_THAT( statistics[0], WithinRel(5.0 / 3.0, 1e-12) );
@@ -144,12 +144,12 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
+	const auto background = make_row_background();
 	const std::vector<double> row = { 1, 3, 1, 0, 0, 0, 3, 50, 3 };
 
 	// Standardized with a mean of 2 and a scale of 1, 50 lies at 48. The
 	// background left is 1, 3, 1, 3 and 3.
-	const background_moments_kernel kernel(geometry, 2, 1, -3, 3);
+	const background_moments_kernel kernel(background, 2, 1, -3, 3);
 
 	const auto statistics = fold(kernel, row);
 
@@ -163,8 +163,8 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
-	const auto kernel = make_unbounded(geometry);
+	const auto background = make_row_background();
+	const auto kernel = make_unbounded(background);
 	const std::vector<double> row = { 1, 3, 1, 0, 0, 0, 3, 1, 3 };
 
 	moments_type left(0, 0, 0);
@@ -188,8 +188,8 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
-	const auto kernel = make_unbounded(geometry);
+	const auto background = make_row_background();
+	const auto kernel = make_unbounded(background);
 	const std::array<double, 2> values = {{ 5, not_a_number }};
 	const std::array<std::ptrdiff_t, 2> coordinates = {{ 0, 4 }};
 
@@ -217,8 +217,8 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
-	const auto kernel = make_unbounded(geometry);
+	const auto background = make_row_background();
+	const auto kernel = make_unbounded(background);
 
 	// Two rows interleaved, so that the strip steps by one between them.
 	const std::vector<double> first = { 1, 3, 1, 9, 9, 9, 3, 1, 3 };
@@ -260,11 +260,11 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
+	const auto background = make_row_background();
 	const std::vector<double> row(9, not_a_number);
 
 	CHECK(
-		fold(make_unbounded(geometry), row) ==
+		fold(make_unbounded(background), row) ==
 		std::array<double, 2>{{ 0, 1 }}
 	);
 }
@@ -275,10 +275,10 @@ TEST_CASE(
 	"[background_moments_kernel]"
 )
 {
-	const auto geometry = make_row_geometry();
+	const auto background = make_row_background();
 	const std::vector<double> row(9, 0.1f);
 
-	const auto statistics = fold(make_unbounded(geometry), row);
+	const auto statistics = fold(make_unbounded(background), row);
 
 	CHECK_THAT( statistics[0], WithinRel(static_cast<double>(0.1f), 1e-12) );
 	CHECK( statistics[1] == 1 );

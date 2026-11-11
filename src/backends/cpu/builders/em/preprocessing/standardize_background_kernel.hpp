@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "background_geometry.hpp"
+#include <backends/cpu/math/geometry/centred_ball.hpp>
 #include "background_moments_kernel.hpp"
 #include "standardization_map_kernel.hpp"
 
@@ -35,12 +35,12 @@ public:
 	/**
 	 * @brief Construct the kernel.
 	 *
-	 * @param geometry The background of an image.
+	 * @param background The ball outside which an image is background.
 	 * @param lower_bound The lowest standardized value kept.
 	 * @param upper_bound The highest standardized value kept.
 	 */
 	standardize_background_kernel(
-		background_geometry geometry,
+		centred_ball background,
 		double lower_bound,
 		double upper_bound
 	) noexcept;
@@ -51,7 +51,7 @@ public:
 	 * @param pass The pass, 0 or 1.
 	 * @param previous The statistics of the pass before.
 	 * @return background_moments_kernel The reduction. It refers to the
-	 * geometry of this kernel.
+	 * ball of this kernel.
 	 */
 	background_moments_kernel make_reduction(
 		std::size_t pass,
@@ -75,7 +75,7 @@ public:
 	) const noexcept;
 
 private:
-	background_geometry m_geometry;
+	centred_ball m_background;
 	double m_lower_bound;
 	double m_upper_bound;
 };

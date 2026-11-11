@@ -12,11 +12,11 @@ namespace cpu
 
 inline
 standardize_background_kernel::standardize_background_kernel(
-	background_geometry geometry,
+	centred_ball background,
 	double lower_bound,
 	double upper_bound
 ) noexcept
-	: m_geometry(std::move(geometry))
+	: m_background(std::move(background))
 	, m_lower_bound(lower_bound)
 	, m_upper_bound(upper_bound)
 {
@@ -32,7 +32,7 @@ background_moments_kernel standardize_background_kernel::make_reduction(
 	{
 		const auto infinity = std::numeric_limits<double>::infinity();
 		return background_moments_kernel(
-			m_geometry,
+			m_background,
 			0.0,
 			1.0,
 			-infinity,
@@ -41,7 +41,7 @@ background_moments_kernel standardize_background_kernel::make_reduction(
 	}
 
 	return background_moments_kernel(
-		m_geometry,
+		m_background,
 		previous[0],
 		previous[1],
 		m_lower_bound,

@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "background_geometry.hpp"
+#include <backends/cpu/math/geometry/centred_ball.hpp>
 
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 
@@ -43,14 +43,15 @@ public:
 	/**
 	 * @brief Construct the kernel of one pass.
 	 *
-	 * @param geometry The background. It must outlive the kernel.
+	 * @param background The ball outside which an image is background. It
+	 * must outlive the kernel.
 	 * @param mean The previous mean.
 	 * @param scale The previous scale.
 	 * @param lower_bound The lowest standardized value of a valid element.
 	 * @param upper_bound The highest standardized value of a valid element.
 	 */
 	background_moments_kernel(
-		const background_geometry &geometry,
+		const centred_ball &background,
 		double mean,
 		double scale,
 		double lower_bound,
@@ -118,7 +119,7 @@ private:
 
 	bool is_valid(double value) const noexcept;
 
-	const background_geometry *m_geometry;
+	const centred_ball *m_background;
 	double m_mean;
 	double m_scale;
 	double m_lower_bound;

@@ -5,7 +5,7 @@
 // editorconfig-checker-disable-next-line
 #include <backends/cpu/builders/em/preprocessing/standardize_background_kernel.hpp>
 
-#include <backends/cpu/kernels/standard_normal.hpp>
+#include <backends/cpu/math/random/standard_normal.hpp>
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/indices/linear_index_run.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
@@ -32,7 +32,7 @@ standardize_background_kernel make_kernel()
 {
 	const std::array<std::size_t, 1> extents = {{ 9 }};
 	return standardize_background_kernel(
-		background_geometry(make_span(extents), 1),
+		centred_ball(make_span(extents), 1),
 		-1,
 		1
 	);

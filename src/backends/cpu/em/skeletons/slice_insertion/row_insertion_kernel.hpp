@@ -5,8 +5,8 @@
 #include "insertion_chunk.hpp"
 #include "virtual_row.hpp"
 
-#include <backends/cpu/kernels/frequency_bounds.hpp>
-#include <backends/cpu/plans/frequency_interval.hpp>
+#include <backends/cpu/math/fourier/frequency_bounds.hpp>
+#include <backends/cpu/math/fourier/frequency_interval.hpp>
 #include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>

@@ -5,9 +5,9 @@
 
 #include <backends/cpu/em/skeletons/slice_insertion/row_insertion_kernel.hpp>
 
-#include <backends/cpu/builders/em/reconstruction/alternating_sign.hpp>
+#include <backends/cpu/math/fourier/alternating_sign.hpp>
 #include <backends/cpu/builders/em/reconstruction/unit_weight.hpp>
-#include <backends/cpu/kernels/triangle_window.hpp>
+#include <backends/cpu/math/windows/triangle_window.hpp>
 
 #include <complex>
 #include <vector>
