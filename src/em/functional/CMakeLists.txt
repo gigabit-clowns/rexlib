@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-em-obj
 	PRIVATE
+		optics.cpp
 		preprocessing.cpp
 		reconstruction.cpp
 )

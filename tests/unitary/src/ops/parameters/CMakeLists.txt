@@ -7,4 +7,5 @@ target_sources(
 		test_reduction_axes.cpp
 		test_restored_signal_axes.cpp
 		test_sequence_length.cpp
+		test_signal_extent.cpp
 )

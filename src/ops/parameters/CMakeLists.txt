@@ -7,4 +7,5 @@ target_sources(
 		reduction_axes.cpp
 		restored_signal_axes.cpp
 		sequence_length.cpp
+		signal_extent.cpp
 )

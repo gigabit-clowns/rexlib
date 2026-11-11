@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_optics.cpp
 		test_preprocessing.cpp
 		test_reconstruction.cpp
 )
