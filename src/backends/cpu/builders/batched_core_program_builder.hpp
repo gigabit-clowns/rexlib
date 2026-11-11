@@ -41,8 +41,8 @@ struct batched_core_ranks
 
 	static_assert(
 		shape_rule_type::placement_type::placement == core_placement::trailing,
-		"A batched core builder walks the trailing axes of its operands, so the "
-		"operation's shape rule must place the core axes last."
+		"A batched core builder walks the trailing axes of its operands, so "
+		"the operation's shape rule must place the core axes last."
 	);
 
 	static_assert(
