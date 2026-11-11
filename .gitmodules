@@ -193,11 +193,6 @@
 	url = https://github.com/boostorg/typeof.git
 	branch = boost-1.92.0
 	shallow = true
-[submodule "third_party/boost/libs/unordered"]
-	path = third_party/boost/libs/unordered
-	url = https://github.com/boostorg/unordered.git
-	branch = boost-1.92.0
-	shallow = true
 [submodule "third_party/boost/libs/utility"]
 	path = third_party/boost/libs/utility
 	url = https://github.com/boostorg/utility.git
