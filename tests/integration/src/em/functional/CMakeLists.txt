@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-integration-tests
 	PRIVATE
+		test_cpu_optics.cpp
 		test_cpu_preprocessing.cpp
 		test_cpu_reconstruction.cpp
 )

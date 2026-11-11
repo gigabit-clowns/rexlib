@@ -71,7 +71,8 @@ src/backends/cpu/
   em/
     parameters/   ctf_optics/  gridding_window/
     skeletons/    slice_insertion/
-    programs/     preprocessing/standardize_background/
+    programs/     optics/
+                  preprocessing/standardize_background/
                   reconstruction/insert_slices/
                   reconstruction/insert_weighted_slices/
                   reconstruction/insert_ctf_slices/
