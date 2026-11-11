@@ -6,6 +6,8 @@
 #include <backends/cpu/skeletons/default_kernel_factory.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 
+#include <boost/math/constants/constants.hpp>
+
 namespace rexlib
 {
 namespace cpu
@@ -14,20 +16,14 @@ namespace cpu
 namespace
 {
 
-// Spelled out rather than taken from M_PI, which is POSIX rather than
-// standard C++ and needs _USE_MATH_DEFINES before <cmath> on MSVC. It
-// rounds to the same double, and the ratio is formed once per element
-// type rather than inherited from one rounded for another.
-const long double pi = 3.141592653589793238462643383279502884L;
-
 struct degrees_kernel
 {
 	template <typename T>
 	void operator()(T *result, const T *x) const noexcept
 	{
+		using compute_type = typename element_compute_type<T>::type;
 		const auto value = load(x);
-		using compute_type = decltype(value);
-		store(result, value * static_cast<compute_type>(180.0L / pi));
+		store(result, value * boost::math::constants::radian<compute_type>());
 	}
 };
 

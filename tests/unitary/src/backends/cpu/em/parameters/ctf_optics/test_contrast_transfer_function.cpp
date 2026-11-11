@@ -5,12 +5,14 @@
 
 #include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function.hpp>
 
-#include <backends/cpu/numerical/pi.hpp>
 
 #include <cmath>
 
+#include <boost/math/constants/constants.hpp>
+
 using namespace rexlib;
 using namespace rexlib::cpu;
+using boost::math::double_constants::pi;
 using Catch::Matchers::WithinAbs;
 
 namespace

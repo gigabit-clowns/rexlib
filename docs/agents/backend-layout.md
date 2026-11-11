@@ -15,7 +15,7 @@ composing everything.
 
 | Role | Holds | On CUDA |
 |---|---|---|
-| `numerical/` | Element semantics: the standard numerics extended to the backend's element types. Loading, storing and casting, truthiness, division rounding, the ordering of unordered values, constants, special functions | Device-side counterparts |
+| `numerical/` | Element semantics: how a single value of the backend's element types behaves. Loading, storing and casting, truthiness, division rounding, the ordering of unordered values. Constants and special functions come from Boost.Math | Device-side counterparts |
 | `random/` | The random key convention: the Philox generator, key derivation, draws | The same, drawing the same bits |
 | `hardware/` | The implementation of the hardware interface: device, queue, thread pool, `functor_program` | `hardware/` |
 | `dispatch/` | The backend's `program_builder` base, its registry and the registration macro | The same |
@@ -35,7 +35,8 @@ Nothing else adds a directory to the root.
 A helper is code that a program or a skeleton uses but that is neither of
 them. It has exactly one of five homes:
 
-1. It defines how a single value behaves: `numerical/`.
+1. It defines how a single value behaves: `numerical/`. A constant or a
+   special function is Boost.Math's, not a helper.
 2. It draws or derives random bits: `random/`.
 3. It evaluates a catalog parameter type: `parameters/<type>/`, as
    `em/parameters/ctf_optics/` evaluates `em::ctf_optics`.

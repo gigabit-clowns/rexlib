@@ -5,13 +5,15 @@
 
 #include <backends/cpu/em/skeletons/slice_insertion/axis_phase.hpp>
 
-#include <backends/cpu/numerical/pi.hpp>
 
 #include <cmath>
 #include <complex>
 #include <vector>
 
+#include <boost/math/constants/constants.hpp>
+
 using namespace rexlib::cpu;
+using boost::math::double_constants::pi;
 using Catch::Matchers::WithinAbs;
 
 TEST_CASE(

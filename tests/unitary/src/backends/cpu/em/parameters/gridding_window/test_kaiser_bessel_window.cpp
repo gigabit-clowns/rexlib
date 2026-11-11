@@ -5,15 +5,17 @@
 
 #include <backends/cpu/em/parameters/gridding_window/kaiser_bessel_window.hpp>
 
-#include <backends/cpu/numerical/bessel_i0.hpp>
 
 #include <array>
 #include <cmath>
 #include <cstdint>
 #include <vector>
 
+#include <boost/math/special_functions/bessel.hpp>
+
 using namespace rexlib;
 using namespace rexlib::cpu;
+using boost::math::cyl_bessel_i;
 using Catch::Matchers::WithinAbs;
 
 TEST_CASE(
@@ -28,7 +30,8 @@ TEST_CASE(
 	CHECK( window.get_tap_count() == 4 );
 	CHECK_THAT( window.evaluate(0.0), WithinAbs(1.0, 1e-12) );
 
-	const auto expected = bessel_i0(9.0 * std::sqrt(0.75)) / bessel_i0(9.0);
+	const auto expected =
+		cyl_bessel_i(0, 9.0 * std::sqrt(0.75)) / cyl_bessel_i(0, 9.0);
 	CHECK_THAT( window.evaluate(1.0), WithinAbs(expected, 1e-6) );
 	CHECK_THAT( window.evaluate(-1.0), WithinAbs(expected, 1e-6) );
 	CHECK( window.evaluate(2.0) == 0.0 );
@@ -37,7 +40,7 @@ TEST_CASE(
 	// The window does not vanish at the half-width.
 	CHECK_THAT(
 		window.evaluate(2.0 - 1e-9),
-		WithinAbs(1.0 / bessel_i0(9.0), 1e-6)
+		WithinAbs(1.0 / cyl_bessel_i(0, 9.0), 1e-6)
 	);
 }
 

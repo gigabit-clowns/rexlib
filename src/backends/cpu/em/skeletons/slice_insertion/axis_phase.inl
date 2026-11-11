@@ -2,9 +2,10 @@
 
 #include "axis_phase.hpp"
 
-#include <backends/cpu/numerical/pi.hpp>
 
 #include <cmath>
+
+#include <boost/math/constants/constants.hpp>
 
 namespace rexlib
 {
@@ -20,6 +21,8 @@ void fill_axis_phase(
 	double shift
 ) noexcept
 {
+	using boost::math::double_constants::pi;
+
 	const auto scale = 2.0 * pi * shift / static_cast<double>(extent);
 	const auto half = extent / 2;
 	for (std::size_t j = 0; j < count; ++j)

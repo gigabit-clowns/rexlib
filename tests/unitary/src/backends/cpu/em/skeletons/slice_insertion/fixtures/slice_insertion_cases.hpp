@@ -4,8 +4,6 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/numerical/bessel_i0.hpp>
-#include <backends/cpu/numerical/pi.hpp>
 #include <core/hardware/host_memory/host_buffer.hpp>
 
 #include <rexlib/backends/cpu/cpu_program.hpp>
@@ -30,13 +28,16 @@
 #include <utility>
 #include <vector>
 
+#include <boost/math/constants/constants.hpp>
+#include <boost/math/special_functions/bessel.hpp>
+
 namespace rexlib
 {
 namespace test
 {
 
-using cpu::bessel_i0;
-using cpu::pi;
+using boost::math::cyl_bessel_i;
+using boost::math::double_constants::pi;
 
 
 template <typename T>
@@ -314,8 +315,8 @@ double window_weight(const em::gridding_window &window, double distance)
 			return 0.0;
 		}
 		const auto shape = window.get_shape();
-		return bessel_i0(shape * std::sqrt(1.0 - ratio * ratio)) /
-			bessel_i0(shape);
+		return cyl_bessel_i(0, shape * std::sqrt(1.0 - ratio * ratio)) /
+			cyl_bessel_i(0, shape);
 	}
 	}
 	return 0.0;

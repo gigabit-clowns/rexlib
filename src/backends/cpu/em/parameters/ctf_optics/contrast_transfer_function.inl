@@ -2,9 +2,10 @@
 
 #include "contrast_transfer_function.hpp"
 
-#include <backends/cpu/numerical/pi.hpp>
 
 #include <cmath>
+
+#include <boost/math/constants/constants.hpp>
 
 namespace rexlib
 {
@@ -37,6 +38,8 @@ contrast_transfer_function<T>::contrast_transfer_function(
 		phase_shift + std::asin(optics.get_amplitude_contrast())
 	))
 {
+	using boost::math::double_constants::pi;
+
 	const auto angstroms_per_millimetre = 1e7;
 	const auto wavelength = optics.get_wavelength();
 	const auto aberration =

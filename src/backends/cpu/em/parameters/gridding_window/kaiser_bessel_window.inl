@@ -2,13 +2,14 @@
 
 #include "kaiser_bessel_window.hpp"
 
-#include <backends/cpu/numerical/bessel_i0.hpp>
-
 #include <rexlib/core/platform/assert.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cmath>
+
+#include <boost/math/policies/policy.hpp>
+#include <boost/math/special_functions/bessel.hpp>
 
 namespace rexlib
 {
@@ -27,7 +28,18 @@ kaiser_bessel_window<T>::kaiser_bessel_window(
 	REXLIB_ASSERT(half_width > 0.0);
 	REXLIB_ASSERT(shape >= 0.0);
 
-	const auto normalization = 1.0 / bessel_i0(shape);
+	// I0 overflows to infinity rather than throwing.
+	using i0_policy = boost::math::policies::policy<
+		boost::math::policies::overflow_error<
+			boost::math::policies::ignore_error
+		>
+	>;
+	const auto i0 = [](double x)
+	{
+		return boost::math::cyl_bessel_i(0, x, i0_policy());
+	};
+
+	const auto normalization = 1.0 / i0(shape);
 	const auto count =
 		static_cast<std::size_t>(std::ceil(half_width * samples_per_voxel));
 	m_scale = static_cast<T>(static_cast<double>(count) / half_width);
@@ -41,7 +53,7 @@ kaiser_bessel_window<T>::kaiser_bessel_window(
 	{
 		const auto ratio = static_cast<double>(i) / static_cast<double>(count);
 		m_table[i] = static_cast<T>(
-			bessel_i0(shape * std::sqrt(1.0 - ratio * ratio)) * normalization
+			i0(shape * std::sqrt(1.0 - ratio * ratio)) * normalization
 		);
 	}
 }
