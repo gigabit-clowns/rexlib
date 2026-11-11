@@ -2,9 +2,9 @@
 
 #include <rexlib/ops/fourier/rfft_operation.hpp>
 
-#include <backends/cpu/builders/fourier_program_builder.hpp>
-#include <backends/cpu/builders/real_to_complex_fourier_transform.hpp>
-#include <backends/cpu/builders/rule_type_dispatch.hpp>
+#include <backends/cpu/skeletons/fourier/fourier_program_builder.hpp>
+#include <backends/cpu/skeletons/fourier/real_to_complex_fourier_transform.hpp>
+#include <backends/cpu/skeletons/rule_type_dispatch.hpp>
 #include <backends/cpu/kernels/fourier_transform_support.hpp>
 #include <backends/cpu/kernels/pocketfft_fft.hpp>
 

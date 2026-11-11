@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#pragma once
+
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
+
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/numerical/numerical_type.hpp>
+
+#include <backends/cpu/skeletons/operand_data_types.hpp>
+
+#include <array>
+#include <cstddef>
+#include <memory>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+/**
+ * @brief Base for a program builder that resolves its operand element types.
+ *
+ * Every CPU builder family answers the same three questions the same way,
+ * and differs only in what it plans and what it runs. This owns the part
+ * they share: the operation identity, the whole of @ref get_suitability, the
+ * operand count validation, the extraction of the operand element types and
+ * the type dispatch that turns them into compile time ones. What is left to
+ * a family is a plan and a functor.
+ *
+ * A derived builder supplies, by hiding the member of the same name where
+ * one is given a default:
+ *
+ * @code
+ * // The description of the iteration, settled once per program. Any type;
+ * // it is handed straight back to make_loop_functor.
+ * Plan make_plan(const Op &, output_descriptors, input_descriptors) const;
+ *
+ * // The functor the program runs, for one resolved set of element types.
+ * // The plan is passed by mutable reference so it can be moved from.
+ * F make_loop_functor(const Op &, Plan &, type_list<Outs...>,
+ *                     type_list<Ins...>) const;
+ *
+ * // Admissibility beyond operand counts and element types, such as a rank
+ * // an operand must reach. Accepts by default.
+ * bool accepts_descriptors(
+ *     output_descriptors,
+ *     input_descriptors
+ * ) const noexcept;
+ * @endcode
+ *
+ * These are the contract between a family and this base rather than part of
+ * the @ref program_builder interface, and are public only because the base
+ * reaches them through @p Derived.
+ *
+ * @tparam Derived The builder deriving from this, for static dispatch to the
+ * members above.
+ * @tparam Op The operation type the derived builder targets.
+ * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
+ * operand data types into compile-time element types, and is used through its
+ * static members, so it is a policy rather than a stored object.
+ */
+template <typename Derived, typename Op, typename TypeDispatch>
+class typed_program_builder
+	: public cpu_program_builder
+{
+public:
+	typed_program_builder() noexcept = default;
+	typed_program_builder(
+		const typed_program_builder &other
+	) = delete;
+	typed_program_builder(typed_program_builder &&other) = delete;
+	~typed_program_builder() override = default;
+
+	typed_program_builder& operator=(
+		const typed_program_builder &other
+	) = delete;
+	typed_program_builder& operator=(
+		typed_program_builder &&other
+	) = delete;
+
+	operation_id get_operation_id() const noexcept override;
+
+	backend_priority get_suitability(
+		const operation &operation,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
+		command_queue &queue
+	) const override;
+
+	std::shared_ptr<program> build(
+		const operation &operation,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
+		command_queue &queue,
+		program_cache *cache
+	) const override;
+
+	/**
+	 * @brief Whether the operands are admissible beyond their counts and
+	 * element types.
+	 *
+	 * Accepts, which is the answer for a family whose whole requirement the
+	 * operand counts and the typing rule already state. A family with more to
+	 * ask, such as a rank an operand must reach, hides this.
+	 *
+	 * @param output_descriptors The output operand descriptors.
+	 * @param input_descriptors The input operand descriptors.
+	 * @return bool True.
+	 */
+	bool accepts_descriptors(
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors
+	) const noexcept;
+
+private:
+	/**
+	 * @brief This builder as the type deriving from it.
+	 *
+	 * @return const Derived& This.
+	 */
+	const Derived &get_derived() const noexcept;
+};
+
+} // namespace cpu
+} // namespace rexlib
+
+#include "typed_program_builder.inl"

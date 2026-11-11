@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/plans/fourier_layout_plan.hpp>
+#include <backends/cpu/skeletons/fourier/fourier_layout_plan.hpp>
 
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 #include <rexlib/ops/fourier/fourier_normalization.hpp>

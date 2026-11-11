@@ -2,9 +2,9 @@
 
 #include <rexlib/ops/linalg/vecdot_operation.hpp>
 
-#include <backends/cpu/builders/reduction_program_builder.hpp>
-#include <backends/cpu/builders/default_kernel_factory.hpp>
-#include <backends/cpu/builders/reduction_compute_type.hpp>
+#include <backends/cpu/skeletons/reduction/reduction_program_builder.hpp>
+#include <backends/cpu/skeletons/default_kernel_factory.hpp>
+#include <backends/cpu/skeletons/reduction/reduction_compute_type.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>

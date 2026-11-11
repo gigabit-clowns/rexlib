@@ -2,9 +2,9 @@
 
 #include <rexlib/ops/reduction/amax_operation.hpp>
 
-#include <backends/cpu/builders/reduction_program_builder.hpp>
-#include <backends/cpu/builders/default_kernel_factory.hpp>
-#include <backends/cpu/builders/fold_reduction_kernel.hpp>
+#include <backends/cpu/skeletons/reduction/reduction_program_builder.hpp>
+#include <backends/cpu/skeletons/default_kernel_factory.hpp>
+#include <backends/cpu/skeletons/reduction/fold_reduction_kernel.hpp>
 #include <backends/cpu/kernels/ordering.hpp>
 
 namespace rexlib

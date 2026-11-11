@@ -2,10 +2,10 @@
 
 #include <rexlib/ops/linalg/matvec_operation.hpp>
 
-#include <backends/cpu/builders/batched_core_program_builder.hpp>
-#include <backends/cpu/plans/batched_core_layout_plan.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_program_builder.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_layout_plan.hpp>
 #include <backends/cpu/kernels/eigen_gemm.hpp>
-#include <backends/cpu/builders/rule_type_dispatch.hpp>
+#include <backends/cpu/skeletons/rule_type_dispatch.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
 

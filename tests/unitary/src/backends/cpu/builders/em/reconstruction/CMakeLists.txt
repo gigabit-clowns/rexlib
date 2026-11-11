@@ -5,14 +5,7 @@ target_sources(
 	PRIVATE
 		test_alternating_sign.cpp
 		test_ctf_weight.cpp
-		test_insertion_chunk.cpp
-		test_row_insertion_kernel.cpp
-		test_slice_entry.cpp
-		test_slice_insertion_functor.cpp
-		test_slice_insertion_program_builder.cpp
-		test_slice_insertion_tuning.cpp
 		test_spectrum_weight.cpp
 		test_tabulated_phase.cpp
 		test_unit_weight.cpp
-		test_virtual_row.cpp
 )

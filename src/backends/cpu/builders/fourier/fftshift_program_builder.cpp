@@ -2,7 +2,7 @@
 
 #include <rexlib/ops/fourier/fftshift_operation.hpp>
 
-#include <backends/cpu/builders/roll_program_builder.hpp>
+#include <backends/cpu/skeletons/roll/roll_program_builder.hpp>
 
 #include <cstddef>
 

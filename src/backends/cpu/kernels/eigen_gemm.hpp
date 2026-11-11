@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/plans/batched_core_layout_plan.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_layout_plan.hpp>
 
 #include <rexlib/core/numerical/fixed_width_float.hpp>
 

@@ -3,7 +3,7 @@
 #include <rexlib/em/ops/reconstruction/insert_ctf_slices_operation.hpp>
 
 #include "ctf_weight.hpp"
-#include "slice_insertion_program_builder.hpp"
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_program_builder.hpp>
 
 #include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
 

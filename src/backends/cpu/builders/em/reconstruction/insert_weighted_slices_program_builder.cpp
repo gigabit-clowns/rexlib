@@ -2,7 +2,7 @@
 
 #include <rexlib/em/ops/reconstruction/insert_weighted_slices_operation.hpp>
 
-#include "slice_insertion_program_builder.hpp"
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_program_builder.hpp>
 #include "spectrum_weight.hpp"
 
 #include <backends/cpu/dispatch/program_builder_registration_macros.hpp>

@@ -2,14 +2,14 @@
 
 #include <rexlib/ops/linalg/cross_operation.hpp>
 
-#include <backends/cpu/builders/type_dispatch_support_query.hpp>
-#include <backends/cpu/builders/batched_core_program_builder.hpp>
-#include <backends/cpu/builders/operand_data_types.hpp>
+#include <backends/cpu/skeletons/type_dispatch_support_query.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_program_builder.hpp>
+#include <backends/cpu/skeletons/operand_data_types.hpp>
 #include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
-#include <backends/cpu/builders/rule_type_dispatch.hpp>
+#include <backends/cpu/skeletons/rule_type_dispatch.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
-#include <backends/cpu/plans/batched_core_layout_plan.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_layout_plan.hpp>
 
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>

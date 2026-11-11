@@ -3,12 +3,5 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_batch_reduce_map_plan.cpp
-		test_batched_core_layout_plan.cpp
-		test_fourier_layout_plan.cpp
 		test_frequency_interval.cpp
-		test_roll_layout_plan.cpp
-		test_slice_insertion_layout_plan.cpp
-		test_volume_tile.cpp
-		test_volume_tiling.cpp
 )

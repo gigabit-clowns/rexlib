@@ -5,10 +5,10 @@
 #include "background_geometry.hpp"
 #include "standardize_background_kernel.hpp"
 
-#include <backends/cpu/builders/batch_reduce_map_program_builder.hpp>
-#include <backends/cpu/builders/rule_type_dispatch.hpp>
+#include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_program_builder.hpp>
+#include <backends/cpu/skeletons/rule_type_dispatch.hpp>
 #include <backends/cpu/loops/indices/element_index_tags.hpp>
-#include <backends/cpu/plans/batch_reduce_map_plan.hpp>
+#include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_plan.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
