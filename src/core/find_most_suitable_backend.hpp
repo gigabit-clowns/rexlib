@@ -9,7 +9,7 @@ namespace rexlib
 
 /**
  * @brief Find the item with the highest backend_priority in the range.
- * 
+ *
  * @tparam ForwardIte Forward iterator.
  * @tparam F Function of signature (ForwardIte::value_type) -> backend_priority.
  * @param first First element in the range.
@@ -20,8 +20,8 @@ namespace rexlib
  */
 template <typename ForwardIte, typename F>
 ForwardIte find_most_suitable_backend(
-	ForwardIte first, 
-	ForwardIte last, 
+	ForwardIte first,
+	ForwardIte last,
 	const F& suitability_evaluator
 );
 

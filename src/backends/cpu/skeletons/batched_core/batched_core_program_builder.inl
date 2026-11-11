@@ -1,0 +1,140 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include "batched_core_program_builder.hpp"
+
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/layout/strided_layout.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
+
+#include <backends/cpu/loops/batch_loop.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
+#include <backends/cpu/loops/loop_schedule.hpp>
+
+#include <tuple>
+#include <utility>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+/**
+ * @brief Adapts a per-batch-element kernel to the functor_program interface.
+ *
+ * Stores the kernel and the planned batch/core split, and on invocation
+ * drives a batch loop over the batch, handing the kernel one output pointer
+ * and two input pointers per batch element. A batch element costs a whole
+ * product of its cores, which the kernel runs on one thread.
+ */
+template <typename F, typename Outputs, typename Inputs>
+class batched_core_loop_functor;
+
+template <typename F, typename Out, typename Left, typename Right>
+class batched_core_loop_functor<F, type_list<Out>, type_list<Left, Right>>
+{
+public:
+	batched_core_loop_functor(F functor, batched_core_layout_plan plan)
+		: m_functor(std::move(functor))
+		, m_plan(std::move(plan))
+	{
+	}
+
+	void operator()(
+		std::tuple<Out*> outputs,
+		std::tuple<const Left*, const Right*> inputs,
+		std::tuple<>,
+		thread_pool &pool
+	) const
+	{
+		run_batch_loop(
+			[this] (
+				const loop_schedule& /*inner*/,
+				Out *out,
+				const Left *left,
+				const Right *right
+			)
+			{
+				m_functor(out, left, right);
+			},
+			m_plan.get_batch_layout(),
+			no_index_tag(),
+			loop_schedule(pool, 1),
+			m_plan.get_core_cost(),
+			0,
+			std::get<0>(outputs),
+			std::get<0>(inputs),
+			std::get<1>(inputs)
+		);
+	}
+
+private:
+	REXLIB_NO_UNIQUE_ADDRESS F m_functor;
+	batched_core_layout_plan m_plan;
+};
+
+template <typename Op, typename KernelFactory, typename TypeDispatch>
+bool
+batched_core_program_builder<Op, KernelFactory, TypeDispatch>
+::accepts_descriptors(
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
+) const noexcept
+{
+	using core_ranks = batched_core_ranks<Op>;
+
+	return
+		output_descriptors[0].get_layout().get_rank() >= core_ranks::output &&
+		input_descriptors[0].get_layout().get_rank() >= core_ranks::left &&
+		input_descriptors[1].get_layout().get_rank() >= core_ranks::right;
+}
+
+template <typename Op, typename KernelFactory, typename TypeDispatch>
+batched_core_layout_plan
+batched_core_program_builder<Op, KernelFactory, TypeDispatch>::make_plan(
+	const Op& /*operation*/,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
+) const
+{
+	using core_ranks = batched_core_ranks<Op>;
+
+	return batched_core_layout_plan::for_trailing_core(
+		output_descriptors,
+		input_descriptors,
+		core_ranks::output,
+		core_ranks::left,
+		core_ranks::right
+	);
+}
+
+template <typename Op, typename KernelFactory, typename TypeDispatch>
+template <typename... Outs, typename... Ins>
+auto
+batched_core_program_builder<
+	Op,
+	KernelFactory,
+	TypeDispatch
+>::make_loop_functor(
+	const Op &operation,
+	batched_core_layout_plan &plan,
+	type_list<Outs...> output_element_types,
+	type_list<Ins...> input_element_types
+) const
+{
+	auto kernel = m_kernel_factory(
+		operation,
+		output_element_types,
+		input_element_types,
+		plan
+	);
+
+	return batched_core_loop_functor<
+		decltype(kernel),
+		type_list<Outs...>,
+		type_list<Ins...>
+	>(std::move(kernel), std::move(plan));
+}
+
+} // namespace cpu
+} // namespace rexlib

@@ -48,8 +48,10 @@ TEST_CASE(
 
 	REQUIRE( descriptor.get_output_operand_names().size() == 2 );
 	REQUIRE( descriptor.get_input_operand_names().size() == 3 );
-	CHECK( std::string(descriptor.get_operand_name(1, true)) ==
-	       "remainder" );
+	CHECK(
+		std::string(descriptor.get_operand_name(1, true)) ==
+		"remainder"
+	);
 	CHECK( std::string(descriptor.get_operand_name(2, false)) == "mode" );
 	CHECK( descriptor.get_operand_name(2, true) == nullptr );
 	CHECK( descriptor.get_operand_name(3, false) == nullptr );

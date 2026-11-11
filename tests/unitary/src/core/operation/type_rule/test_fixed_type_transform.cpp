@@ -39,10 +39,14 @@ TEST_CASE(
 	using transform = fixed_type_transform<numerical_type::boolean>;
 
 	CHECK( transform::domain_type::get() == numerical_type_domain::all() );
-	CHECK( transform::apply(numerical_type::int32) ==
-	       numerical_type::boolean );
-	CHECK( transform::apply(numerical_type::complex_float32) ==
-	       numerical_type::boolean );
+	CHECK(
+		transform::apply(numerical_type::int32) ==
+		numerical_type::boolean
+	);
+	CHECK(
+		transform::apply(numerical_type::complex_float32) ==
+		numerical_type::boolean
+	);
 
 	STATIC_REQUIRE( std::is_same<
 		transform::apply_type<std::int32_t>::type,

@@ -8,15 +8,15 @@
 #include <ostream>
 #include <type_traits>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
- * @brief Tag to express the consumption of an arbitrary amount 
+ * @brief Tag to express the consumption of an arbitrary amount
  * of axes until no slack is left on the right-hand dimensions.
- * 
+ *
  * NumPy equivalent of Ellipsis or "...".
- * 
+ *
  */
 struct ellipsis_tag
 {
@@ -42,7 +42,7 @@ struct ellipsis_tag
 
 /**
  * @brief Construct an ellipsis_tag.
- * 
+ *
  * @return ellipsis_tag Newly constructed tag.
  */
 REXLIB_CONSTEXPR
@@ -50,9 +50,9 @@ ellipsis_tag ellipsis() noexcept;
 
 /**
  * @brief Tag to express the creation a new axis of size one.
- * 
+ *
  * NumPy equivalent of numpy.newaxis() or "None".
- * 
+ *
  */
 struct new_axis_tag
 {
@@ -78,7 +78,7 @@ struct new_axis_tag
 
 /**
  * @brief Construct a new_axis_tag.
- * 
+ *
  * @return new_axis_tag Newly constructed tag.
  */
 REXLIB_CONSTEXPR

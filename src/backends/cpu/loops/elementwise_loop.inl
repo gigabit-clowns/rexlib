@@ -2,10 +2,10 @@
 
 #include "elementwise_loop.hpp"
 
-#include "element_index.hpp"
-#include "inner_loop_stride_dispatch.hpp"
+#include <backends/cpu/loops/indices/element_index.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include "loop_schedule.hpp"
-#include "strided_pointer_iterator.hpp"
+#include <backends/cpu/loops/strides/strided_pointer_iterator.hpp>
 
 #include <rexlib/core/layout/joint_cursor.hpp>
 #include <rexlib/core/platform/assert.hpp>
@@ -26,7 +26,7 @@ namespace detail
 template <typename InnerLoop, typename... Pointers, std::size_t... Is>
 inline
 void run_elementwise_outer_loop_impl(
-	InnerLoop &&inner_loop,
+	const InnerLoop &inner_loop,
 	const joint_layout &layout,
 	std::size_t begin,
 	std::size_t end,
@@ -358,7 +358,7 @@ void run_elementwise_outer_loop(
 template <typename InnerLoop, typename... Pointers>
 inline
 void run_elementwise_outer_loop_range(
-	InnerLoop &&inner_loop,
+	const InnerLoop &inner_loop,
 	const joint_layout &layout,
 	std::size_t begin,
 	std::size_t end,

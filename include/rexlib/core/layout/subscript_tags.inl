@@ -4,7 +4,7 @@
 
 #include "subscript_tags.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 REXLIB_INLINE_CONSTEXPR

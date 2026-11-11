@@ -114,7 +114,8 @@ TEST_CASE_METHOD(
 )
 {
 	std::shared_ptr<mock_buffer> x_storage;
-	const array x_array = make_operand(x_storage, numerical_type::complex_float32);
+	const array x_array =
+		make_operand(x_storage, numerical_type::complex_float32);
 	const const_array_ref x = x_array;
 
 	// Referred from the end, so that resolving it is observable.
@@ -141,7 +142,8 @@ TEST_CASE_METHOD(
 )
 {
 	std::shared_ptr<mock_buffer> x_storage;
-	const array x_array = make_operand(x_storage, numerical_type::complex_float32);
+	const array x_array =
+		make_operand(x_storage, numerical_type::complex_float32);
 	const const_array_ref x = x_array;
 
 	// The numbered spellings are sugar over the one primitive: they name
@@ -166,7 +168,8 @@ TEST_CASE_METHOD(
 )
 {
 	std::shared_ptr<mock_buffer> x_storage;
-	const array x_array = make_operand(x_storage, numerical_type::complex_float32);
+	const array x_array =
+		make_operand(x_storage, numerical_type::complex_float32);
 	const const_array_ref x = x_array;
 
 	// The operand is two dimensional, so there is no third axis to

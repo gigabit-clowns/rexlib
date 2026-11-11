@@ -2,8 +2,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
-#include <backends/cpu/loops/linear_index_run.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
+#include <backends/cpu/loops/indices/linear_index_run.hpp>
 #include <backends/cpu/loops/reduction_element_adaptor.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
@@ -569,7 +569,8 @@ TEST_CASE(
 )
 {
 	const auto values = iota_vector(6);
-	const auto adaptor = make_reduction_element_adaptor(unindexed_fold_kernel());
+	const auto adaptor =
+		make_reduction_element_adaptor(unindexed_fold_kernel());
 
 	SECTION( "along a run" )
 	{

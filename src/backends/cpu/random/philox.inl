@@ -1,0 +1,113 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include "philox.hpp"
+
+#include <rexlib/core/platform/constexpr.hpp>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+namespace detail
+{
+
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_multiplier_0 = 0xD2511F53U;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_multiplier_1 = 0xCD9E8D57U;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_weyl_0 = 0x9E3779B9U;
+REXLIB_CONST_CONSTEXPR std::uint32_t philox_weyl_1 = 0xBB67AE85U;
+
+inline
+void philox_round(
+	philox_counter_type &counter,
+	const philox_key_type &key
+) noexcept
+{
+	const auto product_0 =
+		static_cast<std::uint64_t>(philox_multiplier_0) * counter[0];
+	const auto product_1 =
+		static_cast<std::uint64_t>(philox_multiplier_1) * counter[2];
+
+	const auto high_0 = static_cast<std::uint32_t>(product_0 >> 32);
+	const auto low_0 = static_cast<std::uint32_t>(product_0);
+	const auto high_1 = static_cast<std::uint32_t>(product_1 >> 32);
+	const auto low_1 = static_cast<std::uint32_t>(product_1);
+
+	counter = {{
+		high_1 ^ counter[1] ^ key[0],
+		low_1,
+		high_0 ^ counter[3] ^ key[1],
+		low_0
+	}};
+}
+
+inline
+std::uint32_t low_word(std::uint64_t value) noexcept
+{
+	return static_cast<std::uint32_t>(value);
+}
+
+inline
+std::uint32_t high_word(std::uint64_t value) noexcept
+{
+	return static_cast<std::uint32_t>(value >> 32);
+}
+
+inline
+std::uint64_t join_words(std::uint32_t low, std::uint32_t high) noexcept
+{
+	return (static_cast<std::uint64_t>(high) << 32) | low;
+}
+
+} // namespace detail
+
+inline
+philox_counter_type make_philox_counter(
+	std::uint64_t block,
+	std::uint32_t stream,
+	philox_domain domain
+) noexcept
+{
+	return {{
+		detail::low_word(block),
+		detail::high_word(block),
+		stream,
+		static_cast<std::uint32_t>(domain)
+	}};
+}
+
+inline
+philox_key_type make_philox_key(std::uint64_t key) noexcept
+{
+	return {{ detail::low_word(key), detail::high_word(key) }};
+}
+
+inline
+philox_halves_type make_philox_halves(
+	const philox_counter_type &block
+) noexcept
+{
+	return {{
+		detail::join_words(block[0], block[1]),
+		detail::join_words(block[2], block[3])
+	}};
+}
+
+inline
+philox_counter_type philox4x32_10(
+	philox_counter_type counter,
+	philox_key_type key
+) noexcept
+{
+	detail::philox_round(counter, key);
+	for (int round = 1; round < 10; ++round)
+	{
+		key[0] += detail::philox_weyl_0;
+		key[1] += detail::philox_weyl_1;
+		detail::philox_round(counter, key);
+	}
+	return counter;
+}
+
+} // namespace cpu
+} // namespace rexlib

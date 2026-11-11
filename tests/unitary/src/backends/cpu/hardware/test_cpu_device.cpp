@@ -11,7 +11,7 @@
 #include <rexlib/core/hardware/memory_resource.hpp>
 #include <rexlib/core/hardware/command_queue.hpp>
 
-#include "../serial_pool.hpp"
+#include "mock/serial_pool.hpp"
 
 using namespace rexlib;
 using namespace rexlib::cpu;

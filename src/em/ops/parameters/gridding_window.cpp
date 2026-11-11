@@ -3,6 +3,7 @@
 #include <rexlib/em/ops/parameters/gridding_window.hpp>
 
 #include <cmath>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 
@@ -33,11 +34,12 @@ gridding_window gridding_window::kaiser_bessel(
 			<< "must be finite and positive, but it is " << half_width << ".";
 		throw std::invalid_argument(oss.str());
 	}
-	if (!(std::isfinite(shape) && shape >= 0.0))
+	const auto largest_shape = std::log(std::numeric_limits<double>::max());
+	if (!(shape >= 0.0 && shape <= largest_shape))
 	{
 		std::ostringstream oss;
 		oss << "gridding_window: the shape of a Kaiser-Bessel window must be "
-			<< "finite and 0 or more, but it is " << shape << ".";
+			<< "from 0 to " << largest_shape << ", but it is " << shape << ".";
 		throw std::invalid_argument(oss.str());
 	}
 

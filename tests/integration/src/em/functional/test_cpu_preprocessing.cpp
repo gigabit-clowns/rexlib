@@ -258,7 +258,12 @@ void check_images_against_reference(
 {
 	const extent_list_type extents = { 3, 16, 16 };
 	const auto images = make_images();
-	const std::vector<T> values(images.begin(), images.end());
+	std::vector<T> values;
+	values.reserve(images.size());
+	for (const auto image : images)
+	{
+		values.push_back(static_cast<T>(image));
+	}
 
 	const auto result = em::standardize_background_2d(
 		make_array(context, extents, values),

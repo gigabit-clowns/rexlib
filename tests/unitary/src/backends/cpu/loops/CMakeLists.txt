@@ -3,12 +3,14 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_batch_loop.cpp
 		test_claimed_loop.cpp
 		test_elementwise_loop.cpp
-		test_inner_loop_stride_dispatch.cpp
-		test_multidimensional_index.cpp
 		test_parallel_grain.cpp
 		test_reduction_element_adaptor.cpp
 		test_reduction_loop.cpp
-		test_strided_pointer_iterator.cpp
 )
+
+add_subdirectory(indices)
+add_subdirectory(layouts)
+add_subdirectory(strides)

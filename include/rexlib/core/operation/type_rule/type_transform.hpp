@@ -29,7 +29,8 @@ public:
 	/**
 	 * @brief Construct a type transform.
 	 *
-	 * @param apply Value level half of the transform. Must not be null.
+	 * @param apply_function Value level half of the transform. Must not be
+	 * null.
 	 * @param domain Set of pivot types the transform is defined on. It must
 	 * outlive the transform, which the domain tags guarantee by holding it
 	 * in static storage.
@@ -37,7 +38,7 @@ public:
 	 * not be null and must outlive the transform.
 	 */
 	type_transform(
-		apply_function_type apply,
+		apply_function_type apply_function,
 		const numerical_type_domain &domain,
 		const char *relation
 	) noexcept;

@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class broadcast_error

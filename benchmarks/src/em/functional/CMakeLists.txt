@@ -3,5 +3,6 @@
 target_sources(
 	rexlib-benchmarks
 	PRIVATE
+		bench_preprocessing.cpp
 		bench_reconstruction.cpp
 )

@@ -2,8 +2,8 @@
 
 #include "reduction_element_adaptor.hpp"
 
-#include "element_index.hpp"
-#include "operand_pointers.hpp"
+#include <backends/cpu/loops/indices/element_index.hpp>
+#include <backends/cpu/loops/strides/operand_pointers.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 

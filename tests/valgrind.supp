@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+# What the dynamic linker keeps of a library still loaded at exit, as every
+# plugin a plugin_manager accepted is.
+{
+   rexlib-loaded-libraries
+   Memcheck:Leak
+   match-leak-kinds: reachable
+   ...
+   fun:_dl_open
+}

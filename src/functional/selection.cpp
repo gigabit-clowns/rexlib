@@ -19,7 +19,14 @@ array where(
 	array *out
 )
 {
-	return execute_ternary(ops::where_operation(), condition, x, y, context, out);
+	return execute_ternary(
+		ops::where_operation(),
+		condition,
+		x,
+		y,
+		context,
+		out
+	);
 }
 
 array clip(
@@ -30,7 +37,14 @@ array clip(
 	array *out
 )
 {
-	return execute_ternary(ops::clip_operation(), x, lower, upper, context, out);
+	return execute_ternary(
+		ops::clip_operation(),
+		x,
+		lower,
+		upper,
+		context,
+		out
+	);
 }
 
 array maximum(

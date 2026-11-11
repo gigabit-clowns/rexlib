@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <rexlib/ops/reduction/argmax_operation.hpp>
+
+#include <backends/cpu/skeletons/reduction/reduction_program_builder.hpp>
+#include <backends/cpu/skeletons/default_kernel_factory.hpp>
+#include <backends/cpu/skeletons/reduction/extremum_locator_kernel.hpp>
+#include <backends/cpu/numerical/ordering.hpp>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+namespace
+{
+
+/**
+ * @brief Locate the largest element along the reduced axes.
+ *
+ * The same ordering amax takes the largest element by, asked which of two
+ * elements won rather than for the element itself: a not-a-number wins, and
+ * a tie goes to the smallest index.
+ */
+struct maximum_order
+{
+	template <typename T>
+	bool operator()(const T &candidate, const T &best) const noexcept
+	{
+		return exceeds(candidate, best);
+	}
+};
+
+} // anonymous namespace
+
+REXLIB_REGISTER_LINEAR_INDEXED_REDUCTION_PROGRAM_BUILDER(
+	argmax,
+	ops::argmax_operation,
+	default_kernel_factory<extremum_locator_kernel<maximum_order>>
+);
+
+} // namespace cpu
+} // namespace rexlib

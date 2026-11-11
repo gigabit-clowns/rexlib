@@ -1,0 +1,126 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include "reduction_program_builder.hpp"
+
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/platform/cpp_attributes.hpp>
+
+#include <backends/cpu/loops/loop_schedule.hpp>
+#include <backends/cpu/loops/parallel_grain.hpp>
+#include <backends/cpu/loops/reduction_loop.hpp>
+
+#include <tuple>
+#include <utility>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+/**
+ * @brief Adapts a reduction kernel to the functor_program interface.
+ *
+ * Stores the kernel and the planned iteration, and on invocation drives
+ * run_indexed_reduction_loop with them and the index @p Indexing asks for.
+ */
+template <typename F, typename Indexing, typename Outputs, typename Inputs>
+class reduction_loop_functor;
+
+template <typename F, typename Indexing, typename... Outs, typename... Ins>
+class reduction_loop_functor<
+	F,
+	Indexing,
+	type_list<Outs...>,
+	type_list<Ins...>
+>
+{
+public:
+	reduction_loop_functor(F functor, reduction_layout_plan plan)
+		: m_functor(std::move(functor))
+		, m_plan(std::move(plan))
+	{
+	}
+
+	void operator()(
+		std::tuple<Outs*...> outputs,
+		std::tuple<const Ins*...> inputs,
+		std::tuple<>,
+		thread_pool &pool
+	) const
+	{
+		// The grain is settled inside the loop, which is the only place that
+		// knows how deep the fold behind each output is.
+		run_indexed_reduction_loop(
+			m_functor,
+			m_plan.get_kept_layout(),
+			m_plan.get_reduced_layout(),
+			m_plan.get_reduction_count(),
+			outputs,
+			inputs,
+			Indexing(),
+			loop_schedule(pool, 1)
+		);
+	}
+
+private:
+	REXLIB_NO_UNIQUE_ADDRESS F m_functor;
+	reduction_layout_plan m_plan;
+};
+
+template <
+	typename Op,
+	typename KernelFactory,
+	typename TypeDispatch,
+	typename Indexing
+>
+reduction_layout_plan
+reduction_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
+::make_plan(
+	const Op &operation,
+	span<const operand_descriptor> output_descriptors,
+	span<const operand_descriptor> input_descriptors
+) const
+{
+	const auto &parameters = operation.get_parameters();
+	return reduction_layout_plan(
+		output_descriptors,
+		input_descriptors,
+		parameters.get_axes(),
+		parameters.get_keep_dimensions(),
+		Indexing()
+	);
+}
+
+template <
+	typename Op,
+	typename KernelFactory,
+	typename TypeDispatch,
+	typename Indexing
+>
+template <typename... Outs, typename... Ins>
+auto
+reduction_program_builder<Op, KernelFactory, TypeDispatch, Indexing>
+::make_loop_functor(
+	const Op &operation,
+	reduction_layout_plan &plan,
+	type_list<Outs...> output_element_types,
+	type_list<Ins...> input_element_types
+) const
+{
+	auto kernel = m_kernel_factory(
+		operation,
+		output_element_types,
+		input_element_types
+	);
+
+	return reduction_loop_functor<
+		decltype(kernel),
+		Indexing,
+		type_list<Outs...>,
+		type_list<Ins...>
+	>(std::move(kernel), std::move(plan));
+}
+
+} // namespace cpu
+} // namespace rexlib

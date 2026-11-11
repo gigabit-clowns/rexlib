@@ -2,7 +2,7 @@
 
 #include "reduction_kernel_traits.hpp"
 
-#include "../config.hpp"
+#include <backends/cpu/config.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 

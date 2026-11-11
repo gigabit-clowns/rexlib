@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 REXLIB_INLINE_CONSTEXPR
@@ -33,8 +33,8 @@ dynamic_subscript::dynamic_subscript(std::ptrdiff_t index) noexcept
 REXLIB_INLINE_CONSTEXPR
 dynamic_subscript::dynamic_subscript(const slice &slice) noexcept
 	: m_data{
-		slice.get_start(), 
-		static_cast<std::ptrdiff_t>(slice.get_count()), 
+		slice.get_start(),
+		static_cast<std::ptrdiff_t>(slice.get_count()),
 		slice.get_step()
 	}
 	, m_type(subscript_type::slice)
@@ -42,7 +42,7 @@ dynamic_subscript::dynamic_subscript(const slice &slice) noexcept
 }
 
 REXLIB_INLINE_CONSTEXPR
-dynamic_subscript::subscript_type 
+dynamic_subscript::subscript_type
 dynamic_subscript::get_subscript_type() const noexcept
 {
 	return m_type;

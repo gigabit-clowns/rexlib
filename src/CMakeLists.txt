@@ -1,5 +1,11 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
+configure_file(
+	${PROJECT_SOURCE_DIR}/cmake/config/version_macros.h.in
+	${REXLIB_GENERATED_INCLUDE_DIR}/rexlib/core/version_macros.h
+	@ONLY
+)
+
 # Define one object library per component. Properties that CMake only
 # applies automatically to SHARED targets (export define, PIC, hidden
 # visibility) must be set explicitly on each object library.
@@ -25,6 +31,7 @@ function(rexlib_add_component NAME)
 		${NAME}
 		PUBLIC
 			$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+			$<BUILD_INTERFACE:${REXLIB_GENERATED_INCLUDE_DIR}>
 		PRIVATE
 			${PROJECT_SOURCE_DIR}/src
 	)
@@ -32,9 +39,6 @@ function(rexlib_add_component NAME)
 		${NAME}
 		PRIVATE
 			REXLIB_EXPORTING
-			REXLIB_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
-			REXLIB_VERSION_MINOR=${PROJECT_VERSION_MINOR}
-			REXLIB_VERSION_PATCH=${PROJECT_VERSION_PATCH}
 	)
 
 	# On Windows disable min and max macros
@@ -63,6 +67,15 @@ function(rexlib_add_component NAME)
 
 	rexlib_enable_warnings(${NAME})
 
+	if(REXLIB_CLANG_TIDY)
+		set_target_properties(
+			${NAME}
+			PROPERTIES
+				CXX_CLANG_TIDY
+					"${REXLIB_CLANG_TIDY_EXECUTABLE};--warnings-as-errors=*"
+		)
+	endif()
+
 	# Add coverage flags if requested
 	if(REXLIB_ENABLE_COVERAGE)
 		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -88,7 +101,7 @@ target_link_libraries(
 		spdlog::spdlog_header_only
 		half::half
 		Boost::filesystem # Eventually replace by std::filesystem (C++17)
-		Boost::headers # Container and ContainerHash
+		Boost::headers # Container, ContainerHash and Math
 		${CMAKE_DL_LIBS} # Loading the plugins
 )
 if(WIN32)
@@ -157,16 +170,27 @@ target_link_libraries(
 		rexlib-cpu-obj
 		rexlib-em-obj
 )
+# Before 1.0 a minor version may break compatibility, so the SONAME is
+# 0.<minor>; from 1.0 it is the major version. The file is named by the
+# SONAME, beside the namelink, so that an install holds one copy of it.
+if(PROJECT_VERSION_MAJOR EQUAL 0)
+	set(REXLIB_SOVERSION 0.${PROJECT_VERSION_MINOR})
+else()
+	set(REXLIB_SOVERSION ${PROJECT_VERSION_MAJOR})
+endif()
 set_target_properties(
 	rexlib
 	PROPERTIES
-		VERSION ${PROJECT_VERSION}
-		SOVERSION ${PROJECT_VERSION_MAJOR}
+		VERSION ${REXLIB_SOVERSION}
+		SOVERSION ${REXLIB_SOVERSION}
+		MACHO_COMPATIBILITY_VERSION ${REXLIB_SOVERSION}
+		MACHO_CURRENT_VERSION ${PROJECT_VERSION}
 )
 target_include_directories(
 	rexlib
 	PUBLIC
 		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+		$<BUILD_INTERFACE:${REXLIB_GENERATED_INCLUDE_DIR}>
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -225,7 +249,9 @@ install(
 		COMPONENT rexlib_development
 )
 install(
-	DIRECTORY ${PROJECT_SOURCE_DIR}/include/
+	DIRECTORY
+		${PROJECT_SOURCE_DIR}/include/
+		${REXLIB_GENERATED_INCLUDE_DIR}/
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 	COMPONENT rexlib_development
 	FILES_MATCHING
@@ -240,9 +266,15 @@ configure_package_config_file(
 	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config.cmake
 	INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/rexlib
 )
+# The same rule as the SONAME's.
+if(PROJECT_VERSION_MAJOR EQUAL 0)
+	set(REXLIB_PACKAGE_COMPATIBILITY SameMinorVersion)
+else()
+	set(REXLIB_PACKAGE_COMPATIBILITY SameMajorVersion)
+endif()
 write_basic_package_version_file(
 	${CMAKE_CURRENT_BINARY_DIR}/rexlib-config-version.cmake
-	COMPATIBILITY SameMinorVersion
+	COMPATIBILITY ${REXLIB_PACKAGE_COMPATIBILITY}
 )
 install(
 	EXPORT rexlib-targets

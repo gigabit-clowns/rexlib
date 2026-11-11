@@ -1,0 +1,94 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <rexlib/ops/linalg/matmul_operation.hpp>
+
+#include <backends/cpu/skeletons/batched_core/batched_core_program_builder.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_layout_plan.hpp>
+#include <backends/cpu/libraries/eigen/gemm/eigen_gemm.hpp>
+#include <backends/cpu/skeletons/rule_type_dispatch.hpp>
+
+#include <rexlib/core/meta/type_list.hpp>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+namespace
+{
+
+/**
+ * @brief Multiply a (m, k) matrix by a (k, n) matrix, once per batch
+ * element.
+ *
+ * Resolves, once at construction, which Eigen mapping to use: a fully
+ * unrolled fixed-size GEMM when every operand is contiguous of a shared
+ * major order and every extent is at most four, or a fully dynamic one
+ * otherwise. See eigen_gemm.hpp.
+ */
+template <typename T>
+class matmul_core_kernel
+{
+public:
+	matmul_core_kernel(
+		const operand_core &out_core,
+		const operand_core &left_core,
+		const operand_core &right_core
+	)
+		: m_out_core(out_core)
+		, m_left_core(left_core)
+		, m_right_core(right_core)
+		, m_gemm(resolve_gemm<T>(
+			left_core.get_extent(0), left_core.get_extent(1),
+			right_core.get_extent(1),
+			classify_core_layout(out_core),
+			classify_core_layout(left_core),
+			classify_core_layout(right_core)
+		))
+	{
+	}
+
+	void operator()(T *out, const T *left, const T *right) const noexcept
+	{
+		m_gemm(out, left, right, m_out_core, m_left_core, m_right_core);
+	}
+
+private:
+	operand_core m_out_core;
+	operand_core m_left_core;
+	operand_core m_right_core;
+	gemm_fn<T> m_gemm;
+};
+
+struct matmul_kernel_factory
+{
+	template <typename Op, typename Out, typename In0, typename In1>
+	auto operator()(
+		const Op &/*operation*/,
+		type_list<Out>,
+		type_list<In0, In1>,
+		const batched_core_layout_plan &plan
+	) const
+	{
+		return matmul_core_kernel<Out>(
+			plan.get_output_core(),
+			plan.get_left_core(),
+			plan.get_right_core()
+		);
+	}
+};
+
+} // anonymous namespace
+
+REXLIB_REGISTER_BATCHED_CORE_PROGRAM_BUILDER_EX(
+	matmul,
+	ops::matmul_operation,
+	matmul_kernel_factory,
+	rule_type_dispatch<
+		ops::matmul_operation::type_rule_type,
+		eigen_scalar_support
+	>
+);
+
+} // namespace cpu
+} // namespace rexlib

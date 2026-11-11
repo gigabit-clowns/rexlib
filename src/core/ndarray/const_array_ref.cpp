@@ -15,7 +15,9 @@ const_array_ref::const_array_ref() noexcept
 {
 }
 
-const_array_ref::const_array_ref(const array_implementation *implementation) noexcept
+const_array_ref::const_array_ref(
+	const array_implementation *implementation
+) noexcept
 	: m_implementation(implementation)
 {
 }

@@ -4,7 +4,7 @@
 
 #include <rexlib/core/hardware/memory_resource.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class host_memory_resource final
@@ -21,8 +21,15 @@ public:
 
 private:
 	host_memory_resource() noexcept;
-	host_memory_resource(const host_memory_resource &other) = delete; // Singleton
+	host_memory_resource(
+		const host_memory_resource &other
+	) = delete; // Singleton
 	host_memory_resource(host_memory_resource &&other) = delete; // Singleton
+
+	host_memory_resource& operator=(
+		const host_memory_resource &other
+	) = delete;
+	host_memory_resource& operator=(host_memory_resource &&other) = delete;
 
 	static const host_memory_resource m_instance;
 };

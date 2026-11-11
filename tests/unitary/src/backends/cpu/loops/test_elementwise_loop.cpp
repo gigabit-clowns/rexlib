@@ -3,12 +3,12 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <backends/cpu/loops/elementwise_loop.hpp>
-#include <backends/cpu/loops/element_index_tags.hpp>
-#include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
-#include <backends/cpu/loops/linear_index_run.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
+#include <backends/cpu/loops/indices/linear_index_run.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
-#include <backends/cpu/loops/multidimensional_index.hpp>
-#include <backends/cpu/plans/index_operands.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
+#include <backends/cpu/loops/layouts/index_operands.hpp>
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>
@@ -909,8 +909,10 @@ TEST_CASE(
 	// zero and skip it.
 	const auto layout = make_layout({}, { { {}, 5 } });
 
-	CHECK( visit_range(layout, 0, 1, 1) ==
-	       std::vector<std::ptrdiff_t>{ 5 } );
+	CHECK(
+		visit_range(layout, 0, 1, 1) ==
+		std::vector<std::ptrdiff_t>{ 5 }
+	);
 }
 
 namespace
@@ -1052,8 +1054,10 @@ TEST_CASE(
 		destination.data()
 	);
 
-	CHECK( destination ==
-	       std::vector<std::ptrdiff_t>{ 0, -1, -1, 1, -1, -1, 2 } );
+	CHECK(
+		destination ==
+		std::vector<std::ptrdiff_t>{ 0, -1, -1, 1, -1, -1, 2 }
+	);
 }
 
 TEST_CASE(
@@ -1180,8 +1184,10 @@ TEST_CASE(
 		row.data()
 	);
 
-	CHECK( destination ==
-	       std::vector<std::ptrdiff_t>{ 10, 21, 32, 13, 24, 35 } );
+	CHECK(
+		destination ==
+		std::vector<std::ptrdiff_t>{ 10, 21, 32, 13, 24, 35 }
+	);
 }
 
 TEST_CASE(
@@ -1240,8 +1246,10 @@ TEST_CASE(
 		destination.data()
 	);
 
-	CHECK( destination ==
-	       std::vector<std::ptrdiff_t>{ 0, 1, 10000, 10001, 20000, 20001 } );
+	CHECK(
+		destination ==
+		std::vector<std::ptrdiff_t>{ 0, 1, 10000, 10001, 20000, 20001 }
+	);
 }
 
 TEST_CASE(

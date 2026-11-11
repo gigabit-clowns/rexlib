@@ -1,0 +1,25 @@
+{
+  "$comment": "Every dependency of rexlib, its Python binding and its CUDA plugin, for the builds of ci.yml against installed dependencies",
+  "dependencies": [
+    "boost-container",
+    "boost-container-hash",
+    "boost-filesystem",
+    "boost-intrusive",
+    "boost-math",
+    "boost-unordered",
+    "catch2",
+    "dlpack",
+    "eigen3",
+    "half",
+    "pocketfft",
+    "spdlog",
+    "trompeloeil"
+  ],
+  "vcpkg-configuration": {
+    "default-registry": {
+      "kind": "git",
+      "repository": "https://github.com/microsoft/vcpkg",
+      "baseline": "9eec002df1cd109f8f104cd966a763daf9751489"
+    }
+  }
+}
