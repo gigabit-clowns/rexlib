@@ -186,7 +186,8 @@ jobs:
         run: ctest --preset debug
 
   # The coverage build, with warnings as errors and every dependency installed
-  # by vcpkg: the suites under valgrind, then the coverage gcovr measures.
+  # by vcpkg: the suites under valgrind, the binding's under pytest-cov, then
+  # the coverage gcovr measures.
   coverage:
     name: ${{ matrix.name }}
     timeout-minutes: 90
@@ -249,14 +250,15 @@ jobs:
           activate-environment: true
           save-cache: ${{ env.SAVE_CACHES }}
 
-      - name: Install gcovr
-        run: uv sync --locked --only-group coverage
+      - name: Install the binding's dependencies and gcovr
+        run: uv sync --locked --no-install-project --group coverage
 
       - name: Configure
         run: >-
           cmake --preset coverage
           -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
+          -DREXLIB_BUILD_PYTHON=ON
 
       - name: Build
         run: cmake --build --preset coverage
@@ -273,6 +275,13 @@ jobs:
         run: >-
           find build/coverage/Testing/Temporary -name 'MemoryChecker.*.log'
           -size +0 -exec tail -n 200 {} +
+
+      # Valgrind skips the binding's tests, and pytest-cov measures the
+      # package's coverage as they run.
+      - name: Test the binding
+        run: >-
+          ctest --test-dir build/coverage --label-regex python
+          --output-on-failure --no-tests=error
 
       - name: Measure the coverage
         run: >-
@@ -636,6 +645,18 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
 
+      # What the wheels' tests install, with the hash of each file.
+      - name: Export the tests' requirements
+        run: >-
+          uv export --frozen --only-group test --no-emit-project
+          --output-file test-requirements.txt
+
+      - name: Keep the tests' requirements
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: test-requirements
+          path: test-requirements.txt
+
   # The wheels of every platform one is shipped for, each built by
   # cibuildwheel from the source distribution: one per CPython before 3.12,
   # one abi3 wheel for 3.12 and every later CPython, and one per free-threaded
@@ -674,6 +695,11 @@ jobs:
         with:
           name: sdist
           path: dist
+
+      - name: Fetch the tests' requirements
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: test-requirements
 
       # At the same path in every run, unlike the temporary directory
       # cibuildwheel would unpack it into.

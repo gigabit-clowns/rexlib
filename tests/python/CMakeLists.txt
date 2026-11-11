@@ -22,11 +22,22 @@ set_tests_properties(
 		LABELS python
 )
 
+set(REXLIB_PYTHON_COVERAGE_ARGS)
+if(REXLIB_ENABLE_COVERAGE)
+	set(
+		REXLIB_PYTHON_COVERAGE_ARGS
+		--cov
+		--cov-config=${CMAKE_CURRENT_SOURCE_DIR}/../../pyproject.toml
+		--cov-report=term
+	)
+endif()
+
 add_test(
 	NAME rexlib-python
 	COMMAND
 		${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
 		-p no:cacheprovider
+		${REXLIB_PYTHON_COVERAGE_ARGS}
 )
 set_tests_properties(
 	rexlib-python

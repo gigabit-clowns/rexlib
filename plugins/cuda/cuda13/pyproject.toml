@@ -1,7 +1,7 @@
 # The CUDA plugin as the wheel for CUDA 13, built from the project one
 # directory up.
 [build-system]
-requires = ["scikit-build-core==1.1.1"]
+requires = ["scikit-build-core==1.1.2"]
 build-backend = "scikit_build_core.build"
 
 [project]
