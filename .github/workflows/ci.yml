@@ -542,6 +542,9 @@ jobs:
     env:
       CC: gcc
       CXX: g++
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      CMAKE_CUDA_COMPILER_LAUNCHER: ccache
       VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
       VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
       CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
@@ -550,6 +553,15 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-cuda${{ matrix.cuda }}-${{ github.job }}
+          max-size: 200M
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
 
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
@@ -820,6 +832,15 @@ jobs:
           name: wheels-linux-${{ matrix.arch }}
           path: rexlib-wheels
 
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-cuda${{ matrix.cuda }}-${{ github.job }}
+          max-size: 200M
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
       # The container sees the runner's files under /host.
       - name: Build the wheel
         uses: pypa/cibuildwheel@v4.3.5
@@ -827,6 +848,19 @@ jobs:
           package-dir: plugins/cuda/cuda${{ matrix.cuda }}
         env:
           REXLIB_WHEELHOUSE: /host${{ github.workspace }}/rexlib-wheels
+          CMAKE_C_COMPILER_LAUNCHER: /host/usr/local/bin/ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: /host/usr/local/bin/ccache
+          CMAKE_CUDA_COMPILER_LAUNCHER: /host/usr/local/bin/ccache
+          CCACHE_DIR: /host${{ github.workspace }}/.ccache
+          CCACHE_BASEDIR: /
+          CCACHE_NOHASHDIR: 1
+          CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
+          CCACHE_MAXSIZE: 200M
+
+      # The container wrote the cache as root.
+      - name: Give the compiler cache back to the runner
+        if: always()
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/.ccache"
 
       - name: Keep the wheel
         uses: actions/upload-artifact@v7.0.2

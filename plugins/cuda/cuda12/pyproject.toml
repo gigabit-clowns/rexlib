@@ -83,5 +83,15 @@ before-all = [
     "dnf install -y --disablerepo=epel cuda-nvcc-12-9 cuda-cudart-devel-12-9",
 ]
 environment = { PATH = "/usr/local/cuda-12.9/bin:$PATH" }
-environment-pass = ["REXLIB_WHEELHOUSE"]
+environment-pass = [
+    "REXLIB_WHEELHOUSE",
+    "CMAKE_C_COMPILER_LAUNCHER",
+    "CMAKE_CXX_COMPILER_LAUNCHER",
+    "CMAKE_CUDA_COMPILER_LAUNCHER",
+    "CCACHE_DIR",
+    "CCACHE_BASEDIR",
+    "CCACHE_NOHASHDIR",
+    "CCACHE_SLOPPINESS",
+    "CCACHE_MAXSIZE",
+]
 repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --exclude 'librexlib.so*' --exclude 'libcudart.so*'"
