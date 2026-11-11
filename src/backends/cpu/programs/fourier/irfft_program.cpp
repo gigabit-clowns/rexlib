@@ -5,8 +5,8 @@
 #include <backends/cpu/skeletons/fourier/complex_to_real_fourier_transform.hpp>
 #include <backends/cpu/skeletons/fourier/fourier_program_builder.hpp>
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
-#include <backends/cpu/pocketfft/fft/fourier_transform_support.hpp>
-#include <backends/cpu/pocketfft/fft/pocketfft_fft.hpp>
+#include <backends/cpu/libraries/pocketfft/fft/fourier_transform_support.hpp>
+#include <backends/cpu/libraries/pocketfft/fft/pocketfft_fft.hpp>
 
 namespace rexlib
 {

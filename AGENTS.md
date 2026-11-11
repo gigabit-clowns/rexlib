@@ -64,7 +64,7 @@ library's build with `REXLIB_BUILD_CUDA_PLUGIN`; see
 | Doc | Read it before |
 |---|---|
 | [layout.md](docs/agents/layout.md) | Adding, moving or looking for a file or directory, or deciding which side of the binding a change goes in |
-| [backend-layout.md](docs/agents/backend-layout.md) | Adding a program, skeleton, concept library or library adaptor to a backend, or moving a file within one |
+| [backend-layout.md](docs/agents/backend-layout.md) | Adding a program, skeleton, helper or library adaptor to a backend, or moving a file within one |
 | [building.md](docs/agents/building.md) | Changing the build of the library, the binding or the CUDA plugin, their options or presets, the install test, the Doxygen target or coverage |
 | [dependencies.md](docs/agents/dependencies.md) | Adding, bumping or pinning a dependency, or touching `cmake/modules/` |
 | [tests.md](docs/agents/tests.md) | Running the suites, adding or moving a test, or adding a test requirement |

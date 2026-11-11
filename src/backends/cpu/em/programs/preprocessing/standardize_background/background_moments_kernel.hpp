@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/regions/centred_ball.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp>
 
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 

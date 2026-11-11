@@ -7,11 +7,10 @@ target_sources(
 )
 
 add_subdirectory(dispatch)
-add_subdirectory(eigen)
 add_subdirectory(em)
 add_subdirectory(hardware)
+add_subdirectory(libraries)
 add_subdirectory(loops)
 add_subdirectory(numerical)
-add_subdirectory(pocketfft)
 add_subdirectory(programs)
 add_subdirectory(skeletons)

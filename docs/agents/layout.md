@@ -7,7 +7,7 @@ tests and build files.
 |---|---|
 | `include/rexlib/` | The public headers of the library |
 | `src/` | The library's implementation, plus headers that are not public |
-| `src/backends/cpu/` | The CPU backend, built into the library, by role: numerical, hardware, dispatch, loops, concept libraries, skeletons, library adaptors, programs, and `em/` for EM code; see [backend layout](backend-layout.md) |
+| `src/backends/cpu/` | The CPU backend, built into the library, by role: numerical, random, hardware, dispatch, loops, parameters, skeletons, libraries, programs, and `em/` for EM code; see [backend layout](backend-layout.md) |
 | `src/core/` | What an operation is and which operands it admits (`operation/`, with the shape and type rule languages in `shape_rule/` and `type_rule/`), how it runs (`dispatch/`), layouts, hardware abstraction, plugin loading |
 | `src/ops/`, `src/functional/` | Operation declarations and the functions that reach them |
 | `src/em/` | The Cryo-EM and Cryo-ET operations and the functions that reach them, in namespace `rexlib::em`. Their CPU programs live under `src/backends/cpu/em/`; see [backend layout](backend-layout.md) |
