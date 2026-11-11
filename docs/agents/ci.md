@@ -32,10 +32,10 @@ commits both files.
 |---|---|
 | One per platform and toolchain | Ubuntu 22.04 and 26.04 x86_64 with clang, Ubuntu 22.04 aarch64 with gcc, macOS 15 and 26 arm64 with Apple clang, Windows Server 2022 and 2025 x86_64 with MSVC, Windows 11 arm64 with MSVC, Windows Server 2025 x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. |
 | Ubuntu 22.04 x86_64, clang, install; Ubuntu 22.04 aarch64, gcc, install | The library the CUDA jobs build the plugin against: the `release` preset, with the dependencies built from their submodules and no tests, installed without its debug information and kept as an artifact, so that the CUDA jobs start once it is ready rather than after the whole matrix |
-| Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the coverage, which gcovr reports in the log |
+| Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset with the Python binding, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the binding's under pytest-cov, then the coverage, which gcovr and pytest-cov report in the log |
 | Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are built with rexlib from their submodules, and warnings do not fail it |
 | Ubuntu 22.04 x86_64, gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of the oldest supported image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
-| Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the install job made for its architecture, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.24.0, the oldest it supports. The runners have no GPU, so the tests that need one skip themselves |
+| Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 26.04 x86_64, CUDA 13; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the install job made for its architecture, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's repository for the row's Ubuntu, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.24.0, the oldest it supports. The runners have no GPU, so the tests that need one skip themselves |
 | Ubuntu 26.04 x86_64, clang, CUDA 13, address and undefined behaviour sanitizers; thread sanitizer | The plugin's `sanitize` and `sanitize-thread` presets, against the library the x86_64 install job made: the plugin's default build, with its dependencies built from its own submodules, and its tests |
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
 | Linux x86_64 and aarch64, macOS arm64, Windows x86_64 and arm64, wheels | cibuildwheel builds the `rexlib` wheels from the source distribution, as `pyproject.toml` sets it up: one per CPython before 3.12, one abi3 wheel for 3.12 and every later CPython, which abi3audit checks, and one per free-threaded CPython. Each is tested on every interpreter it serves: imported, then run through the Python suite but for the tests of the dummy plugins, which no wheel carries; the free-threaded 3.15 one, for which numpy publishes no wheel, by its import alone. The compiler cache carries the library from one interpreter's build to the next; on Linux, where the wheels are built in a container, the container runs the runner's ccache from `/host`. Each job then builds the install test's sample plugin as a wheel against the abi3 wheel, with Python 3.15 and without build isolation, and checks that the default catalog loads it |
@@ -52,8 +52,8 @@ Windows Server 2022 and 2025. MinGW, which ships no wheel, is built on Windows
 Server 2025 alone. Each end has a row of its own unless another job builds it:
 the gcc of Ubuntu 22.04 on x86_64 is the minimum versions job's, and the gcc of
 Ubuntu 26.04 the coverage job's. The clang of Ubuntu 26.04 also builds the
-sanitizer jobs and Lint. The CUDA jobs stay on Ubuntu 24.04, whose packages
-NVIDIA publishes for both majors.
+sanitizer jobs and Lint. CUDA 12 builds on Ubuntu 24.04, and CUDA 13 on
+Ubuntu 26.04 x86_64 and Ubuntu 24.04 aarch64.
 
 Every job with warnings as errors, and Lint, builds against installed
 dependencies, whose headers count as system headers, so that only rexlib's
@@ -79,7 +79,9 @@ of any kind, or any other error it reports, fail the test, except what
 `tests/valgrind.supp` suppresses: the dynamic linker's records of a library
 still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
 gcovr, from the `coverage` group, measures the coverage and prints its summary
-in the log.
+in the log. Valgrind skips the binding's tests, so `ctest -L python` runs them
+after it; under `REXLIB_ENABLE_COVERAGE` the build adds `--cov` to their
+pytest, which prints the package's coverage.
 
 A job is named by platform, toolchain and purpose, in that order, each left out
 when it says nothing. A job that builds and tests on a runner names the
@@ -123,8 +125,8 @@ the version `[tool.uv] required-version` names, and the job's Python, in a
 virtual environment that the later steps see. `uv sync --locked
 --no-install-project` installs the `dev` group into it, exactly as
 `uv.lock` pins it, and CMake's FindPython finds that interpreter first. The
-Lint and coverage jobs take uv the same way, and install the `lint` or the
-`coverage` group alone, with `--only-group`.
+Lint job takes uv the same way and installs the `lint` group alone, with
+`--only-group`; the coverage job adds the `coverage` group to `dev`.
 
 The branch rules require one check, All checks. It runs whatever happened
 before it, because a job that a failure skipped would otherwise count as
@@ -133,14 +135,13 @@ branches to be up to date before merging" is on, so two pull requests that pass
 apart but fail together cannot both merge untested.
 
 Each job keeps its compiler cache through `hendrikmuhs/ccache-action`, capped
-at 500 MB and cleared of what the job did not use. The action installs its
-own ccache binary on every runner, the version its pinned commit names, and
-reports the cache's hit rate in the job summary. The packages vcpkg builds
-are cached per runner image, compiler and triplet, keyed on its manifest; a
-new key starts from the newest such cache, and vcpkg builds only what
-changed.
-setup-uv caches what uv downloads, keyed on `uv.lock` and every
-`pyproject.toml`.
+at 500 MB unless the job sets another size, and cleared of what the job did not
+use. The action installs its own ccache binary on every runner, the version its
+pinned commit names, and reports the cache's hit rate in the job summary. The
+packages vcpkg builds are cached per runner image, compiler and triplet, keyed
+on its manifest; a new key starts from the newest such cache, and vcpkg builds
+only what changed. setup-uv caches what uv downloads, keyed on `uv.lock` and
+every `pyproject.toml`.
 
 Only runs on `main` save caches, as the workflow's `SAVE_CACHES` says; every
 other run restores them and saves none. A pull request therefore starts from
@@ -167,7 +168,11 @@ of one row, as `runs-on` can read only the matrix.
 `ci.yml` builds them in the `wheels` jobs, one per platform, from the source
 distribution the `sdist` job builds, so that every platform also checks that
 the source distribution builds. cibuildwheel takes its
-settings from `pyproject.toml`; the workflow adds only the compiler cache.
+settings from `pyproject.toml`; the workflow adds the compiler cache and
+`test-requirements.txt`, the `test` group with the hash of each file, which
+the `sdist` job exports from `uv.lock` as an artifact of its own, so that the
+release does not publish it. The tests install it with `--require-hashes
+--only-binary :all:`.
 
 A platform gets a wheel for each CPython older than 3.12, one abi3 wheel for
 3.12 and every later CPython, and one for each free-threaded interpreter
@@ -226,11 +231,13 @@ reaches the CUDA runtime of NVIDIA's wheel three levels up, in
 leaves both librexlib and libcudart out of the wheel.
 
 cibuildwheel builds it once, with the newest CPython, in the manylinux image
-after installing NVIDIA's compiler and runtime from its RHEL 8 repository,
-without build isolation against the rexlib wheel of the same release, which
-`REXLIB_WHEELHOUSE` names. It is tested by loading the plugin through the
-default catalog, which needs no GPU. `ci.yml` does this in its `cuda-wheels`
-jobs, with the rexlib wheels of the run.
+after installing NVIDIA's compiler and runtime from its RHEL 8 repository with
+EPEL, whose mirrors fail, disabled, and without build isolation against the
+rexlib wheel of the same release, which `REXLIB_WHEELHOUSE` names. The runner's
+ccache serves it, with the settings `environment-pass` lets into the container.
+It is tested by loading the plugin through the default catalog, which needs no
+GPU. `ci.yml` does this in its `cuda-wheels` jobs, with the rexlib wheels of
+the run.
 
 ## Releases
 
