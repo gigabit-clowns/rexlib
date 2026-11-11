@@ -6,7 +6,6 @@ target_sources(
 		test_cpu_plugin.cpp
 )
 
-add_subdirectory(builders)
 add_subdirectory(dispatch)
 add_subdirectory(eigen)
 add_subdirectory(em)

@@ -5,9 +5,9 @@
 
 #include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_functor.hpp>
 
-#include <backends/cpu/builders/em/reconstruction/ctf_weight.hpp>
-#include <backends/cpu/builders/em/reconstruction/spectrum_weight.hpp>
-#include <backends/cpu/builders/em/reconstruction/unit_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_slices/unit_weight.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
 #include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp>
 
