@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/kernels/pocketfft_fft.hpp>
+#include <backends/cpu/pocketfft/fft/pocketfft_fft.hpp>
 #include <backends/cpu/skeletons/fourier/fourier_layout_plan.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>

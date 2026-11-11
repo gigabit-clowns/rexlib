@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/kernels/pocketfft_fft.hpp>
+#include <backends/cpu/pocketfft/fft/pocketfft_fft.hpp>
 
 #include <backends/cpu/config.hpp>
 

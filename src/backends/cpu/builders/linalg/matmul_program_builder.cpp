@@ -4,7 +4,7 @@
 
 #include <backends/cpu/skeletons/batched_core/batched_core_program_builder.hpp>
 #include <backends/cpu/skeletons/batched_core/batched_core_layout_plan.hpp>
-#include <backends/cpu/kernels/eigen_gemm.hpp>
+#include <backends/cpu/eigen/gemm/eigen_gemm.hpp>
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>

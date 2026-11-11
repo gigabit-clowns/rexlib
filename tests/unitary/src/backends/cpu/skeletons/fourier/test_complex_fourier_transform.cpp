@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <backends/cpu/skeletons/fourier/complex_fourier_transform.hpp>
-#include <backends/cpu/kernels/pocketfft_fft.hpp>
+#include <backends/cpu/pocketfft/fft/pocketfft_fft.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/skeletons/fourier/fourier_layout_plan.hpp>
 

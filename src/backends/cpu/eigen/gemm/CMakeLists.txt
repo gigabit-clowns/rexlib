@@ -16,5 +16,4 @@ target_sources(
 		eigen_gemm_uint32.cpp
 		eigen_gemm_uint64.cpp
 		eigen_gemm_uint8.cpp
-		pocketfft_fft.cpp
 )

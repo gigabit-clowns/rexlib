@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/kernels/is_fourier_transformable.hpp>
+#include <backends/cpu/pocketfft/fft/is_fourier_transformable.hpp>
 
 namespace rexlib
 {

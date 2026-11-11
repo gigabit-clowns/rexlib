@@ -8,9 +8,10 @@ target_sources(
 
 add_subdirectory(builders)
 add_subdirectory(dispatch)
+add_subdirectory(eigen)
 add_subdirectory(em)
 add_subdirectory(hardware)
-add_subdirectory(kernels)
 add_subdirectory(loops)
 add_subdirectory(math)
+add_subdirectory(pocketfft)
 add_subdirectory(skeletons)

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/kernels/eigen_gemm_impl.hpp>
+#include <backends/cpu/eigen/gemm/eigen_gemm_impl.hpp>
 
 #include <complex>
 
@@ -9,7 +9,7 @@ namespace rexlib
 namespace cpu
 {
 
-REXLIB_INSTANTIATE_EIGEN_GEMM(std::complex<float64_t>);
+REXLIB_INSTANTIATE_EIGEN_GEMM(std::complex<float32_t>);
 
 } // namespace cpu
 } // namespace rexlib

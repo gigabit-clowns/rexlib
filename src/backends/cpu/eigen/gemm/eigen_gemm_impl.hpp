@@ -25,7 +25,7 @@
  * @see REXLIB_INSTANTIATE_EIGEN_GEMM
  */
 
-#include <backends/cpu/kernels/eigen_gemm.hpp>
+#include <backends/cpu/eigen/gemm/eigen_gemm.hpp>
 
 #include <Eigen/Dense>
 

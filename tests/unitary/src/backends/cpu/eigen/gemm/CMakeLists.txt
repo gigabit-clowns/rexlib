@@ -4,5 +4,4 @@ target_sources(
 	rexlib-unitary-tests
 	PRIVATE
 		test_eigen_gemm.cpp
-		test_pocketfft_fft.cpp
 )

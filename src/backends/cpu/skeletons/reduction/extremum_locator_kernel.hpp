@@ -16,11 +16,6 @@ namespace rexlib
 namespace cpu
 {
 
-// This header holds scaffolding rather than arithmetic, for the same reason
-// fold_reduction_kernel does: it adapts an ordering to the reduction kernel
-// concept. The ordering itself belongs in its operation's translation unit,
-// or in kernels/ when several operations share it.
-
 /**
  * @brief Reduction kernel locating where an extremum sits.
  *

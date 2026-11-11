@@ -18,13 +18,6 @@ namespace rexlib
 namespace cpu
 {
 
-// This header holds scaffolding rather than arithmetic: it adapts a plain
-// binary fold to the reduction kernel concept, the way default_kernel_factory
-// adapts a stateless kernel to the factory one. That is why it sits beside
-// the builders and not in kernels/, which is for the arithmetic itself: a
-// fold's own body belongs in its operation's translation unit, or in kernels/
-// when several operations share it.
-
 /**
  * @brief The default way an element enters an accumulator.
  *

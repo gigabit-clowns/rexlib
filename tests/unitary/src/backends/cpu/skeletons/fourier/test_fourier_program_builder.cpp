@@ -5,8 +5,8 @@
 #include <backends/cpu/skeletons/fourier/complex_fourier_transform.hpp>
 #include <backends/cpu/skeletons/fourier/fourier_program_builder.hpp>
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
-#include <backends/cpu/kernels/fourier_transform_support.hpp>
-#include <backends/cpu/kernels/pocketfft_fft.hpp>
+#include <backends/cpu/pocketfft/fft/fourier_transform_support.hpp>
+#include <backends/cpu/pocketfft/fft/pocketfft_fft.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>

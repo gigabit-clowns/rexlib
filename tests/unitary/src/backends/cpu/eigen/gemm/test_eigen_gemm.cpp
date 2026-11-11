@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/kernels/eigen_gemm.hpp>
+#include <backends/cpu/eigen/gemm/eigen_gemm.hpp>
 
 #include <complex>
 #include <cstddef>

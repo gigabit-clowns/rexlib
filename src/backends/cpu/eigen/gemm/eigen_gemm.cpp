@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/kernels/eigen_gemm.hpp>
+#include <backends/cpu/eigen/gemm/eigen_gemm.hpp>
 
 #include <cstddef>
 
