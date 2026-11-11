@@ -13,6 +13,7 @@ workflows:
         - 'ilammy/msvc-dev-cmd@v1.13.0'
         - 'pypa/cibuildwheel@v4.3.5'
         - 're-actors/alls-green@v1.3.0'
+        - 'SonarSource/sonarqube-scan-action@v8.4.0'
     '.github/workflows/release.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/deploy-pages@v5.0.1'
@@ -101,3 +102,8 @@ dependencies:
         commit: 'sha1-b5b5b37504aa4183270bd3d855c52a67f212be35'
         owner_id: 46427759
         repo_id: 434447646
+    'SonarSource/sonarqube-scan-action@v8.4.0':
+        ref: 'v8.4.0'
+        commit: 'sha1-4d1dc0c91ee400dcf8a6dddf2f705ac36542e304'
+        owner_id: 545988
+        repo_id: 366408409

@@ -187,16 +187,20 @@ jobs:
 
   # The coverage build, with warnings as errors and every dependency installed
   # by vcpkg: the suites under valgrind, the binding's under pytest-cov, then
-  # the coverage gcovr measures.
+  # the CUDA plugin built against the installed library and tested, then the
+  # coverage gcovr measures and SonarCloud's analysis of all of it.
   coverage:
     name: ${{ matrix.name }}
     timeout-minutes: 90
     strategy:
       matrix:
         include:
-          - name: Ubuntu 26.04 x86_64, gcc, coverage and valgrind
+          - name: Ubuntu 26.04 x86_64, gcc, coverage, valgrind and SonarCloud
             os: ubuntu-26.04
             vcpkg-triplet: x64-linux
+            distribution: ubuntu2604
+            repository: x86_64
+            cuda: '13.4'
     runs-on: ${{ matrix.os }}
     env:
       CC: gcc
@@ -211,11 +215,23 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Install valgrind
         run: |
           sudo apt-get update
           sudo apt-get install --yes valgrind
+
+      - name: Install the CUDA toolkit
+        env:
+          REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/${{ matrix.distribution }}/${{ matrix.repository }}
+          CUDA: ${{ matrix.cuda }}
+        run: |
+          curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
+          sudo dpkg -i cuda-keyring_1.1-1_all.deb
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            "cuda-nvcc-${CUDA/./-}" "cuda-cudart-dev-${CUDA/./-}"
 
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
@@ -283,11 +299,65 @@ jobs:
           ctest --test-dir build/coverage --label-regex python
           --output-on-failure --no-tests=error
 
+      # The binding is left out: installing it would run its stub generator.
+      - name: Install the library
+        run: |
+          for component in rexlib_runtime rexlib_development; do
+            cmake --install build/coverage --prefix "$RUNNER_TEMP/rexlib" \
+              --component "$component"
+          done
+
+      - name: Configure the CUDA plugin
+        env:
+          rexlib_ROOT: ${{ runner.temp }}/rexlib
+          CUDAToolkit_ROOT: /usr/local/cuda-${{ matrix.cuda }}
+          CUDACXX: /usr/local/cuda-${{ matrix.cuda }}/bin/nvcc
+        run: >-
+          cmake -S plugins/cuda -B build/coverage-cuda
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          -DCMAKE_CXX_FLAGS=--coverage
+          -DCMAKE_EXE_LINKER_FLAGS=--coverage
+          -DCMAKE_MODULE_LINKER_FLAGS=--coverage
+          -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
+          -DCMAKE_CUDA_ARCHITECTURES=75
+
+      - name: Build the CUDA plugin
+        run: cmake --build build/coverage-cuda
+
+      - name: Test the CUDA plugin
+        run: >-
+          ctest --test-dir build/coverage-cuda
+          --output-on-failure --no-tests=error
+
       - name: Measure the coverage
         run: >-
-          gcovr --root . --object-directory build/coverage --exclude '\.vcpkg/'
+          gcovr --root . build/coverage build/coverage-cuda
+          --exclude '\.vcpkg/' --exclude 'build/' --exclude 'third_party/'
+          --exclude 'plugins/cuda/third_party/' --exclude 'tests/'
+          --exclude 'plugins/cuda/tests/' --exclude 'benchmarks/'
           --merge-lines --exclude-throw-branches --exclude-unreachable-branches
+          --sonarqube build/coverage-sonarqube.xml
           --print-summary
+
+      # SonarCloud reads one compilation database.
+      - name: Merge the compilation databases
+        run: >-
+          python -c "import json;
+          databases = ['build/coverage', 'build/coverage-cuda'];
+          json.dump(sum((json.load(open(d + '/compile_commands.json')) for d in databases), []),
+          open('build/compile_commands.json', 'w'))"
+
+      # Pull requests from forks get no token.
+      - name: Analyse with SonarCloud
+        if: >-
+          github.ref == 'refs/heads/main'
+          || (github.event_name == 'pull_request'
+          && github.event.pull_request.head.repo.full_name == github.repository)
+        uses: SonarSource/sonarqube-scan-action@v8.4.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # The default build, with the dependencies built with rexlib from their
   # submodules.

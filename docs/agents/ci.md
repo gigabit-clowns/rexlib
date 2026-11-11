@@ -32,7 +32,7 @@ commits both files.
 |---|---|
 | One per platform and toolchain | Ubuntu 22.04 and 26.04 x86_64 with clang, Ubuntu 22.04 aarch64 with gcc, macOS 15 and 26 arm64 with Apple clang, Windows Server 2022 and 2025 x86_64 with MSVC, Windows 11 arm64 with MSVC, Windows Server 2025 x86_64 with MinGW. Each builds the `debug` preset with warnings as errors and runs every suite, the header check and the install test. All but MinGW also build the Python binding, with the newest Python, and run its tests. |
 | Ubuntu 22.04 x86_64, clang, install; Ubuntu 22.04 aarch64, gcc, install | The library the CUDA jobs build the plugin against: the `release` preset, with the dependencies built from their submodules and no tests, installed without its debug information and kept as an artifact, so that the CUDA jobs start once it is ready rather than after the whole matrix |
-| Ubuntu 26.04 x86_64, gcc, coverage and valgrind | The `coverage` preset with the Python binding, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the binding's under pytest-cov, then the coverage, which gcovr and pytest-cov report in the log |
+| Ubuntu 26.04 x86_64, gcc, coverage, valgrind and SonarCloud | The `coverage` preset with the Python binding, with warnings as errors and the dependencies installed by vcpkg: the suites under valgrind, then the binding's under pytest-cov, then the CUDA plugin built against the installed library with coverage and tested, then the coverage, which gcovr and pytest-cov report in the log, and SonarCloud's analysis of the library, the binding and the plugin |
 | Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are built with rexlib from their submodules, and warnings do not fail it |
 | Ubuntu 22.04 x86_64, gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of the oldest supported image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 26.04 x86_64, CUDA 13; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the install job made for its architecture, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's repository for the row's Ubuntu, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.24.0, the oldest it supports. The runners have no GPU, so the tests that need one skip themselves |
@@ -81,7 +81,24 @@ still loaded at exit, which every plugin a `plugin_manager` accepted is. Then
 gcovr, from the `coverage` group, measures the coverage and prints its summary
 in the log. Valgrind skips the binding's tests, so `ctest -L python` runs them
 after it; under `REXLIB_ENABLE_COVERAGE` the build adds `--cov` to their
-pytest, which prints the package's coverage.
+pytest, which prints the package's coverage and writes it to
+`build/coverage/coverage-python.xml`. The library is then installed, without
+the binding, whose install would run its stub generator, and the CUDA plugin
+is built against it with `--coverage` and tested, without valgrind: the
+plugin's sanitizer jobs check its memory. gcovr measures both builds, leaving
+out the tests and the dependencies, and writes SonarQube's report beside its
+summary.
+
+SonarCloud's project `gigabit-clowns_rexlib` analyses the library, the
+binding and the plugin, as `sonar-project.properties` sets it up, from the
+end of the coverage job: on `main` and on pull requests from this repository,
+since a fork's get no token. The job checks the whole history out, from
+which SonarCloud tells new code from old. Its C and C++ analysis reads one
+compilation database, so the job merges the library's and the plugin's into
+`build/compile_commands.json`. Its quality gate is a required check beside
+All checks. The binding's C++ is left out of the coverage, as no build
+instruments it, and so is the plugin's code that only runs on a GPU, which
+the runners lack.
 
 A job is named by platform, toolchain and purpose, in that order, each left out
 when it says nothing. A job that builds and tests on a runner names the
@@ -104,7 +121,7 @@ shell, on Windows too.
 The rows of a matrix differ by data, which a step reads (`if: matrix.msvc`,
 `-DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}`), never by comparing a row's
 name or preset; a build that runs other steps is a job of its own, as the
-coverage and valgrind one is. A job states its configuration once, in its
+coverage one is. A job states its configuration once, in its
 `env`, through the variables the tools read themselves: the compiler (`CC`,
 `CXX`), ccache as CMake's compiler launcher (`CMAKE_C_COMPILER_LAUNCHER`,
 `CMAKE_CXX_COMPILER_LAUNCHER`), vcpkg's triplets (`VCPKG_DEFAULT_TRIPLET`,
@@ -128,7 +145,7 @@ virtual environment that the later steps see. `uv sync --locked
 Lint job takes uv the same way and installs the `lint` group alone, with
 `--only-group`; the coverage job adds the `coverage` group to `dev`.
 
-The branch rules require one check, All checks. It runs whatever happened
+The branch rules require All checks and SonarCloud's quality gate. It runs whatever happened
 before it, because a job that a failure skipped would otherwise count as
 passed, and it keeps the names of matrix rows out of the rules. "Require
 branches to be up to date before merging" is on, so two pull requests that pass

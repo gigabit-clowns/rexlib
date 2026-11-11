@@ -98,6 +98,7 @@ markers = [
 
 [tool.coverage.run]
 source = ["rexlib"]
+relative_files = true
 
 # The tests import the installed package, not python/rexlib.
 [tool.coverage.paths]
@@ -114,6 +115,7 @@ sdist.exclude = [
     ".vscode/**",
     "plugins/**",
     "renovate.json",
+    "sonar-project.properties",
     "third_party/**/test/**",
     "third_party/**/tests/**",
     "third_party/**/doc/**",

@@ -29,6 +29,7 @@ if(REXLIB_ENABLE_COVERAGE)
 		--cov
 		--cov-config=${CMAKE_CURRENT_SOURCE_DIR}/../../pyproject.toml
 		--cov-report=term
+		--cov-report=xml:${CMAKE_BINARY_DIR}/coverage-python.xml
 	)
 endif()
 
