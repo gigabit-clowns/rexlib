@@ -509,13 +509,22 @@ jobs:
         include:
           - name: Ubuntu 24.04 x86_64, CUDA 12
             os: ubuntu-24.04
+            distribution: ubuntu2404
             repository: x86_64
             cuda: '12.9'
             vcpkg-triplet: x64-linux
             cmake: '3.24.0'
             install-artifact: install-linux-x86_64
+          - name: Ubuntu 26.04 x86_64, CUDA 13
+            os: ubuntu-26.04
+            distribution: ubuntu2604
+            repository: x86_64
+            cuda: '13.4'
+            vcpkg-triplet: x64-linux
+            install-artifact: install-linux-x86_64
           - name: Ubuntu 24.04 aarch64, CUDA 13
             os: ubuntu-24.04-arm
+            distribution: ubuntu2404
             repository: sbsa
             cuda: '13.4'
             vcpkg-triplet: arm64-linux
@@ -553,7 +562,7 @@ jobs:
 
       - name: Install the CUDA toolkit
         env:
-          REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${{ matrix.repository }}
+          REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/${{ matrix.distribution }}/${{ matrix.repository }}
           CUDA: ${{ matrix.cuda }}
         run: |
           curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"

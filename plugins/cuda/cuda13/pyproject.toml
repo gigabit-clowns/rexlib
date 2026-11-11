@@ -78,8 +78,9 @@ test-command = "python -c \"import rexlib; assert 'cuda' in rexlib.hardware.get_
 
 [tool.cibuildwheel.linux]
 before-all = [
-    "curl -fsSLo /etc/yum.repos.d/cuda.repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/$(uname -m | sed s/aarch64/sbsa/)/cuda-rhel8.repo",
-    "dnf install -y cuda-nvcc-13-4 cuda-cudart-devel-13-4",
+    "curl -fsSL --retry 3 --retry-delay 5 -o /etc/yum.repos.d/cuda.repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/$(uname -m | sed s/aarch64/sbsa/)/cuda-rhel8.repo",
+    "dnf clean all",
+    "dnf install -y --disablerepo=epel cuda-nvcc-13-4 cuda-cudart-devel-13-4",
 ]
 environment = { PATH = "/usr/local/cuda-13.4/bin:$PATH" }
 environment-pass = ["REXLIB_WHEELHOUSE"]
