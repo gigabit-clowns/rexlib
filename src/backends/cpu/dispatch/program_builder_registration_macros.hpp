@@ -4,7 +4,7 @@
 
 #include <rexlib/core/dispatch/program_builder_registration.hpp>
 
-#include <backends/cpu/builders/cpu_program_builder_registry.hpp>
+#include <backends/cpu/dispatch/cpu_program_builder_registry.hpp>
 
 /**
  * @brief Instantiate and auto-register a CPU program builder.

@@ -5,7 +5,7 @@
 #include <backends/cpu/builders/reduction_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/fold_reduction_kernel.hpp>
-#include <backends/cpu/kernels/boolean_cast.hpp>
+#include <backends/cpu/numerical/boolean_cast.hpp>
 
 namespace rexlib
 {

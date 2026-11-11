@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/builders/cpu_program_builder_registry.hpp>
+#include <backends/cpu/dispatch/cpu_program_builder_registry.hpp>
 
 using namespace rexlib;
 using namespace rexlib::cpu;

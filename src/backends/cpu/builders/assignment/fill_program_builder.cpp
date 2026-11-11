@@ -3,7 +3,7 @@
 #include <rexlib/ops/assignment/fill_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 
 namespace rexlib
 {

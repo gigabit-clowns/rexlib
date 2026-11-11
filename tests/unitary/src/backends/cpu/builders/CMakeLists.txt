@@ -8,7 +8,6 @@ target_sources(
 		test_complex_fourier_transform.cpp
 		test_complex_to_real_fourier_transform.cpp
 		test_core_input_indices.cpp
-		test_cpu_program_builder_registry.cpp
 		test_default_kernel_factory.cpp
 		test_elementwise_program_builder.cpp
 		test_extremum_locator_kernel.cpp

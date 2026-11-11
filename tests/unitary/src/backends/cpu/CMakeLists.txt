@@ -3,13 +3,13 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_load_store.cpp
 		test_cpu_plugin.cpp
-		test_cpu_program_builder.cpp
 )
 
 add_subdirectory(builders)
+add_subdirectory(dispatch)
 add_subdirectory(hardware)
 add_subdirectory(kernels)
 add_subdirectory(loops)
+add_subdirectory(numerical)
 add_subdirectory(plans)

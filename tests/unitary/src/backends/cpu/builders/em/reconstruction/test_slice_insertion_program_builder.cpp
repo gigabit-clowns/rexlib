@@ -17,7 +17,7 @@
 #include <rexlib/em/ops/reconstruction/insert_slices_operation.hpp>
 #include <rexlib/em/ops/reconstruction/insert_weighted_slices_operation.hpp>
 
-#include "../../../serial_pool.hpp"
+#include "../../../hardware/mock/serial_pool.hpp"
 #include "fixtures/slice_insertion_cases.hpp"
 
 #include <complex>

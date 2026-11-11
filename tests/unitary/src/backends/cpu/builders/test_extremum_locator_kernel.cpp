@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/extremum_locator_kernel.hpp>
 #include <backends/cpu/kernels/ordering.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>

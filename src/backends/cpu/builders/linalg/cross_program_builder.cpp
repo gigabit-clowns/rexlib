@@ -5,10 +5,10 @@
 #include <backends/cpu/builders/type_dispatch_support_query.hpp>
 #include <backends/cpu/builders/batched_core_program_builder.hpp>
 #include <backends/cpu/builders/operand_data_types.hpp>
-#include <backends/cpu/builders/program_builder_registration_macros.hpp>
+#include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
 #include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/plans/batched_core_layout_plan.hpp>
 
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>

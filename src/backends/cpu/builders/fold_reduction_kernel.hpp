@@ -7,7 +7,7 @@
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
 #include <backends/cpu/builders/reduction_compute_type.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 
 #include <cstddef>
 #include <type_traits>

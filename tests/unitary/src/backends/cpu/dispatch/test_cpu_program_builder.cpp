@@ -6,7 +6,7 @@
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include "mock/mock_program_builder.hpp"
-#include "serial_pool.hpp"
+#include "../hardware/mock/serial_pool.hpp"
 
 #include <rexlib/core/backend_priority.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
@@ -15,9 +15,9 @@
 #include <rexlib/core/numerical/numerical_type.hpp>
 #include <rexlib/core/span.hpp>
 
-#include "../../core/operation/mock/mock_operation.hpp"
-#include "../../core/hardware/mock/mock_memory_resource.hpp"
-#include "../../core/hardware/mock/mock_command_queue.hpp"
+#include "../../../core/operation/mock/mock_operation.hpp"
+#include "../../../core/hardware/mock/mock_memory_resource.hpp"
+#include "../../../core/hardware/mock/mock_command_queue.hpp"
 
 #include <vector>
 

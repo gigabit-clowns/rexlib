@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <backends/cpu/builders/fold_reduction_kernel.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>

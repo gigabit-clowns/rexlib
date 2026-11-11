@@ -5,7 +5,7 @@
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/kernels/random_key.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/multidimensional_index.hpp>
 
 #include <cstdint>

@@ -3,7 +3,7 @@
 #include <rexlib/ops/creation/linspace_operation.hpp>
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 
 #include <cstddef>
 

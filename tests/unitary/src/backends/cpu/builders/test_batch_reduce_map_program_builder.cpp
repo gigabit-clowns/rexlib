@@ -19,7 +19,7 @@
 #include <rexlib/em/ops/preprocessing/standardize_background_operation.hpp>
 #include <rexlib/ops/fourier/fftshift_operation.hpp>
 
-#include "../serial_pool.hpp"
+#include "../hardware/mock/serial_pool.hpp"
 
 #include <array>
 #include <cstddef>

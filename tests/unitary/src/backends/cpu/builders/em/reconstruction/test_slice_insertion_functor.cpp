@@ -14,7 +14,7 @@
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
-#include "../../../serial_pool.hpp"
+#include "../../../hardware/mock/serial_pool.hpp"
 #include "fixtures/slice_insertion_cases.hpp"
 
 #include <array>

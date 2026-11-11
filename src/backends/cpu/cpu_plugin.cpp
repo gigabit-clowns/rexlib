@@ -2,7 +2,7 @@
 
 #include "cpu_plugin.hpp"
 
-#include <backends/cpu/builders/cpu_program_builder_registry.hpp>
+#include <backends/cpu/dispatch/cpu_program_builder_registry.hpp>
 #include <backends/cpu/hardware/cpu_device_backend.hpp>
 #include <core/builtin_plugin_registration.hpp>
 

@@ -8,7 +8,7 @@
 #include <rexlib/core/hardware/command.hpp>
 #include <rexlib/core/span.hpp>
 
-#include "../serial_pool.hpp"
+#include "mock/serial_pool.hpp"
 #include "mock/mock_program.hpp"
 #include "../../../core/hardware/mock/mock_buffer.hpp"
 #include "../../../core/hardware/mock/mock_program.hpp"

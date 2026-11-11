@@ -8,7 +8,7 @@
 #include <backends/cpu/builders/rule_type_dispatch.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
-#include "../serial_pool.hpp"
+#include "../hardware/mock/serial_pool.hpp"
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>

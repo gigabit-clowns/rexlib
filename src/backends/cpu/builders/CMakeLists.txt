@@ -1,11 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
-target_sources(
-	rexlib-cpu-obj
-	PRIVATE
-		cpu_program_builder_registry.cpp
-)
-
 add_subdirectory(arithmetic)
 add_subdirectory(assignment)
 add_subdirectory(bitwise)

@@ -14,7 +14,7 @@
 #include <rexlib/backends/cpu/cpu_program.hpp>
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
-#include "../serial_pool.hpp"
+#include "../hardware/mock/serial_pool.hpp"
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/memory_resource_kind.hpp>

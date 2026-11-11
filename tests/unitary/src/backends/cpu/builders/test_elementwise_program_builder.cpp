@@ -4,7 +4,7 @@
 
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/builders/default_kernel_factory.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 #include <backends/cpu/loops/multidimensional_index.hpp>
 
@@ -20,7 +20,7 @@
 #include <rexlib/core/operation/operation_descriptor.hpp>
 #include <rexlib/core/platform/constexpr.hpp>
 
-#include "../serial_pool.hpp"
+#include "../hardware/mock/serial_pool.hpp"
 
 #include <rexlib/core/hardware/buffer.hpp>
 #include <rexlib/core/hardware/program.hpp>

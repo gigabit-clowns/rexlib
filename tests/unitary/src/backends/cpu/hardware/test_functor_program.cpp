@@ -6,7 +6,7 @@
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 
-#include "../serial_pool.hpp"
+#include "mock/serial_pool.hpp"
 #include <core/hardware/host_memory/host_buffer.hpp>
 
 #include <rexlib/core/hardware/buffer.hpp>

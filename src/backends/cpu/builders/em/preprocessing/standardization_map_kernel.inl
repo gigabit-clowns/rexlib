@@ -3,7 +3,7 @@
 #include "standardization_map_kernel.hpp"
 
 #include <backends/cpu/kernels/standard_normal.hpp>
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/strided_pointer_iterator.hpp>
 
 #include <array>

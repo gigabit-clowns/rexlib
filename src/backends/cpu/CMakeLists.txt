@@ -4,10 +4,10 @@ target_sources(
 	rexlib-cpu-obj
 	PRIVATE
 		cpu_plugin.cpp
-		cpu_program_builder.cpp
 )
 
 add_subdirectory(builders)
+add_subdirectory(dispatch)
 add_subdirectory(hardware)
 add_subdirectory(kernels)
 add_subdirectory(loops)

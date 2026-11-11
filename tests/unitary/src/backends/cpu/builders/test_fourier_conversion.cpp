@@ -6,7 +6,7 @@
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
-#include "../serial_pool.hpp"
+#include "../hardware/mock/serial_pool.hpp"
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>

@@ -2,7 +2,7 @@
 
 #include "background_moments_kernel.hpp"
 
-#include <backends/cpu/load_store.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 
