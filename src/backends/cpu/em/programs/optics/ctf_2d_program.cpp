@@ -2,13 +2,13 @@
 
 #include <rexlib/em/ops/optics/ctf_2d_operation.hpp>
 
-#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_2d.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/ctf_phase_coefficients.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 #include <backends/cpu/skeletons/elementwise/batched_map_plan.hpp>
 #include <backends/cpu/skeletons/elementwise/elementwise_program_builder.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
-#include <rexlib/em/ops/parameters/ctf_optics.hpp>
 
 #include <cstddef>
 #include <tuple>
@@ -28,13 +28,11 @@ class ctf_2d_kernel
 {
 public:
 	ctf_2d_kernel(
-		const em::ctf_optics &optics,
-		double pixel_size,
+		const ctf_phase_coefficients &coefficients,
 		std::size_t extent,
 		std::ptrdiff_t parameter_stride
 	) noexcept
-		: m_optics(optics)
-		, m_pixel_size(pixel_size)
+		: m_coefficients(coefficients)
 		, m_extent(extent)
 		, m_parameter_stride(parameter_stride)
 	{
@@ -48,10 +46,8 @@ public:
 		{
 			return static_cast<double>(parameters[i * m_parameter_stride]);
 		};
-		const contrast_transfer_function<T> ctf(
-			m_optics,
-			m_pixel_size,
-			m_extent,
+		const contrast_transfer_function_2d<T> ctf(
+			m_coefficients,
 			at(0),
 			at(1),
 			at(2),
@@ -71,8 +67,7 @@ public:
 	}
 
 private:
-	em::ctf_optics m_optics;
-	double m_pixel_size;
+	ctf_phase_coefficients m_coefficients;
 	std::size_t m_extent;
 	std::ptrdiff_t m_parameter_stride;
 };
@@ -87,10 +82,14 @@ struct ctf_2d_kernel_factory
 		const batched_map_plan &plan
 	) const
 	{
+		const auto extent = operation.get_parameters().get_extent();
 		return ctf_2d_kernel(
-			operation.get_optics(),
-			operation.get_pixel_size(),
-			operation.get_parameters().get_extent(),
+			ctf_phase_coefficients(
+				operation.get_optics(),
+				operation.get_pixel_size(),
+				extent
+			),
+			extent,
 			plan.get_input_core(0).get_stride(0)
 		);
 	}

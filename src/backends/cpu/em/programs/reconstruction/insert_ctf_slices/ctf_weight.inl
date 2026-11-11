@@ -42,9 +42,11 @@ ctf_weight::slice_state<T>::slice_state(
 	const operand_core &ctf_core
 ) noexcept
 	: m_function(
-		parameters.get_optics(),
-		parameters.get_pixel_size(),
-		extent,
+		ctf_phase_coefficients(
+			parameters.get_optics(),
+			parameters.get_pixel_size(),
+			extent
+		),
 		static_cast<double>(ctf[0]),
 		static_cast<double>(ctf[ctf_core.get_stride(0)]),
 		static_cast<double>(ctf[2 * ctf_core.get_stride(0)]),
@@ -55,7 +57,7 @@ ctf_weight::slice_state<T>::slice_state(
 
 template <typename T>
 inline
-const contrast_transfer_function<T>&
+const contrast_transfer_function_2d<T>&
 ctf_weight::slice_state<T>::get_function() const noexcept
 {
 	return m_function;

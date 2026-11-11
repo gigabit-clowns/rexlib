@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include <rexlib/em/ops/parameters/ctf_optics.hpp>
-
-#include <cstddef>
+#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_1d.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/ctf_phase_coefficients.hpp>
 
 namespace rexlib
 {
@@ -15,10 +14,10 @@ namespace cpu
  * @brief The contrast transfer function of one image.
  *
  * Evaluates c(k) = sin(pi L D(t) s^2 - (pi / 2) Cs L^3 s^4 + f + asin(Q))
- * at a frequency k of the image, with L the wavelength, Cs the spherical
- * aberration in angstroms, Q the amplitude contrast, f the phase shift,
- * s = |k| / (n p) the spatial frequency for an extent n and a pixel size p,
- * and D(t) the defocus along the direction t of k.
+ * at a frequency k of the image, as ctf_phase_coefficients describes, with
+ * D(t) the defocus along the direction t of k and f the phase shift. It is
+ * the contrast_transfer_function_1d of the mean defocus, plus the phase the
+ * astigmatism adds.
  *
  * The coefficients are derived in double precision and evaluated in T.
  *
@@ -27,20 +26,18 @@ namespace cpu
  * @see em::insert_ctf_slices_operation
  */
 template <typename T>
-class contrast_transfer_function
+class contrast_transfer_function_2d
 {
 public:
 	/**
 	 * @brief Construct the function that is 0 at every frequency.
 	 */
-	contrast_transfer_function() noexcept;
+	contrast_transfer_function_2d() noexcept;
 
 	/**
 	 * @brief Construct the function of an image.
 	 *
-	 * @param optics The optics of the microscope.
-	 * @param pixel_size The size of a pixel, in angstroms.
-	 * @param extent The number of pixels along each axis of the image.
+	 * @param coefficients The coefficients of the optics and the sampling.
 	 * @param defocus_u The defocus along the direction of the astigmatism,
 	 * in angstroms.
 	 * @param defocus_v The defocus across the direction of the astigmatism,
@@ -49,10 +46,8 @@ public:
 	 * towards the y axis, in radians.
 	 * @param phase_shift The phase shift, in radians.
 	 */
-	contrast_transfer_function(
-		const em::ctf_optics &optics,
-		double pixel_size,
-		std::size_t extent,
+	contrast_transfer_function_2d(
+		const ctf_phase_coefficients &coefficients,
 		double defocus_u,
 		double defocus_v,
 		double astigmatism_angle,
@@ -78,14 +73,12 @@ public:
 	T compute_phase(T k_x, T k_y) const noexcept;
 
 private:
-	T m_radial;
+	contrast_transfer_function_1d<T> m_isotropic;
 	T m_axial;
 	T m_diagonal;
-	T m_aberration;
-	T m_phase;
 };
 
 } // namespace cpu
 } // namespace rexlib
 
-#include "contrast_transfer_function.inl"
+#include "contrast_transfer_function_2d.inl"

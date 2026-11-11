@@ -56,8 +56,9 @@ TEST_CASE(
 		ctf.data(),
 		operand_core(1, { 4, 0, 0 }, { 2, 0, 0 })
 	);
-	const contrast_transfer_function<float> expected(
-		optics, 1.5, 64, 15000, 12000, 0.4f, 0.2f
+	const contrast_transfer_function_2d<float> expected(
+		ctf_phase_coefficients(optics, 1.5, 64),
+		15000, 12000, 0.4f, 0.2f
 	);
 	std::vector<float> numerator(3);
 	std::vector<float> denominator(3);

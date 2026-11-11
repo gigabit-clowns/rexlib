@@ -3,5 +3,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
-		test_contrast_transfer_function.cpp
+		test_contrast_transfer_function_1d.cpp
+		test_contrast_transfer_function_2d.cpp
+		test_ctf_phase_coefficients.cpp
 )

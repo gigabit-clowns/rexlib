@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_2d.hpp>
 #include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
@@ -80,12 +80,12 @@ public:
 		/**
 		 * @brief Get the CTF of the slice.
 		 *
-		 * @return const contrast_transfer_function<T>& The CTF.
+		 * @return const contrast_transfer_function_2d<T>& The CTF.
 		 */
-		const contrast_transfer_function<T>& get_function() const noexcept;
+		const contrast_transfer_function_2d<T>& get_function() const noexcept;
 
 	private:
-		contrast_transfer_function<T> m_function;
+		contrast_transfer_function_2d<T> m_function;
 	};
 
 	/**
