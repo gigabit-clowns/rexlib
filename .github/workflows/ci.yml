@@ -169,14 +169,12 @@ jobs:
         if: matrix.python
         run: uv sync --locked --no-install-project
 
-      # Without the dependency provider the presets inject, every dependency
-      # is found installed. Only MSVC reads the debug information format:
-      # embedded in each object, which is what lets ccache cache what it
-      # compiles.
+      # Only MSVC reads the debug information format: embedded in each object,
+      # which is what lets ccache cache what it compiles.
       - name: Configure
         run: >-
           cmake --preset debug
-          -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
           -DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}
           -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded
@@ -254,12 +252,10 @@ jobs:
       - name: Install gcovr
         run: uv sync --locked --only-group coverage
 
-      # Without the dependency provider the presets inject, every dependency
-      # is found installed.
       - name: Configure
         run: >-
           cmake --preset coverage
-          -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
@@ -404,6 +400,7 @@ jobs:
         run: >-
           cmake -S . -B build
           -DCMAKE_BUILD_TYPE=Release
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build
@@ -422,6 +419,7 @@ jobs:
         run: >-
           cmake -S python -B build-python
           -DCMAKE_BUILD_TYPE=Release
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_WARNINGS_AS_ERRORS=ON
 
       - name: Build the binding
@@ -592,6 +590,7 @@ jobs:
         run: >-
           cmake -S plugins/cuda -B build-cuda
           -DCMAKE_BUILD_TYPE=Debug
+          -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
           -DCMAKE_CUDA_ARCHITECTURES=75
 
@@ -952,10 +951,8 @@ jobs:
           path: .vcpkg/archives
           key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
 
-      # Without the dependency provider the presets inject, every dependency
-      # is found installed.
       - name: Configure
-        run: cmake --preset lint -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=
+        run: cmake --preset lint -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
 
       - name: Build
         run: cmake --build --preset lint

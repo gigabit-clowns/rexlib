@@ -14,19 +14,18 @@ that causes it.
 ## Building
 
 The library and its tests, once the dependencies' submodules are checked out
-(`git submodule update --init`), with the presets, which build the
-dependencies from them:
+(`git submodule update --init`):
 
 ```
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build -j
+ctest --test-dir build
 ```
 
 With the binding, once the `dev` group of `pyproject.toml` is installed
 (`uv sync`, or `pip install --group dev`): add
 `-DREXLIB_BUILD_PYTHON=ON -DPython_EXECUTABLE=$(which python)` and run
-`ctest --test-dir build/debug -L python`. The CUDA plugin builds against an
+`ctest --test-dir build -L python`. The CUDA plugin builds against an
 installed rexlib, as a third party's does, or, for development, inside the
 library's build with `REXLIB_BUILD_CUDA_PLUGIN`; see
 [building](docs/agents/building.md#the-cuda-plugin).

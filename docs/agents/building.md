@@ -5,30 +5,20 @@ and tested, and what their options do.
 
 ## The library
 
-The dependencies are found installed, or built from their sources in
-`third_party/` by rexlib's dependency provider, which needs CMake 3.24 and the
-git submodules checked out: `git clone --recurse-submodules`, or
-`git submodule update --init` in an existing clone (see
-[dependencies](dependencies.md)). The presets inject the provider:
+The dependencies' sources are git submodules (see
+[dependencies](dependencies.md)), so a clone needs them first:
+`git clone --recurse-submodules`, or `git submodule update --init` in an
+existing clone.
 
 ```
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug
-```
-
-which build into `build/debug`. Without presets, the provider is named on the
-command line, and without it every dependency is found installed, which
-CMake 3.18 is enough for:
-
-```
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug \
-  -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/rexlib_dependency_provider.cmake
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build -j
 ctest --test-dir build
 ```
 
-There are `release`, `sanitize` (the address and undefined
+With CMake 3.21 or newer the presets do the same: `cmake --preset debug`,
+`cmake --build --preset debug`, `ctest --preset debug`, which build into
+`build/debug`. There are `release`, `sanitize` (the address and undefined
 behaviour sanitizers) and `sanitize-thread` presets too; the two sanitizer
 presets are not offered on Windows; they set the sanitizers' options too,
 so a test run behaves as CI's. `coverage`, on Linux only, adds coverage
@@ -52,10 +42,9 @@ warnings count too; with the dependencies installed (see
 [dependencies.md](dependencies.md)) they are, and only rexlib's warnings
 fail the build. CI builds this way.
 
-CMake 3.18 is the minimum against installed dependencies, and 3.24 with the
-dependency provider and the presets. The sources are written to C++14 and
-reach anything newer through the `REXLIB_*` feature macros, so that a
-compiler without it still builds them; CMake asks for C++17 but leaves
+CMake 3.18 is the minimum. The sources are written to C++14 and reach anything
+newer through the `REXLIB_*` feature macros, so that a compiler without it
+still builds them; CMake asks for C++17 but leaves
 `CMAKE_CXX_STANDARD_REQUIRED` off, so the request is a preference. One
 definition does not follow this, `parse_device_index` in
 `src/core/hardware/device_index.cpp`, which uses `std::from_chars`. The
@@ -86,7 +75,7 @@ Options:
 | `REXLIB_CLANG_TIDY` | `OFF`, `ON` in `lint` | Runs clang-tidy on the library's own sources as they compile; a finding fails the build |
 | `REXLIB_CHECK_STYLE` | `OFF`, `ON` in `lint` | Adds `rexlib-style`, a test running editorconfig-checker over every file git tracks, and `rexlib-ruff`, a test running ruff over the Python files `ruff.toml` names |
 | `REXLIB_BUILD_PYTHON` | `OFF` | Adds the Python binding in `python/`, which needs an interpreter with nanobind; see [the binding](#the-binding) |
-| `REXLIB_BUILD_CUDA_PLUGIN` | `OFF` | Adds the CUDA plugin in `plugins/cuda/`, built against the library being built; see [the CUDA plugin](#the-cuda-plugin) |
+| `REXLIB_BUILD_CUDA_PLUGIN` | `OFF` | Adds the CUDA plugin in `plugins/cuda/`, built against the library being built, and forces `REXLIB_USE_SYSTEM_DEPENDENCIES` on; see [the CUDA plugin](#the-cuda-plugin) |
 | `REXLIB_BUILD_BENCHMARKS` | `OFF`, and only with `REXLIB_BUILD_TESTING` | Builds `rexlib-benchmarks`, Catch2 benchmarks run by hand and never by CTest |
 
 `REXLIB_BUILD_TESTING` lets a project that embeds rexlib drop its tests without
@@ -123,10 +112,10 @@ interpreter with the `dev` group of `pyproject.toml` installed
 (`pip install --group dev`, pip 25.1 or newer, or `uv sync`):
 
 ```
-cmake --preset debug -DREXLIB_BUILD_PYTHON=ON \
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DREXLIB_BUILD_PYTHON=ON \
   -DPython_EXECUTABLE=$(which python)
-cmake --build --preset debug
-ctest --test-dir build/debug -L python
+cmake --build build -j
+ctest --test-dir build -L python
 ```
 
 `ctest -L python` installs the build into a directory of the build tree and
@@ -186,12 +175,13 @@ Options:
 | Option | Default | Effect |
 |---|---|---|
 | `REXLIB_BUILD_PYTHON` | `OFF` | Adds the binding to the library's build |
+| `REXLIB_USE_SYSTEM_DLPACK` | `OFF`, forced `ON` by `REXLIB_USE_SYSTEM_DEPENDENCIES` | Finds an installed DLPack rather than building it from `third_party/` |
 | `REXLIB_PYTHON_INSTALL_DIR` | The interpreter's platform library directory, relative to the prefix; under scikit-build-core, the wheel's | Where the package is installed |
 | `REXLIB_PYTHON_STABLE_ABI` | `OFF`, `ON` from `pyproject.toml` | Builds the extension against the stable ABI of Python 3.12 |
 
 Built alone, the binding also reads the library's `REXLIB_INSTALL`,
-`REXLIB_BUILD_TESTING` and `REXLIB_WARNINGS_AS_ERRORS`, and finds DLPack
-installed unless rexlib's provider is given, as for the library.
+`REXLIB_BUILD_TESTING`, `REXLIB_WARNINGS_AS_ERRORS` and
+`REXLIB_USE_SYSTEM_DEPENDENCIES`.
 
 `REXLIB_PYTHON_STABLE_ABI` is what makes one wheel serve Python 3.12 and every
 later one, with `wheel.py-api = "cp312"` beside it in `pyproject.toml`.
@@ -214,17 +204,14 @@ a prefix and point `rexlib_ROOT` at it, on the command line or in the
 environment:
 
 ```
-cmake --preset release -B build/rexlib -DBUILD_TESTING=OFF
+cmake -S . -B build/rexlib -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 cmake --build build/rexlib --parallel
 cmake --install build/rexlib --prefix build/rexlib-install
-cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install \
-  -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/rexlib_cuda_dependency_provider.cmake
+cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install
 cmake --build build/cuda --parallel
 ```
 
-The plugin's own dependency provider builds its dependencies from
-`plugins/cuda/third_party/`, as the library's does; without it, they are found
-installed. The presets of `plugins/cuda/` inject it and do the same, run
+With CMake 3.21 or newer the presets of `plugins/cuda/` do the same, run
 from that directory: `cmake --preset debug`, `cmake --build --preset debug`,
 `ctest --preset debug`, which build into `plugins/cuda/build/debug`. There are
 `release`, `sanitize` (the address and undefined behaviour sanitizers) and
@@ -241,13 +228,17 @@ as `rexlib_ROOT`, the CUDA paths or a compiler cache, goes in a
 
 For working on the library and the plugin together, `REXLIB_BUILD_CUDA_PLUGIN`
 adds the plugin to the library's build, where it links the library being built
-instead of an installed one. The plugin's `find_package` calls then go to the
-library's provider, so one configure holds one copy of each dependency (see
-[dependencies](dependencies.md#the-cuda-plugin)). CI builds the plugin against
-an installed rexlib only.
+instead of an installed one. One configure holds one copy of each dependency,
+so the option turns `REXLIB_USE_SYSTEM_DEPENDENCIES` on, for the library and
+the plugin alike, and every dependency of both has to be installed. vcpkg
+installs them all from the manifest CI uses, `vcpkg.json` at the root, when
+its toolchain file is given; settings of one's own like these go in a
+`CMakeUserPresets.json`. CI builds the plugin against an installed rexlib only.
 
 ```
-cmake --preset debug -B build/cuda -DREXLIB_BUILD_CUDA_PLUGIN=ON
+cmake -S . -B build/cuda -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake \
+  -DREXLIB_BUILD_CUDA_PLUGIN=ON
 cmake --build build/cuda --parallel
 ctest --test-dir build/cuda
 ```

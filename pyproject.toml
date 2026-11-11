@@ -147,11 +147,8 @@ cmake.args = []
 build.verbose = false
 cmake.build-type = "Release"
 
-# The dependencies are built from third_party/ by rexlib's dependency
-# provider, and the library and its CMake package go to lib/ on every
-# platform.
+# The library and its CMake package go to lib/ on every platform.
 [tool.scikit-build.cmake.define]
-CMAKE_PROJECT_TOP_LEVEL_INCLUDES = "cmake/rexlib_dependency_provider.cmake"
 REXLIB_BUILD_PYTHON = "ON"
 REXLIB_PYTHON_STABLE_ABI = "ON"
 BUILD_TESTING = "OFF"

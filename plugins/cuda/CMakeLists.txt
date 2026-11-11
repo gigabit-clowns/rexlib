@@ -43,6 +43,31 @@ option(
 )
 
 
+# Every dependency but rexlib is private to the plugin, which has no public
+# interface, so building one here or finding an installed one changes nothing
+# for whoever loads it. Turning the global switch on turns every one of the
+# others on, on every configure.
+option(
+	REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES
+	"Find every dependency installed, rather than fetching it and building it \
+with the plugin"
+	OFF
+)
+cmake_dependent_option(
+	REXLIB_CUDA_USE_SYSTEM_BOOST
+	"Find an installed Boost rather than fetching it"
+	OFF
+	"NOT REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES"
+	ON
+)
+cmake_dependent_option(
+	REXLIB_CUDA_USE_SYSTEM_SPDLOG
+	"Find an installed spdlog rather than fetching it"
+	OFF
+	"NOT REXLIB_CUDA_USE_SYSTEM_DEPENDENCIES"
+	ON
+)
+
 # The plugin is C++20. The standard is required rather than preferred, so
 # that nothing newer gets in unnoticed.
 set(CMAKE_CXX_STANDARD 20)
@@ -62,15 +87,23 @@ endif()
 
 enable_language(CUDA)
 
-# Every dependency but rexlib is private to the plugin, which has no public
-# interface, so how one is got changes nothing for whoever loads it: installed,
-# or built from third_party/ by the dependency provider the presets and the
-# wheels' pyproject.toml inject. Inside rexlib's build, they come from the
-# library's provider.
-#
-# unordered_flat_map arrived in Boost 1.81.
-find_package(Boost 1.81 REQUIRED CONFIG)
-find_package(spdlog 1.4 REQUIRED CONFIG)
+if(REXLIB_CUDA_USE_SYSTEM_BOOST)
+	# unordered_flat_map arrived in Boost 1.81.
+	find_package(Boost 1.81 REQUIRED CONFIG)
+else()
+	include(rexlib_cuda_add_boost)
+	rexlib_cuda_add_boost(
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/boost
+		LIBRARIES container intrusive unordered
+	)
+endif()
+
+if(REXLIB_CUDA_USE_SYSTEM_SPDLOG)
+	find_package(spdlog 1.4 REQUIRED CONFIG)
+else()
+	include(rexlib_cuda_add_spdlog)
+	rexlib_cuda_add_spdlog(SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/spdlog)
+endif()
 
 # The plugin is built against an installed rexlib, as any third-party
 # plugin is, of the minor version it shares with the library; inside rexlib's

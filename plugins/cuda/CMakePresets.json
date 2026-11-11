@@ -12,7 +12,6 @@
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
-        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/cmake/rexlib_cuda_dependency_provider.cmake",
         "REXLIB_CUDA_BUILD_TESTING": "ON"
       }
     },

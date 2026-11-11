@@ -9,10 +9,10 @@ It is built with the library, from the root of the repository:
 
 ```
 pip install --group dev
-cmake --preset release -DREXLIB_BUILD_PYTHON=ON \
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DREXLIB_BUILD_PYTHON=ON \
   -DPython_EXECUTABLE=$(which python)
-cmake --build --preset release
-ctest --test-dir build/release -L python
+cmake --build build --parallel
+ctest --test-dir build -L python
 ```
 
 `pip install .`, from the root, builds and installs the `rexlib` wheel

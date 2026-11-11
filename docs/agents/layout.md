@@ -21,7 +21,6 @@ tests and build files.
 | `python/DECISIONS.md`, `python/BACKLOG.md` | The binding's open questions, and its settled work waiting to be scheduled |
 | `plugins/cuda/` | The CUDA plugin, a CMake project of its own built against an installed rexlib, or inside the library's build with `REXLIB_BUILD_CUDA_PLUGIN`: `src/`, `tests/`, its own `cmake/modules/`, `third_party/` and presets |
 | `plugins/cuda/cuda12/`, `plugins/cuda/cuda13/` | The `pyproject.toml` of the plugin's wheel for each CUDA major, built from the project one directory up |
-| `cmake/rexlib_dependency_provider.cmake` | rexlib's dependency provider, which answers a `find_package` with the dependency built from `third_party/`; see [dependencies](dependencies.md) |
 | `cmake/modules/` | One `rexlib_add_*.cmake` per dependency of the library and `rexlib_python_add_dlpack.cmake` for the binding, `rexlib_add_dependency.cmake`, which they add theirs through, plus the `Find*.cmake` for those that ship no package config |
 | `cmake/config/` | The templates of the installed CMake package and of the version header, and `rexlib-plugin.cmake`, the CMake helpers of the plugin SDK |
 | `docs/doxygen/` | The reference of the C++ headers, with Doxygen |
@@ -88,7 +87,6 @@ to keep matching rexlib.
 | `src/config.hpp` | Every tunable of the backend, as a macro the build may override |
 | `src/logger.hpp` | The `REXLIB_CUDA_LOG_*` macros over spdlog |
 | `tests/unitary/`, `tests/integration/` | Catch2 suites, with trompeloeil for mocks |
-| `cmake/rexlib_cuda_dependency_provider.cmake` | The plugin's dependency provider, over its `third_party/` |
 | `cmake/modules/` | One `rexlib_cuda_add_*.cmake` per dependency, `rexlib_cuda_add_dependency`, which they add theirs through, and `rexlib_cuda_enable_warnings` |
 | `third_party/` | The plugin's own dependencies, as in the library: git submodules, Boost one per library |
 

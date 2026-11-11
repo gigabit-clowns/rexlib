@@ -17,19 +17,17 @@ From C++, install the library, then build the plugin against it from the root
 of the repository:
 
 ```
-cmake --preset release -B build/rexlib -DBUILD_TESTING=OFF
+cmake -S . -B build/rexlib -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF
 cmake --build build/rexlib --parallel
 cmake --install build/rexlib --prefix build/rexlib-install
-cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install \
-  -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/rexlib_cuda_dependency_provider.cmake
+cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install
 cmake --build build/cuda --parallel
 cmake --install build/cuda --prefix build/rexlib-install
 ```
 
 To work on the library and the plugin together, `REXLIB_BUILD_CUDA_PLUGIN`
-builds the plugin inside the library's build, where the library's dependency
-provider serves both; see the
-[build guide](../../docs/agents/building.md#the-cuda-plugin).
+builds the plugin inside the library's build, against dependencies installed
+by vcpkg; see the [build guide](../../docs/agents/building.md#the-cuda-plugin).
 
 Its conventions are in [AGENTS.md](../../AGENTS.md) and
 [docs/agents/](../../docs/agents/).

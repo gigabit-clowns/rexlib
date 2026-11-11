@@ -4,19 +4,22 @@ include(rexlib_cuda_add_dependency)
 
 # Builds the Boost in SOURCE_DIR with the project, static, as Boost::headers.
 #
-#   rexlib_cuda_add_boost(SOURCE_DIR <dir>)
+#   rexlib_cuda_add_boost(
+#   	SOURCE_DIR <dir> LIBRARIES <library>...
+#   )
 #
 # SOURCE_DIR is laid out as Boost's superproject: each library in libs/,
 # Boost's CMake in tools/cmake, and the root CMakeLists.txt that builds them.
-# Every library in libs/ is built, so the libraries checked out there are the
-# ones there are. Boost::headers, which an installed Boost defines for every
+# Only LIBRARIES are built, with the ones they need in turn, which have to be
+# in libs/ too. Boost::headers, which an installed Boost defines for every
 # library that is only headers, holds them only when the compatibility
 # targets are asked for. Container is built as headers alone, which leaves
 # out what is not used of it, its allocators and memory resources, so that it
 # is among them too.
 function(rexlib_cuda_add_boost)
-	cmake_parse_arguments(PARSE_ARGV 0 arg "" "SOURCE_DIR" "")
+	cmake_parse_arguments(PARSE_ARGV 0 arg "" "SOURCE_DIR" "LIBRARIES")
 
+	set(BOOST_INCLUDE_LIBRARIES ${arg_LIBRARIES})
 	set(BOOST_ENABLE_COMPATIBILITY_TARGETS ON)
 	set(BOOST_CONTAINER_HEADER_ONLY ON)
 	set(BUILD_SHARED_LIBS OFF)
