@@ -18,17 +18,15 @@ namespace cpu
 template <typename T>
 inline
 kaiser_bessel_window<T>::kaiser_bessel_window(
-	const em::gridding_window &window
+	double half_width,
+	double shape
 )
-	: m_half_width(static_cast<T>(window.get_half_width()))
-	, m_tap_count(
-		static_cast<std::size_t>(std::ceil(2.0 * window.get_half_width()))
-	)
+	: m_half_width(static_cast<T>(half_width))
+	, m_tap_count(static_cast<std::size_t>(std::ceil(2.0 * half_width)))
 {
-	REXLIB_ASSERT(window.get_profile() == em::gridding_profile::kaiser_bessel);
+	REXLIB_ASSERT(half_width > 0.0);
+	REXLIB_ASSERT(shape >= 0.0);
 
-	const auto half_width = window.get_half_width();
-	const auto shape = window.get_shape();
 	const auto normalization = 1.0 / bessel_i0(shape);
 	const auto count =
 		static_cast<std::size_t>(std::ceil(half_width * samples_per_voxel));

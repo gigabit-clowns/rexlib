@@ -12,6 +12,7 @@ target_sources(
 		test_kaiser_bessel_window.cpp
 		test_ordering.cpp
 		test_philox.cpp
+		test_pocketfft_fft.cpp
 		test_random_key.cpp
 		test_row_interval.cpp
 		test_slice_frame.cpp

@@ -22,9 +22,7 @@ TEST_CASE(
 	"[kaiser_bessel_window]"
 )
 {
-	const kaiser_bessel_window<double> window(
-		em::gridding_window::kaiser_bessel(2, 9)
-	);
+	const kaiser_bessel_window<double> window(2, 9);
 
 	CHECK( window.get_half_width() == 2.0 );
 	CHECK( window.get_tap_count() == 4 );
@@ -49,9 +47,7 @@ TEST_CASE(
 	"[kaiser_bessel_window]"
 )
 {
-	const kaiser_bessel_window<double> window(
-		em::gridding_window::kaiser_bessel(2, 9)
-	);
+	const kaiser_bessel_window<double> window(2, 9);
 	const std::array<double, 2> coordinates = {{ 0.3, 3.0 }};
 	std::array<std::int32_t, 2> first{};
 	std::vector<double> weights(2 * window.get_tap_count());
@@ -75,9 +71,7 @@ TEST_CASE(
 	"[kaiser_bessel_window]"
 )
 {
-	const kaiser_bessel_window<float> window(
-		em::gridding_window::kaiser_bessel(1.5, 0)
-	);
+	const kaiser_bessel_window<float> window(1.5, 0);
 
 	CHECK( window.get_tap_count() == 3 );
 	CHECK( window.evaluate(1.0f) == 1.0f );
@@ -90,9 +84,7 @@ TEST_CASE(
 	"[kaiser_bessel_window]"
 )
 {
-	const kaiser_bessel_window<float> window(
-		em::gridding_window::kaiser_bessel(1.0, 5)
-	);
+	const kaiser_bessel_window<float> window(1.0, 5);
 	// More samples than one block, each on a voxel: the voxels one step
 	// away lie at the half-width.
 	std::vector<float> coordinates(100);

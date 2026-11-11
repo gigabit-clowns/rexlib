@@ -3,7 +3,6 @@
 #pragma once
 
 #include <rexlib/core/platform/constexpr.hpp>
-#include <rexlib/em/ops/parameters/gridding_window.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -42,12 +41,12 @@ public:
 	static REXLIB_CONST_CONSTEXPR std::size_t block_size = 64;
 
 	/**
-	 * @brief Construct the window of a gridding_window.
+	 * @brief Construct the window of a half-width and a shape.
 	 *
-	 * @param window The window. Its profile must be
-	 * gridding_profile::kaiser_bessel.
+	 * @param half_width The half-width w, in voxels. Positive.
+	 * @param shape The shape parameter beta. Not negative.
 	 */
-	explicit kaiser_bessel_window(const em::gridding_window &window);
+	kaiser_bessel_window(double half_width, double shape);
 
 	/**
 	 * @brief Get the number of voxels a sample is placed on.

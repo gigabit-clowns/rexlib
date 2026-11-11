@@ -11,7 +11,6 @@
 #include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>
 #include <backends/cpu/builders/rule_type_dispatch.hpp>
-#include <backends/cpu/kernels/pocketfft_fourier_transform.hpp>
 #include <backends/cpu/plans/fourier_layout_plan.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
@@ -31,7 +30,7 @@ namespace cpu
  * the scaffolding the four transforms share: operation type check, operand
  * count validation, the reading of both operands' layouts into the shape,
  * strides and axes the transform is described by, and type dispatch. The
- * transform itself is delegated to pocketfft.
+ * Transform performs the transform itself.
  *
  * The axes travel with the operation rather than with the call, so the whole
  * description of the iteration is settled once here and the program that
@@ -49,16 +48,12 @@ namespace cpu
  * @ref complex_to_real_fourier_transform.
  * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
  * operand data types into compile time element types. It defaults to
- * interpreting the operation's own typing rule, narrowed to the precisions
- * pocketfft computes in.
+ * interpreting the operation's own typing rule.
  */
 template <
 	typename Op,
 	typename Transform,
-	typename TypeDispatch = rule_type_dispatch<
-		typename Op::type_rule_type,
-		fourier_transform_support
-	>
+	typename TypeDispatch = rule_type_dispatch<typename Op::type_rule_type>
 >
 class fourier_program_builder final
 	: public typed_program_builder<
@@ -127,8 +122,7 @@ public:
  * @brief Instantiate and auto-register a CPU Fourier program builder.
  *
  * The operand element types are dispatched by interpreting the operation's own
- * typing rule, narrowed to the precisions pocketfft computes in, so the
- * builder states nothing about typing.
+ * typing rule, so the builder states nothing about typing.
  *
  * @param name Identifier of the registration object.
  * @param op The operation type.
@@ -143,8 +137,8 @@ public:
 /**
  * @brief Register a CPU Fourier program builder with an explicit type dispatch.
  *
- * Only needed when this backend supports a narrower set of element types than
- * the default narrowing already expresses.
+ * Only needed when the transform supports a narrower set of element types
+ * than the operation allows.
  *
  * @param name Identifier of the registration object.
  * @param op The operation type.

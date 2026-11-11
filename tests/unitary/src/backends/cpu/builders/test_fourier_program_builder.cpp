@@ -2,7 +2,11 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <backends/cpu/builders/complex_fourier_transform.hpp>
 #include <backends/cpu/builders/fourier_program_builder.hpp>
+#include <backends/cpu/builders/rule_type_dispatch.hpp>
+#include <backends/cpu/kernels/fourier_transform_support.hpp>
+#include <backends/cpu/kernels/pocketfft_fft.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
@@ -42,7 +46,11 @@ using complex_type = std::complex<float32_t>;
 
 using fft_builder = fourier_program_builder<
 	ops::fft_operation,
-	forward_complex_fourier_transform
+	forward_complex_fourier_transform<pocketfft_fft>,
+	rule_type_dispatch<
+		ops::fft_operation::type_rule_type,
+		fourier_transform_support
+	>
 >;
 
 operand_descriptor make_operand_descriptor(

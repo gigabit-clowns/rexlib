@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/kernels/pocketfft_fourier_transform.hpp>
+#include <backends/cpu/kernels/pocketfft_fft.hpp>
 
 #include <backends/cpu/config.hpp>
 
@@ -72,13 +72,13 @@ T get_scale(
 } // anonymous namespace
 
 template <typename T>
-void run_complex_to_complex_transform(
+void pocketfft_fft::complex_to_complex(
 	const fourier_layout_plan &plan,
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	std::complex<T> *output,
 	const std::complex<T> *input,
-	std::size_t nthreads
+	std::size_t thread_count
 )
 {
 	pocketfft::c2c(
@@ -90,17 +90,17 @@ void run_complex_to_complex_transform(
 		input,
 		output,
 		get_scale<T>(plan, direction, normalization),
-		nthreads
+		thread_count
 	);
 }
 
 template <typename T>
-void run_in_place_complex_transform(
+void pocketfft_fft::in_place_complex(
 	const fourier_layout_plan &plan,
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	std::complex<T> *data,
-	std::size_t nthreads
+	std::size_t thread_count
 )
 {
 	pocketfft::c2c(
@@ -112,18 +112,18 @@ void run_in_place_complex_transform(
 		data,
 		data,
 		get_scale<T>(plan, direction, normalization),
-		nthreads
+		thread_count
 	);
 }
 
 template <typename T>
-void run_real_to_complex_transform(
+void pocketfft_fft::real_to_complex(
 	const fourier_layout_plan &plan,
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	std::complex<T> *output,
 	const T *input,
-	std::size_t nthreads
+	std::size_t thread_count
 )
 {
 	pocketfft::r2c(
@@ -135,18 +135,18 @@ void run_real_to_complex_transform(
 		input,
 		output,
 		get_scale<T>(plan, direction, normalization),
-		nthreads
+		thread_count
 	);
 }
 
 template <typename T>
-void run_complex_to_real_transform(
+void pocketfft_fft::complex_to_real(
 	const fourier_layout_plan &plan,
 	ops::fourier_direction direction,
 	ops::fourier_normalization normalization,
 	T *output,
 	const std::complex<T> *input,
-	std::size_t nthreads
+	std::size_t thread_count
 )
 {
 	pocketfft::c2r(
@@ -158,15 +158,14 @@ void run_complex_to_real_transform(
 		input,
 		output,
 		get_scale<T>(plan, direction, normalization),
-		nthreads
+		thread_count
 	);
 }
 
-// pocketfft is a header the size of a small library, and the transform is the
-// one thing in this backend that does not have to be inlined into a caller:
-// it is entered once per program run, not once per element. Instantiating it
-// here is what keeps that header out of every builder that registers one.
-template void run_complex_to_complex_transform<float32_t>(
+// pocketfft is a header the size of a small library, and a transform is
+// entered once per program run, not once per element, so it is instantiated
+// here rather than in every program that registers one.
+template void pocketfft_fft::complex_to_complex<float32_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
@@ -174,7 +173,7 @@ template void run_complex_to_complex_transform<float32_t>(
 	const std::complex<float32_t>*,
 	std::size_t
 );
-template void run_complex_to_complex_transform<float64_t>(
+template void pocketfft_fft::complex_to_complex<float64_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
@@ -183,14 +182,14 @@ template void run_complex_to_complex_transform<float64_t>(
 	std::size_t
 );
 
-template void run_in_place_complex_transform<float32_t>(
+template void pocketfft_fft::in_place_complex<float32_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
 	std::complex<float32_t>*,
 	std::size_t
 );
-template void run_in_place_complex_transform<float64_t>(
+template void pocketfft_fft::in_place_complex<float64_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
@@ -198,7 +197,7 @@ template void run_in_place_complex_transform<float64_t>(
 	std::size_t
 );
 
-template void run_real_to_complex_transform<float32_t>(
+template void pocketfft_fft::real_to_complex<float32_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
@@ -206,7 +205,7 @@ template void run_real_to_complex_transform<float32_t>(
 	const float32_t*,
 	std::size_t
 );
-template void run_real_to_complex_transform<float64_t>(
+template void pocketfft_fft::real_to_complex<float64_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
@@ -215,7 +214,7 @@ template void run_real_to_complex_transform<float64_t>(
 	std::size_t
 );
 
-template void run_complex_to_real_transform<float32_t>(
+template void pocketfft_fft::complex_to_real<float32_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,
@@ -223,7 +222,7 @@ template void run_complex_to_real_transform<float32_t>(
 	const std::complex<float32_t>*,
 	std::size_t
 );
-template void run_complex_to_real_transform<float64_t>(
+template void pocketfft_fft::complex_to_real<float64_t>(
 	const fourier_layout_plan&,
 	ops::fourier_direction,
 	ops::fourier_normalization,

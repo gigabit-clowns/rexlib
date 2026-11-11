@@ -18,7 +18,7 @@ target_sources(
 		eigen_gemm_uint64.cpp
 		eigen_gemm_uint8.cpp
 		frequency_bounds.cpp
-		pocketfft_fourier_transform.cpp
+		pocketfft_fft.cpp
 		row_interval.cpp
 		slice_frame.cpp
 )

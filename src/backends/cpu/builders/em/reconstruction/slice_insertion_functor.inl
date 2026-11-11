@@ -63,7 +63,10 @@ void slice_insertion_functor<T, SampleWeight>::operator()(
 		break;
 	case em::gridding_profile::kaiser_bessel:
 		run_with_window(
-			kaiser_bessel_window<T>(m_window),
+			kaiser_bessel_window<T>(
+				m_window.get_half_width(),
+				m_window.get_shape()
+			),
 			outputs,
 			inputs,
 			pool
