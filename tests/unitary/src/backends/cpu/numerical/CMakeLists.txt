@@ -3,5 +3,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_bessel_i0.cpp
 		test_load_store.cpp
+		test_ordering.cpp
 )

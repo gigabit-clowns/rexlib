@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <backends/cpu/skeletons/reduction/extremum_locator_kernel.hpp>
-#include <backends/cpu/math/scalar/ordering.hpp>
+#include <backends/cpu/numerical/ordering.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
 

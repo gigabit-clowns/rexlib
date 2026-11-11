@@ -5,7 +5,7 @@
 // editorconfig-checker-disable-next-line
 #include <backends/cpu/em/programs/preprocessing/standardize_background/standardize_background_kernel.hpp>
 
-#include <backends/cpu/math/random/standard_normal.hpp>
+#include <backends/cpu/random/standard_normal.hpp>
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/indices/linear_index_run.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>

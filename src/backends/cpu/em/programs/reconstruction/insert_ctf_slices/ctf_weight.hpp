@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/em/math/optics/contrast_transfer_function.hpp>
+#include <backends/cpu/em/optics/contrast_transfer_function.hpp>
 #include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>

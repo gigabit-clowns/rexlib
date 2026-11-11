@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/math/geometry/centred_ball.hpp>
+#include <backends/cpu/regions/centred_ball.hpp>
 
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 

@@ -2,7 +2,7 @@
 
 #include "standardization_map_kernel.hpp"
 
-#include <backends/cpu/math/random/standard_normal.hpp>
+#include <backends/cpu/random/standard_normal.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/loops/strides/strided_pointer_iterator.hpp>
 

@@ -4,8 +4,8 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/math/special/bessel_i0.hpp>
-#include <backends/cpu/math/scalar/pi.hpp>
+#include <backends/cpu/numerical/bessel_i0.hpp>
+#include <backends/cpu/numerical/pi.hpp>
 #include <core/hardware/host_memory/host_buffer.hpp>
 
 #include <rexlib/backends/cpu/cpu_program.hpp>

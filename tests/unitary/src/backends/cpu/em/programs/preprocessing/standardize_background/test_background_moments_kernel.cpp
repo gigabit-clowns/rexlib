@@ -5,7 +5,7 @@
 
 #include <backends/cpu/em/programs/preprocessing/standardize_background/background_moments_kernel.hpp>
 
-#include <backends/cpu/math/geometry/centred_ball.hpp>
+#include <backends/cpu/regions/centred_ball.hpp>
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 

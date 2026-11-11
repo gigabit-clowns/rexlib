@@ -2,7 +2,7 @@
 
 #include <rexlib/em/ops/preprocessing/standardize_background_operation.hpp>
 
-#include <backends/cpu/math/geometry/centred_ball.hpp>
+#include <backends/cpu/regions/centred_ball.hpp>
 #include "standardize_background_kernel.hpp"
 
 #include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_program_builder.hpp>
