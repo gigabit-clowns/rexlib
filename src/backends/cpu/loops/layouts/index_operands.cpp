@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/plans/index_operands.hpp>
+#include <backends/cpu/loops/layouts/index_operands.hpp>
 
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 

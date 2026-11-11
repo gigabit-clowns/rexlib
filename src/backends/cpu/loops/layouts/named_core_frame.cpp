@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include <backends/cpu/plans/named_core_frame.hpp>
+#include <backends/cpu/loops/layouts/named_core_frame.hpp>
 
 #include <core/layout/axis_values.hpp>
 

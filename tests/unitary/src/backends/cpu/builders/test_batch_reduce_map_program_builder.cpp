@@ -4,9 +4,9 @@
 
 #include <backends/cpu/builders/batch_reduce_map_program_builder.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
-#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
 #include <backends/cpu/loops/reduction_element_adaptor.hpp>
-#include <backends/cpu/loops/strided_pointer_iterator.hpp>
+#include <backends/cpu/loops/strides/strided_pointer_iterator.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 

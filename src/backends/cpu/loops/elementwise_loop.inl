@@ -2,10 +2,10 @@
 
 #include "elementwise_loop.hpp"
 
-#include "element_index.hpp"
-#include "inner_loop_stride_dispatch.hpp"
+#include <backends/cpu/loops/indices/element_index.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include "loop_schedule.hpp"
-#include "strided_pointer_iterator.hpp"
+#include <backends/cpu/loops/strides/strided_pointer_iterator.hpp>
 
 #include <rexlib/core/layout/joint_cursor.hpp>
 #include <rexlib/core/platform/assert.hpp>

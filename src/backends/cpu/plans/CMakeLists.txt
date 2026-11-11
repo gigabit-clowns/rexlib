@@ -7,9 +7,6 @@ target_sources(
 		batched_core_layout_plan.cpp
 		fourier_layout_plan.cpp
 		frequency_interval.cpp
-		index_operands.cpp
-		named_core_frame.cpp
-		operand_core.cpp
 		reduction_layout_plan.cpp
 		roll_layout_plan.cpp
 		slice_insertion_layout_plan.cpp

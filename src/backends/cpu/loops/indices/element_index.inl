@@ -2,7 +2,7 @@
 
 #include "element_index.hpp"
 
-#include "inner_loop_stride_dispatch.hpp"
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 
 #include <rexlib/core/platform/assert.hpp>
 

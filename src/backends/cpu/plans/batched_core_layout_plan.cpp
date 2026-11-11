@@ -2,7 +2,7 @@
 
 #include "batched_core_layout_plan.hpp"
 
-#include "operand_core.hpp"
+#include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/layout/joint_layout_builder.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>

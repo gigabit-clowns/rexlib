@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/loops/strided_pointer_iterator.hpp>
+#include <backends/cpu/loops/strides/strided_pointer_iterator.hpp>
 
 #include <array>
 #include <algorithm>

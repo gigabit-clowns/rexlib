@@ -4,7 +4,7 @@
 
 #include "background_geometry.hpp"
 
-#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>
 

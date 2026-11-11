@@ -14,8 +14,8 @@
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/parallel_grain.hpp>
-#include <backends/cpu/plans/index_operands.hpp>
-#include <backends/cpu/plans/named_core_frame.hpp>
+#include <backends/cpu/loops/layouts/index_operands.hpp>
+#include <backends/cpu/loops/layouts/named_core_frame.hpp>
 
 #include <cstddef>
 #include <tuple>

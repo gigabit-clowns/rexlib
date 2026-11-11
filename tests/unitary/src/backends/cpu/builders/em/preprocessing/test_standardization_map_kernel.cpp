@@ -5,8 +5,8 @@
 #include <backends/cpu/builders/em/preprocessing/standardization_map_kernel.hpp>
 
 #include <backends/cpu/kernels/standard_normal.hpp>
-#include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
-#include <backends/cpu/loops/linear_index_run.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
+#include <backends/cpu/loops/indices/linear_index_run.hpp>
 
 #include <cstddef>
 #include <cstdint>

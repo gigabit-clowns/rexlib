@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/plans/operand_core.hpp>
+#include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/em/ops/reconstruction/insert_weighted_slices_operation.hpp>

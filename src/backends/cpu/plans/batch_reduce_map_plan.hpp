@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <backends/cpu/loops/element_index_tags.hpp>
-#include <backends/cpu/plans/named_core_frame.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
+#include <backends/cpu/loops/layouts/named_core_frame.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/operation/shape_rule/core_dimensions_descriptor.hpp>

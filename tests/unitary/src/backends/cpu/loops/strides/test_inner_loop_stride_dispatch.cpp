@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/loops/inner_loop_stride_dispatch.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/layout/joint_layout_builder.hpp>

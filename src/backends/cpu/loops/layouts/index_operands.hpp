@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/loops/element_index_tags.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
 
 #include <rexlib/core/span.hpp>
 

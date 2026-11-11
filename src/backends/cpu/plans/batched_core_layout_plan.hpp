@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "operand_core.hpp"
+#include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/layout/joint_layout.hpp>

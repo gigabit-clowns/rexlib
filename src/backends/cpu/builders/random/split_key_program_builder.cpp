@@ -6,7 +6,7 @@
 #include <backends/cpu/builders/elementwise_program_builder.hpp>
 #include <backends/cpu/kernels/random_key.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
-#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
 
 #include <cstdint>
 

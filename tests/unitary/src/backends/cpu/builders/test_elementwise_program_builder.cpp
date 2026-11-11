@@ -6,7 +6,7 @@
 #include <backends/cpu/builders/default_kernel_factory.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
-#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
 
 #include <core/hardware/host_memory/host_buffer.hpp>
 

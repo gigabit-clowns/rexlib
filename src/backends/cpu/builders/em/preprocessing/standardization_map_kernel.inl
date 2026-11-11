@@ -4,7 +4,7 @@
 
 #include <backends/cpu/kernels/standard_normal.hpp>
 #include <backends/cpu/numerical/load_store.hpp>
-#include <backends/cpu/loops/strided_pointer_iterator.hpp>
+#include <backends/cpu/loops/strides/strided_pointer_iterator.hpp>
 
 #include <array>
 #include <cmath>

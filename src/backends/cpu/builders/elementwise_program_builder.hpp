@@ -11,7 +11,7 @@
 #include <backends/cpu/builders/typed_program_builder.hpp>
 #include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
 #include <backends/cpu/builders/rule_type_dispatch.hpp>
-#include <backends/cpu/loops/element_index_tags.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>

@@ -2,7 +2,7 @@
 
 #include <backends/cpu/plans/reduction_layout_plan.hpp>
 
-#include <backends/cpu/plans/index_operands.hpp>
+#include <backends/cpu/loops/layouts/index_operands.hpp>
 
 #include <core/layout/axis_values.hpp>
 

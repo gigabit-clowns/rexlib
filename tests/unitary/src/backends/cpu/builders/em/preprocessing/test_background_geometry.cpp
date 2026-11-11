@@ -5,7 +5,7 @@
 
 #include <backends/cpu/builders/em/preprocessing/background_geometry.hpp>
 
-#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
 
 #include <rexlib/core/span.hpp>
 

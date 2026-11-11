@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/plans/named_core_frame.hpp>
+#include <backends/cpu/loops/layouts/named_core_frame.hpp>
 
 #include <rexlib/core/layout/strided_layout.hpp>
 #include <rexlib/core/span.hpp>

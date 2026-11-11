@@ -5,3 +5,5 @@ target_sources(
 	PRIVATE
 		parallel_grain.cpp
 )
+
+add_subdirectory(layouts)

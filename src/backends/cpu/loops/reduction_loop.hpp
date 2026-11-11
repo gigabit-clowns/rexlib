@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "element_index_tags.hpp"
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
 #include "reduction_kernel_traits.hpp"
 
 #include <rexlib/core/layout/joint_layout.hpp>

@@ -7,7 +7,7 @@
 
 #include <backends/cpu/builders/batch_reduce_map_program_builder.hpp>
 #include <backends/cpu/builders/rule_type_dispatch.hpp>
-#include <backends/cpu/loops/element_index_tags.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
 #include <backends/cpu/plans/batch_reduce_map_plan.hpp>
 
 #include <rexlib/core/meta/type_list.hpp>

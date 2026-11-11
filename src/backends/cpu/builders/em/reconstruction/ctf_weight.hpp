@@ -3,7 +3,7 @@
 #pragma once
 
 #include <backends/cpu/kernels/contrast_transfer_function.hpp>
-#include <backends/cpu/plans/operand_core.hpp>
+#include <backends/cpu/loops/layouts/operand_core.hpp>
 
 #include <rexlib/core/platform/constexpr.hpp>
 #include <rexlib/em/ops/parameters/ctf_optics.hpp>
