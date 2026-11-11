@@ -36,6 +36,7 @@ commits both files.
 | Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers; thread sanitizer | The `sanitize` and `sanitize-thread` presets. These are the default build: the dependencies are built with rexlib from their submodules, and warnings do not fail it |
 | Ubuntu 22.04 x86_64, gcc, minimum versions | The oldest versions rexlib supports, together, in the one job without presets: CMake 3.18.0 and the gcc of the oldest supported image; Release with warnings as errors, and the suites. Then the library is installed, and the Python binding is built alone against that install, with the oldest Python it supports, and tested |
 | Ubuntu 24.04 x86_64, CUDA 12; Ubuntu 24.04 aarch64, CUDA 13 | The CUDA plugin, built as a third party builds a plugin: against the library the install job made for its architecture, on a newer image and with another compiler, with warnings as errors, and tested. These jobs build no library of their own and keep no compiler cache. The plugin's own dependencies are installed by vcpkg. The toolkit's compiler and runtime come from NVIDIA's Ubuntu repository, pinned to the minor version. The CUDA 12 job builds the plugin with CMake 3.24.0, the oldest it supports. The runners have no GPU, so the tests that need one skip themselves |
+| Ubuntu 26.04 x86_64, clang, CUDA 13, address and undefined behaviour sanitizers; thread sanitizer | The plugin's `sanitize` and `sanitize-thread` presets, against the library the x86_64 install job made: the plugin's default build, with its dependencies built from its own submodules, and its tests |
 | Source distribution | `uv build --sdist`, kept for the wheel jobs to build from |
 | Linux x86_64 and aarch64, macOS arm64, Windows x86_64 and arm64, wheels | cibuildwheel builds the `rexlib` wheels from the source distribution, as `pyproject.toml` sets it up: one per CPython before 3.12, one abi3 wheel for 3.12 and every later CPython, which abi3audit checks, and one per free-threaded CPython. Each is tested on every interpreter it serves: imported, then run through the Python suite but for the tests of the dummy plugins, which no wheel carries; the free-threaded 3.15 one, for which numpy publishes no wheel, by its import alone. The compiler cache carries the library from one interpreter's build to the next; on Linux, where the wheels are built in a container, the container runs the runner's ccache from `/host`. Each job then builds the install test's sample plugin as a wheel against the abi3 wheel, with Python 3.15 and without build isolation, and checks that the default catalog loads it |
 | Linux x86_64 and aarch64, CUDA 12 and 13, wheel | cibuildwheel builds the CUDA plugin's wheel of each CUDA major, as `plugins/cuda/cuda12/` and `cuda13/` set it up, against the rexlib wheels of the run, and checks that the default catalog loads the plugin, which needs no GPU |
@@ -66,8 +67,9 @@ coverage job's gcovr leaves it out.
 
 The jobs that build the dependencies from their sources check the submodules
 out with the repository (`submodules: true`), each at the depth of one
-commit: the sanitizer jobs and Documentation, the source distribution, which
-carries them, and the CUDA wheels, which build the plugin's. The jobs against
+commit: the sanitizer jobs, the CUDA plugin's included, and Documentation, the
+source distribution, which carries them, and the CUDA wheels, which build the
+plugin's. The jobs against
 installed dependencies leave them out.
 
 The coverage and valgrind job builds the `coverage` preset. It runs the suites
