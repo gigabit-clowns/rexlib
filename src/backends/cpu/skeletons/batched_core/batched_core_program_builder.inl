@@ -7,9 +7,9 @@
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
-#include <backends/cpu/loops/elementwise_loop.hpp>
+#include <backends/cpu/loops/batch_loop.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
-#include <backends/cpu/loops/parallel_grain.hpp>
 
 #include <tuple>
 #include <utility>
@@ -23,8 +23,9 @@ namespace cpu
  * @brief Adapts a per-batch-element kernel to the functor_program interface.
  *
  * Stores the kernel and the planned batch/core split, and on invocation
- * drives run_elementwise_loop over the batch, handing the kernel one output
- * pointer and two input pointers per batch element.
+ * drives a batch loop over the batch, handing the kernel one output pointer
+ * and two input pointers per batch element. A batch element costs a whole
+ * product of its cores, which the kernel runs on one thread.
  */
 template <typename F, typename Outputs, typename Inputs>
 class batched_core_loop_functor;
@@ -46,13 +47,21 @@ public:
 		thread_pool &pool
 	) const
 	{
-		// One iteration here is a whole matrix product, so the grain is
-		// stated in those rather than in elements: anything of a realistic
-		// size makes it one batch element per thread.
-		run_elementwise_loop(
-			m_functor,
+		run_batch_loop(
+			[this] (
+				const loop_schedule& /*inner*/,
+				Out *out,
+				const Left *left,
+				const Right *right
+			)
+			{
+				m_functor(out, left, right);
+			},
 			m_plan.get_batch_layout(),
-			loop_schedule(pool, grain_for_cost(m_plan.get_core_cost())),
+			no_index_tag(),
+			loop_schedule(pool, 1),
+			m_plan.get_core_cost(),
+			0,
 			std::get<0>(outputs),
 			std::get<0>(inputs),
 			std::get<1>(inputs)

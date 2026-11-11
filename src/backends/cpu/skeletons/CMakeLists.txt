@@ -2,6 +2,7 @@
 
 add_subdirectory(batch_reduce_map)
 add_subdirectory(batched_core)
+add_subdirectory(elementwise)
 add_subdirectory(fourier)
 add_subdirectory(reduction)
 add_subdirectory(roll)

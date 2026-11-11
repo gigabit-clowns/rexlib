@@ -5,6 +5,9 @@ target_sources(
 	PRIVATE
 		test_core_input_indices.cpp
 		test_default_kernel_factory.cpp
+		test_index_array.cpp
+		test_output_core_frame.cpp
+		test_own_core_input_indices.cpp
 		test_rule_type_dispatch.cpp
 		test_typed_program_builder.cpp
 )

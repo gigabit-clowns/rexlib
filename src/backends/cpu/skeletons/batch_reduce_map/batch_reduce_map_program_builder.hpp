@@ -4,10 +4,10 @@
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/meta/type_list.hpp>
-#include <rexlib/core/operation/shape_rule/core_placement.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
 #include <rexlib/core/span.hpp>
 
+#include <backends/cpu/skeletons/core_input_indices.hpp>
 #include <backends/cpu/skeletons/typed_program_builder.hpp>
 #include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
@@ -23,7 +23,10 @@ namespace cpu
  * @brief CPU program builder for operations that reduce the core of every
  * batch element to statistics, and then map that core with them.
  *
- * The core axes are the ones the operation names. Each batch element is
+ * The core axes are the core of the outputs: the axes the operation names,
+ * or its trailing axes. The inputs carrying that core are reduced and
+ * mapped, and every other input is read once per batch element, as
+ * batched_map_plan describes. Each batch element is
  * taken by one thread at a time, which runs every reduction over its core
  * and then the map, so that the core is read from memory once and found in
  * cache by the passes after the first. When there are too few batch
@@ -32,7 +35,8 @@ namespace cpu
  *
  * The kernel factory declares, as static constants, `statistic_count`, the
  * number of statistics a reduction produces, and `pass_count`, the number
- * of reductions, at least one. Called as
+ * of reductions, at least one. An operation with no reduction is an
+ * elementwise one. Called as
  * `factory(operation, output_types, input_types, plan)`, it returns a kernel
  * providing:
  * @code
@@ -48,26 +52,27 @@ namespace cpu
  * @endcode
  * A reduction kernel is a vector reduction kernel, as
  * @ref run_reduction_vector_loop describes, whose inputs are the inputs
- * carrying the core axes and whose outputs are the statistics, of type
- * double; an element reduction kernel takes part wrapped in a
- * @ref reduction_element_adaptor. The
- * first reduction is handed statistics of zero. A map kernel is a vector
- * kernel, as @ref run_elementwise_vector_loop describes, over the outputs
- * followed by the inputs carrying the core axes. It is made for each batch
+ * carrying the core of the outputs and whose outputs are the statistics, of
+ * type double; an element reduction kernel takes part wrapped in a
+ * @ref reduction_element_adaptor. The first reduction is handed statistics
+ * of zero. A map kernel is a vector kernel, as
+ * @ref run_elementwise_vector_loop describes, over the outputs followed by
+ * the inputs carrying the core of the outputs. It is made for each batch
  * element from the statistics of the last reduction and from the inputs
- * placed at that batch element, so that it reads the inputs without core
- * axes from there.
+ * placed at that batch element, so that it reads the inputs read once per
+ * batch element from there, through @ref batched_map_plan::get_input_core.
  *
  * The plan moves into the program once the kernel is made, so the kernel
  * copies what it needs of it rather than referring to it.
  *
- * @tparam Op The operation. Its shape rule names its core axes.
+ * @tparam Op The operation. Its shape rule names its core axes, or places
+ * them last with a fixed number of them.
  * @tparam KernelFactory The kernel factory.
  * @tparam TypeDispatch The type dispatch policy.
  * @tparam ReductionIndexing The index handed to the reduction kernels,
  * over the core axes in ascending order.
  * @tparam MapIndexing no_index_tag, or linear_index_tag to hand the map the
- * counter of @ref batch_reduce_map_plan: its batch part to make_map, and
+ * counter of @ref batched_map_plan: its batch part to make_map, and
  * its core part to the map kernel.
  */
 template <
@@ -91,15 +96,13 @@ class batch_reduce_map_program_builder final
 	>
 {
 	static_assert(
-		Op::shape_rule_type::placement_type::placement ==
-			core_placement::named,
-		"A batch reduce-map builder walks the axes the operation names, so "
-		"the operation's shape rule must name its core axes."
-	);
-
-	static_assert(
 		KernelFactory::pass_count > 0,
 		"A batch reduce-map builder needs at least one reduction."
+	);
+	static_assert(
+		core_input_indices<typename Op::shape_rule_type>::type::size() > 0,
+		"A batch reduce-map builder reduces the inputs carrying the core of "
+		"the outputs, so it needs one of them."
 	);
 
 public:

@@ -5,11 +5,14 @@
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/operation/shape_rule/shape_rule_descriptor_of.hpp>
 
-#include <backends/cpu/skeletons/core_input_indices.hpp>
+#include <backends/cpu/loops/batch_loop.hpp>
 #include <backends/cpu/loops/elementwise_loop.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
 #include <backends/cpu/loops/parallel_grain.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
+#include <backends/cpu/skeletons/elementwise/batch_pointers.hpp>
+#include <backends/cpu/skeletons/index_array.hpp>
+#include <backends/cpu/skeletons/output_core_frame.hpp>
 
 #include <array>
 #include <cstddef>
@@ -20,32 +23,6 @@ namespace rexlib
 {
 namespace cpu
 {
-
-namespace detail
-{
-
-template <std::size_t Offset, typename Tuple, std::size_t... Indices>
-auto slice_tuple(const Tuple &tuple, std::index_sequence<Indices...>)
-{
-	return std::make_tuple(std::get<Offset + Indices>(tuple)...);
-}
-
-template <typename Pointers>
-std::size_t batch_counter_of(const Pointers&, no_index_tag) noexcept
-{
-	return 0;
-}
-
-template <typename Pointers>
-std::size_t batch_counter_of(
-	const Pointers &pointers,
-	linear_index_tag
-) noexcept
-{
-	return std::get<std::tuple_size<Pointers>::value - 1>(pointers);
-}
-
-} // namespace detail
 
 /**
  * @brief Adapts a batch reduce-map kernel to the functor_program interface.
@@ -104,27 +81,16 @@ public:
 		thread_pool &pool
 	) const
 	{
-		const auto batch_count = m_plan.get_batch_count();
-		const auto core_count = m_plan.get_core_count();
-		if (batch_count == 0 || core_count == 0)
+		const auto &map_plan = m_plan.get_map_plan();
+		const auto core_count = map_plan.get_core_count();
+		if (map_plan.get_batch_count() == 0 || core_count == 0)
 		{
 			return;
 		}
 
-		const loop_schedule everywhere(pool, 1);
-		const auto inside = should_split_inner_space(
-			batch_count,
-			core_count,
-			everywhere.get_concurrency()
-		);
-		const auto outer = inside
-			? loop_schedule()
-			: everywhere.with_grain(grain_for_cost((PassCount + 1)*core_count));
-		const auto inner = inside ? everywhere : loop_schedule();
-
 		run_batch(
-			outer,
-			inner,
+			loop_schedule(pool, 1),
+			core_count,
 			outputs,
 			inputs,
 			std::index_sequence_for<Outs...>(),
@@ -135,22 +101,24 @@ public:
 private:
 	template <std::size_t... OutputIndices, std::size_t... InputIndices>
 	void run_batch(
-		const loop_schedule &outer,
-		const loop_schedule &inner,
+		const loop_schedule &everywhere,
+		std::size_t core_count,
 		const output_pointers_type &outputs,
 		const input_pointers_type &inputs,
 		std::index_sequence<OutputIndices...>,
 		std::index_sequence<InputIndices...>
 	) const
 	{
-		run_indexed_elementwise_loop(
-			[this, &inner] (auto... pointers)
+		run_batch_loop(
+			[this] (const loop_schedule &inner, auto... pointers)
 			{
 				this->visit(inner, std::make_tuple(pointers...));
 			},
-			m_plan.get_batch_layout(),
-			MapIndexing(),
-			outer,
+			m_plan.get_map_plan().get_batch_layout(),
+			batch_indexing_of<MapIndexing>(),
+			everywhere,
+			(PassCount + 1)*core_count,
+			core_count,
 			std::get<InputIndices>(inputs)...,
 			std::get<OutputIndices>(outputs)...
 		);
@@ -161,15 +129,15 @@ private:
 	{
 		process(
 			inner,
-			detail::slice_tuple<0>(
+			slice_pointers<0>(
 				pointers,
 				std::index_sequence_for<Ins...>()
 			),
-			detail::slice_tuple<sizeof...(Ins)>(
+			slice_pointers<sizeof...(Ins)>(
 				pointers,
 				std::index_sequence_for<Outs...>()
 			),
-			detail::batch_counter_of(pointers, MapIndexing())
+			get_batch_counter(pointers, MapIndexing())
 		);
 	}
 
@@ -207,7 +175,7 @@ private:
 			m_kernel.make_reduction(pass, previous),
 			m_plan.get_scalar_layout(),
 			m_plan.get_reduced_layout(),
-			m_plan.get_core_count(),
+			m_plan.get_map_plan().get_core_count(),
 			point_to(result, std::make_index_sequence<StatisticCount>()),
 			std::make_tuple(std::get<CoreInputs>(inputs)...),
 			ReductionIndexing(),
@@ -256,7 +224,7 @@ private:
 	{
 		run_indexed_elementwise_vector_loop(
 			kernel,
-			m_plan.get_map_layout(),
+			m_plan.get_map_plan().get_map_layout(),
 			MapIndexing(),
 			inner.with_grain(grain_for_cost(1)),
 			std::get<OutputIndices>(outputs)...,
@@ -290,11 +258,16 @@ batch_reduce_map_program_builder<
 {
 	using shape_rule_type = typename Op::shape_rule_type;
 
+	const auto core_inputs = make_index_array(
+		typename core_input_indices<shape_rule_type>::type()
+	);
+
 	return batch_reduce_map_plan(
+		make_output_core_frame(operation, output_descriptors),
 		output_descriptors,
 		input_descriptors,
 		shape_rule_descriptor_of<shape_rule_type>::get().get_input_cores(),
-		operation.get_parameters().get_axes(),
+		make_span(core_inputs),
 		KernelFactory::statistic_count,
 		ReductionIndexing(),
 		MapIndexing()

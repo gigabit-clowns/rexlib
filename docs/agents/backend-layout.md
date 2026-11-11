@@ -143,8 +143,9 @@ The CUDA plugin has `config.hpp`, `cuda_plugin`, `logger.hpp` and
 
 `random/` must draw the same bits on every backend (see
 [random numbers](random-numbers.md)), and `rule_type_dispatch`,
-`type_dispatch_support_query`, `operand_data_types`, `core_input_indices`
-and `default_kernel_factory` in `skeletons/` do not depend on the backend.
+`type_dispatch_support_query`, `operand_data_types`, `core_input_indices`,
+`own_core_input_indices`, `index_array` and `default_kernel_factory` in
+`skeletons/` do not depend on the backend.
 They live in the CPU backend until a second backend implements programs.
 Then they move to an installed location, which changes the plugin surface
 (see [plugins](plugins.md)).

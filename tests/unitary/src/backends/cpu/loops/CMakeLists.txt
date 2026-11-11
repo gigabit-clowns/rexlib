@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-unitary-tests
 	PRIVATE
+		test_batch_loop.cpp
 		test_claimed_loop.cpp
 		test_elementwise_loop.cpp
 		test_parallel_grain.cpp

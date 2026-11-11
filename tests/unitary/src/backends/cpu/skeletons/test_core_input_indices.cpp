@@ -13,7 +13,8 @@ using namespace rexlib;
 using namespace rexlib::cpu;
 
 TEST_CASE(
-	"core_input_indices should select the inputs carrying core axes",
+	"core_input_indices should select the inputs carrying the core of the "
+	"outputs",
 	"[core_input_indices]"
 )
 {
@@ -26,7 +27,7 @@ TEST_CASE(
 	STATIC_CHECK(
 		std::is_same<
 			core_input_indices<ops::matrix_multiply_shape_rule>::type,
-			std::index_sequence<0, 1>
+			std::index_sequence<>
 		>::value
 	);
 	STATIC_CHECK(

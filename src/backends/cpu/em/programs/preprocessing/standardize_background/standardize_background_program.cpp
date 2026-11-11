@@ -36,7 +36,7 @@ struct standardize_background_kernel_factory
 		const batch_reduce_map_plan &plan
 	) const
 	{
-		const auto extents = plan.get_frame().get_core_extents();
+		const auto extents = plan.get_map_plan().get_frame().get_core_extents();
 		return standardize_background_kernel(
 			centred_ball(make_span(extents), operation.get_radius()),
 			operation.get_lower_bound(),

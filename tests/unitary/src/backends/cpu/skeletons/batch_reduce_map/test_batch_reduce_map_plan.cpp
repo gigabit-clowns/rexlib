@@ -48,6 +48,25 @@ span<const core_dimensions_descriptor> keyed_cores() noexcept
 }
 
 /**
+ * @brief The input of a keyed operation that carries the core of the
+ * outputs.
+ */
+const std::array<std::size_t, 1> keyed_core_inputs = {{ 0 }};
+
+/**
+ * @brief The frame of an output whose core axes are named.
+ */
+named_core_frame make_frame(
+	const operand_descriptor &output,
+	const std::vector<std::size_t> &axes
+)
+{
+	std::vector<std::size_t> extents;
+	output.get_layout().get_extents(extents);
+	return named_core_frame(std::move(extents), make_span(axes));
+}
+
+/**
  * @brief The offsets of every operand at every position of a layout, in
  * row-major order over its own axes.
  */
@@ -103,22 +122,24 @@ TEST_CASE(
 	const std::vector<std::size_t> axes = { 2, 1 };
 
 	const batch_reduce_map_plan plan(
+		make_frame(outputs[0], axes),
 		make_span(outputs),
 		make_span(inputs),
 		keyed_cores(),
-		make_span(axes),
+		make_span(keyed_core_inputs),
 		2,
 		multidimensional_index_tag(),
 		linear_index_tag()
 	);
+	const auto &map_plan = plan.get_map_plan();
 
-	CHECK( plan.get_batch_count() == 4 );
-	CHECK( plan.get_core_count() == 30 );
-	CHECK( plan.get_frame().get_core_extents() ==
+	CHECK( map_plan.get_batch_count() == 4 );
+	CHECK( map_plan.get_core_count() == 30 );
+	CHECK( map_plan.get_frame().get_core_extents() ==
 		std::vector<std::size_t>{ 5, 6 } );
 
-	CHECK( plan.get_batch_layout().get_number_of_operands() == 4 );
-	CHECK( plan.get_batch_layout().compute_element_count() == 4 );
+	CHECK( map_plan.get_batch_layout().get_number_of_operands() == 4 );
+	CHECK( map_plan.get_batch_layout().compute_element_count() == 4 );
 
 	CHECK( plan.get_scalar_layout().get_rank() == 0 );
 	CHECK( plan.get_scalar_layout().get_number_of_operands() == 3 );
@@ -126,8 +147,8 @@ TEST_CASE(
 	CHECK( plan.get_reduced_layout().get_number_of_operands() == 3 );
 	CHECK( plan.get_reduced_layout().compute_element_count() == 30 );
 
-	CHECK( plan.get_map_layout().get_number_of_operands() == 3 );
-	CHECK( plan.get_map_layout().compute_element_count() == 30 );
+	CHECK( map_plan.get_map_layout().get_number_of_operands() == 3 );
+	CHECK( map_plan.get_map_layout().compute_element_count() == 30 );
 }
 
 TEST_CASE(
@@ -146,18 +167,20 @@ TEST_CASE(
 	const std::vector<std::size_t> axes = { 1, 2 };
 
 	const batch_reduce_map_plan plan(
+		make_frame(outputs[0], axes),
 		make_span(outputs),
 		make_span(inputs),
 		keyed_cores(),
-		make_span(axes),
+		make_span(keyed_core_inputs),
 		1,
 		no_index_tag(),
 		no_index_tag()
 	);
+	const auto &map_plan = plan.get_map_plan();
 
-	CHECK( plan.get_batch_layout().get_number_of_operands() == 3 );
+	CHECK( map_plan.get_batch_layout().get_number_of_operands() == 3 );
 	CHECK( plan.get_reduced_layout().get_number_of_operands() == 1 );
-	CHECK( plan.get_map_layout().get_number_of_operands() == 2 );
+	CHECK( map_plan.get_map_layout().get_number_of_operands() == 2 );
 }
 
 TEST_CASE(
@@ -185,18 +208,20 @@ TEST_CASE(
 	const std::vector<std::size_t> axes = { 1, 2 };
 
 	const batch_reduce_map_plan plan(
+		make_frame(outputs[0], axes),
 		make_span(outputs),
 		make_span(inputs),
 		keyed_cores(),
-		make_span(axes),
+		make_span(keyed_core_inputs),
 		2,
 		multidimensional_index_tag(),
 		linear_index_tag()
 	);
+	const auto &map_plan = plan.get_map_plan();
 
-	CHECK( plan.get_batch_layout().get_offset(0) == 7 );
+	CHECK( map_plan.get_batch_layout().get_offset(0) == 7 );
 	CHECK( plan.get_reduced_layout().get_offset(0) == 0 );
-	CHECK( plan.get_map_layout().get_offset(1) == 0 );
+	CHECK( map_plan.get_map_layout().get_offset(1) == 0 );
 }
 
 TEST_CASE(
@@ -224,19 +249,21 @@ TEST_CASE(
 	}};
 
 	const batch_reduce_map_plan plan(
+		make_frame(outputs[0], axes),
 		make_span(outputs),
 		make_span(inputs),
 		keyed_cores(),
-		make_span(axes),
+		make_span(keyed_core_inputs),
 		2,
 		multidimensional_index_tag(),
 		linear_index_tag()
 	);
+	const auto &map_plan = plan.get_map_plan();
 
 	// The batch layout holds value, key, output and counter, the map layout
 	// output, value and counter.
-	const auto batch = enumerate_offsets(plan.get_batch_layout());
-	const auto map = enumerate_offsets(plan.get_map_layout());
+	const auto batch = enumerate_offsets(map_plan.get_batch_layout());
+	const auto map = enumerate_offsets(map_plan.get_map_layout());
 	REQUIRE( batch.size() == 3 );
 	REQUIRE( map.size() == 20 );
 
@@ -264,7 +291,7 @@ TEST_CASE(
 
 TEST_CASE(
 	"batch_reduce_map_plan should reject a missing output, mismatched cores "
-	"and inputs without core axes only",
+	"and no input carrying the core of the outputs",
 	"[batch_reduce_map_plan]"
 )
 {
@@ -277,17 +304,14 @@ TEST_CASE(
 	}};
 	const std::vector<std::size_t> axes = { 1 };
 	const auto cores = keyed_cores();
-	const std::array<core_dimensions_descriptor, 2> empty_cores = {{
-		cores[1],
-		cores[1]
-	}};
 
 	CHECK_THROWS_AS(
 		batch_reduce_map_plan(
+			make_frame(outputs[0], axes),
 			span<const operand_descriptor>(),
 			make_span(inputs),
 			cores,
-			make_span(axes),
+			make_span(keyed_core_inputs),
 			1,
 			no_index_tag(),
 			no_index_tag()
@@ -296,10 +320,11 @@ TEST_CASE(
 	);
 	CHECK_THROWS_AS(
 		batch_reduce_map_plan(
+			make_frame(outputs[0], axes),
 			make_span(outputs),
 			make_span(inputs),
 			make_span(cores.data(), 1),
-			make_span(axes),
+			make_span(keyed_core_inputs),
 			1,
 			no_index_tag(),
 			no_index_tag()
@@ -308,10 +333,11 @@ TEST_CASE(
 	);
 	CHECK_THROWS_AS(
 		batch_reduce_map_plan(
+			make_frame(outputs[0], axes),
 			make_span(outputs),
 			make_span(inputs),
-			make_span(empty_cores),
-			make_span(axes),
+			cores,
+			span<const std::size_t>(),
 			1,
 			no_index_tag(),
 			no_index_tag()

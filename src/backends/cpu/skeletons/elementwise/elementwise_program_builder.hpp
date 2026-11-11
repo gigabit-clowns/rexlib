@@ -10,13 +10,16 @@
 
 #include <backends/cpu/skeletons/typed_program_builder.hpp>
 #include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
+#include <backends/cpu/skeletons/own_core_input_indices.hpp>
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
+#include <backends/cpu/skeletons/elementwise/batched_map_plan.hpp>
 #include <backends/cpu/loops/indices/element_index_tags.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
 #include <memory>
+#include <type_traits>
 
 namespace rexlib
 {
@@ -36,6 +39,11 @@ namespace cpu
  * broadcasts against every axis. The shape rule must place its core axes
  * last, and the core of the outputs must have a fixed number of axes.
  *
+ * An input may also have a core of its own, one the outputs do not carry,
+ * such as the parameters an image is generated from. It is read once per
+ * batch element: the kernel is then made for each batch element from the
+ * inputs placed there, and walks its core, as batched_map_plan lays out.
+ *
  * The builder owns the scaffolding shared by every elementwise operation:
  * operation type check, operand-count validation, joint layout construction
  * and type dispatch.
@@ -47,7 +55,14 @@ namespace cpu
  * element types. The returned kernel is invoked with one mutable pointer per
  * output operand, in signature order, followed by one const pointer per input
  * operand, in signature order, followed by the index @p Indexing asks for.
- * Use default_kernel_factory for stateless kernels.
+ * Use default_kernel_factory for stateless kernels. With inputs of their own
+ * core, the factory is invoked as factory(operation, output_types,
+ * input_types, plan), plan being the batched_map_plan, and returns a kernel
+ * maker: `maker.make_map(inputs)`, or `maker.make_map(inputs, counter)` for
+ * @ref linear_index_tag, makes the kernel of a batch element from the tuple
+ * of every input placed there and from the batch part of its counter. That
+ * kernel is invoked as above, with the inputs the map walks only, and with
+ * the index within the core.
  * @tparam TypeDispatch The type dispatch policy. It resolves the runtime
  * operand data types into compile-time element types. It defaults to
  * interpreting the operation's own typing rule, so a builder only names one
@@ -85,10 +100,11 @@ public:
 	 * @param operation The operation.
 	 * @param output_descriptors The output operand descriptors.
 	 * @param input_descriptors The input operand descriptors.
-	 * @return joint_layout The layout every operand is walked through,
-	 * followed by the index operands of @p Indexing.
+	 * @return The joint_layout every operand is walked through, followed by
+	 * the index operands of @p Indexing, or the batched_map_plan when an
+	 * input has a core of its own.
 	 */
-	joint_layout make_plan(
+	auto make_plan(
 		const Op &operation,
 		span<const operand_descriptor> output_descriptors,
 		span<const operand_descriptor> input_descriptors
@@ -100,21 +116,57 @@ public:
 	 * @tparam Outs Element types of the outputs.
 	 * @tparam Ins Element types of the inputs.
 	 * @param operation The operation.
-	 * @param layout The joined layout, moved from.
+	 * @param plan The plan, moved from.
 	 * @param output_element_types Element types of the outputs.
 	 * @param input_element_types Element types of the inputs.
 	 * @return The functor the program runs.
 	 */
-	template <typename... Outs, typename... Ins>
+	template <typename Plan, typename... Outs, typename... Ins>
 	auto make_loop_functor(
 		const Op &operation,
-		joint_layout &layout,
+		Plan &plan,
 		type_list<Outs...> output_element_types,
 		type_list<Ins...> input_element_types
 	) const;
 
 private:
 	using kernel_factory_type = KernelFactory;
+	using own_core_inputs_type =
+		typename own_core_input_indices<typename Op::shape_rule_type>::type;
+	using batched_type =
+		std::integral_constant<bool, (own_core_inputs_type::size() > 0)>;
+
+	joint_layout make_plan(
+		const Op &operation,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
+		std::false_type batched
+	) const;
+
+	batched_map_plan make_plan(
+		const Op &operation,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
+		std::true_type batched
+	) const;
+
+	template <typename... Outs, typename... Ins>
+	auto make_loop_functor(
+		const Op &operation,
+		joint_layout &layout,
+		type_list<Outs...> output_element_types,
+		type_list<Ins...> input_element_types,
+		std::false_type batched
+	) const;
+
+	template <typename... Outs, typename... Ins>
+	auto make_loop_functor(
+		const Op &operation,
+		batched_map_plan &plan,
+		type_list<Outs...> output_element_types,
+		type_list<Ins...> input_element_types,
+		std::true_type batched
+	) const;
 
 	void append_index_operands(
 		joint_layout_builder &layout_builder,
