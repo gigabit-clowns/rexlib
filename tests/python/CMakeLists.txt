@@ -50,6 +50,21 @@ set_tests_properties(
 REXLIB_PYTHON_TEST_PLUGINS_DIR=${REXLIB_PYTHON_TEST_PLUGINS_DIR}"
 )
 
+# coverage maps the installed package onto python/rexlib, which SonarCloud
+# reads, only from a directory where python/rexlib exists.
+if(REXLIB_ENABLE_COVERAGE)
+	set_tests_properties(
+		rexlib-python
+		PROPERTIES
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../..
+	)
+	set_property(
+		TEST rexlib-python
+		APPEND PROPERTY ENVIRONMENT
+			"COVERAGE_FILE=${CMAKE_BINARY_DIR}/.coverage-python"
+	)
+endif()
+
 set_property(
 	GLOBAL APPEND PROPERTY REXLIB_MEMCHECK_IGNORE
 	rexlib-python-install
