@@ -312,30 +312,27 @@ jobs:
           rexlib_ROOT: ${{ runner.temp }}/rexlib
           CUDAToolkit_ROOT: /usr/local/cuda-${{ matrix.cuda }}
           CUDACXX: /usr/local/cuda-${{ matrix.cuda }}/bin/nvcc
+        working-directory: plugins/cuda
         run: >-
-          cmake -S plugins/cuda -B build/coverage-cuda
-          -DCMAKE_BUILD_TYPE=Debug
-          -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-          -DCMAKE_CXX_FLAGS=--coverage
-          -DCMAKE_EXE_LINKER_FLAGS=--coverage
-          -DCMAKE_MODULE_LINKER_FLAGS=--coverage
+          cmake --preset coverage
           -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
           -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
           -DCMAKE_CUDA_ARCHITECTURES=75
 
       - name: Build the CUDA plugin
-        run: cmake --build build/coverage-cuda
+        working-directory: plugins/cuda
+        run: cmake --build --preset coverage
 
       - name: Test the CUDA plugin
-        run: >-
-          ctest --test-dir build/coverage-cuda
-          --output-on-failure --no-tests=error
+        working-directory: plugins/cuda
+        run: ctest --preset coverage --no-tests=error
 
       - name: Measure the coverage
         run: >-
-          gcovr --root . build/coverage build/coverage-cuda
+          gcovr --root . build/coverage plugins/cuda/build/coverage
           --exclude '\.vcpkg/' --exclude 'build/' --exclude 'third_party/'
-          --exclude 'plugins/cuda/third_party/' --exclude 'tests/'
+          --exclude 'plugins/cuda/build/' --exclude 'plugins/cuda/third_party/'
+          --exclude 'tests/'
           --exclude 'plugins/cuda/tests/' --exclude 'benchmarks/'
           --merge-lines --exclude-throw-branches --exclude-unreachable-branches
           --sonarqube build/coverage-sonarqube.xml
@@ -345,7 +342,7 @@ jobs:
       - name: Merge the compilation databases
         run: >-
           python -c "import json;
-          databases = ['build/coverage', 'build/coverage-cuda'];
+          databases = ['build/coverage', 'plugins/cuda/build/coverage'];
           json.dump(sum((json.load(open(d + '/compile_commands.json')) for d in databases), []),
           open('build/compile_commands.json', 'w'))"
 

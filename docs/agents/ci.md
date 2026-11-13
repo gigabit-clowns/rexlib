@@ -84,8 +84,8 @@ in the log. Valgrind skips the binding's tests, so `ctest -L python` runs them
 after it; under `REXLIB_ENABLE_COVERAGE` the build adds `--cov` to their
 pytest, which prints the package's coverage and writes it to
 `build/coverage/coverage-python.xml`. The library is then installed, without
-the binding, whose install would run its stub generator, and the CUDA plugin
-is built against it with `--coverage` and tested, without valgrind: the
+the binding, whose install would run its stub generator, and the CUDA plugin is
+built against it with its `coverage` preset and tested, without valgrind: the
 plugin's sanitizer jobs check its memory. gcovr measures both builds, leaving
 out the tests and the dependencies, and writes SonarQube's report beside its
 summary.
@@ -146,11 +146,11 @@ virtual environment that the later steps see. `uv sync --locked
 Lint job takes uv the same way and installs the `lint` group alone, with
 `--only-group`; the coverage job adds the `coverage` group to `dev`.
 
-The branch rules require All checks and SonarCloud's quality gate. It runs whatever happened
-before it, because a job that a failure skipped would otherwise count as
-passed, and it keeps the names of matrix rows out of the rules. "Require
-branches to be up to date before merging" is on, so two pull requests that pass
-apart but fail together cannot both merge untested.
+The branch rules require All checks and SonarCloud's quality gate. All checks
+runs whatever happened before it, because a job that a failure skipped would
+otherwise count as passed, and it keeps the names of matrix rows out of the
+rules. "Require branches to be up to date before merging" is on, so two pull
+requests that pass apart but fail together cannot both merge untested.
 
 Each job keeps its compiler cache through `hendrikmuhs/ccache-action`, capped
 at 500 MB unless the job sets another size, and cleared of what the job did not
