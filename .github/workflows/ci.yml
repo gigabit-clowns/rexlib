@@ -167,7 +167,7 @@ jobs:
 
       - name: Install the binding's dependencies
         if: matrix.python
-        run: uv sync --locked --no-build --no-install-project
+        run: uv sync --locked --no-install-project
 
       # Only MSVC reads the debug information format: embedded in each object,
       # which is what lets ccache cache what it compiles.
@@ -267,7 +267,7 @@ jobs:
           save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install the binding's dependencies and gcovr
-        run: uv sync --locked --no-build --no-install-project --group coverage
+        run: uv sync --locked --no-install-project --group coverage
 
       - name: Configure
         run: >-
@@ -468,7 +468,7 @@ jobs:
           save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install the binding's dependencies
-        run: uv sync --locked --no-build --no-install-project
+        run: uv sync --locked --no-install-project
 
       # In place of the CMake that the binding's dependencies put in the
       # virtual environment.
