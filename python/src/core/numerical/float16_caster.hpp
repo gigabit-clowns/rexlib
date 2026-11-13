@@ -19,8 +19,8 @@ struct type_caster<rexlib::float16_t>
 
 	bool from_python(handle src, uint32_t flags, cleanup_list*) noexcept
 	{
-		const bool convert = (flags & (uint32_t) cast_flags::convert) != 0;
-		if (!convert && !PyFloat_Check(src.ptr()) && !PyLong_Check(src.ptr()))
+		const bool implicit = (flags & (uint32_t) cast_flags::convert) != 0;
+		if (!implicit && !PyFloat_Check(src.ptr()) && !PyLong_Check(src.ptr()))
 		{
 			return false;
 		}
