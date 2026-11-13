@@ -30,14 +30,23 @@ class memory_heap;
  */
 class memory_block
 {
-public:
-	using block_list_hook_type =
-		boost::intrusive::list_member_hook<>;
-	using free_block_set_hook_type =
-		boost::intrusive::set_member_hook<>;
+	boost::intrusive::list_member_hook<> m_block_list_hook;
+	boost::intrusive::set_member_hook<> m_free_block_set_hook;
 
-	block_list_hook_type block_list_hook;
-	free_block_set_hook_type free_block_set_hook;
+public:
+	/// Option of a boost::intrusive list to link blocks through.
+	using block_list_hook_type = boost::intrusive::member_hook<
+		memory_block,
+		boost::intrusive::list_member_hook<>,
+		&memory_block::m_block_list_hook
+	>;
+
+	/// Option of a boost::intrusive set to link blocks through.
+	using free_block_set_hook_type = boost::intrusive::member_hook<
+		memory_block,
+		boost::intrusive::set_member_hook<>,
+		&memory_block::m_free_block_set_hook
+	>;
 
 	/**
 	 * @brief Construct a block from its components.

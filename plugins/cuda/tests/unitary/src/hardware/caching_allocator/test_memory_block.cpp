@@ -138,11 +138,7 @@ TEST_CASE(
 
 	using free_block_set_type = boost::intrusive::multiset<
 		cuda::memory_block,
-		boost::intrusive::member_hook<
-			cuda::memory_block,
-			cuda::memory_block::free_block_set_hook_type,
-			&cuda::memory_block::free_block_set_hook
-		>,
+		cuda::memory_block::free_block_set_hook_type,
 		boost::intrusive::compare<by_size>
 	>;
 

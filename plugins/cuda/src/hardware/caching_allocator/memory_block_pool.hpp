@@ -219,19 +219,11 @@ private:
 
 	using memory_block_list_type = boost::intrusive::list<
 		memory_block,
-		boost::intrusive::member_hook<
-			memory_block,
-			memory_block::block_list_hook_type,
-			&memory_block::block_list_hook
-		>
+		memory_block::block_list_hook_type
 	>;
 	using free_memory_block_set_type = boost::intrusive::multiset<
 		memory_block,
-		boost::intrusive::member_hook<
-			memory_block,
-			memory_block::free_block_set_hook_type,
-			&memory_block::free_block_set_hook
-		>,
+		memory_block::free_block_set_hook_type,
 		boost::intrusive::compare<free_memory_block_compare>
 	>;
 	using heap_map_type = boost::unordered::unordered_flat_map<
