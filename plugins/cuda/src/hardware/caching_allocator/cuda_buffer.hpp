@@ -44,6 +44,13 @@ class cuda_buffer final
 	: public buffer
 {
 public:
+	/// One token per timeline, inline for as many queues as a buffer is ever
+	/// likely to be handed to.
+	using token_vector_type = boost::container::small_vector<
+		command_token,
+		REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
+	>;
+
 	/**
 	 * @brief Take ownership of a block.
 	 *
@@ -111,11 +118,11 @@ public:
 	/**
 	 * @brief Get the commands that were recorded as using this buffer.
 	 *
-	 * Not synchronized against @ref record_use.
+	 * Thread safe.
 	 *
-	 * @return span<const command_token> One token per timeline.
+	 * @return token_vector_type One token per timeline.
 	 */
-	span<const command_token> get_recorded_uses() const noexcept;
+	token_vector_type get_recorded_uses() const;
 
 	/**
 	 * @brief Downcast a buffer to this backend's implementation.
@@ -140,13 +147,6 @@ public:
 	static const cuda_buffer& cast(const buffer &buf);
 
 private:
-	/// One token per timeline, inline for as many queues as a buffer is ever
-	/// likely to be handed to.
-	using token_vector_type = boost::container::small_vector<
-		command_token,
-		REXLIB_CUDA_CACHING_ALLOCATOR_SMALL_QUEUE_COUNT
-	>;
-
 	std::shared_ptr<memory_block_allocator> m_allocator;
 	memory_block *m_block;
 	const memory_resource *m_resource;

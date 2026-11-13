@@ -14,6 +14,24 @@ namespace rexlib
 namespace cuda
 {
 
+namespace
+{
+
+// A buffer that is never used still has to give the block back carrying what
+// it came with.
+cuda_buffer::token_vector_type uses_on_arrival(const memory_block &block)
+{
+	cuda_buffer::token_vector_type result;
+	if (!block.get_pending().is_empty())
+	{
+		result.push_back(block.get_pending());
+	}
+
+	return result;
+}
+
+} // anonymous namespace
+
 cuda_buffer::cuda_buffer(
 	std::shared_ptr<memory_block_allocator> allocator,
 	memory_block &block,
@@ -24,6 +42,7 @@ cuda_buffer::cuda_buffer(
 	, m_block(&block)
 	, m_resource(&resource)
 	, m_host_data(host_data)
+	, m_uses(uses_on_arrival(block))
 {
 	if (!m_allocator)
 	{
@@ -32,18 +51,12 @@ cuda_buffer::cuda_buffer(
 			"block back to."
 		);
 	}
-
-	// A buffer that is never used still has to give the block back carrying
-	// what it came with.
-	if (!block.get_pending().is_empty())
-	{
-		m_uses.push_back(block.get_pending());
-	}
 }
 
 cuda_buffer::~cuda_buffer()
 {
-	m_allocator->recycle(*m_block, get_recorded_uses());
+	const std::lock_guard<std::mutex> lock(m_mutex);
+	m_allocator->recycle(*m_block, make_span(m_uses.data(), m_uses.size()));
 }
 
 void* cuda_buffer::get_host_ptr() noexcept
@@ -104,9 +117,10 @@ void cuda_buffer::record_use(const command_token &token) const
 	}
 }
 
-span<const command_token> cuda_buffer::get_recorded_uses() const noexcept
+cuda_buffer::token_vector_type cuda_buffer::get_recorded_uses() const
 {
-	return make_span(m_uses.data(), m_uses.size());
+	const std::lock_guard<std::mutex> lock(m_mutex);
+	return m_uses;
 }
 
 cuda_buffer& cuda_buffer::cast(buffer &buf)
