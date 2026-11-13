@@ -60,7 +60,7 @@ bool load_scalar<bool>(const nb::object &value, bool &result)
 		return true;
 	}
 
-	auto *type = reinterpret_cast<PyTypeObject*>(value.type().ptr());
+	auto *type = Py_TYPE(value.ptr());
 	if (value.is_none() || PyType_GetSlot(type, Py_nb_bool) == nullptr)
 	{
 		return false;

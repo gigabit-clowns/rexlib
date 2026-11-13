@@ -3,7 +3,7 @@
 # is built against the rexlib it runs with, which a plugin pins to its minor
 # version before 1.0, as rexlib==0.1.*.
 [build-system]
-requires = ["scikit-build-core==1.1.1", "rexlib"]
+requires = ["scikit-build-core==1.1.2", "rexlib"]
 build-backend = "scikit_build_core.build"
 
 [project]

@@ -13,6 +13,7 @@
 #include <rexlib/core/hardware/command_token.hpp>
 #include <rexlib/core/span.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -30,15 +31,13 @@ namespace
 template <typename Buffer>
 bool are_own_buffers(span<const std::shared_ptr<Buffer>> operands) noexcept
 {
-	for (const auto &operand : operands)
-	{
-		if (dynamic_cast<const cuda_buffer*>(operand.get()) == nullptr)
+	return std::ranges::all_of(
+		operands,
+		[] (const auto &operand) noexcept
 		{
-			return false;
+			return dynamic_cast<const cuda_buffer*>(operand.get()) != nullptr;
 		}
-	}
-
-	return true;
+	);
 }
 
 /// Tell buffers of this backend that a command uses them.

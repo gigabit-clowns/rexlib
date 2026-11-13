@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "scikit-build-core==1.1.1",
+    "scikit-build-core==1.1.2",
     "nanobind==3.1.0",
 ]
 build-backend = "scikit_build_core.build"
@@ -42,7 +42,7 @@ dependencies = []
 # What a build without build isolation, or by CMake itself, needs and pip
 # would otherwise provide.
 build = [
-    "scikit-build-core==1.1.1",
+    "scikit-build-core==1.1.2",
     "cmake==4.4.4",
     "ninja==1.13.2",
     "nanobind==3.1.0",
@@ -50,14 +50,14 @@ build = [
 test = [
     "numpy==2.4.6; python_version == '3.11'",
     "numpy==2.5.4; python_version >= '3.12'",
-    "pytest==9.1.1",
+    "pytest==9.2.0",
     "pytest-cov==7.1.0",
 ]
 # What the lint preset runs.
 lint = [
     "clang-tidy==23.1.3",
     "editorconfig-checker==3.11.1",
-    "ruff==0.17.1",
+    "ruff==0.17.4",
 ]
 # What measures the coverage of the coverage preset's build.
 coverage = [
@@ -83,7 +83,7 @@ rexlib = "rexlib"
 # and only this version of uv, which CI installs too. The CUDA plugins come
 # from their projects in this repository, and their extras exclude each other.
 [tool.uv]
-required-version = "==0.13.3"
+required-version = "==0.13.7"
 conflicts = [[{ extra = "cuda12" }, { extra = "cuda13" }]]
 
 [tool.uv.sources]
@@ -98,6 +98,7 @@ markers = [
 
 [tool.coverage.run]
 source = ["rexlib"]
+relative_files = true
 
 # The tests import the installed package, not python/rexlib.
 [tool.coverage.paths]
@@ -114,6 +115,7 @@ sdist.exclude = [
     ".vscode/**",
     "plugins/**",
     "renovate.json",
+    "sonar-project.properties",
     "third_party/**/test/**",
     "third_party/**/tests/**",
     "third_party/**/doc/**",
@@ -178,7 +180,7 @@ skip = ["*-musllinux_*", "*-win32", "*_i686", "*_armv7l"]
 # than the source tree beside it: the import checks that the library the
 # wheel carries is found at run time, and the suite runs against the wheel,
 # but for the tests of the plugins only a test build makes.
-test-groups = ["test"]
+before-test = "pip install --require-hashes --only-binary :all: --requirement {project}/test-requirements.txt"
 test-command = [
     "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\"",
     "pytest {package}/tests/python -m \"not dummy_plugins\" -p no:cacheprovider",
@@ -188,7 +190,7 @@ test-command = [
 # by its import alone.
 [[tool.cibuildwheel.overrides]]
 select = "cp315t-*"
-test-groups = []
+before-test = ""
 test-command = "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\""
 
 # The repair tools leave librexlib, which the wheel already carries, as it is.
