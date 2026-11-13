@@ -67,10 +67,11 @@ coverage job's gcovr leaves it out.
 
 The jobs that build the dependencies from their sources check the submodules
 out with the repository (`submodules: true`), each at the depth of one
-commit: the sanitizer jobs, the CUDA plugin's included, and Documentation, the
-source distribution, which carries them, and the CUDA wheels, which build the
-plugin's. The jobs against
-installed dependencies leave them out.
+commit: the library's sanitizer jobs, Documentation, and the source
+distribution, which carries them. The CUDA plugin's sanitizer jobs and wheels
+check out the plugin's alone, `plugins/cuda/third_party`, so that a host the
+library's dependencies come from cannot fail them. The jobs against installed
+dependencies leave them out.
 
 The coverage and valgrind job builds the `coverage` preset. It runs the suites
 under valgrind with `ctest --test-dir build/coverage -T MemCheck`: the preset

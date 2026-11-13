@@ -167,7 +167,7 @@ jobs:
 
       - name: Install the binding's dependencies
         if: matrix.python
-        run: uv sync --locked --no-install-project
+        run: uv sync --locked --no-build --no-install-project
 
       # Only MSVC reads the debug information format: embedded in each object,
       # which is what lets ccache cache what it compiles.
@@ -227,7 +227,7 @@ jobs:
           REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/${{ matrix.distribution }}/${{ matrix.repository }}
           CUDA: ${{ matrix.cuda }}
         run: |
-          curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
+          curl --proto '=https' -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
@@ -267,7 +267,7 @@ jobs:
           save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install the binding's dependencies and gcovr
-        run: uv sync --locked --no-install-project --group coverage
+        run: uv sync --locked --no-build --no-install-project --group coverage
 
       - name: Configure
         run: >-
@@ -468,7 +468,7 @@ jobs:
           save-cache: ${{ env.SAVE_CACHES }}
 
       - name: Install the binding's dependencies
-        run: uv sync --locked --no-install-project
+        run: uv sync --locked --no-build --no-install-project
 
       # In place of the CMake that the binding's dependencies put in the
       # virtual environment.
@@ -656,7 +656,7 @@ jobs:
           REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/${{ matrix.distribution }}/${{ matrix.repository }}
           CUDA: ${{ matrix.cuda }}
         run: |
-          curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
+          curl --proto '=https' -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
@@ -730,7 +730,9 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-          submodules: true
+
+      - name: Check out the plugin's submodules
+        run: git submodule update --init --depth 1 -- plugins/cuda/third_party
 
       - name: Set up the compiler cache
         uses: hendrikmuhs/ccache-action@v1.2.24
@@ -745,7 +747,7 @@ jobs:
         env:
           REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2604/x86_64
         run: |
-          curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
+          curl --proto '=https' -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
           sudo dpkg -i cuda-keyring_1.1-1_all.deb
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
@@ -969,7 +971,9 @@ jobs:
         uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-          submodules: true
+
+      - name: Check out the plugin's submodules
+        run: git submodule update --init --depth 1 -- plugins/cuda/third_party
 
       - name: Fetch the rexlib wheels
         uses: actions/download-artifact@v8.0.2
