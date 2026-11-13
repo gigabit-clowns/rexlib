@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 joint_layout::joint_layout() = default;
@@ -24,7 +24,7 @@ joint_layout::joint_layout(
 
 joint_layout::~joint_layout() = default;
 
-joint_layout& 
+joint_layout&
 joint_layout::operator=(joint_layout&& other) noexcept = default;
 
 std::size_t joint_layout::get_rank() const noexcept
@@ -43,7 +43,7 @@ std::size_t joint_layout::get_number_of_operands() const noexcept
 	{
 		return 0UL;
 	}
-	
+
 	return m_implementation->get_number_of_operands();
 }
 
@@ -53,11 +53,11 @@ span<const std::size_t> joint_layout::get_extents() const
 	{
 		return span<const std::size_t>();
 	}
-	
+
 	return m_implementation->get_extents();
 }
 
-span<const std::ptrdiff_t> 
+span<const std::ptrdiff_t>
 joint_layout::get_strides(std::size_t operand) const
 {
 	if (!m_implementation)
@@ -81,7 +81,7 @@ std::ptrdiff_t joint_layout::get_offset(std::size_t operand) const
 }
 
 std::size_t joint_layout::iter(
-	joint_cursor &ite, 
+	joint_cursor &ite,
 	std::size_t first_dim,
 	std::size_t last_dim
 ) const

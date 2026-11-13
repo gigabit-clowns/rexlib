@@ -86,26 +86,26 @@ TEST_CASE(
 	cpu_command_queue queue(get_serial_pool());
 
 	const auto prog = std::make_shared<cpu::mock_program>();
-	const std::vector<std::shared_ptr<buffer>> outputs = { 
+	const std::vector<std::shared_ptr<buffer>> outputs = {
 		std::make_shared<mock_buffer>(),
 		std::make_shared<mock_buffer>(),
-		std::make_shared<mock_buffer>() 
+		std::make_shared<mock_buffer>()
 	};
-	const std::vector<std::shared_ptr<const buffer>> inputs = { 
+	const std::vector<std::shared_ptr<const buffer>> inputs = {
 		std::make_shared<mock_buffer>(),
 		std::make_shared<mock_buffer>(),
 		std::make_shared<mock_buffer>(),
-		std::make_shared<mock_buffer>() 
+		std::make_shared<mock_buffer>()
 	};
-	const std::vector<std::shared_ptr<buffer>> scratch = { 
+	const std::vector<std::shared_ptr<buffer>> scratch = {
 		std::make_shared<mock_buffer>(),
-		std::make_shared<mock_buffer>() 
+		std::make_shared<mock_buffer>()
 	};
 
 	command cmd(prog);
 	cmd.bind_outputs(outputs)
-	   .bind_inputs(inputs)
-	   .bind_scratch(scratch);
+		.bind_inputs(inputs)
+		.bind_scratch(scratch);
 
 	REQUIRE_CALL(
 		*prog,

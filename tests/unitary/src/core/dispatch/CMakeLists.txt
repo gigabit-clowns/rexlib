@@ -10,6 +10,6 @@ target_sources(
 		test_program_builder_registration.cpp
 		test_program_builder_registry.cpp
 		test_program_cache.cpp
-		test_program_manager.cpp
+		test_program_service.cpp
 		test_typed_program_cache_key.cpp
 )

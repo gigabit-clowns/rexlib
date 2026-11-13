@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream &os, insertion_variant variant)
 	return os;
 }
 
-REXLIB_CONST_CONSTEXPR double pixel_size = 1.5;
+REXLIB_CONST_CONSTEXPR double case_pixel_size = 1.5;
 
 inline
 em::ctf_optics make_optics()
@@ -372,7 +372,7 @@ double reference_ctf(
 	const auto wavelength = optics.get_wavelength();
 	const auto aberration = optics.get_spherical_aberration() * 1e7;
 	const auto s2 = (k_x * k_x + k_y * k_y) /
-		std::pow(static_cast<double>(extent) * pixel_size, 2);
+		std::pow(static_cast<double>(extent) * case_pixel_size, 2);
 	const auto direction = std::atan2(k_y, k_x);
 	const auto defocus = 0.5 * (parameters[0] + parameters[1]) +
 		0.5 * (parameters[0] - parameters[1]) *

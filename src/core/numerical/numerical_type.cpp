@@ -20,7 +20,7 @@ using numerical_type_promotion_row =
 
 using numerical_type_promotion_table =
 	std::array<
-		numerical_type_promotion_row, 
+		numerical_type_promotion_row,
 		static_cast<std::size_t>(numerical_type::count)
 	>;
 
@@ -59,11 +59,11 @@ compute_numerical_type_promotion_lattice() noexcept
 	lattice.add_edge(numerical_type::float64, numerical_type::complex_float64);
 
 	lattice.add_edge(
-		numerical_type::complex_float16, 
+		numerical_type::complex_float16,
 		numerical_type::complex_float32
 	);
 	lattice.add_edge(
-		numerical_type::complex_float32, 
+		numerical_type::complex_float32,
 		numerical_type::complex_float64
 	);
 
@@ -71,7 +71,7 @@ compute_numerical_type_promotion_lattice() noexcept
 }
 
 REXLIB_INLINE_CONSTEXPR_CPP23
-numerical_type_promotion_table 
+numerical_type_promotion_table
 compute_numerical_type_promotion_table() noexcept
 {
 	numerical_type_promotion_table table = {};
@@ -108,7 +108,7 @@ std::size_t get_size(numerical_type type) noexcept
 	case numerical_type::boolean: return sizeof(bool);
 	case numerical_type::char8: return sizeof(char);
 	case numerical_type::int8: return sizeof(std::int8_t);
-	case numerical_type::uint8: return sizeof(std::int8_t);
+	case numerical_type::uint8: return sizeof(std::uint8_t);
 	case numerical_type::int16: return sizeof(std::int16_t);
 	case numerical_type::uint16: return sizeof(std::uint16_t);
 	case numerical_type::int32: return sizeof(std::int32_t);
@@ -118,9 +118,12 @@ std::size_t get_size(numerical_type type) noexcept
 	case numerical_type::float16: return sizeof(float16_t);
 	case numerical_type::float32: return sizeof(float32_t);
 	case numerical_type::float64: return sizeof(float64_t);
-	case numerical_type::complex_float16: return sizeof(std::complex<float16_t>);
-	case numerical_type::complex_float32: return sizeof(std::complex<float32_t>);
-	case numerical_type::complex_float64: return sizeof(std::complex<float64_t>);
+	case numerical_type::complex_float16:
+		return sizeof(std::complex<float16_t>);
+	case numerical_type::complex_float32:
+		return sizeof(std::complex<float32_t>);
+	case numerical_type::complex_float64:
+		return sizeof(std::complex<float64_t>);
 	default: return 0UL;
 	}
 }
@@ -132,14 +135,14 @@ numerical_type make_complex(numerical_type type) noexcept
 	case numerical_type::float16: return numerical_type::complex_float16;
 	case numerical_type::float32: return numerical_type::complex_float32;
 	case numerical_type::float64: return numerical_type::complex_float64;
-	case numerical_type::complex_float16: 
+	case numerical_type::complex_float16:
 		return numerical_type::complex_float16;
-	case numerical_type::complex_float32: 
+	case numerical_type::complex_float32:
 		return numerical_type::complex_float32;
-	case numerical_type::complex_float64: 
+	case numerical_type::complex_float64:
 		return numerical_type::complex_float64;
 	default: return numerical_type::unknown;
-	} 
+	}
 }
 
 numerical_type make_real(numerical_type type) noexcept
@@ -201,7 +204,7 @@ promote_types(numerical_type type1, numerical_type type2) noexcept
 {
 	static const auto lut = compute_numerical_type_promotion_table();
 
-	const auto i = static_cast<int>(type1); 
+	const auto i = static_cast<int>(type1);
 	const auto j = static_cast<int>(type2);
 	const auto n = static_cast<int>(lut.size());
 

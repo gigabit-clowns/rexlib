@@ -258,6 +258,7 @@ void row_insertion_kernel<T, Window, VolumePhase, SampleWeight>::fill_values(
 	{
 		const auto sample_real = samples[i * sample_stride];
 		const auto sample_imaginary = samples[i * sample_stride + 1];
+		// NOLINTNEXTLINE(bugprone-implicit-widening-of-multiplication-result)
 		const auto x_real = x_phases[2 * i];
 		const auto x_imaginary = x_phases[2 * i + 1];
 

@@ -6,32 +6,32 @@
 #include "../numerical/numerical_type.hpp"
 #include "../platform/dynamic_shared_object.h"
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
  * @brief Description of the memory representation of a multidimensional array.
- * 
+ *
  * This class represents the (strided_layout, numerical_type) pair that
  * defines the data interpretation on a multidimensional array.
- * 
+ *
  * @see array
- * 
+ *
  */
 class array_descriptor
 {
 public:
 	/**
-	 * @brief Default construct the descriptor with an empty layout and 
+	 * @brief Default construct the descriptor with an empty layout and
 	 * unknown numerical type.
-	 * 
+	 *
 	 */
 	REXLIB_API
 	array_descriptor() noexcept;
 
 	/**
 	 * @brief Construct a descriptor from its components.
-	 * 
+	 *
 	 * @param layout The layout.
 	 * @param data_type The numerical type.
 	 */
@@ -55,7 +55,7 @@ public:
 
 	/**
 	 * @brief Get the hash value for this descriptor.
-	 * 
+	 *
 	 * @return std::size_t The hash value.
 	 */
 	REXLIB_API
@@ -63,7 +63,7 @@ public:
 
 	/**
 	 * @brief Get the layout of the array.
-	 * 
+	 *
 	 * @return const strided_layout& The layout.
 	 */
 	REXLIB_API
@@ -71,7 +71,7 @@ public:
 
 	/**
 	 * @brief Get the data type of the array.
-	 * 
+	 *
 	 * @return numerical_type The numerical type.
 	 */
 	REXLIB_API
@@ -120,7 +120,7 @@ array_descriptor make_contiguous_array_descriptor(
 
 /**
  * @brief Check if the array descriptor is initialized.
- * 
+ *
  * @param descriptor The descriptor to check.
  * @return true If the descriptor is initialized.
  * @return false If the descriptor is not initialized.
@@ -130,8 +130,8 @@ bool is_initialized(const array_descriptor &descriptor) noexcept;
 
 /**
  * @brief Compute the number of bytes required to store the given descriptor.
- * 
- * @param descriptor The descriptor from which the storage requirement is 
+ *
+ * @param descriptor The descriptor from which the storage requirement is
  * computed.
  * @return std::size_t Minimum number of bytes required to store the descriptor.
  */

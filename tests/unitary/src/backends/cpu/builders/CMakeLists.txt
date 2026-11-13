@@ -5,6 +5,7 @@ target_sources(
 	PRIVATE
 		test_batch_reduce_map_program_builder.cpp
 		test_core_input_indices.cpp
+		test_cpu_program_builder_registry.cpp
 		test_default_kernel_factory.cpp
 		test_dispatched_program_builder.cpp
 		test_elementwise_program_builder.cpp

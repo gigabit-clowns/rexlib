@@ -9,15 +9,15 @@
 
 #include <stdexcept>
 
-namespace rexlib 
+namespace rexlib
 {
 
 namespace
 {
 
 void broadcast_axis_to(
-	std::size_t &extent, 
-	std::ptrdiff_t &stride, 
+	std::size_t &extent,
+	std::ptrdiff_t &stride,
 	std::size_t target_extent
 )
 {
@@ -49,7 +49,7 @@ void broadcast_to(
 	const auto n = target_extents.size();
 	if (extents.size() < n )
 	{
-		
+
 		const auto padding = target_extents.size() - extents.size();
 		extents.insert(extents.cbegin(), padding, 1UL);
 		strides.insert(strides.cbegin(), padding, 0UL);
@@ -81,7 +81,7 @@ void create_or_add_operand(
 	}
 	else
 	{
-		implementation = 
+		implementation =
 			std::make_unique<joint_layout_implementation>(
 				std::move(extents)
 			);
@@ -104,12 +104,12 @@ joint_layout_builder::joint_layout_builder(
 joint_layout_builder::~joint_layout_builder(
 ) = default;
 
-joint_layout_builder& 
+joint_layout_builder&
 joint_layout_builder::operator=(
 	joint_layout_builder&& other
 ) noexcept = default;
 
-joint_layout_builder& 
+joint_layout_builder&
 joint_layout_builder::set_extents(span<const std::size_t> extents)
 {
 	if (m_implementation)
@@ -119,7 +119,7 @@ joint_layout_builder::set_extents(span<const std::size_t> extents)
 		);
 	}
 
-	m_implementation = 
+	m_implementation =
 		std::make_unique<joint_layout_implementation>(
 			joint_layout_implementation::extent_vector_type(
 				extents.begin(),
@@ -130,7 +130,7 @@ joint_layout_builder::set_extents(span<const std::size_t> extents)
 	return *this;
 }
 
-joint_layout_builder& 
+joint_layout_builder&
 joint_layout_builder::add_operand(
 	span<const std::size_t> extents,
 	span<const std::ptrdiff_t> strides,
@@ -153,7 +153,7 @@ joint_layout_builder::add_operand(
 	return *this;
 }
 
-joint_layout_builder& 
+joint_layout_builder&
 joint_layout_builder::add_operand(const strided_layout &layout)
 {
 
@@ -178,7 +178,7 @@ joint_layout_builder::add_operand(const strided_layout &layout)
 	return *this;
 }
 
-const joint_layout_implementation* 
+const joint_layout_implementation*
 joint_layout_builder::get_implementation() const noexcept
 {
 	return m_implementation.get();

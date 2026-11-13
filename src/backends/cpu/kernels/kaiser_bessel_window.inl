@@ -101,7 +101,7 @@ void kaiser_bessel_window<T>::place(
 	// a floating point one. Each block is computed into the stack, where
 	// the gather from the table cannot alias the store, then copied out.
 	const auto past_end = m_step_count + 1;
-	std::array<T, block_size> block;
+	std::array<T, block_size> block{};
 	for (std::size_t tap = 0; tap < m_tap_count; ++tap)
 	{
 		auto *tap_weights = weights + tap * weight_stride;

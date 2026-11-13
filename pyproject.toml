@@ -1,0 +1,202 @@
+[build-system]
+requires = [
+    "scikit-build-core==1.1.1",
+    "nanobind==3.1.0",
+]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "rexlib"
+dynamic = ["version", "optional-dependencies"]
+authors = [
+    { name = "Oier Lauzirika Zarrabeitia", email = "oierlauzi@bizkaia.eu" },
+    { name = "Martin Salinas", email = "ssalinasmartin@gmail.com" },
+    { name = "Mikel Iceta Tena", email = "miceta@gmail.com" }
+]
+description = "High-performance Cryo-EM and Cryo-ET image processing library"
+classifiers = [
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: C++",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Typing :: Typed",
+]
+
+readme = {file = "README.md", content-type = "text/markdown"}
+license = "GPL-3.0-only"
+
+requires-python = ">=3.11"
+dependencies = []
+
+# Installed with pip install --group, which pip has had since 25.1.
+[dependency-groups]
+# What a build without build isolation, or by CMake itself, needs and pip
+# would otherwise provide.
+build = [
+    "scikit-build-core==1.1.1",
+    "cmake==4.4.4",
+    "ninja==1.13.2",
+    "nanobind==3.1.0",
+]
+test = [
+    "numpy==2.4.6; python_version == '3.11'",
+    "numpy==2.5.4; python_version >= '3.12'",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+]
+# What the lint preset runs.
+lint = [
+    "clang-tidy==23.1.3",
+    "editorconfig-checker==3.11.1",
+    "ruff==0.17.1",
+]
+# What measures the coverage of the coverage preset's build.
+coverage = [
+    "gcovr==8.7",
+]
+# The binding's build and its tests: what uv sync installs.
+dev = [
+    { include-group = "build" },
+    { include-group = "test" },
+]
+
+[project.urls]
+Homepage = "https://github.com/gigabit-clowns/rexlib"
+Issues = "https://github.com/gigabit-clowns/rexlib/issues"
+
+# A project built with scikit-build-core against an installed wheel finds
+# rexlib's CMake package with find_package(rexlib).
+[project.entry-points."cmake.root"]
+rexlib = "rexlib"
+
+# uv.lock pins every package of the groups, those they pull in included, for
+# every Python and platform, with the hash of each file. Only uv writes it,
+# and only this version of uv, which CI installs too. The CUDA plugins come
+# from their projects in this repository, and their extras exclude each other.
+[tool.uv]
+required-version = "==0.13.3"
+conflicts = [[{ extra = "cuda12" }, { extra = "cuda13" }]]
+
+[tool.uv.sources]
+rexlib-cuda12 = { path = "plugins/cuda/cuda12" }
+rexlib-cuda13 = { path = "plugins/cuda/cuda13" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests/python"]
+markers = [
+    "dummy_plugins: loads the plugins only a test build makes, which a wheel does not carry",
+]
+
+[tool.coverage.run]
+source = ["rexlib"]
+
+# The tests import the installed package, not python/rexlib.
+[tool.coverage.paths]
+source = ["python/rexlib", "*/site-packages/rexlib"]
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.scikit-build]
+# Leaves out the plugins, the repository's own settings, and the tests,
+# documentation and examples of the dependencies.
+sdist.exclude = [
+    ".github/**",
+    ".vscode/**",
+    "plugins/**",
+    "renovate.json",
+    "third_party/**/test/**",
+    "third_party/**/tests/**",
+    "third_party/**/doc/**",
+    "third_party/**/docs/**",
+    "third_party/**/example/**",
+    "third_party/**/examples/**",
+    "third_party/**/bench/**",
+    "third_party/**/benchmarks/**",
+]
+
+# The wheel's install prefix is the package directory, so the library, its
+# headers and its CMake package land beside the extension under the ordinary
+# lib/ and include/.
+wheel.install-dir = "rexlib"
+
+# One wheel serves Python 3.12 and every later one. An older or a
+# free-threaded Python gets a wheel of its own, built without this being
+# asked for.
+wheel.py-api = "cp312"
+
+# Everything except rexlib's namelink, the unversioned librexlib.so. A wheel
+# cannot hold a symlink, so it would be stored as a second full copy of a
+# 50 MB library. rexlib_python is the binding.
+#
+# In this order: they are installed one at a time, and generating the type
+# stubs imports the extension, which does not load until rexlib is in place.
+install.components = ["rexlib_runtime", "rexlib_development", "rexlib_python"]
+
+cmake.version = ">=3.26"
+cmake.args = []
+build.verbose = false
+cmake.build-type = "Release"
+
+# The library and its CMake package go to lib/ on every platform.
+[tool.scikit-build.cmake.define]
+REXLIB_BUILD_PYTHON = "ON"
+REXLIB_PYTHON_STABLE_ABI = "ON"
+BUILD_TESTING = "OFF"
+CMAKE_INSTALL_LIBDIR = "lib"
+
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.regex"
+field = "version"
+input = "VERSION"
+regex = "(?P<value>\\d+\\.\\d+\\.\\d+)"
+
+# The CUDA plugin of the same release, for CUDA 12 or 13, on Linux, the one
+# system its wheels are built for.
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.template"
+field = "optional-dependencies"
+result = { cuda12 = ["rexlib-cuda12=={project[version]}; sys_platform == 'linux'"], cuda13 = ["rexlib-cuda13=={project[version]}; sys_platform == 'linux'"] }
+
+# Every CPython from requires-python on, for 64-bit architectures and without
+# musllinux. From 3.12 on the first wheel is an abi3 one: cibuildwheel finds
+# it compatible with each later interpreter, tests it there and builds nothing
+# more. A free-threaded interpreter gets a wheel of its own.
+[tool.cibuildwheel]
+skip = ["*-musllinux_*", "*-win32", "*_i686", "*_armv7l"]
+
+# Run from a temporary directory, so this imports the installed wheel rather
+# than the source tree beside it: the import checks that the library the
+# wheel carries is found at run time, and the suite runs against the wheel,
+# but for the tests of the plugins only a test build makes.
+test-groups = ["test"]
+test-command = [
+    "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\"",
+    "pytest {package}/tests/python -m \"not dummy_plugins\" -p no:cacheprovider",
+]
+
+# numpy publishes no wheel for the free-threaded 3.15, so that wheel is tested
+# by its import alone.
+[[tool.cibuildwheel.overrides]]
+select = "cp315t-*"
+test-groups = []
+test-command = "python -c \"import rexlib; print(rexlib.__version__, rexlib.rexlib_version)\""
+
+# The repair tools leave librexlib, which the wheel already carries, as it is.
+[tool.cibuildwheel.linux]
+repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --exclude 'librexlib.so*'"
+
+[tool.cibuildwheel.macos]
+repair-wheel-command = "delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel} --ignore-missing-dependencies"
+
+[tool.cibuildwheel.windows]
+repair-wheel-command = "delvewheel repair -w {dest_dir} -v {wheel} --exclude rexlib.dll"

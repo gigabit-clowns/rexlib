@@ -9,7 +9,11 @@
 
 using namespace rexlib;
 
-TEST_CASE("sanitize_index with a in-bounds positive index should return the same value", "[index]")
+TEST_CASE(
+	"sanitize_index with a in-bounds positive index should return the same "
+	"value",
+	"[index]"
+)
 {
 	const std::ptrdiff_t extent = 16;
 	const std::ptrdiff_t index = GENERATE(0, 4, 8, 15);
@@ -18,7 +22,11 @@ TEST_CASE("sanitize_index with a in-bounds positive index should return the same
 	REQUIRE( sanitized == static_cast<std::size_t>(index) );
 }
 
-TEST_CASE("sanitize_index with a in-bounds negative index should return the poisitivized value", "[index]")
+TEST_CASE(
+	"sanitize_index with a in-bounds negative index should return the "
+	"poisitivized value",
+	"[index]"
+)
 {
 	const std::ptrdiff_t extent = 24;
 	std::ptrdiff_t index;
@@ -52,7 +60,7 @@ TEST_CASE("sanitize_index with an out of bounds index should throw", "[index]")
 		})
 	);
 
-	REQUIRE_THROWS_MATCHES( 
+	REQUIRE_THROWS_MATCHES(
 		sanitize_index(index, extent),
 		std::out_of_range,
 		Catch::Matchers::Message(expected_error_msg)

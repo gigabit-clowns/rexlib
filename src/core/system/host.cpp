@@ -35,14 +35,14 @@ std::string get_hostname()
 		#pragma message ("Cannot determine hostname for this platform")
 		return "";
 	#endif
-	
+
 	return std::string(hostname.data());
 }
 
 std::size_t get_total_system_memory()
 {
 	#if REXLIB_LINUX
-		struct sysinfo info;
+		struct sysinfo info = {};
 		sysinfo(&info);
 		return info.totalram * info.mem_unit;
 
@@ -50,8 +50,8 @@ std::size_t get_total_system_memory()
 		int mib[2] = { CTL_HW, HW_MEMSIZE };
 		int64_t total_memory;
 		size_t length = sizeof(total_memory);
-		
-		if (sysctl(mib, 2, &total_memory, &length, NULL, 0) != 0) 
+
+		if (sysctl(mib, 2, &total_memory, &length, NULL, 0) != 0)
 		{
 			throw std::runtime_error("sysctl failed");
 		}
@@ -73,7 +73,7 @@ std::size_t get_total_system_memory()
 std::size_t get_available_system_memory()
 {
 	#if REXLIB_LINUX
-		struct sysinfo info;
+		struct sysinfo info = {};
 		sysinfo(&info);
 		return info.freeram * info.mem_unit;
 
@@ -82,12 +82,12 @@ std::size_t get_available_system_memory()
 		vm_statistics64_data_t vm_info;
 		mach_msg_type_number_t info_count = HOST_VM_INFO64_COUNT;
 		int err = host_statistics64(
-			mach_host_self(), 
-			HOST_VM_INFO64, 
-			reinterpret_cast<host_info64_t>(&vm_info), 
+			mach_host_self(),
+			HOST_VM_INFO64,
+			reinterpret_cast<host_info64_t>(&vm_info),
 			&info_count
 		);
-		if (err != KERN_SUCCESS) 
+		if (err != KERN_SUCCESS)
 		{
 			throw std::runtime_error("could not retrieve host statistics");
 		}

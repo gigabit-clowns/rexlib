@@ -17,20 +17,29 @@
 
 using namespace rexlib;
 
-TEST_CASE("Default constructed const_array should have no storage", "[const_array]")
+TEST_CASE(
+	"Default constructed const_array should have no storage",
+	"[const_array]"
+)
 {
 	const_array arr;
 	CHECK( arr.get_storage() == nullptr );
 	CHECK( arr.share_storage() == nullptr );
 }
 
-TEST_CASE("Default constructed const_array should have an empty descriptor", "[const_array]")
+TEST_CASE(
+	"Default constructed const_array should have an empty descriptor",
+	"[const_array]"
+)
 {
 	const_array arr;
 	CHECK( arr.get_descriptor() == array_descriptor() );
 }
 
-TEST_CASE("Constructing an const_array should store its attributes", "[const_array]")
+TEST_CASE(
+	"Constructing an const_array should store its attributes",
+	"[const_array]"
+)
 {
 	const auto data_type = GENERATE(
 		numerical_type::int32,
@@ -45,7 +54,8 @@ TEST_CASE("Constructing an const_array should store its attributes", "[const_arr
 	const std::shared_ptr<mock_buffer> storage =
 		std::make_shared<mock_buffer>();
 
-	const auto layout = strided_layout::make_contiguous_layout(make_span(extents));
+	const auto layout =
+		strided_layout::make_contiguous_layout(make_span(extents));
 	const array_descriptor descriptor(layout, data_type);
 
 	const_array view;
@@ -63,9 +73,13 @@ TEST_CASE("Constructing an const_array should store its attributes", "[const_arr
 	CHECK( view.get_storage() == storage.get() );
 	CHECK( view.share_storage() == storage );
 	CHECK( view.get_descriptor() == descriptor );
-}	
+}
 
-TEST_CASE("Calling share on an const_array should return an array with the same content", "[const_array]")
+TEST_CASE(
+	"Calling share on an const_array should return an array with the same "
+	"content",
+	"[const_array]"
+)
 {
 	const auto data_type = GENERATE(
 		numerical_type::int32,
@@ -80,7 +94,8 @@ TEST_CASE("Calling share on an const_array should return an array with the same 
 	const std::shared_ptr<mock_buffer> storage =
 		std::make_shared<mock_buffer>();
 
-	const auto layout = strided_layout::make_contiguous_layout(make_span(extents));
+	const auto layout =
+		strided_layout::make_contiguous_layout(make_span(extents));
 	const array_descriptor descriptor(layout, data_type);
 	const const_array view1(
 		std::make_shared<array_implementation>(storage, descriptor)
@@ -89,9 +104,12 @@ TEST_CASE("Calling share on an const_array should return an array with the same 
 
 	CHECK( &view1.get_descriptor() == &view2.get_descriptor() );
 	CHECK( view1.get_storage() == view2.get_storage() );
-}	
+}
 
-TEST_CASE("const_array should not be copyable nor implicitly convertible", "[const_array]")
+TEST_CASE(
+	"const_array should not be copyable nor implicitly convertible",
+	"[const_array]"
+)
 {
 	CHECK_FALSE( std::is_copy_constructible<const_array>::value );
 	CHECK_FALSE( std::is_copy_assignable<const_array>::value );

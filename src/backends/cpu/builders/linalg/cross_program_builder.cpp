@@ -5,22 +5,19 @@
 #include <backends/cpu/builders/dispatcher_support_query.hpp>
 #include <backends/cpu/builders/linalg_program_builder.hpp>
 #include <backends/cpu/builders/operand_data_types.hpp>
+#include <backends/cpu/builders/program_builder_registration_macros.hpp>
 #include <backends/cpu/builders/type_dispatchers/rule_type_dispatcher.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
-#include <backends/cpu/kernels/eigen_gemm.hpp>
+#include <backends/cpu/load_store.hpp>
 #include <backends/cpu/plans/linalg_core_layout_plan.hpp>
 
 #include <rexlib/backends/cpu/cpu_program_builder.hpp>
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
-#include <rexlib/core/dispatch/program_builder_registration.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 #include <rexlib/core/operation/operation.hpp>
 #include <rexlib/core/operation/operation_cast.hpp>
 #include <rexlib/core/operation/type_rule/operation_data_types.hpp>
 
-#include <core/dispatch/core_program_builder_registry.hpp>
-
-#include <Eigen/Dense>
 
 #include <array>
 #include <cstddef>
@@ -42,7 +39,8 @@ namespace
  *
  * The named axis always has extent three regardless of shape, so unlike
  * matmul/matvec/vecmat there is no size grid to dispatch: every instance
- * maps straight to Eigen's own cross product.
+ * computes the three components directly. Every component is read before
+ * any is written, and each is computed in the type load() widens it to.
  */
 template <typename T>
 class cross_core_kernel
@@ -61,19 +59,15 @@ public:
 
 	void operator()(T *out, const T *left, const T *right) const noexcept
 	{
-		using vector3 = Eigen::Matrix<T, 3, 1>;
-		using stride_t = Eigen::InnerStride<Eigen::Dynamic>;
-
-		Eigen::Map<const vector3, 0, stride_t> left_map(
-			left, stride_t(m_left_stride)
-		);
-		Eigen::Map<const vector3, 0, stride_t> right_map(
-			right, stride_t(m_right_stride)
-		);
-		Eigen::Map<vector3, 0, stride_t> out_map(
-			out, stride_t(m_out_stride)
-		);
-		out_map.noalias() = left_map.cross(right_map);
+		const auto l0 = load(left);
+		const auto l1 = load(left + m_left_stride);
+		const auto l2 = load(left + 2 * m_left_stride);
+		const auto r0 = load(right);
+		const auto r1 = load(right + m_right_stride);
+		const auto r2 = load(right + 2 * m_right_stride);
+		store(out, l1 * r2 - l2 * r1);
+		store(out + m_out_stride, l2 * r0 - l0 * r2);
+		store(out + 2 * m_out_stride, l0 * r1 - l1 * r0);
 	}
 
 private:
@@ -83,10 +77,7 @@ private:
 };
 
 using cross_type_dispatcher =
-	rule_type_dispatcher<
-		ops::cross_operation::type_rule_type,
-		eigen_scalar_support
-	>;
+	rule_type_dispatcher<ops::cross_operation::type_rule_type>;
 
 /**
  * @brief CPU program builder for cross.
@@ -101,7 +92,14 @@ class cross_program_builder final
 {
 public:
 	cross_program_builder() noexcept = default;
+	cross_program_builder(const cross_program_builder &other) = delete;
+	cross_program_builder(cross_program_builder &&other) = delete;
 	~cross_program_builder() override = default;
+
+	cross_program_builder& operator=(
+		const cross_program_builder &other
+	) = delete;
+	cross_program_builder& operator=(cross_program_builder &&other) = delete;
 
 	operation_id get_operation_id() const noexcept override
 	{
@@ -115,7 +113,8 @@ public:
 		command_queue &queue
 	) const override
 	{
-		constexpr auto output_count = ops::cross_operation::output_operand_count;
+		constexpr auto output_count =
+			ops::cross_operation::output_operand_count;
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
 		const auto base = cpu_program_builder::get_suitability(
@@ -126,14 +125,16 @@ public:
 			return base;
 		}
 
-		if (output_descriptors.size() != output_count ||
-		    input_descriptors.size() != input_count)
+		if (
+			output_descriptors.size() != output_count ||
+			input_descriptors.size() != input_count
+		)
 		{
 			return backend_priority::unsupported;
 		}
 
-		std::array<numerical_type, output_count> output_types;
-		std::array<numerical_type, input_count> input_types;
+		std::array<numerical_type, output_count> output_types{};
+		std::array<numerical_type, input_count> input_types{};
 		extract_data_types(output_types, output_descriptors);
 		extract_data_types(input_types, input_descriptors);
 		const auto operation_data_types = get_operation_data_types(
@@ -141,10 +142,15 @@ public:
 		);
 
 		const auto supported =
-			detail::dispatcher_support_query<cross_type_dispatcher>::is_supported(
+			detail::dispatcher_support_query<
+				cross_type_dispatcher
+			>::is_supported(
 				make_span(output_types.data(), output_count),
 				make_span(input_types.data(), input_count),
-				make_span(operation_data_types.data(), operation_data_types.size())
+				make_span(
+					operation_data_types.data(),
+					operation_data_types.size()
+				)
 			);
 		if (!supported)
 		{
@@ -162,7 +168,8 @@ public:
 		program_cache* /*cache*/
 	) const override
 	{
-		constexpr auto output_count = ops::cross_operation::output_operand_count;
+		constexpr auto output_count =
+			ops::cross_operation::output_operand_count;
 		constexpr auto input_count = ops::cross_operation::input_operand_count;
 
 		if (output_descriptors.size() != output_count)
@@ -184,11 +191,12 @@ public:
 			operation_cast<ops::cross_operation>(operation);
 		const auto axis = typed_operation.get_parameters().get_axes()[0];
 
-		std::array<numerical_type, output_count> output_types;
-		std::array<numerical_type, input_count> input_types;
+		std::array<numerical_type, output_count> output_types{};
+		std::array<numerical_type, input_count> input_types{};
 		extract_data_types(output_types, output_descriptors);
 		extract_data_types(input_types, input_descriptors);
-		const auto operation_data_types = get_operation_data_types(typed_operation);
+		const auto operation_data_types =
+			get_operation_data_types(typed_operation);
 
 		auto plan = linalg_core_layout_plan::for_named_axis(
 			output_descriptors, input_descriptors, axis
@@ -199,7 +207,7 @@ public:
 			[&plan] (auto output_element_types, auto input_element_types)
 			{
 				using out_type = typename type_list_element<
-					0, 
+					0,
 					decltype(output_element_types)
 				>::type;
 				cross_core_kernel<out_type> kernel(
@@ -227,8 +235,7 @@ public:
 
 } // anonymous namespace
 
-static const program_builder_registration<cross_program_builder>
-cross_program_builder_registration(get_core_program_builder_registry());
+REXLIB_REGISTER_CPU_PROGRAM_BUILDER(cross, cross_program_builder);
 
 } // namespace cpu
 } // namespace rexlib

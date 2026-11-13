@@ -43,6 +43,10 @@
       },
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"
+      },
+      "environment": {
+        "ASAN_OPTIONS": "detect_leaks=1:strict_string_checks=1:detect_odr_violation=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
       }
     },
     {
@@ -56,6 +60,44 @@
       },
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer"
+      },
+      "environment": {
+        "TSAN_OPTIONS": "halt_on_error=1"
+      }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Debug with coverage, tests run under valgrind by ctest -T MemCheck",
+      "inherits": "debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "REXLIB_ENABLE_COVERAGE": "ON",
+        "REXLIB_REGISTER_TESTS_PER_BINARY": "ON",
+        "MEMORYCHECK_COMMAND_OPTIONS": "--leak-check=full --show-leak-kinds=all --errors-for-leak-kinds=all --error-exitcode=1 --num-callers=50",
+        "MEMORYCHECK_SUPPRESSIONS_FILE": "${sourceDir}/tests/valgrind.supp"
+      }
+    },
+    {
+      "name": "docs",
+      "displayName": "The Doxygen reference of the public headers",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "REXLIB_BUILD_DOCS": "ON",
+        "BUILD_TESTING": "OFF"
+      }
+    },
+    {
+      "name": "lint",
+      "displayName": "Static checks: clang-tidy and the .editorconfig rules",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "REXLIB_BUILD_TESTING": "OFF",
+        "REXLIB_CLANG_TIDY": "ON",
+        "REXLIB_CHECK_STYLE": "ON"
       }
     }
   ],
@@ -79,6 +121,20 @@
       "name": "sanitize-thread",
       "configurePreset": "sanitize-thread",
       "configuration": "Debug"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug"
+    },
+    {
+      "name": "docs",
+      "configurePreset": "docs",
+      "targets": ["rexlib-docs"]
+    },
+    {
+      "name": "lint",
+      "configurePreset": "lint"
     }
   ],
   "testPresets": [
@@ -88,6 +144,11 @@
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     },
     {
@@ -96,6 +157,11 @@
       "configuration": "Release",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     },
     {
@@ -104,6 +170,11 @@
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
       }
     },
     {
@@ -112,6 +183,34 @@
       "configuration": "Debug",
       "output": {
         "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "scheduleRandom": true,
+        "timeout": 600
+      }
+    },
+    {
+      "name": "lint",
+      "configurePreset": "lint",
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
       }
     }
   ]

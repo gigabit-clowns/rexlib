@@ -8,15 +8,15 @@
 #include <string>
 #include <ostream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
  * @brief Location of a device as a (backend, id) tuple.
  *
- * A @ref device_index is a unique identifier within a @ref device_manager of a
- * physical device. 
- * 
+ * A @ref device_index is a unique identifier within a @ref device_service of a
+ * physical device.
+ *
  * Default-constructed indices hold an empty backend name and a zero
  * device id; such an index does not refer to any real device and is
  * intended only as a placeholder before assignment or parsing.
@@ -103,7 +103,7 @@ public:
 		{
 			return true;
 		}
-		else if(lhs.get_backend_name() == rhs.get_backend_name())
+		if(lhs.get_backend_name() == rhs.get_backend_name())
 		{
 			return lhs.get_device_id() < rhs.get_device_id();
 		}
@@ -117,7 +117,7 @@ public:
 		{
 			return true;
 		}
-		else if(lhs.get_backend_name() == rhs.get_backend_name())
+		if(lhs.get_backend_name() == rhs.get_backend_name())
 		{
 			return lhs.get_device_id() <= rhs.get_device_id();
 		}

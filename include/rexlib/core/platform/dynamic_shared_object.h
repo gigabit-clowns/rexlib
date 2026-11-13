@@ -8,9 +8,9 @@
 /**
  * @def REXLIB_IMPORT
  * @brief Declares that the function should be imported from a shared object
- * 
+ *
  */
-#if defined(REXLIB_WINDOWS)
+#if REXLIB_WINDOWS
 	#if REXLIB_HAS_GCC_ATTRIBUTE(dllimport)
 		#define REXLIB_IMPORT REXLIB_GCC_ATTRIBUTE(dllimport)
 	#else
@@ -25,9 +25,9 @@
 /**
  * @def REXLIB_EXPORT
  * @brief Declares that the function should be exported to a shared object
- * 
+ *
  */
-#if defined(REXLIB_WINDOWS)
+#if REXLIB_WINDOWS
 	#if REXLIB_HAS_GCC_ATTRIBUTE(dllexport)
 		#define REXLIB_EXPORT REXLIB_GCC_ATTRIBUTE(dllexport)
 	#else
@@ -41,11 +41,11 @@
 
 /**
  * @def REXLIB_LOCAL
- * @brief Declares that the function is only used used locally at the current 
+ * @brief Declares that the function is only used used locally at the current
  * shared object
- * 
+ *
  */
-#if defined(REXLIB_WINDOWS)
+#if REXLIB_WINDOWS
 	#define REXLIB_LOCAL
 #elif REXLIB_HAS_GCC_ATTRIBUTE(visibility)
 	#define REXLIB_LOCAL REXLIB_GCC_ATTRIBUTE(visibility("hidden"))
@@ -56,9 +56,9 @@
 /**
  * @def REXLIB_API
  * @brief Declares that the function is part of the public API of rexlib
- * 
- * The functions declared as public API will be exported to the shared object. 
- * 
+ *
+ * The functions declared as public API will be exported to the shared object.
+ *
  */
 #if defined(REXLIB_NO_EXPORTS)
 	#define REXLIB_API
@@ -93,7 +93,8 @@
 
 /**
  * @def REXLIB_STD_MEMBER_INTERFACE
- * @brief Silence MSVC warning C4251 for the data member declared right after it.
+ * @brief Silence MSVC warning C4251 for the data member declared right
+ * after it.
  *
  * C4251 fires when a dll-interface class (see @ref REXLIB_API) has a data
  * member whose type is not itself a dll-interface, typically a standard library

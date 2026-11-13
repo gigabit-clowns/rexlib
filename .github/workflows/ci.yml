@@ -1,0 +1,987 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+name: CI
+
+on:
+  pull_request:
+
+  push:
+    branches:
+      - main
+
+  workflow_call:
+
+  workflow_dispatch:
+
+# A newer push to a pull request cancels the run it supersedes. Any other run
+# is grouped by its commit, so that a run on main is never cancelled, nor
+# replaced while pending by a later one, since each saves the caches pull
+# requests start from.
+concurrency:
+  group: ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CMAKE_GENERATOR: Ninja
+  CMAKE_BUILD_PARALLEL_LEVEL: 4
+  CTEST_PARALLEL_LEVEL: 4
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_NOHASHDIR: 1
+  CCACHE_SLOPPINESS: time_macros,include_file_mtime,include_file_ctime,locale
+  VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/.vcpkg/archives,readwrite
+  # Runs on main save the caches; every other run only restores them.
+  SAVE_CACHES: ${{ github.ref == 'refs/heads/main' }}
+
+jobs:
+  # One row per platform and toolchain rexlib supports, with warnings as
+  # errors and every dependency installed by vcpkg, and the Python binding
+  # where a row names a Python. A toolchain that the supported images carry in
+  # more than one version is built with the default of the oldest image and
+  # of the newest, each in a row of its own unless another job builds it.
+  build-and-test:
+    name: ${{ matrix.name }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 22.04 x86_64, clang
+            os: ubuntu-22.04
+            cc: clang
+            cxx: clang++
+            vcpkg-triplet: x64-linux
+            python: '3.15'
+          - name: Ubuntu 26.04 x86_64, clang
+            os: ubuntu-26.04
+            cc: clang
+            cxx: clang++
+            vcpkg-triplet: x64-linux
+            python: '3.15'
+          - name: Ubuntu 22.04 aarch64, gcc
+            os: ubuntu-22.04-arm
+            cc: gcc
+            cxx: g++
+            vcpkg-triplet: arm64-linux
+            python: '3.15'
+          - name: macOS 15 arm64, Apple clang
+            os: macos-15
+            cc: clang
+            cxx: clang++
+            vcpkg-triplet: arm64-osx
+            python: '3.15'
+          - name: macOS 26 arm64, Apple clang
+            os: macos-26
+            cc: clang
+            cxx: clang++
+            vcpkg-triplet: arm64-osx
+            python: '3.15'
+          - name: Windows Server 2022 x86_64, MSVC
+            os: windows-2022
+            cc: cl
+            cxx: cl
+            msvc: x64
+            vcpkg-triplet: x64-windows-static-md
+            python: '3.15'
+          - name: Windows Server 2025 x86_64, MSVC
+            os: windows-2025
+            cc: cl
+            cxx: cl
+            msvc: x64
+            vcpkg-triplet: x64-windows-static-md
+            python: '3.15'
+          - name: Windows 11 arm64, MSVC
+            os: windows-11-arm
+            cc: cl
+            cxx: cl
+            msvc: arm64
+            vcpkg-triplet: arm64-windows-static-md
+            python: '3.15'
+          - name: Windows Server 2025 x86_64, MinGW
+            os: windows-2025
+            cc: gcc
+            cxx: g++
+            vcpkg-triplet: x64-mingw-static
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      # Ninja does not find MSVC on its own, as the Visual Studio generator
+      # does.
+      - name: Set up MSVC
+        if: matrix.msvc
+        uses: ilammy/msvc-dev-cmd@v1.13.0
+        with:
+          arch: ${{ matrix.msvc }}
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
+
+      - name: Install the dependencies
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Set up uv, Python and a virtual environment
+        if: matrix.python
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: ${{ matrix.python }}
+          activate-environment: true
+          save-cache: ${{ env.SAVE_CACHES }}
+
+      - name: Install the binding's dependencies
+        if: matrix.python
+        run: uv sync --locked --no-install-project
+
+      # Only MSVC reads the debug information format: embedded in each object,
+      # which is what lets ccache cache what it compiles.
+      - name: Configure
+        run: >-
+          cmake --preset debug
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+          -DREXLIB_BUILD_PYTHON=${{ matrix.python != '' }}
+          -DCMAKE_MSVC_DEBUG_INFORMATION_FORMAT=Embedded
+
+      - name: Build
+        run: cmake --build --preset debug
+
+      - name: Test
+        run: ctest --preset debug
+
+  # The coverage build, with warnings as errors and every dependency installed
+  # by vcpkg: the suites under valgrind, then the coverage gcovr measures.
+  coverage:
+    name: ${{ matrix.name }}
+    timeout-minutes: 90
+    strategy:
+      matrix:
+        include:
+          - name: Ubuntu 26.04 x86_64, gcc, coverage and valgrind
+            os: ubuntu-26.04
+            vcpkg-triplet: x64-linux
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: gcc
+      CXX: g++
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install valgrind
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes valgrind
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
+
+      - name: Install the dependencies
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Set up uv, Python and a virtual environment
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: '3.15'
+          activate-environment: true
+          save-cache: ${{ env.SAVE_CACHES }}
+
+      - name: Install gcovr
+        run: uv sync --locked --only-group coverage
+
+      - name: Configure
+        run: >-
+          cmake --preset coverage
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build --preset coverage
+
+      # ctest looks for what -T needs in the directory it is given, not in
+      # that of a test preset, so this one names the build directory.
+      - name: Test under valgrind
+        run: >-
+          ctest --test-dir build/coverage -T MemCheck
+          --output-on-failure --no-tests=error
+
+      - name: Show what valgrind found
+        if: failure()
+        run: >-
+          find build/coverage/Testing/Temporary -name 'MemoryChecker.*.log'
+          -size +0 -exec tail -n 200 {} +
+
+      - name: Measure the coverage
+        run: >-
+          gcovr --root . --object-directory build/coverage --exclude '\.vcpkg/'
+          --merge-lines --exclude-throw-branches --exclude-unreachable-branches
+          --print-summary
+
+  # The default build, with the dependencies built with rexlib from their
+  # submodules.
+  sanitize:
+    name: ${{ matrix.name }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers
+            os: ubuntu-26.04
+            preset: sanitize
+          - name: Ubuntu 26.04 x86_64, clang, thread sanitizer
+            os: ubuntu-26.04
+            preset: sanitize-thread
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: clang
+      CXX: clang++
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ matrix.preset }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}
+
+  # The oldest versions rexlib supports, together: CMake 3.18.0, without
+  # presets, which need CMake 3.21, so that cmake_minimum_required holds to
+  # its word; the gcc of the oldest supported Ubuntu LTS image; and the oldest
+  # Python. Release, with warnings as errors and every dependency installed by
+  # vcpkg. The library is installed, and the Python binding is built alone
+  # against that install, as a distribution packages the two.
+  minimum-versions:
+    name: ${{ matrix.name }}
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        include:
+          - name: Ubuntu 22.04 x86_64, gcc, minimum versions
+            os: ubuntu-22.04
+            vcpkg-triplet: x64-linux
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: gcc
+      CXX: g++
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
+
+      - name: Install the dependencies
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Set up uv, Python and a virtual environment
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: '3.11'
+          activate-environment: true
+          save-cache: ${{ env.SAVE_CACHES }}
+
+      - name: Install the binding's dependencies
+        run: uv sync --locked --no-install-project
+
+      # In place of the CMake that the binding's dependencies put in the
+      # virtual environment.
+      - name: Use CMake 3.18.0
+        run: uv pip install cmake==3.18.0
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -DCMAKE_BUILD_TYPE=Release
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        working-directory: build
+        run: ctest --output-on-failure --no-tests=error
+
+      - name: Install
+        run: cmake --install build --prefix "$RUNNER_TEMP/rexlib"
+
+      - name: Configure the binding
+        env:
+          rexlib_ROOT: ${{ runner.temp }}/rexlib
+        run: >-
+          cmake -S python -B build-python
+          -DCMAKE_BUILD_TYPE=Release
+          -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_WARNINGS_AS_ERRORS=ON
+
+      - name: Build the binding
+        run: cmake --build build-python
+
+      - name: Test the binding
+        working-directory: build-python
+        run: ctest --output-on-failure --no-tests=error
+
+  # The library a third party's plugin is built against, for the CUDA jobs:
+  # the release preset with the dependencies built from their submodules,
+  # without the tests, installed without its debug information and archived
+  # with tar, by the oldest Linux image and toolchain of each architecture.
+  install:
+    name: ${{ matrix.name }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 22.04 x86_64, clang, install
+            os: ubuntu-22.04
+            cc: clang
+            cxx: clang++
+            artifact: install-linux-x86_64
+          - name: Ubuntu 22.04 aarch64, gcc, install
+            os: ubuntu-22.04-arm
+            cc: gcc
+            cxx: g++
+            artifact: install-linux-aarch64
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Configure
+        run: >-
+          cmake --preset release
+          -DBUILD_TESTING=OFF
+          -DREXLIB_CHECK_HEADERS=OFF
+
+      - name: Build
+        run: cmake --build --preset release
+
+      - name: Install the library
+        run: |
+          cmake --install build/release --prefix "$RUNNER_TEMP/rexlib" --strip
+          tar -C "$RUNNER_TEMP" -czf "$RUNNER_TEMP/rexlib.tar.gz" rexlib
+
+      - name: Keep the install
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ runner.temp }}/rexlib.tar.gz
+          compression-level: 0
+          retention-days: 1
+
+  # The CUDA plugin, built as a third party builds a plugin: against the
+  # library the install job made for its architecture, on a newer image and
+  # with another compiler. The toolkit comes
+  # from NVIDIA's repository, every other dependency is installed by vcpkg,
+  # and warnings are errors. The CUDA 12 row builds the plugin with CMake
+  # 3.24. The runners have no GPU, so the tests that need one skip themselves.
+  cuda-build-and-test:
+    name: ${{ matrix.name }}
+    needs: install
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Ubuntu 24.04 x86_64, CUDA 12
+            os: ubuntu-24.04
+            repository: x86_64
+            cuda: '12.9'
+            vcpkg-triplet: x64-linux
+            cmake: '3.24.0'
+            install-artifact: install-linux-x86_64
+          - name: Ubuntu 24.04 aarch64, CUDA 13
+            os: ubuntu-24.04-arm
+            repository: sbsa
+            cuda: '13.4'
+            vcpkg-triplet: arm64-linux
+            install-artifact: install-linux-aarch64
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: gcc
+      CXX: g++
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
+
+      - name: Install the dependencies
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Install the CUDA toolkit
+        env:
+          REPOSITORY: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/${{ matrix.repository }}
+          CUDA: ${{ matrix.cuda }}
+        run: |
+          curl -fsSLO "$REPOSITORY/cuda-keyring_1.1-1_all.deb"
+          sudo dpkg -i cuda-keyring_1.1-1_all.deb
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            "cuda-nvcc-${CUDA/./-}" "cuda-cudart-dev-${CUDA/./-}"
+
+      - name: Fetch the installed library
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: ${{ matrix.install-artifact }}
+          path: ${{ runner.temp }}
+
+      - name: Unpack the installed library
+        run: tar -C "$RUNNER_TEMP" -xzf "$RUNNER_TEMP/rexlib.tar.gz"
+
+      - name: Use CMake ${{ matrix.cmake }} from here on
+        if: matrix.cmake
+        env:
+          CMAKE: ${{ matrix.cmake }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cmake"
+          "$RUNNER_TEMP/cmake/bin/pip" install --quiet "cmake==$CMAKE"
+          echo "$RUNNER_TEMP/cmake/bin" >> "$GITHUB_PATH"
+
+      # One architecture is enough to compile for, and the oldest that CUDA 13
+      # still supports.
+      - name: Configure the plugin
+        env:
+          rexlib_ROOT: ${{ runner.temp }}/rexlib
+          CUDAToolkit_ROOT: /usr/local/cuda-${{ matrix.cuda }}
+          CUDACXX: /usr/local/cuda-${{ matrix.cuda }}/bin/nvcc
+        run: >-
+          cmake -S plugins/cuda -B build-cuda
+          -DCMAKE_BUILD_TYPE=Debug
+          -DREXLIB_CUDA_USE_SYSTEM_DEPENDENCIES=ON
+          -DREXLIB_CUDA_WARNINGS_AS_ERRORS=ON
+          -DCMAKE_CUDA_ARCHITECTURES=75
+
+      - name: Build the plugin
+        run: cmake --build build-cuda
+
+      - name: Test the plugin
+        working-directory: build-cuda
+        run: ctest --output-on-failure --no-tests=error
+
+  # The source distribution, which the wheels are built from.
+  sdist:
+    name: Source distribution
+    timeout-minutes: 10
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          save-cache: ${{ env.SAVE_CACHES }}
+
+      - name: Build the source distribution
+        run: uv build --sdist
+
+      - name: Keep the source distribution
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  # The wheels of every platform one is shipped for, each built by
+  # cibuildwheel from the source distribution: one per CPython before 3.12,
+  # one abi3 wheel for 3.12 and every later CPython, and one per free-threaded
+  # CPython. Each is tested by importing it, on every interpreter it serves.
+  # The compiler cache carries the library from one interpreter's build to
+  # the next.
+  wheels:
+    name: ${{ matrix.name }}, wheels
+    needs: sdist
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x86_64
+            platform: linux-x86_64
+            os: ubuntu-24.04
+          - name: Linux aarch64
+            platform: linux-aarch64
+            os: ubuntu-24.04-arm
+          - name: macOS arm64
+            platform: macos-arm64
+            os: macos-15
+          - name: Windows x86_64
+            platform: windows-x86_64
+            os: windows-2025
+            msvc: x64
+          - name: Windows arm64
+            platform: windows-arm64
+            os: windows-11-arm
+            msvc: arm64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Fetch the source distribution
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: sdist
+          path: dist
+
+      # At the same path in every run, unlike the temporary directory
+      # cibuildwheel would unpack it into.
+      - name: Unpack the source distribution
+        run: |
+          mkdir source
+          tar -xzf dist/*.tar.gz -C source --strip-components=1
+
+      # Ninja does not find MSVC on its own, as the Visual Studio generator
+      # does.
+      - name: Set up MSVC
+        if: matrix.msvc
+        uses: ilammy/msvc-dev-cmd@v1.13.0
+        with:
+          arch: ${{ matrix.msvc }}
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ github.job }}
+          max-size: 1G
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      # Each wheel is built in a directory of its own inside the unpacked
+      # sources, and the cache rewrites paths relative to it. On Linux the
+      # wheels are built in a container, which sees the runner's files under
+      # /host.
+      - name: Build the wheels
+        uses: pypa/cibuildwheel@v4.3.5
+        with:
+          package-dir: source
+        env:
+          CIBW_CONFIG_SETTINGS: build-dir=build/{wheel_tag}
+          CMAKE_C_COMPILER_LAUNCHER: ccache
+          CMAKE_CXX_COMPILER_LAUNCHER: ccache
+          CIBW_ENVIRONMENT_LINUX: >-
+            CMAKE_BUILD_PARALLEL_LEVEL=4
+            CMAKE_C_COMPILER_LAUNCHER=/host/usr/local/bin/ccache
+            CMAKE_CXX_COMPILER_LAUNCHER=/host/usr/local/bin/ccache
+            CCACHE_DIR=/host${{ github.workspace }}/.ccache
+            CCACHE_BASEDIR=/
+            CCACHE_NOHASHDIR=1
+            CCACHE_SLOPPINESS=time_macros,include_file_mtime,include_file_ctime,locale
+            CCACHE_MAXSIZE=1G
+
+      # The container wrote the cache as root.
+      - name: Give the compiler cache back to the runner
+        if: always() && runner.os == 'Linux'
+        run: sudo chown -R "$(id -u):$(id -g)" "$GITHUB_WORKSPACE/.ccache"
+
+      - name: Keep the wheels
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: wheels-${{ matrix.platform }}
+          path: wheelhouse/*.whl
+
+      # The sample plugin of the install test, built as a wheel against the
+      # abi3 wheel just built, as a third party builds one, and loaded
+      # through the default catalog.
+      - name: Set up uv, Python and a virtual environment
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: '3.15'
+          activate-environment: true
+          working-directory: source
+          enable-cache: false
+
+      # Frozen, since the source distribution leaves out the CUDA plugins
+      # whose projects uv would read to check the lockfile.
+      - name: Install the plugin's build and test dependencies
+        working-directory: source
+        run: uv sync --frozen --no-install-project --group dev
+
+      - name: Install the rexlib wheel
+        run: uv pip install --no-index --find-links wheelhouse rexlib
+
+      - name: Build and install the sample plugin
+        run: >-
+          uv pip install --no-build-isolation --no-deps
+          source/tests/install/plugin
+
+      - name: Test the sample plugin
+        run: >-
+          python -m pytest -p no:cacheprovider
+          source/tests/install/plugin/test_wheel.py
+
+  # The CUDA plugin's wheels, one per CUDA major and Linux architecture, each
+  # built by cibuildwheel against the rexlib wheels of its architecture, as
+  # its pyproject.toml sets it up, and tested by loading the plugin through
+  # the default catalog, which needs no GPU.
+  cuda-wheels:
+    name: Linux ${{ matrix.arch }}, CUDA ${{ matrix.cuda }}, wheel
+    needs: wheels
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        cuda: ['12', '13']
+        arch: [x86_64, aarch64]
+        include:
+          - arch: x86_64
+            os: ubuntu-24.04
+          - arch: aarch64
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Fetch the rexlib wheels
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: wheels-linux-${{ matrix.arch }}
+          path: rexlib-wheels
+
+      # The container sees the runner's files under /host.
+      - name: Build the wheel
+        uses: pypa/cibuildwheel@v4.3.5
+        with:
+          package-dir: plugins/cuda/cuda${{ matrix.cuda }}
+        env:
+          REXLIB_WHEELHOUSE: /host${{ github.workspace }}/rexlib-wheels
+
+      - name: Keep the wheel
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: cuda${{ matrix.cuda }}-wheel-linux-${{ matrix.arch }}
+          path: wheelhouse/*.whl
+
+  # Report only: the exported symbols of librexlib against those of the latest
+  # release, compared by abidiff in the abi3 wheels of Linux x86_64, on pushes
+  # to main. It skips itself until a release carries that wheel, and never
+  # fails.
+  abi-report:
+    name: ABI report
+    needs: wheels
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Fetch the wheels
+        uses: actions/download-artifact@v8.0.2
+        with:
+          name: wheels-linux-x86_64
+          path: current
+
+      - name: Fetch the latest release's wheel
+        id: baseline
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if tag="$(gh release view --json tagName --jq .tagName)" &&
+            gh release download "$tag" --dir baseline \
+              --pattern 'rexlib-*-abi3-manylinux*_x86_64.whl'; then
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::No release carries the wheel to compare with"
+          fi
+
+      - name: Install libabigail
+        if: steps.baseline.outputs.tag
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes abigail-tools
+
+      - name: Compare the exported symbols
+        if: steps.baseline.outputs.tag
+        env:
+          TAG: ${{ steps.baseline.outputs.tag }}
+        run: |
+          for wheel in baseline current; do
+            unzip -q -o -j "$wheel"/rexlib-*-abi3-*.whl \
+              'rexlib/lib*/librexlib.so*' -d "$wheel/lib"
+          done
+          {
+            echo "## librexlib against $TAG"
+            echo '```'
+            abidiff baseline/lib/librexlib.so* current/lib/librexlib.so* \
+              || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  documentation:
+    name: Documentation
+    timeout-minutes: 20
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: true
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes doxygen
+
+      - name: Configure
+        run: cmake --preset docs
+
+      - name: Build
+        run: cmake --build --preset docs
+
+      - name: Keep the reference
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: documentation
+          path: build/docs/docs/doxygen/html
+
+  # The static checks: the lockfile of the actions, then, through the lint
+  # preset, clang-tidy, pinned, on rexlib's own sources as they are built,
+  # with every dependency installed by vcpkg, and the .editorconfig rules.
+  lint:
+    name: ${{ matrix.name }}
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        include:
+          - name: Lint
+            os: ubuntu-26.04
+            vcpkg-triplet: x64-linux
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: clang
+      CXX: clang++
+      CMAKE_C_COMPILER_LAUNCHER: ccache
+      CMAKE_CXX_COMPILER_LAUNCHER: ccache
+      VCPKG_DEFAULT_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      VCPKG_DEFAULT_HOST_TRIPLET: ${{ matrix.vcpkg-triplet }}
+      CMAKE_PREFIX_PATH: ${{ github.workspace }}/.vcpkg/installed/${{ matrix.vcpkg-triplet }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify the lockfile of the actions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh extension install github/gh-actions-lock --pin v0.4.1
+          gh actions-lock --verify
+
+      - name: Set up uv, Python and a virtual environment
+        uses: astral-sh/setup-uv@v10.3.3
+        with:
+          python-version: '3.15'
+          activate-environment: true
+          enable-cache: false
+
+      - name: Install clang-tidy, editorconfig-checker and ruff
+        run: uv sync --locked --only-group lint
+
+      - name: Set up the compiler cache
+        uses: hendrikmuhs/ccache-action@v1.2.24
+        with:
+          key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          save: ${{ env.SAVE_CACHES }}
+          evict-old-files: job
+          install: binary
+
+      - name: Restore the packages vcpkg built
+        id: vcpkg-cache
+        uses: actions/cache/restore@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
+
+      - name: Install the dependencies
+        run: vcpkg install --x-manifest-root=.github/vcpkg --x-install-root=.vcpkg/installed
+
+      - name: Save the packages vcpkg built
+        if: env.SAVE_CACHES == 'true'
+        uses: actions/cache/save@v6.1.0
+        with:
+          path: .vcpkg/archives
+          key: ${{ steps.vcpkg-cache.outputs.cache-primary-key }}
+
+      - name: Configure
+        run: cmake --preset lint -DREXLIB_USE_SYSTEM_DEPENDENCIES=ON
+
+      - name: Build
+        run: cmake --build --preset lint
+
+      - name: Test
+        run: ctest --preset lint
+
+  # The one check the branch rules require. It runs whatever happened before
+  # it, and fails unless every job it needs succeeded: a job that a failure
+  # skipped would otherwise count as passed.
+  all-checks:
+    name: All checks
+    timeout-minutes: 10
+    if: always()
+    needs:
+      - build-and-test
+      - install
+      - coverage
+      - sanitize
+      - minimum-versions
+      - cuda-build-and-test
+      - sdist
+      - wheels
+      - cuda-wheels
+      - documentation
+      - lint
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Decide whether every check passed
+        uses: re-actors/alls-green@v1.3.0
+        with:
+          jobs: ${{ toJSON(needs) }}

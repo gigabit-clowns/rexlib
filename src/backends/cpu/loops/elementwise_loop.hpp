@@ -69,7 +69,7 @@ void run_elementwise_outer_loop(
  */
 template <typename InnerLoop, typename... Pointers>
 void run_elementwise_outer_loop_range(
-	InnerLoop &&inner_loop,
+	const InnerLoop &inner_loop,
 	const joint_layout &layout,
 	std::size_t begin,
 	std::size_t end,

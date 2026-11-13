@@ -66,7 +66,18 @@ class dispatched_program_builder
 {
 public:
 	dispatched_program_builder() noexcept = default;
+	dispatched_program_builder(
+		const dispatched_program_builder &other
+	) = delete;
+	dispatched_program_builder(dispatched_program_builder &&other) = delete;
 	~dispatched_program_builder() override = default;
+
+	dispatched_program_builder& operator=(
+		const dispatched_program_builder &other
+	) = delete;
+	dispatched_program_builder& operator=(
+		dispatched_program_builder &&other
+	) = delete;
 
 	operation_id get_operation_id() const noexcept override;
 

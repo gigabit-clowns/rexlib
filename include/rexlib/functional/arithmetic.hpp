@@ -141,7 +141,7 @@ array divide(
  * @param context The execution context used for dispatching.
  * @param out Optional output parameter to be re-used.
  * @return array The array holding the element-wise modulo x % y.
- * 
+ *
  * @note The modulo behaves as Python's modulo and not like C's modulo. This is,
  * output has the same sign as the divisor.
  */

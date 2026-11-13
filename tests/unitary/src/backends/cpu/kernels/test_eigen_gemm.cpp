@@ -158,8 +158,10 @@ TEST_CASE(
 	"[eigen_gemm]"
 )
 {
-	for (const std::size_t extent : { std::size_t(0), std::size_t(5),
-	                                   std::size_t(100) })
+	for (
+		const std::size_t extent :
+		{ std::size_t(0), std::size_t(5), std::size_t(100) }
+	)
 	{
 		const auto result = dispatch_extent(extent, extent_probe{});
 		CHECK( !result.first );
@@ -209,7 +211,14 @@ TEST_CASE(
 	);
 	REQUIRE( gemm != nullptr );
 
-	gemm(out.data(), left.data(), right.data(), out_core, left_core, right_core);
+	gemm(
+		out.data(),
+		left.data(),
+		right.data(),
+		out_core,
+		left_core,
+		right_core
+	);
 
 	const std::vector<float> expected = { 38, 44, 50, 56, 83, 98, 113, 128 };
 	CHECK( out == expected );
@@ -242,7 +251,14 @@ TEST_CASE(
 	);
 	REQUIRE( gemm != nullptr );
 
-	gemm(out.data(), left.data(), right.data(), out_core, left_core, right_core);
+	gemm(
+		out.data(),
+		left.data(),
+		right.data(),
+		out_core,
+		left_core,
+		right_core
+	);
 
 	const std::vector<float> expected = {
 		1, 2, 4, 5, 7, 8, 10, 11, 13, 14
@@ -281,7 +297,14 @@ TEST_CASE(
 	);
 	REQUIRE( gemm != nullptr );
 
-	gemm(out.data(), left.data(), right.data(), out_core, left_core, right_core);
+	gemm(
+		out.data(),
+		left.data(),
+		right.data(),
+		out_core,
+		left_core,
+		right_core
+	);
 
 	const std::vector<float> expected = { 38, 44, 50, 56, 83, 98, 113, 128 };
 	CHECK( out == expected );
@@ -309,7 +332,14 @@ TEST_CASE(
 	);
 	REQUIRE( gemv != nullptr );
 
-	gemv(out.data(), left.data(), right.data(), out_core, left_core, right_core);
+	gemv(
+		out.data(),
+		left.data(),
+		right.data(),
+		out_core,
+		left_core,
+		right_core
+	);
 
 	const std::vector<float> expected = { 50, 110, 170 };
 	CHECK( out == expected );
@@ -372,7 +402,14 @@ TEST_CASE(
 	);
 	REQUIRE( gemm != nullptr );
 
-	gemm(out.data(), left.data(), right.data(), out_core, left_core, right_core);
+	gemm(
+		out.data(),
+		left.data(),
+		right.data(),
+		out_core,
+		left_core,
+		right_core
+	);
 
 	CHECK( out == left );
 }
@@ -406,7 +443,14 @@ TEST_CASE(
 	);
 	REQUIRE( gemv != nullptr );
 
-	gemv(out.data(), left.data(), right.data(), out_core, left_core, right_core);
+	gemv(
+		out.data(),
+		left.data(),
+		right.data(),
+		out_core,
+		left_core,
+		right_core
+	);
 
 	const std::vector<complex> expected = { { 3, 4 }, { 5, 1 } };
 	CHECK( out == expected );
