@@ -11,9 +11,7 @@ and there is nothing to run by hand.
 Generating them imports the installed package, so the library has to be
 installed before it: in the library's build, `python/` is added after
 `src/`, the library's. nanobind does not fail the install when stubgen fails, so
-`tests/python/test_stubs.py` checks that the stubs are there. An install step
-after it puts a line that says the file is generated at the top of each stub,
-which the test checks too.
+`tests/python/test_stubs.py` checks that the stubs are there.
 
 The package is typed — `py.typed` ships — so a change to the binding's
 signatures is a change to the stubs, generated for free, and a change to
