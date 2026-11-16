@@ -1,7 +1,7 @@
 # The CUDA plugin as the wheel for CUDA 13, built from the project one
 # directory up.
 [build-system]
-requires = ["scikit-build-core==1.1.1"]
+requires = ["scikit-build-core==1.1.2"]
 build-backend = "scikit_build_core.build"
 
 [project]
@@ -78,9 +78,20 @@ test-command = "python -c \"import rexlib; assert 'cuda' in rexlib.hardware.get_
 
 [tool.cibuildwheel.linux]
 before-all = [
-    "curl -fsSLo /etc/yum.repos.d/cuda.repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/$(uname -m | sed s/aarch64/sbsa/)/cuda-rhel8.repo",
-    "dnf install -y cuda-nvcc-13-4 cuda-cudart-devel-13-4",
+    "curl -fsSL --retry 3 --retry-delay 5 -o /etc/yum.repos.d/cuda.repo https://developer.download.nvidia.com/compute/cuda/repos/rhel8/$(uname -m | sed s/aarch64/sbsa/)/cuda-rhel8.repo",
+    "dnf clean all",
+    "dnf install -y --disablerepo=epel cuda-nvcc-13-0 cuda-cudart-devel-13-0",
 ]
-environment = { PATH = "/usr/local/cuda-13.4/bin:$PATH" }
-environment-pass = ["REXLIB_WHEELHOUSE"]
+environment = { PATH = "/usr/local/cuda-13.0/bin:$PATH" }
+environment-pass = [
+    "REXLIB_WHEELHOUSE",
+    "CMAKE_C_COMPILER_LAUNCHER",
+    "CMAKE_CXX_COMPILER_LAUNCHER",
+    "CMAKE_CUDA_COMPILER_LAUNCHER",
+    "CCACHE_DIR",
+    "CCACHE_BASEDIR",
+    "CCACHE_NOHASHDIR",
+    "CCACHE_SLOPPINESS",
+    "CCACHE_MAXSIZE",
+]
 repair-wheel-command = "auditwheel repair -w {dest_dir} {wheel} --exclude 'librexlib.so*' --exclude 'libcudart.so*'"

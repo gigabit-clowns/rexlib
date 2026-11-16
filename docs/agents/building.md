@@ -210,20 +210,20 @@ cmake -S plugins/cuda -B build/cuda -Drexlib_ROOT=build/rexlib-install
 cmake --build build/cuda --parallel
 ```
 
-With CMake 3.21 or newer the presets of `plugins/cuda/` do the same, run
-from that directory: `cmake --preset debug`, `cmake --build --preset debug`,
-`ctest --preset debug`, which build into `plugins/cuda/build/debug`. There are
-`release`, `sanitize` (the address and undefined behaviour sanitizers) and
-`sanitize-thread` presets too; the two sanitizer presets are not offered on
-Windows. The `sanitize` test preset sets
-`ASAN_OPTIONS=protect_shadow_gap=0`, without which the address sanitizer and
-the CUDA runtime fight over the same memory. The `sanitize-thread` one points
-`TSAN_OPTIONS` at `tests/tsan.supp`, which leaves out the lock cycles that go
-through trompeloeil's own lock: a mocked call holds it through its actions,
-and a case that calls back into the code under test from one takes that
-code's lock under it. What only one machine has, such
-as `rexlib_ROOT`, the CUDA paths or a compiler cache, goes in a
-`CMakeUserPresets.json`, which git ignores.
+With CMake 3.21 or newer the presets of `plugins/cuda/` do the same, run from
+that directory: `cmake --preset debug`, `cmake --build --preset debug`, `ctest
+--preset debug`, which build into `plugins/cuda/build/debug`. There are
+`release`, `sanitize` (the address and undefined behaviour sanitizers),
+`sanitize-thread` and `coverage` presets too; the two sanitizer presets are not
+offered on Windows, and `coverage` only on Linux. The `sanitize` test preset
+sets `ASAN_OPTIONS=protect_shadow_gap=0`, without which the address sanitizer
+and the CUDA runtime fight over the same memory. The `sanitize-thread` one
+points `TSAN_OPTIONS` at `tests/tsan.supp`, which leaves out the lock cycles
+that go through trompeloeil's own lock: a mocked call holds it through its
+actions, and a case that calls back into the code under test from one takes
+that code's lock under it. What only one machine has, such as `rexlib_ROOT`,
+the CUDA paths or a compiler cache, goes in a `CMakeUserPresets.json`, which
+git ignores.
 
 A CUDA toolkit of 11 or newer is required. Unless `CMAKE_CUDA_ARCHITECTURES`
 or the environment's `CUDAARCHS` names them, the architectures are CMake's

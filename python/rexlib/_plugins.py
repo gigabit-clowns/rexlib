@@ -14,6 +14,10 @@ from ._binding import PluginManager
 
 __ENTRY_POINT_GROUP = "rexlib.plugins"
 __PLUGIN_DIRECTORY_NAME = "rexlib-plugins"
+__SHARED_OBJECT_SUFFIXES = {
+	"win32": (".dll",),
+	"darwin": (".so", ".dylib"),
+}
 
 
 def __get_shared_object_suffixes() -> tuple[str, ...]:
@@ -23,11 +27,7 @@ def __get_shared_object_suffixes() -> tuple[str, ...]:
 	Returns:
 		tuple[str, ...]: The suffixes, with their leading dot.
 	"""
-	if sys.platform == "win32":
-		return (".dll",)
-	if sys.platform == "darwin":
-		return (".so", ".dylib")
-	return (".so",)
+	return __SHARED_OBJECT_SUFFIXES.get(sys.platform, (".so",))
 
 
 def __find_package_directories(package: str) -> list[pathlib.Path]:

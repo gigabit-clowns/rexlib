@@ -247,7 +247,9 @@ Managed* dlpack_export<Managed>::get_managed() noexcept
 template <typename Managed>
 void dlpack_export<Managed>::destroy(Managed *managed)
 {
-	delete static_cast<dlpack_export*>(managed->manager_ctx);
+	const std::unique_ptr<dlpack_export> owner(
+		static_cast<dlpack_export*>(managed->manager_ctx)
+	);
 }
 
 template <typename Managed>

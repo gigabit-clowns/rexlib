@@ -104,8 +104,9 @@ found, the `find_package` call, with the oldest version that works.
 
 Each wheel's `pyproject.toml` requires `cuda-toolkit[cudart]` of its CUDA
 major, `==12.*` or `==13.*`, which NVIDIA's runtime wheels satisfy; the
-toolkit its build installs is pinned to a minor version, 12.9 or 13.4, in its
-`before-all`.
+toolkit its build installs is pinned to a minor version, 12.9 or 13.0, in its
+`before-all`. 13.0, the first CUDA 13, asks the least of the driver and of the
+runtime wheel.
 
 ## The tools from PyPI
 

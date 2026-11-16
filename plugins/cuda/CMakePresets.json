@@ -56,6 +56,21 @@
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "-fsanitize=thread -fno-omit-frame-pointer"
       }
+    },
+    {
+      "name": "coverage",
+      "displayName": "Debug with coverage",
+      "inherits": "debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      },
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "--coverage",
+        "CMAKE_EXE_LINKER_FLAGS": "--coverage",
+        "CMAKE_MODULE_LINKER_FLAGS": "--coverage"
+      }
     }
   ],
   "buildPresets": [
@@ -77,6 +92,11 @@
     {
       "name": "sanitize-thread",
       "configurePreset": "sanitize-thread",
+      "configuration": "Debug"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
       "configuration": "Debug"
     }
   ],
@@ -117,6 +137,14 @@
       },
       "environment": {
         "TSAN_OPTIONS": "suppressions=${sourceDir}/tests/tsan.supp"
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
       }
     }
   ]
