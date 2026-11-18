@@ -158,8 +158,8 @@ at 500 MB unless the job sets another size, and cleared of what the job did not
 use. The action installs its own ccache binary on every runner, the version its
 pinned commit names, and reports the cache's hit rate in the job summary. The
 packages vcpkg builds are cached per runner image, compiler and triplet, keyed
-on its manifest; a new key starts from the newest such cache, and vcpkg builds
-only what changed. setup-uv caches what uv downloads, keyed on `uv.lock` and
+on the image's version and its manifest; a new key starts from the newest such
+cache, and vcpkg builds only what changed. setup-uv caches what uv downloads, keyed on `uv.lock` and
 every `pyproject.toml`.
 
 Only runs on `main` save caches, as the workflow's `SAVE_CACHES` says; every
@@ -168,9 +168,12 @@ other run restores them and saves none. A pull request therefore starts from
 6 GB. A compiler cache is saved at the end of its job, under a new key each
 time. The packages vcpkg built are saved once it has installed them, and
 uv's cache at the end of a job that passed; a key saved once is never saved
-again. GitHub evicts
-what goes unused for a week, or the least recently used beyond 10 GB; nothing
-else manages the caches, and an eviction makes a run slower, never wrong.
+again. After each run of CI on `main`, `.github/workflows/clean-up-caches.yml`
+deletes every cache that a newer one of the same job has replaced, through the
+organization's reusable workflow: the patterns `ccache-*`, `vcpkg-*` and
+`setup-uv-*` with `by_stem`, which tells one job's caches from another's by
+their keys. GitHub evicts what goes unused for a week, or the least recently
+used beyond 10 GB, and an eviction makes a run slower, never wrong.
 
 A key is built from the job's own values, never written out: the runner image
 of `matrix.os`, the compiler of `CXX`, the vcpkg triplet of
