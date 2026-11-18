@@ -135,6 +135,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          max-size: 1G
           save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
@@ -237,6 +238,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          max-size: 1G
           save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
