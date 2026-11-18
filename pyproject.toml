@@ -61,7 +61,7 @@ lint = [
 ]
 # What measures the coverage of the coverage preset's build.
 coverage = [
-    "gcovr==8.7",
+    "gcovr==8.8",
 ]
 # The binding's build and its tests: what uv sync installs.
 dev = [

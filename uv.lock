@@ -244,7 +244,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/c3/2d/d19e303795e994d02
 
 [[package]]
 name = "gcovr"
-version = "8.7"
+version = "8.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorlog" },
@@ -252,9 +252,9 @@ dependencies = [
     { name = "lxml" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/09/47/c19e5c16988ef485210825101e78ab9ea05b08c2361aa4e51b40d6c484ac/gcovr-8.7.tar.gz", hash = "sha256:cfb9b2c373cc5be4b1cbe53250a5e4446fe6d4723c6900d3f41aa83540c8ddc8", size = 807848, upload-time = "2026-10-16T21:44:48.951Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/84/5d/75f6913653852720651790bf611e37355ee53cdd298c7f1561cde8773e02/gcovr-8.8.tar.gz", hash = "sha256:0320230a432c033c1a41f34ba943082f450008c789bee05d414e532f380fd788", size = 808751, upload-time = "2026-10-27T12:52:45.668Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a0/4d/10b517f35dda7c3cbf30dcadd0461522299ccc1cb648944e2ffea7147c58/gcovr-8.7-py3-none-any.whl", hash = "sha256:2a68612c5981c388537f2e236c231a5d788b8bd9e406d13ced662c97b17e9784", size = 862818, upload-time = "2026-10-16T21:44:46.839Z" },
+    { url = "https://files.pythonhosted.org/packages/53/89/d70fe863ff3549aadd3eabde823796639f8d313912c990fe7dc26cba798d/gcovr-8.8-py3-none-any.whl", hash = "sha256:a5c3e3d4a9c8ab4a95aa8e4b072fcaec7962b1d9fb2add3f10645f649ef29545", size = 863676, upload-time = "2026-10-27T12:52:43.743Z" },
 ]
 
 [[package]]
@@ -876,7 +876,7 @@ build = [
     { name = "ninja", specifier = "==1.13.2" },
     { name = "scikit-build-core", specifier = "==1.1.2" },
 ]
-coverage = [{ name = "gcovr", specifier = "==8.7" }]
+coverage = [{ name = "gcovr", specifier = "==8.8" }]
 dev = [
     { name = "cmake", specifier = "==4.4.4" },
     { name = "nanobind", specifier = "==3.1.0" },
