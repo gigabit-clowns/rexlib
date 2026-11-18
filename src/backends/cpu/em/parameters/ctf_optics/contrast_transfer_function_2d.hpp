@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_1d.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_1d.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/em/parameters/ctf_optics/ctf_phase_coefficients.hpp>
 
 namespace rexlib

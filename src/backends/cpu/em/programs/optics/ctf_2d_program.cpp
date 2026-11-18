@@ -2,7 +2,7 @@
 
 #include <rexlib/em/ops/optics/ctf_2d_operation.hpp>
 
-#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_2d.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_2d.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/em/parameters/ctf_optics/ctf_phase_coefficients.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 #include <backends/cpu/skeletons/elementwise/batched_map_plan.hpp>

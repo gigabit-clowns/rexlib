@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_2d.hpp>
+#include <backends/cpu/em/parameters/ctf_optics/contrast_transfer_function_2d.hpp> // editorconfig-checker-disable-line
 
 
 #include <cmath>
