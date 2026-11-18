@@ -263,14 +263,18 @@ batch_reduce_map_program_builder<
 	);
 
 	return batch_reduce_map_plan(
-		make_output_core_frame(operation, output_descriptors),
-		output_descriptors,
+		batched_map_plan(
+			make_output_core_frame(operation, output_descriptors),
+			output_descriptors,
+			input_descriptors,
+			shape_rule_descriptor_of<shape_rule_type>::get().get_input_cores(),
+			make_span(core_inputs),
+			MapIndexing()
+		),
 		input_descriptors,
-		shape_rule_descriptor_of<shape_rule_type>::get().get_input_cores(),
 		make_span(core_inputs),
 		KernelFactory::statistic_count,
-		ReductionIndexing(),
-		MapIndexing()
+		ReductionIndexing()
 	);
 }
 
