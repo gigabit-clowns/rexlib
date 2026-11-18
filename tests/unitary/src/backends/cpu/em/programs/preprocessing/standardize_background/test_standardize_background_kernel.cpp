@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 // editorconfig-checker-disable-next-line
-#include <backends/cpu/em/programs/preprocessing/standardize_background/standardize_background_kernel.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/standardize_background_kernel.hpp> // editorconfig-checker-disable-line
 
 #include <backends/cpu/random/standard_normal.hpp>
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>

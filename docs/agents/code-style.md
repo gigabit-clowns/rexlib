@@ -11,7 +11,9 @@ Indentation is tabs, four columns wide, and lines stay within 80 columns;
 `.editorconfig` states both, with the rules for the other kinds of file. CI
 checks every file git tracks against it with editorconfig-checker, which
 counts a tab as one character: it holds lines to 80 characters, and the 80
-columns are for the editor's ruler and review to hold.
+columns are for the editor's ruler and review to hold. An `#include` line is
+the one exception, since a path cannot be wrapped: one longer than 80
+characters ends in `// editorconfig-checker-disable-line`.
 
 Every source file, the CMake files included, starts with
 `SPDX-License-Identifier: GPL-3.0-only`.

@@ -5,7 +5,7 @@
 #include "slice_entry.hpp"
 #include "slice_insertion_tuning.hpp"
 
-#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp>
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/em/skeletons/slice_insertion/volume_tile.hpp>
 
 #include <rexlib/backends/cpu/thread_pool.hpp>

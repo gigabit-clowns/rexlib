@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp> // editorconfig-checker-disable-line
 #include "background_moments_kernel.hpp"
 #include "standardization_map_kernel.hpp"
 
