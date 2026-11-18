@@ -127,6 +127,7 @@ TEST_CASE(
 	"[batch_loop]"
 )
 {
+	std::vector<int> values(30, 0);
 	std::vector<std::size_t> seen;
 
 	run_batch_loop(
@@ -139,7 +140,7 @@ TEST_CASE(
 		loop_schedule(),
 		1,
 		0,
-		static_cast<int*>(nullptr)
+		values.data()
 	);
 
 	CHECK( seen == std::vector<std::size_t>{ 0, 1, 2 } );
