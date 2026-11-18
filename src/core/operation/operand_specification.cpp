@@ -8,8 +8,7 @@ namespace rexlib
 {
 
 operand_specification::operand_specification() noexcept
-	: m_shape()
-	, m_data_type(numerical_type::unknown)
+	: m_data_type(numerical_type::unknown)
 {
 }
 

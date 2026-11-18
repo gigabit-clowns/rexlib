@@ -36,7 +36,9 @@ using all_types = type_list_cat_t<
 	type_list<std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>,
 	type_list<float16_t, float32_t, float64_t>,
 	type_list<
-		std::complex<float16_t>, std::complex<float32_t>, std::complex<float64_t>
+		std::complex<float16_t>,
+		std::complex<float32_t>,
+		std::complex<float64_t>
 	>
 >;
 

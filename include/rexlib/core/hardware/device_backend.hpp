@@ -21,14 +21,14 @@ class device;
  * A device_backend is the integration point through which a family of
  * physical or virtual compute devices (e.g. the host CPU, a vendor's GPUs)
  * is exposed to the rest of the framework. Concrete backends are typically
- * shipped as plugins and registered into a @ref device_manager, which
+ * shipped as plugins and registered into a @ref device_service, which
  * dispatches queries to the appropriate backend based on its name.
  *
  * The interface intentionally remains small: enumerating the devices that
  * the backend can see at runtime, exposing their static characteristics
  * via @ref device_properties, and instantiating a usable @ref device
  * handle on demand. Backends are non-copyable and non-movable; they are
- * meant to live behind a stable pointer owned by the @ref device_manager.
+ * meant to live behind a stable pointer owned by the @ref device_service.
  */
 class REXLIB_API device_backend
 {

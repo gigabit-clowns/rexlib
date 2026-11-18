@@ -6,14 +6,23 @@
 # consumer.
 #
 # The headers are globbed, unlike the sources of the library, so that a new
-# header is checked without anyone remembering to list it.
-file(
-	GLOB_RECURSE REXLIB_PUBLIC_HEADERS
-	CONFIGURE_DEPENDS
-	RELATIVE ${PROJECT_SOURCE_DIR}/include
-	${PROJECT_SOURCE_DIR}/include/*.hpp
-	${PROJECT_SOURCE_DIR}/include/*.h
+# header is checked without anyone remembering to list it. Those CMake writes
+# are in the build tree.
+set(REXLIB_PUBLIC_HEADERS)
+foreach(
+	INCLUDE_DIR
+	${PROJECT_SOURCE_DIR}/include
+	${REXLIB_GENERATED_INCLUDE_DIR}
 )
+	file(
+		GLOB_RECURSE HEADERS
+		CONFIGURE_DEPENDS
+		RELATIVE ${INCLUDE_DIR}
+		${INCLUDE_DIR}/*.hpp
+		${INCLUDE_DIR}/*.h
+	)
+	list(APPEND REXLIB_PUBLIC_HEADERS ${HEADERS})
+endforeach()
 
 foreach(STANDARD 14 17 20 23)
 	if(NOT "cxx_std_${STANDARD}" IN_LIST CMAKE_CXX_COMPILE_FEATURES)

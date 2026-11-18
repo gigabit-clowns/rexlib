@@ -15,8 +15,8 @@ class mock_memory_resource final
 public:
 	MAKE_CONST_MOCK0(get_kind, memory_resource_kind(), noexcept override);
 	MAKE_CONST_MOCK0(
-		create_allocator, 
-		std::shared_ptr<memory_allocator>(), 
+		create_allocator,
+		std::shared_ptr<memory_allocator>(),
 		override
 	);
 };

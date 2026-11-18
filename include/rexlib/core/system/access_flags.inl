@@ -3,10 +3,10 @@
 #include "access_flags.hpp"
 #include "../platform/enum_helpers.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
-REXLIB_INLINE_CONSTEXPR const char* 
+REXLIB_INLINE_CONSTEXPR const char*
 to_string(access_flag_bits v) noexcept
 {
 	switch (v)
@@ -18,7 +18,7 @@ to_string(access_flag_bits v) noexcept
 }
 
 template<typename T>
-inline std::basic_ostream<T>& 
+inline std::basic_ostream<T>&
 operator<<(std::basic_ostream<T>& os, access_flag_bits v)
 {
 	return os << to_string(v);

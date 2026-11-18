@@ -10,10 +10,10 @@ namespace rexlib
 
 /**
  * @brief Helper class to pass a heterogeneous sequence of types to a function.
- * 
+ *
  * This class offers similar functionality to `std::tuple`, but explicitly
  * avoids storing the actual values.
- * 
+ *
  * @tparam Ts Sequence of types.
  */
 template <typename... Ts>
@@ -21,7 +21,7 @@ struct type_list {};
 
 /**
  * @brief Utility class to obtain the size of a `type_list`.
- * 
+ *
  * @tparam T A specialization `type_list` for which the size is obtained.
  */
 template <typename T>
@@ -35,7 +35,7 @@ struct type_list_size<type_list<Ts...>>
 
 /**
  * @brief Utility class to index a type on a `type_list`.
- * 
+ *
  * @tparam T A specialization `type_list` for which a type is extracted.
  */
 template<std::size_t I, typename T>
@@ -43,14 +43,14 @@ struct type_list_element;
 
 template<std::size_t I, typename Head, typename... Tail>
 struct type_list_element<I, type_list<Head, Tail...>>
-    : type_list_element<I - 1, type_list<Tail...>>
+	: type_list_element<I - 1, type_list<Tail...>>
 {
 };
- 
+
 template<class Head, typename... Tail>
 struct type_list_element<0, type_list<Head, Tail...>>
 {
-    using type = Head;
+	using type = Head;
 };
 
 /**

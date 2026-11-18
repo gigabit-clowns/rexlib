@@ -3,36 +3,36 @@
 #include "backend_priority.hpp"
 #include "platform/enum_helpers.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool operator<(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return static_cast<std::underlying_type<backend_priority>::type>(lhs) <
-		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;  
+		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool operator<=(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return static_cast<std::underlying_type<backend_priority>::type>(lhs) <=
-		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;  
+		static_cast<std::underlying_type<backend_priority>::type>(rhs) ;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool operator>(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return rhs < lhs;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 bool operator>=(backend_priority lhs, backend_priority rhs) noexcept
 {
 	return rhs <= lhs;
 }
 
-REXLIB_INLINE_CONSTEXPR 
+REXLIB_INLINE_CONSTEXPR
 const char* to_string(backend_priority priority) noexcept
 {
 	switch (priority)
@@ -48,7 +48,7 @@ const char* to_string(backend_priority priority) noexcept
 template<typename T>
 inline
 std::basic_ostream<T>& operator<<(
-	std::basic_ostream<T>& os, 
+	std::basic_ostream<T>& os,
 	backend_priority priority
 )
 {

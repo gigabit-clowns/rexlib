@@ -15,7 +15,8 @@ tabulated_phase<T>::tabulated_phase(std::size_t extent)
 	: m_x(extent / 2 + 1)
 	, m_full(extent)
 {
-	const auto shift = -static_cast<double>(extent / 2);
+	const auto half = extent / 2;
+	const auto shift = -static_cast<double>(half);
 	fill_axis_phase(m_x.data(), m_x.size(), extent, shift);
 	fill_axis_phase(m_full.data(), m_full.size(), extent, shift);
 }

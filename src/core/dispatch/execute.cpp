@@ -67,17 +67,15 @@ array execute(
 
 		return out->share();
 	}
-	else
-	{
-		array output_operand;
-		execute(
-			operation,
-			make_span(&output_operand, 1),
-			input_operands,
-			context
-		);
-		return output_operand;
-	}
+
+	array output_operand;
+	execute(
+		operation,
+		make_span(&output_operand, 1),
+		input_operands,
+		context
+	);
+	return output_operand;
 }
 
 array execute_unary(
@@ -119,8 +117,8 @@ array execute_binary(
 )
 {
 	std::array<const_array_ref, 2> inputs = {
-		std::move(first_input),
-		std::move(second_input)
+		first_input,
+		second_input
 	};
 	return execute(
 		operation,
@@ -139,8 +137,8 @@ void execute_binary(
 )
 {
 	std::array<const_array_ref, 2> inputs = {
-		std::move(first_input),
-		std::move(second_input)
+		first_input,
+		second_input
 	};
 	execute(
 		operation,
@@ -160,9 +158,9 @@ array execute_ternary(
 )
 {
 	std::array<const_array_ref, 3> inputs = {
-		std::move(first_input),
-		std::move(second_input),
-		std::move(third_input)
+		first_input,
+		second_input,
+		third_input
 	};
 	return execute(
 		operation,

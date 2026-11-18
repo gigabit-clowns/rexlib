@@ -4,7 +4,7 @@
 
 #include <cstdlib>
 
-namespace rexlib 
+namespace rexlib
 {
 
 inline
@@ -18,7 +18,7 @@ joint_layout_operand::joint_layout_operand(
 }
 
 inline
-span<const std::ptrdiff_t> 
+span<const std::ptrdiff_t>
 joint_layout_operand::get_strides() const noexcept
 {
 	return span<const std::ptrdiff_t>(m_strides.data(), m_strides.size());
@@ -32,7 +32,7 @@ std::ptrdiff_t joint_layout_operand::get_offset() const noexcept
 
 inline
 int joint_layout_operand::compare_strides(
-	std::size_t i, 
+	std::size_t i,
 	std::size_t j
 ) const noexcept
 {
@@ -43,7 +43,7 @@ int joint_layout_operand::compare_strides(
 	{
 		return 0;
 	}
-	
+
 	const auto magnitude_i = std::abs(stride_i);
 	const auto magnitude_j = std::abs(stride_j);
 	if (magnitude_i < magnitude_j)
@@ -59,7 +59,7 @@ int joint_layout_operand::compare_strides(
 
 inline
 void joint_layout_operand::swap_axes(
-	std::size_t i, 
+	std::size_t i,
 	std::size_t j
 ) noexcept
 {

@@ -102,6 +102,7 @@ array real(array &x)
 	return make_part_view(x, 0);
 }
 
+// NOLINTNEXTLINE(misc-const-correctness)
 array imag(array &x)
 {
 	const auto &descriptor = x.get_descriptor();

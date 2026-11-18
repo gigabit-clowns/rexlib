@@ -13,7 +13,10 @@
 namespace rexlib
 {
 
-static std::shared_ptr<const array_implementation> make_subarray_implementation(
+namespace
+{
+
+std::shared_ptr<const array_implementation> make_subarray_implementation(
 	const array_implementation *parent,
 	span<const dynamic_subscript> subscripts
 )
@@ -35,6 +38,9 @@ static std::shared_ptr<const array_implementation> make_subarray_implementation(
 	);
 }
 
+} // anonymous namespace
+
+// NOLINTNEXTLINE(misc-const-correctness)
 array subarray(array &input, span<const dynamic_subscript> subscripts)
 {
 	return array(

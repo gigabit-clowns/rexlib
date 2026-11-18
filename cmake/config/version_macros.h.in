@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+// Written by CMake from VERSION.
+
+#pragma once
+
+/**
+ * @file
+ * @brief Macros that state the version of these headers.
+ *
+ * get_library_version() returns the version of the library that is loaded,
+ * which differs from these when a program runs against another release.
+ */
+
+/**
+ * @def REXLIB_VERSION_MAJOR
+ * @brief The major version.
+ */
+#define REXLIB_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+
+/**
+ * @def REXLIB_VERSION_MINOR
+ * @brief The minor version.
+ */
+#define REXLIB_VERSION_MINOR @PROJECT_VERSION_MINOR@
+
+/**
+ * @def REXLIB_VERSION_PATCH
+ * @brief The patch version.
+ */
+#define REXLIB_VERSION_PATCH @PROJECT_VERSION_PATCH@

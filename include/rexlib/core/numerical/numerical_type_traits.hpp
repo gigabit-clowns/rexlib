@@ -12,10 +12,10 @@ namespace rexlib
 
 /**
  * @brief Convert static types to numerical_type.
- * 
- * The numerical_type of the provided static type is stored as 
+ *
+ * The numerical_type of the provided static type is stored as
  * numerical_type_of<T>::value
- * 
+ *
  * @tparam T The static type to be converted.
  */
 template <typename T>

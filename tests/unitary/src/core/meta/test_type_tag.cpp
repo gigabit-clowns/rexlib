@@ -10,7 +10,10 @@ using namespace rexlib;
 
 struct test_type {};
 
-TEST_CASE( "type_tag should propagate the template argument to its type member", "[type_tag]" )
+TEST_CASE(
+	"type_tag should propagate the template argument to its type member",
+	"[type_tag]"
+)
 {
 	CHECK( std::is_same<type_tag<test_type>::type, test_type>::value );
 }

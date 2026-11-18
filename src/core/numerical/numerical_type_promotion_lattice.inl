@@ -15,9 +15,9 @@ numerical_type_promotion_lattice::numerical_type_promotion_lattice() noexcept
 }
 
 REXLIB_INLINE_CONSTEXPR_CPP23
-numerical_type_promotion_lattice& 
+numerical_type_promotion_lattice&
 numerical_type_promotion_lattice::add_edge(
-	numerical_type from, 
+	numerical_type from,
 	numerical_type to
 ) noexcept
 {
@@ -29,9 +29,9 @@ numerical_type_promotion_lattice::add_edge(
 		return *this; // Already set
 	}
 
-	for (std::size_t i = 0; i < m_reach.size(); ++i) 
+	for (std::size_t i = 0; i < m_reach.size(); ++i)
 	{
-		if (m_reach[i].test(v)) 
+		if (m_reach[i].test(v))
 		{
 			m_reach[i] |= m_reach[u];
 		}
@@ -42,17 +42,17 @@ numerical_type_promotion_lattice::add_edge(
 
 REXLIB_INLINE_CONSTEXPR_CPP23
 numerical_type numerical_type_promotion_lattice::get_supremum(
-	numerical_type a, 
+	numerical_type a,
 	numerical_type b
 ) const noexcept
 {
-	const auto common = 
-		m_reach[static_cast<std::size_t>(a)] & 
+	const auto common =
+		m_reach[static_cast<std::size_t>(a)] &
 		m_reach[static_cast<std::size_t>(b)];
 
-	for (std::size_t i = 0; i < common.size(); ++i) 
+	for (std::size_t i = 0; i < common.size(); ++i)
 	{
-		if (is_supremum(common, i)) 
+		if (is_supremum(common, i))
 		{
 			return static_cast<numerical_type>(i);
 		}
@@ -63,7 +63,7 @@ numerical_type numerical_type_promotion_lattice::get_supremum(
 
 REXLIB_INLINE_CONSTEXPR_CPP23
 bool numerical_type_promotion_lattice::is_supremum(
-	const reach_set &common, 
+	const reach_set &common,
 	std::size_t i
 ) const noexcept
 {
@@ -72,9 +72,9 @@ bool numerical_type_promotion_lattice::is_supremum(
 		return false;
 	}
 
-	for (std::size_t j = 0; j < common.size(); ++j) 
+	for (std::size_t j = 0; j < common.size(); ++j)
 	{
-		if (common[j] && !m_reach[i].test(j)) 
+		if (common[j] && !m_reach[i].test(j))
 		{
 			return false;
 		}

@@ -13,6 +13,7 @@
 
 #include <complex>
 #include <cstddef>
+#include <cstdint>
 #include <stdexcept>
 #include <vector>
 
@@ -49,8 +50,14 @@ TEST_CASE_METHOD(
 	"[array_linalg][cpu]"
 )
 {
-	auto left = make_sequence_operand<float32_t>({ 2, 3 }, { 1, 2, 3, 4, 5, 6 });
-	auto right = make_sequence_operand<float32_t>({ 2, 3 }, { 1, 0, 0, 0, 1, 0 });
+	auto left = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 2, 3, 4, 5, 6 }
+	);
+	auto right = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 0, 0, 0, 1, 0 }
+	);
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
@@ -69,7 +76,10 @@ TEST_CASE_METHOD(
 {
 	// Every other axis is a batch dimension, so a stack contracts with one
 	// vector without that vector being written out.
-	auto left = make_sequence_operand<float32_t>({ 2, 3 }, { 1, 2, 3, 4, 5, 6 });
+	auto left = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 2, 3, 4, 5, 6 }
+	);
 	auto right = make_sequence_operand<float32_t>({ 1, 3 }, { 1, 1, 1 });
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
@@ -87,8 +97,14 @@ TEST_CASE_METHOD(
 	"[array_linalg][cpu]"
 )
 {
-	auto left = make_sequence_operand<float32_t>({ 2, 3 }, { 1, 2, 3, 4, 5, 6 });
-	auto right = make_sequence_operand<float32_t>({ 2, 3 }, { 1, 1, 1, 2, 2, 2 });
+	auto left = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 2, 3, 4, 5, 6 }
+	);
+	auto right = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{ 1, 1, 1, 2, 2, 2 }
+	);
 	const const_array_ref left_ref = left;
 	const const_array_ref right_ref = right;
 
@@ -406,8 +422,10 @@ TEST_CASE_METHOD(
 	std::vector<element_value> right_values;
 	for (std::size_t i = 0; i < 5; ++i)
 	{
-		for (const element_value v :
-		     { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 })
+		for (
+			const element_value v :
+			{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 }
+		)
 		{
 			right_values.push_back(v);
 		}
@@ -516,6 +534,42 @@ TEST_CASE_METHOD(
 		rexlib::cross(left_ref, right_ref, context, nullptr),
 		{ 3 },
 		{ 0, 0, 1 }
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"cross takes the cross product of half-precision vectors",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<float16_t>({ 3 }, { 1, 2, 3 });
+	auto right = make_sequence_operand<float16_t>({ 3 }, { 4, 5, 6 });
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	check_values<float16_t>(
+		rexlib::cross(left_ref, right_ref, context, nullptr),
+		{ 3 },
+		{ -3, 6, -3 }
+	);
+}
+
+TEST_CASE_METHOD(
+	reduction_verb_fixture,
+	"cross takes the cross product of 8-bit integer vectors",
+	"[array_linalg][cpu]"
+)
+{
+	auto left = make_sequence_operand<std::int8_t>({ 3 }, { 1, 2, 3 });
+	auto right = make_sequence_operand<std::int8_t>({ 3 }, { 4, 5, 6 });
+	const const_array_ref left_ref = left;
+	const const_array_ref right_ref = right;
+
+	check_values<std::int8_t>(
+		rexlib::cross(left_ref, right_ref, context, nullptr),
+		{ 3 },
+		{ -3, 6, -3 }
 	);
 }
 

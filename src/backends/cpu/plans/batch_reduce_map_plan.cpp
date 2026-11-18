@@ -51,7 +51,7 @@ void check_cores(
 		);
 	}
 
-	const auto carrying = std::find_if(
+	const auto *const carrying = std::find_if(
 		input_cores.begin(),
 		input_cores.end(),
 		[](const core_dimensions_descriptor &core) { return !core.is_empty(); }

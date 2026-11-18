@@ -58,6 +58,21 @@ protected:
 	}
 
 	/**
+	 * @brief Build an operand of a type the operation rejects.
+	 *
+	 * Its elements are zero, which every element type holds, whereas the
+	 * value a case names may be one the rejected type cannot hold.
+	 *
+	 * @tparam T The element type.
+	 * @return array The operand.
+	 */
+	template <typename T>
+	array make_rejected_operand() const
+	{
+		return make_operand<T>(element_value());
+	}
+
+	/**
 	 * @brief Check a one input verb across every numerical type.
 	 *
 	 * @tparam Op The operation the verb dispatches.
@@ -313,7 +328,9 @@ protected:
 	) const
 	{
 		const auto data_type = numerical_type_of<U>::value;
-		CHECK( result.get_descriptor() == make_descriptor({ 2, 3 }, data_type) );
+		CHECK(
+			result.get_descriptor() == make_descriptor({ 2, 3 }, data_type)
+		);
 
 		const auto stored = numerical_cast<U>(expected);
 		for (const auto value : read_host<U>(result, element_count))
@@ -394,7 +411,7 @@ private:
 	void run_unary_pair(
 		detail::reject_case,
 		Verb &verb,
-		element_value x,
+		element_value,
 		FirstReference &,
 		SecondReference &,
 		comparison_mode
@@ -403,7 +420,7 @@ private:
 		using operands = operand_element_types<Op, T>;
 		using input_type = typename operands::template input_type<0>;
 
-		auto operand = make_operand<input_type>(x);
+		auto operand = make_rejected_operand<input_type>();
 		const const_array_ref operand_ref = operand;
 
 		CHECK_THROWS_AS(
@@ -440,8 +457,13 @@ private:
 		const const_array_ref left_ref = left;
 		const const_array_ref right_ref = right;
 
-		const auto results = verb(left_ref, right_ref, context, nullptr,
-		                          nullptr);
+		const auto results = verb(
+			left_ref,
+			right_ref,
+			context,
+			nullptr,
+			nullptr
+		);
 
 		const auto widened_left = widen(x.as<left_type>());
 		const auto widened_right = widen(y.as<right_type>());
@@ -467,8 +489,8 @@ private:
 	void run_binary_pair(
 		detail::reject_case,
 		Verb &verb,
-		element_value x,
-		element_value y,
+		element_value,
+		element_value,
 		FirstReference &,
 		SecondReference &,
 		comparison_mode
@@ -478,8 +500,8 @@ private:
 		using left_type = typename operands::template input_type<0>;
 		using right_type = typename operands::template input_type<1>;
 
-		auto left = make_operand<left_type>(x);
-		auto right = make_operand<right_type>(y);
+		auto left = make_rejected_operand<left_type>();
+		auto right = make_rejected_operand<right_type>();
 		const const_array_ref left_ref = left;
 		const const_array_ref right_ref = right;
 
@@ -517,7 +539,7 @@ private:
 	void run_unary(
 		detail::reject_case,
 		Verb &verb,
-		element_value x,
+		element_value,
 		Reference &,
 		comparison_mode
 	) const
@@ -525,7 +547,7 @@ private:
 		using operands = operand_element_types<Op, T>;
 		using input_type = typename operands::template input_type<0>;
 
-		auto operand = make_operand<input_type>(x);
+		auto operand = make_rejected_operand<input_type>();
 		const const_array_ref operand_ref = operand;
 
 		CHECK_THROWS_AS(
@@ -566,8 +588,8 @@ private:
 	void run_binary(
 		detail::reject_case,
 		Verb &verb,
-		element_value x,
-		element_value y,
+		element_value,
+		element_value,
 		Reference &,
 		comparison_mode
 	) const
@@ -576,8 +598,8 @@ private:
 		using left_type = typename operands::template input_type<0>;
 		using right_type = typename operands::template input_type<1>;
 
-		auto left = make_operand<left_type>(x);
-		auto right = make_operand<right_type>(y);
+		auto left = make_rejected_operand<left_type>();
+		auto right = make_rejected_operand<right_type>();
 		const const_array_ref left_ref = left;
 		const const_array_ref right_ref = right;
 
@@ -629,9 +651,9 @@ private:
 	void run_ternary(
 		detail::reject_case,
 		Verb &verb,
-		element_value x,
-		element_value y,
-		element_value z,
+		element_value,
+		element_value,
+		element_value,
 		Reference &,
 		comparison_mode
 	) const
@@ -641,9 +663,9 @@ private:
 		using second_type = typename operands::template input_type<1>;
 		using third_type = typename operands::template input_type<2>;
 
-		auto first = make_operand<first_type>(x);
-		auto second = make_operand<second_type>(y);
-		auto third = make_operand<third_type>(z);
+		auto first = make_rejected_operand<first_type>();
+		auto second = make_rejected_operand<second_type>();
+		auto third = make_rejected_operand<third_type>();
 		const const_array_ref first_ref = first;
 		const const_array_ref second_ref = second;
 		const const_array_ref third_ref = third;

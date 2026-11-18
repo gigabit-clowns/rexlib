@@ -18,19 +18,19 @@ public:
 	numerical_type_promotion_lattice() noexcept;
 
 	REXLIB_CONSTEXPR_CPP23
-	numerical_type_promotion_lattice& 
+	numerical_type_promotion_lattice&
 	add_edge(numerical_type from, numerical_type to) noexcept;
 
 	REXLIB_CONSTEXPR_CPP23
-	numerical_type 
+	numerical_type
 	get_supremum(numerical_type a, numerical_type b) const noexcept;
 
 private:
-	using reach_set = 
+	using reach_set =
 		std::bitset<static_cast<std::size_t>(numerical_type::count)>;
 
 	std::array<
-		reach_set, 
+		reach_set,
 		static_cast<std::size_t>(numerical_type::count)
 	> m_reach;
 

@@ -569,7 +569,8 @@ TEST_CASE(
 )
 {
 	const auto values = iota_vector(6);
-	const auto adaptor = make_reduction_element_adaptor(unindexed_fold_kernel());
+	const auto adaptor =
+		make_reduction_element_adaptor(unindexed_fold_kernel());
 
 	SECTION( "along a run" )
 	{

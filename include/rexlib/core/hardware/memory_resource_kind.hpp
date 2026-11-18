@@ -4,7 +4,7 @@
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
@@ -12,7 +12,7 @@ namespace rexlib
  */
 enum class memory_resource_kind
 {
-	/// The device and host share the same physical memory, such that both can 
+	/// The device and host share the same physical memory, such that both can
 	/// access it efficiently.
 	unified,
 
@@ -21,7 +21,7 @@ enum class memory_resource_kind
 	/// were residing in unified memory.
 	managed,
 
-	/// Memory resource lives locally on the device and can not be accessed 
+	/// Memory resource lives locally on the device and can not be accessed
 	/// from the host.
 	device_local,
 
@@ -33,7 +33,7 @@ enum class memory_resource_kind
 	/// device. However, contents can be transferred from and to the device.
 	host_staging,
 
-	/// Memory resource resides in the host and can not be accessed nor 
+	/// Memory resource resides in the host and can not be accessed nor
 	/// transferred to a device.
 	host,
 };
@@ -70,7 +70,7 @@ int score_device_affinity(memory_resource_kind kind) noexcept;
 
 /**
  * @brief Check if the memory kind can be directly accessed from the host.
- * 
+ *
  * @param kind Memory resource kind to be checked.
  * @return true If the memory resource can be accessed from the host.
  * @return false If the memory resource can not be accessed from the host.
@@ -81,7 +81,7 @@ bool is_host_accessible(memory_resource_kind kind) noexcept;
 
 /**
  * @brief Check if the memory kind can be directly accessed from the device.
- * 
+ *
  * @param kind Memory resource kind to be checked.
  * @return true If the memory resource can be accessed from the device.
  * @return false If the memory resource can not be accessed from the device.

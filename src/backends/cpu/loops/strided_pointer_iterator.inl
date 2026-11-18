@@ -56,7 +56,9 @@ strided_pointer_iterator<T, Stride>::operator->() const noexcept
 template <typename T, typename Stride>
 REXLIB_INLINE_CONSTEXPR
 typename strided_pointer_iterator<T, Stride>::reference
-strided_pointer_iterator<T, Stride>::operator[](difference_type n) const noexcept
+strided_pointer_iterator<T, Stride>::operator[](
+	difference_type n
+) const noexcept
 {
 	return m_data[n*m_stride];
 }

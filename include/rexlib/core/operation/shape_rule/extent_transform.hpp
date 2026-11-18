@@ -26,13 +26,13 @@ public:
 	/**
 	 * @brief Construct an extent transform.
 	 *
-	 * @param apply The mapping. Must not be null.
+	 * @param apply_function The mapping. Must not be null.
 	 * @param relation Fragment naming the mapping, for diagnostics. Must not
 	 * be null and must outlive the transform.
 	 * @param identity Whether the mapping is the identity.
 	 */
 	extent_transform(
-		apply_function_type apply,
+		apply_function_type apply_function,
 		const char *relation,
 		bool identity
 	) noexcept;

@@ -7,7 +7,6 @@
 #include <rexlib/core/dispatch/program_builder_registry.hpp>
 #include <rexlib/core/platform/cpp_attributes.hpp>
 
-#include <core/dispatch/core_program_builder_registry.hpp>
 
 #include <backends/cpu/builders/dispatched_program_builder.hpp>
 #include <backends/cpu/builders/program_builder_registration_macros.hpp>

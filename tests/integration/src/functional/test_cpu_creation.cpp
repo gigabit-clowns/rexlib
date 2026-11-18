@@ -39,7 +39,9 @@ using all_types = type_list_cat_t<
 	type_list<std::uint8_t, std::uint16_t, std::uint32_t, std::uint64_t>,
 	type_list<float16_t, float32_t, float64_t>,
 	type_list<
-		std::complex<float16_t>, std::complex<float32_t>, std::complex<float64_t>
+		std::complex<float16_t>,
+		std::complex<float32_t>,
+		std::complex<float64_t>
 	>
 >;
 
@@ -56,7 +58,9 @@ using real_arithmetic_types = type_list_cat_t<
 using inexact_types = type_list_cat_t<
 	type_list<float16_t, float32_t, float64_t>,
 	type_list<
-		std::complex<float16_t>, std::complex<float32_t>, std::complex<float64_t>
+		std::complex<float16_t>,
+		std::complex<float32_t>,
+		std::complex<float64_t>
 	>
 >;
 
@@ -195,10 +199,14 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( result.get_descriptor() ==
-	       make_descriptor({ 5 }, numerical_type::int32) );
-	CHECK( read_host<std::int32_t>(result, 5) ==
-	       std::vector<std::int32_t>{ 0, 1, 2, 3, 4 } );
+	CHECK(
+		result.get_descriptor() ==
+		make_descriptor({ 5 }, numerical_type::int32)
+	);
+	CHECK(
+		read_host<std::int32_t>(result, 5) ==
+		std::vector<std::int32_t>{ 0, 1, 2, 3, 4 }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -215,8 +223,10 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( read_host<std::int32_t>(result, 5) ==
-	       std::vector<std::int32_t>{ 2, 3, 4, 5, 6 } );
+	CHECK(
+		read_host<std::int32_t>(result, 5) ==
+		std::vector<std::int32_t>{ 2, 3, 4, 5, 6 }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -235,8 +245,10 @@ TEST_CASE_METHOD(
 		memory_resource_affinity::host,
 		context
 	);
-	CHECK( read_host<std::int32_t>(exact, 3) ==
-	       std::vector<std::int32_t>{ 0, 3, 6 } );
+	CHECK(
+		read_host<std::int32_t>(exact, 3) ==
+		std::vector<std::int32_t>{ 0, 3, 6 }
+	);
 
 	const auto overshooting = arange(
 		0,
@@ -246,8 +258,10 @@ TEST_CASE_METHOD(
 		memory_resource_affinity::host,
 		context
 	);
-	CHECK( read_host<std::int32_t>(overshooting, 4) ==
-	       std::vector<std::int32_t>{ 0, 3, 6, 9 } );
+	CHECK(
+		read_host<std::int32_t>(overshooting, 4) ==
+		std::vector<std::int32_t>{ 0, 3, 6, 9 }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -265,10 +279,14 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( result.get_descriptor() ==
-	       make_descriptor({ 4 }, numerical_type::int32) );
-	CHECK( read_host<std::int32_t>(result, 4) ==
-	       std::vector<std::int32_t>{ 10, 7, 4, 1 } );
+	CHECK(
+		result.get_descriptor() ==
+		make_descriptor({ 4 }, numerical_type::int32)
+	);
+	CHECK(
+		read_host<std::int32_t>(result, 4) ==
+		std::vector<std::int32_t>{ 10, 7, 4, 1 }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -286,8 +304,10 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( read_host<float32_t>(result, 4) ==
-	       std::vector<float32_t>{ 0.0F, 0.25F, 0.5F, 0.75F } );
+	CHECK(
+		read_host<float32_t>(result, 4) ==
+		std::vector<float32_t>{ 0.0F, 0.25F, 0.5F, 0.75F }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -305,8 +325,10 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( result.get_descriptor() ==
-	       make_descriptor({ 0 }, numerical_type::int32) );
+	CHECK(
+		result.get_descriptor() ==
+		make_descriptor({ 0 }, numerical_type::int32)
+	);
 }
 
 TEST_CASE_METHOD(
@@ -395,8 +417,10 @@ TEST_CASE_METHOD(
 	// The storage is the one that was already there, rather than a fresh
 	// allocation the caller would have to go looking for.
 	CHECK( result.get_storage() == storage );
-	CHECK( read_host<std::int32_t>(result, 4) ==
-	       std::vector<std::int32_t>{ 1, 2, 3, 4 } );
+	CHECK(
+		read_host<std::int32_t>(result, 4) ==
+		std::vector<std::int32_t>{ 1, 2, 3, 4 }
+	);
 }
 
 TEMPLATE_LIST_TEST_CASE_METHOD(
@@ -436,10 +460,14 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( result.get_descriptor() ==
-	       make_descriptor({ 5 }, numerical_type::float32) );
-	CHECK( read_host<float32_t>(result, 5) ==
-	       std::vector<float32_t>{ 0.0F, 0.25F, 0.5F, 0.75F, 1.0F } );
+	CHECK(
+		result.get_descriptor() ==
+		make_descriptor({ 5 }, numerical_type::float32)
+	);
+	CHECK(
+		read_host<float32_t>(result, 5) ==
+		std::vector<float32_t>{ 0.0F, 0.25F, 0.5F, 0.75F, 1.0F }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -482,8 +510,10 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( read_host<float32_t>(result, 4) ==
-	       std::vector<float32_t>{ 0.0F, 0.25F, 0.5F, 0.75F } );
+	CHECK(
+		read_host<float32_t>(result, 4) ==
+		std::vector<float32_t>{ 0.0F, 0.25F, 0.5F, 0.75F }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -501,8 +531,10 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( read_host<float32_t>(result, 5) ==
-	       std::vector<float32_t>{ 1.0F, 0.75F, 0.5F, 0.25F, 0.0F } );
+	CHECK(
+		read_host<float32_t>(result, 5) ==
+		std::vector<float32_t>{ 1.0F, 0.75F, 0.5F, 0.25F, 0.0F }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -522,10 +554,14 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( result.get_descriptor() ==
-	       make_descriptor({ 1 }, numerical_type::float32) );
-	CHECK( read_host<float32_t>(result, 1) ==
-	       std::vector<float32_t>{ 2.0F } );
+	CHECK(
+		result.get_descriptor() ==
+		make_descriptor({ 1 }, numerical_type::float32)
+	);
+	CHECK(
+		read_host<float32_t>(result, 1) ==
+		std::vector<float32_t>{ 2.0F }
+	);
 }
 
 TEST_CASE_METHOD(
@@ -543,8 +579,10 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( result.get_descriptor() ==
-	       make_descriptor({ 0 }, numerical_type::float32) );
+	CHECK(
+		result.get_descriptor() ==
+		make_descriptor({ 0 }, numerical_type::float32)
+	);
 }
 
 TEST_CASE_METHOD(
@@ -564,12 +602,14 @@ TEST_CASE_METHOD(
 		context
 	);
 
-	CHECK( read_host<complex_type>(result, 3) ==
-	       std::vector<complex_type>{
-	           complex_type(0.0F, 0.0F),
-	           complex_type(1.0F, 2.0F),
-	           complex_type(2.0F, 4.0F)
-	       } );
+	CHECK(
+		read_host<complex_type>(result, 3) ==
+		std::vector<complex_type>{
+			complex_type(0.0F, 0.0F),
+			complex_type(1.0F, 2.0F),
+			complex_type(2.0F, 4.0F)
+		}
+	);
 }
 
 TEST_CASE_METHOD(

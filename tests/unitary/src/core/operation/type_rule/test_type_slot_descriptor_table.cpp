@@ -41,8 +41,10 @@ TEST_CASE(
 
 	CHECK( slots[1].get_pivot_index() == 1 );
 	const auto &real = slots[1].get_transform();
-	CHECK( real.apply(numerical_type::complex_float64) ==
-	       numerical_type::float64 );
+	CHECK(
+		real.apply(numerical_type::complex_float64) ==
+		numerical_type::float64
+	);
 	CHECK( std::string(real.get_relation()) == "the real counterpart of" );
 
 	CHECK( slots[2].get_pivot_index() == 0 );

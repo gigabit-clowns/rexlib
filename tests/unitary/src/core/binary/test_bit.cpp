@@ -11,7 +11,7 @@
 
 using namespace rexlib;
 
-TEST_CASE( "bit shifts left by 1", "[bit]" ) 
+TEST_CASE( "bit shifts left by 1", "[bit]" )
 {
 	std::size_t input;
 	std::size_t expected_result;
@@ -22,14 +22,17 @@ TEST_CASE( "bit shifts left by 1", "[bit]" )
 			{1, 2},
 			{2, 4},
 			{8, 256},
-			{std::numeric_limits<std::size_t>::digits-1, std::numeric_limits<std::make_signed<std::size_t>::type>::min()}
+			{
+				std::numeric_limits<std::size_t>::digits-1,
+				std::numeric_limits<std::make_signed<std::size_t>::type>::min()
+			}
 		})
 	);
 
 	REQUIRE( bit(input) == expected_result );
 }
 
-TEST_CASE( "bit_range_mask fills with 1s in the provided range", "[bit]" ) 
+TEST_CASE( "bit_range_mask fills with 1s in the provided range", "[bit]" )
 {
 	std::size_t start;
 	std::size_t stop;
@@ -66,7 +69,9 @@ TEST_CASE( "bit_range_mask fills with 1s in the provided range", "[bit]" )
 			})
 		);
 
-		REQUIRE( bit_range_mask<std::uint16_t>(start, stop) == expected_result );
+		REQUIRE(
+			bit_range_mask<std::uint16_t>(start, stop) == expected_result
+		);
 	}
 
 	SECTION( "32 bits" )
@@ -84,11 +89,13 @@ TEST_CASE( "bit_range_mask fills with 1s in the provided range", "[bit]" )
 			})
 		);
 
-		REQUIRE( bit_range_mask<std::uint32_t>(start, stop) == expected_result );
+		REQUIRE(
+			bit_range_mask<std::uint32_t>(start, stop) == expected_result
+		);
 	}
 }
 
-TEST_CASE( "set_lowest_zero_inplace sets the lowest zero bit", "[bit]" ) 
+TEST_CASE( "set_lowest_zero_inplace sets the lowest zero bit", "[bit]" )
 {
 	SECTION( "8 bits" )
 	{
@@ -111,7 +118,9 @@ TEST_CASE( "set_lowest_zero_inplace sets the lowest zero bit", "[bit]" )
 			set_lowest_zero_inplace(input);
 			REQUIRE(input == expected);
 		}
-		SECTION( "set bits from LSB progressively when there is a bit set elsewhere" )
+		SECTION(
+			"set bits from LSB progressively when there is a bit set elsewhere"
+		)
 		{
 			std::tie(input, expected) = GENERATE(
 				table<uint8_t, uint8_t>({
@@ -152,7 +161,9 @@ TEST_CASE( "set_lowest_zero_inplace sets the lowest zero bit", "[bit]" )
 			set_lowest_zero_inplace(input);
 			REQUIRE(input == expected);
 		}
-		SECTION( "set bits from LSB progressively when there is a bit set elsewhere" )
+		SECTION(
+			"set bits from LSB progressively when there is a bit set elsewhere"
+		)
 		{
 			std::tie(input, expected) = GENERATE(
 				table<uint32_t, uint32_t>({
@@ -193,7 +204,9 @@ TEST_CASE( "set_lowest_zero_inplace sets the lowest zero bit", "[bit]" )
 			set_lowest_zero_inplace(input);
 			REQUIRE(input == expected);
 		}
-		SECTION( "set bits from LSB progressively when there is a bit set elsewhere" )
+		SECTION(
+			"set bits from LSB progressively when there is a bit set elsewhere"
+		)
 		{
 			std::tie(input, expected) = GENERATE(
 				table<uint64_t, uint64_t>({
@@ -214,7 +227,7 @@ TEST_CASE( "set_lowest_zero_inplace sets the lowest zero bit", "[bit]" )
 	}
 }
 
-TEST_CASE( "clear_lowest_one_inplace clears the lowest one bit", "[bit]" ) 
+TEST_CASE( "clear_lowest_one_inplace clears the lowest one bit", "[bit]" )
 {
 	SECTION( "8 bits" )
 	{
@@ -236,7 +249,10 @@ TEST_CASE( "clear_lowest_one_inplace clears the lowest one bit", "[bit]" )
 			clear_lowest_one_inplace(input);
 			REQUIRE(input == expected);
 		}
-		SECTION( "clear bits from LSB progressively when there is a bit clear elsewhere" )
+		SECTION(
+			"clear bits from LSB progressively "
+			"when there is a bit clear elsewhere"
+		)
 		{
 			std::tie(input, expected) = GENERATE(
 				table<uint8_t, uint8_t>({
@@ -278,7 +294,10 @@ TEST_CASE( "clear_lowest_one_inplace clears the lowest one bit", "[bit]" )
 			clear_lowest_one_inplace(input);
 			REQUIRE(input == expected);
 		}
-		SECTION( "clear bits from LSB progressively when there is a bit clear elsewhere" )
+		SECTION(
+			"clear bits from LSB progressively "
+			"when there is a bit clear elsewhere"
+		)
 		{
 			std::tie(input, expected) = GENERATE(
 				table<uint32_t, uint32_t>({
@@ -320,7 +339,10 @@ TEST_CASE( "clear_lowest_one_inplace clears the lowest one bit", "[bit]" )
 			clear_lowest_one_inplace(input);
 			REQUIRE(input == expected);
 		}
-		SECTION( "clear bits from LSB progressively when there is a bit clear elsewhere" )
+		SECTION(
+			"clear bits from LSB progressively "
+			"when there is a bit clear elsewhere"
+		)
 		{
 			std::tie(input, expected) = GENERATE(
 				table<uint64_t, uint64_t>({
@@ -584,7 +606,10 @@ TEST_CASE( "has_single_bit checks if value has a single bit set", "[bit]" )
 	REQUIRE(has_single_bit(input) == expected);
 }
 
-TEST_CASE( "bit_floor returns the largest power of two not greater than value", "[bit]" )
+TEST_CASE(
+	"bit_floor returns the largest power of two not greater than value",
+	"[bit]"
+)
 {
 	unsigned input, expected;
 	std::tie(input, expected) = GENERATE(
@@ -602,7 +627,10 @@ TEST_CASE( "bit_floor returns the largest power of two not greater than value", 
 	REQUIRE(bit_floor(input) == expected);
 }
 
-TEST_CASE( "bit_ceil returns the smallest power of two not less than value", "[bit]" )
+TEST_CASE(
+	"bit_ceil returns the smallest power of two not less than value",
+	"[bit]"
+)
 {
 	unsigned input, expected;
 	std::tie(input, expected) = GENERATE(
@@ -619,7 +647,10 @@ TEST_CASE( "bit_ceil returns the smallest power of two not less than value", "[b
 	REQUIRE(bit_ceil(input) == expected);
 }
 
-TEST_CASE( "bit_width returns the minimum number of bits to represent value", "[bit]" )
+TEST_CASE(
+	"bit_width returns the minimum number of bits to represent value",
+	"[bit]"
+)
 {
 	unsigned input;
 	int expected;

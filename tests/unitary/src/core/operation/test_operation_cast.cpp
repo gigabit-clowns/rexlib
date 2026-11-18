@@ -30,7 +30,10 @@ REXLIB_DECLARE_OPERATION_TRAITS(
 // Not final, so that the substitutability of a specialised operation can be
 // exercised.
 class cast_probe_operation
-	: public trivial_operation<cast_probe_operation, cast_probe_operation_traits>
+	: public trivial_operation<
+		cast_probe_operation,
+		cast_probe_operation_traits
+	>
 {
 public:
 	virtual int get_marker() const noexcept
@@ -61,67 +64,67 @@ REXLIB_DECLARE_OPERATION(
 } // anonymous namespace
 
 TEST_CASE(
-    "operation_cast should downcast a matching operation",
-    "[operation_cast]"
+	"operation_cast should downcast a matching operation",
+	"[operation_cast]"
 )
 {
-    const cast_probe_operation concrete;
-    const operation &op = concrete;
+	const cast_probe_operation concrete;
+	const operation &op = concrete;
 
-    CHECK( operation_cast<cast_probe_operation>(op).get_marker() == 1 );
-    CHECK( &operation_cast<cast_probe_operation>(op) == &concrete );
+	CHECK( operation_cast<cast_probe_operation>(op).get_marker() == 1 );
+	CHECK( &operation_cast<cast_probe_operation>(op) == &concrete );
 }
 
 TEST_CASE(
-    "operation_cast should reject an unrelated operation",
-    "[operation_cast]"
+	"operation_cast should reject an unrelated operation",
+	"[operation_cast]"
 )
 {
-    const other_probe_operation concrete;
-    const operation &op = concrete;
+	const other_probe_operation concrete;
+	const operation &op = concrete;
 
-    CHECK_THROWS_AS(
-        operation_cast<cast_probe_operation>(op),
-        std::invalid_argument
-    );
+	CHECK_THROWS_AS(
+		operation_cast<cast_probe_operation>(op),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
-    "operation_cast should name both operations when it rejects one",
-    "[operation_cast]"
+	"operation_cast should name both operations when it rejects one",
+	"[operation_cast]"
 )
 {
-    const other_probe_operation concrete;
-    const operation &op = concrete;
+	const other_probe_operation concrete;
+	const operation &op = concrete;
 
-    try
-    {
-        operation_cast<cast_probe_operation>(op);
-        FAIL( "expected the unrelated operation to be rejected" );
-    }
-    catch (const std::invalid_argument &error)
-    {
-        const std::string message = error.what();
-        using Catch::Matchers::ContainsSubstring;
-        CHECK_THAT( message, ContainsSubstring("cast_probe") );
-        CHECK_THAT( message, ContainsSubstring("other_probe") );
-    }
+	try
+	{
+		operation_cast<cast_probe_operation>(op);
+		FAIL( "expected the unrelated operation to be rejected" );
+	}
+	catch (const std::invalid_argument &error)
+	{
+		const std::string message = error.what();
+		using Catch::Matchers::ContainsSubstring;
+		CHECK_THAT( message, ContainsSubstring("cast_probe") );
+		CHECK_THAT( message, ContainsSubstring("other_probe") );
+	}
 }
 
 TEST_CASE(
-    "an operation should report the identity of the operation it refines",
-    "[operation_cast]"
+	"an operation should report the identity of the operation it refines",
+	"[operation_cast]"
 )
 {
-    const refined_cast_probe_operation refined;
-    const operation &op = refined;
+	const refined_cast_probe_operation refined;
+	const operation &op = refined;
 
-    // The identity binds an operation to the builders implementing it. A
-    // refinement that behaves as its base must therefore keep the base's
-    // identity, or it would silently match no builder at all.
-    CHECK( op.get_id() == operation_id::of<cast_probe_operation>() );
+	// The identity binds an operation to the builders implementing it. A
+	// refinement that behaves as its base must therefore keep the base's
+	// identity, or it would silently match no builder at all.
+	CHECK( op.get_id() == operation_id::of<cast_probe_operation>() );
 
-    // And the downcast must follow, reaching the refined behaviour through
-    // the base the builder asked for.
-    CHECK( operation_cast<cast_probe_operation>(op).get_marker() == 2 );
+	// And the downcast must follow, reaching the refined behaviour through
+	// the base the builder asked for.
+	CHECK( operation_cast<cast_probe_operation>(op).get_marker() == 2 );
 }

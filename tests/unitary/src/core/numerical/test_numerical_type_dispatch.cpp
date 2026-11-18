@@ -11,7 +11,10 @@
 
 using namespace rexlib;
 
-TEST_CASE("dispatch_numerical_types called with a single argument and default mapping should invoke an appropriately typed function")
+TEST_CASE(
+	"dispatch_numerical_types called with a single argument and default "
+	"mapping should invoke an appropriately typed function"
+)
 {
 	numerical_type type;
 	std::type_index expected_type(typeid(void));
@@ -52,7 +55,10 @@ TEST_CASE("dispatch_numerical_types called with a single argument and default ma
 	CHECK( ret == expected_ret );
 }
 
-TEST_CASE("dispatch_numerical_types called with a two arguments and default mapping should invoke an appropriately typed function")
+TEST_CASE(
+	"dispatch_numerical_types called with a two arguments and default mapping "
+	"should invoke an appropriately typed function"
+)
 {
 	std::array<numerical_type, 2> types;
 	std::array<std::type_index, 2> expected_types = {
@@ -77,9 +83,18 @@ TEST_CASE("dispatch_numerical_types called with a two arguments and default mapp
 				{ numerical_type::float16, typeid(float16_t)},
 				{ numerical_type::float32, typeid(float32_t)},
 				{ numerical_type::float64, typeid(float64_t)},
-				{ numerical_type::complex_float16, typeid(std::complex<float16_t>)},
-				{ numerical_type::complex_float32, typeid(std::complex<float32_t>)},
-				{ numerical_type::complex_float64, typeid(std::complex<float64_t>)}
+				{
+					numerical_type::complex_float16,
+					typeid(std::complex<float16_t>)
+				},
+				{
+					numerical_type::complex_float32,
+					typeid(std::complex<float32_t>)
+				},
+				{
+					numerical_type::complex_float64,
+					typeid(std::complex<float64_t>)
+				}
 			})
 		);
 	}
@@ -117,4 +132,3 @@ TEST_CASE("dispatch_numerical_types called with an invalid type should throw")
 		)
 	);
 }
-

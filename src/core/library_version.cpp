@@ -2,6 +2,8 @@
 
 #include <rexlib/core/library_version.hpp>
 
+#include <rexlib/core/version_macros.h>
+
 namespace rexlib
 {
 

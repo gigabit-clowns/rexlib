@@ -89,7 +89,9 @@ stride_kind stride_classify(T) noexcept
 struct recording_visitor
 {
 	template <typename... Tags>
-	std::vector<stride_info> operator()(const std::tuple<Tags...> &strides) const
+	std::vector<stride_info> operator()(
+		const std::tuple<Tags...> &strides
+	) const
 	{
 		std::vector<stride_info> result;
 		record(result, strides, std::index_sequence_for<Tags...>());
@@ -240,8 +242,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"dispatch_inner_loop_strides with a rank-0 layout invokes the callable with "
-	"broadcasting tags for every operand",
+	"dispatch_inner_loop_strides with a rank-0 layout invokes the callable "
+	"with broadcasting tags for every operand",
 	"[inner_loop_stride_dispatch]"
 )
 {

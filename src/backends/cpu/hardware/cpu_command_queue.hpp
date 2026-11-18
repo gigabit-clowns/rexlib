@@ -35,7 +35,12 @@ public:
 	 * @throws std::invalid_argument If @p pool is null.
 	 */
 	explicit cpu_command_queue(std::shared_ptr<thread_pool> pool);
+	cpu_command_queue(const cpu_command_queue &other) = delete;
+	cpu_command_queue(cpu_command_queue &&other) = delete;
 	~cpu_command_queue() override = default;
+
+	cpu_command_queue& operator=(const cpu_command_queue &other) = delete;
+	cpu_command_queue& operator=(cpu_command_queue &&other) = delete;
 
 	command_token submit(command cmd) override;
 

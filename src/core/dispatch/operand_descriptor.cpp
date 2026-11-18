@@ -27,8 +27,7 @@ const memory_resource* get_memory_resource(const buffer *storage)
 } // anonymous namespace
 
 operand_descriptor::operand_descriptor() noexcept
-	: m_descriptor()
-	, m_memory_region(nullptr)
+	: m_memory_region(nullptr)
 {
 }
 

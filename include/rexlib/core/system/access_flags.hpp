@@ -8,7 +8,7 @@
 
 #include <ostream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 enum class access_flag_bits {
@@ -24,11 +24,14 @@ REXLIB_INLINE_CONST_CONSTEXPR access_flags read_write(
 	{access_flag_bits::read, access_flag_bits::write}
 );
 
-REXLIB_CONSTEXPR 
+REXLIB_CONSTEXPR
 const char* to_string(access_flag_bits v) noexcept;
 
 template<typename T>
-std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, access_flag_bits v);
+std::basic_ostream<T>& operator<<(
+	std::basic_ostream<T>& os,
+	access_flag_bits v
+);
 
 } // namespace rexlib
 

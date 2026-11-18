@@ -39,7 +39,7 @@ public:
 	 *
 	 * Depending on the memory architecture of the device, resulting allocators
 	 * may alias each other.
-	 * 
+	 *
 	 * @param dev Device for which allocators are instantiated.
 	 *
 	 * @throws std::runtime_error if a required memory_resource_affinity

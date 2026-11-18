@@ -165,8 +165,10 @@ TEST_CASE(
 
 	parallel_for(pool, count, 1, body);
 
-	CHECK( std::count(visits.cbegin(), visits.cend(), 1) ==
-	       static_cast<std::ptrdiff_t>(count) );
+	CHECK(
+		std::count(visits.cbegin(), visits.cend(), 1) ==
+		static_cast<std::ptrdiff_t>(count)
+	);
 }
 
 TEST_CASE(

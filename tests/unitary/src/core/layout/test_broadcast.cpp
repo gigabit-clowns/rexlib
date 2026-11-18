@@ -190,7 +190,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"broadcast_extents_accumulate into an empty result takes the shape of other",
+	"broadcast_extents_accumulate into an empty result takes the shape of "
+	"other",
 	"[broadcast]"
 )
 {
@@ -392,7 +393,9 @@ TEST_CASE(
 	const std::vector<std::size_t> from_extents = {1, 4, 3};
 	const std::vector<std::size_t> to_extents   = {5, 4, 3};
 
-	CHECK( is_broadcastable_to(make_span(from_extents), make_span(to_extents)) );
+	CHECK(
+		is_broadcastable_to(make_span(from_extents), make_span(to_extents))
+	);
 	CHECK_FALSE(
 		is_broadcastable_to(make_span(to_extents), make_span(from_extents))
 	);

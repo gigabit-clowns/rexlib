@@ -10,7 +10,8 @@ namespace rexlib
 {
 
 type_rule_resolution::type_rule_resolution() noexcept
-	: m_pivot_count(0)
+	: m_pivots()
+	, m_pivot_count(0)
 	, m_status(type_rule_status::ok)
 	, m_operand_index(0)
 	, m_output_operand(false)

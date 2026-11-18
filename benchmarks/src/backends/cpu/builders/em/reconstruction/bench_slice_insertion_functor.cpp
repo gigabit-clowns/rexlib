@@ -12,6 +12,7 @@
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
+// editorconfig-checker-disable-next-line
 #include <backends/cpu/builders/em/reconstruction/fixtures/slice_insertion_cases.hpp>
 
 #include <array>

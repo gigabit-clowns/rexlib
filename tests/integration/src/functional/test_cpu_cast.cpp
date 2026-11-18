@@ -47,7 +47,8 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	cpu_execution_context_fixture,
-	"cast converts the elements into an independent array when the type differs",
+	"cast converts the elements into an independent array when the type "
+	"differs",
 	"[array_cast][cpu]"
 )
 {

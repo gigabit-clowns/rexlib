@@ -4,6 +4,7 @@ target_sources(
 	rexlib-unitary-tests
 	PRIVATE
 		test_load_store.cpp
+		test_cpu_plugin.cpp
 		test_cpu_program_builder.cpp
 )
 

@@ -25,13 +25,17 @@ core_layout_kind classify_core_layout(
 			: core_layout_kind::generic;
 	}
 
-	if (core.get_stride(1) == 1 &&
-	    core.get_stride(0) == static_cast<std::ptrdiff_t>(core.get_extent(1)))
+	if (
+		core.get_stride(1) == 1 &&
+		core.get_stride(0) == static_cast<std::ptrdiff_t>(core.get_extent(1))
+	)
 	{
 		return core_layout_kind::row_major_contiguous;
 	}
-	if (core.get_stride(0) == 1 &&
-	    core.get_stride(1) == static_cast<std::ptrdiff_t>(core.get_extent(0)))
+	if (
+		core.get_stride(0) == 1 &&
+		core.get_stride(1) == static_cast<std::ptrdiff_t>(core.get_extent(0))
+	)
 	{
 		return core_layout_kind::column_major_contiguous;
 	}
@@ -40,14 +44,16 @@ core_layout_kind classify_core_layout(
 
 bool is_row_major_compatible(core_layout_kind kind) noexcept
 {
-	return kind == core_layout_kind::row_major_contiguous ||
-	       kind == core_layout_kind::vector_contiguous;
+	return
+		kind == core_layout_kind::row_major_contiguous ||
+		kind == core_layout_kind::vector_contiguous;
 }
 
 bool is_column_major_compatible(core_layout_kind kind) noexcept
 {
-	return kind == core_layout_kind::column_major_contiguous ||
-	       kind == core_layout_kind::vector_contiguous;
+	return
+		kind == core_layout_kind::column_major_contiguous ||
+		kind == core_layout_kind::vector_contiguous;
 }
 
 operand_core pad_as_column(const operand_core &vector_core) noexcept

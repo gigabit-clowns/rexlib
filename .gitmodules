@@ -1,0 +1,290 @@
+[submodule "third_party/pocketfft"]
+	path = third_party/pocketfft
+	url = https://github.com/mreineck/pocketfft.git
+	branch = cpp
+	shallow = true
+[submodule "third_party/spdlog"]
+	path = third_party/spdlog
+	url = https://github.com/gabime/spdlog.git
+	branch = v1.17.0
+	shallow = true
+[submodule "third_party/eigen"]
+	path = third_party/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+	branch = 5.0.1
+	shallow = true
+[submodule "third_party/catch2"]
+	path = third_party/catch2
+	url = https://github.com/catchorg/Catch2.git
+	branch = v3.16.1
+	shallow = true
+[submodule "third_party/trompeloeil"]
+	path = third_party/trompeloeil
+	url = https://github.com/rollbear/trompeloeil.git
+	branch = v49
+	shallow = true
+[submodule "third_party/dlpack"]
+	path = third_party/dlpack
+	url = https://github.com/dmlc/dlpack.git
+	branch = v1.4
+	shallow = true
+[submodule "plugins/cuda/third_party/spdlog"]
+	path = plugins/cuda/third_party/spdlog
+	url = https://github.com/gabime/spdlog.git
+	branch = v1.17.0
+	shallow = true
+[submodule "plugins/cuda/third_party/catch2"]
+	path = plugins/cuda/third_party/catch2
+	url = https://github.com/catchorg/Catch2.git
+	branch = v3.16.1
+	shallow = true
+[submodule "plugins/cuda/third_party/trompeloeil"]
+	path = plugins/cuda/third_party/trompeloeil
+	url = https://github.com/rollbear/trompeloeil.git
+	branch = v49
+	shallow = true
+[submodule "third_party/boost/libs/align"]
+	path = third_party/boost/libs/align
+	url = https://github.com/boostorg/align.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/assert"]
+	path = third_party/boost/libs/assert
+	url = https://github.com/boostorg/assert.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/atomic"]
+	path = third_party/boost/libs/atomic
+	url = https://github.com/boostorg/atomic.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/compat"]
+	path = third_party/boost/libs/compat
+	url = https://github.com/boostorg/compat.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/concept_check"]
+	path = third_party/boost/libs/concept_check
+	url = https://github.com/boostorg/concept_check.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/config"]
+	path = third_party/boost/libs/config
+	url = https://github.com/boostorg/config.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/container"]
+	path = third_party/boost/libs/container
+	url = https://github.com/boostorg/container.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/container_hash"]
+	path = third_party/boost/libs/container_hash
+	url = https://github.com/boostorg/container_hash.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/core"]
+	path = third_party/boost/libs/core
+	url = https://github.com/boostorg/core.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/describe"]
+	path = third_party/boost/libs/describe
+	url = https://github.com/boostorg/describe.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/detail"]
+	path = third_party/boost/libs/detail
+	url = https://github.com/boostorg/detail.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/filesystem"]
+	path = third_party/boost/libs/filesystem
+	url = https://github.com/boostorg/filesystem.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/function_types"]
+	path = third_party/boost/libs/function_types
+	url = https://github.com/boostorg/function_types.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/fusion"]
+	path = third_party/boost/libs/fusion
+	url = https://github.com/boostorg/fusion.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/intrusive"]
+	path = third_party/boost/libs/intrusive
+	url = https://github.com/boostorg/intrusive.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/io"]
+	path = third_party/boost/libs/io
+	url = https://github.com/boostorg/io.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/iterator"]
+	path = third_party/boost/libs/iterator
+	url = https://github.com/boostorg/iterator.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/move"]
+	path = third_party/boost/libs/move
+	url = https://github.com/boostorg/move.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/mp11"]
+	path = third_party/boost/libs/mp11
+	url = https://github.com/boostorg/mp11.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/mpl"]
+	path = third_party/boost/libs/mpl
+	url = https://github.com/boostorg/mpl.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/optional"]
+	path = third_party/boost/libs/optional
+	url = https://github.com/boostorg/optional.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/predef"]
+	path = third_party/boost/libs/predef
+	url = https://github.com/boostorg/predef.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/preprocessor"]
+	path = third_party/boost/libs/preprocessor
+	url = https://github.com/boostorg/preprocessor.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/scope"]
+	path = third_party/boost/libs/scope
+	url = https://github.com/boostorg/scope.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/smart_ptr"]
+	path = third_party/boost/libs/smart_ptr
+	url = https://github.com/boostorg/smart_ptr.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/system"]
+	path = third_party/boost/libs/system
+	url = https://github.com/boostorg/system.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/throw_exception"]
+	path = third_party/boost/libs/throw_exception
+	url = https://github.com/boostorg/throw_exception.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/tuple"]
+	path = third_party/boost/libs/tuple
+	url = https://github.com/boostorg/tuple.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/type_traits"]
+	path = third_party/boost/libs/type_traits
+	url = https://github.com/boostorg/type_traits.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/typeof"]
+	path = third_party/boost/libs/typeof
+	url = https://github.com/boostorg/typeof.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/utility"]
+	path = third_party/boost/libs/utility
+	url = https://github.com/boostorg/utility.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/variant2"]
+	path = third_party/boost/libs/variant2
+	url = https://github.com/boostorg/variant2.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/winapi"]
+	path = third_party/boost/libs/winapi
+	url = https://github.com/boostorg/winapi.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/tools/cmake"]
+	path = third_party/boost/tools/cmake
+	url = https://github.com/boostorg/cmake.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/assert"]
+	path = plugins/cuda/third_party/boost/libs/assert
+	url = https://github.com/boostorg/assert.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/config"]
+	path = plugins/cuda/third_party/boost/libs/config
+	url = https://github.com/boostorg/config.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/container"]
+	path = plugins/cuda/third_party/boost/libs/container
+	url = https://github.com/boostorg/container.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/container_hash"]
+	path = plugins/cuda/third_party/boost/libs/container_hash
+	url = https://github.com/boostorg/container_hash.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/core"]
+	path = plugins/cuda/third_party/boost/libs/core
+	url = https://github.com/boostorg/core.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/describe"]
+	path = plugins/cuda/third_party/boost/libs/describe
+	url = https://github.com/boostorg/describe.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/intrusive"]
+	path = plugins/cuda/third_party/boost/libs/intrusive
+	url = https://github.com/boostorg/intrusive.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/move"]
+	path = plugins/cuda/third_party/boost/libs/move
+	url = https://github.com/boostorg/move.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/mp11"]
+	path = plugins/cuda/third_party/boost/libs/mp11
+	url = https://github.com/boostorg/mp11.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/predef"]
+	path = plugins/cuda/third_party/boost/libs/predef
+	url = https://github.com/boostorg/predef.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/throw_exception"]
+	path = plugins/cuda/third_party/boost/libs/throw_exception
+	url = https://github.com/boostorg/throw_exception.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/unordered"]
+	path = plugins/cuda/third_party/boost/libs/unordered
+	url = https://github.com/boostorg/unordered.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/tools/cmake"]
+	path = plugins/cuda/third_party/boost/tools/cmake
+	url = https://github.com/boostorg/cmake.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "third_party/boost/libs/headers"]
+	path = third_party/boost/libs/headers
+	url = https://github.com/boostorg/headers.git
+	branch = boost-1.92.0
+	shallow = true
+[submodule "plugins/cuda/third_party/boost/libs/headers"]
+	path = plugins/cuda/third_party/boost/libs/headers
+	url = https://github.com/boostorg/headers.git
+	branch = boost-1.92.0
+	shallow = true

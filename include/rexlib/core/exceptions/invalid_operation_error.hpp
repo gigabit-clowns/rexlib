@@ -6,7 +6,7 @@
 
 #include <rexlib/core/platform/dynamic_shared_object.h>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**

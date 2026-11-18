@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+# trompeloeil holds one lock of its own through every mocked call, its
+# actions included. A case that calls back into the code under test from a
+# mocked call, as one does to record while a wait is under way, takes that
+# code's lock under trompeloeil's, which the thread sanitizer reports as an
+# inversion. That lock exists only in the tests, so no cycle through it can
+# happen outside them.
+deadlock:trompeloeil::get_lock

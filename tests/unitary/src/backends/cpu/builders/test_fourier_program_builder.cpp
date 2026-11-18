@@ -318,7 +318,7 @@ TEST_CASE(
 {
 	// The operation admits it and this backend does not, so the answer is a
 	// refusal to build rather than a failure to, which is what lets the
-	// manager look for a backend that can.
+	// program service look for a backend that can.
 	const fft_builder builder;
 	const ops::fft_operation operation{ ops::axis_list{ 0 } };
 	cpu_command_queue queue(get_serial_pool());

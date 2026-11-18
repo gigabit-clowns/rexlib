@@ -135,9 +135,10 @@ public:
 	 *
 	 * Buffers aligned to this boundary typically yield the best
 	 * throughput on this device (e.g. SIMD width on CPUs, coalesced
-	 * access boundary on GPUs). The value should be a power of two.
+	 * access boundary on GPUs).
 	 *
 	 * @param[in] alignment The optimal data alignment in bytes.
+	 * @throws std::invalid_argument If @p alignment is not a power of two.
 	 */
 	REXLIB_API
 	void set_optimal_data_alignment(std::size_t alignment);
@@ -145,8 +146,8 @@ public:
 	/**
 	 * @brief Get the optimal data alignment.
 	 *
-	 * @return std::size_t The optimal data alignment in bytes, or zero
-	 * if no value has been set.
+	 * @return std::size_t The optimal data alignment in bytes, a power of
+	 * two. It is alignof(std::max_align_t) if no value has been set.
 	 */
 	REXLIB_API
 	std::size_t get_optimal_data_alignment() const noexcept;

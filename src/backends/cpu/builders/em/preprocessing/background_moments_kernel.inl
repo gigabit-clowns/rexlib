@@ -147,7 +147,7 @@ void background_moments_kernel::finalize(
 template <typename T, typename Stride>
 inline
 void background_moments_kernel::fold(
-	std::size_t &count,
+	std::size_t &total,
 	double &sum,
 	double &sum_of_squares,
 	const T *value,
@@ -198,7 +198,7 @@ void background_moments_kernel::fold(
 
 	for (std::size_t lane = 0; lane < counts.size(); ++lane)
 	{
-		count += counts[lane];
+		total += counts[lane];
 		sum += sums[lane];
 		sum_of_squares += squares[lane];
 	}

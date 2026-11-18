@@ -21,10 +21,10 @@ namespace rexlib
 namespace cpu
 {
 
-static const char REXLIB_NUM_THREADS_ENV_VARIABLE[] = "REXLIB_NUM_THREADS";
-
 namespace
 {
+
+const char *const thread_count_environment_variable = "REXLIB_NUM_THREADS";
 
 /**
  * @brief Compute the half-open range of iterations one chunk covers.
@@ -71,10 +71,14 @@ public:
 	thread_pool_implementation(
 		const thread_pool_implementation &other
 	) = delete;
+	thread_pool_implementation(thread_pool_implementation &&other) = delete;
 	~thread_pool_implementation();
 
 	thread_pool_implementation& operator=(
 		const thread_pool_implementation &other
+	) = delete;
+	thread_pool_implementation& operator=(
+		thread_pool_implementation &&other
 	) = delete;
 
 	std::size_t get_size() const noexcept;
@@ -208,11 +212,14 @@ void thread_pool_implementation::run(
 		// running inline is the only answer that does not wait on the very
 		// threads that are waiting on it: this is what makes nesting safe,
 		// without a caller having to know that it is nested.
-		std::unique_lock<std::mutex> job_lock(m_job_mutex, std::try_to_lock);
+		const std::unique_lock<std::mutex> job_lock(
+			m_job_mutex,
+			std::try_to_lock
+		);
 		if (job_lock.owns_lock())
 		{
 			{
-				std::lock_guard<std::mutex> lock(m_mutex);
+				const std::lock_guard<std::mutex> lock(m_mutex);
 				m_count = count;
 				m_chunk_count = chunk_count;
 				m_next_chunk = 0;
@@ -233,7 +240,7 @@ void thread_pool_implementation::run(
 				std::unique_lock<std::mutex> lock(m_mutex);
 				m_done.wait(
 					lock,
-					[this] ()
+					[this]
 					{
 						return is_job_finished();
 					}
@@ -270,7 +277,7 @@ void thread_pool_implementation::work()
 			// without sleeping, and what makes a spurious wake-up harmless.
 			m_wake.wait(
 				lock,
-				[this, seen] ()
+				[this, seen]
 				{
 					return m_stop || m_generation != seen;
 				}
@@ -290,7 +297,7 @@ void thread_pool_implementation::work()
 
 void thread_pool_implementation::run_chunks()
 {
-	chunk_work work;
+	chunk_work work{};
 	while (claim(work))
 	{
 		std::exception_ptr exception;
@@ -309,7 +316,7 @@ void thread_pool_implementation::run_chunks()
 
 bool thread_pool_implementation::claim(chunk_work &work)
 {
-	std::lock_guard<std::mutex> lock(m_mutex);
+	const std::lock_guard<std::mutex> lock(m_mutex);
 
 	// A chunk that has not been claimed by the time another one has thrown is
 	// abandoned: the job has no answer left to produce.
@@ -338,9 +345,9 @@ void thread_pool_implementation::finish_chunk(
 	std::exception_ptr exception
 )
 {
-	bool finished;
+	bool finished = false;
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
+		const std::lock_guard<std::mutex> lock(m_mutex);
 
 		if (exception)
 		{
@@ -373,7 +380,7 @@ bool thread_pool_implementation::is_job_finished() const noexcept
 void thread_pool_implementation::stop_and_join() noexcept
 {
 	{
-		std::lock_guard<std::mutex> lock(m_mutex);
+		const std::lock_guard<std::mutex> lock(m_mutex);
 		m_stop = true;
 	}
 	m_wake.notify_all();
@@ -425,8 +432,9 @@ std::size_t thread_pool::get_default_worker_count()
 		participants = 1;
 	}
 
-	const char* environment_variable;
-	if ((environment_variable = std::getenv(REXLIB_NUM_THREADS_ENV_VARIABLE)))
+	const char *const environment_variable =
+		std::getenv(thread_count_environment_variable);
+	if (environment_variable)
 	{
 		char *end = nullptr;
 		const auto parsed = std::strtoul(environment_variable, &end, 10);
@@ -438,7 +446,7 @@ std::size_t thread_pool::get_default_worker_count()
 		{
 			REXLIB_LOG_WARN(
 				"Ignoring {}=\"{}\": expected a positive integer.",
-				REXLIB_NUM_THREADS_ENV_VARIABLE,
+				thread_count_environment_variable,
 				environment_variable
 			);
 		}

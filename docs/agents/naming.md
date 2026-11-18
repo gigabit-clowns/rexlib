@@ -13,7 +13,7 @@ backend, and `host_buffer` and `eager_dispatcher` implement `buffer` and
 
 The name stands on its own, without the namespace around it. A backend keeps
 its code in a namespace of its own, `rexlib::cpu` here and `rexlib::cuda` in
-[rexlib-cuda](https://github.com/gigabit-clowns/rexlib-cuda), so that its
+`plugins/cuda/`, so that its
 helpers cannot clash with those of another backend loaded into the same
 process; that namespace is never what tells an implementation from its
 interface. So the CPU device is `rexlib::cpu::cpu_device`, and inside the

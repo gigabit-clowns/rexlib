@@ -10,14 +10,14 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class strided_layout_implementation
 {
 public:
 	using strided_axis_vector_type = boost::container::small_vector<
-		strided_axis, 
+		strided_axis,
 		REXLIB_SMALL_AXIS_COUNT
 	>;
 
@@ -25,12 +25,12 @@ public:
 
 	strided_layout_implementation(
 		const strided_axis_vector_type &axes,
-		std::ptrdiff_t offset 
+		std::ptrdiff_t offset
 	);
 
 	strided_layout_implementation(
 		strided_axis_vector_type &&axes,
-		std::ptrdiff_t offset 
+		std::ptrdiff_t offset
 	) noexcept;
 
 	friend bool operator==(
@@ -93,12 +93,12 @@ public:
 	strided_layout_implementation permute(span<const std::size_t> order) const;
 
 	strided_layout_implementation matrix_transpose(
-		std::ptrdiff_t axis1, 
+		std::ptrdiff_t axis1,
 		std::ptrdiff_t axis2
 	) const;
 
 	strided_layout_implementation matrix_diagonal(
-		std::ptrdiff_t axis1, 
+		std::ptrdiff_t axis1,
 		std::ptrdiff_t axis2
 	) const;
 

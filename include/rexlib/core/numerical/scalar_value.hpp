@@ -37,7 +37,8 @@ public:
 	/**
 	 * @brief Construct a new scalar value object holding a copy of the input.
 	 *
-	 * @tparam T Type of the value. It must be representable by a numerical_type.
+	 * @tparam T Type of the value. It must be representable by a
+	 * numerical_type.
 	 * @param value The value to be copied.
 	 */
 	template <typename T>

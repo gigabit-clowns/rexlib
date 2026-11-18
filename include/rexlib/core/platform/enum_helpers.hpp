@@ -4,7 +4,8 @@
 
 /**
  * @def REXLIB_ENUM_TO_STR_CASE(ns, x)
- * @brief Generate a switch-case arm that returns the stringified enum value name.
+ * @brief Generate a switch-case arm that returns the stringified
+ * enum value name.
  *
  * Expands to: `case ns::x: return "x"`;
  *

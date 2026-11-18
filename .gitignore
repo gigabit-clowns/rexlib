@@ -35,6 +35,23 @@
 build
 CMakeUserPresets.json
 
+# Compiler cache
+.ccache
+
+# vcpkg's install tree and packages
+.vcpkg
+
+# Python
+__pycache__/
+*.pyc
+*.pyd
+.venv
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+coverage.xml
+
 # VS Code
 .vscode
 

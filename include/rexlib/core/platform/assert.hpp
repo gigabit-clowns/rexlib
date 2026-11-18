@@ -5,8 +5,8 @@
 #include <cassert>
 
 /**
- * @brief Custom assert that allows optimization 
+ * @brief Custom assert that allows optimization
  * in release builds
- * 
+ *
  */
 #define REXLIB_ASSERT(expr) assert(expr)

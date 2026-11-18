@@ -14,16 +14,26 @@ TEST_CASE(
 )
 {
 	CHECK( std::string(to_string(type_rule_status::ok)) == "ok" );
-	CHECK( std::string(to_string(type_rule_status::invalid_type)) ==
-	       "invalid type" );
-	CHECK( std::string(to_string(type_rule_status::domain_violation)) ==
-	       "domain violation" );
-	CHECK( std::string(to_string(type_rule_status::undefined_transform)) ==
-	       "undefined transform" );
-	CHECK( std::string(to_string(type_rule_status::slot_mismatch)) ==
-	       "slot mismatch" );
-	CHECK( std::string(to_string(type_rule_status::unresolved_pivot)) ==
-	       "unresolved pivot" );
+	CHECK(
+		std::string(to_string(type_rule_status::invalid_type)) ==
+		"invalid type"
+	);
+	CHECK(
+		std::string(to_string(type_rule_status::domain_violation)) ==
+		"domain violation"
+	);
+	CHECK(
+		std::string(to_string(type_rule_status::undefined_transform)) ==
+		"undefined transform"
+	);
+	CHECK(
+		std::string(to_string(type_rule_status::slot_mismatch)) ==
+		"slot mismatch"
+	);
+	CHECK(
+		std::string(to_string(type_rule_status::unresolved_pivot)) ==
+		"unresolved pivot"
+	);
 	CHECK(
 		std::string(to_string(type_rule_status::operand_count_mismatch)) ==
 		"operand count mismatch"

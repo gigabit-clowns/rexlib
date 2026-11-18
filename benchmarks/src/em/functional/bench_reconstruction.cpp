@@ -7,11 +7,11 @@
 
 #include <rexlib/core/dispatch/dispatcher.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/hardware/device_context.hpp>
 #include <rexlib/core/hardware/device_index.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/memory_resource_affinity.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
@@ -43,8 +43,8 @@ class cpu_context
 public:
 	cpu_context()
 	{
-		const auto devices = m_catalog.get_service_manager<device_manager>();
-		const auto programs = m_catalog.get_service_manager<program_manager>();
+		const auto devices = m_catalog.get_service<device_service>();
+		const auto programs = m_catalog.get_service<program_service>();
 		const auto session =
 			devices->create_device_session(device_index("cpu", 0));
 		m_context = execution_context(

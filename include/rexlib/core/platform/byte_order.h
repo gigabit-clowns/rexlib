@@ -16,13 +16,13 @@
 
 /**
  * @brief Constant representing little endian byte ordering
- * 
+ *
  */
 #define REXLIB_BYTE_ORDER_LITTLE_ENDIAN 1
 
 /**
  * @brief Constant representing big endian byte ordering
- * 
+ *
  */
 #define REXLIB_BYTE_ORDER_BIG_ENDIAN 2
 
@@ -44,7 +44,7 @@
 	#define REXLIB_BYTE_ORDER REXLIB_BYTE_ORDER_BIG_ENDIAN
 
 // Detect for Windows
-#elif defined(REXLIB_WINDOWS)
+#elif REXLIB_WINDOWS
 	#include <Windows.h>
 	#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
 		#define REXLIB_BYTE_ORDER REXLIB_BYTE_ORDER_LITTLE_ENDIAN
@@ -52,7 +52,7 @@
 		#define REXLIB_BYTE_ORDER REXLIB_BYTE_ORDER_BIG_ENDIAN
 	#endif
 
-// Failed detecting 
+// Failed detecting
 #else
 	#error "Could not determine byte ordering"
 #endif

@@ -9,7 +9,7 @@
 
 #ifndef REXLIB_TEST_ASSET_ROOT
 	#error "REXLIB_TEST_ASSET_ROOT is not defined. Link against " \
-	       "rexlib-test-assets-interface to consume the shared test assets."
+		"rexlib-test-assets-interface to consume the shared test assets."
 #endif
 
 namespace rexlib
@@ -20,23 +20,41 @@ inline std::string get_asset_root()
 	return REXLIB_TEST_ASSET_ROOT;
 }
 
-inline std::string get_text_file_path()
+inline std::string get_path_separator()
 {
 	#if REXLIB_WINDOWS
-		return get_asset_root() + "\\" + "lorem_ipsum.txt";
+		return "\\";
 	#elif REXLIB_APPLE || REXLIB_LINUX
-		return get_asset_root() + "/" + "lorem_ipsum.txt";
+		return "/";
 	#else
 		#error "Unknown platform"
 	#endif
 }
 
+inline std::string get_text_file_path()
+{
+	return get_asset_root() + get_path_separator() + "lorem_ipsum.txt";
+}
+
 inline std::string get_test_plugin_directory()
 {
-	#if REXLIB_WINDOWS
-		return get_asset_root() + "\\plugins";
+	return get_asset_root() + get_path_separator() + "plugins";
+}
+
+// Holds a copy of the dummy plugin, under the name plugins-ñ written in UTF-8.
+inline std::string get_non_ascii_test_plugin_directory()
+{
+	return get_asset_root() + get_path_separator() + "plugins-\xc3\xb1";
+}
+
+inline std::string get_mock_plugin_file_name(const std::string &name)
+{
+	#if REXLIB_WINDOWS && !REXLIB_MINGW
+		return name + ".dll";
+	#elif REXLIB_WINDOWS
+		return "lib" + name + ".dll";
 	#elif REXLIB_APPLE || REXLIB_LINUX
-		return get_asset_root() + "/plugins";
+		return "lib" + name + ".so";
 	#else
 		#error "Unknown platform"
 	#endif
@@ -44,18 +62,8 @@ inline std::string get_test_plugin_directory()
 
 inline std::string get_mock_plugin_path(const std::string &name)
 {
-
-	#if REXLIB_WINDOWS
-		#if REXLIB_MINGW
-			return get_asset_root() + "\\plugins\\lib" + name + ".dll";
-		#else
-			return get_asset_root() + "\\plugins\\" + name + ".dll";
-		#endif
-	#elif REXLIB_APPLE || REXLIB_LINUX
-		return get_asset_root() + "/plugins/lib" + name + ".so";
-	#else
-		#error "Unknown platform"
-	#endif
+	return get_test_plugin_directory() + get_path_separator() +
+		get_mock_plugin_file_name(name);
 }
 
 } // namespace rexlib

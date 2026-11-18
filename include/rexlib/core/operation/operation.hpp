@@ -25,7 +25,7 @@ public:
 	operation() noexcept;
 	operation(const operation &other) = delete;
 	operation(operation &&other) = delete;
-    virtual ~operation();
+	virtual ~operation();
 
 	operation& operator=(const operation &other) = delete;
 	operation& operator=(operation &&other) = delete;

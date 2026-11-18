@@ -70,7 +70,9 @@ TEST_CASE(
 	STATIC_CHECK( type_rule_accessors<pair_rule>::operation_pivot_count == 2 );
 
 	const auto pivots =
-		type_rule_accessors<pair_rule>::get_operation_data_types(test_parameters());
+		type_rule_accessors<pair_rule>::get_operation_data_types(
+			test_parameters()
+		);
 	CHECK( pivots[0] == numerical_type::float32 );
 	CHECK( pivots[1] == numerical_type::int8 );
 }

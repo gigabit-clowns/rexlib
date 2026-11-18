@@ -4,7 +4,7 @@
 
 #include "dynamic_library_handle.hpp"
 
-#include <sstream>
+#include <utility>
 
 namespace rexlib
 {
@@ -71,8 +71,17 @@ void dynamic_library::close() noexcept
 	}
 }
 
+void dynamic_library::release() noexcept
+{
+	m_handle = nullptr;
+}
+
 void* dynamic_library::get_symbol(const char* name) const noexcept
 {
+	if (m_handle == nullptr)
+	{
+		return nullptr;
+	}
 	return dynamic_library_get_symbol(m_handle, name);
 }
 

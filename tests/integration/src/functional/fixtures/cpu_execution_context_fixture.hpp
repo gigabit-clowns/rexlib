@@ -6,12 +6,12 @@
 
 #include <rexlib/core/service_catalog.hpp>
 #include <rexlib/core/dispatch/execution_context.hpp>
-#include <rexlib/core/dispatch/program_manager.hpp>
+#include <rexlib/core/dispatch/program_service.hpp>
 #include <rexlib/core/dispatch/dispatcher.hpp>
 #include <rexlib/core/ndarray/array.hpp>
 #include <rexlib/core/ndarray/array_descriptor.hpp>
 #include <rexlib/core/layout/strided_layout.hpp>
-#include <rexlib/core/hardware/device_manager.hpp>
+#include <rexlib/core/hardware/device_service.hpp>
 #include <rexlib/core/hardware/device_index.hpp>
 #include <rexlib/core/hardware/device_context.hpp>
 #include <rexlib/core/hardware/buffer.hpp>
@@ -29,16 +29,16 @@ class cpu_execution_context_fixture
 public:
 	cpu_execution_context_fixture()
 	{
-		const auto device_manager =
-			catalog.get_service_manager<rexlib::device_manager>();
-		const auto session = device_manager->create_device_session(
+		const auto device_service =
+			catalog.get_service<rexlib::device_service>();
+		const auto session = device_service->create_device_session(
 			device_index("cpu", 0)
 		);
-		const auto program_manager =
-			catalog.get_service_manager<rexlib::program_manager>();
+		const auto program_service =
+			catalog.get_service<rexlib::program_service>();
 		context = execution_context(
 			device_context(session),
-			make_eager_dispatcher(program_manager)
+			make_eager_dispatcher(program_service)
 		);
 	}
 

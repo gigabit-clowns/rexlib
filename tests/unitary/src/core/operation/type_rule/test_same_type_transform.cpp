@@ -27,12 +27,18 @@ TEST_CASE(
 	"[same_type_transform]"
 )
 {
-	CHECK( same_type_transform::domain_type::get() ==
-	       numerical_type_domain::all() );
-	CHECK( same_type_transform::apply(numerical_type::int8) ==
-	       numerical_type::int8 );
-	CHECK( same_type_transform::apply(numerical_type::complex_float64) ==
-	       numerical_type::complex_float64 );
+	CHECK(
+		same_type_transform::domain_type::get() ==
+		numerical_type_domain::all()
+	);
+	CHECK(
+		same_type_transform::apply(numerical_type::int8) ==
+		numerical_type::int8
+	);
+	CHECK(
+		same_type_transform::apply(numerical_type::complex_float64) ==
+		numerical_type::complex_float64
+	);
 
 	STATIC_REQUIRE( std::is_same<
 		same_type_transform::apply_type<float32_t>::type,
@@ -45,6 +51,8 @@ TEST_CASE(
 	"[same_type_transform]"
 )
 {
-	CHECK( std::string(same_type_transform::get_relation()) ==
-	       "the same type as" );
+	CHECK(
+		std::string(same_type_transform::get_relation()) ==
+		"the same type as"
+	);
 }

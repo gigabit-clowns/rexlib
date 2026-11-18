@@ -12,14 +12,14 @@
 
 #include <boost/container/small_vector.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class joint_layout_operand
 {
 public:
 	using stride_vector_type = boost::container::small_vector<
-		std::ptrdiff_t, 
+		std::ptrdiff_t,
 		REXLIB_SMALL_AXIS_COUNT
 	>;
 

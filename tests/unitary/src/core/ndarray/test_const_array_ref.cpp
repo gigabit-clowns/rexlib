@@ -17,7 +17,10 @@
 
 using namespace rexlib;
 
-TEST_CASE("Default constructed const_array_ref should have no storage", "[const_array_ref]")
+TEST_CASE(
+	"Default constructed const_array_ref should have no storage",
+	"[const_array_ref]"
+)
 {
 	const_array_ref ref;
 	CHECK( ref.get_storage() == nullptr );
@@ -25,13 +28,19 @@ TEST_CASE("Default constructed const_array_ref should have no storage", "[const_
 	CHECK( ref.get_implementation() == nullptr );
 }
 
-TEST_CASE("Default constructed const_array_ref should have an empty descriptor", "[const_array_ref]")
+TEST_CASE(
+	"Default constructed const_array_ref should have an empty descriptor",
+	"[const_array_ref]"
+)
 {
 	const_array_ref ref;
 	CHECK( ref.get_descriptor() == array_descriptor() );
 }
 
-TEST_CASE("const_array_ref should reference the contents of the source", "[const_array_ref]")
+TEST_CASE(
+	"const_array_ref should reference the contents of the source",
+	"[const_array_ref]"
+)
 {
 	const std::shared_ptr<mock_buffer> storage =
 		std::make_shared<mock_buffer>();
@@ -88,7 +97,10 @@ TEST_CASE("const_array_ref should not extend ownership", "[const_array_ref]")
 	CHECK( ref.get_storage() == storage.get() );
 }
 
-TEST_CASE("const_array_ref should be constructible from the whole family", "[const_array_ref]")
+TEST_CASE(
+	"const_array_ref should be constructible from the whole family",
+	"[const_array_ref]"
+)
 {
 	CHECK( std::is_convertible<const array&, const_array_ref>::value );
 	CHECK( std::is_convertible<const const_array&, const_array_ref>::value );

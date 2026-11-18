@@ -62,6 +62,7 @@ inline void cast(T *destination, const Q *source) noexcept
 {
 	REXLIB_ASSERT(destination);
 	REXLIB_ASSERT(source);
+	// NOLINTNEXTLINE(bugprone-signed-char-misuse)
 	*destination = static_cast<T>(*source);
 }
 

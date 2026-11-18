@@ -12,11 +12,13 @@ namespace rexlib
 
 void* aligned_alloc(std::size_t size, std::size_t alignment) noexcept
 {
+	size = std::max(size, alignment);
+
 	#if REXLIB_WINDOWS
 		return _aligned_malloc(size, alignment);
 	#elif REXLIB_POSIX
-		void *result;
-		
+		void *result = nullptr;
+
 		alignment = std::max(alignment, sizeof(void*));
 		if(posix_memalign(&result, alignment, size) != 0)
 		{
@@ -34,6 +36,7 @@ void aligned_free(void* ptr) noexcept
 	#if REXLIB_WINDOWS
 		_aligned_free(ptr);
 	#else
+		// NOLINTNEXTLINE(cppcoreguidelines-no-malloc)
 		std::free(ptr);
 	#endif
 }

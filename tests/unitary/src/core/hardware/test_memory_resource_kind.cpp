@@ -11,12 +11,12 @@ TEST_CASE(
 	"[memory_resource_kind]"
 )
 {
-    REQUIRE( score_host_affinity(memory_resource_kind::host)          == 2 );
-    REQUIRE( score_host_affinity(memory_resource_kind::host_staging)  == 2 );
-    REQUIRE( score_host_affinity(memory_resource_kind::device_mapped) == 2 );
-    REQUIRE( score_host_affinity(memory_resource_kind::unified)       == 2 );
-    REQUIRE( score_host_affinity(memory_resource_kind::managed)       == 1 );
-    REQUIRE( score_host_affinity(memory_resource_kind::device_local)  == 0 );
+	REQUIRE( score_host_affinity(memory_resource_kind::host)          == 2 );
+	REQUIRE( score_host_affinity(memory_resource_kind::host_staging)  == 2 );
+	REQUIRE( score_host_affinity(memory_resource_kind::device_mapped) == 2 );
+	REQUIRE( score_host_affinity(memory_resource_kind::unified)       == 2 );
+	REQUIRE( score_host_affinity(memory_resource_kind::managed)       == 1 );
+	REQUIRE( score_host_affinity(memory_resource_kind::device_local)  == 0 );
 }
 
 TEST_CASE(
@@ -24,12 +24,12 @@ TEST_CASE(
 	"[memory_resource_kind]"
 )
 {
-    REQUIRE( score_device_affinity(memory_resource_kind::device_local)  == 4 );
-    REQUIRE( score_device_affinity(memory_resource_kind::unified)       == 3 );
-    REQUIRE( score_device_affinity(memory_resource_kind::managed)       == 2 );
-    REQUIRE( score_device_affinity(memory_resource_kind::device_mapped) == 1 );
-    REQUIRE( score_device_affinity(memory_resource_kind::host_staging)  == 0 );
-    REQUIRE( score_device_affinity(memory_resource_kind::host)          == 0 );
+	REQUIRE( score_device_affinity(memory_resource_kind::device_local)  == 4 );
+	REQUIRE( score_device_affinity(memory_resource_kind::unified)       == 3 );
+	REQUIRE( score_device_affinity(memory_resource_kind::managed)       == 2 );
+	REQUIRE( score_device_affinity(memory_resource_kind::device_mapped) == 1 );
+	REQUIRE( score_device_affinity(memory_resource_kind::host_staging)  == 0 );
+	REQUIRE( score_device_affinity(memory_resource_kind::host)          == 0 );
 }
 
 TEST_CASE(
@@ -37,12 +37,12 @@ TEST_CASE(
 	"[memory_resource_kind]"
 )
 {
-    REQUIRE(  is_host_accessible(memory_resource_kind::host) );
-    REQUIRE(  is_host_accessible(memory_resource_kind::host_staging) );
-    REQUIRE(  is_host_accessible(memory_resource_kind::device_mapped) );
-    REQUIRE(  is_host_accessible(memory_resource_kind::unified) );
-    REQUIRE(  is_host_accessible(memory_resource_kind::managed) );
-    REQUIRE( !is_host_accessible(memory_resource_kind::device_local) );
+	REQUIRE(  is_host_accessible(memory_resource_kind::host) );
+	REQUIRE(  is_host_accessible(memory_resource_kind::host_staging) );
+	REQUIRE(  is_host_accessible(memory_resource_kind::device_mapped) );
+	REQUIRE(  is_host_accessible(memory_resource_kind::unified) );
+	REQUIRE(  is_host_accessible(memory_resource_kind::managed) );
+	REQUIRE( !is_host_accessible(memory_resource_kind::device_local) );
 }
 
 TEST_CASE(
@@ -50,10 +50,10 @@ TEST_CASE(
 	"[memory_resource_kind]"
 )
 {
-    REQUIRE(  is_device_accessible(memory_resource_kind::device_local) );
-    REQUIRE(  is_device_accessible(memory_resource_kind::unified) );
-    REQUIRE(  is_device_accessible(memory_resource_kind::managed) );
-    REQUIRE(  is_device_accessible(memory_resource_kind::device_mapped) );
-    REQUIRE( !is_device_accessible(memory_resource_kind::host_staging) );
-    REQUIRE( !is_device_accessible(memory_resource_kind::host) );
+	REQUIRE(  is_device_accessible(memory_resource_kind::device_local) );
+	REQUIRE(  is_device_accessible(memory_resource_kind::unified) );
+	REQUIRE(  is_device_accessible(memory_resource_kind::managed) );
+	REQUIRE(  is_device_accessible(memory_resource_kind::device_mapped) );
+	REQUIRE( !is_device_accessible(memory_resource_kind::host_staging) );
+	REQUIRE( !is_device_accessible(memory_resource_kind::host) );
 }

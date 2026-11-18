@@ -2,52 +2,18 @@
 
 #include <rexlib/core/service_catalog.hpp>
 
-#include "mock/mock_service_manager.hpp"
+#include "mock/mock_service.hpp"
+
+#include <rexlib/core/hardware/device_service.hpp>
 
 #include <catch2/catch_test_macros.hpp>
 
+#include <algorithm>
+#include <string>
 #include <utility>
+#include <vector>
 
 using namespace rexlib;
-
-namespace
-{
-
-class counting_service_manager : public service_manager
-{
-public:
-	void register_builtin_backends() override
-	{
-		++m_register_count;
-	}
-
-	int get_register_count() const noexcept
-	{
-		return m_register_count;
-	}
-
-private:
-	int m_register_count = 0;
-};
-
-class other_counting_service_manager : public service_manager
-{
-public:
-	void register_builtin_backends() override
-	{
-		++m_register_count;
-	}
-
-	int get_register_count() const noexcept
-	{
-		return m_register_count;
-	}
-
-private:
-	int m_register_count = 0;
-};
-
-} // anonymous namespace
 
 TEST_CASE(
 	"service_catalog returns the same instance on repeated access",
@@ -55,106 +21,90 @@ TEST_CASE(
 )
 {
 	service_catalog catalog(false);
-	const auto first = catalog.get_service_manager<mock_service_manager>();
-	const auto second = catalog.get_service_manager<mock_service_manager>();
+	const auto first = catalog.get_service<mock_service>();
+	const auto second = catalog.get_service<mock_service>();
 
 	REQUIRE(first);
 	CHECK(first == second);
 }
 
 TEST_CASE(
-	"service_catalog hands each service_manager type its own instance",
+	"service_catalog hands each service type its own instance",
 	"[service_catalog]"
 )
 {
 	service_catalog catalog(false);
-	const auto first =
-		catalog.get_service_manager<counting_service_manager>();
-	const auto second =
-		catalog.get_service_manager<other_counting_service_manager>();
+	const auto first = catalog.get_service<mock_service>();
+	const auto second = catalog.get_service<device_service>();
 
 	REQUIRE(first);
 	REQUIRE(second);
 	// Different types must not be aliased under a shared catalog key.
 	CHECK(
-		static_cast<service_manager *>(first.get())
-		!= static_cast<service_manager *>(second.get())
+		static_cast<service *>(first.get())
+		!= static_cast<service *>(second.get())
 	);
 }
 
 TEST_CASE(
-	"service_catalog calls register_builtin_backends on first access "
-	"when enabled",
+	"service_catalog registers the plugins built into the library when "
+	"asked to",
 	"[service_catalog]"
 )
 {
 	service_catalog catalog(true);
-	const auto manager =
-		catalog.get_service_manager<counting_service_manager>();
+	std::vector<std::string> backends;
 
-	REQUIRE(manager);
-	CHECK(manager->get_register_count() == 1);
+	catalog.get_service<device_service>()->enumerate_backends(backends);
+
+	CHECK(
+		std::find(backends.cbegin(), backends.cend(), "cpu")
+		!= backends.cend()
+	);
 }
 
 TEST_CASE(
-	"service_catalog skips register_builtin_backends when disabled",
+	"service_catalog registers no built-in plugin when not asked to",
 	"[service_catalog]"
 )
 {
 	service_catalog catalog(false);
-	// mock_service_manager has no expectations set, so any call to
-	// register_builtin_backends would trigger a trompeloeil violation.
-	const auto manager =
-		catalog.get_service_manager<mock_service_manager>();
+	std::vector<std::string> backends;
 
-	REQUIRE(manager);
+	catalog.get_service<device_service>()->enumerate_backends(backends);
+
+	CHECK(backends.empty());
 }
 
 TEST_CASE(
-	"service_catalog only calls register_builtin_backends on first access",
-	"[service_catalog]"
-)
-{
-	service_catalog catalog(true);
-	const auto first =
-		catalog.get_service_manager<counting_service_manager>();
-	const auto second =
-		catalog.get_service_manager<counting_service_manager>();
-
-	REQUIRE(first);
-	REQUIRE(first == second);
-	CHECK(first->get_register_count() == 1);
-}
-
-TEST_CASE(
-	"service_catalog preserves managers through move construction",
+	"service_catalog preserves services through move construction",
 	"[service_catalog]"
 )
 {
 	service_catalog source(false);
-	const auto manager =
-		source.get_service_manager<mock_service_manager>();
+	const auto instance =
+		source.get_service<mock_service>();
 
 	service_catalog destination(std::move(source));
 	const auto reloaded =
-		destination.get_service_manager<mock_service_manager>();
+		destination.get_service<mock_service>();
 
-	CHECK(reloaded == manager);
+	CHECK(reloaded == instance);
 }
 
 TEST_CASE(
-	"service_catalog preserves managers through move assignment",
+	"service_catalog preserves services through move assignment",
 	"[service_catalog]"
 )
 {
 	service_catalog source(false);
-	const auto manager =
-		source.get_service_manager<mock_service_manager>();
+	const auto instance =
+		source.get_service<mock_service>();
 
 	service_catalog destination(false);
 	destination = std::move(source);
 	const auto reloaded =
-		destination.get_service_manager<mock_service_manager>();
+		destination.get_service<mock_service>();
 
-	CHECK(reloaded == manager);
+	CHECK(reloaded == instance);
 }

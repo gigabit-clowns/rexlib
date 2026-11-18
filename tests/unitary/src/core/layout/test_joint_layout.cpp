@@ -16,56 +16,88 @@
 
 using namespace rexlib;
 
-TEST_CASE( "getting extents on an default constructed joint_layout should return empty ", "[joint_layout]" )
+TEST_CASE(
+	"getting extents on an default constructed joint_layout should return "
+	"empty ",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
 	const auto extents = layout.get_extents();
 	REQUIRE( extents.empty() );
 }
 
-TEST_CASE( "getting extents on an default constructed joint_layout should have no operands ", "[joint_layout]" )
+TEST_CASE(
+	"getting extents on an default constructed joint_layout should have no "
+	"operands ",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
 	REQUIRE( layout.get_number_of_operands() == 0 );
 }
 
-TEST_CASE( "getting strides on an default constructed joint_layout should throw ", "[joint_layout]" )
+TEST_CASE(
+	"getting strides on an default constructed joint_layout should throw ",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
-	REQUIRE_THROWS_AS( 
+	REQUIRE_THROWS_AS(
 		layout.get_strides(0),
 		std::out_of_range
 	);
 }
 
-TEST_CASE( "getting the offset on an default constructed joint_layout should throw ", "[joint_layout]" )
+TEST_CASE(
+	"getting the offset on an default constructed joint_layout should throw ",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
-	REQUIRE_THROWS_AS( 
+	REQUIRE_THROWS_AS(
 		layout.get_offset(0),
 		std::out_of_range
 	);
 };
 
-TEST_CASE( "getting extents on an initialized joint_layout should return its extents ", "[joint_layout]" )
+TEST_CASE(
+	"getting extents on an initialized joint_layout should return its extents ",
+	"[joint_layout]"
+)
 {
 	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	joint_layout layout(std::move(implementation));
 
 	const auto result = layout.get_extents();
-	REQUIRE( std::equal(extents.cbegin(), extents.cend(), result.begin(), result.end()) );
+	REQUIRE(
+		std::equal(
+			extents.cbegin(),
+			extents.cend(),
+			result.begin(),
+			result.end()
+		)
+	);
 }
 
-TEST_CASE( "computing the element count of a default constructed joint_layout should return zero", "[joint_layout]" )
+TEST_CASE(
+	"computing the element count of a default constructed joint_layout should "
+	"return zero",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
 	REQUIRE( layout.compute_element_count() == 0 );
 }
 
-TEST_CASE( "computing the element count of a joint_layout should return the product of its extents", "[joint_layout]" )
+TEST_CASE(
+	"computing the element count of a joint_layout should return the product "
+	"of its extents",
+	"[joint_layout]"
+)
 {
 	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
@@ -76,7 +108,11 @@ TEST_CASE( "computing the element count of a joint_layout should return the prod
 	REQUIRE( layout.compute_element_count() == 20*4*16*2 );
 }
 
-TEST_CASE( "computing the element count of a joint_layout with no axes should return one", "[joint_layout]" )
+TEST_CASE(
+	"computing the element count of a joint_layout with no axes should return "
+	"one",
+	"[joint_layout]"
+)
 {
 	// The identity of the product: a layout of no axes holds a single
 	// position, which is the one iter() reports and the one a traversal has
@@ -89,7 +125,11 @@ TEST_CASE( "computing the element count of a joint_layout with no axes should re
 	REQUIRE( layout.compute_element_count() == 1 );
 }
 
-TEST_CASE( "computing the element count of a joint_layout with an empty axis should return zero", "[joint_layout]" )
+TEST_CASE(
+	"computing the element count of a joint_layout with an empty axis should "
+	"return zero",
+	"[joint_layout]"
+)
 {
 	joint_layout_implementation::extent_vector_type extents = { 4, 0, 2 };
 	auto implementation =
@@ -99,13 +139,17 @@ TEST_CASE( "computing the element count of a joint_layout with an empty axis sho
 	REQUIRE( layout.compute_element_count() == 0 );
 }
 
-TEST_CASE( "getting the number of operands on an joint_layout should return its operand count", "[joint_layout]" )
+TEST_CASE(
+	"getting the number of operands on an joint_layout should return its "
+	"operand count",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 20, 80, 1280 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 0UL);
 	implementation->add_operand(strides, 0UL);
@@ -114,28 +158,43 @@ TEST_CASE( "getting the number of operands on an joint_layout should return its 
 	REQUIRE( layout.get_number_of_operands() == 2 );
 }
 
-TEST_CASE( "getting the strides of an operand on an joint_layout should return its strides", "[joint_layout]" )
+TEST_CASE(
+	"getting the strides of an operand on an joint_layout should return its "
+	"strides",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 20, 80, 1280 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 0UL);
 	joint_layout layout(std::move(implementation));
 
 	const auto result = layout.get_strides(0);
-	REQUIRE( std::equal(strides.cbegin(), strides.cend(), result.begin(), result.end()) );
+	REQUIRE(
+		std::equal(
+			strides.cbegin(),
+			strides.cend(),
+			result.begin(),
+			result.end()
+		)
+	);
 }
 
-TEST_CASE( "getting the offset of an operand in an joint_layout should return its offset", "[joint_layout]" )
+TEST_CASE(
+	"getting the offset of an operand in an joint_layout should return its "
+	"offset",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 20, 80, 1280 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 1234UL);
 	joint_layout layout(std::move(implementation));
@@ -143,41 +202,50 @@ TEST_CASE( "getting the offset of an operand in an joint_layout should return it
 	REQUIRE( layout.get_offset(0) == 1234UL );
 }
 
-TEST_CASE( "getting the strides of an invalid operand on an joint_layout should throw", "[joint_layout]" )
+TEST_CASE(
+	"getting the strides of an invalid operand on an joint_layout should throw",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 20, 80, 1280 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 0UL);
 	joint_layout layout(std::move(implementation));
 
-	REQUIRE_THROWS_AS( 
+	REQUIRE_THROWS_AS(
 		layout.get_strides(1),
 		std::out_of_range
 	);
 }
 
-TEST_CASE( "getting the offset of an invalid operand in an joint_layout should throw", "[joint_layout]" )
+TEST_CASE(
+	"getting the offset of an invalid operand in an joint_layout should throw",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 20, 80, 1280 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 1234UL);
 	joint_layout layout(std::move(implementation));
 
-	REQUIRE_THROWS_AS( 
+	REQUIRE_THROWS_AS(
 		layout.get_offset(1),
 		std::out_of_range
 	);
 }
 
-TEST_CASE( "calling iter on a default constructed array access layout should return 0", "[joint_layout]" )
+TEST_CASE(
+	"calling iter on a default constructed array access layout should return 0",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
 	joint_cursor ite;
@@ -185,11 +253,15 @@ TEST_CASE( "calling iter on a default constructed array access layout should ret
 	CHECK( layout.iter(ite) == 0 );
 }
 
-TEST_CASE( "calling iter on an array access layout with an axis of size zero should return 0", "[joint_layout]" )
+TEST_CASE(
+	"calling iter on an array access layout with an axis of size zero should "
+	"return 0",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 0, 16, 2 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	joint_layout layout(std::move(implementation));
 	joint_cursor ite;
@@ -197,13 +269,17 @@ TEST_CASE( "calling iter on an array access layout with an axis of size zero sho
 	CHECK( layout.iter(ite) == 0 );
 }
 
-TEST_CASE( "calling iter on an array access layout should populate the iterator and return the inner-most extent", "[joint_layout]" )
+TEST_CASE(
+	"calling iter on an array access layout should populate the iterator and "
+	"return the inner-most extent",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 20, 4, 16, 2 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 20, 80, 1280 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 1234UL);
 	implementation->add_operand(strides, 6532UL);
@@ -214,7 +290,7 @@ TEST_CASE( "calling iter on an array access layout should populate the iterator 
 	joint_cursor ite;
 
 	CHECK( layout.iter(ite) == extents.front() );
-	
+
 	const auto indices = ite.get_indices();
 	CHECK( indices.size() == extents.size() );
 	for (std::size_t i = 0; i < indices.size(); ++i)
@@ -231,7 +307,10 @@ TEST_CASE( "calling iter on an array access layout should populate the iterator 
 	CHECK( offsets[4] == 2UL );
 }
 
-TEST_CASE( "calling next on a default constructed array access layout should return 0", "[joint_layout]" )
+TEST_CASE(
+	"calling next on a default constructed array access layout should return 0",
+	"[joint_layout]"
+)
 {
 	joint_layout layout;
 	joint_cursor ite;
@@ -239,15 +318,19 @@ TEST_CASE( "calling next on a default constructed array access layout should ret
 	CHECK( layout.next(ite, 1) == 0 );
 }
 
-TEST_CASE( "calling next on an array access layout on a stepping basis should advance indices and offsets", "[joint_layout]" )
+TEST_CASE(
+	"calling next on an array access layout on a stepping basis should "
+	"advance indices and offsets",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 8, 2, 3 };
-	joint_layout_implementation::stride_vector_type strides1 = 
+	joint_layout_implementation::stride_vector_type strides1 =
 		{ 1, 20, 80 };
-	joint_layout_implementation::stride_vector_type strides2 = 
+	joint_layout_implementation::stride_vector_type strides2 =
 		{ 1, 8, 18 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides1, 2048UL);
 	implementation->add_operand(strides2, 1024UL);
@@ -277,9 +360,15 @@ TEST_CASE( "calling next on an array access layout on a stepping basis should ad
 				REQUIRE( indices[0] == k );
 				REQUIRE( indices[1] == j );
 				REQUIRE( indices[2] == i );
-	
-				CHECK( 2048 + sk*strides1[0] + sj*strides1[1] + si*strides1[2] == offsets[0] );
-				CHECK( 1024 + sk*strides2[0] + sj*strides2[1] + si*strides2[2] == offsets[1] );
+
+				CHECK(
+					2048 + sk*strides1[0] + sj*strides1[1] + si*strides1[2] ==
+					offsets[0]
+				);
+				CHECK(
+					1024 + sk*strides2[0] + sj*strides2[1] + si*strides2[2] ==
+					offsets[1]
+				);
 
 				std::size_t expected;
 				if (k == extents[0]-1)
@@ -310,15 +399,19 @@ TEST_CASE( "calling next on an array access layout on a stepping basis should ad
 	CHECK( offsets[1] == 1024 );
 }
 
-TEST_CASE( "calling next on an array access layout on a block basis should advance indices and offsets", "[joint_layout]" )
+TEST_CASE(
+	"calling next on an array access layout on a block basis should advance "
+	"indices and offsets",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 15, 2, 4 };
-	joint_layout_implementation::stride_vector_type strides1 = 
+	joint_layout_implementation::stride_vector_type strides1 =
 		{ 1, 20, 80 };
-	joint_layout_implementation::stride_vector_type strides2 = 
+	joint_layout_implementation::stride_vector_type strides2 =
 		{ 1, 15, 32 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides1, 2048UL);
 	implementation->add_operand(strides2, 1024UL);
@@ -351,8 +444,14 @@ TEST_CASE( "calling next on an array access layout on a block basis should advan
 			REQUIRE( indices[0] == 8 );
 			REQUIRE( indices[1] == j );
 			REQUIRE( indices[2] == i );
-			CHECK( 2048 + 8*strides1[0] + sj*strides1[1] + si*strides1[2] == offsets[0] );
-			CHECK( 1024 + 8*strides2[0] + sj*strides2[1] + si*strides2[2] == offsets[1] );
+			CHECK(
+				2048 + 8*strides1[0] + sj*strides1[1] + si*strides1[2] ==
+				offsets[0]
+			);
+			CHECK(
+				1024 + 8*strides2[0] + sj*strides2[1] + si*strides2[2] ==
+				offsets[1]
+			);
 
 			std::size_t expected;
 			if (j == extents[1]-1 && i == extents[2]-1)
@@ -375,15 +474,19 @@ TEST_CASE( "calling next on an array access layout on a block basis should advan
 	CHECK( offsets[1] == 1024 );
 }
 
-TEST_CASE( "calling next on an array access layout on an first_dim should posterior indices and offsets", "[joint_layout]" )
+TEST_CASE(
+	"calling next on an array access layout on an first_dim should posterior "
+	"indices and offsets",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 4, 15, 4 };
-	joint_layout_implementation::stride_vector_type strides1 = 
+	joint_layout_implementation::stride_vector_type strides1 =
 		{ 1, 5, 80 };
-	joint_layout_implementation::stride_vector_type strides2 = 
+	joint_layout_implementation::stride_vector_type strides2 =
 		{ 1, 4, 60 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides1, 2048UL);
 	implementation->add_operand(strides2, 1024UL);
@@ -439,15 +542,19 @@ TEST_CASE( "calling next on an array access layout on an first_dim should poster
 	CHECK( offsets[1] == 1024 );
 }
 
-TEST_CASE( "calling next on an array access layout with first_dim and last_dim should update in-between indices and offsets", "[joint_layout]" )
+TEST_CASE(
+	"calling next on an array access layout with first_dim and last_dim "
+	"should update in-between indices and offsets",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 4, 15, 4 };
-	joint_layout_implementation::stride_vector_type strides1 = 
+	joint_layout_implementation::stride_vector_type strides1 =
 		{ 1, 5, 80 };
-	joint_layout_implementation::stride_vector_type strides2 = 
+	joint_layout_implementation::stride_vector_type strides2 =
 		{ 1, 4, 60 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides1, 2048UL);
 	implementation->add_operand(strides2, 1024UL);
@@ -482,15 +589,19 @@ TEST_CASE( "calling next on an array access layout with first_dim and last_dim s
 	REQUIRE( layout.next(ite, 7, 1, 2) == 0 );
 }
 
-TEST_CASE( "calling next on an array access layout with same first_dim and last_dim should prompt single iteration", "[joint_layout]" )
+TEST_CASE(
+	"calling next on an array access layout with same first_dim and last_dim "
+	"should prompt single iteration",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 4, 15, 4 };
-	joint_layout_implementation::stride_vector_type strides1 = 
+	joint_layout_implementation::stride_vector_type strides1 =
 		{ 1, 5, 80 };
-	joint_layout_implementation::stride_vector_type strides2 = 
+	joint_layout_implementation::stride_vector_type strides2 =
 		{ 1, 4, 60 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides1, 2048UL);
 	implementation->add_operand(strides2, 1024UL);
@@ -502,13 +613,17 @@ TEST_CASE( "calling next on an array access layout with same first_dim and last_
 	REQUIRE( layout.next(ite, 1, 2, 2) == 0 );
 }
 
-TEST_CASE( "calling next on an array access layout with zero step should not advance the iterator", "[joint_layout]" )
+TEST_CASE(
+	"calling next on an array access layout with zero step should not advance "
+	"the iterator",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 4, 15, 4 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 5, 80 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 1024);
 
@@ -527,19 +642,36 @@ TEST_CASE( "calling next on an array access layout with zero step should not adv
 
 		const auto offsets = ite.get_offsets();
 		const auto indices = ite.get_indices();
-		REQUIRE( std::equal(expected_offsets.begin(), expected_offsets.end(), offsets.begin(), offsets.end()) );
-		REQUIRE( std::equal(expected_indices.begin(), expected_indices.end(), indices.begin(), indices.end()) );
+		REQUIRE(
+			std::equal(
+				expected_offsets.begin(),
+				expected_offsets.end(),
+				offsets.begin(),
+				offsets.end()
+			)
+		);
+		REQUIRE(
+			std::equal(
+				expected_indices.begin(),
+				expected_indices.end(),
+				indices.begin(),
+				indices.end()
+			)
+		);
 	}
 
 }
 
-TEST_CASE( "calling iter on a joint_layout with dim equal to rank should return one", "[joint_layout]" )
+TEST_CASE(
+	"calling iter on a joint_layout with dim equal to rank should return one",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 4, 15, 4 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 5, 80 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 1024);
 
@@ -549,13 +681,16 @@ TEST_CASE( "calling iter on a joint_layout with dim equal to rank should return 
 	REQUIRE( layout.iter(ite, 3) == 1 );
 }
 
-TEST_CASE( "calling next on a joint_layout with dim equal to rank should return zero", "[joint_layout]" )
+TEST_CASE(
+	"calling next on a joint_layout with dim equal to rank should return zero",
+	"[joint_layout]"
+)
 {
-	joint_layout_implementation::extent_vector_type extents = 
+	joint_layout_implementation::extent_vector_type extents =
 		{ 4, 15, 4 };
-	joint_layout_implementation::stride_vector_type strides = 
+	joint_layout_implementation::stride_vector_type strides =
 		{ 1, 5, 80 };
-	auto implementation = 
+	auto implementation =
 		std::make_unique<joint_layout_implementation>(extents);
 	implementation->add_operand(strides, 1024);
 
@@ -700,7 +835,10 @@ TEST_CASE(
 )
 {
 	joint_layout_implementation::extent_vector_type extents = { 4, 3, 2 };
-	const auto layout = make_seek_layout(extents, { { 1, 4, 12 }, { 12, 4, 1 } });
+	const auto layout = make_seek_layout(
+		extents,
+		{ { 1, 4, 12 }, { 12, 4, 1 } }
+	);
 
 	joint_cursor sought;
 	joint_cursor started;

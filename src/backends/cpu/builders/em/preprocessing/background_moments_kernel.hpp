@@ -107,7 +107,7 @@ public:
 private:
 	template <typename T, typename Stride>
 	void fold(
-		std::size_t &count,
+		std::size_t &total,
 		double &sum,
 		double &sum_of_squares,
 		const T *value,

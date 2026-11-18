@@ -650,10 +650,14 @@ TEST_CASE(
 	CHECK( accumulator_footprint<one_small>::value == sizeof(int) );
 	CHECK( accumulator_footprint<two_large>::value == 2 * sizeof(double) );
 
-	CHECK( reduction_tile_size<one_large>::value <
-	       reduction_tile_size<one_small>::value );
-	CHECK( reduction_tile_size<two_large>::value <
-	       reduction_tile_size<one_large>::value );
+	CHECK(
+		reduction_tile_size<one_large>::value <
+		reduction_tile_size<one_small>::value
+	);
+	CHECK(
+		reduction_tile_size<two_large>::value <
+		reduction_tile_size<one_large>::value
+	);
 	CHECK( reduction_tile_size<two_large>::value > 0 );
 }
 
@@ -773,9 +777,11 @@ TEST_CASE(
 		make_indexed_layout({ reduced }, { { 1 } }, linear_index_tag());
 
 	const auto fold =
-		[&] (const loop_schedule &schedule,
-		     std::vector<double> &totals,
-		     std::vector<std::int64_t> &wheres)
+		[&] (
+			const loop_schedule &schedule,
+			std::vector<double> &totals,
+			std::vector<std::int64_t> &wheres
+		)
 		{
 			totals.assign(kept, 0.0);
 			wheres.assign(kept, -1);
@@ -800,8 +806,10 @@ TEST_CASE(
 	// Every output was filled, so a silently skipped chunk would show.
 	CHECK( std::count(serial_wheres.cbegin(), serial_wheres.cend(), -1) == 0 );
 
-	for (std::size_t workers : { std::size_t(0), std::size_t(1),
-	                             std::size_t(3), std::size_t(8) })
+	for (
+		std::size_t workers :
+		{ std::size_t(0), std::size_t(1), std::size_t(3), std::size_t(8) }
+	)
 	{
 		thread_pool pool(workers);
 
@@ -876,8 +884,10 @@ TEST_CASE(
 	CHECK( serial_total == 2.0 );
 	CHECK( serial_where == static_cast<std::int64_t>(reduced/2) );
 
-	for (std::size_t workers : { std::size_t(1), std::size_t(3),
-	                             std::size_t(4), std::size_t(8) })
+	for (
+		std::size_t workers :
+		{ std::size_t(1), std::size_t(3), std::size_t(4), std::size_t(8) }
+	)
 	{
 		thread_pool pool(workers);
 
@@ -920,8 +930,10 @@ TEST_CASE(
 		linear_index_tag()
 	);
 
-	for (std::size_t workers : { std::size_t(0), std::size_t(3),
-	                             std::size_t(8) })
+	for (
+		std::size_t workers :
+		{ std::size_t(0), std::size_t(3), std::size_t(8) }
+	)
 	{
 		thread_pool pool(workers);
 

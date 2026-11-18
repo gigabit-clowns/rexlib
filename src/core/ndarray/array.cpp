@@ -4,7 +4,7 @@
 
 #include "array_implementation.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 array::array() = default;
@@ -18,7 +18,7 @@ array::array(
 )
 	: array(
 		std::make_shared<array_implementation>(
-			std::move(storage), 
+			std::move(storage),
 			std::move(descriptor)
 		)
 	)
@@ -34,42 +34,42 @@ array::array(
 
 const array_descriptor& array::get_descriptor() const noexcept
 {
-	static array_descriptor empty_descriptor;
+	static const array_descriptor empty_descriptor;
 	return
-		m_implementation ? 
-		m_implementation->get_descriptor() : 
+		m_implementation ?
+		m_implementation->get_descriptor() :
 		empty_descriptor;
 }
 
 buffer* array::get_storage() noexcept
 {
 	return
-		m_implementation ? 
-		m_implementation->get_storage() : 
+		m_implementation ?
+		m_implementation->get_storage() :
 		nullptr;
 }
 
 const buffer* array::get_storage() const noexcept
 {
 	return
-		m_implementation ? 
-		m_implementation->get_storage() : 
+		m_implementation ?
+		m_implementation->get_storage() :
 		nullptr;
 }
 
 std::shared_ptr<buffer> array::share_storage() noexcept
 {
 	return
-		m_implementation ? 
-		m_implementation->share_storage() : 
+		m_implementation ?
+		m_implementation->share_storage() :
 		nullptr;
 }
 
 std::shared_ptr<const buffer> array::share_storage() const noexcept
 {
 	return
-		m_implementation ? 
-		m_implementation->share_storage() : 
+		m_implementation ?
+		m_implementation->share_storage() :
 		nullptr;
 }
 

@@ -41,10 +41,14 @@ TEST_CASE(
 	"[complex_type_transform]"
 )
 {
-	CHECK( complex_type_transform::apply(numerical_type::float32) ==
-	       numerical_type::complex_float32 );
-	CHECK( complex_type_transform::apply(numerical_type::complex_float64) ==
-	       numerical_type::complex_float64 );
+	CHECK(
+		complex_type_transform::apply(numerical_type::float32) ==
+		numerical_type::complex_float32
+	);
+	CHECK(
+		complex_type_transform::apply(numerical_type::complex_float64) ==
+		numerical_type::complex_float64
+	);
 
 	STATIC_REQUIRE( std::is_same<
 		complex_type_transform::apply_type<float64_t>::type,
@@ -61,6 +65,8 @@ TEST_CASE(
 	"[complex_type_transform]"
 )
 {
-	CHECK( std::string(complex_type_transform::get_relation()) ==
-	       "the complex counterpart of" );
+	CHECK(
+		std::string(complex_type_transform::get_relation()) ==
+		"the complex counterpart of"
+	);
 }

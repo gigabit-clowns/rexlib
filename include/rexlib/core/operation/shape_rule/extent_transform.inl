@@ -12,11 +12,11 @@ namespace rexlib
 
 inline
 extent_transform::extent_transform(
-	apply_function_type apply,
+	apply_function_type apply_function,
 	const char *relation,
 	bool identity
 ) noexcept
-	: m_apply(apply)
+	: m_apply(apply_function)
 	, m_relation(relation)
 	, m_identity(identity)
 {

@@ -22,9 +22,13 @@ TEST_CASE(
 	);
 
 	CHECK( descriptor.get_pivot_index() == 3 );
-	CHECK( descriptor.get_transform().apply(numerical_type::float32) ==
-	       numerical_type::complex_float32 );
+	CHECK(
+		descriptor.get_transform().apply(numerical_type::float32) ==
+		numerical_type::complex_float32
+	);
 	CHECK( &descriptor.get_transform().get_domain() == &domain );
-	CHECK( std::string(descriptor.get_transform().get_relation()) ==
-	       "the complex counterpart of" );
+	CHECK(
+		std::string(descriptor.get_transform().get_relation()) ==
+		"the complex counterpart of"
+	);
 }

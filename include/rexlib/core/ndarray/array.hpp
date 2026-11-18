@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class buffer;
@@ -19,11 +19,11 @@ class array_implementation;
 
 /**
  * @brief Container for multidimensional numeric data.
- * 
+ *
  * This class allows to represent multidimensional numeric data in a hardware
  * agnostic manner. It serves as a foundational basis to define interfaces that
  * operate in such date. The array is represented as the (storage, descriptor)
- * pair. The storage refers to an untyped region of memory (which may reside in 
+ * pair. The storage refers to an untyped region of memory (which may reside in
  * accelerator hardware like GPUs). The descriptor defines the interpretation of
  * that data to give raise to the notion of dimensions.
  */
@@ -37,9 +37,9 @@ public:
 
 	/**
 	 * @brief Construct an array from a shared pointer to the implementation.
-	 * 
+	 *
 	 * @param implementation The implementation to be owned by this.
-	 * 
+	 *
 	 * @note This function is not part of the public API and shall only be
 	 * used internally or for testing purposes.
 	 */
@@ -49,7 +49,7 @@ public:
 
 	/**
 	 * @brief Construct an array from its components.
-	 * 
+	 *
 	 * @param storage Buffer used to store the data contained in the array.
 	 * @param descriptor The interpretation of the buffer memory.
 	 */
@@ -67,51 +67,51 @@ public:
 
 	/**
 	 * @brief Get the descriptor of this array.
-	 * 
+	 *
 	 * @return array_descriptor The descriptor.
 	 */
 	REXLIB_API const array_descriptor& get_descriptor() const noexcept;
 
 	/**
 	 * @brief Get the storage of this array.
-	 * 
-	 * @return buffer* The storage. nullptr if the array is not 
+	 *
+	 * @return buffer* The storage. nullptr if the array is not
 	 * initialized.
 	 */
 	REXLIB_API buffer* get_storage() noexcept;
 
 	/**
 	 * @brief Get the storage of this array.
-	 * 
+	 *
 	 * @return const buffer* The storage. nullptr if the array is not
 	 * initialized
 	 */
 	REXLIB_API const buffer* get_storage() const noexcept;
-	
+
 	/**
 	 * @brief Get a shared pointer to the storage of this array.
-	 * 
-	 * @return std::shared_ptr<buffer> The storage. nullptr if the 
+	 *
+	 * @return std::shared_ptr<buffer> The storage. nullptr if the
 	 * array is not initialized.
 	 */
-	REXLIB_API 
+	REXLIB_API
 	std::shared_ptr<buffer> share_storage() noexcept;
-	
+
 	/**
 	 * @brief Get the storage of this array.
-	 * 
-	 * @return std::shared_ptr<const buffer> The storage. nullptr if 
+	 *
+	 * @return std::shared_ptr<const buffer> The storage. nullptr if
 	 * the array is not initialized
 	 */
-	REXLIB_API 
+	REXLIB_API
 	std::shared_ptr<const buffer> share_storage() const noexcept;
 
 	/**
 	 * @brief Obtain an alias for this array.
-	 * 
+	 *
 	 * @return array Another array referencing the contents of this array.
 	 */
-	REXLIB_API 
+	REXLIB_API
 	array share() noexcept;
 
 	/**

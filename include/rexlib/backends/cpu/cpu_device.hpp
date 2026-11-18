@@ -35,9 +35,14 @@ public:
 	 * what every caller but a test wants.
 	 */
 	explicit cpu_device(std::shared_ptr<thread_pool> pool = nullptr);
+	cpu_device(const cpu_device &other) = delete;
+	cpu_device(cpu_device &&other) = delete;
 	~cpu_device() override;
 
-	const memory_resource& 
+	cpu_device& operator=(const cpu_device &other) = delete;
+	cpu_device& operator=(cpu_device &&other) = delete;
+
+	const memory_resource&
 	get_memory_resource(memory_resource_affinity affinity) const override;
 
 	std::shared_ptr<command_queue> create_command_queue() const override;

@@ -17,12 +17,18 @@ TEST_CASE(
 {
 	const auto transform = make_type_transform<real_type_transform>();
 
-	CHECK( transform.apply(numerical_type::complex_float32) ==
-	       numerical_type::float32 );
-	CHECK( &transform.get_domain() ==
-	       &real_type_transform::domain_type::get() );
-	CHECK( std::string(transform.get_relation()) ==
-	       "the real counterpart of" );
+	CHECK(
+		transform.apply(numerical_type::complex_float32) ==
+		numerical_type::float32
+	);
+	CHECK(
+		&transform.get_domain() ==
+		&real_type_transform::domain_type::get()
+	);
+	CHECK(
+		std::string(transform.get_relation()) ==
+		"the real counterpart of"
+	);
 }
 
 TEST_CASE(
@@ -37,8 +43,10 @@ TEST_CASE(
 		"a relation"
 	);
 
-	CHECK( transform.apply(numerical_type::complex_float64) ==
-	       numerical_type::float64 );
+	CHECK(
+		transform.apply(numerical_type::complex_float64) ==
+		numerical_type::float64
+	);
 	CHECK( &transform.get_domain() == &domain );
 	CHECK( std::string(transform.get_relation()) == "a relation" );
 }

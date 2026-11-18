@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class array_implementation

@@ -2,7 +2,7 @@
 
 #include <rexlib/core/layout/joint_cursor.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 joint_cursor::joint_cursor() noexcept = default;
@@ -23,9 +23,9 @@ joint_cursor::joint_cursor(
 ) noexcept = default;
 joint_cursor::~joint_cursor() = default;
 
-joint_cursor& 
+joint_cursor&
 joint_cursor::operator=(const joint_cursor &other) = default;
-joint_cursor& 
+joint_cursor&
 joint_cursor::operator=(joint_cursor &&other) noexcept = default;
 
 span<const std::size_t> joint_cursor::get_indices() const noexcept

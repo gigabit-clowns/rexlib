@@ -29,8 +29,10 @@ TEST_CASE(
 	"[real_type_transform]"
 )
 {
-	CHECK( real_type_transform::domain_type::get() ==
-	       numerical_type_domain::all() );
+	CHECK(
+		real_type_transform::domain_type::get() ==
+		numerical_type_domain::all()
+	);
 }
 
 TEST_CASE(
@@ -38,10 +40,14 @@ TEST_CASE(
 	"[real_type_transform]"
 )
 {
-	CHECK( real_type_transform::apply(numerical_type::complex_float32) ==
-	       numerical_type::float32 );
-	CHECK( real_type_transform::apply(numerical_type::int16) ==
-	       numerical_type::int16 );
+	CHECK(
+		real_type_transform::apply(numerical_type::complex_float32) ==
+		numerical_type::float32
+	);
+	CHECK(
+		real_type_transform::apply(numerical_type::int16) ==
+		numerical_type::int16
+	);
 
 	STATIC_REQUIRE( std::is_same<
 		real_type_transform::apply_type<std::complex<float32_t>>::type,
@@ -58,6 +64,8 @@ TEST_CASE(
 	"[real_type_transform]"
 )
 {
-	CHECK( std::string(real_type_transform::get_relation()) ==
-	       "the real counterpart of" );
+	CHECK(
+		std::string(real_type_transform::get_relation()) ==
+		"the real counterpart of"
+	);
 }

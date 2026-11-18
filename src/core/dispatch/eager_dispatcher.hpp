@@ -10,7 +10,7 @@
 namespace rexlib
 {
 
-class program_manager;
+class program_service;
 
 /**
  * @brief Eager implementation of @ref dispatcher.
@@ -28,17 +28,22 @@ public:
 	/**
 	 * @brief Construct an eager dispatcher.
 	 *
-	 * @param program_manager The manager queried to build the program for each
+	 * @param program_service The service queried to build the program for each
 	 * operation. Must not be null.
 	 * @param cache_capacity Maximum number of backend-private resources kept in
 	 * the internal cache.
-	 * @throws std::invalid_argument When @p program_manager is null.
+	 * @throws std::invalid_argument When @p program_service is null.
 	 */
 	eager_dispatcher(
-		std::shared_ptr<const program_manager> program_manager,
+		std::shared_ptr<const program_service> program_service,
 		std::size_t cache_capacity
 	);
+	eager_dispatcher(const eager_dispatcher &other) = delete;
+	eager_dispatcher(eager_dispatcher &&other) = delete;
 	~eager_dispatcher() override;
+
+	eager_dispatcher& operator=(const eager_dispatcher &other) = delete;
+	eager_dispatcher& operator=(eager_dispatcher &&other) = delete;
 
 	void dispatch(
 		const operation &operation,
@@ -48,7 +53,7 @@ public:
 	) override;
 
 private:
-	std::shared_ptr<const program_manager> m_program_manager;
+	std::shared_ptr<const program_service> m_program_service;
 	program_cache m_program_cache;
 };
 

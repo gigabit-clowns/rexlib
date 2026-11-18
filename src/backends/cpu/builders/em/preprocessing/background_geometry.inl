@@ -2,6 +2,7 @@
 
 #include "background_geometry.hpp"
 
+#include <algorithm>
 #include <cmath>
 
 namespace rexlib
@@ -75,7 +76,7 @@ background_geometry::find_excluded_range(
 	const auto clamp = [length](std::ptrdiff_t position)
 	{
 		return static_cast<std::size_t>(
-			position < 0 ? 0 : (position > length ? length : position)
+			std::min(std::max(position, std::ptrdiff_t(0)), length)
 		);
 	};
 

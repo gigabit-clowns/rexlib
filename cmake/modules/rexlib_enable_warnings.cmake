@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 # Turns on the warnings every target of this project is built with, so that
-# the library and the suites are held to one standard rather than two.
+# the library and the suites are held to one standard rather than two. With
+# REXLIB_WARNINGS_AS_ERRORS they fail the build.
 function(rexlib_enable_warnings TARGET)
 	if(MSVC)
 		target_compile_options(
@@ -9,6 +10,7 @@ function(rexlib_enable_warnings TARGET)
 			PRIVATE
 				/W4
 				/wd4996 # getenv warning
+				$<$<BOOL:${REXLIB_WARNINGS_AS_ERRORS}>:/WX>
 		)
 	else()
 		target_compile_options(
@@ -17,6 +19,8 @@ function(rexlib_enable_warnings TARGET)
 				-Wall
 				-Wextra
 				-Wpedantic
+				-Wundef
+				$<$<BOOL:${REXLIB_WARNINGS_AS_ERRORS}>:-Werror>
 		)
 	endif()
 endfunction()

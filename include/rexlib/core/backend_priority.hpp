@@ -8,13 +8,13 @@
 #include <limits>
 #include <ostream>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
  * @brief Enumeration defining the preference over the selection of a
  * particular backend.
- * 
+ *
  */
 enum class backend_priority
 {
@@ -24,20 +24,20 @@ enum class backend_priority
 	optimal = 1024, ///< Backend specially optimized for the use case.
 };
 
-REXLIB_CONSTEXPR 
+REXLIB_CONSTEXPR
 bool operator<(backend_priority lhs, backend_priority rhs) noexcept;
-REXLIB_CONSTEXPR 
+REXLIB_CONSTEXPR
 bool operator<=(backend_priority lhs, backend_priority rhs) noexcept;
-REXLIB_CONSTEXPR 
+REXLIB_CONSTEXPR
 bool operator>(backend_priority lhs, backend_priority rhs) noexcept;
-REXLIB_CONSTEXPR 
+REXLIB_CONSTEXPR
 bool operator>=(backend_priority lhs, backend_priority rhs) noexcept;
 
 REXLIB_CONSTEXPR const char* to_string(backend_priority priority) noexcept;
 
 template<typename T>
 std::basic_ostream<T>& operator<<(
-	std::basic_ostream<T>& os, 
+	std::basic_ostream<T>& os,
 	backend_priority priority
 );
 

@@ -35,6 +35,7 @@ namespace detail
  * and a reduction over booleans is an ordinary thing to ask for. Two threads
  * writing what look like distinct entries would then be writing the same byte.
  */
+// NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays)
 template <typename Accumulators>
 struct accumulator_buffers;
 
@@ -81,6 +82,7 @@ void allocate_accumulator_buffers(
 		std::index_sequence_for<Accumulators...>()
 	);
 }
+// NOLINTEND(cppcoreguidelines-avoid-c-arrays)
 
 /**
  * @brief The half-open slice of the reduced space one chunk folds.
@@ -599,6 +601,7 @@ private:
 	using tiles_type =
 		typename accumulator_tiles<accumulator_types, capacity>::type;
 
+	// NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
 	const Kernel &m_kernel;
 	kept_strides m_kept_strides;
 	reduced_strides m_reduced_strides;
@@ -1026,8 +1029,10 @@ private:
 		return rebase_index_run(m_index_run, offsets.data() + input_count);
 	}
 
+	// NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members)
 	const joint_layout &m_kept_layout;
 	const joint_layout &m_reduced_layout;
+	// NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 	std::size_t m_reduction_count;
 	output_pointers m_outputs;
 	input_pointers m_inputs;
@@ -1176,7 +1181,7 @@ void run_reduction_fold_split(
 	const loop_schedule &schedule
 )
 {
-	const auto make_runner = [&] ()
+	const auto make_runner = [&]
 	{
 		return make_reduction_runner(
 			kernel,
@@ -1203,8 +1208,8 @@ void run_reduction_fold_split(
 		{
 			for (std::size_t chunk = first; chunk < last; ++chunk)
 			{
-				std::size_t begin;
-				std::size_t end;
+				std::size_t begin = 0;
+				std::size_t end = 0;
 				split_reduced_range(
 					reduction_count,
 					chunk_count,

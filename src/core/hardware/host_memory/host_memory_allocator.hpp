@@ -4,7 +4,7 @@
 
 #include <rexlib/core/hardware/memory_allocator.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
@@ -16,15 +16,22 @@ class host_memory_allocator final
 {
 public:
 	host_memory_allocator() = default;
+	host_memory_allocator(const host_memory_allocator &other) = delete;
+	host_memory_allocator(host_memory_allocator &&other) = delete;
 	~host_memory_allocator() override = default;
+
+	host_memory_allocator& operator=(
+		const host_memory_allocator &other
+	) = delete;
+	host_memory_allocator& operator=(host_memory_allocator &&other) = delete;
 
 	const memory_resource& get_memory_resource() const noexcept override;
 
 	std::size_t get_max_alignment() const noexcept override;
 
 	std::shared_ptr<buffer> allocate(
-		std::size_t size, 
-		std::size_t alignment, 
+		std::size_t size,
+		std::size_t alignment,
 		command_queue *queue_hint,
 		command_token &pending
 	) override;

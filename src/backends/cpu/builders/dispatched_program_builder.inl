@@ -70,8 +70,10 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		return base;
 	}
 
-	if (output_descriptors.size() != output_count ||
-	    input_descriptors.size() != input_count)
+	if (
+		output_descriptors.size() != output_count ||
+		input_descriptors.size() != input_count
+	)
 	{
 		return backend_priority::unsupported;
 	}
@@ -84,15 +86,15 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::get_suitability(
 		return backend_priority::unsupported;
 	}
 
-	std::array<numerical_type, output_count> output_types;
-	std::array<numerical_type, input_count> input_types;
+	std::array<numerical_type, output_count> output_types{};
+	std::array<numerical_type, input_count> input_types{};
 	extract_data_types(output_types, output_descriptors);
 	extract_data_types(input_types, input_descriptors);
 	const auto operation_data_types =
 		get_operation_data_types(operation_cast<Op>(operation));
 
 	// Reporting an unsupported element type here, rather than throwing from
-	// build(), is what lets the manager fall through to another backend.
+	// build(), is what lets the program service fall through to another backend.
 	const auto supported =
 		detail::dispatcher_support_query<TypeDispatcher>::is_supported(
 			make_span(output_types.data(), output_count),
@@ -141,8 +143,8 @@ dispatched_program_builder<Derived, Op, TypeDispatcher>::build(
 		);
 	}
 
-	std::array<numerical_type, output_count> output_types;
-	std::array<numerical_type, input_count> input_types;
+	std::array<numerical_type, output_count> output_types{};
+	std::array<numerical_type, input_count> input_types{};
 	extract_data_types(output_types, output_descriptors);
 	extract_data_types(input_types, input_descriptors);
 	const auto operation_data_types = get_operation_data_types(typed_operation);

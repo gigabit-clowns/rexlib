@@ -7,7 +7,10 @@
 
 using namespace rexlib;
 
-TEST_CASE( "get_alignment returns correct alignment for address and pointer", "[align]" ) 
+TEST_CASE(
+	"get_alignment returns correct alignment for address and pointer",
+	"[align]"
+)
 {
 	std::uintptr_t address;
 	std::size_t expected_alignment;
@@ -28,7 +31,11 @@ TEST_CASE( "get_alignment returns correct alignment for address and pointer", "[
 	REQUIRE( get_alignment(pointer) == expected_alignment );
 }
 
-TEST_CASE( "is_aligned returns true only if the pointer is aligned to the requested boundary", "[align]" ) 
+TEST_CASE(
+	"is_aligned returns true only if the pointer is aligned to the requested "
+	"boundary",
+	"[align]"
+)
 {
 	std::uintptr_t address;
 	std::size_t alignment;
@@ -52,7 +59,10 @@ TEST_CASE( "is_aligned returns true only if the pointer is aligned to the reques
 	REQUIRE( is_aligned(pointer, alignment) == expected );
 }
 
-TEST_CASE( "align_floor aligns address and pointer down to nearest boundary", "[align]" ) 
+TEST_CASE(
+	"align_floor aligns address and pointer down to nearest boundary",
+	"[align]"
+)
 {
 	std::uintptr_t address;
 	std::size_t alignment;
@@ -73,10 +83,15 @@ TEST_CASE( "align_floor aligns address and pointer down to nearest boundary", "[
 	void* pointer = reinterpret_cast<void*>(address);
 
 	REQUIRE( align_floor(address, alignment) == expected );
-	REQUIRE( align_floor(pointer, alignment) == reinterpret_cast<void*>(expected) );
+	REQUIRE(
+		align_floor(pointer, alignment) == reinterpret_cast<void*>(expected)
+	);
 }
 
-TEST_CASE( "align_ceil aligns address and pointer up to nearest boundary", "[align]" ) 
+TEST_CASE(
+	"align_ceil aligns address and pointer up to nearest boundary",
+	"[align]"
+)
 {
 	std::uintptr_t address;
 	std::size_t alignment;
@@ -97,10 +112,16 @@ TEST_CASE( "align_ceil aligns address and pointer up to nearest boundary", "[ali
 	void* pointer = reinterpret_cast<void*>(address);
 
 	REQUIRE( align_ceil(address, alignment) == expected );
-	REQUIRE( align_ceil(pointer, alignment) == reinterpret_cast<void*>(expected) );
+	REQUIRE(
+		align_ceil(pointer, alignment) == reinterpret_cast<void*>(expected)
+	);
 }
 
-TEST_CASE( "offset_bytes computes pointer offset correctly for positive and negative values", "[align]" ) 
+TEST_CASE(
+	"offset_bytes computes pointer offset correctly for positive and negative "
+	"values",
+	"[align]"
+)
 {
 	std::uintptr_t base;
 	std::ptrdiff_t offset;

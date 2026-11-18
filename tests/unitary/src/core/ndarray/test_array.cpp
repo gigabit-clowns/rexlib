@@ -20,7 +20,10 @@ TEST_CASE("Default constructed array should have no storage", "[array]")
 	CHECK( arr.share_storage() == nullptr );
 }
 
-TEST_CASE("Default constructed array should have an empty descriptor", "[array]")
+TEST_CASE(
+	"Default constructed array should have an empty descriptor",
+	"[array]"
+)
 {
 	array arr;
 	CHECK( arr.get_descriptor() == array_descriptor() );
@@ -41,16 +44,21 @@ TEST_CASE("Constructing an array should store its attributes", "[array]")
 	const std::shared_ptr<mock_buffer> storage =
 		std::make_shared<mock_buffer>();
 
-	const auto layout = strided_layout::make_contiguous_layout(make_span(extents));
+	const auto layout = strided_layout::make_contiguous_layout(
+		make_span(extents)
+	);
 	const array_descriptor descriptor(layout, data_type);
 	array arr(storage, descriptor);
 
 	CHECK( arr.get_storage() == storage.get() );
 	CHECK( arr.share_storage() == storage );
 	CHECK( arr.get_descriptor() == descriptor );
-}	
+}
 
-TEST_CASE("Calling share on an array should return an array with the same content", "[array]")
+TEST_CASE(
+	"Calling share on an array should return an array with the same content",
+	"[array]"
+)
 {
 	const auto data_type = GENERATE(
 		numerical_type::int32,
@@ -65,7 +73,9 @@ TEST_CASE("Calling share on an array should return an array with the same conten
 	const std::shared_ptr<mock_buffer> storage =
 		std::make_shared<mock_buffer>();
 
-	const auto layout = strided_layout::make_contiguous_layout(make_span(extents));
+	const auto layout = strided_layout::make_contiguous_layout(
+		make_span(extents)
+	);
 	const array_descriptor descriptor(layout, data_type);
 	array arr1(storage, descriptor);
 	auto arr2 = arr1.share();

@@ -3,6 +3,7 @@
 target_sources(
 	rexlib-cpu-obj
 	PRIVATE
+		cpu_plugin.cpp
 		cpu_program_builder.cpp
 )
 

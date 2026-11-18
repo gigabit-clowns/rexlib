@@ -31,7 +31,7 @@ public:
 	/**
 	 * @brief Get the kind of memory this resource represents.
 	 *
-	 * The returned value is constant over the lifetime of the resource and 
+	 * The returned value is constant over the lifetime of the resource and
 	 * determines the host/device accessibility of the buffers allocated from it
 	 * (see @ref is_host_accessible and @ref is_device_accessible).
 	 *
@@ -58,7 +58,7 @@ public:
  * The returned resource has kind @ref memory_resource_kind::host. It represents
  * plain host-addressable memory.
  *
- * @return Reference to the host memory resource singleton. The reference is 
+ * @return Reference to the host memory resource singleton. The reference is
  * valid for the entire lifetime of the process.
  */
 REXLIB_API

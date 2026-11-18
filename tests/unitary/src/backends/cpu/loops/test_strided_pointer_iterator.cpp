@@ -24,7 +24,9 @@ TEST_CASE(
 	STATIC_REQUIRE(
 		std::is_same<iterator::difference_type, std::ptrdiff_t>::value
 	);
-	STATIC_REQUIRE( std::is_same<iterator::stride_type, std::ptrdiff_t>::value );
+	STATIC_REQUIRE(
+		std::is_same<iterator::stride_type, std::ptrdiff_t>::value
+	);
 	STATIC_REQUIRE(
 		std::is_same<
 			iterator::iterator_category,
@@ -64,7 +66,8 @@ TEST_CASE(
 {
 	std::array<int, 8> data;
 
-	const auto it = make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
+	const auto it =
+		make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
 
 	CHECK( it.data() == data.data() );
 	CHECK( it.stride() == 2 );
@@ -88,7 +91,8 @@ TEST_CASE(
 {
 	const std::array<int, 4> data = { 10, 20, 30, 40 };
 
-	const auto it = make_strided_pointer_iterator(data.data(), std::ptrdiff_t{1});
+	const auto it =
+		make_strided_pointer_iterator(data.data(), std::ptrdiff_t{1});
 
 	CHECK( *it == 10 );
 }
@@ -118,7 +122,8 @@ TEST_CASE(
 {
 	const std::array<int, 8> data = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
-	const auto it = make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
+	const auto it =
+		make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
 
 	CHECK( it[0] == 0 );
 	CHECK( it[1] == 2 );
@@ -184,7 +189,8 @@ TEST_CASE(
 {
 	std::array<int, 16> data;
 
-	const auto it = make_strided_pointer_iterator(data.data(), std::ptrdiff_t{3});
+	const auto it =
+		make_strided_pointer_iterator(data.data(), std::ptrdiff_t{3});
 
 	CHECK( (it + 2).data() == data.data() + 6 );
 	CHECK( (2 + it).data() == data.data() + 6 );
@@ -201,8 +207,10 @@ TEST_CASE(
 {
 	std::array<int, 8> data;
 
-	const auto first = make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
-	const auto same = make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
+	const auto first =
+		make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
+	const auto same =
+		make_strided_pointer_iterator(data.data(), std::ptrdiff_t{2});
 	const auto other =
 		make_strided_pointer_iterator(data.data() + 2, std::ptrdiff_t{2});
 
@@ -241,7 +249,8 @@ TEST_CASE(
 	const std::array<int, 8> source = { 0, 1, 2, 3, 4, 5, 6, 7 };
 	std::array<int, 4> result;
 
-	const auto first = make_strided_pointer_iterator(source.data(), std::ptrdiff_t{2});
+	const auto first =
+		make_strided_pointer_iterator(source.data(), std::ptrdiff_t{2});
 	std::copy_n(first, result.size(), result.begin());
 
 	const std::array<int, 4> expected = { 0, 2, 4, 6 };
@@ -255,7 +264,8 @@ TEST_CASE(
 {
 	std::array<int, 8> buffer = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-	const auto first = make_strided_pointer_iterator(buffer.data(), std::ptrdiff_t{2});
+	const auto first =
+		make_strided_pointer_iterator(buffer.data(), std::ptrdiff_t{2});
 	std::fill_n(first, 4, 7);
 
 	const std::array<int, 8> expected = { 7, 0, 7, 0, 7, 0, 7, 0 };
@@ -299,7 +309,8 @@ TEST_CASE(
 	const std::array<int, 8> source = { 0, 1, 2, 3, 4, 5, 6, 7 };
 	std::array<int, 4> result;
 
-	const auto first = make_strided_pointer_iterator(source.data(), static_stride{});
+	const auto first =
+		make_strided_pointer_iterator(source.data(), static_stride{});
 	std::copy_n(first, result.size(), result.begin());
 
 	const std::array<int, 4> expected = { 0, 2, 4, 6 };

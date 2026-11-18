@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+set(REXLIB_PYTHON_TEST_PLUGINS_DIR ${CMAKE_CURRENT_BINARY_DIR}/plugins)
+add_subdirectory(assets)
+
+# The suite imports the package from an install into the build tree, which
+# is everything this build installs.
+set(REXLIB_PYTHON_TEST_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/prefix)
+
+add_test(
+	NAME rexlib-python-install
+	COMMAND
+		${CMAKE_COMMAND}
+		--install ${CMAKE_BINARY_DIR}
+		--prefix ${REXLIB_PYTHON_TEST_PREFIX}
+		--config $<CONFIG>
+)
+set_tests_properties(
+	rexlib-python-install
+	PROPERTIES
+		FIXTURES_SETUP rexlib-python-installed
+		LABELS python
+)
+
+set(REXLIB_PYTHON_COVERAGE_ARGS)
+if(REXLIB_ENABLE_COVERAGE)
+	set(
+		REXLIB_PYTHON_COVERAGE_ARGS
+		--cov
+		--cov-config=${CMAKE_CURRENT_SOURCE_DIR}/../../pyproject.toml
+		--cov-report=term
+		--cov-report=xml:${CMAKE_BINARY_DIR}/coverage-python.xml
+	)
+endif()
+
+add_test(
+	NAME rexlib-python
+	COMMAND
+		${Python_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR}
+		-p no:cacheprovider
+		${REXLIB_PYTHON_COVERAGE_ARGS}
+)
+set_tests_properties(
+	rexlib-python
+	PROPERTIES
+		FIXTURES_REQUIRED rexlib-python-installed
+		LABELS python
+		ENVIRONMENT
+			"PYTHONPATH=${REXLIB_PYTHON_TEST_PREFIX}/${REXLIB_PYTHON_INSTALL_DIR};\
+REXLIB_PYTHON_TEST_PLUGINS_DIR=${REXLIB_PYTHON_TEST_PLUGINS_DIR}"
+)
+
+# coverage maps the installed package onto python/rexlib, which SonarCloud
+# reads, only from a directory where python/rexlib exists.
+if(REXLIB_ENABLE_COVERAGE)
+	set_tests_properties(
+		rexlib-python
+		PROPERTIES
+			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../..
+	)
+	set_property(
+		TEST rexlib-python
+		APPEND PROPERTY ENVIRONMENT
+			"COVERAGE_FILE=${CMAKE_BINARY_DIR}/.coverage-python"
+	)
+endif()
+
+set_property(
+	GLOBAL APPEND PROPERTY REXLIB_MEMCHECK_IGNORE
+	rexlib-python-install
+	rexlib-python
+)

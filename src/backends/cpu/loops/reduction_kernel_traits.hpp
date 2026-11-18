@@ -108,7 +108,7 @@ struct has_reduction_identity;
  * static constexpr bool reassociable_fold = true;
  * @endcode
  * A kernel that declares it `false`, or does not declare it at all, has its
- * folds kept in order. 
+ * folds kept in order.
  *
  * Declaring it states two things: that its `merge` is associative, so the
  * order the lanes are folded in does not matter, and that it is commutative

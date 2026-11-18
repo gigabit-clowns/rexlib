@@ -1,8 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    "helpers:pinGitHubActionDigests"
+    "config:recommended"
   ],
   "timezone": "Europe/Madrid",
   "addLabels": [
@@ -12,83 +11,116 @@
   "internalChecksFilter": "strict",
   "automerge": true,
   "ignorePresets": [":ignoreModulesAndTests"],
+  "constraints": {
+    "ghActionsLock": "v0.4.1"
+  },
+  "lockFileMaintenance": {
+    "description": "Moves what uv.lock pins beyond the groups' own pins, those they pull in, to their newest releases, once a month",
+    "enabled": true,
+    "schedule": ["* 0-3 1 * *"]
+  },
+  "poetry": {
+    "description": "Not a poetry project, but supersedes the pep621 manager if left enabled",
+    "enabled": false
+  },
+  "git-submodules": {
+    "description": "The sources of the dependencies, in third_party/ and plugins/cuda/third_party/",
+    "enabled": true
+  },
   "packageRules": [
     {
-      "matchDepNames": ["gigabit-clowns/.github"],
+      "description": "The Python versions of requires-python and of the workflows",
+      "matchDepNames": ["python"],
       "enabled": false
     },
     {
-      "matchDatasources": ["custom.half"],
-      "extractVersion": "^/projects/half/files/half/(?<version>[0-9.]+)/$"
+      "description": "The runner images of the workflows",
+      "matchDatasources": ["github-runners"],
+      "enabled": false
     },
     {
-      "description": "A commit carries no release timestamp to age against, and strict internal checks would hold the update forever",
+      "description": "Keeps the numpy pin for Python 3.11 on releases that support 3.11; 2.5.0 raised requires-python to >=3.12",
+      "matchDepNames": ["numpy"],
+      "matchCurrentVersion": ">=2.3,<2.5",
+      "constraints": { "python": "3.11" },
+      "constraintsFiltering": "strict"
+    },
+    {
+      "description": "Updates the vcpkg baseline, a commit, which carries no release date, without waiting for one",
       "matchDatasources": ["git-refs"],
       "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
+      "description": "The dependencies' submodules, pinned to release tags read as versions, without waiting for a release date, which a tag does not carry",
+      "matchManagers": ["git-submodules"],
+      "versioning": "semver-coerced",
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
+      "description": "pocketfft makes no releases: its submodule follows its cpp branch",
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/mreineck/pocketfft.git"],
+      "versioning": "git"
+    },
+    {
+      "description": "Every Boost library at the same release, in one pull request",
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["/^https://github\\.com/boostorg//"],
+      "versioning": "regex:^boost-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+      "groupName": "Boost"
+    },
+    {
+      "description": "A dependency the library and the CUDA plugin share moves in both in one pull request",
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/gabime/spdlog.git"],
+      "groupName": "spdlog"
+    },
+    {
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/catchorg/Catch2.git"],
+      "groupName": "Catch2"
+    },
+    {
+      "matchManagers": ["git-submodules"],
+      "matchPackageNames": ["https://github.com/rollbear/trompeloeil.git"],
+      "groupName": "trompeloeil"
+    },
+    {
+      "description": "Moves the vcpkg baseline once a month",
+      "matchDepNames": ["vcpkg"],
+      "schedule": ["* 0-3 1 * *"],
+      "updateNotScheduled": false
     }
   ],
-  "customDatasources": {
-    "half": {
-      "defaultRegistryUrlTemplate": "https://sourceforge.net/projects/half/files/half/",
-      "format": "html"
-    }
-  },
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_boost\\(\\s*TAG (?<currentValue>\\S+)\\s+SHA256 (?<currentDigest>[0-9a-f]{64})"],
-      "depNameTemplate": "boost",
-      "packageNameTemplate": "boostorg/boost",
-      "datasourceTemplate": "github-release-attachments",
-      "versioningTemplate": "regex:^boost-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_half\\(\\s*VERSION (?<currentValue>\\S+)"],
-      "depNameTemplate": "half",
-      "datasourceTemplate": "custom.half"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_spdlog\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "spdlog",
-      "packageNameTemplate": "gabime/spdlog",
-      "datasourceTemplate": "github-tags"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_pocketfft\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "pocketfft",
-      "packageNameTemplate": "https://github.com/mreineck/pocketfft",
+      "description": "The baseline of the vcpkg manifest, a commit of vcpkg's master",
+      "managerFilePatterns": [".github/vcpkg/vcpkg.json"],
+      "matchStrings": ["\"baseline\": \"(?<currentDigest>[0-9a-f]{40})\""],
+      "depNameTemplate": "vcpkg",
+      "packageNameTemplate": "https://github.com/microsoft/vcpkg",
+      "currentValueTemplate": "master",
       "datasourceTemplate": "git-refs"
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_eigen\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "eigen",
-      "packageNameTemplate": "libeigen/eigen",
-      "datasourceTemplate": "gitlab-tags"
+      "description": "The gh-actions-lock extension of the Lint job, and the one Renovate regenerates actions.lock with",
+      "managerFilePatterns": [".github/workflows/*.yml", "renovate.json"],
+      "matchStrings": [
+        "gh extension install github/gh-actions-lock --pin (?<currentValue>v\\S+)",
+        "\"ghActionsLock\": \"(?<currentValue>v[^\"]+)\""
+      ],
+      "depNameTemplate": "github/gh-actions-lock",
+      "datasourceTemplate": "github-releases"
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_catch2\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "catch2",
-      "packageNameTemplate": "catchorg/Catch2",
-      "datasourceTemplate": "github-tags"
-    },
-    {
-      "customType": "regex",
-      "managerFilePatterns": ["**/CMakeLists.txt"],
-      "matchStrings": ["rexlib_fetch_trompeloeil\\(\\s*COMMIT (?<currentDigest>[0-9a-f]{40})\\s*\\) # (?<currentValue>\\S+)"],
-      "depNameTemplate": "trompeloeil",
-      "packageNameTemplate": "rollbear/trompeloeil",
-      "datasourceTemplate": "github-tags"
+      "description": "The version of uv that writes uv.lock, which CI installs too",
+      "managerFilePatterns": ["pyproject.toml"],
+      "matchStrings": ["required-version = \"==(?<currentValue>[^\"]+)\""],
+      "depNameTemplate": "uv",
+      "datasourceTemplate": "pypi"
     }
   ]
 }

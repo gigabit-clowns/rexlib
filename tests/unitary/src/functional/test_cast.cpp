@@ -35,8 +35,8 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,
-	"cast allocates a new device array and dispatches a copy_operation when the "
-	"requested type differs",
+	"cast allocates a new device array and dispatches a copy_operation when "
+	"the requested type differs",
 	"[array_cast]"
 )
 {
@@ -95,7 +95,11 @@ TEST_CASE_METHOD(
 		.LR_WITH( storage_of(_3, 0) == source_buffer.get() )
 		.LR_WITH( in_session(_4) );
 
-	const auto result = cast_copy(input.share(), numerical_type::float32, context);
+	const auto result = cast_copy(
+		input.share(),
+		numerical_type::float32,
+		context
+	);
 
 	CHECK( result.get_storage() == buffer.get() );
 	CHECK( result.get_descriptor().get_data_type() == numerical_type::float32 );
@@ -103,7 +107,8 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(
 	verb_dispatch_fixture,
-	"cast_copy casts to the requested type and reuses a compatible output array",
+	"cast_copy casts to the requested type and reuses a compatible output "
+	"array",
 	"[array_cast]"
 )
 {

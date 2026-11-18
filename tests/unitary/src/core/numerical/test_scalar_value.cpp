@@ -18,8 +18,12 @@ TEST_CASE(
 )
 {
 	CHECK( scalar_value(true).get_data_type() == numerical_type::boolean );
-	CHECK( scalar_value(std::int32_t(0)).get_data_type() == numerical_type::int32 );
-	CHECK( scalar_value(float64_t(0)).get_data_type() == numerical_type::float64 );
+	CHECK(
+		scalar_value(std::int32_t(0)).get_data_type() == numerical_type::int32
+	);
+	CHECK(
+		scalar_value(float64_t(0)).get_data_type() == numerical_type::float64
+	);
 	CHECK(
 		scalar_value(std::complex<float32_t>()).get_data_type() ==
 		numerical_type::complex_float32
@@ -113,8 +117,12 @@ TEST_CASE(
 		return numerical_type_of<std::decay_t<decltype(x)>>::value;
 	};
 
-	CHECK( visit(get_type, scalar_value(std::int32_t(21))) == numerical_type::int32 );
-	CHECK( visit(get_type, scalar_value(float64_t(1.0))) == numerical_type::float64 );
+	CHECK(
+		visit(get_type, scalar_value(std::int32_t(21))) == numerical_type::int32
+	);
+	CHECK(
+		visit(get_type, scalar_value(float64_t(1.0))) == numerical_type::float64
+	);
 	CHECK(
 		visit(get_type, scalar_value(std::complex<float32_t>())) ==
 		numerical_type::complex_float32
@@ -142,8 +150,9 @@ TEST_CASE(
 
 	// A real value promotes into the real part of a complex destination.
 	CHECK(
-		scalar_value_cast<std::complex<float32_t>>(scalar_value(float32_t(3.0f))) ==
-		std::complex<float32_t>(3.0f, 0.0f)
+		scalar_value_cast<std::complex<float32_t>>(
+			scalar_value(float32_t(3.0f))
+		) == std::complex<float32_t>(3.0f, 0.0f)
 	);
 
 	// Conversion between complex types.

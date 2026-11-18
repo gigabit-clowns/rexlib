@@ -57,11 +57,11 @@ void standardization_map_kernel::operator()(
 	const auto lower_bound = static_cast<compute_type>(m_lower_bound);
 	const auto upper_bound = static_cast<compute_type>(m_upper_bound);
 
-	auto result = make_strided_pointer_iterator(
+	const auto result = make_strided_pointer_iterator(
 		std::get<0>(pointers),
 		std::get<0>(strides)
 	);
-	auto value = make_strided_pointer_iterator(
+	const auto value = make_strided_pointer_iterator(
 		std::get<1>(pointers),
 		std::get<1>(strides)
 	);

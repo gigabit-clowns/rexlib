@@ -1,0 +1,76 @@
+# Backlog
+
+Work whose shape is settled and only waits to be scheduled. Everything here
+has a known method; nothing here is waiting on a judgement call. Open
+questions live in [DECISIONS.md](DECISIONS.md).
+
+Reviewed 1 Oct 2026, against rexlib-python `ea1b87d` and rexlib `09f73158`.
+
+## 1. Bind the rest of `functional`
+
+Four of rexlib's seventeen `functional` headers are bound — `arithmetic`,
+`cast`, `creation` and `transfer` — and two of those only partly. Thirty-one
+names reach Python; roughly ninety-seven do not.
+
+This is the largest gap in the package and what most of the rest leans on. It
+is also the cheapest work here: each block is a mechanical translation against
+a template that exists twice over, in `python/src/functional/arithmetic.cpp` and
+`python/rexlib/_functional.py`.
+
+Sequenced by what each one unblocks rather than by size:
+
+| Step | Header | Functions | Unblocks |
+|---|---|---|---|
+| 1 | `compare.hpp` | 6 | `__eq__` … `__ge__` |
+| 2 | `power.hpp` | 12 | `__pow__`, `__ipow__` |
+| 3 | `bitwise.hpp` | 6 | six bitwise dunders and their in-place forms |
+| 4 | `view.hpp` | 1 | `__getitem__`, `__setitem__` |
+| 5 | `reduction.hpp` | 10 | aggregates |
+| 6 | `linalg.hpp` | 5 | `__matmul__`, `__imatmul__` |
+| 7 | `rounding`, `selection`, `numeric`, `complex`, `logical` | 21 | — |
+| 8 | `trigonometric.hpp` | 17 | — |
+| 9 | `fourier.hpp` | 14 | the CryoEM use case |
+
+Holes in the headers already bound: `divmod`, `floor_divide` and `sign` in
+`arithmetic`, the first two of which `__divmod__` and `__floordiv__` need; and
+`arange` and `linspace` in `creation`.
+
+Per block: a `.cpp`/`.hpp` pair binding rexlib's functions by pointer, with
+every argument required and the optional out parameter as
+`nb::arg("out").none() = nb::none()`; a section
+in `_functional.py` where `context` falls back to the active one; a re-export
+with `as` plus a line in `__all__`; a file under `tests/python/functional/`.
+
+## 2. Finish `Array`'s Python operators
+
+Tracked as issue #115. `python/rexlib/_ndarray.py` installs fifteen of roughly
+forty: the five arithmetic binaries, their in-place forms, `__neg__`,
+`__abs__`, `__pos__`, `__copy__` and `__deepcopy__`.
+
+This is the ceiling of item 1 rather than work to schedule on its own. Each
+block lands, the operators it affords go in with it, and the issue closes when
+the ladder is climbed.
+
+One trap before `compare` lands: installing `__eq__` onto `Array` leaves it
+hashing by identity, so two equal arrays would be two keys. `ArrayDescriptor`
+forwards rexlib's `array_descriptor::hash()` for this reason. `Array` has no
+such member in rexlib, so the comparison operators need an answer about
+identity before they go in — at the least, `__hash__` set to `None` beside
+them.
+
+## 3. Translate the library's exceptions
+
+There is no `nb::exception` anywhere in `python/src/`, so everything rexlib throws
+arrives through nanobind's default translation. `unsupported_operation_error`
+and `unsupported_capability_error` derive from `std::runtime_error`, which
+nanobind does not special-case, so both land as a bare `RuntimeError`.
+
+rexlib tells them apart, and the binding throws that away: an operation no
+backend implements and an array the host cannot reach are different mistakes
+that a caller cannot tell apart. What already arrives well is what rexlib
+throws as a standard exception: `std::invalid_argument` is a `ValueError` and
+`std::out_of_range` an `IndexError`.
+
+Register the types once where the module is built so every submodule inherits
+them; translate only what genuinely corresponds to a Python builtin and give
+the rest types of their own; the tests that assert `RuntimeError` follow.

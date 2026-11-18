@@ -4,7 +4,7 @@
 
 #include <rexlib/core/hardware/buffer.hpp>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
@@ -16,7 +16,12 @@ class host_buffer final
 {
 public:
 	host_buffer(std::size_t size, std::size_t alignment);
+	host_buffer(const host_buffer &other) = delete;
+	host_buffer(host_buffer &&other) = delete;
 	~host_buffer() override;
+
+	host_buffer& operator=(const host_buffer &other) = delete;
+	host_buffer& operator=(host_buffer &&other) = delete;
 
 	void* get_host_ptr() noexcept override;
 	const void* get_host_ptr() const noexcept override;

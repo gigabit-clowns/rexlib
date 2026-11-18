@@ -415,7 +415,10 @@ TEST_CASE_METHOD(
 	"[array_reduction][cpu]"
 )
 {
-	auto operand = make_sequence_operand<float32_t>({ 2, 3 }, {0, 1, 2, 3, 0, 0});
+	auto operand = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{0, 1, 2, 3, 0, 0}
+	);
 	const const_array_ref operand_ref = operand;
 
 	const std::vector<std::ptrdiff_t> axes = { 1 };
@@ -480,7 +483,10 @@ TEST_CASE_METHOD(
 {
 	// The only case that tells the two apart, both answering the same way
 	// when every element agrees.
-	auto operand = make_sequence_operand<float32_t>({ 2, 3 }, {0, 1, 2, 3, 4, 5});
+	auto operand = make_sequence_operand<float32_t>(
+		{ 2, 3 },
+		{0, 1, 2, 3, 4, 5}
+	);
 	const const_array_ref operand_ref = operand;
 
 	const std::vector<std::ptrdiff_t> axes = { 1 };
@@ -581,14 +587,24 @@ TEST_CASE_METHOD(
 	{
 		const std::vector<std::ptrdiff_t> axes = { 0 };
 		check_values<int64_t>(
-			rexlib::argmax(operand_ref, make_span(axes), false, context,
-			               nullptr),
+			rexlib::argmax(
+				operand_ref,
+				make_span(axes),
+				false,
+				context,
+				nullptr
+			),
 			{ 3 },
 			{ 0, 1, 0 }
 		);
 		check_values<int64_t>(
-			rexlib::argmin(operand_ref, make_span(axes), false, context,
-			               nullptr),
+			rexlib::argmin(
+				operand_ref,
+				make_span(axes),
+				false,
+				context,
+				nullptr
+			),
 			{ 3 },
 			{ 1, 0, 1 }
 		);
@@ -598,14 +614,24 @@ TEST_CASE_METHOD(
 	{
 		const std::vector<std::ptrdiff_t> axes = { 1 };
 		check_values<int64_t>(
-			rexlib::argmax(operand_ref, make_span(axes), false, context,
-			               nullptr),
+			rexlib::argmax(
+				operand_ref,
+				make_span(axes),
+				false,
+				context,
+				nullptr
+			),
 			{ 2 },
 			{ 2, 1 }
 		);
 		check_values<int64_t>(
-			rexlib::argmin(operand_ref, make_span(axes), false, context,
-			               nullptr),
+			rexlib::argmin(
+				operand_ref,
+				make_span(axes),
+				false,
+				context,
+				nullptr
+			),
 			{ 2 },
 			{ 1, 2 }
 		);

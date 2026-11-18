@@ -2,7 +2,7 @@
 
 #include "array_implementation.hpp"
 
-namespace rexlib 
+namespace rexlib
 {
 
 inline
@@ -40,7 +40,7 @@ buffer* array_implementation::get_storage() const noexcept
 }
 
 inline
-const std::shared_ptr<buffer>& 
+const std::shared_ptr<buffer>&
 array_implementation::share_storage() const noexcept
 {
 	return m_storage;

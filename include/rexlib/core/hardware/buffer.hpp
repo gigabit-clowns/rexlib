@@ -8,7 +8,7 @@
 #include <memory>
 #include <cstddef>
 
-namespace rexlib 
+namespace rexlib
 {
 
 class memory_resource;
@@ -18,7 +18,7 @@ class memory_allocator;
  * @brief Represents an untyped memory allocation at a given memory
  * resource.
  *
- * A buffer is a handle to a contiguous block of memory. It carries no type 
+ * A buffer is a handle to a contiguous block of memory. It carries no type
  * information of its own.
  */
 class REXLIB_API buffer
@@ -68,7 +68,7 @@ public:
 	/**
 	 * @brief Get the size in bytes for this buffer.
 	 *
-	 * The size may be larger then the requested in 
+	 * The size may be larger then the requested in
 	 * @ref memory_allocator::allocate.
 	 *
 	 * @return std::size_t Size in bytes.

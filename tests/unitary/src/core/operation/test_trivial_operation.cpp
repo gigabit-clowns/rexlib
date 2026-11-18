@@ -74,82 +74,82 @@ private:
 } // anonymous namespace
 
 TEST_CASE(
-    "a declared operation should carry the signature of its rules",
-    "[trivial_operation]"
+	"a declared operation should carry the signature of its rules",
+	"[trivial_operation]"
 )
 {
-    const stub_add_operation op;
+	const stub_add_operation op;
 
-    const std::vector<operand_specification> inputs = {
-        operand_specification({ 4 }, numerical_type::float32),
-        operand_specification({ 1 }, numerical_type::float32)
-    };
-    std::vector<operand_specification> outputs(1);
+	const std::vector<operand_specification> inputs = {
+		operand_specification({ 4 }, numerical_type::float32),
+		operand_specification({ 1 }, numerical_type::float32)
+	};
+	std::vector<operand_specification> outputs(1);
 
-    op.get_signature().deduce(
-        op.get_descriptor(),
-        make_span(outputs),
-        make_span(inputs)
-    );
-    CHECK(
-        outputs[0] == operand_specification({ 4 }, numerical_type::float32)
-    );
+	op.get_signature().deduce(
+		op.get_descriptor(),
+		make_span(outputs),
+		make_span(inputs)
+	);
+	CHECK(
+		outputs[0] == operand_specification({ 4 }, numerical_type::float32)
+	);
 }
 
 TEST_CASE(
-    "operations following the same rules should share one signature",
-    "[trivial_operation]"
+	"operations following the same rules should share one signature",
+	"[trivial_operation]"
 )
 {
-    const stub_add_operation add;
-    const stub_subtract_operation subtract;
+	const stub_add_operation add;
+	const stub_subtract_operation subtract;
 
-    CHECK( &add.get_signature() == &subtract.get_signature() );
+	CHECK( &add.get_signature() == &subtract.get_signature() );
 }
 
 TEST_CASE(
-    "a declared operation should reject operands its rule forbids",
-    "[trivial_operation]"
+	"a declared operation should reject operands its rule forbids",
+	"[trivial_operation]"
 )
 {
-    const stub_add_operation op;
+	const stub_add_operation op;
 
-    const std::vector<operand_specification> mismatched = {
-        operand_specification({ 4 }, numerical_type::float32),
-        operand_specification({ 4 }, numerical_type::int32)
-    };
-    std::vector<operand_specification> outputs(1);
+	const std::vector<operand_specification> mismatched = {
+		operand_specification({ 4 }, numerical_type::float32),
+		operand_specification({ 4 }, numerical_type::int32)
+	};
+	std::vector<operand_specification> outputs(1);
 
-    CHECK_THROWS_AS(
-        op.get_signature().deduce(
-            op.get_descriptor(),
-            make_span(outputs),
-            make_span(mismatched)
-        ),
-        std::invalid_argument
-    );
+	CHECK_THROWS_AS(
+		op.get_signature().deduce(
+			op.get_descriptor(),
+			make_span(outputs),
+			make_span(mismatched)
+		),
+		std::invalid_argument
+	);
 }
 
 TEST_CASE(
-    "an operation with values its signature does not read should keep its "
-    "declaration",
-    "[trivial_operation]"
+	"an operation with values its signature does not read should keep its "
+	"declaration",
+	"[trivial_operation]"
 )
 {
-    const stub_fill_operation op(scalar_value(3.0F));
+	const stub_fill_operation op(scalar_value(3.0F));
 
-    CHECK( std::string(op.get_descriptor().get_name()) == "stub_fill" );
-    CHECK( op.get_signature().get_arity() == operation_arity(1, 0) );
-    CHECK( op.get_fill_value().get<float32_t>() == 3.0F );
+	CHECK( std::string(op.get_descriptor().get_name()) == "stub_fill" );
+	CHECK( op.get_signature().get_arity() == operation_arity(1, 0) );
+	CHECK( op.get_fill_value().get<float32_t>() == 3.0F );
 
-    // With no input to fix it, the element type is left for the user
-    // supplied output to determine.
-    std::vector<operand_specification> outputs(1);
-    op.get_signature().deduce(
-        op.get_descriptor(),
-        make_span(outputs),
-        span<const operand_specification>()
-    );
-    CHECK( outputs[0].get_data_type() == numerical_type::unknown );
-    CHECK( outputs[0].get_shape().empty() );
+	// With no input to fix it, the element type is left for the user
+	// supplied output to determine.
+	std::vector<operand_specification> outputs(1);
+	op.get_signature().deduce(
+		op.get_descriptor(),
+		make_span(outputs),
+		span<const operand_specification>()
+	);
+	CHECK( outputs[0].get_data_type() == numerical_type::unknown );
+	CHECK( outputs[0].get_shape().empty() );
 }

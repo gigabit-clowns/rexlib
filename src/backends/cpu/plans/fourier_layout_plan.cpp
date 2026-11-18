@@ -9,6 +9,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace rexlib
 {
@@ -179,18 +180,18 @@ fourier_layout_plan::fourier_layout_plan(
 	{
 	case fourier_transform_kind::complex_to_complex:
 		check_equal_extents(output_extents, input_extents);
-		m_shape = input_extents;
+		m_shape = std::move(input_extents);
 		break;
 
 	case fourier_transform_kind::real_to_complex:
 		check_spectrum_extents(input_extents, output_extents, axes.back());
-		m_shape = input_extents;
+		m_shape = std::move(input_extents);
 		break;
 
 	case fourier_transform_kind::complex_to_real:
 		check_axes_within_rank(axes, output_extents.size());
 		check_spectrum_extents(output_extents, input_extents, axes.back());
-		m_shape = output_extents;
+		m_shape = std::move(output_extents);
 		break;
 	}
 

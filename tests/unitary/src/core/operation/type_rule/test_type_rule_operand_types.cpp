@@ -136,199 +136,199 @@ void check_rule_agreement()
 } // anonymous namespace
 
 TEST_CASE(
-    "type_rule_operand_types should apply each slot transform to its pivot",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should apply each slot transform to its pivot",
+	"[type_rule_operand_types]"
 )
 {
-    using rule = ops::unary_real_of_rule<>;
+	using rule = ops::unary_real_of_rule<>;
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::output_slot_list_type,
-            type_list<std::complex<float32_t>>
-        >,
-        type_list<float32_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::output_slot_list_type,
+			type_list<std::complex<float32_t>>
+		>,
+		type_list<float32_t>
+	>::value );
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::input_slot_list_type,
-            type_list<std::complex<float32_t>>
-        >,
-        type_list<std::complex<float32_t>>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::input_slot_list_type,
+			type_list<std::complex<float32_t>>
+		>,
+		type_list<std::complex<float32_t>>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should repeat the pivot for a homogeneous rule",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should repeat the pivot for a homogeneous rule",
+	"[type_rule_operand_types]"
 )
 {
-    using rule = ops::binary_homogeneous_rule<>;
+	using rule = ops::binary_homogeneous_rule<>;
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::input_slot_list_type,
-            type_list<float64_t>
-        >,
-        type_list<float64_t, float64_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::input_slot_list_type,
+			type_list<float64_t>
+		>,
+		type_list<float64_t, float64_t>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should yield an empty list for a nullary rule",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should yield an empty list for a nullary rule",
+	"[type_rule_operand_types]"
 )
 {
-    using rule = ops::nullary_free_rule<>;
+	using rule = ops::nullary_free_rule<>;
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::input_slot_list_type,
-            type_list<float32_t>
-        >,
-        type_list<>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::input_slot_list_type,
+			type_list<float32_t>
+		>,
+		type_list<>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should honour a fixed slot",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should honour a fixed slot",
+	"[type_rule_operand_types]"
 )
 {
-    using rule = ops::binary_predicate_rule<>;
+	using rule = ops::binary_predicate_rule<>;
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::output_slot_list_type,
-            type_list<float32_t>
-        >,
-        type_list<bool>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::output_slot_list_type,
+			type_list<float32_t>
+		>,
+		type_list<bool>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should honour a fixed slot on an input",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should honour a fixed slot on an input",
+	"[type_rule_operand_types]"
 )
 {
-    // A mask is an operand of a fixed type rather than a parameter, so the
-    // fixed transform has to work on the input side as well as the output
-    // side. Nothing in the slot machinery distinguishes the two.
-    using rule = ops::masked_unary_homogeneous_rule<>;
+	// A mask is an operand of a fixed type rather than a parameter, so the
+	// fixed transform has to work on the input side as well as the output
+	// side. Nothing in the slot machinery distinguishes the two.
+	using rule = ops::masked_unary_homogeneous_rule<>;
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::input_slot_list_type,
-            type_list<float32_t>
-        >,
-        type_list<float32_t, bool>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::input_slot_list_type,
+			type_list<float32_t>
+		>,
+		type_list<float32_t, bool>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should follow a pivot taken from a later input",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should follow a pivot taken from a later input",
+	"[type_rule_operand_types]"
 )
 {
-    // The condition of a selection is boolean whatever the selected type is,
-    // so the pivot cannot come from input 0. Pivot indices and operand
-    // indices are separate spaces, and this is where that matters.
-    using rule = ops::selection_rule<>;
+	// The condition of a selection is boolean whatever the selected type is,
+	// so the pivot cannot come from input 0. Pivot indices and operand
+	// indices are separate spaces, and this is where that matters.
+	using rule = ops::selection_rule<>;
 
-    STATIC_REQUIRE( rule::pivot_count == 1 );
+	STATIC_REQUIRE( rule::pivot_count == 1 );
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::input_slot_list_type,
-            type_list<std::int32_t>
-        >,
-        type_list<bool, std::int32_t, std::int32_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::input_slot_list_type,
+			type_list<std::int32_t>
+		>,
+		type_list<bool, std::int32_t, std::int32_t>
+	>::value );
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::output_slot_list_type,
-            type_list<std::int32_t>
-        >,
-        type_list<std::int32_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::output_slot_list_type,
+			type_list<std::int32_t>
+		>,
+		type_list<std::int32_t>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should give every output of a pair rule the "
-    "operand type",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should give every output of a pair rule the "
+	"operand type",
+	"[type_rule_operand_types]"
 )
 {
-    using rule = ops::binary_homogeneous_pair_rule<>;
+	using rule = ops::binary_homogeneous_pair_rule<>;
 
-    STATIC_REQUIRE( rule::output_count == 2 );
+	STATIC_REQUIRE( rule::output_count == 2 );
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::output_slot_list_type,
-            type_list<std::int64_t>
-        >,
-        type_list<std::int64_t, std::int64_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::output_slot_list_type,
+			type_list<std::int64_t>
+		>,
+		type_list<std::int64_t, std::int64_t>
+	>::value );
 }
 
 TEST_CASE(
-    "type_rule_operand_types should keep the pivots of a heterogeneous rule "
-    "apart",
-    "[type_rule_operand_types]"
+	"type_rule_operand_types should keep the pivots of a heterogeneous rule "
+	"apart",
+	"[type_rule_operand_types]"
 )
 {
-    // Two independent pivots, so the second operand does not follow the
-    // first. This is the only rule shape a backend cannot dispatch from a
-    // single operand type.
-    using rule = ops::binary_heterogeneous_rule<>;
+	// Two independent pivots, so the second operand does not follow the
+	// first. This is the only rule shape a backend cannot dispatch from a
+	// single operand type.
+	using rule = ops::binary_heterogeneous_rule<>;
 
-    STATIC_REQUIRE( rule::pivot_count == 2 );
+	STATIC_REQUIRE( rule::pivot_count == 2 );
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::input_slot_list_type,
-            type_list<float32_t, std::int32_t>
-        >,
-        type_list<float32_t, std::int32_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::input_slot_list_type,
+			type_list<float32_t, std::int32_t>
+		>,
+		type_list<float32_t, std::int32_t>
+	>::value );
 
-    STATIC_REQUIRE( std::is_same<
-        type_rule_operand_types_t<
-            rule::output_slot_list_type,
-            type_list<float32_t, std::int32_t>
-        >,
-        type_list<float32_t>
-    >::value );
+	STATIC_REQUIRE( std::is_same<
+		type_rule_operand_types_t<
+			rule::output_slot_list_type,
+			type_list<float32_t, std::int32_t>
+		>,
+		type_list<float32_t>
+	>::value );
 }
 
 TEST_CASE(
-    "both interpreters of a rule should agree on every operand type",
-    "[type_rule_operand_types]"
+	"both interpreters of a rule should agree on every operand type",
+	"[type_rule_operand_types]"
 )
 {
-    check_rule_agreement<ops::unary_homogeneous_rule<>>();
-    check_rule_agreement<ops::binary_homogeneous_rule<>>();
-    check_rule_agreement<ops::ternary_homogeneous_rule<>>();
-    check_rule_agreement<ops::unary_real_of_rule<>>();
-    check_rule_agreement<ops::unary_complex_of_rule<>>();
-    check_rule_agreement<ops::unary_inexact_of_rule<>>();
-    check_rule_agreement<ops::unary_predicate_rule<>>();
-    check_rule_agreement<ops::binary_predicate_rule<>>();
-    check_rule_agreement<
-        ops::unary_fixed_output_rule<numerical_type::int64>
-    >();
-    check_rule_agreement<ops::binary_homogeneous_pair_rule<>>();
-    check_rule_agreement<ops::masked_unary_homogeneous_rule<>>();
-    check_rule_agreement<ops::masked_binary_homogeneous_rule<>>();
-    check_rule_agreement<ops::selection_rule<>>();
-    check_rule_agreement<
-        ops::binary_homogeneous_rule<real_arithmetic_type_domain>
-    >();
+	check_rule_agreement<ops::unary_homogeneous_rule<>>();
+	check_rule_agreement<ops::binary_homogeneous_rule<>>();
+	check_rule_agreement<ops::ternary_homogeneous_rule<>>();
+	check_rule_agreement<ops::unary_real_of_rule<>>();
+	check_rule_agreement<ops::unary_complex_of_rule<>>();
+	check_rule_agreement<ops::unary_inexact_of_rule<>>();
+	check_rule_agreement<ops::unary_predicate_rule<>>();
+	check_rule_agreement<ops::binary_predicate_rule<>>();
+	check_rule_agreement<
+		ops::unary_fixed_output_rule<numerical_type::int64>
+	>();
+	check_rule_agreement<ops::binary_homogeneous_pair_rule<>>();
+	check_rule_agreement<ops::masked_unary_homogeneous_rule<>>();
+	check_rule_agreement<ops::masked_binary_homogeneous_rule<>>();
+	check_rule_agreement<ops::selection_rule<>>();
+	check_rule_agreement<
+		ops::binary_homogeneous_rule<real_arithmetic_type_domain>
+	>();
 
-    // binary_heterogeneous_rule is deliberately absent: it has two pivots,
-    // and this check drives a rule from a single pivot value. Its type level
-    // half is covered by the static assertions above.
+	// binary_heterogeneous_rule is deliberately absent: it has two pivots,
+	// and this check drives a rule from a single pivot value. Its type level
+	// half is covered by the static assertions above.
 }

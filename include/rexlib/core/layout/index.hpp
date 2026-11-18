@@ -6,16 +6,16 @@
 
 #include <cstddef>
 
-namespace rexlib 
+namespace rexlib
 {
 
 /**
  * @brief Ensure that the index is within bounds for a given extent.
- * 
+ *
  * This function ensures that the input index is within bounds for the
  * provided axis extent. In addition, it replaces negative values with
  * indices referred from the end of the array.
- * 
+ *
  * @param index Index to be checked.
  * @param extent Extent of the indexed axis.
  * @return std::size_t Sanitize value. Guaranteed to be in [0, extent)

@@ -40,9 +40,9 @@ public:
 
 	/**
 	 * @brief Construct an array_ref from an implementation pointer.
-	 * 
+	 *
 	 * @param implementation The implementation referenced by this.
-	 * 
+	 *
 	 * @note This function is not part of the public API and shall only be
 	 * used internally or for testing purposes.
 	 */
