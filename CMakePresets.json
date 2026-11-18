@@ -2,21 +2,13 @@
   "version": 3,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 24,
+    "minor": 21,
     "patch": 0
   },
   "configurePresets": [
     {
-      "name": "third-party-dependencies",
-      "hidden": true,
-      "cacheVariables": {
-        "CMAKE_PROJECT_TOP_LEVEL_INCLUDES": "${sourceDir}/cmake/rexlib_dependency_provider.cmake"
-      }
-    },
-    {
       "name": "base",
       "hidden": true,
-      "inherits": "third-party-dependencies",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
@@ -92,7 +84,6 @@
     {
       "name": "docs",
       "displayName": "The Doxygen reference of the public headers",
-      "inherits": "third-party-dependencies",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "REXLIB_BUILD_DOCS": "ON",
@@ -102,7 +93,6 @@
     {
       "name": "lint",
       "displayName": "Static checks: clang-tidy and the .editorconfig rules",
-      "inherits": "third-party-dependencies",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
         "REXLIB_BUILD_TESTING": "OFF",

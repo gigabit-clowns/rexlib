@@ -47,7 +47,7 @@ a directory of the build tree, and `rexlib-python` runs pytest on
 `tests/python/` against that install. `PYTEST_ADDOPTS="--cov
 --cov-report=xml"` adds coverage, which `[tool.coverage]` in
 `pyproject.toml` maps from the installed copy the tests import onto
-`python/rexlib`.
+`python/rexlib`. A build with `REXLIB_ENABLE_COVERAGE` adds `--cov` itself.
 
 What the tests need is the `test` group of `pyproject.toml` (`pip install
 --group test`, which `dev` includes, or `uv sync`). `uv.lock` pins every

@@ -104,14 +104,12 @@ bool cuda_device_backend::get_device_properties(
 
 		const auto type =
 			prop.integrated ? device_type::integrated_gpu : device_type::gpu;
-		auto location = pci_id_to_string(
+		desc.set_name(std::string(prop.name));
+		desc.set_physical_location(pci_id_to_string(
 			prop.pciDomainID,
 			prop.pciBusID,
 			prop.pciDeviceID
-		);
-
-		desc.set_name(std::string(prop.name));
-		desc.set_physical_location(std::move(location));
+		));
 		desc.set_type(type);
 		desc.set_total_memory_bytes(prop.totalGlobalMem);
 		desc.set_optimal_data_alignment(REXLIB_CUDA_COALESCE_ALIGN_BYTES);

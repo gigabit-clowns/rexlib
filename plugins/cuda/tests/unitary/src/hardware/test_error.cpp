@@ -90,8 +90,10 @@ TEST_CASE(
 )
 {
 	// The runtime says nothing at all about some codes, and streaming that
-	// straight into the message reads past a null pointer.
-	const auto unrecognized = static_cast<cudaError_t>(0x7ffffff0);
+	// straight into the message reads past a null pointer. The code has to
+	// fit the enumeration, whose largest enumerator is 10000: any other value
+	// is undefined behaviour.
+	const auto unrecognized = static_cast<cudaError_t>(9999);
 
 	try
 	{

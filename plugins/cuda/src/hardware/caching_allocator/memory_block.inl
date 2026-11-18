@@ -78,7 +78,7 @@ void* memory_block::get_data() const noexcept
 inline
 bool memory_block::is_free() const noexcept
 {
-	return free_block_set_hook.is_linked();
+	return m_free_block_set_hook.is_linked();
 }
 
 } // namespace cuda
