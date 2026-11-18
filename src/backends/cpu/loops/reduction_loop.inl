@@ -2,10 +2,10 @@
 
 #include "reduction_loop.hpp"
 
-#include "element_index.hpp"
-#include "inner_loop_stride_dispatch.hpp"
+#include <backends/cpu/loops/indices/element_index.hpp>
+#include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include "loop_schedule.hpp"
-#include "operand_pointers.hpp"
+#include <backends/cpu/loops/strides/operand_pointers.hpp>
 #include "parallel_grain.hpp"
 #include "reduction_element_adaptor.hpp"
 

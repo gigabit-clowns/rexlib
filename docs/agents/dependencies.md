@@ -16,7 +16,7 @@ release in `third_party/half/`.
 Boost is one submodule per library it needs, at the same release, in
 `third_party/boost/libs/`: the libraries asked for and the ones they need in
 turn, `headers` included, with Boost's CMake as the submodule `tools/cmake`:
-35 submodules for the library and 14 for the plugin.
+40 submodules for the library and 14 for the plugin.
 `third_party/boost/CMakeLists.txt` is the root file of Boost's superproject,
 which reads the version from Boost.Config. A Boost release that makes a library need another stops the
 configure, naming the missing `Boost::` target, until its submodule is added.

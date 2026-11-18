@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: GPL-3.0-only
+
+add_subdirectory(arithmetic)
+add_subdirectory(assignment)
+add_subdirectory(bitwise)
+add_subdirectory(compare)
+add_subdirectory(complex)
+add_subdirectory(creation)
+add_subdirectory(fourier)
+add_subdirectory(linalg)
+add_subdirectory(logical)
+add_subdirectory(numeric)
+add_subdirectory(power)
+add_subdirectory(random)
+add_subdirectory(reduction)
+add_subdirectory(rounding)
+add_subdirectory(selection)
+add_subdirectory(trigonometric)

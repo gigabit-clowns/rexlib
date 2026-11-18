@@ -172,7 +172,7 @@ else()
 	include(rexlib_add_boost)
 	rexlib_add_boost(
 		SOURCE_DIR ${PROJECT_SOURCE_DIR}/third_party/boost
-		LIBRARIES container container_hash filesystem
+		LIBRARIES container container_hash filesystem math
 	)
 endif()
 

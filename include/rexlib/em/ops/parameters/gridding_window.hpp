@@ -44,11 +44,12 @@ public:
 	 *
 	 * @param half_width The half-width w of the window, in voxels.
 	 * @param shape The shape beta of the window. 0 gives a box of
-	 * half-width w.
+	 * half-width w. At most ln of the largest double, about 709.78, so that
+	 * I0(beta) is a finite double.
 	 * @return gridding_window The window.
 	 *
 	 * @throws std::invalid_argument When the half-width is not finite and
-	 * positive, or the shape is not finite and 0 or more.
+	 * positive, or the shape is not from 0 to ln of the largest double.
 	 */
 	REXLIB_API
 	static gridding_window kaiser_bessel(double half_width, double shape);

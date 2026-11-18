@@ -4,12 +4,12 @@
 #include <catch2/generators/catch_generators.hpp>
 
 #include <backends/cpu/config.hpp>
-#include <backends/cpu/loops/element_index_tags.hpp>
-#include <backends/cpu/loops/linear_index_run.hpp>
+#include <backends/cpu/loops/indices/element_index_tags.hpp>
+#include <backends/cpu/loops/indices/linear_index_run.hpp>
 #include <backends/cpu/loops/loop_schedule.hpp>
-#include <backends/cpu/loops/multidimensional_index.hpp>
+#include <backends/cpu/loops/indices/multidimensional_index.hpp>
 #include <backends/cpu/loops/reduction_loop.hpp>
-#include <backends/cpu/plans/index_operands.hpp>
+#include <backends/cpu/loops/layouts/index_operands.hpp>
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/platform/constexpr.hpp>

@@ -31,7 +31,7 @@ std::size_t get_parallel_grain_size() noexcept;
  *
  * The budget is stated in elementwise operations, so a loop whose iteration
  * costs more than one of them divides it down: a reduction's surviving
- * element costs as many as it folds, a linalg batch element costs a whole
+ * element costs as many as it folds, a matmul batch element costs a whole
  * matrix product, and both arrive at a grain in their own iterations without
  * a unit having to be invented for either.
  *

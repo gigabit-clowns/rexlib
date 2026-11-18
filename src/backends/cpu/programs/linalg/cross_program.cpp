@@ -1,0 +1,241 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <rexlib/ops/linalg/cross_operation.hpp>
+
+#include <backends/cpu/skeletons/type_dispatch_support_query.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_program_builder.hpp>
+#include <backends/cpu/skeletons/operand_data_types.hpp>
+#include <backends/cpu/dispatch/program_builder_registration_macros.hpp>
+#include <backends/cpu/skeletons/rule_type_dispatch.hpp>
+#include <backends/cpu/hardware/functor_program.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
+#include <backends/cpu/skeletons/batched_core/batched_core_layout_plan.hpp>
+
+#include <rexlib/backends/cpu/cpu_program_builder.hpp>
+#include <rexlib/core/dispatch/operand_descriptor.hpp>
+#include <rexlib/core/meta/type_list.hpp>
+#include <rexlib/core/operation/operation.hpp>
+#include <rexlib/core/operation/operation_cast.hpp>
+#include <rexlib/core/operation/type_rule/operation_data_types.hpp>
+
+
+#include <array>
+#include <cstddef>
+#include <memory>
+#include <stdexcept>
+#include <utility>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+namespace
+{
+
+/**
+ * @brief Cross product of two three-component vectors, once per batch
+ * element.
+ *
+ * The named axis always has extent three regardless of shape, so unlike
+ * matmul/matvec/vecmat there is no size grid to dispatch: every instance
+ * computes the three components directly. Every component is read before
+ * any is written, and each is computed in the type load() widens it to.
+ */
+template <typename T>
+class cross_core_kernel
+{
+public:
+	cross_core_kernel(
+		const operand_core &out_core,
+		const operand_core &left_core,
+		const operand_core &right_core
+	)
+		: m_out_stride(out_core.get_stride(0))
+		, m_left_stride(left_core.get_stride(0))
+		, m_right_stride(right_core.get_stride(0))
+	{
+	}
+
+	void operator()(T *out, const T *left, const T *right) const noexcept
+	{
+		const auto l0 = load(left);
+		const auto l1 = load(left + m_left_stride);
+		const auto l2 = load(left + 2 * m_left_stride);
+		const auto r0 = load(right);
+		const auto r1 = load(right + m_right_stride);
+		const auto r2 = load(right + 2 * m_right_stride);
+		store(out, l1 * r2 - l2 * r1);
+		store(out + m_out_stride, l2 * r0 - l0 * r2);
+		store(out + 2 * m_out_stride, l0 * r1 - l1 * r0);
+	}
+
+private:
+	std::ptrdiff_t m_out_stride;
+	std::ptrdiff_t m_left_stride;
+	std::ptrdiff_t m_right_stride;
+};
+
+using cross_type_dispatch =
+	rule_type_dispatch<ops::cross_operation::type_rule_type>;
+
+/**
+ * @brief CPU program builder for cross.
+ *
+ * Not built from batched_core_program_builder: cross's core axis is a caller
+ * chosen parameter rather than always the trailing one, so it uses
+ * batched_core_layout_plan::for_named_axis instead of for_trailing_core and
+ * needs the operation's own axis at build() time.
+ */
+class cross_program_builder final
+	: public cpu_program_builder
+{
+public:
+	cross_program_builder() noexcept = default;
+	cross_program_builder(const cross_program_builder &other) = delete;
+	cross_program_builder(cross_program_builder &&other) = delete;
+	~cross_program_builder() override = default;
+
+	cross_program_builder& operator=(
+		const cross_program_builder &other
+	) = delete;
+	cross_program_builder& operator=(cross_program_builder &&other) = delete;
+
+	operation_id get_operation_id() const noexcept override
+	{
+		return operation_id::of<ops::cross_operation>();
+	}
+
+	backend_priority get_suitability(
+		const operation &operation,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
+		command_queue &queue
+	) const override
+	{
+		constexpr auto output_count =
+			ops::cross_operation::output_operand_count;
+		constexpr auto input_count = ops::cross_operation::input_operand_count;
+
+		const auto base = cpu_program_builder::get_suitability(
+			operation, output_descriptors, input_descriptors, queue
+		);
+		if (base == backend_priority::unsupported)
+		{
+			return base;
+		}
+
+		if (
+			output_descriptors.size() != output_count ||
+			input_descriptors.size() != input_count
+		)
+		{
+			return backend_priority::unsupported;
+		}
+
+		std::array<numerical_type, output_count> output_types{};
+		std::array<numerical_type, input_count> input_types{};
+		extract_data_types(output_types, output_descriptors);
+		extract_data_types(input_types, input_descriptors);
+		const auto operation_data_types = get_operation_data_types(
+			operation_cast<ops::cross_operation>(operation)
+		);
+
+		const auto supported =
+			detail::type_dispatch_support_query<
+				cross_type_dispatch
+			>::is_supported(
+				make_span(output_types.data(), output_count),
+				make_span(input_types.data(), input_count),
+				make_span(
+					operation_data_types.data(),
+					operation_data_types.size()
+				)
+			);
+		if (!supported)
+		{
+			return backend_priority::unsupported;
+		}
+
+		return base;
+	}
+
+	std::shared_ptr<program> build(
+		const operation &operation,
+		span<const operand_descriptor> output_descriptors,
+		span<const operand_descriptor> input_descriptors,
+		command_queue& /*queue*/,
+		program_cache* /*cache*/
+	) const override
+	{
+		constexpr auto output_count =
+			ops::cross_operation::output_operand_count;
+		constexpr auto input_count = ops::cross_operation::input_operand_count;
+
+		if (output_descriptors.size() != output_count)
+		{
+			throw std::invalid_argument(
+				"cross_program_builder::build: Unexpected output descriptor "
+				"count."
+			);
+		}
+		if (input_descriptors.size() != input_count)
+		{
+			throw std::invalid_argument(
+				"cross_program_builder::build: Unexpected input descriptor "
+				"count."
+			);
+		}
+
+		const auto &typed_operation =
+			operation_cast<ops::cross_operation>(operation);
+		const auto axis = typed_operation.get_parameters().get_axes()[0];
+
+		std::array<numerical_type, output_count> output_types{};
+		std::array<numerical_type, input_count> input_types{};
+		extract_data_types(output_types, output_descriptors);
+		extract_data_types(input_types, input_descriptors);
+		const auto operation_data_types =
+			get_operation_data_types(typed_operation);
+
+		auto plan = batched_core_layout_plan::for_named_axis(
+			output_descriptors, input_descriptors, axis
+		);
+
+		return cross_type_dispatch::dispatch(
+			ops::cross_operation::get_static_descriptor(),
+			[&plan] (auto output_element_types, auto input_element_types)
+			{
+				using out_type = typename type_list_element<
+					0,
+					decltype(output_element_types)
+				>::type;
+				cross_core_kernel<out_type> kernel(
+					plan.get_output_core(),
+					plan.get_left_core(),
+					plan.get_right_core()
+				);
+				using loop_functor_type = batched_core_loop_functor<
+					decltype(kernel),
+					decltype(output_element_types),
+					decltype(input_element_types)
+				>;
+				return make_functor_program(
+					loop_functor_type(std::move(kernel), std::move(plan)),
+					output_element_types,
+					input_element_types
+				);
+			},
+			output_types,
+			input_types,
+			make_span(operation_data_types.data(), operation_data_types.size())
+		);
+	}
+};
+
+} // anonymous namespace
+
+REXLIB_REGISTER_CPU_PROGRAM_BUILDER(cross, cross_program_builder);
+
+} // namespace cpu
+} // namespace rexlib

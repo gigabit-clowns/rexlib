@@ -129,6 +129,7 @@ target_link_libraries(
 		half::half
 		pocketfft::pocketfft
 		Eigen3::Eigen
+		Boost::headers # Math
 )
 
 rexlib_add_component(rexlib-em-obj)

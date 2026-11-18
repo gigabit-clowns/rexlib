@@ -6,7 +6,7 @@
 
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 
-#include "serial_pool.hpp"
+#include "hardware/mock/serial_pool.hpp"
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/dispatch/program_service.hpp>

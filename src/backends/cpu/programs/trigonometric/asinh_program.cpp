@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <rexlib/ops/trigonometric/asinh_operation.hpp>
+
+#include <backends/cpu/skeletons/elementwise/elementwise_program_builder.hpp>
+#include <backends/cpu/skeletons/default_kernel_factory.hpp>
+#include <backends/cpu/numerical/load_store.hpp>
+
+#include <cmath>
+#include <complex>
+
+namespace rexlib
+{
+namespace cpu
+{
+
+namespace
+{
+
+struct asinh_kernel
+{
+	template <typename T>
+	void operator()(T *result, const T *x) const noexcept
+	{
+		using std::asinh;
+		store(result, asinh(load(x)));
+	}
+};
+
+} // anonymous namespace
+
+REXLIB_REGISTER_ELEMENTWISE_PROGRAM_BUILDER(
+	asinh,
+	ops::asinh_operation,
+	default_kernel_factory<asinh_kernel>
+);
+
+} // namespace cpu
+} // namespace rexlib
