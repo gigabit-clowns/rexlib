@@ -135,16 +135,21 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          max-size: 1G
           save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
+
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
 
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -237,16 +242,21 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          max-size: 1G
           save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
+
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
 
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -439,12 +449,16 @@ jobs:
           evict-old-files: job
           install: binary
 
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -630,12 +644,16 @@ jobs:
           evict-old-files: job
           install: binary
 
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -1148,12 +1166,16 @@ jobs:
           evict-old-files: job
           install: binary
 
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
