@@ -15,7 +15,8 @@ changes, and so on.
 `main`, with no path filter: a change runs every job it could break. The jobs
 run the preset commands a developer runs. They use public actions only, on
 runner images named by version rather than `-latest`, and check the
-repository out without keeping its credentials. Every job has a timeout,
+repository out without keeping its credentials. Every job has a timeout, a
+failed row of a matrix cancels the rest of it, as a fix reruns them all anyway,
 and a newer push to a pull request cancels the run it supersedes; any other
 run is grouped by its commit, so that a run on `main` is never cancelled nor,
 while pending, replaced by a later one, as GitHub does within one group.

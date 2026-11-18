@@ -49,7 +49,6 @@ jobs:
     name: ${{ matrix.name }}
     timeout-minutes: 90
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 22.04 x86_64, clang
@@ -372,7 +371,6 @@ jobs:
     name: ${{ matrix.name }}
     timeout-minutes: 90
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers
@@ -527,7 +525,6 @@ jobs:
     name: ${{ matrix.name }}
     timeout-minutes: 60
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 22.04 x86_64, clang, install
@@ -594,7 +591,6 @@ jobs:
     needs: install
     timeout-minutes: 30
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 24.04 x86_64, CUDA 12
@@ -723,7 +719,6 @@ jobs:
     needs: install
     timeout-minutes: 30
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 26.04 x86_64, clang, CUDA 13, address and undefined behaviour sanitizers
@@ -842,7 +837,6 @@ jobs:
     needs: sdist
     timeout-minutes: 120
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Linux x86_64
@@ -971,7 +965,6 @@ jobs:
     needs: wheels
     timeout-minutes: 60
     strategy:
-      fail-fast: false
       matrix:
         cuda: ['12', '13']
         arch: [x86_64, aarch64]
