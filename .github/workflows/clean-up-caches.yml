@@ -1,0 +1,57 @@
+name: Clean up caches
+permissions: {}
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: Which caches go
+        required: true
+        type: choice
+        options:
+          - superseded
+          - all
+        default: superseded
+      ref:
+        description: Ref or branch to clean. The one this runs from when empty.
+        required: false
+        type: string
+
+jobs:
+  after_a_run:
+    name: Delete the caches a newer run has replaced
+    if: github.event_name == 'workflow_run'
+    permissions:
+      actions: write
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: superseded
+      ref: main
+      by_stem: true
+      patterns: |
+        ccache-*
+        vcpkg-*
+        setup-uv-*
+
+  on_request:
+    name: Delete ${{ inputs.scope }} caches
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      actions: write
+    uses: gigabit-clowns/.github/.github/workflows/clean-up-caches.yml@main
+    with:
+      scope: ${{ inputs.scope }}
+      ref: ${{ inputs.ref != '' && inputs.ref || github.ref_name }}
+      by_stem: true
+      patterns: |
+        ccache-*
+        vcpkg-*
+        setup-uv-*
