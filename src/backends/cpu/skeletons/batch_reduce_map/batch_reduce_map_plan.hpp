@@ -3,11 +3,9 @@
 #pragma once
 
 #include <backends/cpu/loops/indices/element_index_tags.hpp>
-#include <backends/cpu/loops/layouts/named_core_frame.hpp>
 #include <backends/cpu/skeletons/elementwise/batched_map_plan.hpp>
 
 #include <rexlib/core/layout/joint_layout.hpp>
-#include <rexlib/core/operation/shape_rule/core_dimensions_descriptor.hpp>
 #include <rexlib/core/span.hpp>
 
 #include <cstddef>
@@ -34,40 +32,31 @@ class batch_reduce_map_plan
 {
 public:
 	/**
-	 * @brief Plan the reductions and the map over the core of the outputs.
+	 * @brief Plan the reductions over the core of a map.
 	 *
 	 * @tparam ReductionIndexing The index operands added to the reduced
 	 * layout: no_index_tag, linear_index_tag or multidimensional_index_tag,
 	 * over the core axes in ascending order.
-	 * @tparam MapIndexing The index of the map, as batched_map_plan takes
-	 * it.
-	 * @param frame The axes of the outputs, split into their core and their
-	 * batch axes.
-	 * @param output_descriptors Descriptors of the outputs, each of the
-	 * extents of the frame.
-	 * @param input_descriptors Descriptors of the inputs.
-	 * @param input_cores The core of every input, as the shape rule declares
-	 * it.
+	 * @param map_plan The map, whose mapped inputs are core_inputs.
+	 * @param input_descriptors Descriptors of the inputs the map plan was
+	 * made from.
 	 * @param core_inputs The inputs carrying the core of the outputs,
 	 * ascending. At least one.
 	 * @param statistic_count The number of statistics each reduction
 	 * produces.
 	 * @param reduction_indexing Selects the index operands of the reduced
 	 * layout.
-	 * @param map_indexing Selects the index of the map.
 	 * @throws std::invalid_argument When no input carries the core of the
-	 * outputs, or when batched_map_plan rejects the operands.
+	 * outputs, or when one of them does not broadcast to the frame of the
+	 * map plan.
 	 */
-	template <typename ReductionIndexing, typename MapIndexing>
+	template <typename ReductionIndexing>
 	batch_reduce_map_plan(
-		named_core_frame frame,
-		span<const operand_descriptor> output_descriptors,
+		batched_map_plan map_plan,
 		span<const operand_descriptor> input_descriptors,
-		span<const core_dimensions_descriptor> input_cores,
 		span<const std::size_t> core_inputs,
 		std::size_t statistic_count,
-		ReductionIndexing reduction_indexing,
-		MapIndexing map_indexing
+		ReductionIndexing reduction_indexing
 	);
 
 	batch_reduce_map_plan(const batch_reduce_map_plan &other) = delete;

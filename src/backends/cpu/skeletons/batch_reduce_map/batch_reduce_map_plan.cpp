@@ -17,43 +17,24 @@ namespace rexlib
 namespace cpu
 {
 
-namespace
+template <typename ReductionIndexing>
+batch_reduce_map_plan::batch_reduce_map_plan(
+	batched_map_plan map_plan,
+	span<const operand_descriptor> input_descriptors,
+	span<const std::size_t> core_inputs,
+	std::size_t statistic_count,
+	ReductionIndexing reduction_indexing
+)
+	: m_map_plan(std::move(map_plan))
 {
-
-span<const std::size_t> check_core_inputs(span<const std::size_t> inputs)
-{
-	if (inputs.empty())
+	if (core_inputs.empty())
 	{
 		throw std::invalid_argument(
 			"batch_reduce_map_plan: No input operand carries the core of the "
 			"outputs."
 		);
 	}
-	return inputs;
-}
 
-} // anonymous namespace
-
-template <typename ReductionIndexing, typename MapIndexing>
-batch_reduce_map_plan::batch_reduce_map_plan(
-	named_core_frame frame,
-	span<const operand_descriptor> output_descriptors,
-	span<const operand_descriptor> input_descriptors,
-	span<const core_dimensions_descriptor> input_cores,
-	span<const std::size_t> core_inputs,
-	std::size_t statistic_count,
-	ReductionIndexing reduction_indexing,
-	MapIndexing map_indexing
-)
-	: m_map_plan(
-		std::move(frame),
-		output_descriptors,
-		input_descriptors,
-		input_cores,
-		check_core_inputs(core_inputs),
-		map_indexing
-	)
-{
 	const auto &map_frame = m_map_plan.get_frame();
 	const auto core_extents = map_frame.get_core_extents();
 
@@ -116,30 +97,18 @@ batch_reduce_map_plan::get_reduced_layout() const noexcept
 	return m_reduced_layout;
 }
 
-#define REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(reduction, map) \
+#define REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(reduction) \
 	template batch_reduce_map_plan::batch_reduce_map_plan( \
-		named_core_frame, \
+		batched_map_plan, \
 		span<const operand_descriptor>, \
-		span<const operand_descriptor>, \
-		span<const core_dimensions_descriptor>, \
 		span<const std::size_t>, \
 		std::size_t, \
-		reduction, \
-		map \
+		reduction \
 	)
 
-REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(no_index_tag, no_index_tag);
-REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(no_index_tag, linear_index_tag);
-REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(linear_index_tag, no_index_tag);
-REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(linear_index_tag, linear_index_tag);
-REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(
-	multidimensional_index_tag,
-	no_index_tag
-);
-REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(
-	multidimensional_index_tag,
-	linear_index_tag
-);
+REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(no_index_tag);
+REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(linear_index_tag);
+REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN(multidimensional_index_tag);
 
 #undef REXLIB_INSTANTIATE_BATCH_REDUCE_MAP_PLAN
 

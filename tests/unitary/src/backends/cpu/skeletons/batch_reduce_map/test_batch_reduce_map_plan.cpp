@@ -67,6 +67,35 @@ named_core_frame make_frame(
 }
 
 /**
+ * @brief The plan of a keyed operation, whose map walks the images.
+ */
+template <typename ReductionIndexing, typename MapIndexing>
+batch_reduce_map_plan make_keyed_plan(
+	span<const operand_descriptor> outputs,
+	span<const operand_descriptor> inputs,
+	const std::vector<std::size_t> &axes,
+	std::size_t statistic_count,
+	ReductionIndexing reduction_indexing,
+	MapIndexing map_indexing
+)
+{
+	return batch_reduce_map_plan(
+		batched_map_plan(
+			make_frame(outputs[0], axes),
+			outputs,
+			inputs,
+			keyed_cores(),
+			make_span(keyed_core_inputs),
+			map_indexing
+		),
+		inputs,
+		make_span(keyed_core_inputs),
+		statistic_count,
+		reduction_indexing
+	);
+}
+
+/**
  * @brief The offsets of every operand at every position of a layout, in
  * row-major order over its own axes.
  */
@@ -121,12 +150,10 @@ TEST_CASE(
 	}};
 	const std::vector<std::size_t> axes = { 2, 1 };
 
-	const batch_reduce_map_plan plan(
-		make_frame(outputs[0], axes),
+	const auto plan = make_keyed_plan(
 		make_span(outputs),
 		make_span(inputs),
-		keyed_cores(),
-		make_span(keyed_core_inputs),
+		axes,
 		2,
 		multidimensional_index_tag(),
 		linear_index_tag()
@@ -166,12 +193,10 @@ TEST_CASE(
 	}};
 	const std::vector<std::size_t> axes = { 1, 2 };
 
-	const batch_reduce_map_plan plan(
-		make_frame(outputs[0], axes),
+	const auto plan = make_keyed_plan(
 		make_span(outputs),
 		make_span(inputs),
-		keyed_cores(),
-		make_span(keyed_core_inputs),
+		axes,
 		1,
 		no_index_tag(),
 		no_index_tag()
@@ -207,12 +232,10 @@ TEST_CASE(
 	}};
 	const std::vector<std::size_t> axes = { 1, 2 };
 
-	const batch_reduce_map_plan plan(
-		make_frame(outputs[0], axes),
+	const auto plan = make_keyed_plan(
 		make_span(outputs),
 		make_span(inputs),
-		keyed_cores(),
-		make_span(keyed_core_inputs),
+		axes,
 		2,
 		multidimensional_index_tag(),
 		linear_index_tag()
@@ -248,12 +271,10 @@ TEST_CASE(
 		make_operand_descriptor(key_extents, numerical_type::uint64)
 	}};
 
-	const batch_reduce_map_plan plan(
-		make_frame(outputs[0], axes),
+	const auto plan = make_keyed_plan(
 		make_span(outputs),
 		make_span(inputs),
-		keyed_cores(),
-		make_span(keyed_core_inputs),
+		axes,
 		2,
 		multidimensional_index_tag(),
 		linear_index_tag()
@@ -290,8 +311,8 @@ TEST_CASE(
 }
 
 TEST_CASE(
-	"batch_reduce_map_plan should reject a missing output, mismatched cores "
-	"and no input carrying the core of the outputs",
+	"batch_reduce_map_plan should reject no input carrying the core of the "
+	"outputs",
 	"[batch_reduce_map_plan]"
 )
 {
@@ -303,43 +324,20 @@ TEST_CASE(
 		make_operand_descriptor({}, numerical_type::uint64)
 	}};
 	const std::vector<std::size_t> axes = { 1 };
-	const auto cores = keyed_cores();
 
 	CHECK_THROWS_AS(
 		batch_reduce_map_plan(
-			make_frame(outputs[0], axes),
-			span<const operand_descriptor>(),
+			batched_map_plan(
+				make_frame(outputs[0], axes),
+				make_span(outputs),
+				make_span(inputs),
+				keyed_cores(),
+				make_span(keyed_core_inputs),
+				no_index_tag()
+			),
 			make_span(inputs),
-			cores,
-			make_span(keyed_core_inputs),
-			1,
-			no_index_tag(),
-			no_index_tag()
-		),
-		std::invalid_argument
-	);
-	CHECK_THROWS_AS(
-		batch_reduce_map_plan(
-			make_frame(outputs[0], axes),
-			make_span(outputs),
-			make_span(inputs),
-			make_span(cores.data(), 1),
-			make_span(keyed_core_inputs),
-			1,
-			no_index_tag(),
-			no_index_tag()
-		),
-		std::invalid_argument
-	);
-	CHECK_THROWS_AS(
-		batch_reduce_map_plan(
-			make_frame(outputs[0], axes),
-			make_span(outputs),
-			make_span(inputs),
-			cores,
 			span<const std::size_t>(),
 			1,
-			no_index_tag(),
 			no_index_tag()
 		),
 		std::invalid_argument
