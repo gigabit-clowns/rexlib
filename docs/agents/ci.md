@@ -157,8 +157,8 @@ at 500 MB unless the job sets another size, and cleared of what the job did not
 use. The action installs its own ccache binary on every runner, the version its
 pinned commit names, and reports the cache's hit rate in the job summary. The
 packages vcpkg builds are cached per runner image, compiler and triplet, keyed
-on its manifest; a new key starts from the newest such cache, and vcpkg builds
-only what changed. setup-uv caches what uv downloads, keyed on `uv.lock` and
+on the image's version and its manifest; a new key starts from the newest such
+cache, and vcpkg builds only what changed. setup-uv caches what uv downloads, keyed on `uv.lock` and
 every `pyproject.toml`.
 
 Only runs on `main` save caches, as the workflow's `SAVE_CACHES` says; every
