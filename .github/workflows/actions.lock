@@ -14,6 +14,7 @@ workflows:
         - 'pypa/cibuildwheel@v4.3.5'
         - 're-actors/alls-green@v1.3.0'
         - 'sonarsource/sonarqube-scan-action@v8.4.1'
+    '.github/workflows/clean-up-caches.yml': []
     '.github/workflows/release.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/deploy-pages@v5.0.1'
