@@ -6,7 +6,7 @@
 
 #include <backends/cpu/skeletons/typed_program_builder.hpp>
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
-#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp>
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp> // editorconfig-checker-disable-line
 
 #include <rexlib/core/dispatch/operand_descriptor.hpp>
 #include <rexlib/core/meta/type_list.hpp>

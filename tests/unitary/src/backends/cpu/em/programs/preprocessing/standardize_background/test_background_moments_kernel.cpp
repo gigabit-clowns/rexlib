@@ -3,9 +3,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <backends/cpu/em/programs/preprocessing/standardize_background/background_moments_kernel.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/background_moments_kernel.hpp> // editorconfig-checker-disable-line
 
-#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>
 #include <backends/cpu/loops/indices/multidimensional_index.hpp>
 

@@ -4,10 +4,10 @@
 #include <catch2/generators/catch_generators.hpp>
 
 // editorconfig-checker-disable-next-line
-#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_program_builder.hpp>
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_program_builder.hpp> // editorconfig-checker-disable-line
 
-#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp>
-#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp> // editorconfig-checker-disable-line
+#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/em/programs/reconstruction/insert_slices/unit_weight.hpp>
 #include <backends/cpu/hardware/cpu_command_queue.hpp>
 

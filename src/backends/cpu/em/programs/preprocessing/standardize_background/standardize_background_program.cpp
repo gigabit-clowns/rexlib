@@ -2,10 +2,10 @@
 
 #include <rexlib/em/ops/preprocessing/standardize_background_operation.hpp>
 
-#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/centred_ball.hpp> // editorconfig-checker-disable-line
 #include "standardize_background_kernel.hpp"
 
-#include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_program_builder.hpp>
+#include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_program_builder.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/skeletons/rule_type_dispatch.hpp>
 #include <backends/cpu/loops/indices/element_index_tags.hpp>
 #include <backends/cpu/skeletons/batch_reduce_map/batch_reduce_map_plan.hpp>

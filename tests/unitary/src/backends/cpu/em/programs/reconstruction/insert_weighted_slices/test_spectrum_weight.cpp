@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp> // editorconfig-checker-disable-line
 
 #include <vector>
 

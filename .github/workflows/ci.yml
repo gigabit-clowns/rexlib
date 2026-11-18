@@ -49,7 +49,6 @@ jobs:
     name: ${{ matrix.name }}
     timeout-minutes: 90
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 22.04 x86_64, clang
@@ -135,16 +134,21 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          max-size: 1G
           save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
+
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
 
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -237,16 +241,21 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2.24
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
+          max-size: 1G
           save: ${{ env.SAVE_CACHES }}
           evict-old-files: job
           install: binary
+
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
 
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -352,7 +361,7 @@ jobs:
           github.ref == 'refs/heads/main'
           || (github.event_name == 'pull_request'
           && github.event.pull_request.head.repo.full_name == github.repository)
-        uses: SonarSource/sonarqube-scan-action@v8.4.0
+        uses: SonarSource/sonarqube-scan-action@v8.4.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -362,7 +371,6 @@ jobs:
     name: ${{ matrix.name }}
     timeout-minutes: 90
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 26.04 x86_64, clang, address and undefined behaviour sanitizers
@@ -439,12 +447,16 @@ jobs:
           evict-old-files: job
           install: binary
 
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -513,7 +525,6 @@ jobs:
     name: ${{ matrix.name }}
     timeout-minutes: 60
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 22.04 x86_64, clang, install
@@ -580,7 +591,6 @@ jobs:
     needs: install
     timeout-minutes: 30
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 24.04 x86_64, CUDA 12
@@ -630,12 +640,16 @@ jobs:
           evict-old-files: job
           install: binary
 
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies
@@ -705,7 +719,6 @@ jobs:
     needs: install
     timeout-minutes: 30
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Ubuntu 26.04 x86_64, clang, CUDA 13, address and undefined behaviour sanitizers
@@ -824,7 +837,6 @@ jobs:
     needs: sdist
     timeout-minutes: 120
     strategy:
-      fail-fast: false
       matrix:
         include:
           - name: Linux x86_64
@@ -953,7 +965,6 @@ jobs:
     needs: wheels
     timeout-minutes: 60
     strategy:
-      fail-fast: false
       matrix:
         cuda: ['12', '13']
         arch: [x86_64, aarch64]
@@ -1148,12 +1159,16 @@ jobs:
           evict-old-files: job
           install: binary
 
+      - name: Name the runner image
+        id: image
+        run: echo "version=$ImageVersion" >> "$GITHUB_OUTPUT"
+
       - name: Restore the packages vcpkg built
         id: vcpkg-cache
         uses: actions/cache/restore@v6.1.0
         with:
           path: .vcpkg/archives
-          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
+          key: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-${{ steps.image.outputs.version }}-${{ hashFiles('.github/vcpkg/vcpkg.json') }}
           restore-keys: vcpkg-${{ matrix.os }}-${{ env.CXX }}-${{ matrix.vcpkg-triplet }}-
 
       - name: Install the dependencies

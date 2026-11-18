@@ -106,13 +106,7 @@ struct contains_index;
 
 template <std::size_t Index, std::size_t... Indices>
 struct contains_index<Index, std::index_sequence<Indices...>>
-	: std::integral_constant<
-		bool,
-		!std::is_same<
-			std::integer_sequence<bool, (Index == Indices)...>,
-			std::integer_sequence<bool, (Indices != Indices)...>
-		>::value
-	>
+	: std::integral_constant<bool, !all_true<(Index != Indices)...>::value>
 {
 };
 

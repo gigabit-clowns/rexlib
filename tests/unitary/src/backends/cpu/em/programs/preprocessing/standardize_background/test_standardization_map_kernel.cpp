@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include <backends/cpu/em/programs/preprocessing/standardize_background/standardization_map_kernel.hpp>
+#include <backends/cpu/em/programs/preprocessing/standardize_background/standardization_map_kernel.hpp> // editorconfig-checker-disable-line
 
 #include <backends/cpu/random/standard_normal.hpp>
 #include <backends/cpu/loops/strides/inner_loop_stride_dispatch.hpp>

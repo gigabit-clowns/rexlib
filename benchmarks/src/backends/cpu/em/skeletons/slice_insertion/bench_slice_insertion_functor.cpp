@@ -7,13 +7,13 @@
 
 #include <backends/cpu/em/programs/reconstruction/insert_slices/unit_weight.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
-#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp>
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp> // editorconfig-checker-disable-line
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/meta/type_list.hpp>
 
 // editorconfig-checker-disable-next-line
-#include <backends/cpu/em/skeletons/slice_insertion/fixtures/slice_insertion_cases.hpp>
+#include <backends/cpu/em/skeletons/slice_insertion/fixtures/slice_insertion_cases.hpp> // editorconfig-checker-disable-line
 
 #include <array>
 #include <cmath>

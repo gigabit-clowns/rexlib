@@ -5,11 +5,11 @@
 
 #include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_functor.hpp>
 
-#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp>
-#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp> // editorconfig-checker-disable-line
+#include <backends/cpu/em/programs/reconstruction/insert_weighted_slices/spectrum_weight.hpp> // editorconfig-checker-disable-line
 #include <backends/cpu/em/programs/reconstruction/insert_slices/unit_weight.hpp>
 #include <backends/cpu/hardware/functor_program.hpp>
-#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp>
+#include <backends/cpu/em/skeletons/slice_insertion/slice_insertion_layout_plan.hpp> // editorconfig-checker-disable-line
 
 #include <rexlib/backends/cpu/thread_pool.hpp>
 #include <rexlib/core/meta/type_list.hpp>

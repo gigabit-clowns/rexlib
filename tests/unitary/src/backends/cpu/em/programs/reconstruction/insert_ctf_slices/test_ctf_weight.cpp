@@ -3,7 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp>
+#include <backends/cpu/em/programs/reconstruction/insert_ctf_slices/ctf_weight.hpp> // editorconfig-checker-disable-line
 
 #include <vector>
 
