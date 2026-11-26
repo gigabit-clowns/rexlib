@@ -131,7 +131,7 @@ jobs:
           arch: ${{ matrix.msvc }}
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           max-size: 1G
@@ -238,7 +238,7 @@ jobs:
             "cuda-nvcc-${CUDA/./-}" "cuda-cudart-dev-${CUDA/./-}"
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           max-size: 1G
@@ -393,7 +393,7 @@ jobs:
           submodules: true
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ matrix.preset }}
           save: ${{ env.SAVE_CACHES }}
@@ -440,7 +440,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           save: ${{ env.SAVE_CACHES }}
@@ -551,7 +551,7 @@ jobs:
           submodules: true
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           save: ${{ env.SAVE_CACHES }}
@@ -632,7 +632,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-cuda${{ matrix.cuda }}-${{ github.job }}
           max-size: 200M
@@ -745,7 +745,7 @@ jobs:
         run: git submodule update --init --depth 1 -- plugins/cuda/third_party
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-cuda-${{ matrix.preset }}
           max-size: 200M
@@ -885,7 +885,7 @@ jobs:
           arch: ${{ matrix.msvc }}
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ github.job }}
           max-size: 1G
@@ -990,7 +990,7 @@ jobs:
           path: rexlib-wheels
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-cuda${{ matrix.cuda }}-${{ github.job }}
           max-size: 200M
@@ -1152,7 +1152,7 @@ jobs:
         run: uv sync --locked --only-group lint
 
       - name: Set up the compiler cache
-        uses: hendrikmuhs/ccache-action@v1.2.24
+        uses: hendrikmuhs/ccache-action@v1.2.25
         with:
           key: ${{ matrix.os }}-${{ env.CXX }}-${{ github.job }}
           save: ${{ env.SAVE_CACHES }}
