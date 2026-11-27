@@ -57,7 +57,7 @@ test = [
 lint = [
     "clang-tidy==23.1.4",
     "editorconfig-checker==3.11.1",
-    "ruff==0.17.4",
+    "ruff==0.17.5",
 ]
 # What measures the coverage of the coverage preset's build.
 coverage = [
